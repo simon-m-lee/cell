@@ -1,0 +1,40 @@
+name: cell
+description: >-
+  A programming framework provides a comprehensive reactive programming 
+  solution for Dart, with particular strength in managing complex state 
+  and data flow in applications.
+
+version: 1.0.0-beta.1
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.5.4
+
+# Add regular dependencies here.
+dependencies:
+  # path: ^1.8.0
+
+  random_string:
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0
+
+topics:
+  - reactive
+  - framework
+  - state management
+  - data flow
+  - asynchronous
+  - functional
+  - declarative
+  - immutable
+  - composable
+  - asynchronous programming
+  - functional programming
+  - declarative programming
+  - immutable data
+  - composable architecture
+  - validation
+  - collection
+

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_collection_library library API docs, for the Dart programming language.">
+  <title>cell_collection_library library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">collective.dart</li>
+  </ol>
+  <div class="self-name">cell_collection_library</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell_collection_library&#47;cell_collection_library-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">collective</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>A Collection library</p>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+
+      <dl>
+          <dt id="Async">
+  <span class="name "><a href="../cell/Async-class.html">Async</a></span> 
+
+</dt>
+<dd>
+  Class tag to indicate Async version of an object
+</dd>
+
+          <dt id="Cell">
+  <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
+
+</dt>
+<dd>
+  A reactive programming framework centered around the <a href="../cell/Cell-class.html">Cell</a> class and its extensions,
+particularly the <a href="../cell_collection_library/Collective-class.html">Collective</a> family of classes that implement reactive collections
+<a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a>, <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a>, <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> and <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a>.
+This framework provides a comprehensive reactive programming solution for Dart, with
+particular strength in managing complex state and data flow in applications.
+</dd>
+
+          <dt id="CellAsync">
+  <span class="name "><a href="../cell/CellAsync-class.html">CellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous execution of operations on a <a href="../cell/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="CellDeputy">
+  <span class="name "><a href="../cell/CellDeputy-class.html">CellDeputy</a></span> 
+
+</dt>
+<dd>
+  Deputy is a pattern that allows a <a href="../cell/Cell-class.html">Cell</a> that delegates actions to.
+</dd>
+
+          <dt id="Collective">
+  <span class="name "><a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive collection that combines <a href="../cell/Cell-class.html">Cell</a> behavior with <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> functionality.
+Notifies about changes (add/remove/update) and maintains relationships between cells.
+</dd>
+
+          <dt id="CollectiveAsync">
+  <span class="name "><a href="../cell_collection_library/CollectiveAsync-class.html">CollectiveAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous wrapper for <a href="../cell_collection_library/Collective-class.html">Collective</a> operations that provides Future-based APIs.
+</dd>
+
+          <dt id="CollectiveCell">
+  <span class="name "><a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An implementation of <a href="../cell_collection_library/Collective-class.html">Collective</a> that is unmodifiable.
+</dd>
+
+          <dt id="CollectiveCellProperties">
+  <span class="name "><a href="../cell_collection_library/CollectiveCellProperties-class.html">CollectiveCellProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Concrete implementation of collection properties configuration.
+</dd>
+
+          <dt id="CollectiveEvent">
+  <span class="name "><a href="../cell_collection_library/CollectiveEvent-class.html">CollectiveEvent</a></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/Tag-class.html">Tag</a> class that represents events that can occur within a <a href="../cell_collection_library/Collective-class.html">Collective</a>.
+</dd>
+
+          <dt id="CollectiveList">
+  <span class="name "><a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <code>CollectiveList&lt;E&gt;</code> is a fully reactive List implementation that extends
+Dart's <code>List&lt;E&gt;</code> with cell-based reactivity. It automatically propagates
+changes to connected cells and supports validation, async operations, and
+immutable variants.
+</dd>
+
+          <dt id="CollectiveListAsync">
+  <span class="name "><a href="../cell_collection_library/CollectiveListAsync-class.html">CollectiveListAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous versions of <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a> operations.
+</dd>
+
+          <dt id="CollectiveListDeputy">
+  <span class="name "><a href="../cell_collection_library/CollectiveListDeputy-class.html">CollectiveListDeputy</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A helper class that provides an "deputy" (deputy) interface for <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a>.
+</dd>
+
+          <dt id="CollectivePost">
+  <span class="name "><a href="../cell_collection_library/CollectivePost-class.html">CollectivePost</a></span> 
+
+</dt>
+<dd>
+  A signal that carries collection change information
+</dd>
+
+          <dt id="CollectiveProperties">
+  <span class="name "><a href="../cell_collection_library/CollectiveProperties-class.html">CollectiveProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Interface defining configuration properties for <a href="../cell_collection_library/Collective-class.html">Collective</a> instances.
+</dd>
+
+          <dt id="CollectiveQueue">
+  <span class="name "><a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> is a reactive queue implementation that extends Dart's Queue
+functionality with cell-based reactivity. It propagates changes through the
+cell network when modified and supports all standard queue operations with
+validation capabilities.
+</dd>
+
+          <dt id="CollectiveQueueAsync">
+  <span class="name "><a href="../cell_collection_library/CollectiveQueueAsync-class.html">CollectiveQueueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous interface for performing operations on a <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a>.
+</dd>
+
+          <dt id="CollectiveQueueDeputy">
+  <span class="name "><a href="../cell_collection_library/CollectiveQueueDeputy-class.html">CollectiveQueueDeputy</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A helper class that provides an deputy interface for <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a>.
+</dd>
+
+          <dt id="CollectiveReceptor">
+  <span class="name "><a href="../cell_collection_library/CollectiveReceptor-class.html">CollectiveReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">IN extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">OU extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Specialized receptor for handling Collective signals
+</dd>
+
+          <dt id="CollectiveSet">
+  <span class="name "><a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <code>CollectiveSet&lt;E&gt;</code> is a reactive Set implementation that integrates with
+Dart's <code>Set&lt;E&gt;</code> while providing cell-based reactivity. It automatically
+propagates changes to connected cells when modified and supports validation
+rules.
+</dd>
+
+          <dt id="CollectiveSetAsync">
+  <span class="name "><a href="../cell_collection_library/CollectiveSetAsync-class.html">CollectiveSetAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous versions of <a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a> operations.
+</dd>
+
+          <dt id="CollectiveSetDeputy">
+  <span class="name "><a href="../cell_collection_library/CollectiveSetDeputy-class.html">CollectiveSetDeputy</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_collection_library/CollectiveSetDeputy-class.html">CollectiveSetDeputy</a> is a delegated view of a <a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a> with modified behavior.
+</dd>
+
+          <dt id="CollectiveValue">
+  <span class="name "><a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <code>CollectiveValue&lt;V&gt;</code> is a reactive single-value container that integrates
+with the cell-based reactivity system. It provides change notifications when
+its value is modified and supports validation, async operations, and immutable
+variants.
+</dd>
+
+          <dt id="CollectiveValueAsync">
+  <span class="name "><a href="../cell_collection_library/CollectiveValueAsync-class.html">CollectiveValueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous wrapper for <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> operations that provides Future-based APIs.
+</dd>
+
+          <dt id="CollectiveValueDeputy">
+  <span class="name "><a href="../cell_collection_library/CollectiveValueDeputy-class.html">CollectiveValueDeputy</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A helper class that provides reduced functionality for <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> objects.
+</dd>
+
+          <dt id="CollectiveValueProperties">
+  <span class="name "><a href="../cell_collection_library/CollectiveValueProperties-class.html">CollectiveValueProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Configuration properties for a <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> instance.
+</dd>
+
+          <dt id="ContainerType">
+  <span class="name "><a href="../cell_collection_library/ContainerType-class.html">ContainerType</a></span> 
+
+</dt>
+<dd>
+  Defines behavior for different collection container types
+</dd>
+
+          <dt id="ElementValueChange">
+  <span class="name "><a href="../cell_collection_library/ElementValueChange-class.html">ElementValueChange</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Represents a value change for a specific element within a collection.
+</dd>
+
+          <dt id="FunctionObject">
+  <span class="name "><a href="../cell/FunctionObject-class.html">FunctionObject</a></span> 
+
+</dt>
+<dd>
+  Simple wrapper for functions or records containing function information.
+Used to pass function metadata through the system.
+</dd>
+
+          <dt id="FunctionTypeObject">
+  <span class="name "><a href="../cell/FunctionTypeObject-class.html">FunctionTypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Lazy-evaluated version of TypeObject that executes a function to get the value.
+Useful for deferred initialization or expensive object creation.
+</dd>
+
+          <dt id="MapObject">
+  <span class="name "><a href="../cell/MapObject-class.html">MapObject</a></span> 
+
+</dt>
+<dd>
+  A configurable mapping system that can transform objects based on their type.
+Supports chaining through parent mappings and type-specific transformations.
+</dd>
+
+          <dt id="OpenCell">
+  <span class="name "><a href="../cell/OpenCell-class.html">OpenCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An extended <a href="../cell/Cell-class.html">Cell</a> with open receptor and linking capabilities for enhanced reactivity.
+</dd>
+
+          <dt id="OpenCellAsync">
+  <span class="name "><a href="../cell/OpenCellAsync-class.html">OpenCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous executor for <a href="../cell/OpenCell-class.html">OpenCell</a> with enhanced signal processing capabilities.
+</dd>
+
+          <dt id="OpenCellDeputy">
+  <span class="name "><a href="../cell/OpenCellDeputy-class.html">OpenCellDeputy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/CellDeputy-class.html">CellDeputy</a> that maintains open receptor and linking capabilities
+while adding layered behavior to an <a href="../cell/OpenCell-class.html">OpenCell</a>.
+</dd>
+
+          <dt id="Post">
+  <span class="name "><a href="../cell_collection_library/Post-class.html">Post</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">N extends <a href="../cell/Tag-class.html">Tag</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/Signal-class.html">Signal</a> that represents a notification event between cells in a reactive system.
+</dd>
+
+          <dt id="Properties">
+  <span class="name "><a href="../cell/Properties-class.html">Properties</a></span> 
+
+</dt>
+<dd>
+  Encapsulates the core characteristics of a Cell, including its receptor, linkage state, and validation tests.
+</dd>
+
+          <dt id="Receptor">
+  <span class="name "><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The signal processing engine of a <a href="../cell/Cell-class.html">Cell</a>, transforming incoming signals into outputs.
+</dd>
+
+          <dt id="ReceptorAsync">
+  <span class="name "><a href="../cell/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">R extends <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An <a href="../cell/Async-class.html">Async</a> version of <a href="../cell/Receptor-class.html">Receptor</a> for handling asynchronous signal processing.
+</dd>
+
+          <dt id="Signal">
+  <span class="name "><a href="../cell/Signal-class.html">Signal</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A typed signal that can be transmitted through cells.
+</dd>
+
+          <dt id="Synapses">
+  <span class="name "><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">S extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A system for managing reactive connections between <a href="../cell/Cell-class.html">Cell</a> instances.
+</dd>
+
+          <dt id="Sync">
+  <span class="name "><a href="../cell/Sync-class.html">Sync</a></span> 
+
+</dt>
+<dd>
+  Class tag o indicate Sync version of an object
+</dd>
+
+          <dt id="Tag">
+  <span class="name "><a href="../cell/Tag-class.html">Tag</a></span> 
+
+</dt>
+<dd>
+  A simple identifier class using Symbols for tagging/labeling purposes.
+Useful for categorizing or marking cells without modifying their behavior.
+</dd>
+
+          <dt id="TestActionRule">
+  <span class="name "><a href="../cell/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized test rule for validating function actions within a <a href="../cell/Cell-class.html">Cell</a> context.
+</dd>
+
+          <dt id="TestCollective">
+  <span class="name "><a href="../cell_collection_library/TestCollective-class.html">TestCollective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A rule-based testing system for validating operations on <a href="../cell_collection_library/Collective-class.html">Collective</a> collections.
+</dd>
+
+          <dt id="TestCollectiveElementRule">
+  <span class="name "><a href="../cell_collection_library/TestCollectiveElementRule-class.html">TestCollectiveElementRule</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A rule implementation for validating elements in a <a href="../cell_collection_library/Collective-class.html">Collective</a>.
+</dd>
+
+          <dt id="TestCollectiveTrue">
+  <span class="name "><a href="../cell_collection_library/TestCollectiveTrue-class.html">TestCollectiveTrue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_collection_library/TestCollective-class.html">TestCollective</a> implementation that always passes all validations.
+</dd>
+
+          <dt id="TestLinkRule">
+  <span class="name "><a href="../cell/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized test rule for validating cell linking operations within a <a href="../cell/Cell-class.html">Cell</a> context.
+</dd>
+
+          <dt id="TestObject">
+  <span class="name "><a href="../cell/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  TestObject is a composite of multiple TestRules that applies them sequentially
+to validate operations on a Cell.
+</dd>
+
+          <dt id="TestObjectRule">
+  <span class="name "><a href="../cell/TestObjectRule-class.html">TestObjectRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An abstract interface for creating test rules that validate arbitrary objects
+within a <a href="../cell/Cell-class.html">Cell</a> context.
+</dd>
+
+          <dt id="TestObjectTrue">
+  <span class="name "><a href="../cell/TestObjectTrue-class.html">TestObjectTrue</a></span> 
+
+</dt>
+<dd>
+  A default implementation of <a href="../cell/TestObject-class.html">TestObject</a> that always passes validation.
+</dd>
+
+          <dt id="TestRule">
+  <span class="name "><a href="../cell/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">O</span>, <span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An interface for defining validation rules that can be applied to objects in a reactive cell system.
+</dd>
+
+          <dt id="TestRuleTrue">
+  <span class="name "><a href="../cell/TestRuleTrue-class.html">TestRuleTrue</a></span> 
+
+</dt>
+<dd>
+  A concrete implementation of <a href="../cell/TestRule-class.html">TestRule</a> that always returns true.
+</dd>
+
+          <dt id="TestSignalRule">
+  <span class="name "><a href="../cell/TestSignalRule-class.html">TestSignalRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/TestRule-class.html">TestRule</a> implementation for validating <a href="../cell/Signal-class.html">Signal</a> objects within a cellular architecture.
+</dd>
+
+          <dt id="TypeObject">
+  <span class="name "><a href="../cell/TypeObject-class.html">TypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper class for holding typed objects.
+Provides type safety when working with generic containers.
+</dd>
+
+          <dt id="Unmodifiable">
+  <span class="name "><a href="../cell/Unmodifiable-class.html">Unmodifiable</a></span> 
+
+</dt>
+<dd>
+  A marker interface indicating immutable/unmodifiable cell variants.
+</dd>
+
+          <dt id="UnmodifiableCollective">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollective-class.html">UnmodifiableCollective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An interface for an unmodifiable <a href="../cell_collection_library/Collective-class.html">Collective</a>.
+</dd>
+
+          <dt id="UnmodifiableCollectiveCell">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveCell-class.html">UnmodifiableCollectiveCell</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An implementation of <a href="../cell_collection_library/UnmodifiableCollective-class.html">UnmodifiableCollective</a> that is unmodifiable.
+</dd>
+
+          <dt id="UnmodifiableCollectiveList">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveList-class.html">UnmodifiableCollectiveList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An unmodifiable version of <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a> that prevents all mutating operations.
+</dd>
+
+          <dt id="UnmodifiableCollectiveListAsync">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveListAsync-class.html">UnmodifiableCollectiveListAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An async callable interface for <a href="../cell_collection_library/UnmodifiableCollectiveList-class.html">UnmodifiableCollectiveList</a> that prevents modifications.
+</dd>
+
+          <dt id="UnmodifiableCollectiveQueue">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveQueue-class.html">UnmodifiableCollectiveQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An unmodifiable version of a <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> that implements the <a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a> interface.
+</dd>
+
+          <dt id="UnmodifiableCollectiveQueueAsync">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveQueueAsync-class.html">UnmodifiableCollectiveQueueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous interface for an unmodifiable <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> that prevents all modifications.
+</dd>
+
+          <dt id="UnmodifiableCollectiveSet">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveSet-class.html">UnmodifiableCollectiveSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An immutable version of <a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a> that prevents all modification operations.
+</dd>
+
+          <dt id="UnmodifiableCollectiveSetAsync">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveSetAsync-class.html">UnmodifiableCollectiveSetAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Async operations for an <a href="../cell_collection_library/UnmodifiableCollectiveSet-class.html">UnmodifiableCollectiveSet</a>.
+</dd>
+
+          <dt id="UnmodifiableCollectiveValue">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveValue-class.html">UnmodifiableCollectiveValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An immutable version of <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> that prevents modifications to the value.
+</dd>
+
+          <dt id="UnmodifiableCollectiveValueAsync">
+  <span class="name "><a href="../cell_collection_library/UnmodifiableCollectiveValueAsync-class.html">UnmodifiableCollectiveValueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Specialized unmodifiable version of <a href="../cell_collection_library/CollectiveValueAsync-class.html">CollectiveValueAsync</a>.
+</dd>
+
+          <dt id="ValueChange">
+  <span class="name "><a href="../cell_collection_library/ValueChange-class.html">ValueChange</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Represents a change in value, tracking both the previous and current states.
+</dd>
+
+      </dl>
+    </section>
+
+
+    <section class="summary offset-anchor" id="mixins">
+      <h2>Mixins</h2>
+
+      <dl>
+          <dt id="Deputy">
+  <span class="name "><a href="../cell/Deputy-mixin.html">Deputy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the ability to create <a href="../cell/Deputy-mixin.html">Deputy</a> for a cell.
+</dd>
+
+          <dt id="OpenListMixin">
+  <span class="name "><a href="../cell_collection_library/OpenListMixin-mixin.html">OpenListMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides reactive list operations for <a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a>.
+</dd>
+
+          <dt id="OpenQueueMixin">
+  <span class="name "><a href="../cell_collection_library/OpenQueueMixin-mixin.html">OpenQueueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides queue operations for <a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a> implementations.
+</dd>
+
+          <dt id="OpenReceptorMixin">
+  <span class="name "><a href="../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Mixin that adds signal reception capabilities to a Cell.
+</dd>
+
+          <dt id="OpenSetMixin">
+  <span class="name "><a href="../cell_collection_library/OpenSetMixin-mixin.html">OpenSetMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin for <a href="../cell_collection_library/OpenSetMixin-mixin.html">OpenSetMixin</a> that provides additional functionality for <a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a>.
+</dd>
+
+          <dt id="OpenSynapsesMixin">
+  <span class="name "><a href="../cell/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Mixin that adds cell linking capabilities.
+</dd>
+
+          <dt id="OpenValueMixin">
+  <span class="name "><a href="../cell_collection_library/OpenValueMixin-mixin.html">OpenValueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides additional functionality for <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> objects.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+
+      <dl>
+          
+  <dt id="Arguments" class="">
+  <span class="name"><a href="../cell/Arguments.html">Arguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Represents a tuple of positional and named arguments for function calls.
+Used when validating or processing function applications in cells.
+  
+
+</dd>
+
+
+          
+  <dt id="CellBase" class="">
+  <span class="name"><a href="../cell/CellBase.html">CellBase</a></span>
+    = _Cell
+  </span>
+  
+
+</dt>
+<dd>
+  Base class for all <a href="../cell/Cell-class.html">Cell</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveBase" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveBase.html">CollectiveBase</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = <a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base class for all <a href="../cell_collection_library/Collective-class.html">Collective</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveListBase" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveListBase.html">CollectiveListBase</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = _CollectiveList<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base class for <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a> that provides common properties and methods.
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveListProperties" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveListProperties.html">CollectiveListProperties</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = <a href="../cell_collection_library/CollectiveCellProperties-class.html">CollectiveCellProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Type alias for List-specific Collective properties
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveQueueBase" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveQueueBase.html">CollectiveQueueBase</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = _CollectiveQueue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base class for <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> that provides common properties and methods.
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveQueueProperties" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveQueueProperties.html">CollectiveQueueProperties</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = <a href="../cell_collection_library/CollectiveCellProperties-class.html">CollectiveCellProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Type alias for Queue-specific Collective properties
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveSetBase" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveSetBase.html">CollectiveSetBase</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = _CollectiveSet<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base class for <a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a> that provides common properties and methods.
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveSetProperties" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveSetProperties.html">CollectiveSetProperties</a></span>&lt;<wbr><span class="type-parameter">E</span>&gt;
+    = <a href="../cell_collection_library/CollectiveCellProperties-class.html">CollectiveCellProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Type alias for Set-specific Collective properties
+  
+
+</dd>
+
+
+          
+  <dt id="CollectiveValueBase" class="">
+  <span class="name"><a href="../cell_collection_library/CollectiveValueBase.html">CollectiveValueBase</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
+    = _CollectiveValue<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base class for <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a> that provides common properties and methods.
+  
+
+</dd>
+
+
+          
+  <dt id="FunctionType" class="callable">
+    <span class="name"><a href="../cell/FunctionType.html">FunctionType</a></span>&lt;<wbr><span class="type-parameter">R</span>&gt;<span class="signature">
+      <span class="returntype parameter">= R Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Generic function type that takes no parameters and returns R.
+Used in FunctionTypeObject for lazy evaluation.
+    
+
+  </dd>
+
+          
+  <dt id="MapFunction" class="callable">
+    <span class="name"><a href="../cell/MapFunction.html">MapFunction</a></span><span class="signature">
+      <span class="returntype parameter">= E Function&lt;<wbr><span class="type-parameter">E</span>&gt;<span class="signature">(<span class="parameter" id="param-object"><span class="type-annotation">E</span> <span class="parameter-name">object</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A function signature for value transformations within a <a href="../cell/MapObject-class.html">MapObject</a> pipeline.
+    
+
+  </dd>
+
+          
+  <dt id="OpenCellBase" class="">
+  <span class="name"><a href="../cell/OpenCellBase.html">OpenCellBase</a></span>
+    = _OpenCell<span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell/Signal-class.html">Signal</a></span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Base class for all <a href="../cell/OpenCell-class.html">OpenCell</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="ReceptorBase" class="">
+  <span class="name"><a href="../cell/ReceptorBase.html">ReceptorBase</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;
+    = _Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A base implementation of <a href="../cell/Receptor-class.html">Receptor</a> that provides default behavior.
+  
+
+</dd>
+
+
+          
+  <dt id="SignalTransform" class="callable">
+    <span class="name"><a href="../cell/SignalTransform.html">SignalTransform</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= O? Function<span class="signature">({<span class="parameter" id="param-cell"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-signal"><span>required</span> <span class="type-annotation">I</span> <span class="parameter-name">signal</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function signature for transforming signals in receptors.
+    
+
+  </dd>
+
+          
+  <dt id="TestActionRuleType" class="callable">
+    <span class="name"><a href="../cell/TestActionRuleType.html">TestActionRuleType</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">action</span>, </span><span class="parameter" id="param-cell"><span class="type-annotation">C</span> <span class="parameter-name">cell</span>, {</span><span class="parameter" id="param-arguments"><span class="type-annotation"><a href="../cell/Arguments.html">Arguments</a>?</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function signature for validating actions performed on cells.
+    
+
+  </dd>
+
+          
+  <dt id="TestCollectiveBase" class="">
+  <span class="name"><a href="../cell_collection_library/TestCollectiveBase.html">TestCollectiveBase</a></span>&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;
+    = <a href="../cell_collection_library/TestCollective-class.html">TestCollective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Base type for Collective test rules
+  
+
+</dd>
+
+
+          
+  <dt id="TestCollectiveElementType" class="callable">
+    <span class="name"><a href="../cell_collection_library/TestCollectiveElementType.html">TestCollectiveElementType</a></span>&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_collection_library/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-element"><span class="type-annotation">E?</span> <span class="parameter-name">element</span>, </span><span class="parameter" id="param-base"><span class="type-annotation">C</span> <span class="parameter-name">base</span>, {</span><span class="parameter" id="param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">action</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function signature for validating elements in a Collective
+Parameters:
+    
+
+  </dd>
+
+          
+  <dt id="TestLinkRuleType" class="callable">
+    <span class="name"><a href="../cell/TestLinkRuleType.html">TestLinkRuleType</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-link"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">link</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function signature for validating links between cells.
+    
+
+  </dd>
+
+          
+  <dt id="TestObjectBase" class="">
+  <span class="name"><a href="../cell/TestObjectBase.html">TestObjectBase</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;
+    = _TestObject<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A typedef representing the base implementation class for <a href="../cell/TestObject-class.html">TestObject</a>.
+  
+
+</dd>
+
+
+          
+  <dt id="TestObjectRuleBase" class="">
+  <span class="name"><a href="../cell/TestObjectRuleBase.html">TestObjectRuleBase</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;
+    = _TestObjectRuleView<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Typedef for the base implementation class.
+  
+
+</dd>
+
+
+          
+  <dt id="TestSignalRuleType" class="callable">
+    <span class="name"><a href="../cell/TestSignalRuleType.html">TestSignalRuleType</a></span>&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-signal"><span class="type-annotation"><a href="../cell/Signal-class.html">Signal</a></span> <span class="parameter-name">signal</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Function signature for validating signals received by cells.
+    
+
+  </dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+
+      <dl>
+          <dt id="TestRuleIncompatibleException">
+  <span class="name "><a href="../cell/TestRuleIncompatibleException-class.html">TestRuleIncompatibleException</a></span> 
+
+</dt>
+<dd>
+  Exception thrown when incompatible rules are combined.
+</dd>
+
+      </dl>
+    </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">collective.dart</li>
+</ol>
+
+
+    <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell/cell-library.html">cell</a></li>
+      <li><a href="../cell_collection_library/cell_collection_library-library.html">collective</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell_collection_library library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

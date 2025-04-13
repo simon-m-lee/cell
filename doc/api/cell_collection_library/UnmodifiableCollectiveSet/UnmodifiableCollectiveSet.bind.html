@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the UnmodifiableCollectiveSet.bind constructor from Class UnmodifiableCollectiveSet from the cell_collection_library library, for the Dart programming language.">
+  <title>UnmodifiableCollectiveSet.bind constructor - UnmodifiableCollectiveSet - cell_collection_library library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell_collection_library/cell_collection_library-library.html">collective.dart</a></li>
+    <li><a href="../../cell_collection_library/UnmodifiableCollectiveSet-class.html">UnmodifiableCollectiveSet<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableCollectiveSet.bind constructor</li>
+  </ol>
+  <div class="self-name">UnmodifiableCollectiveSet.bind</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_collection_library&#47;UnmodifiableCollectiveSet-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">UnmodifiableCollectiveSet&lt;<wbr><span class="type-parameter">E</span>&gt;.bind</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">UnmodifiableCollectiveSet&lt;<wbr><span class="type-parameter">E</span>&gt;.bind</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="bind-param-bind"><span class="type-annotation"><a href="../../cell_collection_library/Collective-class.html">Collective</a></span> <span class="parameter-name">bind</span>, {</span></li>
+<li><span class="parameter" id="bind-param-unmodifiableElement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">unmodifiableElement</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="bind-param-properties"><span class="type-annotation"><a href="../../cell_collection_library/CollectiveSetProperties.html">CollectiveSetProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">properties</span>, </span></li>
+<li><span class="parameter" id="bind-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">elements</span>, </span></li>
+</ol>})
+    </section>
+
+    
+<section class="desc markdown">
+  <p>Creates an unmodifiable wrapper around an existing <a href="../../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a>.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>bind</code>: The set to make unmodifiable</li>
+<li><code>unmodifiableElement</code>: If true, makes elements unmodifiable when they're Cells</li>
+<li><code>properties</code>: Optional custom properties</li>
+<li><code>elements</code>: Optional override elements</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">UnmodifiableCollectiveSet.bind(Collective bind, {bool unmodifiableElement = true, CollectiveSetProperties&lt;E&gt;? properties, Iterable&lt;E&gt;? elements})
+    : super(properties ?? CollectiveSetProperties&lt;E&gt;(), unmodifiableElement: unmodifiableElement,
+    elements: elements ?? (unmodifiableElement ? bind.whereType&lt;E&gt;() : bind.whereType&lt;E&gt;().map&lt;E&gt;((e) =&gt; e is Cell ? e.unmodifiable as E : e))
+);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell_collection_library/cell_collection_library-library.html">cell_collection_library</a></li>
+    <li><a href="../../cell_collection_library/UnmodifiableCollectiveSet-class.html">UnmodifiableCollectiveSet<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableCollectiveSet.bind constructor</li>
+</ol>
+
+
+    <h5>UnmodifiableCollectiveSet class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

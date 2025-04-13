@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Cell class from the cell_framework library, for the Dart programming language.">
+  <title>Cell class - cell_framework library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell_framework/cell_framework-library.html">cell.dart</a></li>
+    <li class="self-crumb">Cell class</li>
+  </ol>
+  <div class="self-name">Cell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_framework&#47;cell_framework-library-sidebar.html"
+    data-below-sidebar="cell_framework&#47;Cell-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Cell</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+    <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A reactive programming framework centered around the <a href="../cell_framework/Cell-class.html">Cell</a> class and its extensions,
+particularly the <a href="../cell_collection_library/Collective-class.html">Collective</a> family of classes that implement reactive collections
+<a href="../cell_collection_library/CollectiveSet-class.html">CollectiveSet</a>, <a href="../cell_collection_library/CollectiveList-class.html">CollectiveList</a>, <a href="../cell_collection_library/CollectiveQueue-class.html">CollectiveQueue</a> and <a href="../cell_collection_library/CollectiveValue-class.html">CollectiveValue</a>.
+This framework provides a comprehensive reactive programming solution for Dart, with
+particular strength in managing complex state and data flow in applications.</p>
+<p>Key features include:</p>
+<ol>
+<li>
+<p>Reactive Programming Model: Automatic propagation of changes through a network of cells</p>
+</li>
+<li>
+<p>Validation System: Configurable rules for what operations are allowed</p>
+</li>
+<li>
+<p>Flexible Signal Processing: Customizable signal transformation and propagation</p>
+</li>
+<li>
+<p>Collection Support: Reactive versions of common collection types (Set, List, Queue, Value)</p>
+</li>
+<li>
+<p>Modifiable/Unmodifiable Views: Both mutable and immutable variants of all containers</p>
+</li>
+<li>
+<p>Asynchronous Support: Async interfaces for modifiable operations</p>
+</li>
+</ol>
+<p>The framework consists of several core components that work together:</p>
+<ul>
+<li><a href="../cell_framework/Cell-class.html">Cell</a>: The fundamental reactive unit</li>
+<li><a href="../cell_framework/Receptor-class.html">Receptor</a>: Handles signal processing</li>
+<li><a href="../cell_framework/Synapses-class.html">Synapses</a>: Manages inter-cell communication</li>
+<li><a href="../cell_framework/Properties-class.html">Properties</a>: Contains cell configuration</li>
+<li><a href="../cell_framework/TestRule-class.html">TestRule</a>/<a href="../cell_framework/TestObject-class.html">TestObject</a>: Provides validation</li>
+<li><a href="../cell_framework/Signal-class.html">Signal</a>: Carries data between cells</li>
+<li><a href="../cell_framework/Deputy-mixin.html">Deputy</a>: Enables behavior modification</li>
+</ul>
+<p>Cells can be:</p>
+<ul>
+<li>Bound to other cells to form relationships</li>
+<li>Linked to create observable patterns</li>
+<li>Modified through receptors and test objects</li>
+</ul>
+<ol>
+<li>Cell Hierarchy</li>
+</ol>
+<p>Cell
+|── OpenCell (with OpenReceptor, OpenSynapses)
+|── CellDeputy
+|── OpenDeputy
+|── Collective (interface)
+|   |── CollectiveCell
+│   │   ├── CollectiveList
+│   │   │   ├── CollectiveListDeputy
+│   │   │   └── UnmodifiableCollectiveList
+│   │   ├── CollectiveSet
+│   │   │   ├── CollectiveSetDeputy
+│   │   │   └── UnmodifiableCollectiveSet
+│   │   ├── CollectiveQueue
+│   │   │   ├── CollectiveQueueDeputy
+│   │   │   └── UnmodifiableCollectiveQueue
+│   │   └── CollectiveValue
+│   │       ├── CollectiveValueDeputy
+│   │       └── UnmodifiableCollectiveValue
+│   └── UnmodifiableCollective
+└── UnmodifiableCollectiveCell</p>
+<ol start="2">
+<li>Supporting Classes</li>
+</ol>
+<p><a href="../cell_framework/Signal-class.html">Signal</a> - Base class for messages passed between cells</p>
+<p><a href="../cell_framework/Receptor-class.html">Receptor</a> (Signal Processor)
+  Role: Transforms and routes signals between cells
+  Relationships:
+    - Owned by: Cell via Properties.receptor
+    - Processes: Signals from other cells or external sources
+    - Collaborates with: Synapses to propagate output signals
+    - Validated by: TestObject before processing signals
+    - Specialized: <a href="../cell_collection_library/CollectiveReceptor-class.html">CollectiveReceptor</a> for collection-specific logic
+<a href="../cell_framework/Synapses-class.html">Synapses</a> - Manages links between cells</p>
+<p><a href="../cell_framework/TestObject-class.html">TestObject</a>/<a href="../cell_collection_library/TestCollective-class.html">TestCollective</a> - Validation framework</p>
+<p><a href="../cell_framework/Properties-class.html">Properties</a> - Configuration container</p>
+<p><a href="../cell_collection_library/ValueChange-class.html">ValueChange</a> - Represents a change in value, with before and after states</p>
+<p><a href="../cell_collection_library/ContainerType-class.html">ContainerType</a> - Defines types of containers (i.e. Set, List) used in collectives</p>
+<p>Example:</p>
+<pre class="language-dart"><code class="language-dart">
+// Create a basic cell
+final cell = Cell();
+final boundCell = Cell(bind: cell);
+
+// Create a listening cell
+final listener = Cell.listen&lt;String&gt;(
+  bind: baseCell,
+  listen: (signal, _) =&gt; print('Received: ${signal.body}'),
+);
+
+// Create a transforming cell
+final transformer = Cell.signaling&lt;String, int&gt;(
+  bind: baseCell,
+  map: (signal, _) =&gt; signal.body?.length,
+);
+</code></pre>
+<p>Example: with <a href="../cell_collection_library/Collective-class.html">Collective</a> bounded</p>
+<pre class="language-dart"><code class="language-dart">// Create source cell
+final source = CollectiveValue&lt;int&gt;(5);
+
+// Create transformed cell
+final squared = Cell.signaling&lt;int,int&gt;(
+ bind: source,
+  transform: (signal, _) =&gt; Signal(signal.body * signal.body)
+);
+
+// Create logger
+final logger = Cell.listen&lt;int&gt;(
+  bind: squared,
+  listen: (signal, _) =&gt; print('Value squared: ${signal.body}')
+);
+
+// Update source - automatically propagates
+source.value = 10; // Logs "Value squared: 100"
+</code></pre>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../cell_framework/CellAsync-class.html">CellAsync</a></li>
+              <li><a href="../cell_framework/CellDeputy-class.html">CellDeputy</a></li>
+              <li><a href="../cell_collection_library/Collective-class.html">Collective</a></li>
+              <li><a href="../cell_collection_library/CollectiveCell-class.html">CollectiveCell</a></li>
+              <li><a href="../cell_framework/OpenCell-class.html">OpenCell</a></li>
+          </ul></dd>
+
+
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+
+    <dl class="constructor-summary-list">
+        <dt id="Cell" class="callable">
+          <span class="name"><a href="../cell_framework/Cell/Cell.html">Cell</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_framework/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_framework/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="-param-test"><span class="type-annotation"><a href="../cell_framework/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">test</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_framework/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a new <a href="../cell_framework/Cell-class.html">Cell</a> with optional binding and configuration
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="Cell.deputy" class="callable">
+          <span class="name"><a href="../cell_framework/Cell/Cell.deputy.html">Cell.deputy</a></span><span class="signature">({<span class="parameter" id="deputy-param-bind"><span>required</span> <span class="type-annotation"><a href="../cell_framework/Cell-class.html">Cell</a></span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="deputy-param-test"><span class="type-annotation"><a href="../cell_framework/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">test</span>, </span><span class="parameter" id="deputy-param-mapObject"><span class="type-annotation"><a href="../cell_framework/MapObject-class.html">MapObject</a>?</span> <span class="parameter-name">mapObject</span></span>})</span>
+        </dt>
+        <dd>
+          A factory constructor that creates an <a href="../cell_framework/Deputy-mixin.html">Deputy</a> cell from an existing <a href="../cell_framework/Cell-class.html">Cell</a> instance with reduced permissions.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="Cell.fromProperties" class="callable">
+          <span class="name"><a href="../cell_framework/Cell/Cell.fromProperties.html">Cell.fromProperties</a></span><span class="signature">(<span class="parameter" id="fromProperties-param-properties"><span class="type-annotation"><a href="../cell_framework/Properties-class.html">Properties</a></span> <span class="parameter-name">properties</span></span>)</span>
+        </dt>
+        <dd>
+          Constructs a <a href="../cell_framework/Cell-class.html">Cell</a> from predefined properties.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="async" class="property">
+  <span class="name"><a href="../cell_framework/Cell/async.html">async</a></span>
+  <span class="signature">&#8594; <a href="../cell_framework/CellAsync-class.html">CellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Creates a <code>Callable</code> for async <a href="../cell_framework/Cell/modifiable.html">modifiable</a> operations
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="modifiable" class="property">
+  <span class="name"><a href="../cell_framework/Cell/modifiable.html">modifiable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns an iterable containing modifiable functions.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="test" class="property">
+  <span class="name"><a href="../cell_framework/Cell/test.html">test</a></span>
+  <span class="signature">&#8594; <a href="../cell_framework/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Gets the test object associated with the cell.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="unmodifiable" class="property">
+  <span class="name"><a href="../cell_framework/Cell/unmodifiable.html">unmodifiable</a></span>
+  <span class="signature">&#8594; <a href="../cell_framework/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd>
+  Creates an unmodifiable view of this cell.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="apply" class="callable">
+  <span class="name"><a href="../cell_framework/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies a function with controlled validation.
+  
+
+</dd>
+
+        <dt id="deputy" class="callable">
+  <span class="name"><a href="../cell_framework/Cell/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-test"><span>covariant</span> <span class="type-annotation"><a href="../cell_framework/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">test</span>, </span><span class="parameter" id="deputy-param-mapObject"><span>covariant</span> <span class="type-annotation"><a href="../cell_framework/MapObject-class.html">MapObject</a>?</span> <span class="parameter-name">mapObject</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_framework/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an <a href="../cell_framework/Deputy-mixin.html">Deputy</a> cell from an existing <a href="../cell_framework/Cell-class.html">Cell</a> instance with reduced permissions.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="listen" class="callable">
+  <span class="name"><a href="../cell_framework/Cell/listen.html">listen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S extends <a href="../cell_framework/Signal-class.html">Signal</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="listen-param-bind"><span>required</span> <span class="type-annotation"><a href="../cell_framework/Cell-class.html">Cell</a></span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="listen-param-listen"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">listen</span>(<span class="parameter" id="param-signal"><span class="type-annotation">S</span> <span class="parameter-name">signal</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>), </span><span class="parameter" id="listen-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="listen-param-synapses"><span class="type-annotation"><a href="../cell_framework/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.disabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_framework/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a listening cell that executes a callback when signals are received
+  
+
+</dd>
+
+        <dt id="open" class="callable">
+  <span class="name"><a href="../cell_framework/Cell/open.html">open</a></span><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_framework/Cell-class.html">Cell</a></span>, <span class="type-parameter">L extends <a href="../cell_framework/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell_framework/Signal-class.html">Signal</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="open-param-bind"><span class="type-annotation"><a href="../cell_framework/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="open-param-receptor"><span class="type-annotation"><a href="../cell_framework/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="open-param-test"><span class="type-annotation"><a href="../cell_framework/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">test</span> = <span class="default-value">TestObject.passed</span>, </span><span class="parameter" id="open-param-synapses"><span class="type-annotation"><a href="../cell_framework/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">O</span>, <span class="type-parameter">L</span>&gt;</span>?</span> <span class="parameter-name">synapses</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_framework/OpenCell-class.html">OpenCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an open <a href="../cell_framework/Cell-class.html">Cell</a> that supports linking and receptor transformations.
+  
+
+</dd>
+
+        <dt id="signaling" class="callable">
+  <span class="name"><a href="../cell_framework/Cell/signaling.html">signaling</a></span><span class="signature">&lt;<wbr><span class="type-parameter">I extends <a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell_framework/Signal-class.html">Signal</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="signaling-param-bind"><span>required</span> <span class="type-annotation"><a href="../cell_framework/Cell-class.html">Cell</a></span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="signaling-param-transform"><span>required</span> <span class="type-annotation">O?</span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-signal"><span class="type-annotation">I</span> <span class="parameter-name">signal</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>), </span><span class="parameter" id="signaling-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="signaling-param-synapses"><span class="type-annotation"><a href="../cell_framework/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_framework/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../cell_framework/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_framework/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a signaling <a href="../cell_framework/Cell-class.html">Cell</a> that transforms incoming and outgoing signals,
+or stop outgoing signals.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell_framework/cell_framework-library.html">cell_framework</a></li>
+    <li class="self-crumb">Cell class</li>
+</ol>
+
+
+    <h5>cell_framework library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

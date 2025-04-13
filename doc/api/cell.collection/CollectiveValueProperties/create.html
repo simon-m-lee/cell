@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the create method from the CollectiveValueProperties class, for the Dart programming language.">
+  <title>create method - CollectiveValueProperties class - cell.collection library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell.collection/cell.collection-library.html">collective.dart</a></li>
+    <li><a href="../../cell.collection/CollectiveValueProperties-class.html">CollectiveValueProperties<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">create&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">create</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell.collection&#47;CollectiveValueProperties-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">create&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="../../cell.collection/CollectiveValueProperties-class.html">CollectiveValueProperties</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+<span class="name ">create</span>&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="create-param-bind"><span class="type-annotation"><a href="../../cell.core/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="create-param-container"><span class="type-annotation"><a href="../../cell.collection/ContainerType-class.html">ContainerType</a>?</span> <span class="parameter-name">container</span>, </span></li>
+<li><span class="parameter" id="create-param-receptor"><span class="type-annotation"><a href="../../cell.collection/CollectiveReceptor-class.html">CollectiveReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../../cell.core/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../../cell.core/Signal-class.html">Signal</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="create-param-test"><span class="type-annotation"><a href="../../cell.collection/TestCollective-class.html">TestCollective</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../../cell.collection/Collective-class.html">Collective</a></span>&gt;</span></span> <span class="parameter-name">test</span> = <span class="default-value">TestCollective.passed</span>, </span></li>
+<li><span class="parameter" id="create-param-synapses"><span class="type-annotation"><a href="../../cell.core/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell.core/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../../cell.core/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="create-param-mapObject"><span class="type-annotation"><a href="../../cell.core/MapObject-class.html">MapObject</a>?</span> <span class="parameter-name">mapObject</span>, </span></li>
+<li><span class="parameter" id="create-param-setter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">setter</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation"><a href="../../cell.collection/CollectiveValue-class.html">CollectiveValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="param-container"><span class="type-annotation">I</span> <span class="parameter-name">container</span>, </span></li>
+<li><span class="parameter" id="param-v"><span class="type-annotation">V?</span> <span class="parameter-name">v</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="create-param-getter"><span class="type-annotation">V?</span> <span class="parameter-name">getter</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation"><a href="../../cell.collection/CollectiveValue-class.html">CollectiveValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="param-container"><span class="type-annotation">I</span> <span class="parameter-name">container</span></span></li>
+</ol>)?, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Factory constructor for full property configuration.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>bind</code>: Reactive cell to bind to</li>
+<li><code>container</code>: How to store the value (defaults to <a href="../../cell.collection/ContainerType/value-constant.html">ContainerType.value</a>)</li>
+<li><code>receptor</code>: Custom signal handling logic</li>
+<li><code>test</code>: Validation rules</li>
+<li><code>mapObject</code>: Value transformation pipeline</li>
+<li><code>synapses</code>: Connection management configuration</li>
+<li><code>setter</code>: Custom value storage logic</li>
+<li><code>getter</code>: Custom value retrieval logic</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static CollectiveValueProperties&lt;V&gt; create&lt;V, I extends Iterable&lt;V&gt;&gt;({
+  Cell? bind,
+  ContainerType? container,
+  CollectiveReceptor? receptor,
+  TestCollective test = TestCollective.passed,
+  Synapses synapses = Synapses.enabled,
+  MapObject? mapObject,
+  bool Function(CollectiveValue&lt;V&gt; value, I container, V? v)? setter,
+  V? Function(CollectiveValue&lt;V&gt; value, I container)? getter,
+}) {
+  Record record;
+  if (test == TestCollective.passed &amp;&amp; mapObject == null &amp;&amp; synapses == Synapses.enabled &amp;&amp; setter == null &amp;&amp; getter == null) {
+    if (bind != null || container != ContainerType.growableFalse || receptor != CollectiveReceptor.unchanged) {
+      record = (
+      bind: bind,
+      container: container != ContainerType.growableFalse ? container : ContainerType.create&lt;V,I&gt;(),
+      receptor: receptor
+      );
+    } else {
+      record = ();
+    }
+  } else {
+    record = (bind: bind,
+    container: container ?? ContainerType.create&lt;V,I&gt;(),
+    receptor: receptor == CollectiveReceptor.unchanged ? CollectiveReceptor&lt;V,CollectivePost,CollectivePost&gt;() : receptor,
+    test: test,
+    mapObject: mapObject,
+    synapses: synapses, setter: setter, getter: getter
+    );
+  }
+  return _CollectiveValueProperties&lt;V,I&gt;.fromRecord(record);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell.collection/cell.collection-library.html">cell.collection</a></li>
+    <li><a href="../../cell.collection/CollectiveValueProperties-class.html">CollectiveValueProperties<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">create&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt; static method</li>
+</ol>
+
+
+    <h5>CollectiveValueProperties class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

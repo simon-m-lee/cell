@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell API docs, for the Dart programming language.">
+  <title>cell - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">cell package</li>
+  </ol>
+  <div class="self-name">cell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <!-- 
+This README describes the package. If you publish this package to pub.dev,
+this README's contents appear on the landing page for your package.
+
+For information about how to write a good package README, see the guide for
+[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+
+For general information about developing packages, see the Dart guide for
+[creating packages](https://dart.dev/guides/libraries/create-packages)
+and the Flutter guide for
+[developing packages and plugins](https://flutter.dev/to/develop-packages). 
+-->
+<p>A reactive programming framework centered around the <a href="cell.core/Cell-class.html">Cell</a> class and its extensions,
+particularly the <a href="cell.collection/Collective-class.html">Collective</a> family of classes that implement reactive collections
+<a href="cell.collection/CollectiveSet-class.html">CollectiveSet</a>, <a href="cell.collection/CollectiveList-class.html">CollectiveList</a>, <a href="cell.collection/CollectiveQueue-class.html">CollectiveQueue</a> and <code>CollectionValue</code>.
+This framework provides a comprehensive reactive programming solution for Dart, with
+particular strength in managing complex state and data flow in applications.</p>
+<h2 id="features">Features</h2>
+<ol>
+<li>
+<p>Reactive Programming Model: Automatic propagation of changes through a network of cells</p>
+</li>
+<li>
+<p>Validation System: Configurable rules for what operations are allowed</p>
+</li>
+<li>
+<p>Flexible Signal Processing: Customizable signal transformation and propagation</p>
+</li>
+<li>
+<p>Collection Support: Reactive versions of common collection types (Set, List, Queue, Value)</p>
+</li>
+<li>
+<p>Modifiable/Unmodifiable Views: Both mutable and immutable variants of all containers</p>
+</li>
+<li>
+<p>Asynchronous Support: Async interfaces for all modifiable operations</p>
+</li>
+</ol>
+<h2 id="core-components-and-their-relationships">Core Components and Their Relationships</h2>
+<ol>
+<li>
+<p><a href="cell.core/Cell-class.html">Cell</a> - The Fundamental Reactive Unit</p>
+<p>Purpose: Acts as the basic building block of reactivity</p>
+</li>
+<li>
+<p><a href="cell.core/Receptor-class.html">Receptor</a> - Signal Processing</p>
+<p>Purpose: Handles signal transformation and propagation</p>
+</li>
+<li>
+<p><a href="cell.core/Synapses-class.html">Synapses</a> - Inter-Cell Communication</p>
+<p>Purpose: Manages connections between cells</p>
+</li>
+<li>
+<p><a href="cell.core/Properties-class.html">Properties</a> - Cell Configuration</p>
+<p>Purpose: Contains all configurable aspects of a cell</p>
+</li>
+<li>
+<p><a href="cell.core/TestRule-class.html">TestRule</a>/<a href="cell.core/TestObject-class.html">TestObject</a> - Validation System</p>
+<p>Purpose: Provides validation rules for cell operations</p>
+</li>
+<li>
+<p><a href="cell.core/Signal-class.html">Signal</a> - Data Carrier</p>
+<p>Purpose: Carries data between cells</p>
+</li>
+<li>
+<p><a href="cell.core/Deputy-mixin.html">Deputy</a> - Delegation Pattern</p>
+<p>Purpose: Delegates to original <a href="cell.core/Cell-class.html">Cell</a> with reduced permissions or accesses</p>
+</li>
+</ol>
+<h2 id="key-architectural-patterns">Key Architectural Patterns</h2>
+<ol>
+<li>
+<p>Reactive Flow:</p>
+<ul>
+<li>
+<p><a href="cell.core/Signal-class.html">Signal</a>s enter through <a href="cell.core/Receptor-class.html">Receptor</a></p>
+</li>
+<li>
+<p><a href="cell.core/TestObject-class.html">TestObject</a> validates the <a href="cell.core/Signal-class.html">Signal</a></p>
+</li>
+<li>
+<p>If valid, processed by <code>Receptor.transform</code></p>
+</li>
+<li>
+<p>Output signal propagated via <a href="cell.core/Synapses-class.html">Synapses</a></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Decorator Pattern:</p>
+<ul>
+<li>
+<p><a href="cell.core/Deputy-mixin.html">Deputy</a> wraps cells to modify behavior</p>
+</li>
+<li>
+<p><a href="cell.core/CellAsync-class.html">CellAsync</a> adds asynchronous capabilities</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Composite Pattern:</p>
+<ul>
+<li>
+<p><a href="cell.core/TestObject-class.html">TestObject</a> can contain multiple <a href="cell.core/TestRule-class.html">TestRule</a> instances</p>
+</li>
+<li>
+<p><a href="cell.collection/Collective-class.html">Collective</a> types manage collections of cells using
+<a href="cell.collection/CollectiveSet-class.html">CollectiveSet</a>, <a href="cell.collection/CollectiveList-class.html">CollectiveList</a>, <a href="cell.collection/CollectiveQueue-class.html">CollectiveQueue</a> and <a href="cell.collection/CollectiveQueue-class.html">CollectiveQueue</a>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Strategy Pattern:</p>
+<ul>
+<li>
+<p>Different <a href="cell.core/Receptor-class.html">Receptor</a> implementations handle signal processing</p>
+</li>
+<li>
+<p><a href="cell.core/Synapses-class.html">Synapses</a> implementations vary propagation behavior</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="getting-started">Getting started</h2>
+<p>To use this package, add the following to your <code>pubspec.yaml</code> file:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^&lt;latest_version&gt;
+
+</code></pre>
+<p>Then, run <code>dart pub get</code> to install the package.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+import 'package:cell/collective.dart';
+
+</code></pre>
+<h2 id="usage">Usage</h2>
+<pre class="language-dart"><code class="language-dart">
+// Create a basic cell
+final cell = Cell();
+final boundCell = Cell(bind: cell);
+
+// Create a listening cell
+final listener = Cell.listen&lt;String&gt;(
+  bind: baseCell,
+  listen: (signal, _) =&gt; print('Received: ${signal.body}'),
+);
+
+// Create a transforming cell
+final transformer = Cell.signaling&lt;Signal&lt;String&gt;, Signal&lt;int&gt;(
+  bind: baseCell,
+  map: (signal, _) =&gt; Signal&lt;int&gt;(signal.body?.length),
+);
+
+</code></pre>
+<p>Example: with <a href="cell.collection/Collective-class.html">Collective</a> bounded</p>
+<pre class="language-dart"><code class="language-dart">// Create source cell
+final source = CollectiveValue&lt;int&gt;(5);
+
+// Create transformed cell
+final squared = Cell.signaling&lt;int,int&gt;(
+ bind: source,
+  transform: (signal, _) =&gt; Signal(signal.body * signal.body)
+);
+
+// Create logger
+final logger = Cell.listen&lt;int&gt;(
+  bind: squared,
+  listen: (signal, _) =&gt; print('Value squared: ${signal.body}')
+);
+
+// Update source - automatically propagates
+source.value = 10; // Logs "Value squared: 100"
+</code></pre>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>It is an A.I. generated document. The content is based on the code
+provided and may not accurately reflect the intended functionality or usage of the package.
+Please review and modify as necessary to ensure accuracy and clarity.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="callable">
+  <span class="name"><a href="callable/callable-library.html">callable</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="keywords">
+  <span class="name"><a href="keywords/keywords-library.html">keywords</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <h3>Core</h3>
+            <dt id="cell.core">
+  <span class="name"><a href="cell.core/cell.core-library.html">cell</a></span> 
+
+</dt>
+<dd><code>cell:core</code> is a reactive programming framework centered around the <a href="cell.core/Cell-class.html">Cell</a> class and its extensions,
+particularly the <a href="cell.collection/Collective-class.html">Collective</a> family of classes that implement reactive collections
+<a href="cell.collection/CollectiveSet-class.html">CollectiveSet</a>, <a href="cell.collection/CollectiveList-class.html">CollectiveList</a>, <a href="cell.collection/CollectiveQueue-class.html">CollectiveQueue</a> and <a href="cell.collection/CollectiveValue-class.html">CollectiveValue</a>.
+This framework provides a comprehensive reactive programming solution for Dart, with
+particular strength in managing complex state and data flow in applications.
+</dd>
+
+            <dt id="cell.collection">
+  <span class="name"><a href="cell.collection/cell.collection-library.html">collective</a></span> 
+
+</dt>
+<dd><code>cell:collective</code> library is a powerful Dart framework for building reactive
+data structures and event-driven systems. It provides a set of abstract and
+concrete classes that enable developers to create observable collections,
+manage state changes, and propagate signals throughout an application.
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li class="self-crumb">cell package</li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="callable/callable-library.html">callable</a></li>
+      <li><a href="keywords/keywords-library.html">keywords</a></li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="cell.core/cell.core-library.html">cell</a></li>
+        <li class="section-subitem"><a href="cell.collection/cell.collection-library.html">collective</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
