@@ -16,40 +16,32 @@
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
   <link rel="icon" href="../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell.collection/cell.collection-library.html">collective.dart</a></li>
+    <li><a href="../cell.collection/">collective.dart</a></li>
     <li class="self-crumb">CollectiveQueueDeputy<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">CollectiveQueueDeputy</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -95,8 +87,14 @@ final deputy = queue.deputy(
   </dd>
 
         
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell.collection/CollectiveQueue-class.html">CollectiveQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></li>
+    </ul>
+  </dd>
         
-  <dt>Mixed in types</dt>
+  <dt>Mixed-in types</dt>
   <dd>
     <ul class="comma-separated clazz-relationships">
         <li><a href="../cell.core/Deputy-mixin.html">Deputy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell.collection/CollectiveQueue-class.html">CollectiveQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></li>
@@ -104,13 +102,14 @@ final deputy = queue.deputy(
   </dd>
 
 
-          <dt>Available Extensions</dt>
-          <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
-              <li><a href="https://api.flutter.dev/flutter/dart-collection/IterableExtensions.html">IterableExtensions</a></li>
-              <li><a href="https://api.flutter.dev/flutter/dart-collection/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
-          </ul></dd>
-
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
+  </ul></dd>
         
 
 
@@ -148,6 +147,22 @@ final deputy = queue.deputy(
 
 </dd>
 
+        <dt id="firstOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/firstOrNull.html">firstOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The first element of this iterator, or <code>null</code> if the iterable is empty.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="../cell.collection/CollectiveCell/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -157,6 +172,22 @@ final deputy = queue.deputy(
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="indexed" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/indexed.html">indexed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>, </span><span class="field"><span class="type-annotation">T</span></span>)</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  Pairs of elements of the indices and elements of this iterable.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -208,6 +239,22 @@ final deputy = queue.deputy(
 
 </dd>
 
+        <dt id="lastOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/lastOrNull.html">lastOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The last element of this iterable, or <code>null</code> if the iterable is empty.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="length" class="property inherited">
   <span class="name"><a href="../cell.collection/OpenQueueMixin/length.html">length</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -229,6 +276,22 @@ final deputy = queue.deputy(
 <dd class="inherited">
   Returns an iterable containing modifiable functions.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="nonNulls" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions/nonNulls.html">nonNulls</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T?</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a> extension</span>
+      </p>
+  The non-<code>null</code> elements of this iterable.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -256,6 +319,22 @@ final deputy = queue.deputy(
 
 </dd>
 
+        <dt id="singleOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/singleOrNull.html">singleOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="test" class="property inherited">
   <span class="name"><a href="../cell.collection/CollectiveCell/test.html">test</a></span>
   <span class="signature">&#8594; <a href="../cell.collection/TestCollective-class.html">TestCollective</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell.collection/Collective-class.html">Collective</a></span>&gt;</span></span>
@@ -280,8 +359,25 @@ final deputy = queue.deputy(
 
 </dd>
 
+        <dt id="wait" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable/wait.html">wait</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a> extension</span>
+      </p>
+  Waits for futures in parallel.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
     </dl>
   </section>
+
     
   <section
       class="summary offset-anchor"
@@ -289,54 +385,53 @@ final deputy = queue.deputy(
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="add" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds <code>value</code> at the end of the queue.
+  Adds value at the end of the queue.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addAll" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/addAll.html">addAll</a></span><span class="signature">(<wbr><span class="parameter" id="addAll-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/addAll.html">addAll</a></span><span class="signature">(<wbr><span class="parameter" id="addAll-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds all elements of <code>iterable</code> at the end of the queue. The
-length of the queue is extended by the length of <code>iterable</code>.
+  Adds all values <code>iterable</code> at the end of the queue.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addFirst" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/addFirst.html">addFirst</a></span><span class="signature">(<wbr><span class="parameter" id="addFirst-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/addFirst.html">addFirst</a></span><span class="signature">(<wbr><span class="parameter" id="addFirst-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds <code>value</code> at the beginning of the queue.
+  Adds value at the beginning of the queue.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="addLast" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/addLast.html">addLast</a></span><span class="signature">(<wbr><span class="parameter" id="addLast-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/addLast.html">addLast</a></span><span class="signature">(<wbr><span class="parameter" id="addLast-param-value"><span class="type-annotation">E</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds <code>value</code> at the end of the queue.
+  Adds value at the end of the queue.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -367,6 +462,40 @@ length of the queue is extended by the length of <code>iterable</code>.
 
 </dd>
 
+        <dt id="asNameMap" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumByName/asNameMap.html">asNameMap</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a> extension</span>
+      </p>
+  Creates a map from the names of enum values to the values.
+  
+
+</dd>
+
+        <dt id="byName" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumByName/byName.html">byName</a></span><span class="signature">(<wbr><span class="parameter" id="byName-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a> extension</span>
+      </p>
+  Finds the enum value in this list with name <code>name</code>.
+  
+
+</dd>
+
         <dt id="cast" class="callable inherited">
   <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
@@ -381,14 +510,14 @@ length of the queue is extended by the length of <code>iterable</code>.
 </dd>
 
         <dt id="clear" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/clear.html">clear</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/clear.html">clear</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Removes all elements in the queue. The size of the queue becomes zero.
+  Clears the queue.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -429,6 +558,23 @@ length of the queue is extended by the length of <code>iterable</code>.
 <dd class="inherited">
   Returns the <code>index</code>th element.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="elementAtOrNull" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/elementAtOrNull.html">elementAtOrNull</a></span><span class="signature">(<wbr><span class="parameter" id="elementAtOrNull-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>)
+    <span class="returntype parameter">&#8594; T?</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The element at position <code>index</code> of this iterable, or <code>null</code>.
+  
 
 </dd>
 
@@ -617,27 +763,27 @@ of the collection using the provided function.
 </dd>
 
         <dt id="removeWhere" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/removeWhere.html">removeWhere</a></span><span class="signature">(<wbr><span class="parameter" id="removeWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">E</span> <span class="parameter-name">element</span></span>)</span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/removeWhere.html">removeWhere</a></span><span class="signature">(<wbr><span class="parameter" id="removeWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">E</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Removes all elements matched by <code>test</code> from the queue.
+  Removes all elements that satisfy the <code>test</code> condition.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="retainWhere" class="callable inherited">
-  <span class="name"><a href="../cell.collection/OpenQueueMixin/retainWhere.html">retainWhere</a></span><span class="signature">(<wbr><span class="parameter" id="retainWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">E</span> <span class="parameter-name">element</span></span>)</span>)
-    <span class="returntype parameter">&#8594; void</span>
+  <span class="name"><a href="../cell.collection/CollectiveQueueDeputy/retainWhere.html">retainWhere</a></span><span class="signature">(<wbr><span class="parameter" id="retainWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">E</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Removes all elements not matched by <code>test</code> from the queue.
+  Retains all elements that satisfy the <code>test</code> condition.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -800,9 +946,7 @@ predicate <code>test</code>.
     
     
 
-
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -810,40 +954,30 @@ predicate <code>test</code>.
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell.collection/cell.collection-library.html">cell.collection</a></li>
+    <li><a href="../cell.collection/">cell.collection</a></li>
     <li class="self-crumb">CollectiveQueueDeputy<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
 </ol>
-
 
     <h5>cell.collection library</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div>
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
       1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../static-assets/highlight.pack.js?v1"></script>
 <script src="../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

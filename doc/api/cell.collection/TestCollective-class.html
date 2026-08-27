@@ -16,40 +16,32 @@
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
   <link rel="icon" href="../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell.collection/cell.collection-library.html">collective.dart</a></li>
+    <li><a href="../cell.collection/">collective.dart</a></li>
     <li class="self-crumb">TestCollective<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell.collection/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TestCollective</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -118,6 +110,12 @@ todos.add(''); // Throws - empty task not allowed
   </dd>
 
         
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell.core/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></li>
+    </ul>
+  </dd>
         
 
           <dt>Implementers</dt>
@@ -125,13 +123,7 @@ todos.add(''); // Throws - empty task not allowed
               <li><a href="../cell.collection/TestCollectiveTrue-class.html">TestCollectiveTrue</a></li>
           </ul></dd>
 
-          <dt>Available Extensions</dt>
-          <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
-              <li><a href="https://api.flutter.dev/flutter/dart-collection/IterableExtensions.html">IterableExtensions</a></li>
-              <li><a href="https://api.flutter.dev/flutter/dart-collection/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
-          </ul></dd>
-
+        
         
 
 
@@ -141,9 +133,8 @@ todos.add(''); // Throws - empty task not allowed
     
   <section class="summary offset-anchor" id="constructors">
     <h2>Constructors</h2>
-
     <dl class="constructor-summary-list">
-        <dt id="TestCollective" class="callable">
+        <dt id="TestCollective.new" class="callable">
           <span class="name"><a href="../cell.collection/TestCollective/TestCollective.html">TestCollective</a></span><span class="signature">({<span class="parameter" id="-param-rules"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell.core/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell.core/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">rules</span></span>})</span>
         </dt>
         <dd>
@@ -275,6 +266,7 @@ todos.add(''); // Throws - empty task not allowed
 
     </dl>
   </section>
+
     
   <section
       class="summary offset-anchor"
@@ -716,7 +708,6 @@ predicate <code>test</code>.
 
   <section class="summary offset-anchor" id="constants">
     <h2>Constants</h2>
-
     <dl class="properties">
         <dt id="asBigAsDartAllows" class="constant">
     <span class="name "><a href="../cell.collection/TestCollective/asBigAsDartAllows-constant.html">asBigAsDartAllows</a></span>
@@ -744,9 +735,7 @@ predicate <code>test</code>.
 
     </dl>
   </section>
-
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -754,40 +743,30 @@ predicate <code>test</code>.
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell.collection/cell.collection-library.html">cell.collection</a></li>
+    <li><a href="../cell.collection/">cell.collection</a></li>
     <li class="self-crumb">TestCollective<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell.collection/Collective-class.html">Collective</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
 </ol>
-
 
     <h5>cell.collection library</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div>
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
       1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../static-assets/highlight.pack.js?v1"></script>
 <script src="../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 
