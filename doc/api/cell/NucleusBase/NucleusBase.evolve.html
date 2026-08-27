@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the NucleusBase.evolve constructor from Class NucleusBase from the cell library, for the Dart programming language.">
+  <title>NucleusBase.evolve constructor - NucleusBase - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.evolve constructor</li>
+  </ol>
+  <div class="self-name">NucleusBase.evolve</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;NucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">NucleusBase.evolve</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">NucleusBase.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../cell/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
+<li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span></li>
+<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../cell/Nucleus-class.html">Nucleus</a> to
+support hierarchical property inheritance and contextual overrides.</p>
+<p>This constructor implements the <strong>Prototype Inheritance Pattern</strong> within the
+property system, allowing a derived nucleus to inherit its structural
+identity and core behavioral logic from a <code>principal</code> while layering on
+localized configuration overrides.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Contextual Specialization</strong>: When many nodes share common logic (security
+tiers, storage strategies) but differ in a single specific aspect.</li>
+<li><strong>Creating Deputies</strong>: Generating restricted-access or read-only views
+of a cell that share data but use different <code>testRule</code> guards.</li>
+<li><strong>Contextual Projections</strong>: Projecting a system-level state into a
+user-level view by overriding the <code>context</code> pillar.</li>
+<li><strong>Behavioral Shadowing</strong>: Overriding a <code>receptor</code> to add transformation
+logic without altering the principal's original behavior.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>The Linker Record</strong>: It creates a multi-tiered record that points back
+to the <code>principal</code> for any property not explicitly defined locally.</li>
+<li><strong>Resolution Chain</strong>: When a property is accessed, the system employs
+a "walk-up" strategy: Local Segment -&gt; Principal Segment -&gt;
+<a href="../../cell/Nucleus/Nucleus.empty.html">Nucleus.empty</a> (Global Defaults).</li>
+<li><strong>Shared Atomicity</strong>: By default, extensions share the <code>principal</code>'s
+atomic <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, ensuring they maintain a single atomic boundary for
+complex graph transitions.</li>
+<li><strong>Memory Optimization</strong>: It avoids re-allocating a full property set,
+storing only the "delta" between the extension and its prototype.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Binding Specificity</strong>: Upstream bindings (<code>bind</code>) are instance-specific
+and are <strong>not</strong> inherited from the principal to prevent accidental
+graph recursion.</li>
+<li><strong>Isolation Branching</strong>: If an <code>override</code> is provided with its own lock,
+the extension branches into an independent synchronization domain.</li>
+<li><strong>Shadowing Rules</strong>: Providing a <code>null</code> value for an inheritable pillar
+(like <code>testRule</code>) typically triggers a fallback to the principal,
+rather than clearing the property.</li>
+<li><strong>Trust Model</strong>: The framework assumes the <code>principal</code> is already
+valid and optimized, skipping redundant bitmask checks during evolution.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines when the resulting
+cell should be automatically invalidated.</li>
+<li><code>bind</code>: <strong>Upstream Dependency.</strong> The cell this node monitors (not inherited).</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The execution tier (inherits from
+<code>principal</code> if null).</li>
+<li><code>receptor</code>: <strong>Transformation Pipeline.</strong> The logic for processing pulses.</li>
+<li><code>testRule</code>: <strong>Policy Guard.</strong> Integrity rules for state changes (inherits
+from <code>principal</code> if null).</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Manages the observer registry for the
+extension.</li>
+<li><code>user</code>: <strong>Ad-hoc Metadata.</strong> Optional extension-specific storage.</li>
+<li><code>override</code>: <strong>Pre-compiled Blueprint.</strong> A nucleus whose record will be
+directly adopted.</li>
+<li><code>principal</code>: <strong>The Prototype Source.</strong> The nucleus providing structural
+inheritance.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Nucleus-class.html">Nucleus</a> instance representing a <strong>Hierarchical Property Extension</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>: The high-level extension method.</li>
+<li><a href="../../cell/DeputyContext/evolve.html">DeputyContext.evolve</a>: For specializing security and mandate dimensions.</li>
+<li><a href="../../cell/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a>: For restoring evolved nuclei from state.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">NucleusBase.evolve({
+  EphemeralPolicy? ephemeralPolicy,
+
+  Cell? bind,
+  Context? context,
+  Receptor? receptor,
+  TestCell? testRule,
+  Synapses? synapses,
+  Record? user,
+
+  Nucleus? override,
+  required Nucleus principal
+}) : this.fromRecord((
+    local: (override as NucleusBase?)?.record.local ?? NucleusBase.mask(bind: bind,
+        context: context,
+        receptor: receptor, testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy),
+    principal: principal
+));</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.evolve constructor</li>
+</ol>
+
+    <h5>NucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

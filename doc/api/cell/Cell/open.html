@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the open method from the Cell class, for the Dart programming language.">
+  <title>open method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">open static method</li>
+  </ol>
+  <div class="self-name">open</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">open</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/OpenCell-class.html">OpenCell</a></span>
+<span class="name ">open</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="open-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="open-param-context"><span class="type-annotation"><a href="../../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="open-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="open-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
+<li><span class="parameter" id="open-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="open-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="open-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Manual Control Interface</strong>—a specialized node that allows
+you to manually push data into the reactive network or change how cells
+are connected at runtime.</p>
+<p>The <a href="../../cell/Cell/open.html">open</a> factory creates an <strong>Imperative Gateway</strong>. Unlike most cells
+that react automatically to upstream changes, an <a href="../../cell/OpenCell-class.html">OpenCell</a> acts as a
+"Sovereign Port." It is designed for cases where your code needs to bridge
+external systems or manually manage the lifecycle of connections while the
+app is running.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Dynamic Topology</strong>: Use this when you need an entry point that isn't locked to a single
+source, or when you need to manually <code>link</code> and <code>unlink</code> observers
+as the state of your application changes.</li>
+<li><strong>Module Boundaries</strong>: Creating a public API for a module that
+receives external commands.</li>
+<li><strong>Dynamic Layouts</strong>: Attaching or detaching observers based on
+user navigation or temporary app states.</li>
+<li><strong>Testing &amp; Simulation</strong>: Manually injecting data pulses to verify
+that downstream logic behaves correctly.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The factory creates an <a href="../../cell/OpenCell-class.html">OpenCell</a> with a public <code>receptor</code>.</li>
+<li><strong>Pushing Data</strong>: Calling <code>receptor(pulse)</code> manually sends data into
+the network, provided it passes the <code>testRule</code> validation.</li>
+<li><strong>Dynamic Connections</strong>: You can use the <code>link()</code> and <code>unlink()</code>
+methods to change which cells receive updates at runtime.</li>
+<li><strong>Tracking History</strong>: Any data pushed through the receptor is
+recorded with its origin, allowing you to trace the cause of changes
+back to this specific gateway.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Security Rules Apply</strong>: Even though this node is "Open," it is not
+a backdoor. All manual data entries must match the <code>context</code>
+permissions and pass the safety checks in the <code>testRule</code>.</li>
+<li><strong>Connection Authority</strong>: Linking and unlinking other nodes are
+protected actions. A caller must have the correct <a href="../../cell/Context-class.html">Context</a>
+authority to change the network structure.</li>
+<li><strong>Hybrid Mode</strong>: If a <code>bind</code> source is provided, the cell will relay
+data from that source automatically while <em>also</em> accepting your
+manual inputs.</li>
+<li><strong>Flow Control</strong>: Use the <code>synapses</code> parameter to attach a
+<a href="../../cell/PropagationPolicy-class.html">PropagationPolicy</a>. This allows you to debounce state emissions,
+throttle high-frequency updates, or batch multiple state changes
+into a single downstream pulse.</li>
+</ul>
+<h3 id="example-system-command-gateway">Example: System Command Gateway</h3>
+<pre class="language-dart"><code class="language-dart">final commandGate = Cell.open(
+  context: Context.admin,
+  receptor: Receptor((cell, pulse, {user}) {
+    // Handle manual commands like "SHUTDOWN" or "RESET"
+    return pulse;
+  }),
+);
+
+// Manually push a pulse from a UI button or admin console
+commandGate.emit(Pulse('SHUTDOWN', type: 'system.command'));
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Management.</strong> Defines how the node
+is cleaned up when it is no longer being used.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The security and priority tier
+that governs manual data entry and connection changes.</li>
+<li><code>bind</code>: <strong>Ingress Source.</strong> An optional cell to watch automatically.</li>
+<li><code>receptor</code>: <strong>The Control Port.</strong> The logic that processes your
+manual data injections. Defaults to passing data through as-is.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> A safety check that validates
+both manual pulses and requests to link/unlink new cells.</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Configures how data is initially
+distributed to other parts of the app.</li>
+<li><code>forceLock</code>: <strong>Atomic Isolation.</strong> If <code>true</code>, ensures that manual
+inputs are processed one at a time in a safe, isolated block.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>An <a href="../../cell/OpenCell-class.html">OpenCell</a> instance that serves as a governable, manual gateway.</p>
+<h3 id="example">Example:</h3>
+<p>See <code>example/open_cell_demo.dart</code> for a complete walkthrough of manual signal injection and dynamic topology control.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Cell/ingress.html">Cell.ingress</a>: For standard, single-path entry points.</li>
+<li><a href="../../cell/Cell/hub.html">Cell.hub</a>: For routing manual signals to multiple specific handlers.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static OpenCell open({
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  Cell? source,
+  Receptor receptor = Receptor.passThrough,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
+  return OpenCell.governed(
+    context: context,
+    ephemeralPolicy: ephemeralPolicy,
+    bind: source,
+    receptor: receptor,
+    testRule: testRule,
+    synapses: synapses,
+    forceLock: forceLock,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">open static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the switchMap method from the Cell class, for the Dart programming language.">
+  <title>switchMap method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">switchMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+<span class="name ">switchMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="switchMap-param-mapper"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>)</span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Dynamic Provider Switch</strong>—a specialized node that
+swaps its data source at runtime based on the selection from another cell.</p>
+<p>The <a href="../../cell/Cell/switchMap.html">switchMap</a> factory acts as an <strong>Active Router</strong>. It creates a
+"Pluggable Bridge" that unlinks from its previous data source and links to
+a new one whenever the <code>source</code> cell emits a fresh signal.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Dynamic Profiles</strong>: Switching between different user accounts or
+settings modules where each selection represents a unique state tree.</li>
+<li><strong>Scoped Data</strong>: Changing an API endpoint or database query whenever
+a search term or category changes.</li>
+<li><strong>Nested States</strong>: Accessing a sub-property that is itself a cell,
+where the parent cell might change.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Triggering</strong>: The factory creates an output cell that listens to the <code>source</code>.</li>
+<li><strong>Mapping</strong>: When the source emits, the <code>mapper</code> is called with the
+new payload to produce a new "inner" cell.</li>
+<li><strong>Rebinding</strong>: The output cell automatically unlinks from the previous
+inner cell and links to the new one.</li>
+<li><strong>Relaying</strong>: Every pulse from the currently active inner cell is
+forwarded to the output cell's synapses.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Relay Only</strong>: This cell does not emit the values from the <code>source</code>;
+it only emits values from the cell returned by the <code>mapper</code>.</li>
+<li><strong>Automatic Cleanup</strong>: When the source changes, the link to the
+previous inner cell is severed automatically, preventing signal leaks
+from inactive sources.</li>
+<li><strong>Termination</strong>: If <code>mapper</code> returns a cell that is currently silent,
+this switch will also be silent until that inner cell emits.</li>
+<li><strong>Causal Integrity</strong>: Forwarded pulses preserve their forensic history,
+tracing back through the inner cell to the switch trigger.</li>
+</ul>
+<h3 id="design-note-source-selection-vs-background-enrichment">Design Note: Source Selection vs. Background Enrichment</h3>
+<ul>
+<li><strong><a href="../../cell/Cell/switchMap.html">Cell.switchMap</a></strong> is for <strong>Source Selection</strong>. The <code>mapper</code> must
+return a <code>Cell</code>. It is used to redirect the flow of data—like tuning a
+radio to a different station.</li>
+<li><strong><a href="../../cell/Cell/asyncMap.html">Cell.asyncMap</a></strong> is for <strong>Background Enrichment</strong>. The <code>mapper</code>
+returns a <code>Future</code>. It is used for one-time async operations—like
+ordering a delivery and waiting for the result.</li>
+</ul>
+<h3 id="example-user-profile-switcher">Example: User Profile Switcher</h3>
+<pre class="language-dart"><code class="language-dart">final selectedId = Cell.state&lt;int&gt;(initial: 1);
+
+// Switch to a new profile cell whenever the ID changes
+final profile = Cell.switchMap&lt;int, Profile&gt;(
+  selectedId.cell,
+  (id) =&gt; getProfileCellFor(id),
+);
+
+// Changing the ID automatically swaps the data source for 'profile'
+selectedId.emit(2);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Switch Trigger.</strong> The cell that decides when to
+change the data source.</li>
+<li><code>mapper</code>: <strong>The Provider Logic.</strong> A function that takes the new
+selection and returns the next <a href="../../cell/Cell-class.html">Cell</a> to listen to.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Management.</strong> Defines how the node
+is cleaned up when it is no longer in use.</li>
+<li><a href="../../cell/Cell/context.html">context</a>: <strong>Operational Authority.</strong> The security and priority tier
+governing the switch.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> A validation check that must pass
+before a switch or a forwarded pulse is broadcast.</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Configures distribution behavior
+for the forwarded stream.</li>
+<li><code>forceLock</code>: <strong>Atomic Isolation.</strong> If <code>true</code>, ensures the switching
+logic is protected by a dedicated lock.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Cell-class.html">Cell</a> instance representing a <strong>Switched Stream</strong>. It forwards
+data from whatever cell was last produced by the <code>mapper</code>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Cell/derive.html">Cell.derive</a>: For 1-to-1 data changes where the source stays the same.</li>
+<li><a href="../../cell/Cell/hub.html">Cell.hub</a>: For routing a single signal to multiple destinations.</li>
+<li><a href="../../cell/Cell/asyncMap.html">Cell.asyncMap</a>: For enrichment via asynchronous futures.</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/switch_map_demo.dart</code> for a walkthrough
+of dynamic dependency injection.</li>
+<li><strong>HowTo</strong>: See <code>guide/HowTo_17_Essential_Operators.md</code> for best practices
+on using switching and routing operators.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Cell switchMap&lt;S, T&gt;(
+  Cell source,
+  Cell Function(S value) mapper,
+) =&gt;
+    _switchMap(source, mapper);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

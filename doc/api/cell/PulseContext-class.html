@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PulseContext class from the cell library, for the Dart programming language.">
+  <title>PulseContext class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">PulseContext class</li>
+  </ol>
+  <div class="self-name">PulseContext</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;PulseContext-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">PulseContext</span> class 
+ 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-context cp-8 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Represents the <strong>Causal Identity</strong> and ontological <strong>Provenance</strong> of a <a href="../cell/Pulse-class.html">Pulse</a>.</p>
+<p><a href="../cell/PulseContext-class.html">PulseContext</a> serves as the telemetric anchor for a stimulus, tracking its
+historical lineage, reasoning justification, and priority as it propagates
+through the <strong>Switching Fabric</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You rarely create a <a href="../cell/PulseContext-class.html">PulseContext</a> directly. Instead, use one of the
+specialised factories:
+<ul>
+<li><a href="../cell/PulseContext/PulseContext.userAction.html">PulseContext.userAction</a> – for human‑initiated actions.</li>
+<li><a href="../cell/PulseContext/PulseContext.aiInference.html">PulseContext.aiInference</a> – for AI‑generated signals.</li>
+<li><a href="../cell/PulseContext/PulseContext.regulated.html">PulseContext.regulated</a> – for compliance‑bound pulses.</li>
+<li><a href="../cell/PulseContext/PulseContext.homeostasis.html">PulseContext.homeostasis</a> – for system maintenance.</li>
+<li><a href="../cell/PulseContext/PulseContext.telemetry.html">PulseContext.telemetry</a> – for high‑frequency monitoring.</li>
+<li><a href="../cell/PulseContext/PulseContext.instruction.html">PulseContext.instruction</a> – for administrative commands.</li>
+<li>And many more – see the factories below.</li>
+</ul>
+</li>
+<li>If none of these fit, you can use the general constructor with named
+parameters (actor, reason, priority, etc.).</li>
+<li>Use <a href="../cell/PulseContext-class.html">PulseContext</a> whenever you need to attach provenance metadata to a
+pulse – e.g., to record who triggered it, why, and with what priority.
+This is essential for auditing, debugging, and security enforcement.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><a href="../cell/PulseContext-class.html">PulseContext</a> extends <a href="../cell/ContextBase-class.html">ContextBase</a>, so it supports <strong>prototype
+inheritance</strong> via a <code>parent</code> chain.</li>
+<li>It stores its dimensions in a memory‑efficient record, using the
+<a href="../cell/Provenance.html">Provenance</a> enum as keys.</li>
+<li>Some dimensions are static (immutable), others are evolvable.</li>
+<li>The <code>evolve</code> method creates a refined context, useful when a pulse
+passes through multiple processing stages.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The context is <strong>immutable</strong> – all changes create a new instance.</li>
+<li>The <code>traceId</code> is auto‑generated if not provided, ensuring uniqueness.</li>
+<li>The <code>parentTraceId</code> is automatically linked when you evolve a context
+from an existing one.</li>
+<li>The <code>integrity</code> dimension is computed automatically by the framework
+and is not something you set manually.</li>
+<li>The context is <strong>not</strong> the pulse – it's a separate metadata container
+that travels with the pulse.</li>
+</ul>
+<h3 id="example-creating-a-user-action-context">Example: Creating a User Action Context</h3>
+<pre class="language-dart"><code class="language-dart">final context = PulseContext.userAction(
+  actor: 'admin_01',
+  reason: 'Manual price update',
+  priority: 80,
+);
+final pulse = Pulse.governed&lt;int&gt;(payload: 100, context: context);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Provenance.html">Provenance</a> – the underlying dimensions.</li>
+<li><a href="../cell/Pulse/Pulse.governed.html">Pulse.governed</a> – the factory that attaches a context to a pulse.</li>
+<li><a href="../cell/Context-class.html">Context</a> – the base context interface.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell/ContextBase-class.html">ContextBase</a></li>
+      <li>PulseContext</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="PulseContext.new" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.html">PulseContext</a></span><span class="signature">({<span class="parameter" id="-param-baseContext"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a>?</span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="-param-actor"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">purpose</span>, </span><span class="parameter" id="-param-strategy"><span class="type-annotation"><a href="../cell/ReasoningStrategy.html">ReasoningStrategy</a>?</span> <span class="parameter-name">strategy</span>, </span><span class="parameter" id="-param-confidence"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">confidence</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-compliance"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">compliance</span>, </span><span class="parameter" id="-param-sensitivity"><span class="type-annotation"><a href="../cell/Sensitivity.html">Sensitivity</a>?</span> <span class="parameter-name">sensitivity</span>, </span><span class="parameter" id="-param-auditLevel"><span class="type-annotation"><a href="../cell/AuditLevel.html">AuditLevel</a>?</span> <span class="parameter-name">auditLevel</span>, </span><span class="parameter" id="-param-traceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">traceId</span>, </span><span class="parameter" id="-param-parentTraceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">parentTraceId</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Signal Provenance</strong> environment from discrete telemetric
+parameters.
+        </dd>
+        <dt id="PulseContext.aiInference" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.aiInference.html">PulseContext.aiInference</a></span><span class="signature">({<span class="parameter" id="aiInference-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="aiInference-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="aiInference-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="aiInference-param-confidence"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">confidence</span>, </span><span class="parameter" id="aiInference-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">purpose</span>, </span><span class="parameter" id="aiInference-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">20</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses an <strong>Autonomous Inference Blueprint</strong> for signals originating
+from AI‑driven reasoning, pattern recognition, or optimisation tasks.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.collaboration" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.collaboration.html">PulseContext.collaboration</a></span><span class="signature">({<span class="parameter" id="collaboration-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="collaboration-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="collaboration-param-targetAgent"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">targetAgent</span>, </span><span class="parameter" id="collaboration-param-task"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">task</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Collaboration &amp; Delegation Blueprint</strong> for signals
+routed between different <strong>Managed Nodes</strong> or autonomous agents.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.complianceAudit" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.complianceAudit.html">PulseContext.complianceAudit</a></span><span class="signature">({<span class="parameter" id="complianceAudit-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="complianceAudit-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="complianceAudit-param-framework"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">framework</span>, </span><span class="parameter" id="complianceAudit-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="complianceAudit-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">35</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Forensic Blueprint</strong> for signals generated by regulatory
+monitors, automated auditors, or integrity scanning daemons.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.fromEntries" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.fromEntries.html">PulseContext.fromEntries</a></span><span class="signature">(<span class="parameter" id="fromEntries-param-entries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">entries</span>, {</span><span class="parameter" id="fromEntries-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="fromEntries-param-parent"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a>?</span> <span class="parameter-name">parent</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Signal Provenance Environment</strong> from a collection of
+strongly‑typed telemetric entries.
+        </dd>
+        <dt id="PulseContext.homeostasis" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.homeostasis.html">PulseContext.homeostasis</a></span><span class="signature">({<span class="parameter" id="homeostasis-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="homeostasis-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="homeostasis-param-baseContext"><span class="type-annotation"><a href="../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="homeostasis-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">10</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a <a href="../cell/PulseContext-class.html">PulseContext</a> specialised for <strong>System Maintenance</strong> and
+<strong>Metabolic Stability</strong> (e.g., garbage collection, heartbeat, topology
+rebalancing).
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.hypothesis" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.hypothesis.html">PulseContext.hypothesis</a></span><span class="signature">({<span class="parameter" id="hypothesis-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="hypothesis-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="hypothesis-param-theory"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">theory</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses an <strong>Exploratory Hypothesis Blueprint</strong> for "What‑If"
+simulations or non‑committal state projections.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.inference" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.inference.html">PulseContext.inference</a></span><span class="signature">({<span class="parameter" id="inference-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="inference-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="inference-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="inference-param-confidence"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">confidence</span>, </span><span class="parameter" id="inference-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">purpose</span>, </span><span class="parameter" id="inference-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">20</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes an <strong>Autonomous Inference Blueprint</strong> for signals originating
+from AI-driven reasoning, pattern recognition, or optimization tasks.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.infrastructureChange" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.infrastructureChange.html">PulseContext.infrastructureChange</a></span><span class="signature">({<span class="parameter" id="infrastructureChange-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="infrastructureChange-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="infrastructureChange-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses an <strong>Infrastructure Orchestration Blueprint</strong> for signals
+originating from topology refactoring, resource scaling, or graph pruning.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.instruction" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.instruction.html">PulseContext.instruction</a></span><span class="signature">({<span class="parameter" id="instruction-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="instruction-param-humanActor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">humanActor</span>, </span><span class="parameter" id="instruction-param-directive"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">directive</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Manual Override Blueprint</strong> for signals originating from
+direct administrative commands or developer‑level interventions.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.regulated" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.regulated.html">PulseContext.regulated</a></span><span class="signature">({<span class="parameter" id="regulated-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="regulated-param-framework"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">framework</span>, </span><span class="parameter" id="regulated-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="regulated-param-baseContext"><span class="type-annotation"><a href="../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="regulated-param-sensitivity"><span class="type-annotation"><a href="../cell/Sensitivity.html">Sensitivity</a></span> <span class="parameter-name">sensitivity</span> = <span class="default-value">Sensitivity.confidential</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a <a href="../cell/PulseContext-class.html">PulseContext</a> anchored to a specific <strong>Regulatory Framework</strong>
+(e.g., GDPR, HIPAA, SOC2).
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.securityIntervention" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.securityIntervention.html">PulseContext.securityIntervention</a></span><span class="signature">({<span class="parameter" id="securityIntervention-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="securityIntervention-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="securityIntervention-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Threat Mitigation Blueprint</strong> for signals originating from
+high‑priority security lock‑downs or pre‑emptive shielding operations.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.selfCorrection" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.selfCorrection.html">PulseContext.selfCorrection</a></span><span class="signature">({<span class="parameter" id="selfCorrection-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="selfCorrection-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="selfCorrection-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="selfCorrection-param-targetField"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">targetField</span>, </span><span class="parameter" id="selfCorrection-param-confidence"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">confidence</span> = <span class="default-value">0.9</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Self‑Correction Blueprint</strong> for signals originating from
+automated recovery, error mitigation, or state‑repair logic.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.systemInternal" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.systemInternal.html">PulseContext.systemInternal</a></span><span class="signature">({<span class="parameter" id="systemInternal-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="systemInternal-param-reason"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="systemInternal-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">purpose</span>, </span><span class="parameter" id="systemInternal-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">35</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Deterministic System Blueprint</strong> for signals originating
+from the framework's internal maintenance and homeostasis infrastructure.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.telemetry" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.telemetry.html">PulseContext.telemetry</a></span><span class="signature">({<span class="parameter" id="telemetry-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="telemetry-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="telemetry-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="telemetry-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">purpose</span> = <span class="default-value">&#39;METRIC_COLLECTION&#39;</span>, </span><span class="parameter" id="telemetry-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">10</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>Telemetry &amp; Observation Blueprint</strong> for high‑frequency
+signals that provide visibility without driving state mutation.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PulseContext.userAction" class="callable">
+          <span class="name"><a href="../cell/PulseContext/PulseContext.userAction.html">PulseContext.userAction</a></span><span class="signature">({<span class="parameter" id="userAction-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="userAction-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span><span class="parameter" id="userAction-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span><span class="parameter" id="userAction-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">purpose</span>, </span><span class="parameter" id="userAction-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">60</span>, </span><span class="parameter" id="userAction-param-sensitivity"><span class="type-annotation"><a href="../cell/Sensitivity.html">Sensitivity</a></span> <span class="parameter-name">sensitivity</span> = <span class="default-value">Sensitivity.public</span></span>})</span>
+        </dt>
+        <dd>
+          Syntheses a <strong>User‑Initiated Blueprint</strong> for signals originating from
+direct human interaction or external client‑side triggers.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="actor" class="property">
+  <span class="name"><a href="../cell/PulseContext/actor.html">actor</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="auditLevel" class="property">
+  <span class="name"><a href="../cell/PulseContext/auditLevel.html">auditLevel</a></span>
+  <span class="signature">&#8594; <a href="../cell/AuditLevel.html">AuditLevel</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="compliance" class="property">
+  <span class="name"><a href="../cell/PulseContext/compliance.html">compliance</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  The regulatory standards or compliance frameworks (e.g., GDPR, PCI-DSS)
+governing this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="confidence" class="property">
+  <span class="name"><a href="../cell/PulseContext/confidence.html">confidence</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="constraints" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/constraints.html">constraints</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Operational guardrails and logic parameters governing resource usage
+and agent behavior.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dataSources" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/dataSources.html">dataSources</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The origins of information (synthetic or organic) that this context
+is permitted to ingest.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="domains" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/domains.html">domains</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The primary high-level functional areas or business namespaces this
+context belongs to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Generates a unique hash derived from the <strong>Ontological Footprint</strong>
+of the context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="identity" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/identity.html">identity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The unique instance name or specific label assigned to this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="integrity" class="property">
+  <span class="name"><a href="../cell/PulseContext/integrity.html">integrity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isNot" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/isNot.html">isNot</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Explicit prohibitions defining what this context is strictly
+forbidden from becoming or accessing.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="others" class="property">
+  <span class="name"><a href="../cell/PulseContext/others.html">others</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="parentTraceId" class="property">
+  <span class="name"><a href="../cell/PulseContext/parentTraceId.html">parentTraceId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="partOf" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/partOf.html">partOf</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The parent system module or container that this context
+represents a logical slice of.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="priority" class="property">
+  <span class="name"><a href="../cell/PulseContext/priority.html">priority</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="purpose" class="property">
+  <span class="name"><a href="../cell/PulseContext/purpose.html">purpose</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="reason" class="property">
+  <span class="name"><a href="../cell/PulseContext/reason.html">reason</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sensitivity" class="property">
+  <span class="name"><a href="../cell/PulseContext/sensitivity.html">sensitivity</a></span>
+  <span class="signature">&#8594; <a href="../cell/Sensitivity.html">Sensitivity</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="stakeholders" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/stakeholders.html">stakeholders</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The entities, users, or autonomous agents responsible for or impacted
+by this context's execution.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="strategy" class="property">
+  <span class="name"><a href="../cell/PulseContext/strategy.html">strategy</a></span>
+  <span class="signature">&#8594; <a href="../cell/ReasoningStrategy.html">ReasoningStrategy</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="subDomains" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/subDomains.html">subDomains</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Granular subdivisions of the primary <a href="../cell/ContextBase/domains.html">domains</a>, used for precise
+scoping of authority.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="taxonomy" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/taxonomy.html">taxonomy</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The fundamental categorical identity or functional archetype of this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="topology" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/topology.html">topology</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The structural position or network role of this context within the
+organizational hierarchy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="traceId" class="property">
+  <span class="name"><a href="../cell/PulseContext/traceId.html">traceId</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="type" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/type.html">type</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The categorical archetype or "Kind" of functional operation this context
+represents.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="version" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/version.html">version</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The schema or ontological version used to interpret the metadata
+within this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="evolve" class="callable">
+  <span class="name"><a href="../cell/PulseContext/evolve.html">evolve</a></span><span class="signature">(<wbr><span class="parameter" id="evolve-param-resolver"><span>covariant</span> <span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-evolvable"><span class="type-annotation"><a href="../cell/Governance-class.html">Governance</a></span> <span class="parameter-name">evolvable</span></span>), {</span><span class="parameter" id="evolve-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/PulseContext-class.html">PulseContext</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Syntheses a <strong>Structural Signal Refinement</strong> of the current provenance,
+producing a specialised <a href="../cell/PulseContext-class.html">PulseContext</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lineage" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/lineage.html">lineage</a></span><span class="signature">(<wbr><span class="parameter" id="lineage-param-dimension"><span>covariant</span> <span class="type-annotation"><a href="../cell/Ontology.html">Ontology</a></span> <span class="parameter-name">dimension</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Traverses the hierarchical tree to produce a <strong>Causal Trace</strong> of a specific
+<strong>knowledge dimension</strong> associated with this context.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs <strong>Identity Synthesis</strong> by comparing the structural convergence
+of two <strong>Somatic Signatures</strong>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator []" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-dimension"><span class="type-annotation"><a href="../cell/Governance-class.html">Governance</a></span> <span class="parameter-name">dimension</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses a specific <strong>Governance Pillar</strong> or ontological dimension by its
+type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic reasoning.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="system" class="constant">
+    <span class="name "><a href="../cell/PulseContext/system-constant.html">system</a></span>
+  <span class="signature">&#8594; const _PulseContextSystem</span>
+  
+
+</dt>
+<dd>
+  Accessor for the <strong>Core System Blueprint</strong>, providing a set of pre‑defined
+telemetric templates for standard internal operations.
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">PulseContext class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

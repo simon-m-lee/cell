@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Nucleolus class from the cell library, for the Dart programming language.">
+  <title>Nucleolus class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Nucleolus class</li>
+  </ol>
+  <div class="self-name">Nucleolus</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Nucleolus-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Nucleolus</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A specialized, terminal implementation of the <a href="../cell/Nucleus-class.html">Nucleus</a> contract representing
+the framework's "zero-state" and <strong>Ontological Root</strong>.</p>
+<p><a href="../cell/Nucleolus-class.html">Nucleolus</a> serves as the canonical, immutable representation of a blueprint
+that contains no custom configurations, no external dependencies, and no
+ancestral inheritance. It defines the floor of the property resolution system.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Root of Inheritance</strong>: Use as the terminal ancestor in any <a href="../cell/Nucleus-class.html">Nucleus</a>
+inheritance chain to stop recursive property walks.</li>
+<li><strong>Default Initialization</strong>: Use to represent a cell with framework-standard
+behavior (e.g., <a href="../cell/Context/system-constant.html">Context.system</a>, <a href="../cell/Receptor/passThrough-constant.html">Receptor.passThrough</a>).</li>
+<li><strong>Memory Optimization</strong>: Use to avoid heap allocation for nodes that do
+not require specialized configuration.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Terminal Boundary</strong>: Implements the end-of-chain logic by returning
+<code>null</code> for the <a href="../cell/Nucleolus/principal.html">principal</a> property.</li>
+<li><strong>Static Provisioning</strong>: Hard-codes framework baseline defaults for all
+governance pillars (<a href="../cell/Nucleolus/context.html">context</a>, <a href="../cell/Nucleolus/receptor.html">receptor</a>, <a href="../cell/Nucleolus/testRule.html">testRule</a>, etc.).</li>
+<li><strong>Flyweight Reification</strong>: As a <code>const</code> class, it allows the entire
+reactive fabric to share a single instance for every unconfigured node.</li>
+<li><strong>Zero-State Blueprint</strong>: Its internal record is a constant empty unit <code>()</code>,
+satisfying the structural contract of <a href="../cell/NucleusBase-class.html">NucleusBase</a> without runtime overhead.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Activation Resistance</strong>: The <code>activate()</code> method always returns <code>false</code>
+because the nucleolus represents an immutable blueprint, not a dynamic
+operational state.</li>
+<li><strong>Constant-Time Resolution</strong>: Property access on this class is O(1)
+native speed, as it bypasses record-masking logic entirely.</li>
+<li><strong>Ontological Purity</strong>: It provides the "naked" state of a reactive node,
+devoid of any metadata, ad-hoc user records, or egress synapses.</li>
+<li><strong>Immutable Integrity</strong>: Being transitively immutable, it ensures that
+the global defaults of the system cannot be altered at runtime.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<p>(None)</p>
+<h3 id="returns">Returns:</h3>
+<p>A terminal <a href="../cell/Nucleus-class.html">Nucleus</a> instance representing the framework's zero-state.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Nucleus/Nucleus.empty.html">Nucleus.empty</a>: The standard factory for obtaining this terminal root.</li>
+<li><a href="../cell/NucleusBase-class.html">NucleusBase</a>: The property-aware base class for all blueprints.</li>
+<li><a href="../cell/Context/system-constant.html">Context.system</a>: The default authority level provided by this node.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell/NucleusBase-class.html">NucleusBase</a></li>
+      <li>Nucleolus</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Nucleolus.new" class="callable">
+          <span class="name"><a href="../cell/Nucleolus/Nucleolus.html">Nucleolus</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          The default constant constructor for <a href="../cell/Nucleolus-class.html">Nucleolus</a>.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="bind" class="property">
+  <span class="name"><a href="../cell/Nucleolus/bind.html">bind</a></span>
+  <span class="signature">&#8594; <a href="../cell/Cell-class.html">Cell</a>?</span>
+  
+
+</dt>
+<dd>
+  The upstream <a href="../cell/Cell-class.html">Cell</a> dependency that serves as the primary <strong>Ingress Source</strong>
+for this node's reactive logic.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="cell" class="property inherited">
+  <span class="name"><a href="../cell/NucleusBase/cell.html">cell</a></span>
+  <span class="signature">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the live <a href="../cell/Cell-class.html">Cell</a> instance that this nucleus is bound to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="clone" class="property">
+  <span class="name"><a href="../cell/Nucleolus/clone.html">clone</a></span>
+  <span class="signature">&#8594; <a href="../cell/Nucleus-class.html">Nucleus</a></span>
+  
+
+</dt>
+<dd>
+  Generates a decoupled, peer-level replica of the current <a href="../cell/Nucleus-class.html">Nucleus</a> blueprint
+with an independent synchronization domain.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="context" class="property">
+  <span class="name"><a href="../cell/Nucleolus/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd>
+  The operational tier and execution environment assigned to the <a href="../cell/Cell-class.html">Cell</a>
+associated with this <a href="../cell/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell/NucleusBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inheritable" class="property">
+  <span class="name"><a href="../cell/Nucleolus/inheritable.html">inheritable</a></span>
+  <span class="signature">&#8594; <a href="../cell/InheritableHandle.html">InheritableHandle</a></span>
+  
+
+</dt>
+<dd>
+  Retrieves the optimized <strong>Logic Inheritance Handle</strong> containing the
+shared behavioral configuration for this <a href="../cell/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isActivated" class="property">
+  <span class="name"><a href="../cell/Nucleolus/isActivated.html">isActivated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this nucleus has been bound to a live <a href="../cell/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property inherited">
+  <span class="name"><a href="../cell/NucleusBase/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property">
+  <span class="name"><a href="../cell/Nucleolus/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the associated <a href="../cell/Cell-class.html">Cell</a> has been formally invalidated
+and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lock" class="property">
+  <span class="name"><a href="../cell/Nucleolus/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd>
+  The synchronization primitive used to ensure thread-safe and atomic
+operations across the reactive <a href="../cell/Cell-class.html">Cell</a> associated with this <a href="../cell/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="principal" class="property">
+  <span class="name"><a href="../cell/Nucleolus/principal.html">principal</a></span>
+  <span class="signature">&#8594; <a href="../cell/Nucleus-class.html">Nucleus</a>?</span>
+  
+
+</dt>
+<dd>
+  The optional reference to a precursor <a href="../cell/Nucleus-class.html">Nucleus</a> in the inheritance
+hierarchy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="receptor" class="property">
+  <span class="name"><a href="../cell/Nucleolus/receptor.html">receptor</a></span>
+  <span class="signature">&#8594; <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The <strong>Transformation Pipeline</strong> and pulse processing engine for the
+associated <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="record" class="property inherited">
+  <span class="name"><a href="../cell/NucleusBase/record.html">record</a></span>
+  <span class="signature">&#8594; dynamic</span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="synapses" class="property">
+  <span class="name"><a href="../cell/Nucleolus/synapses.html">synapses</a></span>
+  <span class="signature">&#8594; <a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The connectivity manager responsible for tracking and notifying downstream
+observers of this <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="testRule" class="property">
+  <span class="name"><a href="../cell/Nucleolus/testRule.html">testRule</a></span>
+  <span class="signature">&#8594; <a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
+mutations and operational permissions for the associated <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="timestamp" class="property">
+  <span class="name"><a href="../cell/Nucleolus/timestamp.html">timestamp</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Temporal Origin</strong> and synthesis record of this <a href="../cell/Nucleus-class.html">Nucleus</a> instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="user" class="property">
+  <span class="name"><a href="../cell/Nucleolus/user.html">user</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span>
+  
+
+</dt>
+<dd>
+  Retrieves the optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing developer-defined metadata or
+custom property extensions for the associated <a href="../cell/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="activate" class="callable">
+  <span class="name"><a href="../cell/Nucleolus/activate.html">activate</a></span><span class="signature">(<wbr><span class="parameter" id="activate-param-cell"><span>covariant</span> <span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Activates this nucleus by binding it to a live <a href="../cell/Cell-class.html">Cell</a> instance.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell/NucleusBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Nucleolus class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

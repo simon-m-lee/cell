@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Unmodifiable class from the cell library, for the Dart programming language.">
+  <title>Unmodifiable class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Unmodifiable class</li>
+  </ol>
+  <div class="self-name">Unmodifiable</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Unmodifiable-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Unmodifiable</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A specialized <strong>Marker Interface</strong> and architectural anchor used to identify
+reactive nodes and data structures that have been restricted to <strong>Read-Only</strong>
+access.</p>
+<p>In the framework's <strong>Deputy Pattern</strong>, <a href="../cell/Unmodifiable-class.html">Unmodifiable</a> serves as the primary
+indicator that an object is a restricted view of a mutable <strong>Principal</strong>.
+It enforces data integrity by providing a formal boundary that blocks
+imperative state changes while preserving reactive continuity.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Data Exposure</strong>: When exposing a <a href="../cell/ValueCell-class.html">ValueCell</a> or collection to downstream
+observers (like a UI layer or third-party module) that should not have
+the authority to trigger updates.</li>
+<li><strong>Ecosystem Consistency</strong>: Used in <code>cell_tissue</code> to mark read-only
+projections of lists, maps, and sets where structural modification is
+prohibited.</li>
+<li><strong>Security Boundaries</strong>: Defining clear "Principal vs. Deputy" roles
+within a complex domain model to prevent accidental side-effects.</li>
+<li><strong>Defensive Programming</strong>: Ensuring that specific reactive paths are
+mathematically guaranteed to be immutable from the perspective of their
+consumers.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capability Gating</strong>: Mutation-heavy methods (such as <a href="../cell/Cell/apply.html">Cell.apply</a> or
+collection modifiers) are designed to inspect the instance's type. If the
+instance implements <a href="../cell/Unmodifiable-class.html">Unmodifiable</a>, the operation is categorically
+rejected by the framework's security policy.</li>
+<li><strong>Reactive Continuity</strong>: An unmodifiable node remains a fully functional
+member of the <strong>Directed Acyclic Graph (DAG)</strong>. It will still receive
+pulses, update its internal state, and notify its own observers when its
+underlying principal changes.</li>
+<li><strong>Proxy Logic</strong>: It acts as a <strong>Behavioral Filter</strong>. The deputy
+delegates "Read" and "Observe" capabilities to the principal but
+intercepts and neutralizes "Write" requests.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Identity Transparency (Zero-Copy)</strong>: Most unmodifiable deputies share
+ the exact same physical storage and synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> as their
+ principal. This provides <strong>Zero-Cost Projection</strong> without the memory
+ overhead of data duplication.</li>
+<li><strong>Stateless Marker</strong>: As an abstract marker interface, it adds no
+ runtime object overhead or heap pressure; it serves purely as a
+ type-system hint for the validation and security engines.</li>
+<li><strong>Causal Lineage</strong>: A deputy maintains a transparent link to its
+ principal, ensuring that forensic traces correctly attribute state
+ changes to the original source of authority.</li>
+<li><strong>Not "Deep" Immutability</strong>: Marking a container as <a href="../cell/Unmodifiable-class.html">Unmodifiable</a>
+ restricts the container's own structure but does not necessarily
+ make the objects <em>inside</em> the container unmodifiable.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Create a mutable principal
+final settings = ValueCell&lt;String&gt;(value: "Active");
+
+// 2. Project a read-only deputy
+final publicView = settings.unmodifiable; // Implements Unmodifiable
+
+// 3. Inspect the gate
+void process(Cell&lt;String&gt; cell) {
+  if (cell is Unmodifiable) {
+    print("Read-only access: ${cell.value}");
+    // cell.apply(updateCmd); // This would be blocked by the policy engine.
+  }
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/ValueCell/unmodifiable.html">ValueCell.unmodifiable</a>: The primary method for creating read-only views.</li>
+<li><a href="../cell/Cell/apply.html">Cell.apply</a>: The mutation gateway that is gated by this interface.</li>
+<li><a href="../cell/Async-class.html">Async</a>: For the counterpart interface dealing with concurrency.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../cell/UnmodifiablePulse-class.html">UnmodifiablePulse</a></li>
+              <li><a href="../cell/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase</a></li>
+              <li><a href="../cell/UnmodifiableValueCell-class.html">UnmodifiableValueCell</a></li>
+          </ul></dd>
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Unmodifiable.new" class="callable">
+          <span class="name"><a href="../cell/Unmodifiable/Unmodifiable.html">Unmodifiable</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Unmodifiable class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

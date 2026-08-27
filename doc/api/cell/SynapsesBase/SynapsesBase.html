@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SynapsesBase.new constructor from Class SynapsesBase from the cell library, for the Dart programming language.">
+  <title>SynapsesBase.new constructor - SynapsesBase - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">SynapsesBase.new constructor</li>
+  </ol>
+  <div class="self-name">SynapsesBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;SynapsesBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">SynapsesBase&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">SynapsesBase&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../../cell/PropagationPolicy-class.html">PropagationPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="-param-downstreams"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">downstreams</span>, </span></li>
+<li><span class="parameter" id="-param-filter"><span class="type-annotation"><a href="../../cell/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>?</span> <span class="parameter-name">filter</span>, </span></li>
+<li><span class="parameter" id="-param-relay"><span class="type-annotation">void</span> <span class="parameter-name">relay</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+</ol>)?, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes a new <a href="../../cell/SynapsesBase-class.html">SynapsesBase</a> instance, acting as the <strong>Network
+Controller</strong> for signal distribution and graph topology management.</p>
+<p>This constructor establishes the infrastructure required to track
+downstream observers, apply hierarchical filtering, and manage the
+<strong>Conactive</strong> propagation of stimuli through the reactive <strong>Switching Fabric</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need full control over the synapses configuration.
+Most of the time, you can rely on the default <code>Synapses.enabled</code>.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The constructor stores the provided <code>policy</code>, <code>filter</code>, and initial
+<code>downstreams</code> in a memory‑efficient record.</li>
+<li>It prepares internal buffers and timers if the policy requires them.</li>
+<li>The resulting instance is ready for linking and broadcasting.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>downstreams</code> set is <strong>identity‑based</strong> – deputies and principals
+are distinct entries.</li>
+<li>The <code>filter</code> is applied to <strong>all</strong> outgoing pulses; if you need
+per‑observer filters, use separate synapses.</li>
+<li>The <code>policy</code> is optional; if omitted, propagation is immediate.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>policy</code>: The <a href="../../cell/PropagationPolicy-class.html">PropagationPolicy</a> defining temporal flow control and
+distribution strategy (e.g., immediate vs. batched).</li>
+<li><code>downstreams</code>: An initial <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of downstream <a href="../../cell/Cell-class.html">Cell</a> observers
+acting as the initial egress targets.</li>
+<li><code>filter</code>: A <a href="../../cell/FilterRule-class.html">FilterRule</a> that acts as security and sanitization
+middleware for the pulse stream.</li>
+<li><code>relay</code>: An optional <strong>Manual Delegation</strong> function. If provided, the
+default broadcast loop is bypassed, allowing for a custom distribution
+strategy across the downstream spokes.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">SynapsesBase({
+  PropagationPolicy? policy,
+
+  Iterable&lt;C&gt;? downstreams,
+  FilterRule&lt;P&gt;? filter,
+  void Function(P pulse)? relay,
+}) : _record = mask(
+    downstreams: downstreams != null ? &lt;C&gt;{...downstreams} : &lt;C&gt;{},
+    policy: policy,
+    filter: filter,
+    relay: relay,
+);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">SynapsesBase.new constructor</li>
+</ol>
+
+    <h5>SynapsesBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

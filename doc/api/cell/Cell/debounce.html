@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the debounce method from the Cell class, for the Dart programming language.">
+  <title>debounce method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">debounce static method</li>
+  </ol>
+  <div class="self-name">debounce</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">debounce</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+<span class="name ">debounce</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="debounce-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span></li>
+<li><span class="parameter" id="debounce-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Limits propagation by waiting for a period of stability in the <code>source</code>
+(classic Rx <code>debounceTime</code>).</p>
+<p>The <code>debounce</code> gate acts as a <strong>Temporal Filter</strong>, suppressing a rapid
+succession of signals and only allowing a pulse to pass once the upstream
+source has remained quiescent for a specified duration.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <code>debounce</code> when you want to ignore intermediate states in a burst of
+activity and only react to the "final" or stable state.</p>
+<ul>
+<li><strong>Search Bars</strong>: Waiting for a user to stop typing before initiating
+a network-heavy search query.</li>
+<li><strong>Form Validation</strong>: Triggering expensive validation logic only after
+the user has finished editing a field.</li>
+<li><strong>Auto-Save</strong>: Persisting data to a database once a burst of edits
+has ceased.</li>
+<li><strong>Noise Reduction</strong>: Filtering out jitter from high-frequency sensor
+data where only the settled value is relevant.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus</strong>: When the <code>source</code> emits a pulse, the debounce node
+starts an internal timer for the specified <code>duration</code>.</li>
+<li><strong>Interruption</strong>: If a new pulse arrives before the timer expires,
+the previous timer is cancelled and a new one starts from zero.</li>
+<li><strong>Settling</strong>: Only when the timer reaches the end of the <code>duration</code>
+window without interruption is the latest pulse propagated.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Leading Edge</strong>: If <code>leading</code> is <code>true</code>, the <em>first</em> pulse in a burst
+is emitted immediately, and subsequent pulses are debounced until the
+silence window is met.</li>
+<li><strong>Wait vs Throttle</strong>: Unlike <a href="../../cell/Cell/throttle.html">Cell.throttle</a> (which limits frequency),
+<code>debounce</code> requires a specific period of <em>silence</em> before emission.</li>
+<li><strong>Graph Stabilization</strong>: The debounce gate effectively introduces a
+delay in the reactive graph, so downstream nodes will observe changes
+later than they occur at the source.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Ingress Source.</strong> The upstream <a href="../../cell/Cell-class.html">Cell</a> to be monitored
+for stability.</li>
+<li><code>duration</code>: <strong>The Stability Window.</strong> The period of silence required
+before the signal is allowed to propagate.</li>
+<li><code>leading</code>: <strong>Initial Feedback.</strong> If <code>true</code>, the first pulse of a burst
+is propagated immediately. Defaults to <code>false</code>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Cell-class.html">Cell</a> instance representing a <strong>Stability Filter</strong>. It only
+propagates signals after the <code>source</code> has remained stable for the
+specified <code>duration</code>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Cell/throttle.html">Cell.throttle</a>: For frequency-based rate limiting (constant output rate).</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/stability_search_demo.dart</code> for a complete
+walkthrough of user-input stabilization and debounced API calls.</li>
+<li><strong>HowTo</strong>: See <code>guide/HowTo_Start.md</code> for a comprehensive guide on
+reactive patterns and scheduling.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Cell debounce(
+  Cell source,
+  Duration duration, {
+  bool leading = false,
+}) =&gt; _debounce(
+      source,
+      duration,
+      leading: leading,
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">debounce static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

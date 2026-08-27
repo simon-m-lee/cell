@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TestRule.chain constructor from Class TestRule from the cell library, for the Dart programming language.">
+  <title>TestRule.chain constructor - TestRule - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.chain const constructor</li>
+  </ol>
+  <div class="self-name">TestRule.chain</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;TestRule-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.chain</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.chain</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="chain-param-rules"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">rules</span>, {</span></li>
+<li><span class="parameter" id="chain-param-parent"><span class="type-annotation"><a href="../../cell/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="chain-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="chain-param-strategy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">strategy</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span></li>
+<li><span class="parameter" id="param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span>, </span></li>
+<li><span class="parameter" id="param-host"><span class="type-annotation">C?</span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Composite Validation Pipeline</strong> from a collection of rules.</p>
+<p>This constructor implements the <strong>Composite Pattern</strong>, allowing a group
+of <a href="../../cell/TestRule-class.html">TestRule</a> instances to be treated as a single atomic unit. It is
+primarily used to define <strong>Policy Clusters</strong> where multiple business
+invariants must be satisfied concurrently.</p>
+<h3 id="1-developer-ergonomics--human-legibility">1. Developer Ergonomics &amp; Human Legibility</h3>
+<p>This factory is used to build complex validation pipelines:</p>
+<pre class="language-dart"><code class="language-dart">final pipeline = TestRule.chain([
+  isPositive,
+  isInRange,
+  isAuthorized,
+  isNotExpired,
+]);
+
+// With custom strategy
+final conditionalPipeline = TestRule.chain(
+  [rule1, rule2, rule3],
+  strategy: (object, {host, arguments, user}) {
+    // Skip rule2 if object is null
+    if (object == null) {
+      return rule3.call(object, host: host);
+    }
+    return rule1.call(object, host: host)
+        .then((r) =&gt; r ? rule2.call(object, host: host) : false)
+        .then((r) =&gt; r ? rule3.call(object, host: host) : false);
+  },
+);
+</code></pre>
+<h3 id="2-execution-strategy-default-vs-custom">2. Execution Strategy: Default vs. Custom</h3>
+<p>This constructor provides two distinct modes of <strong>Policy Governance</strong>:</p>
+<ul>
+<li><strong>Sequential Validation Cluster (Default)</strong>: If no <code>strategy</code> is
+provided, the chain acts as a strict <strong>Sequential Gate</strong>. It iterates
+through the <code>rules</code> using <strong>Short-Circuit Logic</strong>; every rule must
+return <code>true</code> for the chain to pass.</li>
+<li><strong>Custom Strategy Override</strong>: If a <code>strategy</code> is provided, it
+assumes full responsibility for the <code>rules</code> collection. This allows
+for complex <strong>Scene-Driven Logic</strong>, such as "At-Least-One" (OR)
+validation, weighted consensus, or temporal thresholds.</li>
+</ul>
+<h3 id="3-hybrid-convergence-seamless-scaling">3. Hybrid Convergence: Seamless Scaling</h3>
+<p>Like the primary constructor, <code>.chain</code> supports <strong>Hybrid Convergence</strong>
+via <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>:</p>
+<ul>
+<li>The internal execution engine automatically detects if any rule in
+the collection returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
+<li>If an asynchronous rule is encountered, the chain seamlessly
+transitions into an asynchronous pipeline, ensuring <strong>Causal Integrity</strong>
+while maintaining high throughput for synchronous segments.</li>
+</ul>
+<h3 id="4-example-complete-security-pipeline">4. Example: Complete Security Pipeline</h3>
+<pre class="language-dart"><code class="language-dart">final securityCheck = TestRule.chain([
+  authenticationRule,
+  authorizationRule,
+  rateLimitRule,
+  complianceRule,
+]);
+
+// All checks must pass
+final authorized = await securityCheck.call(request);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>rules</code>: The collection of <a href="../../cell/TestRule-class.html">TestRule</a> instances to be aggregated.</li>
+<li><code>parent</code>: An optional rule to be evaluated after this chain passes,
+continuing the <strong>Chain of Responsibility</strong>.</li>
+<li><code>user</code>: Optional metadata or configuration data passed to the <code>strategy</code>.</li>
+<li><code>strategy</code>: An optional validation function that overrides the
+default sequential execution of the <code>rules</code> collection.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const TestRule.chain(Iterable&lt;TestRule&lt;C&gt;&gt; rules, {
+  TestRule&lt;C&gt;? parent, dynamic user,
+  FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
+}) : _record = strategy != null ? parent != null ? user != null
+    ? (rule: strategy, parent: parent, user: user) : (rule: strategy, parent: parent) : (rule: strategy)
+    : parent != null ? (rules: rules, parent: parent) : (rules: rules);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.chain const constructor</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

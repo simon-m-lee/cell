@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Ontology enum from the cell library, for the Dart programming language.">
+  <title>Ontology enum - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Ontology<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+  </ol>
+  <div class="self-name">Ontology</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Ontology-enum-sidebar.html">
+    <div>
+
+      <h1>
+        <span class="kind-enum">Ontology&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+        enum 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Defines the <strong>Structural Taxonomy, Static Identity, and Architectural Shape</strong>
+of a <a href="../cell/Cell-class.html">Cell</a>.</p>
+<p>In the Switching Fabric, <a href="../cell/Ontology.html">Ontology</a> represents the "Static Scene." While
+<a href="../cell/Provenance.html">Provenance</a> tracks the dynamic history of a signal (the "How"), <a href="../cell/Ontology.html">Ontology</a>
+provides the machine-readable schema that defines what a node <em>is</em> (the "What"),
+its role in the topology, and the rules governing its existence.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't configure <a href="../cell/Ontology.html">Ontology</a> directly. Instead, you use context
+factories like <code>Context.module()</code>, <code>Context.secureEnclave()</code>, etc.,
+which automatically populate the relevant ontology dimensions.
+Only reach for manual entries if none of the named factories fit.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Each dimension is a typed key that holds a value. Static pillars
+(<code>evolvable: false</code>) are fixed at creation; fluid boundaries
+(<code>evolvable: true</code>) can be refined via <code>context.evolve()</code>.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>evolvable</code> flag is not a suggestion – the framework enforces it
+at the engine level. If you try to evolve a non‑evolvable dimension,
+the change will be silently ignored.</li>
+<li>The <code>compose</code> and <code>evolve</code> methods are used internally by the framework
+to build contexts. You'll rarely call them directly.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Context-class.html">Context</a>: The operational environment built from ontology.</li>
+<li><a href="../cell/Mandate.html">Mandate</a>: The delegation parameters that govern deputy behavior.</li>
+<li><a href="../cell/Provenance.html">Provenance</a>: The dynamic history of a pulse.</li>
+</ul>
+</section>
+
+
+      <section>
+        <dl class="dl-horizontal">
+          
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark eNum-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></li>
+      <li>Ontology</li>
+    </ul>
+  </dd>
+
+          
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a></li>
+  </ul></dd>
+          
+
+
+        </dl>
+      </section>
+
+      <section class="summary offset-anchor" id="values">
+        <h2>Values</h2>
+        <dl class="properties">
+            <dt id="domains" class="constant">
+    <span class="name ">domains</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The high-level <strong>Knowledge Domains</strong> or business-level functional areas
+this <a href="../cell/Cell-class.html">Cell</a> governs.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated or specific identifier)
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Specify this if you want to group cells by business area (e.g., 'Finance',
+'Security') for scoped observation or audit reporting.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for affinity routing and constraint scoping.
+Pulses can be broadcast to all cells in a given domain.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>This is a static pillar – once set, it cannot be changed via <code>evolve</code>.
+This ensures that a cell's functional area doesn't drift.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Domains: 'Finance, PII'
+if (context.domains?.contains('PII') ?? false) {
+  redactSensitiveData(pulse.payload);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Ontology.html">Ontology.subDomains</a>: For granularity within domains.</li>
+<li><a href="../cell/Context/domains.html">Context.domains</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="dataSources" class="constant">
+    <span class="name ">dataSources</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The collection of origins, upstream interfaces, or sensory inputs from which
+this context derives its information.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this if your cell ingests data from specific external systems or
+APIs, to establish trust and provenance.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for conflict resolution and security enforcement.
+It helps prevent "Source Injection" attacks.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// DataSources: 'Auth_Service, User_DB'
+if (!context.dataSources?.contains('Auth_Service') ?? true) {
+  throw SecurityException("Unauthorized Data Origin");
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/dataSources.html">Context.dataSources</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="taxonomy" class="constant">
+    <span class="name ">taxonomy</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The formal <strong>Categorical Identity</strong> and functional archetype of the <a href="../cell/Cell-class.html">Cell</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (or a specialized Taxonomy identifier)
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to define what the cell <em>is</em> (e.g., 'Repository', 'Gateway').
+This is often set automatically by context factories like <code>Context.core</code>.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The taxonomy dictates expected behavior and interface contracts.
+It is used for capability discovery and protocol enforcement.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>As a static pillar, a cell's taxonomy cannot be changed after creation.
+This prevents identity drift – an 'Audit_Log' can't become a 'Mutable_Cache'.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Taxonomy: 'Audit_Repository'
+if (context.taxonomy == 'Audit_Repository') {
+  enforceCausalIntegrity(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/taxonomy.html">Context.taxonomy</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="topology" class="constant">
+    <span class="name ">topology</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Network Role</strong> or structural position of the <a href="../cell/Cell-class.html">Cell</a> within the system's
+organizational graph.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (e.g., 'Principal', 'Tissue', 'Leaf')
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this if the cell's position in the hierarchy matters – e.g., it's a
+root orchestrator ('Principal') or a leaf node.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The topology is used for authority routing and discovery. A 'Leaf' node
+cannot override the governance of a 'Principal' node.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Topology: 'Principal'
+if (context.topology == 'Principal') {
+  enforceHighSovereignty(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/topology.html">Context.topology</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="version" class="constant">
+    <span class="name ">version</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Structural Revision</strong> or schema version of the cell's payload and
+governing metadata.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Semantic Versioning recommended, e.g., '1.0.0')
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to track schema versions for compatibility checks. It's useful
+when you have multiple versions of a cell type.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Receptors can reject pulses that use deprecated structures by checking
+this version.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Version: '2.1.0'
+if (context.version?.startsWith('2') ?? false) {
+  processV2Payload(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/version.html">Context.version</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="type" class="constant">
+    <span class="name ">type</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The functional <strong>Category or Archetype</strong> of the signal or node, used to
+label the "Kind" of operation being performed.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (e.g., 'command', 'event', 'telemetry')
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this to categorize a cell. This allows the system to perform high-level
+routing or filtering without inspecting the raw data.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this to align <strong>Signals</strong> with <strong>Boundaries</strong>. For
+example, a <code>Pulse.type('alert')</code> can be screened by an <strong>Integrity Gate</strong>
+that specifically looks for the 'alert' type in the context.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>While <a href="../cell/Ontology.html">taxonomy</a> is a static architectural identifier (what the cell
+<em>is</em>), <a href="../cell/Ontology.html">type</a> is a fluid operational identifier (what the current
+interaction <em>is about</em>). It is designed to match the <code>type</code> parameter
+in the <a href="../cell/Pulse-class.html">Pulse</a> factory.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Type: 'security_event'
+if (context.type == 'security_event') {
+  triggerHighPriorityAlert(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Pulse/type.html">Pulse.type</a>: The factory for creating typed signals.</li>
+<li><a href="../cell/Context/type.html">Context.type</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="identity" class="constant">
+    <span class="name ">identity</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Unique Instance Name</strong> or specific label assigned to a <a href="../cell/Cell-class.html">Cell</a> or
+<a href="../cell/Pulse-class.html">Pulse</a>, distinguishing it from others of the same <a href="../cell/Ontology.html">type</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (e.g., 'Primary_Auth_Node', 'User_123_Profile')
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to name specific instances of components. While <a href="../cell/Ontology.html">type</a> defines
+<em>what</em> a thing is, <a href="../cell/Ontology.html">identity</a> defines <em>which</em> specific thing it is.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for <strong>Precise Targeting</strong> and <strong>Forensic Audit</strong>.
+When a <a href="../cell/Pulse-class.html">Pulse</a> moves through the fabric, its <a href="../cell/Ontology.html">identity</a> allows the
+<strong>Switching Fabric</strong> to track exactly which node initiated a change.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>This dimension is <strong>Evolvable</strong> specifically to support the
+<strong>Deputy Pattern</strong>. When you create a proxy of a cell, its <a href="../cell/Ontology.html">identity</a>
+can be refined (e.g., from 'Auth_Node' to 'Auth_Node_ReadOnly_Proxy')
+to maintain clear <strong>Identity Transparency</strong> across the system.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Identity: 'Payment_Gateway_Alpha'
+if (context.identity == 'Payment_Gateway_Alpha') {
+  routeToHighIntegrityProcessor(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Ontology.html">Ontology.type</a>: For categorical labeling.</li>
+<li><a href="../cell/Ontology.html">Ontology.partOf</a>: For structural membership.</li>
+<li><a href="../cell/Context/identity.html">Context.identity</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="subDomains" class="constant">
+    <span class="name ">subDomains</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The specialized functional areas or localized operational zones within
+the primary <a href="../cell/Ontology.html">domains</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>When you need finer-grained scoping than <code>domains</code> provides – e.g.,
+refining 'Finance' into 'Tax_Calculation'.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>This dimension is used for precise routing and validation. A deputy can
+evolve to narrow its sub‑domain scope.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// SubDomains: 'Tax_Calculation, VAT'
+if (context.subDomains?.contains('VAT') ?? false) {
+  applyVATRules(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/subDomains.html">Context.subDomains</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="stakeholders" class="constant">
+    <span class="name ">stakeholders</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The collection of entities, roles, or external systems <strong>Accountable</strong> for
+or affected by the state transitions within this <a href="../cell/Cell-class.html">Cell</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Specify who is responsible for this cell – e.g., 'Finance_Admin' or
+'Compliance_Bot'. This is used for authorization and escalation.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for Attribute‑Based Access Control (ABAC). An
+<code>actor</code> in a pulse must match one of the stakeholders to be authorized.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Stakeholders: 'Billing_Dept, Security_Lead'
+if (context.stakeholders?.contains(pulse.actor) ?? false) {
+  executeAction(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/stakeholders.html">Context.stakeholders</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="constraints" class="constant">
+    <span class="name ">constraints</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The operational rules, boundary conditions, and validation schemas
+enforced within the <a href="../cell/Cell-class.html">Cell</a>.</p>
+<p><strong>Type</strong>: <code>Map&lt;String, dynamic&gt;</code>
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Define runtime constraints like <code>max_items</code>, <code>timeout</code>, or <code>read_only</code>.
+This is the primary place to configure business invariants.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework checks these constraints during the validation phase.
+A deputy can tighten constraints via <code>evolve</code>.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Constraints: { 'max_value': 100, 'requires_auth': true }
+final config = context.constraints;
+if (proposedValue &gt; (config?['max_value'] ?? 0)) {
+  proposedValue = config!['max_value'];
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/constraints.html">Context.constraints</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;Map&lt;String, dynamic&gt;&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="isNot" class="constant">
+    <span class="name ">isNot</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The exclusionary boundaries defining prohibited behaviors, out-of-scope
+responsibilities, or forbidden identities for the <a href="../cell/Cell-class.html">Cell</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Explicitly define what the cell is <em>not</em> – e.g., 'Currency_Exchange' for
+a payment gateway that shouldn't handle currency conversion.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>During signal processing, if a pulse requires a capability listed in
+<code>isNot</code>, the transformation is aborted.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// IsNot: 'Currency_Exchange, Credit_Issuer'
+if (context.isNot?.contains('Credit_Issuer') ?? false) {
+  if (pulse.action == 'Credit_Limit_Increase') {
+    throw SovereigntyException('Action forbidden by IsNot boundary.');
+  }
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/isNot.html">Context.isNot</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="compliance" class="constant">
+    <span class="name ">compliance</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Regulatory Frameworks</strong> and architectural standards mandated by this
+authority (e.g., 'GDPR', 'PCI-DSS', 'HIPAA').</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this if the cell must comply with specific regulations – e.g., 'GDPR'
+for handling European user data.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for boundary validation and automatic auditing.
+Pulses that cross compliance zones are flagged.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Compliance: 'GDPR, SOC2'
+if (context.compliance?.contains('GDPR') ?? false) {
+  encryptPII(pulse.payload);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/compliance.html">Context.compliance</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="partOf" class="constant">
+    <span class="name ">partOf</span>
+  <span class="signature">&#8594; const <a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The structural pointer identifying the <strong>Parent Container</strong> or the
+ancestral system this <a href="../cell/Cell-class.html">Cell</a> belongs to.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Typically a Unique Identity or Taxonomy string)
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to establish the cell's lineage – e.g., which module or service
+it belongs to.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for constraint resolution (inheriting rules from
+the parent) and for mutual authorization handshakes.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// PartOf: 'Global_Ledger_Service'
+if (context.partOf == 'Global_Ledger_Service') {
+  await verifyPrincipalClearance(context.partOf);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Context/partOf.html">Context.partOf</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+        </dl>
+      </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="evolvable" class="property">
+  <span class="name"><a href="../cell/Ontology/evolvable.html">evolvable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this specific <a href="../cell/Ontology.html">Ontology</a> dimension is permitted to be
+modified or refined during a context transformation.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="index" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Enum/index.html">index</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A numeric identifier for the enumerated value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumName/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a> extension</span>
+      </p>
+  The name of the enum value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="entry" class="callable inherited">
+  <span class="name"><a href="../cell/GovernanceMixin/entry.html">entry</a></span><span class="signature">(<wbr><span class="parameter" id="entry-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a strongly-typed <a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a> for this governance dimension.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isType" class="callable inherited">
+  <span class="name"><a href="../cell/GovernanceMixin/isType.html">isType</a></span><span class="signature">(<wbr><span class="parameter" id="isType-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates if the provided <code>value</code> matches the expected type <code>V</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="compose" class="callable">
+  <span class="name"><a href="../cell/Ontology/compose.html">compose</a></span><span class="signature">(<wbr><span class="parameter" id="compose-param-resolver"><span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-dimension"><span class="type-annotation"><a href="../cell/Ontology.html">Ontology</a></span> <span class="parameter-name">dimension</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a comprehensive <strong>Knowledge Map</strong> by synthesizing a value for
+every defined dimension in the <a href="../cell/Ontology.html">Ontology</a>.
+  
+
+</dd>
+
+        <dt id="evolve" class="callable">
+  <span class="name"><a href="../cell/Ontology/evolve.html">evolve</a></span><span class="signature">(<wbr><span class="parameter" id="evolve-param-resolver"><span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-evolvable"><span class="type-annotation"><a href="../cell/Ontology.html">Ontology</a></span> <span class="parameter-name">evolvable</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a refined <strong>Knowledge Map</strong> by generating values only for the
+<strong>Fluid Boundaries</strong> of the <a href="../cell/Ontology.html">Ontology</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="values" class="constant">
+    <span class="name "><a href="../cell/Ontology/values-constant.html">values</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Ontology.html">Ontology</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A constant List of the values in this enum, in order of their declaration.
+  
+
+</dd>
+
+    </dl>
+  </section>
+</div><!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Ontology<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+</ol>
+
+  <h5>cell library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!-- /.sidebar-offcanvas -->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
