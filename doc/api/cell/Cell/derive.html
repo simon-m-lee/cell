@@ -136,7 +136,7 @@ chained projections and causal tracing.
   required O Function(I input) project,
 }) {
   final receptor = _Receptor(reaction: (pulse, cell, {user}) =&gt; project(pulse as I));
-  return Cell(bind: source);
+  return Cell(bind: source, receptor: receptor);
 }</code></pre>
 </section>
 

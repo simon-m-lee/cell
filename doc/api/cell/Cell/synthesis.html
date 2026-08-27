@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+<span class="returntype"><a href="../../cell/SynthesisHandle.html">SynthesisHandle</a></span>
 <span class="name ">synthesis</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="synthesis-param-sources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">sources</span>, {</span></li>
 <li><span class="parameter" id="synthesis-param-aggregator"><span>required</span> <span class="type-annotation">P?</span> <span class="parameter-name">aggregator</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span></li>
 <li><span class="parameter" id="param-emit"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">emit</span></span></li>
@@ -132,7 +132,7 @@ provided <code>sources</code>.</p>
 <li><a href="../../cell/Cell/derive.html">Cell.derive</a>: For simple 1-to-1 transformations of a single source.</li>
 <li><strong>Example</strong>: See <code>example/synthesis_demo.dart</code> for a walkthrough
 of information convergence.</li>
-<li><strong>HowTo</strong>: See <code>guide/HowTo_Start.md</code> for patterns on managing
+<li><strong>HowTo</strong>: See <code>guide/HowTo-Start.md</code> for patterns on managing
 complex information convergence.
 {@category Core 16 Operators}</li>
 </ul>
@@ -142,12 +142,12 @@ complex information convergence.
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell synthesis&lt;P extends Pulse&gt;(
+  <pre class="language-dart"><code class="language-dart">static SynthesisHandle synthesis&lt;P extends Pulse&gt;(
   Iterable&lt;Cell&gt; sources, {
   required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator,
 }) {
   final receptor = _Receptor(reaction: (pulse, cell, {user}) =&gt; aggregator(sources, pulse));
-  return SynthesisCell(sources, receptor: receptor);
+  return SynthesisCell.handle(sources, receptor: receptor);
 }</code></pre>
 </section>
 

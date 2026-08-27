@@ -184,7 +184,7 @@ Future<void> main() async {
   // Initial sources
   final sources = <Cell>[tempCell, humCell, pressCell];
 
-  final synthesisCell = Cell.synthesis(
+  final synthesisHandle = Cell.synthesis(
     sources,
     aggregator: (cells, emit) {
       // Extract values from all sources
@@ -254,6 +254,8 @@ Future<void> main() async {
     },
   );
 
+
+  final synthesisCell = synthesisHandle.cell;
   print('   [✓] Synthesis cell created\n');
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -524,7 +526,7 @@ Future<void> formValidationDemo() async {
   // ─────────────────────────────────────────────────────────────────────────
 
   final validationObs = Cell.observe(
-    source: formValidator,
+    source: formValidator.cell,
     effect: (Pulse pulse) {
       final state = pulse.payload as FormState;
       if (state.isValid) {

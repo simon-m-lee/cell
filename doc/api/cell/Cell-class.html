@@ -122,7 +122,7 @@ high-level data synchronization.</p>
 <ul>
 <li><a href="../cell/Pulse-class.html">Pulse</a> (the signal a cell processes).</li>
 <li><a href="../cell/ValueCell-class.html">ValueCell</a> (the concrete stateful type returned by <a href="../cell/Cell/state.html">Cell.state</a>).</li>
-<li><strong>HowTo</strong>: See <code>guide/HowTo_Start.md</code> for a comprehensive guide on
+<li><strong>HowTo</strong>: See <code>guide/HowTo-Start.md</code> for a comprehensive guide on
 getting started with the Cell architecture and reactive patterns.</li>
 </ul>
 </section>
@@ -588,7 +588,7 @@ swaps its data source at runtime based on the selection from another cell.
 
         <dt id="synthesis" class="callable">
   <span class="name"><a href="../cell/Cell/synthesis.html">synthesis</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="synthesis-param-sources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">sources</span>, {</span><span class="parameter" id="synthesis-param-aggregator"><span>required</span> <span class="type-annotation">P?</span> <span class="parameter-name">aggregator</span>(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="param-emit"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">emit</span></span>)</span>})
-    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+    <span class="returntype parameter">&#8594; <a href="../cell/SynthesisHandle.html">SynthesisHandle</a></span>
   </span>
   
 

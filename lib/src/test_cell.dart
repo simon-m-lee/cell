@@ -68,7 +68,7 @@ part of '../cell.dart';
 /// * [TestLinkRule] for link‑specific validation.
 /// * [TestPulseRule] for pulse‑specific validation.
 /// * [TestRule] for the base validation contract.
-/// - **HowTo**: See `guide/HowTo_TestCell.md` for a guide on implementing
+/// - **HowTo**: See `guide/HowTo-TestCell.md` for a guide on implementing
 ///   custom validation policies and integrity gates.
 ///
 /// {@category Testing & Validation}

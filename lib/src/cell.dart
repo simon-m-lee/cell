@@ -75,7 +75,7 @@ part of '../cell.dart';
 /// ### See Also:
 /// - [Pulse] (the signal a cell processes).
 /// - [ValueCell] (the concrete stateful type returned by [Cell.state]).
-/// - **HowTo**: See `guide/HowTo_Start.md` for a comprehensive guide on
+/// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
 ///   getting started with the Cell architecture and reactive patterns.
 /// {@category Getting Started}
 /// {@category Core}
@@ -399,7 +399,7 @@ abstract interface class Cell {
   /// - [Cell.open]: For manual connection and observer management.
   /// - **Example**: See `example/ingress_demo.dart` for a complete executable
   ///   walkthrough of utilizing [IngressHandle] for manual event injection.
-  /// - **HowTo**: See `guide/HowTo_Start.md` for a guide on bridging
+  /// - **HowTo**: See `guide/HowTo-Start.md` for a guide on bridging
   ///   imperative and reactive code.
   /// {@category Core 16 Operators}
   static IngressHandle<I> ingress<I>({
@@ -483,7 +483,7 @@ abstract interface class Cell {
   ///
   /// ### See Also:
   /// - [Cell.ingress]: For stateless gateways and transient event sources.
-  /// - **HowTo**: See `guide/HowTo_Start.md` for a comprehensive guide on
+  /// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
   ///   state management and reactive patterns.
   /// {@category Core 16 Operators}
   static StateHandle<V> state<V>({
@@ -638,7 +638,7 @@ abstract interface class Cell {
     required O Function(I input) project,
   }) {
     final receptor = _Receptor(reaction: (pulse, cell, {user}) => project(pulse as I));
-    return Cell(bind: source);
+    return Cell(bind: source, receptor: receptor);
   }
 
   /// Synthesizes a **Multi-Destination Router**—a specialized node that acts as
@@ -1199,15 +1199,15 @@ abstract interface class Cell {
   /// - [Cell.derive]: For simple 1-to-1 transformations of a single source.
   /// - **Example**: See `example/synthesis_demo.dart` for a walkthrough
   ///   of information convergence.
-  /// - **HowTo**: See `guide/HowTo_Start.md` for patterns on managing
+  /// - **HowTo**: See `guide/HowTo-Start.md` for patterns on managing
   ///   complex information convergence.
   /// {@category Core 16 Operators}
-  static Cell synthesis<P extends Pulse>(
+  static SynthesisHandle synthesis<P extends Pulse>(
     Iterable<Cell> sources, {
     required P? Function(Iterable<Cell> cells, Pulse emit) aggregator,
   }) {
     final receptor = _Receptor(reaction: (pulse, cell, {user}) => aggregator(sources, pulse));
-    return SynthesisCell(sources, receptor: receptor);
+    return SynthesisCell.handle(sources, receptor: receptor);
   }
 
   /// Synthesizes a **Conditional Gate**—a specialized node that acts as a
@@ -1341,7 +1341,7 @@ abstract interface class Cell {
   /// * [Cell.throttle]: For frequency-based rate limiting (constant output rate).
   /// - **Example**: See `example/stability_search_demo.dart` for a complete
   ///   walkthrough of user-input stabilization and debounced API calls.
-  /// - **HowTo**: See `guide/HowTo_Start.md` for a comprehensive guide on
+  /// - **HowTo**: See `guide/HowTo-Start.md` for a comprehensive guide on
   ///   reactive patterns and scheduling.
   /// {@category Core 16 Operators}
   static Cell debounce(
@@ -1489,7 +1489,7 @@ abstract interface class Cell {
   /// - [Cell.state]: For complex predicate-based filtering.
   /// - **Example**: See `example/distinct_demo.dart` for a walkthrough
   ///   of noise reduction.
-  /// - **HowTo**: See `guide/HowTo_17_Essential_Operators.md` for best
+  /// - **HowTo**: See `guide/HowTo-17_Essential_Operators.md` for best
   ///   practices on filtering and flow control.
   /// {@category Core 16 Operators}
   static Cell distinct(
@@ -1875,7 +1875,7 @@ abstract interface class Cell {
   /// * [Cell.asyncMap]: For enrichment via asynchronous futures.
   /// - **Example**: See `example/switch_map_demo.dart` for a walkthrough
   ///   of dynamic dependency injection.
-  /// - **HowTo**: See `guide/HowTo_17_Essential_Operators.md` for best practices
+  /// - **HowTo**: See `guide/HowTo-17_Essential_Operators.md` for best practices
   ///   on using switching and routing operators.
   /// {@category Core 16 Operators}
   static Cell switchMap<S, T>(
@@ -2336,6 +2336,36 @@ abstract interface class OpenCell implements Cell {
   /// by logic, or if the causal chain was invalidated.
   FutureOr<Pulse?> emit(Pulse pulse);
 
+  /// Ingests a [Pulse] into the cell's processing pipeline asynchronously.
+  ///
+  /// This method serves as a low-level, asynchronous entry point for signal
+  /// injection. It provides a non-blocking mechanism to trigger the cell's
+  /// internal transformation logic, ensuring the operation is scheduled
+  /// through the cell's lock and validated by its integrity constraints.
+  ///
+  /// ### When to use
+  /// Use this for high-throughput ingestion or from within asynchronous
+  /// contexts where you need to ensure the pulse is processed but do not
+  /// require the immediate return of the resulting [Pulse] object.
+  ///
+  /// ### How it works
+  /// - The [Pulse] is passed to the internal [Receptor]'s asynchronous interface.
+  /// - Every ingestion is governed by the cell's [testRule] (**Integrity Gate**);
+  ///   pulses that fail validation are rejected.
+  /// - If [serializedCompletion] is enabled, the returned [Future] awaits
+  ///   the full propagation of the pulse through the reactive graph before
+  ///   resolving.
+  ///
+  /// ### Parameters:
+  /// - [pulse]: **Required**. The data packet to be processed by the cell's
+  ///   transformation logic.
+  /// - [serializedCompletion]: If `true`, ensures that the returned [Future]
+  ///   only resolves after the pulse has been fully propagated through the
+  ///   downstream reactive graph.
+  ///
+  /// ### Returns:
+  /// A [Future] that completes once the pulse has been successfully
+  /// scheduled or fully processed.
   Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) async {
     final receptor = _nucleus.receptor;
     return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);

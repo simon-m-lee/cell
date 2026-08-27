@@ -513,7 +513,7 @@ class ValueCell<V> extends CellBase {
   /// ### See Also:
   /// - [Cell.state]: The standard application-level API for state creation.
   /// - [ValueNucleus]: The underlying blueprint used to configure this factory.
-  /// - **HowTo**: See `guide/HowTo_Start.md` for a guide on state management
+  /// - **HowTo**: See `guide/HowTo-Start.md` for a guide on state management
   ///   and using handles.
   static StateHandle<V> create<V>(
       ValueNucleus<V> nucleus, {V? value}) {

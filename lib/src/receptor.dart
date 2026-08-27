@@ -84,7 +84,7 @@ part of '../cell.dart';
 /// - **Example**: See `example/instruction_pipeline_walkthrough.dart` for a
 ///   complete executable walkthrough of pattern matching, priority ordering, and
 ///   multicast routing.
-/// - **HowTo**: See `guide/HowTo_Instruction.md` for a guide on implementing
+/// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
 ///   custom instructions.
 ///
 /// {@category Instructions}
@@ -134,7 +134,7 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// - **Example**: See `example/instruction_pipeline_walkthrough.dart` for a
   ///   complete executable walkthrough of pattern matching, priority ordering, and
   ///   multicast routing.
-  /// - **HowTo**: See `guide/HowTo_Instruction.md` for a guide on implementing
+  /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom instructions (including synchronous/asynchronous) and scheduling logic..
   const factory Instruction(
       O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user}) = _Instruction<C,I,O>;
@@ -199,7 +199,7 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// - **Example**: See `example/instruction_pipeline_walkthrough.dart` for a
   ///   complete executable walkthrough of pattern matching, priority ordering,
   ///   and multicast routing.
-  /// - **HowTo**: See `guide/HowTo_Instruction.md` for a guide on implementing
+  /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom asynchronous instructions and scheduling logic.
   const factory Instruction.future(
       O? Function(I pulse, {C? cell, dynamic user,
@@ -743,7 +743,7 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
 /// * [Instruction] – The individual logic units.
 /// * [InstructionChain] – For composing multiple instructions.
 /// * [ReceptorAsync] – For asynchronous pulse injection.
-/// - **HowTo**: See `guide/HowTo_Receptor.md` for a guide on designing
+/// - **HowTo**: See `guide/HowTo-Receptor.md` for a guide on designing
 ///   and implementing custom receptors.
 ///
 /// {@category Pipelines & Internal}

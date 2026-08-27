@@ -252,7 +252,7 @@ class FilterRule<P extends Pulse> {
 /// - [FilterRule]: For logic used to intercept or transform pulses at the
 ///   egress point.
 /// - [PropagationPolicy]: For defining temporal governance strategies.
-/// - **HowTo**: See `guide/HowTo_Synapses.md` for best practices on
+/// - **HowTo**: See `guide/HowTo-Synapses.md` for best practices on
 ///   configuring signal distribution and flow control.
 ///
 /// {@category Signals & Synapses}

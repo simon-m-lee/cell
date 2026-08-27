@@ -398,10 +398,10 @@ await tx.commit();  // All or nothing
 
 | Guide | Description |
 |-------|-------------|
-| [HowTo_Instruction.md](./HowTo_Instruction.md) | Using Instructions for data transformation |
-| [HowTo_Receptor.md](./HowTo_Receptor.md) | Building transformation pipelines |
-| [HowTo_TestCell.md](./HowTo_TestCell.md) | Validation and security |
-| [HowTo_16_Essential_Operators.md](./HowTo_16_Essential_Operators.md) | 16 Essential Operators Reference |
+| [HowTo-Instruction.md](./HowTo-Instruction.md) | Using Instructions for data transformation |
+| [HowTo-Receptor.md](./HowTo-Receptor.md) | Building transformation pipelines |
+| [HowTo-TestCell.md](./HowTo-TestCell.md) | Validation and security |
+| [HowTo-16_Essential_Operators.md](./HowTo-16_Essential_Operators.md) | 16 Essential Operators Reference |
 
 ### 2. Run the Examples
 
@@ -523,7 +523,7 @@ void main() {
 
 If you have questions or need help:
 
-1. Check the [How-To guides](./HowTo_Start.md)
+1. Check the [How-To guides](./HowTo-Start.md)
 2. Browse the [example/](./example/) directory
 3. Open an issue on GitHub
 4. Join the community discussion

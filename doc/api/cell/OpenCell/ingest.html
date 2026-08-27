@@ -63,6 +63,37 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Ingests a <a href="../../cell/Pulse-class.html">Pulse</a> into the cell's processing pipeline asynchronously.</p>
+<p>This method serves as a low-level, asynchronous entry point for signal
+injection. It provides a non-blocking mechanism to trigger the cell's
+internal transformation logic, ensuring the operation is scheduled
+through the cell's lock and validated by its integrity constraints.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this for high-throughput ingestion or from within asynchronous
+contexts where you need to ensure the pulse is processed but do not
+require the immediate return of the resulting <a href="../../cell/Pulse-class.html">Pulse</a> object.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The <a href="../../cell/Pulse-class.html">Pulse</a> is passed to the internal <a href="../../cell/Receptor-class.html">Receptor</a>'s asynchronous interface.</li>
+<li>Every ingestion is governed by the cell's <code>testRule</code> (<strong>Integrity Gate</strong>);
+pulses that fail validation are rejected.</li>
+<li>If <code>serializedCompletion</code> is enabled, the returned <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> awaits
+the full propagation of the pulse through the reactive graph before
+resolving.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: <strong>Required</strong>. The data packet to be processed by the cell's
+transformation logic.</li>
+<li><code>serializedCompletion</code>: If <code>true</code>, ensures that the returned <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>
+only resolves after the pulse has been fully propagated through the
+downstream reactive graph.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that completes once the pulse has been successfully
+scheduled or fully processed.</p>
+</section>
 
 
     

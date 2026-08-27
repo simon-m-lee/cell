@@ -557,6 +557,50 @@ class SynthesisCell extends CellBase with IterableMixin<Cell> implements Iterabl
     }
   }
 
+  /// Creates a managed [SynthesisCell] and returns a [SynthesisHandle] to
+  /// control its topography.
+  ///
+  /// This factory method provides a high-level administrative interface for
+  /// dynamic signal convergence. While a standard [SynthesisCell] constructor
+  /// establishes static links, the [handle] allows for the runtime mutation
+  /// of the upstream graph.
+  ///
+  /// ### When to use
+  /// Use this when the set of source cells is not known at compile-time or
+  /// must change based on application state—for example, adding or removing
+  /// data streams in a dashboard or managing a dynamic list of form inputs.
+  ///
+  /// ### How it works
+  /// - **Dynamic Linking**: The returned handle contains closures that
+  ///   automatically manage the registration and de-registration of source
+  ///   cells within the internal [Synapses] layer.
+  /// - **Encapsulated State**: It maintains a local registry of [cells],
+  ///   ensuring that membership changes are reflected in the reactive flow.
+  /// - **Flow Control**: The `stop` and `start` methods allow for bulk
+  ///   disconnection and reconnection of all sources without destroying the
+  ///   cell or losing the membership list.
+  ///
+  /// ### Parameters
+  /// - [cells]: **Required**. The initial [Iterable] of source [Cell]
+  ///   instances to be aggregated.
+  /// - [ephemeralPolicy]: Defines the **Lifecycle Governance** (TTL/Cleanup).
+  /// - [bind]: An optional root principal if this collective is a deputy view.
+  /// - [context]: The **Scene-Driven Ontology** (Authority Tier) of this node.
+  /// - [receptor]: The logic used to transform input pulses into the
+  ///   collective payload.
+  /// - [testRule]: The **Integrity Gate** ([TestCell]) that enforces
+  ///   validation policy on ingested pulses.
+  /// - [synapses]: The **Signal Distribution Hub** for downstream propagation.
+  /// - [forceLock]: If `true`, ensures the creation of an **Atomic
+  ///   Transaction Domain** via a mandatory [Lock].
+  ///
+  /// ### Returns
+  /// A [SynthesisHandle] record containing:
+  /// - `cell`: The underlying [SynthesisCell].
+  /// - `add` / `remove`: Methods to modify membership.
+  /// - `addAll` / `removeAll`: Batch modification methods.
+  /// - `clear`: Method to remove all sources.
+  /// - `stop` / `start`: Methods to control signal flow.
   static SynthesisHandle handle(Iterable<Cell> cells, {
     EphemeralPolicy? ephemeralPolicy,
 
