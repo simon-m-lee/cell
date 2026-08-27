@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the SynapsesBase class, for the Dart programming language.">
+  <title>call method - SynapsesBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;SynapsesBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synchronously orchestrates the atomic propagation wave for the
+provided <code>pulse</code> across all registered downstream observers.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't call this directly – the framework invokes it when a cell's
+state changes. You might use it for manual testing.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It applies the filter (if any), then delivers the pulse to each observer
+in sequence, respecting the propagation policy. If a cycle is detected,
+the branch is silently terminated.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The broadcast is synchronous by default – use the <code>async</code> view for
+non‑blocking delivery.</li>
+<li>If a downstream observer is invalidated, it's skipped.</li>
+<li>The pulse's <code>_branches</code> box is used to track completion across
+multiple observers.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The pulse to broadcast.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void call(covariant P pulse) {
+
+  if (isEmpty &amp;&amp; pulse is PulseBase) {
+    final box = pulse._branches;
+    if (box != null) {
+      box.value = box.value! - 1;
+      if (box.value == 0) {
+        pulse._complete();
+        return;
+      }
+    } else {
+      pulse._complete();
+      return;
+    }
+  }
+
+
+  PulseBase? p;
+
+  p = pulse as PulseBase?;
+
+  if (_filter != null) {
+    p = _filter!(p as P) as PulseBase?;
+  }
+  if (p == null) return;
+
+  final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
+  switch (strategy) {
+
+    case PropagationStrategy.immediate:
+      _broadcast(p);
+      break;
+
+    case PropagationStrategy.async:
+      Future(() =&gt; _broadcast(p!));
+      break;
+
+    case PropagationStrategy.batched:
+      _batched(p);
+      break;
+
+    case PropagationStrategy.buffered:
+      _buffered(p);
+      break;
+
+    case PropagationStrategy.debounced:
+      _debounced(p);
+      break;
+
+    case PropagationStrategy.throttled:
+      _throttled(p);
+      break;
+
+    case PropagationStrategy.audit:
+      _audit(p);
+      break;
+
+    case PropagationStrategy.exhaust:
+      _exhaust(p);
+      break;
+
+    case PropagationStrategy.sample:
+      _sample(p);
+      break;
+
+    case PropagationStrategy.resilient:
+      _resilient(p);
+      break;
+
+      case PropagationStrategy.debounceLeading:
+      _debounceLeading(p);
+      break;
+
+      case PropagationStrategy.retry:
+      _retry(p);
+      break;
+
+    case PropagationStrategy.persistent:
+      final buffer = _buffer;
+      if (buffer != null) {
+        buffer..clear()..add(p);
+      }
+      break;
+
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+</ol>
+
+    <h5>SynapsesBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

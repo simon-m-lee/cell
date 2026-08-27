@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the unmodifiable property from the UnmodifiablePulseBase class, for the Dart programming language.">
+  <title>unmodifiable property - UnmodifiablePulseBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">unmodifiable property</li>
+  </ol>
+  <div class="self-name">unmodifiable</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;UnmodifiablePulseBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">unmodifiable</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="../../cell/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+      get
+      <span class="name ">unmodifiable</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a read‑only projection of this pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Tamper Protection</strong>: Use this before handing a pulse to untrusted code — logging, external
+APIs, or UI components. It prevents tampering.</li>
+<li>Sending pulses to logging or monitoring systems.</li>
+<li>Handing pulses to external APIs.</li>
+<li>UI components that should only display data.</li>
+<li>Any scenario where you don't want the receiver to mutate the pulse.</li>
+<li>Audit trails where immutability is required.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The unmodifiable view disables <a href="../../cell/PulseBase/evolve.html">evolve</a> and <a href="../../cell/PulseBase/withStep.html">withStep</a>. Any attempt to
+change the pulse will throw. The payload remains readable.</p>
+<h3 id="nonobvious-this-is-recursive">Non‑obvious: this is recursive</h3>
+<p>The <a href="../../cell/EvolvedPulse/parent.html">EvolvedPulse.parent</a>, <a href="../../cell/UnmodifiablePulseBase/root.html">root</a>, and <a href="../../cell/UnmodifiablePulseBase/source.html">source</a> are also projected as unmodifiable.
+The underlying data is not copied — it's a protective wrapper.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final immutable = pulse.unmodifiable;
+// immutable.evolve(...); // Throws
+logToExternalSystem(immutable); // Safe
+</code></pre>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+PulseBase&lt;P&gt; get unmodifiable =&gt; this;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">unmodifiable property</li>
+</ol>
+
+  <h5>UnmodifiablePulseBase class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Advanced · Deputy Context topic docs, for the Dart programming language.">
+  <title>Advanced · Deputy Context topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Deputy Context topic</li>
+  </ol>
+  <div class="self-name">Advanced · Deputy Context</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Advanced · Deputy Context</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-deputycontext-in-the-cell-framework">How to Use DeputyContext in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-deputycontext">What is DeputyContext?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#deputycontext-system">DeputyContext System</a></li>
+<li><a href="#creating-a-deputycontext">Creating a DeputyContext</a></li>
+<li><a href="#predefined-deputycontext-factories">Predefined DeputyContext Factories</a></li>
+<li><a href="#mandate-dimensions">Mandate Dimensions</a></li>
+<li><a href="#clearance-levels">Clearance Levels</a></li>
+<li><a href="#isolation-levels">Isolation Levels</a></li>
+<li><a href="#sovereignty-levels">Sovereignty Levels</a></li>
+<li><a href="#using-with-deputies">Using with Deputies</a></li>
+<li><a href="#testing-deputycontext">Testing DeputyContext</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>DeputyContext</strong> is the mandate and authority profile for a deputy—a restricted proxy that shares a cell's state but operates under different permissions. It defines what a deputy <strong>can do</strong>, <strong>who it is</strong>, and <strong>how it operates</strong>.</p>
+<h3 id="when-to-use-deputycontext">When to Use DeputyContext</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Factory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read-only monitoring</td>
+<td><code>DeputyContext.observer()</code></td>
+</tr>
+<tr>
+<td>Active state mutation</td>
+<td><code>DeputyContext.delegate()</code></td>
+</tr>
+<tr>
+<td>Safe simulation</td>
+<td><code>DeputyContext.sandbox()</code></td>
+</tr>
+<tr>
+<td>Emergency recovery</td>
+<td><code>DeputyContext.intervention()</code></td>
+</tr>
+<tr>
+<td>Resource cleanup</td>
+<td><code>DeputyContext.janitor()</code></td>
+</tr>
+<tr>
+<td>Structural changes</td>
+<td><code>DeputyContext.architect()</code></td>
+</tr>
+<tr>
+<td>Compliance auditing</td>
+<td><code>DeputyContext.auditor()</code></td>
+</tr>
+<tr>
+<td>Cross-domain communication</td>
+<td><code>DeputyContext.ambassador()</code></td>
+</tr>
+<tr>
+<td>Secure reasoning</td>
+<td><code>DeputyContext.shielded()</code></td>
+</tr>
+<tr>
+<td>Policy enforcement</td>
+<td><code>DeputyContext.gatekeeper()</code></td>
+</tr>
+<tr>
+<td>Background maintenance</td>
+<td><code>DeputyContext.homeostasis()</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-deputycontext">What is DeputyContext?</h2>
+<p><code>DeputyContext</code> is the mandate profile that defines a deputy's:</p>
+<ul>
+<li><strong>Authority</strong> - What actions it can perform</li>
+<li><strong>Role</strong> - Its semantic identity</li>
+<li><strong>Clearance</strong> - Its security rank</li>
+<li><strong>Isolation</strong> - Its execution boundary</li>
+<li><strong>Sovereignty</strong> - Its decision-making autonomy</li>
+<li><strong>Justification</strong> - Why it exists</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Immutable</strong></td>
+<td>Cannot be modified after creation</td>
+</tr>
+<tr>
+<td><strong>Inheritable</strong></td>
+<td>Supports prototype-based inheritance</td>
+</tr>
+<tr>
+<td><strong>Type-Safe</strong></td>
+<td>Strong typing with Mandate dimensions</td>
+</tr>
+<tr>
+<td><strong>Auditable</strong></td>
+<td>Provides justification for actions</td>
+</tr>
+<tr>
+<td><strong>Restrictive</strong></td>
+<td>Only narrows permissions, never widens</td>
+</tr>
+</tbody>
+</table>
+<h3 id="relationship-with-cell">Relationship with Cell</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         CELL PRINCIPAL                                     │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        STATE &amp; LOGIC                                 │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │   │
+│  │  │    BOX      │  │  RECEPTOR   │  │  TESTCELL   │                 │   │
+│  │  │   Storage   │  │  Transform  │  │  Validate   │                 │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         DEPUTY (Proxy)                               │   │
+│  │                                                                      │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐   │   │
+│  │  │                    DEPUTY CONTEXT (Mandate)                  │   │   │
+│  │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │   │
+│  │  │  │  AUTHORITY  │  │    ROLE     │  │  CLEARANCE  │          │   │   │
+│  │  │  │  "READ"     │  │  "Observer" │  │ observation│          │   │   │
+│  │  │  └─────────────┘  └─────────────┘  └─────────────┘          │   │   │
+│  │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │   │
+│  │  │  │  ISOLATION  │  │ SOVEREIGNTY │  │JUSTIFICATION│          │   │   │
+│  │  │  │  "scoped"   │  │ "supervised"│  │ "Audit task"│          │   │   │
+│  │  │  └─────────────┘  └─────────────┘  └─────────────┘          │   │   │
+│  │  └─────────────────────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-authority">1. Authority</h3>
+<p>The <strong>functional permission</strong> or "verb" authorized for the deputy:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',  // Can only read
+  // or 'READ, WRITE' for read-write
+  // or 'ADMIN' for administrative actions
+);
+</code></pre>
+<h3 id="2-role">2. Role</h3>
+<p>The <strong>semantic identity</strong> of the deputy:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  role: 'Observer',  // Identity for auditing
+);
+</code></pre>
+<h3 id="3-clearance">3. Clearance</h3>
+<p>The <strong>security rank</strong> of the deputy:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  clearance: Clearance.observational,  // Lowest clearance
+);
+</code></pre>
+<h3 id="4-isolation">4. Isolation</h3>
+<p>The <strong>execution boundary</strong> of the deputy:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  isolation: Isolation.scoped,  // Restricted scope
+);
+</code></pre>
+<h3 id="5-sovereignty">5. Sovereignty</h3>
+<p>The <strong>decision-making autonomy</strong>:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  sovereignty: Sovereignty.supervised,  // Needs approval
+);
+</code></pre>
+<h3 id="6-justification">6. Justification</h3>
+<p>The <strong>rationale</strong> for the deputy's existence:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  justification: 'Audit task for compliance',  // Why it exists
+);
+</code></pre>
+<hr>
+<h2 id="deputycontext-system">DeputyContext System</h2>
+<h3 id="what-is-deputycontextsystem">What is DeputyContext.system?</h3>
+<p><code>DeputyContext.system</code> is the canonical root context for deputies, providing safe defaults:</p>
+<pre class="language-dart"><code class="language-dart">// Default deputy context
+final context = DeputyContext.system;
+
+// Properties:
+// - authority: null
+// - role: null
+// - clearance: Clearance.standard
+// - isolation: Isolation.scoped
+// - sovereignty: Sovereignty.sovereign
+// - justification: null
+</code></pre>
+<h3 id="when-to-use-deputycontextsystem">When to Use DeputyContext.system</h3>
+<ul>
+<li>Default for most deputies</li>
+<li>When no specific authority needed</li>
+<li>For development and testing</li>
+<li>For simple read-only views</li>
+</ul>
+<hr>
+<h2 id="creating-a-deputycontext">Creating a DeputyContext</h2>
+<h3 id="method-1-basic-constructor">Method 1: Basic Constructor</h3>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'READ',
+  role: 'Observer',
+  isolation: Isolation.scoped,
+  clearance: Clearance.observational,
+  sovereignty: Sovereignty.supervised,
+  justification: 'Monitoring system health',
+  constraints: {'max_ops': 1000},
+);
+</code></pre>
+<h3 id="method-2-from-entries">Method 2: From Entries</h3>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.fromEntries([
+  Mandate.authority.entry('READ'),
+  Mandate.role.entry('Observer'),
+  Mandate.clearance.entry(Clearance.observational),
+  Mandate.isolation.entry(Isolation.scoped),
+  Mandate.sovereignty.entry(Sovereignty.supervised),
+  Mandate.justification.entry('Monitoring'),
+]);
+</code></pre>
+<h3 id="method-3-using-factories">Method 3: Using Factories</h3>
+<pre class="language-dart"><code class="language-dart">// Observer (read-only)
+final observer = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Monitor Dashboard',
+);
+
+// Delegate (active task)
+final delegate = DeputyContext.delegate(
+  baseContext: Context.system,
+  task: 'Cleanup Cache',
+);
+
+// Sandbox (simulation)
+final sandbox = DeputyContext.sandbox(
+  baseContext: Context.system,
+  role: 'What-If Analyzer',
+);
+</code></pre>
+<hr>
+<h2 id="predefined-deputycontext-factories">Predefined DeputyContext Factories</h2>
+<h3 id="1-deputycontextobserver">1. DeputyContext.observer</h3>
+<p>For read-only monitoring:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Dashboard Monitoring',
+  clearance: Clearance.observational,
+);
+
+// Properties:
+// - authority: 'OBSERVATION'
+// - role: 'Observer'
+// - clearance: Clearance.observational (or custom)
+// - isolation: Isolation.scoped
+</code></pre>
+<h3 id="2-deputycontextdelegate">2. DeputyContext.delegate</h3>
+<p>For active state-mutating tasks:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.delegate(
+  baseContext: Context.system,
+  task: 'Cleanup Cache',
+  clearance: Clearance.standard,
+);
+
+// Properties:
+// - authority: 'DELEGATED_TASK'
+// - role: 'Delegate'
+// - clearance: Clearance.standard (or custom)
+</code></pre>
+<h3 id="3-deputycontextsandbox">3. DeputyContext.sandbox</h3>
+<p>For safe simulation:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.sandbox(
+  baseContext: Context.system,
+  role: 'Profit_Projection_Model',
+);
+
+// Properties:
+// - authority: 'SIMULATE'
+// - role: 'Reasoning_Sandbox' (or custom)
+// - isolation: Isolation.sandboxed
+// - clearance: Clearance.minimal
+</code></pre>
+<h3 id="4-deputycontextintervention">4. DeputyContext.intervention</h3>
+<p>For emergency recovery:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.intervention(
+  baseContext: Context.system,
+  reason: 'Isolating compromised node #502',
+);
+
+// Properties:
+// - authority: 'SYSTEM_PROTECTION'
+// - role: 'Sentinel'
+// - clearance: Clearance.administrative
+// - justification: 'Isolating compromised node #502'
+// - sovereignty: Sovereignty.preemptive
+// - isolation: Isolation.sandboxed
+</code></pre>
+<h3 id="5-deputycontextjanitor">5. DeputyContext.janitor</h3>
+<p>For resource cleanup:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.janitor(
+  baseContext: Context.system,
+  target: 'Telemetry_Buffer',
+  clearance: Clearance.administrative,
+);
+
+// Properties:
+// - authority: 'RESOURCE_MANAGEMENT'
+// - role: 'Janitor'
+// - clearance: Clearance.administrative
+// - target: 'Telemetry_Buffer'
+</code></pre>
+<h3 id="6-deputycontextarchitect">6. DeputyContext.architect</h3>
+<p>For structural changes:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.architect(
+  baseContext: Context.system,
+  mission: 'Scaling payment module',
+  clearance: Clearance.standard,
+);
+
+// Properties:
+// - authority: 'INFRASTRUCTURE_EVOLUTION'
+// - role: 'Architect'
+// - clearance: Clearance.standard
+// - mission_intent: 'Scaling payment module'
+</code></pre>
+<h3 id="7-deputycontextauditor">7. DeputyContext.auditor</h3>
+<p>For compliance auditing:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.auditor(
+  baseContext: Context.system,
+  regulation: 'SOC2',
+);
+
+// Properties:
+// - authority: 'REGULATORY_AUDIT'
+// - role: 'Witness'
+// - clearance: Clearance.observational
+// - target_regulation: 'SOC2'
+// - force_audit: 'full'
+// - observational_only: true
+</code></pre>
+<h3 id="8-deputycontextambassador">8. DeputyContext.ambassador</h3>
+<p>For cross-domain communication:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.ambassador(
+  baseContext: Context.system,
+  targetDomain: 'Partner_API',
+);
+
+// Properties:
+// - authority: 'CROSS_DOMAIN_COMMUNICATION'
+// - role: 'Ambassador'
+// - clearance: Clearance.minimal
+// - external_domain: 'Partner_API'
+// - permeability: 'selective'
+// - translation_required: true
+</code></pre>
+<h3 id="9-deputycontextshielded">9. DeputyContext.shielded</h3>
+<p>For secure reasoning:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.shielded(
+  baseContext: Context.system,
+  reason: 'Processing payment keys',
+);
+
+// Properties:
+// - authority: 'SECURE_REASONING'
+// - role: 'Sentinel'
+// - clearance: Clearance.administrative
+// - justification: 'Processing payment keys'
+// - isolated: true
+// - enclave_type: 'privileged_logic'
+</code></pre>
+<h3 id="10-deputycontextgatekeeper">10. DeputyContext.gatekeeper</h3>
+<p>For policy enforcement:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.gatekeeper(
+  baseContext: Context.system,
+);
+
+// Properties:
+// - authority: 'GOVERNANCE_ENFORCEMENT'
+// - role: 'Gatekeeper'
+// - clearance: Clearance.observational
+// - force_audit: 'full'
+// - enforcement_type: 'policy_guardrail'
+</code></pre>
+<h3 id="11-deputycontexthomeostasis">11. DeputyContext.homeostasis</h3>
+<p>For background maintenance:</p>
+<pre class="language-dart"><code class="language-dart">final context = DeputyContext.homeostasis(
+  baseContext: Context.system,
+);
+
+// Properties:
+// - authority: 'SYSTEM_MAINTENANCE'
+// - role: 'Service_Daemon'
+// - clearance: Clearance.standard
+// - scope: 'infrastructure'
+// - category: 'metabolic'
+// - priority: 'background'
+</code></pre>
+<hr>
+<h2 id="mandate-dimensions">Mandate Dimensions</h2>
+<h3 id="static-pillars-non-evolvable">Static Pillars (Non-Evolvable)</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>role</code></td>
+<td><code>String</code></td>
+<td>Semantic identity</td>
+<td><code>'Observer'</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fluid-boundaries-evolvable">Fluid Boundaries (Evolvable)</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>authority</code></td>
+<td><code>String</code></td>
+<td>Functional permission</td>
+<td><code>'READ, WRITE'</code></td>
+</tr>
+<tr>
+<td><code>isolation</code></td>
+<td><code>Isolation</code></td>
+<td>Execution boundary</td>
+<td><code>Isolation.scoped</code></td>
+</tr>
+<tr>
+<td><code>sovereignty</code></td>
+<td><code>Sovereignty</code></td>
+<td>Decision-making autonomy</td>
+<td><code>Sovereignty.supervised</code></td>
+</tr>
+<tr>
+<td><code>clearance</code></td>
+<td><code>Clearance</code></td>
+<td>Security rank</td>
+<td><code>Clearance.standard</code></td>
+</tr>
+<tr>
+<td><code>auditLevel</code></td>
+<td><code>AuditLevel</code></td>
+<td>Observability depth</td>
+<td><code>AuditLevel.full</code></td>
+</tr>
+<tr>
+<td><code>justification</code></td>
+<td><code>String</code></td>
+<td>Rationale</td>
+<td><code>'Compliance audit'</code></td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td><code>Map&lt;String, dynamic&gt;</code></td>
+<td>Operational boundaries</td>
+<td><code>{'max_ops': 1000}</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="clearance-levels">Clearance Levels</h2>
+<h3 id="clearance-overview">Clearance Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Value</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>observational</code></td>
+<td>0</td>
+<td>Read-only</td>
+<td>UI, monitoring, logging</td>
+</tr>
+<tr>
+<td><code>minimal</code></td>
+<td>1</td>
+<td>Safe mutations</td>
+<td>Sandbox, simulation</td>
+</tr>
+<tr>
+<td><code>standard</code></td>
+<td>2</td>
+<td>Default</td>
+<td>General operations</td>
+</tr>
+<tr>
+<td><code>administrative</code></td>
+<td>3</td>
+<td>Structural changes</td>
+<td>Archiving, cleanup</td>
+</tr>
+<tr>
+<td><code>privileged</code></td>
+<td>4</td>
+<td>Cross-domain</td>
+<td>Gateways, ambassadors</td>
+</tr>
+<tr>
+<td><code>unrestricted</code></td>
+<td>5</td>
+<td>Absolute authority</td>
+<td>System recovery</td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-clearance">Using Clearance</h3>
+<pre class="language-dart"><code class="language-dart">// Read-only observer
+final observer = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Monitor',
+  clearance: Clearance.observational,
+);
+
+// Administrator
+final admin = DeputyContext.intervention(
+  baseContext: Context.system,
+  reason: 'Emergency',
+);
+// clearance: Clearance.administrative
+
+// Checking clearance
+if (context.clearance.authorizes(Clearance.standard)) {
+  print('Has standard clearance');
+}
+</code></pre>
+<hr>
+<h2 id="isolation-levels">Isolation Levels</h2>
+<h3 id="isolation-overview">Isolation Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared</code></td>
+<td>Direct live execution</td>
+<td>Standard operations</td>
+</tr>
+<tr>
+<td><code>scoped</code></td>
+<td>Restricted domain</td>
+<td>Limited scope</td>
+</tr>
+<tr>
+<td><code>restricted</code></td>
+<td>Zero-trust filtering</td>
+<td>Security-sensitive</td>
+</tr>
+<tr>
+<td><code>sandboxed</code></td>
+<td>Virtualized execution</td>
+<td>Simulation, testing</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>Air-gapped</td>
+<td>Observation only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-isolation">Using Isolation</h3>
+<pre class="language-dart"><code class="language-dart">// Sandboxed for simulation
+final sandbox = DeputyContext.sandbox(
+  baseContext: Context.system,
+  role: 'Simulator',
+);
+// isolation: Isolation.sandboxed
+
+// Scoped for limited operations
+final scoped = DeputyContext.delegate(
+  baseContext: Context.system,
+  task: 'Update',
+);
+// isolation: Isolation.scoped (default)
+
+// Checking isolation
+if (context.isolation.isVirtual) {
+  print('Virtual execution');
+}
+</code></pre>
+<hr>
+<h2 id="sovereignty-levels">Sovereignty Levels</h2>
+<h3 id="sovereignty-overview">Sovereignty Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>supervised</code></td>
+<td>Needs approval</td>
+<td>High-risk actions</td>
+</tr>
+<tr>
+<td><code>collaborative</code></td>
+<td>Mixed autonomy</td>
+<td>Human-in-the-loop</td>
+</tr>
+<tr>
+<td><code>sovereign</code></td>
+<td>Full autonomy</td>
+<td>Standard operations</td>
+</tr>
+<tr>
+<td><code>preemptive</code></td>
+<td>Emergency overrides</td>
+<td>System safety</td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-sovereignty">Using Sovereignty</h3>
+<pre class="language-dart"><code class="language-dart">// Supervised (needs approval)
+final supervised = DeputyContext(
+  baseContext: Context.system,
+  authority: 'WRITE',
+  sovereignty: Sovereignty.supervised,
+);
+
+// Sovereign (full autonomy)
+final sovereign = DeputyContext.delegate(
+  baseContext: Context.system,
+  task: 'Cleanup',
+);
+// sovereignty: Sovereignty.sovereign (default)
+
+// Checking sovereignty
+if (context.sovereignty.requiresApproval) {
+  print('Needs approval');
+}
+if (context.sovereignty.isPreemptive) {
+  print('Emergency override');
+}
+</code></pre>
+<hr>
+<h2 id="using-with-deputies">Using with Deputies</h2>
+<h3 id="basic-deputy">Basic Deputy</h3>
+<pre class="language-dart"><code class="language-dart">// Create a cell
+final cell = ValueCell&lt;int&gt;(value: 42);
+
+// Create a deputy with context
+final context = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Read-only view',
+);
+
+final deputy = await cell.deputy(
+  context: context,
+  testRule: TestCell.readOnly,
+);
+
+// deputy shares state but has restricted permissions
+print(deputy.value);  // 42
+// deputy.emit(100);  // Blocked
+</code></pre>
+<h3 id="custom-deputy">Custom Deputy</h3>
+<pre class="language-dart"><code class="language-dart">final cell = ValueCell&lt;User&gt;(value: user);
+
+final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'UPDATE_PROFILE',
+  role: 'ProfileEditor',
+  clearance: Clearance.standard,
+  isolation: Isolation.scoped,
+  sovereignty: Sovereignty.supervised,
+  justification: 'User profile update',
+  constraints: {'max_fields': 5},
+);
+
+final deputy = await cell.deputy(context: context);
+</code></pre>
+<h3 id="factory-based-deputy">Factory-Based Deputy</h3>
+<pre class="language-dart"><code class="language-dart">// Observer deputy
+final observer = await cell.deputy(
+  context: DeputyContext.observer(
+    baseContext: Context.system,
+    task: 'Monitor',
+  ),
+);
+
+// Delegate deputy
+final delegate = await cell.deputy(
+  context: DeputyContext.delegate(
+    baseContext: Context.system,
+    task: 'Cleanup',
+  ),
+);
+
+// Sandbox deputy
+final sandbox = await cell.deputy(
+  context: DeputyContext.sandbox(
+    baseContext: Context.system,
+    role: 'What-If',
+  ),
+);
+</code></pre>
+<h3 id="opencell-deputy">OpenCell Deputy</h3>
+<pre class="language-dart"><code class="language-dart">final openCell = Cell.open();
+
+final deputy = await openCell.deputy(
+  context: DeputyContext.gatekeeper(
+    baseContext: Context.system,
+  ),
+);
+// deputy is also an OpenCell with restricted permissions
+</code></pre>
+<hr>
+<h2 id="testing-deputycontext">Testing DeputyContext</h2>
+<h3 id="unit-testing">Unit Testing</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+void main() {
+  test('DeputyContext creates correctly', () {
+    final context = DeputyContext(
+      baseContext: Context.system,
+      authority: 'READ',
+      role: 'Observer',
+      clearance: Clearance.observational,
+    );
+    expect(context.authority, 'READ');
+    expect(context.role, 'Observer');
+    expect(context.clearance, Clearance.observational);
+  });
+
+  test('DeputyContext inherits from base', () {
+    final base = Context.module('finance');
+    final context = DeputyContext(
+      baseContext: base,
+      authority: 'READ',
+    );
+    expect(context.domains, 'logic');  // From base
+    expect(context.authority, 'READ');  // Local
+  });
+
+  test('DeputyContext evolves correctly', () {
+    final context = DeputyContext(
+      baseContext: Context.system,
+      authority: 'READ',
+      clearance: Clearance.standard,
+    );
+    final evolved = context.evolve((evolvable) {
+      if (evolvable == Mandate.clearance) {
+        return Mandate.clearance.entry(Clearance.observational);
+      }
+      return null;
+    });
+    expect(evolved.authority, 'READ');
+    expect(evolved.clearance, Clearance.observational);
+  });
+}
+</code></pre>
+<h3 id="testing-with-deputies">Testing with Deputies</h3>
+<pre class="language-dart"><code class="language-dart">test('Deputy respects context', () async {
+  final cell = ValueCell&lt;int&gt;(value: 42);
+  
+  final context = DeputyContext.observer(
+    baseContext: Context.system,
+    task: 'Test',
+  );
+  
+  final deputy = await cell.deputy(context: context);
+  
+  expect(deputy.value, 42);
+  // deputy._emit(100);  // Should be blocked
+});
+
+test('Deputy with clearance', () async {
+  final cell = ValueCell&lt;int&gt;(value: 42);
+  
+  final context = DeputyContext(
+    baseContext: Context.system,
+    authority: 'WRITE',
+    clearance: Clearance.standard,
+  );
+  
+  final deputy = await cell.deputy(context: context);
+  // Deputy can write with standard clearance
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-predefined-factories">1. Use Predefined Factories</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use factories
+final context = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Monitor',
+);
+
+// ❌ BAD - Manual construction
+final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'OBSERVATION',
+  role: 'Observer',
+);
+</code></pre>
+<h3 id="2-set-appropriate-clearance">2. Set Appropriate Clearance</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Read-only observer
+clearance: Clearance.observational
+
+// ✅ GOOD - Standard operations
+clearance: Clearance.standard
+
+// ✅ GOOD - Administrative tasks
+clearance: Clearance.administrative
+
+// ❌ BAD - Too high for simple tasks
+clearance: Clearance.unrestricted
+</code></pre>
+<h3 id="3-document-justification">3. Document Justification</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Clear justification
+justification: 'System health monitoring for compliance'
+
+// ❌ BAD - Vague justification
+justification: 'Task'
+</code></pre>
+<h3 id="4-use-constraints">4. Use Constraints</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - With constraints
+constraints: {'max_ops': 1000, 'timeout_ms': 5000}
+
+// ❌ BAD - No constraints
+// constraints: null
+</code></pre>
+<h3 id="5-set-appropriate-sovereignty">5. Set Appropriate Sovereignty</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Supervised for risky actions
+sovereignty: Sovereignty.supervised
+
+// ✅ GOOD - Sovereign for routine tasks
+sovereignty: Sovereignty.sovereign
+
+// ❌ BAD - Preemptive for routine tasks
+sovereignty: Sovereignty.preemptive
+</code></pre>
+<h3 id="6-use-isolation-for-safety">6. Use Isolation for Safety</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Sandbox for simulations
+isolation: Isolation.sandboxed
+
+// ✅ GOOD - Scoped for limited operations
+isolation: Isolation.scoped
+
+// ❌ BAD - Shared for sensitive operations
+isolation: Isolation.shared
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete multi-tenant system with different deputy contexts:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────────────────
+// 1. Domain Models
+// ─────────────────────────────────────────────────────────────────────────
+
+class User {
+  final String id;
+  final String name;
+  final String role;
+  final bool isActive;
+
+  User({
+    required this.id,
+    required this.name,
+    required this.role,
+    this.isActive = true,
+  });
+
+  @override
+  String toString() =&gt; 'User($name, role: $role)';
+}
+
+class Document {
+  final String id;
+  final String title;
+  final String content;
+  final Sensitivity sensitivity;
+
+  Document({
+    required this.id,
+    required this.title,
+    required this.content,
+    this.sensitivity = Sensitivity.public,
+  });
+
+  @override
+  String toString() =&gt; 'Document($title, sensitivity: ${sensitivity.name})';
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 2. Document Management Cell
+// ─────────────────────────────────────────────────────────────────────────
+
+final documentCell = ValueCell&lt;List&lt;Document&gt;&gt;(
+  value: [
+    Document(
+      id: 'DOC-001',
+      title: 'Q4 Report',
+      content: 'Quarterly results...',
+      sensitivity: Sensitivity.confidential,
+    ),
+    Document(
+      id: 'DOC-002',
+      title: 'Public Announcement',
+      content: 'Company update...',
+      sensitivity: Sensitivity.public,
+    ),
+    Document(
+      id: 'DOC-003',
+      title: 'API Key',
+      content: 'sk-abc123...',
+      sensitivity: Sensitivity.secret,
+    ),
+  ],
+  transform: (host, input, {user, bind}) {
+    final docs = input.payload as List&lt;Document&gt;?;
+    if (docs == null) return null;
+    return Pulse(docs);
+  },
+);
+
+// ─────────────────────────────────────────────────────────────────────────
+// 3. Create Different Deputies
+// ─────────────────────────────────────────────────────────────────────────
+
+Future&lt;void&gt; main() async {
+  print('═══ Multi-Tenant System with DeputyContext ═══\n');
+
+  // 1. Read-only observer
+  print('1. Read-only Observer:');
+  final observerContext = DeputyContext.observer(
+    baseContext: Context.system,
+    task: 'Document Viewer',
+    clearance: Clearance.observational,
+  );
+  final observer = await documentCell.deputy(
+    context: observerContext,
+    testRule: TestCell.readOnly,
+  );
+  
+  final docs = observer.value as List&lt;Document&gt;?;
+  print('   Viewing ${docs?.length ?? 0} documents');
+  for (final doc in docs ?? []) {
+    print('   - ${doc.title} (${doc.sensitivity.name})');
+  }
+
+  // 2. Compliance auditor
+  print('\n2. Compliance Auditor:');
+  final auditorContext = DeputyContext.auditor(
+    baseContext: Context.system,
+    regulation: 'GDPR',
+  );
+  final auditor = await documentCell.deputy(
+    context: auditorContext,
+  );
+  // Auditor can see everything but can't modify
+
+  // 3. Janitor for cleanup
+  print('\n3. Janitor:');
+  final janitorContext = DeputyContext.janitor(
+    baseContext: Context.system,
+    target: 'Expired Documents',
+    clearance: Clearance.administrative,
+  );
+  final janitor = await documentCell.deputy(
+    context: janitorContext,
+  );
+  // Janitor can remove expired documents
+
+  // 4. Sandbox for what-if analysis
+  print('\n4. Sandbox:');
+  final sandboxContext = DeputyContext.sandbox(
+    baseContext: Context.system,
+    role: 'What-If Analyzer',
+  );
+  final sandbox = await documentCell.deputy(
+    context: sandboxContext,
+  );
+  // Sandbox can simulate but not commit
+
+  // 5. Security intervention
+  print('\n5. Security Intervention:');
+  final interventionContext = DeputyContext.intervention(
+    baseContext: Context.system,
+    reason: 'Suspicious access detected',
+  );
+  final sentinel = await documentCell.deputy(
+    context: interventionContext,
+  );
+  // Sentinel can override and block access
+
+  print('\n═══ Done ═══');
+}
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DeputyContext</strong></td>
+<td>Mandate profile for deputies</td>
+</tr>
+<tr>
+<td><strong>Authority</strong></td>
+<td>Functional permissions (verbs)</td>
+</tr>
+<tr>
+<td><strong>Role</strong></td>
+<td>Semantic identity</td>
+</tr>
+<tr>
+<td><strong>Clearance</strong></td>
+<td>Security rank (0-5)</td>
+</tr>
+<tr>
+<td><strong>Isolation</strong></td>
+<td>Execution boundary</td>
+</tr>
+<tr>
+<td><strong>Sovereignty</strong></td>
+<td>Decision-making autonomy</td>
+</tr>
+<tr>
+<td><strong>Justification</strong></td>
+<td>Rationale for existence</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Use factories for common scenarios</strong> - <code>observer</code>, <code>delegate</code>, etc.</li>
+<li><strong>Set appropriate clearance</strong> - Match to required permissions</li>
+<li><strong>Document justification</strong> - Explain why deputy exists</li>
+<li><strong>Use isolation for safety</strong> - Sandbox for simulations</li>
+<li><strong>Use sovereignty for control</strong> - Supervised for risky actions</li>
+<li><strong>Add constraints</strong> - Limit operations</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: Read-only observer
+final context = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Monitor',
+);
+
+// Pattern: Active delegate
+final context = DeputyContext.delegate(
+  baseContext: Context.system,
+  task: 'Cleanup',
+);
+
+// Pattern: Safe sandbox
+final context = DeputyContext.sandbox(
+  baseContext: Context.system,
+  role: 'Simulator',
+);
+
+// Pattern: Emergency intervention
+final context = DeputyContext.intervention(
+  baseContext: Context.system,
+  reason: 'Emergency',
+);
+
+// Pattern: Custom mandate
+final context = DeputyContext(
+  baseContext: Context.system,
+  authority: 'CUSTOM_ACTION',
+  role: 'CustomRole',
+  clearance: Clearance.standard,
+  isolation: Isolation.scoped,
+);
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="DeputyContext">
+  <span class="name "><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-deputy-context cp-11 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
+
+</dt>
+<dd>
+  Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Deputy Context topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/">src\internal\commons</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">src\test_rule</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/">src\test_rule_meta</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Core 16 Operators</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Advanced · Deputy Context topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Deputy Context-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/DeputyContext-class.html">DeputyContext</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

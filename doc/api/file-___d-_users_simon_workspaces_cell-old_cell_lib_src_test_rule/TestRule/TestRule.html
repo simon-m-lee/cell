@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TestRule.new constructor from Class TestRule from the test_rule library, for the Dart programming language.">
+  <title>TestRule.new constructor - TestRule - test_rule library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">src\test_rule.dart</a></li>
+    <li><a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.new const constructor</li>
+  </ol>
+  <div class="self-name">TestRule.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule&#47;TestRule-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">rule</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span></li>
+<li><span class="parameter" id="param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span>, </span></li>
+<li><span class="parameter" id="param-host"><span class="type-annotation">C?</span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>}), {</span></li>
+<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a new <a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> instance to encapsulate a specific
+<strong>Validation Predicate</strong>.</p>
+<p>This constructor is the primary entry point for defining <strong>Policy Guards</strong>
+and <strong>Integrity Gates</strong>. It allows for the creation of reusable, stateless
+rules that can be composed into larger validation pipelines using
+the <code>+</code> operator.</p>
+<h3 id="1-developer-ergonomics--human-legibility">1. Developer Ergonomics &amp; Human Legibility</h3>
+<p>This is the primary way developers create validation rules:</p>
+<pre class="language-dart"><code class="language-dart">// Simple range check
+final rangeRule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object &gt;= 0 &amp;&amp; object &lt;= 100;
+});
+
+// With host context
+final contextRule = TestRule&lt;Cell&gt;((object, {host, arguments, user}) {
+  final ctx = host?.context;
+  return ctx?.domains?.contains('Finance') ?? false;
+});
+
+// Using user data
+final thresholdRule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  final limit = user as int? ?? 100;
+  return object &lt;= limit;
+}, user: 50);
+
+// With parent chain
+final childRule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object % 2 == 0;
+}, parent: baseRule);
+</code></pre>
+<h3 id="2-hybrid-convergence-syncasync-logic">2. Hybrid Convergence: Sync/Async Logic</h3>
+<p>By accepting a <code>rule</code> that returns <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr&lt;bool&gt;</a>, this constructor
+enables <strong>Scene-Driven Validation</strong>:</p>
+<ul>
+<li><strong>Synchronous Path</strong>: For high-frequency state updates, providing a
+synchronous function ensures the <strong>Integrity Gate</strong> resolves without
+entering the event loop, maintaining zero-latency propagation.</li>
+<li><strong>Asynchronous Path</strong>: For security checks requiring I/O or remote
+authority, the rule can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, allowing the node's
+<strong>Conactive Lock</strong> to safely suspend until validation completes.</li>
+</ul>
+<h3 id="3-example-complete-validation-pipeline">3. Example: Complete Validation Pipeline</h3>
+<pre class="language-dart"><code class="language-dart">// Define individual rules
+final isPositive = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object &gt; 0;
+});
+
+final isEven = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object % 2 == 0;
+});
+
+final isInRange = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object &gt;= 0 &amp;&amp; object &lt;= 100;
+});
+
+// Compose into a pipeline
+final validation = isPositive + isEven + isInRange;
+
+// Use in a cell
+final cell = Cell(testRule: validation);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>rule</code>: The core validation logic. It receives the <code>object</code> being
+tested, the <code>host</code> context (<code>C</code>), any execution <code>arguments</code>,
+and the <code>user</code> metadata.</li>
+<li><code>parent</code>: An optional <a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> to be evaluated if this rule passes,
+facilitating <strong>Chain of Responsibility</strong> composition.</li>
+<li><code>user</code>: Optional metadata or configuration data passed back to
+the <code>rule</code> during execution.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const TestRule(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
+  TestRule&lt;C&gt;? parent, dynamic user
+}) : _record = parent != null ? user != null
+    ? (rule: rule, parent: parent, user: user) : (rule: rule, parent: parent) : (rule: rule);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">test_rule</a></li>
+    <li><a href="../../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.new const constructor</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

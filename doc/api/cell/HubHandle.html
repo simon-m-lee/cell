@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the HubHandle typedef from the cell library, for the Dart programming language.">
+  <title>HubHandle typedef - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">HubHandle typedef</li>
+  </ol>
+  <div class="self-name">HubHandle</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;cell-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-typedef">HubHandle</span> typedef 
+ 
+</h1></div>
+    <section class="multi-line-signature">
+        
+  
+<span class="name ">HubHandle</span> = (<span class="field">{<span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)</span>
+
+
+    </section>
+
+    
+<section class="desc markdown">
+  <p>A management handle for a <strong>Signal Distribution Hub</strong>, providing a unified
+interface to control a multi-destination routing cluster.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You get this from <a href="../cell/Cell/hub.html">Cell.hub</a>. Use it when you need to fan‑out a single
+pulse to multiple specialised handlers based on <a href="../cell/Pulse/type.html">Pulse.type</a>.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The handle contains a <code>root</code> cell (the ingress) and a set of <code>spokes</code>
+(the handlers). When you <code>emit</code> or <code>ingest</code> a pulse, it's routed to
+the appropriate spoke(s) based on the hub's configuration.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>If you provide a custom <code>relay</code>, the default routing is bypassed – you
+must manually deliver pulses to the spokes.</li>
+<li>The hub's <code>ingest</code> with <code>serializedCompletion: true</code> waits for all
+spokes to finish processing before completing the Future.</li>
+</ul>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">typedef HubHandle = ({
+  &#47;&#47;&#47; The central ingress node that governs the distribution hub. This node
+  &#47;&#47;&#47; acts as the central gateway and **Integrity Gate** for the cluster.
+  Cell root,
+
+  &#47;&#47;&#47; The collection of specialized downstream nodes (branches) that
+  &#47;&#47;&#47; receive signals fanned out from the [root].
+  Iterable&lt;Cell&gt; spokes,
+
+  &#47;&#47;&#47; Synchronously injects a [Pulse] into the hub&#39;s [root] at **Native Speed**.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Returns the resulting pulse if it successfully passed the **Integrity
+  &#47;&#47;&#47; Gate** and was broadcast; returns `null` if neutralized by a policy guard.
+  Pulse? Function(Pulse pulse) emit,
+
+  &#47;&#47;&#47; Asynchronously injects a stimulus, ensuring **Serialized Transformation**
+  &#47;&#47;&#47; through the system&#39;s **Conactive Lock**.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; This modality is required if the [root] or any [spokes] involve
+  &#47;&#47;&#47; I&#47;O-bound validation or cross-domain security checks.
+  Future&lt;Pulse?&gt; Function(Pulse pulse) emitAsync,
+
+  &#47;&#47;&#47; The **Primary Distribution Ingress** handle.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; This handle is the &quot;Entry Port&quot; for the switching fabric. It is used
+  &#47;&#47;&#47; to introduce a single [Pulse] that will be demultiplexed across
+  &#47;&#47;&#47; all registered `spokes` according to the hub&#39;s [manifest].
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### The Consequence of [serializedCompletion]:
+  &#47;&#47;&#47; This parameter defines the **Convergent Boundary** for the fan-out
+  &#47;&#47;&#47; operation:
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; *   **Synchronous Convergence (`true`)**: The returned [Future] will
+  &#47;&#47;&#47;     only resolve once the signal has propagated through the root AND
+  &#47;&#47;&#47;     all associated spokes have finished their transformations. This
+  &#47;&#47;&#47;     guarantees that the entire **Collection** has stabilized before
+  &#47;&#47;&#47;     the caller proceeds.
+  &#47;&#47;&#47; *   **Parallel Propagation (`false`)**: The [Future] resolves once the
+  &#47;&#47;&#47;     signal is safely enqueued at the `root`. The distribution to
+  &#47;&#47;&#47;     spokes happens as a background task, maximizing throughput for
+  &#47;&#47;&#47;     high-frequency telemetry or logging scenes.
+  Future&lt;void&gt; Function(Pulse pulse, {bool serializedCompletion}) ingest
+
+});</code></pre>
+</section>
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">HubHandle typedef</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

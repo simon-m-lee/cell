@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mask method from the SynapsesBase class, for the Dart programming language.">
+  <title>mask method - SynapsesBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">mask static method</li>
+  </ol>
+  <div class="self-name">mask</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;SynapsesBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">mask</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+<span class="name ">mask</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="mask-param-policy"><span class="type-annotation"><a href="../../cell/PropagationPolicy-class.html">PropagationPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="mask-param-downstreams"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span> <span class="parameter-name">downstreams</span>, </span></li>
+<li><span class="parameter" id="mask-param-filter"><span class="type-annotation"><a href="../../cell/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">filter</span>, </span></li>
+<li><span class="parameter" id="mask-param-relay"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">relay</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Record mask({PropagationPolicy? policy, required Iterable downstreams, FilterRule? filter, Function? relay}) {
+
+  final buffer = policy != null &amp;&amp; [PropagationStrategy.batched, PropagationStrategy.buffered]
+      .any((s) =&gt; s == policy.strategy) ? QueueList&lt;PulseBase&gt;() : null;
+
+  final timerBox = policy != null &amp;&amp; [PropagationStrategy.debounced, PropagationStrategy.buffered, PropagationStrategy.throttled]
+      .any((s) =&gt; s == policy.strategy) ? Box&lt;Timer&gt;() : null;
+
+  final mask = (
+      (policy != null   ? 1 : 0) |
+      (filter != null   ? 2 : 0) |
+      (buffer != null   ? 4 : 0) |
+      (timerBox != null ? 8 : 0) |
+      (relay != null ? 16 : 0)
+  );
+
+  return switch (mask) {
+    0 =&gt; (downstreams: downstreams),
+    1 =&gt; (downstreams: downstreams, policy: policy),
+    2 =&gt; (downstreams: downstreams, filter: filter),
+    3 =&gt; (downstreams: downstreams, policy: policy, filter: filter),
+    4 =&gt; (downstreams: downstreams, buffer: buffer),
+    5 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer),
+    6 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer),
+    7 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer),
+    8 =&gt; (downstreams: downstreams, timerBox: timerBox),
+    9 =&gt; (downstreams: downstreams, policy: policy, timerBox: timerBox),
+    10 =&gt; (downstreams: downstreams, filter: filter, timerBox: timerBox),
+    11 =&gt; (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox),
+    12 =&gt; (downstreams: downstreams, buffer: buffer, timerBox: timerBox),
+    13 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox),
+    14 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox),
+    15 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox),
+
+    16 =&gt; (downstreams: downstreams, relay: relay),
+    17 =&gt; (downstreams: downstreams, policy: policy, relay: relay),
+    18 =&gt; (downstreams: downstreams, filter: filter, relay: relay),
+    19 =&gt; (downstreams: downstreams, policy: policy, filter: filter, relay: relay),
+    20 =&gt; (downstreams: downstreams, buffer: buffer, relay: relay),
+    21 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, relay: relay),
+    22 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, relay: relay),
+    23 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, relay: relay),
+    24 =&gt; (downstreams: downstreams, timerBox: timerBox, relay: relay),
+    25 =&gt; (downstreams: downstreams, policy: policy, timerBox: timerBox, relay: relay),
+    26 =&gt; (downstreams: downstreams, filter: filter, timerBox: timerBox, relay: relay),
+    27 =&gt; (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox, relay: relay),
+    28 =&gt; (downstreams: downstreams, buffer: buffer, timerBox: timerBox, relay: relay),
+    29 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox, relay: relay),
+    30 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
+    31 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
+
+    _ =&gt; (downstreams: downstreams)
+  };
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">mask static method</li>
+</ol>
+
+    <h5>SynapsesBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

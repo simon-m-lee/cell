@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell library API docs, for the Dart programming language.">
+  <title>cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">cell.dart</li>
+  </ol>
+  <div class="self-name">cell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="cell&#47;cell-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">cell</span>
+        library 
+ 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-1 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Cell — reactive state for Dart.</p>
+<p>A <strong>cell</strong> holds a value. A <strong>pulse</strong> is the immutable message that moves a
+change. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire cells together.</p>
+<p><a href="../cell/Receptor-class.html">Receptor</a>, <a href="../cell/TestCell-class.html">TestCell</a>, <a href="../cell/Context-class.html">Context</a>, and <a href="../cell/Synapses-class.html">Synapses</a> are optional. Defaults are
+pass-through. Nothing is authorized or redacted unless you pass a rule.</p>
+<p>Alpha. Operator lists and guide names have moved; treat this comment as the
+learning order, not a stability guarantee.</p>
+<h2 id="learning-order">Learning order</h2>
+<p>Get data in → hold state → react → shape streams → go async → combine →
+isolate writes.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Factory</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="../cell/Cell/state.html">Cell.state</a></td>
+<td>Persistent mutable state</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="../cell/Cell/ingress.html">Cell.ingress</a></td>
+<td>Manual <code>emit</code> / <code>ingest</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="../cell/Cell/observe.html">Cell.observe</a></td>
+<td>Side effects; <code>start</code> / <code>stop</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="../cell/Cell/derive.html">Cell.derive</a></td>
+<td>Projection of one source</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="../cell/Cell/debounce.html">Cell.debounce</a></td>
+<td>Emit after silence</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Cell.merge</code></td>
+<td>Fan-in</td>
+</tr>
+<tr>
+<td>7</td>
+<td><a href="../cell/Cell/distinct.html">Cell.distinct</a></td>
+<td>Skip equal consecutive values</td>
+</tr>
+<tr>
+<td>8</td>
+<td><a href="../cell/Cell/throttle.html">Cell.throttle</a></td>
+<td>Rate limit</td>
+</tr>
+<tr>
+<td>9</td>
+<td><a href="../cell/Cell/synthesis.html">Cell.synthesis</a></td>
+<td>Aggregate several sources</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="../cell/Cell/asyncMap.html">Cell.asyncMap</a></td>
+<td>Async map (<code>concurrency</code>, <code>latestOnly</code>)</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="../cell/Cell/hub.html">Cell.hub</a></td>
+<td>Route by pulse type</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="../cell/Cell/switchMap.html">Cell.switchMap</a></td>
+<td>Follow the latest inner cell</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="../cell/Cell/fromFuture.html">Cell.fromFuture</a> / <a href="../cell/Cell/fromStream.html">Cell.fromStream</a></td>
+<td>Bridge <code>dart:async</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><a href="../cell/Cell/sanitized.html">Cell.sanitized</a></td>
+<td>Redact before egress</td>
+</tr>
+<tr>
+<td>15</td>
+<td><a href="../cell/Cell/open.html">Cell.open</a></td>
+<td>Manual topology</td>
+</tr>
+<tr>
+<td>16</td>
+<td><a href="../cell/Cell/transaction.html">Cell.transaction</a></td>
+<td>Multi-cell buffered writes</td>
+</tr>
+<tr>
+<td>17</td>
+<td><a href="../cell/Cell/txApply.html">Cell.txApply</a></td>
+<td>Staged <code>apply</code> + compensation</td>
+</tr>
+</tbody>
+</table>
+<p>Each works with zero knowledge of <a href="../cell/Receptor-class.html">Receptor</a>, <a href="../cell/TestCell-class.html">TestCell</a>, <a href="../cell/Context-class.html">Context</a>, or
+<a href="../cell/Synapses-class.html">Synapses</a> — all optional, all defaulted. They represent the
+<strong>Standard Entry Point</strong>, allowing you to build complex reactive systems
+by connecting simple building blocks. While you focus on your logic, the
+framework automatically manages the input (Ingress), logic (Transformation),
+and notifications (Egress), handling all security checks and verification
+steps in the background.</p>
+<p>1–4 are enough for a first app. 16–17 are the unusual part: commit-time
+locks, isolation, savepoints, compensation. See the Advanced topic in
+generated docs.</p>
+<h2 id="transactions">Transactions</h2>
+<p><a href="../cell/Cell/transaction.html">Cell.transaction</a> buffers <code>update</code>/<code>read</code> and applies them together.
+Locks are taken at <strong>commit</strong>, not for the whole <code>begin</code>…<code>commit</code> window.</p>
+<p><a href="../cell/Cell/txApply.html">Cell.txApply</a> stages <code>cell.apply(fn, tx: tx, compensate: undo)</code>. It is not
+a second syntax for assigning <code>value</code>.</p>
+<h2 id="governance-opt-in">Governance (opt-in)</h2>
+<p><a href="../cell/Context-class.html">Context</a>, <a href="../cell/DeputyContext-class.html">DeputyContext</a>, <a href="../cell/PulseContext-class.html">PulseContext</a>, <a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>, and
+<a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> record who / why / how and can enforce TTL or
+clearance <strong>if</strong> a <a href="../cell/TestCell-class.html">TestCell</a> (or deputy) actually denies the operation.</p>
+<p><a href="../cell/Context/Context.describe.html">Context.describe</a> stores a description. It is not a legal basis, a
+retention schedule, or an audit log.</p>
+<p>Guides live in <code>guide/</code> (<code>HowTo-Start.md</code>, <code>HowTo-Transaction.md</code>, …).</p>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell/ApplyRejected-class.html">ApplyRejected</a></span> 
+
+</dt>
+<dd>
+  Explicit soft-reject from <a href="../cell/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+</dd>
+
+          <dt id="ApplyTransactionScope">
+  <span class="name "><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Async">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/Async-class.html">Async</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A foundational marker interface and architectural contract representing
+an <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> for a core component <code>C</code>.
+</dd>
+
+          <dt id="AsyncPriorityQueue">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/AsyncPriorityQueue-class.html">AsyncPriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncQueueList">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/AsyncQueueList-class.html">AsyncQueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncSynapses">
+  <span class="name "><a href="../cell/AsyncSynapses-class.html">AsyncSynapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An <strong>Asynchronous Projection</strong> of a <a href="../cell/Synapses-class.html">Synapses</a> instance for non‑blocking
+signal distribution.
+</dd>
+
+          <dt id="Box">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, lightweight container used to provide a mutable state
+anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.
+</dd>
+
+          <dt id="Cell">
+  <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-1 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+          <dt id="CellBase">
+  <span class="name "><a href="../cell/CellBase-class.html">CellBase</a></span> 
+
+</dt>
+<dd>
+  The foundational abstract implementation of the <a href="../cell/Cell-class.html">Cell</a> interface.
+</dd>
+
+          <dt id="CollectivePulse">
+  <span class="name "><a href="../cell/CollectivePulse-class.html">CollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <strong>Collective Pulse</strong> — a flat bundle of independent pulses travelling
+together as a single atomic wave.
+</dd>
+
+          <dt id="CollectivePulseBase">
+  <span class="name "><a href="../cell/CollectivePulseBase-class.html">CollectivePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../cell/CollectivePulse-class.html">CollectivePulse</a> implementations.
+</dd>
+
+          <dt id="CompensationFailure">
+  <span class="name "><a href="../cell/CompensationFailure-class.html">CompensationFailure</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Context">
+  <span class="name "><a href="../cell/Context-class.html">Context</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-context cp-10 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
+
+</dt>
+<dd>
+  Metadata describing a <a href="../cell/Cell-class.html">Cell</a>'s tier, domain, and operational
+boundaries — used by <a href="../cell/TestCell-class.html">TestCell</a> rules to make context-aware decisions.
+</dd>
+
+          <dt id="ContextBase">
+  <span class="name "><a href="../cell/ContextBase-class.html">ContextBase</a></span> 
+
+</dt>
+<dd>
+  The foundational implementation of the <strong>Operational Environment</strong>, providing
+the core logic for <strong>Prototype-based Inheritance</strong> and <strong>Ontological Resolution</strong>.
+</dd>
+
+          <dt id="CycleChecker">
+  <span class="name "><a href="../cell/CycleChecker-class.html">CycleChecker</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Traversal Guard</strong> and <strong>Topology Validator</strong>, responsible for
+preventing infinite recursion and ensuring the reactive graph remains a
+<strong>Directed Acyclic Graph (DAG)</strong> during signal propagation.
+</dd>
+
+          <dt id="DefaultValue">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/DefaultValue-class.html">DefaultValue</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/DefaultValue-class.html">DefaultValue</a> is a metadata annotation primarily used by the code generation
+framework (such as <code>build_model</code>) to define a fallback or initial value for
+fields in a model class.
+</dd>
+
+          <dt id="DeputyContext">
+  <span class="name "><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-deputy-context cp-11 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
+
+</dt>
+<dd>
+  Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="EmailPattern">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EmailPattern-class.html">EmailPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EmailPattern-class.html">EmailPattern</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EntryPattern-class.html">EntryPattern</a> metadata annotation designed
+to validate whether a string conforms to a standard email address format.
+</dd>
+
+          <dt id="EntryPattern">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EntryPattern-class.html">EntryPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EntryPattern-class.html">EntryPattern</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> metadata annotation that validates
+whether a string input matches a specific Regular Expression (<a href="https://api.flutter.dev/flutter/dart-core/RegExp-class.html">RegExp</a>).
+</dd>
+
+          <dt id="EphemeralPolicy">
+  <span class="name "><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-ephemeral-policy cp-13 linked" title="This is part of the Advanced · Ephemeral Policy topic."><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></span>
+
+</dt>
+<dd>
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive elements.
+</dd>
+
+          <dt id="EvolvedPulse">
+  <span class="name "><a href="../cell/EvolvedPulse-class.html">EvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An immutable signal derived from a previous pulse through a transformation
+step — a causal link in the signal's journey.
+</dd>
+
+          <dt id="EvolvedPulseBase">
+  <span class="name "><a href="../cell/EvolvedPulseBase-class.html">EvolvedPulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../cell/EvolvedPulse-class.html">EvolvedPulse</a> implementations.
+</dd>
+
+          <dt id="FilterRule">
+  <span class="name "><a href="../cell/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+    <span class="category signals-&-synapses cp-3 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  A filter that can transform, redact, or suppress a <a href="../cell/Pulse-class.html">Pulse</a> before it is
+broadcast to downstream observers.
+</dd>
+
+          <dt id="FinalBox">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/FinalBox-class.html">FinalBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, write-once container providing a thread-safe, immutable
+anchor for state that is initialized after construction.
+</dd>
+
+          <dt id="FunctionObject">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/FunctionObject-class.html">FunctionObject</a></span> 
+
+</dt>
+<dd>
+  Simple wrapper for functions or records containing function information.
+Used to pass function metadata through the system.
+</dd>
+
+          <dt id="FunctionTypeObject">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/FunctionTypeObject-class.html">FunctionTypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Lazy-evaluated version of TypeObject that executes a function to get the value.
+Useful for deferred initialization or expensive object creation.
+</dd>
+
+          <dt id="Governance">
+  <span class="name "><a href="../cell/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational <strong>Authority Protocol</strong> for defining structural and
+behavioral guardrails within the framework's <a href="../cell/Mandate.html">Mandate</a> ontology.
+</dd>
+
+          <dt id="GovernanceEntry">
+  <span class="name "><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../cell/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A strongly-typed key-value pair that represents a single dimension of
+governance within the framework's <strong>Scene-Driven Ontology</strong>.
+</dd>
+
+          <dt id="Identity">
+  <span class="name "><a href="../cell/Identity-class.html">Identity</a></span> 
+
+</dt>
+<dd>
+  A utility for materializing unique identities within the somatic graph.
+</dd>
+
+          <dt id="Inheritable">
+  <span class="name "><a href="../cell/Inheritable-class.html">Inheritable</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Instruction">
+  <span class="name "><a href="../cell/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+    <span class="category instructions cp-5 linked" title="This is part of the Instructions topic."><a href="../topics/Instructions-topic.html">Instructions</a></span>
+    <span class="category pipelines-&-receptors cp-6 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+
+</dt>
+<dd>
+  A reusable unit of logic for processing and transforming <a href="../cell/Pulse-class.html">Pulse</a> instances.
+</dd>
+
+          <dt id="InstructionBase">
+  <span class="name "><a href="../cell/InstructionBase-class.html">InstructionBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation and architectural base for all <a href="../cell/Instruction-class.html">Instruction</a>
+variants.
+</dd>
+
+          <dt id="InstructionChain">
+  <span class="name "><a href="../cell/InstructionChain-class.html">InstructionChain</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A composite <a href="../cell/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="MaxLength">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/MaxLength-class.html">MaxLength</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/MaxLength-class.html">MaxLength</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> metadata annotation used primarily by
+the code generation framework (such as <code>build_model</code>) to enforce structural
+and data-integrity constraints on model fields.
+</dd>
+
+          <dt id="Modifiable">
+  <span class="name "><a href="../cell/Modifiable-class.html">Modifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized architectural marker and base interface for objects that support
+controlled mutation through the framework's dynamic command pattern.
+</dd>
+
+          <dt id="ModifiableAsync">
+  <span class="name "><a href="../cell/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous execution of operations on a <a href="../cell/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="Nucleolus">
+  <span class="name "><a href="../cell/Nucleolus-class.html">Nucleolus</a></span> 
+
+</dt>
+<dd>
+  A specialized, terminal implementation of the <a href="../cell/Nucleus-class.html">Nucleus</a> contract representing
+the framework's "zero-state" and <strong>Ontological Root</strong>.
+</dd>
+
+          <dt id="Nucleus">
+  <span class="name "><a href="../cell/Nucleus-class.html">Nucleus</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-nucleus cp-12 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
+
+</dt>
+<dd>
+  The immutable blueprint underlying every <a href="../cell/Cell-class.html">Cell</a> — its <a href="../cell/Nucleus/receptor.html">receptor</a>,
+<a href="../cell/Nucleus/testRule.html">testRule</a>, <a href="../cell/Nucleus/context.html">context</a>, <a href="../cell/Nucleus/synapses.html">synapses</a>, and lifecycle policy, stored
+separately from the live cell instance.
+</dd>
+
+          <dt id="NucleusBase">
+  <span class="name "><a href="../cell/NucleusBase-class.html">NucleusBase</a></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of the <a href="../cell/Nucleus-class.html">Nucleus</a> contract, providing
+a memory-optimized storage engine for reactive cell properties.
+</dd>
+
+          <dt id="OpenCell">
+  <span class="name "><a href="../cell/OpenCell-class.html">OpenCell</a></span> 
+    <span class="category core-16-operators cp-1 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+
+</dt>
+<dd>
+  A specialized, interactive <a href="../cell/Cell-class.html">Cell</a> that serves as a <strong>Reactive Bridge</strong> for
+external stimulus injection and dynamic topology management.
+</dd>
+
+          <dt id="OpenCellAsync">
+  <span class="name "><a href="../cell/OpenCellAsync-class.html">OpenCellAsync</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Asynchronous Governance Interface</strong> for an <a href="../cell/OpenCell-class.html">OpenCell</a>.
+</dd>
+
+          <dt id="PriorityQueue">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/PriorityQueue-class.html">PriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A collection of elements that maintains a <strong>Deterministic Priority Order</strong>,
+serving as a specialized <strong>Ranked Execution Buffer</strong> for the reactive fabric.
+</dd>
+
+          <dt id="PropagationPolicy">
+  <span class="name "><a href="../cell/PropagationPolicy-class.html">PropagationPolicy</a></span> 
+
+</dt>
+<dd>
+  A declarative blueprint defining the <strong>Temporal Dynamics</strong> and
+<strong>Operational Governance</strong> of pulse propagation.
+</dd>
+
+          <dt id="Pulse">
+  <span class="name "><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+    <span class="category pulse cp-2 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
+    <span class="category signals-&-synapses cp-3 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  A reactive signal — the fundamental unit of communication in the framework.
+</dd>
+
+          <dt id="PulseBase">
+  <span class="name "><a href="../cell/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="PulseContext">
+  <span class="name "><a href="../cell/PulseContext-class.html">PulseContext</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-context cp-8 linked" title="This is part of the Advanced · Pulse Context topic."><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></span>
+
+</dt>
+<dd>
+  Represents the <strong>Causal Identity</strong> and ontological <strong>Provenance</strong> of a <a href="../cell/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="PulseEphemeralPolicy">
+  <span class="name "><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-ephemeral-policy cp-9 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
+
+</dt>
+<dd>
+  A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
+for a <a href="../cell/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
+</dd>
+
+          <dt id="PulseShell">
+  <span class="name "><a href="../cell/PulseShell-class.html">PulseShell</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/Shell-class.html">Shell</a> providing a <strong>Perceptual Projection</strong> of a <a href="../cell/Pulse-class.html">Pulse</a> to
+facilitate pre-execution validation and security gating.
+</dd>
+
+          <dt id="QueueList">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/QueueList-class.html">QueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Receptor">
+  <span class="name "><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category pipelines-&-receptors cp-6 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+
+</dt>
+<dd>
+  The transformation pipeline that decides how a <a href="../cell/Cell-class.html">Cell</a> responds to an
+incoming <a href="../cell/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="ReceptorAsync">
+  <span class="name "><a href="../cell/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous execution handle for a <a href="../cell/Receptor-class.html">Receptor</a> that facilitates
+non‑blocking pulse processing and lifecycle synchronization.
+</dd>
+
+          <dt id="ReceptorBase">
+  <span class="name "><a href="../cell/ReceptorBase-class.html">ReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of <a href="../cell/Receptor-class.html">Receptor</a> that provides the
+core synchronization and pulse propagation engine.
+</dd>
+
+          <dt id="Shell">
+  <span class="name "><a href="../cell/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="Synapses">
+  <span class="name "><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category signals-&-synapses cp-3 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  The distribution fabric for a <a href="../cell/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.
+</dd>
+
+          <dt id="SynapsesBase">
+  <span class="name "><a href="../cell/SynapsesBase-class.html">SynapsesBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation for <a href="../cell/Synapses-class.html">Synapses</a>, serving as the
+<strong>Transmission Engine</strong> of the <code>cell.core</code> reactive framework.
+</dd>
+
+          <dt id="SyncBox">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/SyncBox-class.html">SyncBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A synchronized variant of <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/Box-class.html">Box</a> providing <strong>Thread-Safe Access</strong> and
+facilitating <strong>Atomic State Transitions</strong> across concurrent execution boundaries.
+</dd>
+
+          <dt id="SyncCycleChecker">
+  <span class="name "><a href="../cell/SyncCycleChecker-class.html">SyncCycleChecker</a></span> 
+
+</dt>
+<dd>
+  A thread-safe, <strong>Synchronized Circular Dependency Guard</strong> for asynchronous
+reactive flows.
+</dd>
+
+          <dt id="SyncQueue">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/SyncQueue-class.html">SyncQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/PriorityQueue-class.html">PriorityQueue</a>, providing <strong>Synchronized
+Access</strong> for prioritized collection-based state.
+</dd>
+
+          <dt id="SyncSet">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/SyncSet-class.html">SyncSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, providing <strong>Synchronized Access</strong>
+for collection-based state.
+</dd>
+
+          <dt id="SynthesisCell">
+  <span class="name "><a href="../cell/SynthesisCell-class.html">SynthesisCell</a></span> 
+
+</dt>
+<dd>
+  Represents a <strong>Synthesis Cell</strong>—a specialized structural node that aggregates
+signals from multiple source cells into a single unified stream.
+</dd>
+
+          <dt id="TestActionRule">
+  <span class="name "><a href="../cell/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-4 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating imperative logic and
+functional <a href="../cell/TestActionRule/action.html">action</a> execution within the reactive graph.
+</dd>
+
+          <dt id="TestCell">
+  <span class="name "><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-4 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  The central validation gate for a <a href="../cell/Cell-class.html">Cell</a> – it decides what's allowed.
+</dd>
+
+          <dt id="TestLinkRule">
+  <span class="name "><a href="../cell/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-4 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating <strong>Topological Synapses</strong> and
+graph formation within the reactive framework.
+</dd>
+
+          <dt id="TestPasses">
+  <span class="name "><a href="../cell/TestPasses-class.html">TestPasses</a></span> 
+
+</dt>
+<dd>
+  A sentinel implementation of <a href="../cell/TestCell-class.html">TestCell</a> that always authorises every operation.
+</dd>
+
+          <dt id="TestPulseRule">
+  <span class="name "><a href="../cell/TestPulseRule-class.html">TestPulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-4 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A rule that validates incoming <a href="../cell/Pulse-class.html">Pulse</a> signals before they reach a cell.
+</dd>
+
+          <dt id="TestRule">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-4 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.
+</dd>
+
+          <dt id="TransactionBegun">
+  <span class="name "><a href="../cell/TransactionBegun-class.html">TransactionBegun</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction begins.
+</dd>
+
+          <dt id="TransactionCommitted">
+  <span class="name "><a href="../cell/TransactionCommitted-class.html">TransactionCommitted</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction commits successfully.
+</dd>
+
+          <dt id="TransactionEvent">
+  <span class="name "><a href="../cell/TransactionEvent-class.html">TransactionEvent</a></span> 
+
+</dt>
+<dd>
+  Base class for all transaction lifecycle events.
+</dd>
+
+          <dt id="TransactionOptions">
+  <span class="name "><a href="../cell/TransactionOptions-class.html">TransactionOptions</a></span> 
+
+</dt>
+<dd>
+  Configuration options for a <a href="../cell/Cell/transaction.html">Cell.transaction</a>.
+</dd>
+
+          <dt id="TransactionRolledBack">
+  <span class="name "><a href="../cell/TransactionRolledBack-class.html">TransactionRolledBack</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction is rolled back.
+</dd>
+
+          <dt id="TransactionTimedOut">
+  <span class="name "><a href="../cell/TransactionTimedOut-class.html">TransactionTimedOut</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction times out.
+</dd>
+
+          <dt id="TransactionUpdated">
+  <span class="name "><a href="../cell/TransactionUpdated-class.html">TransactionUpdated</a></span> 
+
+</dt>
+<dd>
+  Emitted when a cell is updated during a transaction.
+</dd>
+
+          <dt id="TxApplyBegun">
+  <span class="name "><a href="../cell/TxApplyBegun-class.html">TxApplyBegun</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCommitted">
+  <span class="name "><a href="../cell/TxApplyCommitted-class.html">TxApplyCommitted</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationFailed">
+  <span class="name "><a href="../cell/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationRetry">
+  <span class="name "><a href="../cell/TxApplyCompensationRetry-class.html">TxApplyCompensationRetry</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyEvent">
+  <span class="name "><a href="../cell/TxApplyEvent-class.html">TxApplyEvent</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyOptions">
+  <span class="name "><a href="../cell/TxApplyOptions-class.html">TxApplyOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRejected">
+  <span class="name "><a href="../cell/TxApplyRejected-class.html">TxApplyRejected</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRolledBack">
+  <span class="name "><a href="../cell/TxApplyRolledBack-class.html">TxApplyRolledBack</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyStaged">
+  <span class="name "><a href="../cell/TxApplyStaged-class.html">TxApplyStaged</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TypeObject">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/TypeObject-class.html">TypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper class for holding typed objects.
+Provides type safety when working with generic containers.
+</dd>
+
+          <dt id="Unmodifiable">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/Unmodifiable-class.html">Unmodifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Marker Interface</strong> and architectural anchor used to identify
+reactive nodes and data structures that have been restricted to <strong>Read-Only</strong>
+access.
+</dd>
+
+          <dt id="UnmodifiablePulse">
+  <span class="name "><a href="../cell/UnmodifiablePulse-class.html">UnmodifiablePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only projection of a pulse that enforces structural finality.
+</dd>
+
+          <dt id="UnmodifiablePulseBase">
+  <span class="name "><a href="../cell/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableValueCell">
+  <span class="name "><a href="../cell/UnmodifiableValueCell-class.html">UnmodifiableValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized read‑only proxy of a <code>ValueCell</code> that enforces immutability.
+</dd>
+
+          <dt id="ValidationFailure">
+  <span class="name "><a href="../cell/ValidationFailure-class.html">ValidationFailure</a></span> 
+
+</dt>
+<dd>
+  Represents a validation failure for a specific cell.
+</dd>
+
+          <dt id="ValueCell">
+  <span class="name "><a href="../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A state‑bearing reactive node – the primary way to manage persistent
+state in the Cell Framework.
+</dd>
+
+          <dt id="ValueCellAsync">
+  <span class="name "><a href="../cell/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized asynchronous controller for <a href="../cell/ValueCell-class.html">ValueCell</a>, providing a
+thread‑safe and non‑blocking interface for state interaction.
+</dd>
+
+          <dt id="ValueNucleus">
+  <span class="name "><a href="../cell/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../cell/Nucleus-class.html">Nucleus</a> blueprint designed to manage and propagate a
+discrete, persistent state value of type <code>V</code>.
+</dd>
+
+          <dt id="ValueRange">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/ValueRange-class.html">ValueRange</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/ValueRange-class.html">ValueRange</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> metadata annotation designed to
+validate whether a numeric input falls within a specific inclusive boundary.
+</dd>
+
+          <dt id="Values">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/Values-class.html">Values</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/Values-class.html">Values</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/TestRule-class.html">TestRule</a> that validates whether a given input
+is present within a predefined collection of allowed values.
+</dd>
+
+          <dt id="WebsiteUrlPattern">
+  <span class="name "><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a> is a specialized <a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/EntryPattern-class.html">EntryPattern</a> metadata annotation
+designed to validate whether a string conforms to a standard web URL format.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="AuditLevel">
+  <span class="name "><a href="../cell/AuditLevel.html">AuditLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Observability Granularity</strong> and <strong>XAI Verbosity</strong>
+required for a <a href="../cell/Deputy-mixin.html">Deputy</a>'s operations.
+</dd>
+
+          <dt id="Clearance">
+  <span class="name "><a href="../cell/Clearance.html">Clearance</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Sovereign Physical Laws</strong> and structural boundaries of
+reactive operations within the framework.
+</dd>
+
+          <dt id="CompensationErrorPolicy">
+  <span class="name "><a href="../cell/CompensationErrorPolicy.html">CompensationErrorPolicy</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="HubRouting">
+  <span class="name "><a href="../cell/HubRouting.html">HubRouting</a></span> 
+
+</dt>
+<dd>
+  Defines how a <a href="../cell/Cell/hub.html">Cell.hub</a> decides which spoke (child cell) should receive
+an incoming signal.
+</dd>
+
+          <dt id="Isolation">
+  <span class="name "><a href="../cell/Isolation.html">Isolation</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Architectural Boundary &amp; State Visibility</strong> of a <a href="../cell/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="IsolationLevel">
+  <span class="name "><a href="../cell/IsolationLevel.html">IsolationLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the consistency and visibility guarantees for a transaction.
+</dd>
+
+          <dt id="LockOrdering">
+  <span class="name "><a href="../cell/LockOrdering.html">LockOrdering</a></span> 
+
+</dt>
+<dd>
+  Defines the order in which locks are acquired during commit.
+</dd>
+
+          <dt id="Mandate">
+  <span class="name "><a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Capability Profile and Authorization Scope</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="Ontology">
+  <span class="name "><a href="../cell/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Structural Taxonomy, Static Identity, and Architectural Shape</strong>
+of a <a href="../cell/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="PriorityTier">
+  <span class="name "><a href="../cell/PriorityTier.html">PriorityTier</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Semantic Urgency Tiers</strong> for signal execution.
+</dd>
+
+          <dt id="PropagationStrategy">
+  <span class="name "><a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the tactical execution models for <strong>Pulse Propagation</strong> within
+the Cell framework's reactive graph.
+</dd>
+
+          <dt id="Provenance">
+  <span class="name "><a href="../cell/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Causal Accountability, Audit Trail, and Operational Intent</strong>
+of a <a href="../cell/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="ReasoningStrategy">
+  <span class="name "><a href="../cell/ReasoningStrategy.html">ReasoningStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Logical Pedigree</strong> and algorithmic origin of a <a href="../cell/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sensitivity">
+  <span class="name "><a href="../cell/Sensitivity.html">Sensitivity</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Information Classification</strong> and data-privacy tier of a <a href="../cell/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sovereignty">
+  <span class="name "><a href="../cell/Sovereignty.html">Sovereignty</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Commitment Authority</strong> and <strong>Escalation Protocol</strong>
+assigned to a <a href="../cell/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="mixins">
+      <h2>Mixins</h2>
+      <dl>
+          <dt id="Deputy">
+  <span class="name "><a href="../cell/Deputy-mixin.html">Deputy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The mixin implementing proxy behavior for <a href="../cell/Cell/deputy.html">Cell.deputy</a> — you don't
+use this directly.
+</dd>
+
+          <dt id="GovernanceMixin">
+  <span class="name "><a href="../cell/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../cell/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A convenient mixin that provides default implementations for the
+<a href="../cell/Governance-class.html">Governance</a> interface methods.
+</dd>
+
+          <dt id="InstructionChainMixin">
+  <span class="name "><a href="../cell/InstructionChainMixin-mixin.html">InstructionChainMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core execution engine for composite instructions.
+</dd>
+
+          <dt id="OpenReceptorMixin">
+  <span class="name "><a href="../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Manual Control Interface</strong> for the reactive network.
+</dd>
+
+          <dt id="OpenSynapsesMixin">
+  <span class="name "><a href="../cell/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Reactive Topology Interface</strong> for <a href="../cell/OpenCell-class.html">OpenCell</a> architectures.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+      <dl class="callables">
+          <dt id="get" class="callable">
+  <span class="name"><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/get.html">get</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="get-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">fn</span>, {</span><span class="parameter" id="get-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="get-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span></span>})
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A robust functional utility for safely executing operations of type <code>T</code>
+with multi-stage recovery logic and hierarchical fallbacks.
+  
+
+</dd>
+
+          <dt id="mapMerge" class="callable">
+  <span class="name"><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/mapMerge.html">mapMerge</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapMerge-param-map"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">map</span>, </span><span class="parameter" id="mapMerge-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+          <dt id="withCellLocks" class="callable">
+  <span class="name"><a href="../cell/withCellLocks.html">withCellLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withCellLocks-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="withCellLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>(), {</span><span class="parameter" id="withCellLocks-param-order"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">order</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">b</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Convenience: acquire the locks of <code>cells</code> in a deterministic order.
+  
+
+</dd>
+
+          <dt id="withLocks" class="callable">
+  <span class="name"><a href="../cell/withLocks.html">withLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withLocks-param-locks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span> <span class="parameter-name">locks</span>, </span><span class="parameter" id="withLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
+in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="Arguments" class="">
+  <span class="name"><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/Arguments.html">Arguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Represents a tuple of positional and named arguments for function calls.
+Used when validating or processing function applications in cells.
+  
+
+</dd>
+
+
+          
+  <dt id="EgressHandle" class="">
+  <span class="name"><a href="../cell/EgressHandle.html">EgressHandle</a></span>&lt;<wbr><span class="type-parameter">S extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Output Terminal</strong>, providing a controlled
+interface to manage an external side-effect listener.
+  
+
+</dd>
+
+
+          
+  <dt id="FunctionType" class="callable">
+    <span class="name"><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/FunctionType.html">FunctionType</a></span>&lt;<wbr><span class="type-parameter">R</span>&gt;<span class="signature">
+      <span class="returntype parameter">= R Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Generic function type that takes no parameters and returns RNA.
+Used in FunctionTypeObject for lazy evaluation.
+    
+
+  </dd>
+
+          
+  <dt id="HubHandle" class="">
+  <span class="name"><a href="../cell/HubHandle.html">HubHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for a <strong>Signal Distribution Hub</strong>, providing a unified
+interface to control a multi-destination routing cluster.
+  
+
+</dd>
+
+
+          
+  <dt id="IngressHandle" class="">
+  <span class="name"><a href="../cell/IngressHandle.html">IngressHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Input Gateway</strong>, providing a controlled
+interface for injecting external imperative stimuli into the reactive graph.
+  
+
+</dd>
+
+
+          
+  <dt id="InheritableHandle" class="">
+  <span class="name"><a href="../cell/InheritableHandle.html">InheritableHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="field-name">bind</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">ephemeralPolicy</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">receptor</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">testRule</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured grouping of the <strong>Governance &amp; Logic</strong> properties that define
+a node's operational identity and can be cascaded through the inheritance chain.
+  
+
+</dd>
+
+
+          
+  <dt id="NucleusSimplest" class="">
+  <span class="name"><a href="../cell/NucleusSimplest.html">NucleusSimplest</a></span>
+    = <a href="../cell/Nucleolus-class.html">Nucleolus</a>
+  </span>
+  
+
+</dt>
+<dd>
+  A semantic type alias representing the framework's <strong>Zero-Overhead Root</strong>
+and the terminal ancestor of all reactive blueprints.
+  
+
+</dd>
+
+
+          
+  <dt id="OpenCellBase" class="">
+  <span class="name"><a href="../cell/OpenCellBase.html">OpenCellBase</a></span>
+    = _OpenCell
+  </span>
+  
+
+</dt>
+<dd>
+  Base class for all <a href="../cell/OpenCell-class.html">OpenCell</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="SpokeRegistration" class="">
+  <span class="name"><a href="../cell/SpokeRegistration.html">SpokeRegistration</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A configuration record for an individual <strong>Spoke (Destination)</strong>
+within a <a href="../cell/Cell/hub.html">Cell.hub</a>.
+  
+
+</dd>
+
+
+          
+  <dt id="StateHandle" class="">
+  <span class="name"><a href="../cell/StateHandle.html">StateHandle</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">updateAsync</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management record that bundles a <a href="../cell/ValueCell-class.html">ValueCell</a> with its imperative update
+functions — the standard way to create and interact with a state atom.
+  
+
+</dd>
+
+
+          
+  <dt id="SynthesisHandle" class="">
+  <span class="name"><a href="../cell/SynthesisHandle.html">SynthesisHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">add</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">addAll</span>, </span><span class="field"><span class="type-annotation"><a href="../cell/SynthesisCell-class.html">SynthesisCell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">clear</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="field-name">isEmpty</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">remove</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">removeAll</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">toList</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  An Administrative Record providing a control interface for dynamic
+<a href="../cell/SynthesisCell-class.html">SynthesisCell</a> topographies.
+  
+
+</dd>
+
+
+          
+  <dt id="TransactionScope" class="">
+  <span class="name"><a href="../cell/TransactionScope.html">TransactionScope</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">begin</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">commit</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">pending</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">read</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-savepoint"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">savepoint</span></span>})</span></span> <span class="field-name">rollback</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> Function<span class="signature">()</span></span> <span class="field-name">savepoint</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A handle for coordinating atomic, multi‑cell transactions.
+  
+
+</dd>
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+      <dl>
+          <dt id="TransactionConflictException">
+  <span class="name "><a href="../cell/TransactionConflictException-class.html">TransactionConflictException</a></span> 
+
+</dt>
+<dd>
+  Thrown when an isolation conflict is detected during commit.
+</dd>
+
+          <dt id="TransactionTimeoutException">
+  <span class="name "><a href="../cell/TransactionTimeoutException-class.html">TransactionTimeoutException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a transaction exceeds its <a href="../cell/TransactionTimeoutException/timeout.html">timeout</a> duration.
+</dd>
+
+          <dt id="TransactionValidationException">
+  <span class="name "><a href="../cell/TransactionValidationException-class.html">TransactionValidationException</a></span> 
+
+</dt>
+<dd>
+  Thrown when validation of buffered writes fails during commit.
+</dd>
+
+          <dt id="TxApplyCompensationException">
+  <span class="name "><a href="../cell/TxApplyCompensationException-class.html">TxApplyCompensationException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyException">
+  <span class="name "><a href="../cell/TxApplyException-class.html">TxApplyException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">cell.dart</li>
+</ol>
+
+    <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/">src\internal\commons</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">src\test_rule</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/">src\test_rule_meta</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Core 16 Operators</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>cell library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

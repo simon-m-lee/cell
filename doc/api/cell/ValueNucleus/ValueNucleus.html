@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ValueNucleus.new constructor from Class ValueNucleus from the cell library, for the Dart programming language.">
+  <title>ValueNucleus.new constructor - ValueNucleus - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/ValueNucleus-class.html">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">ValueNucleus.new constructor</li>
+  </ol>
+  <div class="self-name">ValueNucleus.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;ValueNucleus-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-transform"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">transform</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-host"><span class="type-annotation"><a href="../../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="param-input"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
+<li><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes a new primary <code>ValueNucleus</code> – the blueprint for a stateful
+cell.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You almost never call this directly – <a href="../../cell/Cell/state.html">Cell.state</a> does it for you.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It allocates a <code>Box&lt;V&gt;</code> for storage, sets up a transformation
+pipeline from the <code>transform</code> function, and integrates the commitment
+rule. If you provide a custom <code>receptor</code>, you must manually include
+<code>ValueCell.postProcessRule</code> to persist state.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The initial <code>value</code> is written directly to the Box, bypassing the
+transform – it's considered a trusted seed.</li>
+<li>If <code>transform</code> is provided, it overrides the <code>receptor</code> parameter.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>transform</code>: <strong>Transformation Logic.</strong> An optional function defining
+how input signals are converted into state updates.</li>
+<li><code>bind</code>: <strong>Upstream Dependency.</strong> An optional <a href="../../cell/Cell-class.html">Cell</a> that this nucleus
+subscribes to for automatic updates.</li>
+<li><code>context</code>: <strong>Environmental Scope.</strong> Defines the authority and
+security tier (defaults to <a href="../../cell/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: <strong>Execution Interface.</strong> Overridden if <code>transform</code> is
+provided. If customized, it must handle state persistence manually.</li>
+<li><code>testRule</code>: <strong>Security Gate.</strong> A <a href="../../cell/TestCell-class.html">TestCell</a> predicate used to
+validate proposed state changes (defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>).</li>
+<li><code>synapses</code>: <strong>Signal Distribution.</strong> Controls how updates are
+broadcast to the rest of the graph.</li>
+<li><code>user</code>: <strong>Extended Metadata.</strong> An optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of application-specific
+traits carried by the nucleus blueprint.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ValueNucleus({
+  Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user})? transform,
+
+  Cell? bind,
+  Context context = Context.system,
+  Receptor receptor = Receptor.passThrough,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  EphemeralPolicy? ephemeralPolicy,
+
+  Record? user,
+  bool forceLock = true
+}) : this._((
+local: NucleusBase.mask(
+    bind: bind, context: context, testRule: testRule, synapses: synapses,
+    forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy,
+    receptor: transform != null
+        ? Receptor.pipeline(instruction: Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V&gt;&gt;((pulse, {cell, user, delayPropagation, token}) =&gt; transform(cell!, pulse, user: user)), postProcess: ValueCell.postProcessRule)
+        : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
+    others: (value: Box&lt;V&gt;())
+)
+)
+);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/ValueNucleus-class.html">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">ValueNucleus.new constructor</li>
+</ol>
+
+    <h5>ValueNucleus class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ingress method from the Cell class, for the Dart programming language.">
+  <title>ingress method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">ingress&lt;<wbr><span class="type-parameter">I</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">ingress</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">ingress&lt;<wbr><span class="type-parameter">I</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/IngressHandle.html">IngressHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span>
+<span class="name ">ingress</span>&lt;<wbr><span class="type-parameter">I</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="ingress-param-refine"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I?</span>&gt;</span>?</span> <span class="parameter-name">refine</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-host"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="param-input"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">input</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="ingress-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="ingress-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="ingress-param-context"><span class="type-annotation"><a href="../../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="ingress-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
+<li><span class="parameter" id="ingress-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="ingress-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="ingress-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Stateless Event Gateway</strong>—the primary entry point for
+bridging imperative signals into the reactive graph.</p>
+<p>The <code>ingress</code> factory creates a <strong>Terminal Input Node</strong>. Unlike state
+cells, an ingress node has no memory and does not persist values. It
+functions strictly as a relay, transforming raw external stimuli into
+reactive <a href="../../cell/Pulse-class.html">Pulse</a>s for immediate downstream broadcast.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Imperative Integration</strong>: Bridging UI interactions (taps, swipes),
+system events (lifecycle changes), or hardware interrupts into the
+reactive fabric.</li>
+<li><strong>Stateless Triggers</strong>: When you need to initiate a reaction chain
+(e.g., "Reset App", "Logout") without needing to track a persistent
+state value.</li>
+<li><strong>Data Normalization</strong>: Using the <code>refine</code> parameter to validate or
+sanitize raw inputs before they reach the rest of the application.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capture</strong>: The <code>emit</code> or <code>emitAsync</code> handles receive raw data of type <code>I</code>.</li>
+<li><strong>Packaging</strong>: The handle wraps the data into a <a href="../../cell/Pulse-class.html">Pulse</a>, attaching
+metadata like the source <a href="../../cell/Context-class.html">Context</a> and timestamp.</li>
+<li><strong>Refinement</strong>: If provided, the <code>refine</code> function is called to
+transform or filter the pulse. If it returns <code>null</code>, the signal is
+silently dropped.</li>
+<li><strong>Broadcast</strong>: The resulting pulse is handed to the cell's <a href="../../cell/Synapses-class.html">Synapses</a>
+to be distributed to all linked downstream observers.</li>
+</ol>
+<h3 id="design-note-statelessness-vs-persistence">Design Note: Statelessness vs. Persistence</h3>
+<ul>
+<li><strong><a href="../../cell/Cell/ingress.html">Cell.ingress</a></strong> is a <strong>Flow Primitive</strong>. It is designed for
+ephemeral events. It does not store data, and its <code>cell</code> cannot be
+read for a "current" value.</li>
+<li><strong><a href="../../cell/Cell/state.html">Cell.state</a></strong> is a <strong>Storage Primitive</strong>. It is designed for
+persistent data that evolves over time and can be read at any time.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No State Storage</strong>: An ingress cell is a "pass-through" node. It
+consumes zero storage memory for values.</li>
+<li><strong>Pulse Transparency</strong>: Pulses passing through an ingress node
+preserve their forensic history, allowing downstream nodes to
+trace events back to the original imperative trigger.</li>
+<li><strong>Graph Stabilization</strong>: The <code>ingest</code> handle with
+<code>serializedCompletion: true</code> allows your imperative code to <code>await</code>
+the completion of the entire reactive cascade triggered by the event.</li>
+<li><strong>Integrity Gate</strong>: All inputs must pass the <code>testRule</code> and
+<code>context</code> authorization checks before being broadcast.</li>
+</ul>
+<h3 id="example-clean-transformed-ingress">Example: Clean, transformed ingress</h3>
+<pre class="language-dart"><code class="language-dart">final IngressHandle&lt;String&gt; searchGate = Cell.ingress&lt;String&gt;(
+  refine: (Cell host, Pulse&lt;String&gt; input) {
+    final raw = (input.payload ?? '').toString().trim();
+    if (raw.isEmpty) return null; // suppress empty queries
+
+    // return a new Pulse with the cleaned value.
+    return Pulse&lt;String&gt;(raw.toLowerCase(), type: 'search.query');
+  },
+);
+
+final observer = Cell.observe(
+  source: searchGate.cell,
+  effect: (Pulse pulse) {
+    print('  → observer received: "${pulse.payload}"');
+  },
+);
+
+searchGate.emit('  Hello World  '); // Prints: observer received: "hello world"
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>refine</code>: <strong>Optional.</strong> The <strong>Pre-Transformation Hook</strong>. A function
+used to normalize raw inputs or reject them (<code>return null</code>) before
+they enter the network.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Management.</strong> Defines how the gateway
+is cleaned up when it has no more downstream listeners.</li>
+<li><code>source</code>: <strong>Ingress Source.</strong> An optional upstream cell to observe
+automatically, turning this node into a reactive relay.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The security and priority tier
+governing events entering through this gateway.</li>
+<li><code>receptor</code>: <strong>Transformation Engine.</strong> The underlying logic for
+pulse processing.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> A safety check that must approve
+every incoming stimulus.</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Configures how signals are
+distributed to the rest of the application.</li>
+<li><code>forceLock</code>: <strong>Atomic Isolation.</strong> If <code>true</code>, ensures that
+concurrent inputs are processed sequentially via a dedicated lock.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>An <a href="../../cell/IngressHandle.html">IngressHandle</a> (Record) providing:</p>
+<ul>
+<li><code>cell</code>: The stateless <a href="../../cell/Cell-class.html">Cell</a> instance representing this gateway.</li>
+<li><code>emit</code>: A synchronous method for manual event injection.</li>
+<li><code>emitAsync</code>: An asynchronous, lock-protected version of <code>emit</code>.</li>
+<li><code>ingest</code>: A high-level handle for complex signal orchestration.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Cell/state.html">Cell.state</a>: The standard factory for persistent state.</li>
+<li><a href="../../cell/Cell/open.html">Cell.open</a>: For manual connection and observer management.</li>
+<li><strong>Example</strong>: See <code>example/ingress_demo.dart</code> for a complete executable
+walkthrough of utilizing <a href="../../cell/IngressHandle.html">IngressHandle</a> for manual event injection.</li>
+<li><strong>HowTo</strong>: See <code>guide/HowTo_Start.md</code> for a guide on bridging
+imperative and reactive code.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static IngressHandle&lt;I&gt; ingress&lt;I&gt;({
+  Pulse&lt;I?&gt;? Function(Cell host, Pulse&lt;I&gt; input)? refine,
+  EphemeralPolicy? ephemeralPolicy,
+  Cell? source,
+  Context context = Context.system,
+  Receptor receptor = Receptor.passThrough,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) =&gt;
+    _ingress(
+      refine: refine,
+      bind: source,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses: synapses,
+      forceLock: forceLock,
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">ingress&lt;<wbr><span class="type-parameter">I</span>&gt; static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

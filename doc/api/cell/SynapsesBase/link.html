@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the link method from the SynapsesBase class, for the Dart programming language.">
+  <title>link method - SynapsesBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">link method</li>
+  </ol>
+  <div class="self-name">link</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;SynapsesBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">link</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-cell"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="link-param-downstreamCell"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">downstreamCell</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Establishes a formal reactive connection (link) between the host <code>cell</code>
+and a <code>downstreamCell</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to dynamically add an observer to a cell at runtime – e.g.,
+when a UI component mounts.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The method validates the link via the cell's <a href="../../cell/TestCell-class.html">TestCell</a>, then adds the
+downstream cell to the registry. If the cell is already linked, it's a
+no‑op. Returns <code>true</code> on success, <code>false</code> if rejected.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The link is governed by the host cell's validation rules – you can't
+link to a cell that the host doesn't allow.</li>
+<li>Deputies and their principals are considered equivalent for linking.</li>
+<li>If the policy is <code>persistent</code>, the new observer immediately receives
+the last emitted pulse.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final linked = await synapses.link(source, downstreamCell: observer);
+if (linked) { /* observer now receives updates */ }
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: The host cell that owns these synapses (the source of the
+signals).</li>
+<li><code>downstreamCell</code>: The cell that should receive signals from the host
+(the target observer).</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<ul>
+<li><code>true</code> if the link was successfully established or already existed.</li>
+<li><code>false</code> if the connection was rejected by security rules or if
+the synapses are disabled.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;bool&gt; link(Cell cell, {required Cell downstreamCell}) {
+  final synapse = cell._nucleus.synapses;
+
+  if (identical(synapse, this)) {
+    &#47;&#47; 1. Capture the FutureOr validation result
+    final validation = cell.validate(downstreamCell, host: cell);
+
+    &#47;&#47; 2. Define the registration logic as a reusable closure
+    bool register() {
+      if (downstreamCell is! C) return false;
+      final added = _downstreams.add(downstreamCell);
+
+      &#47;&#47; If strategy is persistent, send the last state to the new observer
+      if (added &amp;&amp; _policy?.strategy == PropagationStrategy.persistent) {
+        _rehydrate(downstreamCell);
+      }
+      return added;
+    }
+
+    &#47;&#47; 3. Branch: Asynchronous Path
+    if (validation is Future&lt;bool&gt;) {
+      return validation.then((passed) {
+        return passed ? register() : false;
+      });
+    }
+
+    &#47;&#47; 4. Branch: Synchronous Path (Zero-cost)
+    return validation ? register() : false;
+  }
+
+  return false;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">link method</li>
+</ol>
+
+    <h5>SynapsesBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

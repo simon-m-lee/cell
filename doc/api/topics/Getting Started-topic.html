@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Getting Started topic docs, for the Dart programming language.">
+  <title>Getting Started topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Getting Started topic</li>
+  </ol>
+  <div class="self-name">Getting Started</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Getting Started</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="getting-started-with-the-cell-framework">Getting Started with the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-the-cell-framework">What is the Cell Framework?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#your-first-cell">Your First Cell</a></li>
+<li><a href="#the-learning-path">The Learning Path</a></li>
+<li><a href="#the-core-16-essential-operators">The "Core 16" Essential Operators</a></li>
+<li><a href="#common-patterns">Common Patterns</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p>Welcome to the <strong>Cell Framework</strong>! This guide will help you get started with building reactive applications using Cells. Whether you're building a Flutter app, a backend service, or a CLI tool, the Cell Framework provides a powerful, type-safe, and thread-safe way to manage state and data flow.</p>
+<h3 id="what-problem-does-cell-solve">What Problem Does Cell Solve?</h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Cell Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complex state management</td>
+<td>Reactive cells that automatically notify observers</td>
+</tr>
+<tr>
+<td>Race conditions</td>
+<td>Thread-safe, atomic operations with locks</td>
+</tr>
+<tr>
+<td>Security and permissions</td>
+<td>TestCell validation gates and deputy contexts</td>
+</tr>
+<tr>
+<td>Debugging and auditing</td>
+<td>Causal tracing with Pulse lineage</td>
+</tr>
+<tr>
+<td>Data transformation</td>
+<td>Composable pipelines with Instructions</td>
+</tr>
+<tr>
+<td>Async operations</td>
+<td>Built-in asyncMap, fromFuture, fromStream</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-the-cell-framework">What is the Cell Framework?</h2>
+<p>The Cell Framework is a <strong>high‑performance, thread‑safe reactive framework</strong> built around a few powerful ideas:</p>
+<ul>
+<li><strong>Cells</strong> hold state</li>
+<li><strong>Pulses</strong> carry changes</li>
+<li><strong>Receptors</strong> transform data</li>
+<li><strong>Synapses</strong> distribute updates</li>
+<li><strong>TestCell</strong> governs validation</li>
+<li><strong>Context</strong> defines security</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reactive</strong></td>
+<td>Cells automatically notify observers when state changes</td>
+</tr>
+<tr>
+<td><strong>Thread-Safe</strong></td>
+<td>All operations are atomic and synchronized</td>
+</tr>
+<tr>
+<td><strong>Type-Safe</strong></td>
+<td>Full Dart generics support</td>
+</tr>
+<tr>
+<td><strong>Zero-Copy</strong></td>
+<td>Deputies share state without duplication</td>
+</tr>
+<tr>
+<td><strong>Auditable</strong></td>
+<td>Every pulse carries a causal trace</td>
+</tr>
+<tr>
+<td><strong>Composable</strong></td>
+<td>Build complex systems from simple building blocks</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-cell--the-reactive-node">1. Cell — The Reactive Node</h3>
+<p>A <code>Cell</code> is the fundamental building block. It holds state (or relays signals), validates every incoming change against a policy, and broadcasts accepted changes to whatever else is listening.</p>
+<pre class="language-dart"><code class="language-dart">// A simple counter cell
+final counter = Cell.state&lt;int&gt;(
+  initial: 0,
+  evolve: (host, input) {
+    final delta = input.payload as int? ?? 1;
+    return Pulse(host.value + delta);
+  },
+);
+</code></pre>
+<h3 id="2-pulse--the-signal">2. Pulse — The Signal</h3>
+<p>A <code>Pulse</code> is an immutable message that carries data, provenance, and governance metadata through the reactive graph.</p>
+<pre class="language-dart"><code class="language-dart">// Create a pulse
+final pulse = Pulse('Hello, World!', type: 'message');
+
+// Evolve a pulse (adds causal trace)
+final evolved = pulse.withStep('validation');
+print(evolved.trace); // ['validation']
+</code></pre>
+<h3 id="3-receptor--the-transformer">3. Receptor — The Transformer</h3>
+<p>A <code>Receptor</code> is the transformation pipeline that decides how a cell responds to an incoming pulse.</p>
+<pre class="language-dart"><code class="language-dart">final receptor = Receptor((cell, pulse, {user}) {
+  final text = pulse.payload as String?;
+  return Pulse(text?.toUpperCase());
+});
+</code></pre>
+<h3 id="4-testcell--the-validator">4. TestCell — The Validator</h3>
+<p>A <code>TestCell</code> is the validation gate that decides what's allowed.</p>
+<pre class="language-dart"><code class="language-dart">final isPositive = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value &gt; 0);
+final cell = Cell(testRule: isPositive);
+</code></pre>
+<h3 id="5-context--the-security-tier">5. Context — The Security Tier</h3>
+<p>A <code>Context</code> defines the security tier, domain, and operational boundaries of a cell.</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.secureEnclave(
+  partOf: 'CryptoModule',
+  compliances: 'FIPS-140-2',
+);
+</code></pre>
+<hr>
+<h2 id="installation">Installation</h2>
+<h3 id="add-to-pubspecyaml">Add to <code>pubspec.yaml</code></h3>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^1.0.0
+</code></pre>
+<h3 id="import-in-your-code">Import in Your Code</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+</code></pre>
+<hr>
+<h2 id="your-first-cell">Your First Cell</h2>
+<h3 id="step-1-create-a-state-cell">Step 1: Create a State Cell</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+void main() {
+  // Create a counter cell
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) {
+      final delta = input.payload as int? ?? 1;
+      return Pulse(host.value + delta);
+    },
+  );
+
+  // Update the counter
+  counter.update(1);  // value becomes 1
+  counter.update(5);  // value becomes 6
+
+  // Read the value
+  print(counter.cell.value); // 6
+}
+</code></pre>
+<h3 id="step-2-observe-changes">Step 2: Observe Changes</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+void main() {
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) {
+      final delta = input.payload as int? ?? 1;
+      return Pulse(host.value + delta);
+    },
+  );
+
+  // Observe changes
+  final observer = Cell.observe&lt;int&gt;(
+    bind: counter.cell,
+    effect: (pulse) {
+      print('Counter changed to: ${pulse.payload}');
+    },
+  );
+
+  counter.update(1);  // Prints: "Counter changed to: 1"
+  counter.update(5);  // Prints: "Counter changed to: 6"
+}
+</code></pre>
+<h3 id="step-3-add-validation">Step 3: Add Validation</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+void main() {
+  // Only allow positive numbers
+  final isPositive = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value &gt; 0);
+
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) {
+      final delta = input.payload as int? ?? 1;
+      return Pulse(host.value + delta);
+    },
+    testRule: isPositive,
+  );
+
+  counter.update(5);   // ✓ Allowed
+  counter.update(-1);  // ✗ Blocked (value stays 5)
+
+  print(counter.cell.value); // 5
+}
+</code></pre>
+<hr>
+<h2 id="the-learning-path">The Learning Path</h2>
+<p>The framework's <strong>Core 16</strong> operators are ordered for a learning path:</p>
+<pre class="language-dart"><code>get data in → hold state → react in UI → shape streams → go async → combine sources
+</code></pre>
+<h3 id="learning-path-diagram">Learning Path Diagram</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CELL FRAMEWORK LEARNING PATH                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                    │
+│  │ GET DATA IN │ -&gt; │ HOLD STATE  │ -&gt; │ REACT IN UI │                    │
+│  │             │    │             │    │             │                    │
+│  │  • ingress  │    │  • state    │    │  • observe  │                    │
+│  │  • open     │    │             │    │             │                    │
+│  └─────────────┘    └─────────────┘    └─────────────┘                    │
+│         │                  │                  │                           │
+│         ▼                  ▼                  ▼                           │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                    │
+│  │ SHAPE       │    │ GO ASYNC    │    │ COMBINE     │                    │
+│  │ STREAMS     │    │             │    │ SOURCES     │                    │
+│  │             │    │  • asyncMap │    │  • synthesis│                    │
+│  │  • debounce │    │  • fromFut. │    │  • switchMap│                    │
+│  │  • distinct │    │  • fromStr. │    │  • hub      │                    │
+│  │             │    │             │    │             │                    │
+│  └─────────────┘    └─────────────┘    └─────────────┘                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="the-core-16-essential-operators">The "Core 16" Essential Operators</h2>
+<h3 id="quick-reference-card">Quick Reference Card</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Operator</th>
+<th>Category</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>Cell.state</code></td>
+<td>Entry Point</td>
+<td>Retained app state with <code>evolve</code> logic</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Cell.ingress</code></td>
+<td>Entry Point</td>
+<td>Manual event entry for external signals</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Cell.open</code></td>
+<td>Entry Point</td>
+<td>Manual control via explicit Receptor</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Cell.derive</code></td>
+<td>Transformation</td>
+<td>Pure projections and view-models</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>Cell.synthesis</code></td>
+<td>Transformation</td>
+<td>Multi-source aggregation (Replaces <code>combineLatest</code>)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Cell.sanitized</code></td>
+<td>Transformation</td>
+<td>Data redaction and compliance masking</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>Cell.asyncMap</code></td>
+<td>Transformation</td>
+<td>Background tasks (HTTP/DB) with concurrency control</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Cell.switchMap</code></td>
+<td>Transformation</td>
+<td>Dynamic source switching based on selection</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Cell.debounce</code></td>
+<td>Flow Control</td>
+<td>Stability-based rate limiting (Search, Autosave)</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>Cell.distinct</code></td>
+<td>Flow Control</td>
+<td>Suppression of redundant consecutive updates</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>Cell.observe</code></td>
+<td>Observation</td>
+<td>Terminal side-effects (UI, Logging, Persistence)</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>Cell.hub</code></td>
+<td>Routing</td>
+<td>Semantic signal routing and event bus patterns</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>Cell.fromFuture</code></td>
+<td>Bridge</td>
+<td>Integration of one-time asynchronous results</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>Cell.fromStream</code></td>
+<td>Bridge</td>
+<td>Integration of continuous asynchronous streams</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>Cell.transaction</code></td>
+<td>Orchestration</td>
+<td>Atomic multi-participant updates</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>Cell.txApply</code></td>
+<td>Orchestration</td>
+<td>Batching multiple <code>apply()</code> calls into one commit</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="common-patterns">Common Patterns</h2>
+<h3 id="1-counter-basic-state">1. Counter (Basic State)</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(
+  initial: 0,
+  evolve: (host, input) {
+    final delta = input.payload as int? ?? 1;
+    return Pulse(host.value + delta);
+  },
+);
+
+counter.update(1);  // Increment
+counter.update(-1); // Decrement
+</code></pre>
+<h3 id="2-form-validation">2. Form Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Individual form fields
+final email = Cell.state&lt;String&gt;(
+  initial: '',
+  evolve: (host, input) =&gt; Pulse(input.payload as String? ?? ''),
+);
+
+final password = Cell.state&lt;String&gt;(
+  initial: '',
+  evolve: (host, input) =&gt; Pulse(input.payload as String? ?? ''),
+);
+
+// Validation logic
+final isEmailValid = Cell.derive&lt;String, bool&gt;(
+  bind: email.cell,
+  project: (pulse) =&gt; Pulse(pulse.payload.contains('@')),
+);
+
+final isPasswordValid = Cell.derive&lt;String, bool&gt;(
+  bind: password.cell,
+  project: (pulse) =&gt; Pulse(pulse.payload.length &gt;= 8),
+);
+
+// Combined validation
+final formValid = Cell.synthesis&lt;bool&gt;(
+  [isEmailValid, isPasswordValid],
+  aggregator: (sources, pulse) {
+    final emailOk = sources.elementAt(0).value as bool? ?? false;
+    final passwordOk = sources.elementAt(1).value as bool? ?? false;
+    return Pulse(emailOk &amp;&amp; passwordOk);
+  },
+);
+</code></pre>
+<h3 id="3-search-with-debounce">3. Search with Debounce</h3>
+<pre class="language-dart"><code class="language-dart">final searchInput = Cell.ingress&lt;String&gt;();
+
+final debouncedSearch = Cell.debounce(
+  searchInput.cell,
+  Duration(milliseconds: 300),
+);
+
+final searchResults = Cell.asyncMap&lt;String, List&lt;Result&gt;&gt;(
+  debouncedSearch,
+  (query) =&gt; api.search(query),
+  latestOnly: true,
+);
+
+Cell.observe(
+  bind: searchResults,
+  effect: (pulse) =&gt; updateUI(pulse.payload),
+);
+</code></pre>
+<h3 id="4-command-router-hub">4. Command Router (Hub)</h3>
+<pre class="language-dart"><code class="language-dart">final commandHub = Cell.hub(
+  routing: HubRouting.pattern,
+  registrations: [
+    (key: 'user.*', priority: 10, handler: userHandler),
+    (key: 'user.login', priority: 20, handler: loginHandler),
+    (key: 'admin.*', priority: 30, handler: adminHandler),
+  ],
+  fallback: 'unknown',
+);
+
+commandHub.emit(Pulse('data', type: 'user.login'));  // Goes to loginHandler
+commandHub.emit(Pulse('data', type: 'user.logout')); // Goes to userHandler
+commandHub.emit(Pulse('data', type: 'unknown'));     // Goes to fallback
+</code></pre>
+<h3 id="5-multi-cell-transaction">5. Multi-Cell Transaction</h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.transaction();
+
+// Begin with participants
+await tx.begin([accountA, accountB]);
+
+// Read values
+final a = tx.read(accountA) as int;
+final b = tx.read(accountB) as int;
+
+// Stage updates
+tx.update(accountA, a - 50);
+tx.update(accountB, b + 50);
+
+// Commit atomically
+await tx.commit();  // All or nothing
+</code></pre>
+<hr>
+<h2 id="next-steps">Next Steps</h2>
+<h3 id="1-explore-the-how-to-guides">1. Explore the How-To Guides</h3>
+<table>
+<thead>
+<tr>
+<th>Guide</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="./HowTo_Instruction.md">HowTo_Instruction.md</a></td>
+<td>Using Instructions for data transformation</td>
+</tr>
+<tr>
+<td><a href="./HowTo_Receptor.md">HowTo_Receptor.md</a></td>
+<td>Building transformation pipelines</td>
+</tr>
+<tr>
+<td><a href="./HowTo_TestCell.md">HowTo_TestCell.md</a></td>
+<td>Validation and security</td>
+</tr>
+<tr>
+<td><a href="./HowTo_16_Essential_Operators.md">HowTo_16_Essential_Operators.md</a></td>
+<td>16 Essential Operators Reference</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-run-the-examples">2. Run the Examples</h3>
+<pre class="language-bash"><code class="language-bash"># Clone the repository
+git clone https://github.com/your-repo/cell.git
+
+# Run the examples
+dart run example/instruction_pipeline_walkthrough.dart
+dart run example/receptor_pipeline_walkthrough.dart
+dart run example/hub_demo.dart
+dart run example/throttle_demo.dart
+</code></pre>
+<h3 id="3-build-your-first-app">3. Build Your First App</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+class AppState {
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) {
+      final delta = input.payload as int? ?? 1;
+      return Pulse(host.value + delta);
+    },
+  );
+
+  final observer = Cell.observe&lt;int&gt;(
+    bind: counter.cell,
+    effect: (pulse) {
+      print('Counter: ${pulse.payload}');
+    },
+  );
+
+  void increment() =&gt; counter.update(1);
+  void decrement() =&gt; counter.update(-1);
+  void dispose() =&gt; observer.stop();
+}
+
+void main() {
+  final app = AppState();
+  app.increment();  // Counter: 1
+  app.increment();  // Counter: 2
+  app.decrement();  // Counter: 1
+  app.dispose();
+}
+</code></pre>
+<h3 id="4-understand-the-architecture">4. Understand the Architecture</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CELL FRAMEWORK ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         CELL                                        │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐ │   │
+│  │  │  RECEPTOR   │  │  TESTCELL   │  │  CONTEXT    │  │ SYNAPSES  │ │   │
+│  │  │             │  │             │  │             │  │           │ │   │
+│  │  │ Transform   │  │ Validate    │  │ Security    │  │ Notify    │ │   │
+│  │  │ Input       │  │ Input       │  │ Tier        │  │ Observers │ │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └───────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         PULSE                                       │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │   │
+│  │  │  PAYLOAD    │  │  PROVENANCE │  │    TRACE    │                 │   │
+│  │  │  Data       │  │  Who/Why    │  │  History    │                 │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<h3 id="key-takeaways">Key Takeaways</h3>
+<ol>
+<li><strong>Cells are reactive nodes</strong> that hold state and notify observers</li>
+<li><strong>Pulses are immutable signals</strong> with causal tracing</li>
+<li><strong>Receptors transform data</strong> through pipelines</li>
+<li><strong>TestCell validates</strong> all operations</li>
+<li><strong>Context defines</strong> security and authority</li>
+<li><strong>Synapses distribute</strong> updates to observers</li>
+<li><strong>Deputies are zero-copy proxies</strong> with restricted permissions</li>
+</ol>
+<h3 id="quick-start-checklist">Quick Start Checklist</h3>
+<ul>
+<li>Add <code>cell</code> to <code>pubspec.yaml</code></li>
+<li>Import <code>package:cell/cell.dart</code></li>
+<li>Create your first state cell</li>
+<li>Add an observer</li>
+<li>Add validation</li>
+<li>Create a derivative cell</li>
+<li>Add async operations</li>
+<li>Use transactions for atomic updates</li>
+<li>Create deputies for security</li>
+</ul>
+<hr>
+<h2 id="additional-resources">Additional Resources</h2>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Documentation</td>
+<td><a href="https://pub.dev/documentation/cell">https://pub.dev/documentation/cell</a></td>
+</tr>
+<tr>
+<td>GitHub Repository</td>
+<td><a href="https://github.com/your-repo/cell">https://github.com/your-repo/cell</a></td>
+</tr>
+<tr>
+<td>Examples</td>
+<td><code>/examples/</code> directory</td>
+</tr>
+<tr>
+<td>Issue Tracker</td>
+<td><a href="https://github.com/your-repo/cell/issues">https://github.com/your-repo/cell/issues</a></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="support">Support</h2>
+<p>If you have questions or need help:</p>
+<ol>
+<li>Check the <a href="./HowTo_Start.md">How-To guides</a></li>
+<li>Browse the <a href="./example/">example/</a> directory</li>
+<li>Open an issue on GitHub</li>
+<li>Join the community discussion</li>
+</ol>
+<hr>
+<p><strong>Happy coding with the Cell Framework!</strong> 🚀</p>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="cell">
+  <span class="name"><a href="../cell/">cell</a></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-1 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+
+</dt>
+<dd>Cell — reactive state for Dart.
+</dd>
+
+    </dl>
+  </section>
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Cell">
+  <span class="name "><a href="../cell/Cell-class.html">Cell</a></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-1 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Getting Started topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/">src\internal\commons</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">src\test_rule</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/">src\test_rule_meta</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Core 16 Operators</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Getting Started topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Getting Started-topic.html#libraries">Libraries</a></li>
+      <li><a href="../cell/">cell</a></li>
+
+    <li class="section-title"><a href="../topics/Getting Started-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/Cell-class.html">Cell</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

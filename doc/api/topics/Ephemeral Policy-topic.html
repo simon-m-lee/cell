@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Advanced · Ephemeral Policy topic docs, for the Dart programming language.">
+  <title>Advanced · Ephemeral Policy topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Ephemeral Policy topic</li>
+  </ol>
+  <div class="self-name">Advanced · Ephemeral Policy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Advanced · Ephemeral Policy</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-ephemeralpolicy-in-the-cell-framework">How to Use EphemeralPolicy in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-ephemeralpolicy">What is EphemeralPolicy?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#creating-an-ephemeralpolicy">Creating an EphemeralPolicy</a></li>
+<li><a href="#event-based-policies">Event-Based Policies</a></li>
+<li><a href="#time-based-policies">Time-Based Policies</a></li>
+<li><a href="#combined-policies">Combined Policies</a></li>
+<li><a href="#pulseephemeralpolicy">PulseEphemeralPolicy</a></li>
+<li><a href="#using-with-cells">Using with Cells</a></li>
+<li><a href="#testing-ephemeralpolicy">Testing EphemeralPolicy</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>EphemeralPolicy</strong> is the lifecycle management system for the Cell Framework. It automatically reclaims resources when they are no longer needed, preventing memory leaks and ensuring that transient states do not persist beyond their operational relevance.</p>
+<h3 id="when-to-use-ephemeralpolicy">When to Use EphemeralPolicy</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Caching data</td>
+<td>Use TTL-based policy</td>
+</tr>
+<tr>
+<td>Rate limiting</td>
+<td>Use event-count policy</td>
+</tr>
+<tr>
+<td>Session management</td>
+<td>Use combined TTL + event policy</td>
+</tr>
+<tr>
+<td>Temporary state</td>
+<td>Use event-based policy</td>
+</tr>
+<tr>
+<td>Resource cleanup</td>
+<td>Use onInvalidate callback</td>
+</tr>
+<tr>
+<td>Pulse validation</td>
+<td>Use PulseEphemeralPolicy</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-ephemeralpolicy">What is EphemeralPolicy?</h2>
+<p><code>EphemeralPolicy</code> manages the automatic reclamation of a <code>Cell</code> based on:</p>
+<ul>
+<li><strong>Temporal constraints</strong> (Time-To-Live)</li>
+<li><strong>Event frequency</strong> (Event count limits)</li>
+<li><strong>Combined constraints</strong> (Both TTL and events)</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Automatic</strong></td>
+<td>Cells self-destruct when conditions are met</td>
+</tr>
+<tr>
+<td><strong>Configurable</strong></td>
+<td>TTL, event limits, or both</td>
+</tr>
+<tr>
+<td><strong>Callback-based</strong></td>
+<td>Custom logic on event and invalidation</td>
+</tr>
+<tr>
+<td><strong>Lazy Timer</strong></td>
+<td>TTL starts on first interaction, not creation</td>
+</tr>
+<tr>
+<td><strong>Resource Safe</strong></td>
+<td>Prevents memory leaks from stale cells</td>
+</tr>
+<tr>
+<td><strong>Thread-Safe</strong></td>
+<td>Atomic operations for concurrent access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-ephemeralpolicy-vs-pulseephemeralpolicy">When to Use EphemeralPolicy vs PulseEphemeralPolicy</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>EphemeralPolicy</th>
+<th>PulseEphemeralPolicy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scope</strong></td>
+<td>Cell lifecycle</td>
+<td>Pulse lifecycle</td>
+</tr>
+<tr>
+<td><strong>Granularity</strong></td>
+<td>Coarse (entire cell)</td>
+<td>Fine (individual pulse)</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Minutes, hours</td>
+<td>Seconds, milliseconds</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>Caching, sessions</td>
+<td>Tokens, short-lived signals</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-lazy-ttl-timer">1. Lazy TTL Timer</h3>
+<p>The TTL timer starts on the <strong>first interaction</strong>, not at creation:</p>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Reset timer on activity
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell expired after 5 minutes of inactivity');
+    return true;
+  },
+);
+
+// Timer starts on first interaction
+cell.emit(Pulse('data'));  // Timer starts NOW
+// Cell expires 5 minutes after this interaction
+</code></pre>
+<h3 id="2-event-counter">2. Event Counter</h3>
+<p>The event counter tracks usage and can trigger invalidation:</p>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  eventLimit: 1000,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Increment counter on each event
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell processed 1000 events');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="3-combined-conditions">3. Combined Conditions</h3>
+<p>Both TTL and event limit can be used together:</p>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(hours: 1),
+  eventLimit: 500,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    // Whichever condition is met first triggers invalidation
+    print('Cell expired (1 hour or 500 events)');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="creating-an-ephemeralpolicy">Creating an EphemeralPolicy</h2>
+<h3 id="method-1-ttl-only">Method 1: TTL Only</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Reset timer on any activity
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell expired due to inactivity');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-2-event-limit-only">Method 2: Event Limit Only</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  eventLimit: 100,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell reached event limit');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-3-combined-policy">Method 3: Combined Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 10),
+  eventLimit: 50,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Reset timer on activity
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell expired (10 minutes or 50 events)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-4-with-user-data">Method 4: With User Data</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  user: {'max_retries': 3, 'timeout': 500},
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final config = user as Map&lt;String, dynamic&gt;;
+    final maxRetries = config['max_retries'] as int;
+    
+    // Use config in logic
+    if (policy.events &gt; maxRetries) {
+      return (events: -1);  // Negative value ignores the event
+    }
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell expired');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-5-smart-cache-policy">Method 5: Smart Cache Policy</h3>
+<pre class="language-dart"><code class="language-dart">class CacheEntry {
+  final String key;
+  final dynamic value;
+  final DateTime createdAt;
+  
+  CacheEntry({required this.key, required this.value, required this.createdAt});
+}
+
+final cachePolicy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  eventLimit: 10,
+  user: {'max_items': 100},
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final cache = object as CacheEntry?;
+    if (cache == null) return (events: policy.events);
+    
+    print('Cache hit: ${cache.key}');
+    
+    // Reset timer on cache hit
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('Cache entry expired');
+    // Clean up cache storage
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="event-based-policies">Event-Based Policies</h2>
+<h3 id="tracking-errors">Tracking Errors</h3>
+<pre class="language-dart"><code class="language-dart">final errorBudgetPolicy = EphemeralPolicy(
+  eventLimit: 5,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final isError = object is Exception || (object is bool &amp;&amp; object == false);
+    if (isError) {
+      print('⚠️ Error detected: $object');
+      return (events: policy.events + 1);
+    }
+    // Success resets the counter
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('❌ Error budget exceeded (5 errors)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="tracking-usage">Tracking Usage</h3>
+<pre class="language-dart"><code class="language-dart">final usagePolicy = EphemeralPolicy(
+  eventLimit: 1000,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    print('📊 Usage count: ${policy.events + 1}/1000');
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('✅ Usage limit reached (1000 operations)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="conditional-event-counting">Conditional Event Counting</h3>
+<pre class="language-dart"><code class="language-dart">final conditionalPolicy = EphemeralPolicy(
+  eventLimit: 10,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final data = object as Map&lt;String, dynamic&gt;?;
+    if (data == null) return (events: policy.events);
+    
+    // Only count certain events
+    if (data['type'] == 'error') {
+      return (events: policy.events + 1);
+    }
+    return (events: policy.events);
+  },
+  onInvalidate: (nucleus) {
+    print('Too many errors detected');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="time-based-policies">Time-Based Policies</h2>
+<h3 id="fixed-duration-ttl">Fixed Duration TTL</h3>
+<pre class="language-dart"><code class="language-dart">final ttlPolicy = EphemeralPolicy(
+  duration: Duration(minutes: 10),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Reset timer on any activity
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('Cell expired after 10 minutes');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="sliding-expiration">Sliding Expiration</h3>
+<pre class="language-dart"><code class="language-dart">final slidingPolicy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Each interaction resets the timer
+    print('🔄 Timer reset');
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('⏰ Cell expired after 5 minutes of inactivity');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="absolute-expiration">Absolute Expiration</h3>
+<pre class="language-dart"><code class="language-dart">final absolutePolicy = EphemeralPolicy(
+  duration: Duration(minutes: 30),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Timer is not reset - absolute TTL
+    return (events: policy.events);
+  },
+  onInvalidate: (nucleus) {
+    print('⏰ Absolute expiration (30 minutes)');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="combined-policies">Combined Policies</h2>
+<h3 id="ttl--event-limit">TTL + Event Limit</h3>
+<pre class="language-dart"><code class="language-dart">final combinedPolicy = EphemeralPolicy(
+  duration: Duration(minutes: 15),
+  eventLimit: 100,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    print('📊 Events: ${policy.events + 1}/100');
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('⏰ Cell expired (15 minutes OR 100 events)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="ttl--error-budget">TTL + Error Budget</h3>
+<pre class="language-dart"><code class="language-dart">final resilientPolicy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  eventLimit: 3,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    if (object is Exception) {
+      print('⚠️ Error: $object');
+      return (events: policy.events + 1);
+    }
+    // Success resets error counter and timer
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    print('❌ Cell failed (3 errors or 5 minutes)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="session-management">Session Management</h3>
+<pre class="language-dart"><code class="language-dart">final sessionPolicy = EphemeralPolicy(
+  duration: Duration(minutes: 30),
+  eventLimit: 1000,
+  user: {'session_id': 'user_123'},
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final action = object as String? ?? 'unknown';
+    print('📝 Session activity: $action');
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('🔒 Session expired (30 minutes or 1000 actions)');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="pulseephemeralpolicy">PulseEphemeralPolicy</h2>
+<h3 id="pulse-level-lifecycle">Pulse-Level Lifecycle</h3>
+<p><code>PulseEphemeralPolicy</code> is similar but applies to individual pulses:</p>
+<pre class="language-dart"><code class="language-dart">final pulsePolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    print('Pulse traversed: ${policy.hops + 1}/5');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired');
+    return true;
+  },
+);
+
+final pulse = Pulse.governed&lt;String&gt;(
+  payload: 'Token',
+  policy: pulsePolicy,
+);
+</code></pre>
+<h3 id="time-sensitive-pulse">Time-Sensitive Pulse</h3>
+<pre class="language-dart"><code class="language-dart">final tokenPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) {
+    // Reset hop counter on each event
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('Token expired after 10 seconds');
+    return true;
+  },
+);
+
+final tokenPulse = Pulse.governed&lt;String&gt;(
+  payload: 'auth_token_123',
+  policy: tokenPolicy,
+);
+</code></pre>
+<h3 id="hop-limited-pulse">Hop-Limited Pulse</h3>
+<pre class="language-dart"><code class="language-dart">final broadcastPolicy = PulseEphemeralPolicy(
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    print('Hop: ${policy.hops + 1}/3');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Broadcast stopped after 3 hops');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="using-with-cells">Using with Cells</h2>
+<h3 id="basic-cell-with-policy">Basic Cell with Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+final cell = Cell(
+  ephemeralPolicy: policy,
+  receptor: Receptor.passThrough,
+);
+</code></pre>
+<h3 id="state-cell-with-policy">State Cell with Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 10),
+  eventLimit: 50,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) {
+    print('Cache cleared');
+    return true;
+  },
+);
+
+final cache = Cell.state&lt;String&gt;(
+  initial: '',
+  evolve: (host, input) =&gt; Pulse(input.payload as String? ?? ''),
+  ephemeralPolicy: policy,
+);
+</code></pre>
+<h3 id="governed-cell-with-policy">Governed Cell with Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 15),
+  onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+final cell = Cell.governed(
+  context: Context.secureEnclave(
+    partOf: 'SessionManager',
+    compliances: 'GDPR',
+  ),
+  ephemeralPolicy: policy,
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  synapses: Synapses.enabled,
+  forceLock: true,
+);
+</code></pre>
+<h3 id="deputy-with-policy">Deputy with Policy</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(...);
+
+final temporaryDeputy = await cell.deputy(
+  ephemeralPolicy: EphemeralPolicy(
+    duration: Duration(minutes: 5),
+    onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+    onInvalidate: (nucleus) =&gt; true,
+  ),
+  testRule: TestCell.readOnly,
+);
+</code></pre>
+<hr>
+<h2 id="testing-ephemeralpolicy">Testing EphemeralPolicy</h2>
+<h3 id="unit-testing-ttl">Unit Testing TTL</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+test('Policy expires after TTL', () async {
+  var invalidated = false;
+  
+  final policy = EphemeralPolicy(
+    duration: Duration(milliseconds: 100),
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      return (events: 0);
+    },
+    onInvalidate: (nucleus) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final cell = Cell(ephemeralPolicy: policy);
+  
+  // First interaction starts the timer
+  cell._nucleus.receptor.call(Pulse('test'));
+  
+  expect(invalidated, false);
+  
+  await Future.delayed(Duration(milliseconds: 150));
+  
+  expect(invalidated, true);
+});
+</code></pre>
+<h3 id="testing-event-limit">Testing Event Limit</h3>
+<pre class="language-dart"><code class="language-dart">test('Policy expires after event limit', () {
+  var invalidated = false;
+  var count = 0;
+  
+  final policy = EphemeralPolicy(
+    eventLimit: 3,
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      count++;
+      return (events: count);
+    },
+    onInvalidate: (nucleus) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final cell = Cell(ephemeralPolicy: policy);
+  
+  // Send 3 events
+  for (int i = 0; i &lt; 3; i++) {
+    cell._nucleus.receptor.call(Pulse('test'));
+  }
+  
+  expect(invalidated, true);
+});
+</code></pre>
+<h3 id="testing-combined-conditions">Testing Combined Conditions</h3>
+<pre class="language-dart"><code class="language-dart">test('Policy expires when either condition is met', () async {
+  var invalidated = false;
+  
+  final policy = EphemeralPolicy(
+    duration: Duration(milliseconds: 100),
+    eventLimit: 10,
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      return (events: policy.events + 1);
+    },
+    onInvalidate: (nucleus) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final cell = Cell(ephemeralPolicy: policy);
+  
+  // Send 5 events (not enough for event limit)
+  for (int i = 0; i &lt; 5; i++) {
+    cell._nucleus.receptor.call(Pulse('test'));
+  }
+  
+  expect(invalidated, false);
+  
+  // Wait for TTL
+  await Future.delayed(Duration(milliseconds: 150));
+  
+  expect(invalidated, true);
+});
+</code></pre>
+<h3 id="testing-policy-state">Testing Policy State</h3>
+<pre class="language-dart"><code class="language-dart">test('Policy tracks events correctly', () {
+  final policy = EphemeralPolicy(
+    eventLimit: 10,
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      return (events: policy.events + 1);
+    },
+    onInvalidate: (nucleus) =&gt; true,
+  );
+  
+  final cell = Cell(ephemeralPolicy: policy);
+  
+  expect(policy.events, 0);
+  
+  cell._nucleus.receptor.call(Pulse('test'));
+  expect(policy.events, 1);
+  
+  cell._nucleus.receptor.call(Pulse('test'));
+  expect(policy.events, 2);
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-lazy-timer-for-inactivity">1. Use Lazy Timer for Inactivity</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Reset timer on activity
+final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: 0);  // Reset timer
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+// ❌ BAD - Never reset timer
+final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events);  // Timer never resets
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+</code></pre>
+<h3 id="2-clean-up-resources">2. Clean Up Resources</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Clean up on invalidation
+final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+  onInvalidate: (nucleus) {
+    // Close connections, clear caches, dispose resources
+    cache.clear();
+    connection.close();
+    return true;
+  },
+);
+</code></pre>
+<h3 id="3-use-event-count-for-error-budgets">3. Use Event Count for Error Budgets</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Track errors separately
+final policy = EphemeralPolicy(
+  eventLimit: 5,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    if (object is Exception) {
+      return (events: policy.events + 1);
+    }
+    // Success resets the counter
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+</code></pre>
+<h3 id="4-use-user-data-for-configuration">4. Use User Data for Configuration</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Pass configuration via user
+final policy = EphemeralPolicy(
+  user: {'max_errors': 3, 'ttl_seconds': 300},
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    final config = user as Map&lt;String, dynamic&gt;;
+    final maxErrors = config['max_errors'] as int;
+    // Use config in logic
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+</code></pre>
+<h3 id="5-check-invalidation-state">5. Check Invalidation State</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Check before processing
+if (cell.isInvalidated) {
+  print('Cell is expired');
+  return;
+}
+cell.process(data);
+
+// ❌ BAD - Process without checking
+cell.process(data);  // May process stale data
+</code></pre>
+<h3 id="6-use-pulse-policies-for-short-lived-data">6. Use Pulse Policies for Short-Lived Data</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use PulseEphemeralPolicy for tokens
+final tokenPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// ❌ BAD - Use Cell policy for tokens
+// Cell policies are for longer-lived resources
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete caching system using EphemeralPolicy:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────────────────
+// 1. Cache Entry
+// ─────────────────────────────────────────────────────────────────────────
+
+class CacheEntry {
+  final String key;
+  final dynamic value;
+  final DateTime createdAt;
+  
+  CacheEntry({
+    required this.key,
+    required this.value,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+  
+  @override
+  String toString() =&gt; 'CacheEntry(key: $key, value: $value, age: ${DateTime.now().difference(createdAt).inSeconds}s)';
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 2. Cache Policy
+// ─────────────────────────────────────────────────────────────────────────
+
+EphemeralPolicy createCachePolicy({
+  Duration ttl = const Duration(minutes: 5),
+  int maxItems = 100,
+}) {
+  return EphemeralPolicy(
+    duration: ttl,
+    eventLimit: maxItems,
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      final entry = object as CacheEntry?;
+      if (entry == null) return (events: policy.events);
+      
+      print('📦 Cache hit: ${entry.key}');
+      print('   Value: ${entry.value}');
+      
+      // Reset timer on cache hit
+      return (events: 0);
+    },
+    onInvalidate: (nucleus) {
+      print('🗑️ Cache entry expired');
+      return true;
+    },
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 3. Cache System
+// ─────────────────────────────────────────────────────────────────────────
+
+class CacheSystem {
+  final Map&lt;String, Cell&gt; _cache = {};
+  final Map&lt;String, EgressHandle&gt; _observers = {};
+  
+  void put(String key, dynamic value) {
+    // Remove existing entry if present
+    remove(key);
+    
+    // Create policy for this cache entry
+    final policy = createCachePolicy();
+    
+    // Create a state cell for the cache entry
+    final handle = Cell.state&lt;CacheEntry&gt;(
+      initial: CacheEntry(key: key, value: value),
+      evolve: (host, input) {
+        final newEntry = input.payload as CacheEntry?;
+        if (newEntry == null) return null;
+        return Pulse(newEntry);
+      },
+      ephemeralPolicy: policy,
+    );
+    
+    // Create observer to log cache activity
+    final observer = Cell.observe(
+      source: handle.cell,
+      effect: (pulse) {
+        final entry = pulse.payload as CacheEntry;
+        print('🔄 Cache updated: ${entry.key}');
+      },
+    );
+    
+    _cache[key] = handle.cell;
+    _observers[key] = observer;
+  }
+  
+  void remove(String key) {
+    final cell = _cache.remove(key);
+    if (cell != null) {
+      _observers.remove(key)?.stop();
+      print('🗑️ Removed cache entry: $key');
+    }
+  }
+  
+  dynamic get(String key) {
+    final cell = _cache[key];
+    if (cell == null) {
+      print('❌ Cache miss: $key');
+      return null;
+    }
+    
+    // Access to trigger TTL reset
+    final entry = cell.value as CacheEntry?;
+    print('✅ Cache hit: $key');
+    return entry?.value;
+  }
+  
+  void clear() {
+    for (final key in _cache.keys.toList()) {
+      remove(key);
+    }
+    print('🗑️ Cache cleared');
+  }
+  
+  void stats() {
+    print('📊 Cache Stats:');
+    print('   Entries: ${_cache.length}');
+    for (final entry in _cache.entries) {
+      final value = entry.value.value as CacheEntry?;
+      print('   - ${entry.key}: ${value?.value ?? 'null'}');
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 4. Main Demo
+// ─────────────────────────────────────────────────────────────────────────
+
+void main() async {
+  print('═══ Cache System with EphemeralPolicy ═══\n');
+  
+  final cache = CacheSystem();
+  
+  // Add items to cache
+  print('1. Adding items to cache:');
+  cache.put('user:123', {'name': 'Alice', 'role': 'admin'});
+  cache.put('user:456', {'name': 'Bob', 'role': 'user'});
+  cache.put('session:789', 'active');
+  
+  cache.stats();
+  
+  // Access items
+  print('\n2. Accessing items:');
+  cache.get('user:123');
+  cache.get('user:456');
+  
+  // Wait for TTL to expire
+  print('\n3. Waiting for TTL (5 seconds)...');
+  await Future.delayed(Duration(seconds: 6));
+  
+  // Try to access expired items
+  print('\n4. Accessing after TTL:');
+  cache.get('user:123');
+  cache.get('user:456');
+  
+  cache.stats();
+  
+  print('\n═══ Done ═══');
+}
+</code></pre>
+<p><strong>Expected Output:</strong></p>
+<pre class="language-dart"><code>═══ Cache System with EphemeralPolicy ═══
+
+1. Adding items to cache:
+🔄 Cache updated: user:123
+🔄 Cache updated: user:456
+🔄 Cache updated: session:789
+📊 Cache Stats:
+   Entries: 3
+   - user:123: {name: Alice, role: admin}
+   - user:456: {name: Bob, role: user}
+   - session:789: active
+
+2. Accessing items:
+📦 Cache hit: user:123
+   Value: {name: Alice, role: admin}
+✅ Cache hit: user:123
+📦 Cache hit: user:456
+   Value: {name: Bob, role: user}
+✅ Cache hit: user:456
+
+3. Waiting for TTL (5 seconds)...
+🗑️ Cache entry expired
+🗑️ Cache entry expired
+🗑️ Cache entry expired
+
+4. Accessing after TTL:
+❌ Cache miss: user:123
+❌ Cache miss: user:456
+📊 Cache Stats:
+   Entries: 0
+
+═══ Done ═══
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EphemeralPolicy</strong></td>
+<td>Cell lifecycle management</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Time-To-Live (TTL)</td>
+</tr>
+<tr>
+<td><strong>Event Limit</strong></td>
+<td>Maximum events before expiration</td>
+</tr>
+<tr>
+<td><strong>onEvent</strong></td>
+<td>Called on each interaction</td>
+</tr>
+<tr>
+<td><strong>onInvalidate</strong></td>
+<td>Called when cell expires</td>
+</tr>
+<tr>
+<td><strong>PulseEphemeralPolicy</strong></td>
+<td>Pulse-level lifecycle management</td>
+</tr>
+<tr>
+<td><strong>Lazy Timer</strong></td>
+<td>TTL starts on first interaction</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Timer is lazy</strong> - Starts on first interaction, not creation</li>
+<li><strong>Event counter tracks usage</strong> - Can trigger invalidation</li>
+<li><strong>Combined conditions</strong> - TTL and event limit can be used together</li>
+<li><strong>Clean up resources</strong> - Use onInvalidate for cleanup</li>
+<li><strong>Check invalidation</strong> - Always check <code>cell.isInvalidated</code></li>
+<li><strong>Use Pulse policies for short-lived</strong> - Tokens, temporary signals</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: TTL with sliding expiration
+final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+// Pattern: Event limit only
+final policy = EphemeralPolicy(
+  eventLimit: 100,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+// Pattern: Combined TTL + event limit
+final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  eventLimit: 100,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    return (events: policy.events + 1);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+// Pattern: Error budget
+final policy = EphemeralPolicy(
+  eventLimit: 5,
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    if (object is Exception) {
+      return (events: policy.events + 1);
+    }
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) =&gt; true,
+);
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="EphemeralPolicy">
+  <span class="name "><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-ephemeral-policy cp-13 linked" title="This is part of the Advanced · Ephemeral Policy topic."><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></span>
+
+</dt>
+<dd>
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive elements.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Ephemeral Policy topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_internal_commons/">src\internal\commons</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule/">src\test_rule</a></li>
+      <li><a href="../file-___d-_users_simon_workspaces_cell-old_cell_lib_src_test_rule_meta/">src\test_rule_meta</a></li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Core 16 Operators</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Advanced · Ephemeral Policy topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Ephemeral Policy-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
