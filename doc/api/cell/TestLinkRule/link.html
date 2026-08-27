@@ -16,20 +16,16 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
     <li><a href="../../cell/TestLinkRule-class.html">TestLinkRule<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">link method</li>
   </ol>
@@ -37,20 +33,16 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,10 +54,9 @@
 
     <section class="multi-line-signature">
       
-
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-link"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">link</span>, {</span></li>
-<li><span class="parameter" id="link-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-link"><span>covariant</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">link</span>, {</span></li>
+<li><span class="parameter" id="link-param-host"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">host</span>, </span></li>
 </ol>})
 
       
@@ -73,27 +64,44 @@
     </section>
     
 <section class="desc markdown">
-  <p>Applies the validation rule to a specific cell link.</p>
-<p>Parameters:</p>
+  <p>Executes the topological validation logic for a candidate <code>link</code> attempting
+to connect to the <code>host</code> cell, supporting <strong>Hybrid Convergence</strong>.</p>
+<p>This method is the operational heart of the <a href="../../cell/TestLinkRule-class.html">TestLinkRule</a>. It serves as
+the <strong>Synapse Gatekeeper</strong>, determining whether a directional relationship
+(dependency) is permitted to form within the reactive graph. It transforms
+abstract architectural policies into deterministic runtime boundaries.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't call this directly – the framework invokes it automatically
+when <a href="../../cell/Synapses/link.html">Synapses.link</a> is called. It can be called manually for testing.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It delegates to the base <code>call</code> method, which evaluates the rule and
+parent chain.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><a href="../../cell/TestLinkRule/link.html">link</a>: The cell to validate for linking/unlinking</li>
-<li><code>cell</code>: Optional <a href="../../cell/Cell-class.html">Cell</a> context for the validation (typically the host cell)</li>
+<li>The method returns <code>FutureOr&lt;bool&gt;</code>, so it can be sync or async.</li>
+<li>The <code>host</code> is required; if <code>null</code>, the validation passes.</li>
+<li>The <code>link</code> parameter is the cell that wants to observe the host.</li>
 </ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>link</code>: The candidate <a href="../../cell/Cell-class.html">Cell</a> attempting to establish a dependency.</li>
+<li><code>host</code>: The target <a href="../../cell/Cell-class.html">Cell</a> that would be observed.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the link is permitted; <code>false</code> otherwise.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool link(Cell link, {C? cell}) {
-  final Function func = _input is TypeObject&lt;Function&gt; ? _input.obj : _input();
-  return func(link, cell: cell, user: _user);
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;bool&gt; link(covariant Cell link, {required C host}) {
+  return call(link, host: host);
 }</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -101,41 +109,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
     <li><a href="../../cell/TestLinkRule-class.html">TestLinkRule<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">link method</li>
 </ol>
 
-
     <h5>TestLinkRule class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

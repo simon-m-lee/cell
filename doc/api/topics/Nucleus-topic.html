@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Advanced · Nucleus topic docs, for the Dart programming language.">
+  <title>Advanced · Nucleus topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Nucleus topic</li>
+  </ol>
+  <div class="self-name">Advanced · Nucleus</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Advanced · Nucleus</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-nucleus-in-the-cell-framework">How to Use Nucleus in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-a-nucleus">What is a Nucleus?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#creating-a-nucleus">Creating a Nucleus</a></li>
+<li><a href="#nucleus-inheritance-prototype-pattern">Nucleus Inheritance (Prototype Pattern)</a></li>
+<li><a href="#activating-a-nucleus">Activating a Nucleus</a></li>
+<li><a href="#cloning-a-nucleus">Cloning a Nucleus</a></li>
+<li><a href="#nucleus-with-valuecell">Nucleus with ValueCell</a></li>
+<li><a href="#testing-nucleus">Testing Nucleus</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p>A <strong>Nucleus</strong> is the immutable blueprint that defines a <code>Cell</code>'s behavior. It encapsulates everything a cell needs to function:</p>
+<ul>
+<li><strong>Receptor</strong> - How it transforms incoming pulses</li>
+<li><strong>TestCell</strong> - What it's allowed to accept</li>
+<li><strong>Context</strong> - What tier/domain it belongs to</li>
+<li><strong>Synapses</strong> - Who it notifies on change</li>
+<li><strong>EphemeralPolicy</strong> - Lifecycle management</li>
+</ul>
+<h3 id="when-to-use-nucleus">When to Use Nucleus</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Creating a standard cell</td>
+<td>Use <code>Cell</code> or <code>Cell.state</code> factories</td>
+</tr>
+<tr>
+<td>Creating a governed cell</td>
+<td>Use <code>Cell.governed</code></td>
+</tr>
+<tr>
+<td>Creating a deputy/proxy</td>
+<td>Use <code>Cell.deputy</code></td>
+</tr>
+<tr>
+<td>Custom infrastructure</td>
+<td>Use <code>Nucleus</code> directly</td>
+</tr>
+<tr>
+<td>Sharing behavior across cells</td>
+<td>Use <code>Nucleus</code> with inheritance</td>
+</tr>
+<tr>
+<td>Serializing/deserializing cell behavior</td>
+<td>Use <code>Nucleus</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-a-nucleus">What is a Nucleus?</h2>
+<p>A <code>Nucleus</code> is a <strong>stateless blueprint</strong> that defines a cell's behavior. It is immutable and can be shared across multiple cells.</p>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Immutable</strong></td>
+<td>Once created, cannot be modified</td>
+</tr>
+<tr>
+<td><strong>Flyweight</strong></td>
+<td>Can be shared across many cells</td>
+</tr>
+<tr>
+<td><strong>Inheritable</strong></td>
+<td>Supports prototype-based inheritance</td>
+</tr>
+<tr>
+<td><strong>Clonable</strong></td>
+<td>Can be cloned for independent use</td>
+</tr>
+<tr>
+<td><strong>Activable</strong></td>
+<td>Can be bound to a live cell</td>
+</tr>
+</tbody>
+</table>
+<h3 id="relationship-with-cell">Relationship with Cell</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CELL FRAMEWORK                                   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         CELL (Live Instance)                        │   │
+│  │                                                                      │   │
+│  │  ┌──────────────────────────────────────────────────────────────┐   │   │
+│  │  │                    NUCLEUS (Blueprint)                       │   │   │
+│  │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │   │
+│  │  │  │  RECEPTOR   │  │  TESTCELL   │  │  CONTEXT    │          │   │   │
+│  │  │  │  Transform  │  │  Validate   │  │  Security   │          │   │   │
+│  │  │  └─────────────┘  └─────────────┘  └─────────────┘          │   │   │
+│  │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │   │
+│  │  │  │  SYNAPSES   │  │  EPHEMERAL  │  │    BIND     │          │   │   │
+│  │  │  │  Egress     │  │  Policy     │  │  Upstream   │          │   │   │
+│  │  │  └─────────────┘  └─────────────┘  └─────────────┘          │   │   │
+│  │  └──────────────────────────────────────────────────────────────┘   │   │
+│  │                                                                      │   │
+│  │  ┌──────────────────────────────────────────────────────────────┐   │   │
+│  │  │                    STATE (Mutable)                           │   │   │
+│  │  │  ┌─────────────┐  ┌─────────────┐                           │   │   │
+│  │  │  │    BOX      │  │    LOCK     │                           │   │   │
+│  │  │  │   Storage   │  │  Synchronization                        │   │   │
+│  │  │  └─────────────┘  └─────────────┘                           │   │   │
+│  │  └──────────────────────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="the-flyweight-pattern">The Flyweight Pattern</h3>
+<p>Nucleus uses the <strong>Flyweight Pattern</strong> to minimize memory usage:</p>
+<pre class="language-dart"><code class="language-dart">// Multiple cells can share the same nucleus
+final sharedNucleus = Nucleus(
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  context: Context.system,
+);
+
+final cell1 = Cell.fromNucleus(sharedNucleus);
+final cell2 = Cell.fromNucleus(sharedNucleus);
+// Both cells share the same blueprint
+</code></pre>
+<h3 id="inheritance-prototype-pattern">Inheritance (Prototype Pattern)</h3>
+<p>Nucleus supports <strong>prototype-based inheritance</strong>:</p>
+<pre class="language-dart"><code class="language-dart">final parent = Nucleus(
+  receptor: myReceptor,
+  testRule: myTestRule,
+  context: Context.system,
+);
+
+final child = Nucleus.evolve(
+  principal: parent,
+  testRule: moreRestrictiveRule,  // Override only this
+);
+// child inherits receptor and context from parent
+</code></pre>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-nucleus-is-immutable">1. Nucleus is Immutable</h3>
+<p>Once created, a Nucleus cannot be changed. To modify behavior, create a new Nucleus or use <code>evolve</code>:</p>
+<pre class="language-dart"><code class="language-dart">// ❌ Can't modify after creation
+final nucleus = Nucleus(...);
+// nucleus.receptor = newReceptor;  // Not allowed
+
+// ✅ Create a new one with changes
+final newNucleus = Nucleus.evolve(
+  principal: nucleus,
+  receptor: newReceptor,
+);
+</code></pre>
+<h3 id="2-nucleus-is-a-flyweight">2. Nucleus is a Flyweight</h3>
+<p>A single Nucleus can be used by many cells, saving memory:</p>
+<pre class="language-dart"><code class="language-dart">final sharedNucleus = Nucleus(
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  context: Context.system,
+);
+
+// 1000 cells sharing the same blueprint
+for (int i = 0; i &lt; 1000; i++) {
+  final cell = Cell.fromNucleus(sharedNucleus);
+}
+</code></pre>
+<h3 id="3-nucleus-supports-inheritance">3. Nucleus Supports Inheritance</h3>
+<p>Properties are resolved by walking up the <code>principal</code> chain:</p>
+<pre class="language-dart"><code class="language-dart">// Root nucleus
+final root = Nucleus(
+  context: Context.system,
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+);
+
+// Child nucleus - overrides testRule only
+final child = Nucleus.evolve(
+  principal: root,
+  testRule: myStrictRule,
+);
+
+// Grandchild - overrides receptor only
+final grandchild = Nucleus.evolve(
+  principal: child,
+  receptor: myCustomReceptor,
+);
+
+// grandchild resolves:
+// - context from root (Context.system)
+// - testRule from child (myStrictRule)
+// - receptor from grandchild (myCustomReceptor)
+</code></pre>
+<h3 id="4-nucleus-is-optimized">4. Nucleus is Optimized</h3>
+<p>Internally, Nucleus uses <strong>bitmask optimization</strong> to store only non-default values:</p>
+<pre class="language-dart"><code class="language-dart">// This stores only what's needed
+final nucleus = Nucleus(
+  receptor: myReceptor,  // Non-default
+  // context defaults to Context.system (not stored)
+  // testRule defaults to TestCell.allowAll (not stored)
+);
+</code></pre>
+<hr>
+<h2 id="creating-a-nucleus">Creating a Nucleus</h2>
+<h3 id="method-1-basic-constructor">Method 1: Basic Constructor</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus(
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  context: Context.system,
+  synapses: Synapses.enabled,
+  forceLock: false,
+);
+</code></pre>
+<h3 id="method-2-with-ephemeral-policy">Method 2: With Ephemeral Policy</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus(
+  ephemeralPolicy: EphemeralPolicy(
+    duration: Duration(minutes: 5),
+    onEvent: (object, {required cell, policy, arguments, user}) {
+      // Reset timer on access
+      return (events: 0);
+    },
+    onInvalidate: (nucleus) {
+      // Cleanup
+      return true;
+    },
+  ),
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  context: Context.system,
+);
+</code></pre>
+<h3 id="method-3-with-bind-upstream-dependency">Method 3: With Bind (Upstream Dependency)</h3>
+<pre class="language-dart"><code class="language-dart">final sourceCell = Cell.state&lt;int&gt;(initial: 0);
+
+final nucleus = Nucleus(
+  bind: sourceCell,
+  receptor: Receptor((cell, pulse, {user}) {
+    final value = pulse.payload as int;
+    return Pulse(value * 2);
+  }),
+  testRule: TestCell.allowAll,
+  context: Context.system,
+);
+
+final derivedCell = Cell.fromNucleus(nucleus);
+// derivedCell automatically receives pulses from sourceCell
+</code></pre>
+<h3 id="method-4-using-nucleuscreate-typed">Method 4: Using Nucleus.create (Typed)</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus.create&lt;MyCell&gt;(
+  receptor: Receptor((cell, pulse, {user}) {
+    // cell is typed as MyCell
+    return pulse;
+  }),
+  context: Context.module('my-module'),
+);
+</code></pre>
+<h3 id="method-5-empty-nucleus-root">Method 5: Empty Nucleus (Root)</h3>
+<pre class="language-dart"><code class="language-dart">final empty = Nucleus.empty();
+// All properties resolve to framework defaults
+</code></pre>
+<hr>
+<h2 id="nucleus-inheritance-prototype-pattern">Nucleus Inheritance (Prototype Pattern)</h2>
+<h3 id="using-nucleusevolve">Using Nucleus.evolve</h3>
+<pre class="language-dart"><code class="language-dart">// Base blueprint
+final baseNucleus = Nucleus(
+  context: Context.module('base'),
+  receptor: Receptor((cell, pulse, {user}) {
+    print('Base processing: ${pulse.payload}');
+    return pulse;
+  }),
+  testRule: TestCell.allowAll,
+);
+
+// Specialized blueprint
+final authNucleus = Nucleus.evolve(
+  principal: baseNucleus,
+  testRule: TestCell((value, {host, ...}) {
+    // Only allow authenticated values
+    return value is String &amp;&amp; value.isNotEmpty;
+  }),
+);
+
+// More specialized
+final adminNucleus = Nucleus.evolve(
+  principal: authNucleus,
+  context: Context.module('admin', stakeholders: 'Admin'),
+  receptor: Receptor((cell, pulse, {user}) {
+    print('Admin processing: ${pulse.payload}');
+    return pulse;
+  }),
+);
+
+// adminNucleus inherits:
+// - testRule from authNucleus
+// - context from adminNucleus (overrides base)
+// - receptor from adminNucleus (overrides base)
+</code></pre>
+<h3 id="override-priority">Override Priority</h3>
+<p>Properties are resolved in this order:</p>
+<ol>
+<li><strong>Local override</strong> - explicitly set in the current nucleus</li>
+<li><strong>Principal chain</strong> - walk up the <code>principal</code> chain</li>
+<li><strong>Default</strong> - framework defaults</li>
+</ol>
+<pre class="language-dart"><code class="language-dart">final root = Nucleus(
+  context: Context.system,           // Default
+  receptor: Receptor.passThrough,    // Default
+  testRule: TestCell.allowAll,       // Default
+);
+
+final child = Nucleus.evolve(
+  principal: root,
+  testRule: myRule,                  // Override
+);
+
+// child resolves:
+// - context: Context.system (from root)
+// - receptor: Receptor.passThrough (from root)
+// - testRule: myRule (local override)
+</code></pre>
+<hr>
+<h2 id="activating-a-nucleus">Activating a Nucleus</h2>
+<h3 id="automatic-activation">Automatic Activation</h3>
+<p>When you create a cell from a nucleus, it's automatically activated:</p>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus(...);
+final cell = Cell.fromNucleus(nucleus);
+// nucleus.isActivated == true
+</code></pre>
+<h3 id="manual-activation">Manual Activation</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus(...);
+final cell = MyCell();
+
+final activated = nucleus.activate(cell);
+if (activated) {
+  print('Nucleus activated');
+}
+</code></pre>
+<h3 id="activation-state">Activation State</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = Nucleus(...);
+
+print(nucleus.isActivated); // false
+
+final cell = Cell.fromNucleus(nucleus);
+
+print(nucleus.isActivated); // true
+print(nucleus.cell);        // Returns the live cell
+</code></pre>
+<hr>
+<h2 id="cloning-a-nucleus">Cloning a Nucleus</h2>
+<h3 id="why-clone">Why Clone?</h3>
+<ul>
+<li>Create independent copies</li>
+<li>Avoid sharing state between cells</li>
+<li>Create variations of a blueprint</li>
+</ul>
+<h3 id="using-clone">Using clone</h3>
+<pre class="language-dart"><code class="language-dart">final original = Nucleus(
+  receptor: Receptor((cell, pulse, {user}) {
+    print('Original processing');
+    return pulse;
+  }),
+  context: Context.system,
+);
+
+final clone = original.clone;
+
+// Original and clone are independent
+final cell1 = Cell.fromNucleus(original);
+final cell2 = Cell.fromNucleus(clone);
+</code></pre>
+<h3 id="clone-vs-evolve">Clone vs Evolve</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>clone</th>
+<th>evolve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td>Create independent copy</td>
+<td>Inherit with overrides</td>
+</tr>
+<tr>
+<td>Inheritance</td>
+<td>No principal</td>
+<td>Has principal</td>
+</tr>
+<tr>
+<td>Sharing</td>
+<td>Independent</td>
+<td>Shares defaults</td>
+</tr>
+<tr>
+<td>When to use</td>
+<td>Duplicating behavior</td>
+<td>Specializing behavior</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="nucleus-with-valuecell">Nucleus with ValueCell</h2>
+<h3 id="valuenucleus">ValueNucleus</h3>
+<p><code>ValueNucleus</code> is a specialized nucleus for state cells:</p>
+<pre class="language-dart"><code class="language-dart">final valueNucleus = ValueNucleus&lt;int&gt;(
+  transform: (host, input, {user}) {
+    final delta = input.payload as int? ?? 1;
+    return Pulse(host.value + delta);
+  },
+  context: Context.module('counter'),
+  testRule: TestCell((value, {host, ...}) =&gt; value &gt;= 0),
+);
+
+final handle = ValueCell.create(valueNucleus, value: 0);
+// Creates a ValueCell with the blueprint
+</code></pre>
+<h3 id="valuenucleus-with-instruction">ValueNucleus with Instruction</h3>
+<pre class="language-dart"><code class="language-dart">final instruction = Instruction&lt;Cell, Pulse, Pulse&gt;(
+  (pulse, {cell, user}) =&gt; Pulse((pulse.payload as int) * 2),
+);
+
+final valueNucleus = ValueNucleus&lt;int&gt;.from(
+  instruction: instruction,
+  context: Context.module('doubler'),
+);
+
+final handle = ValueCell.create(valueNucleus, value: 1);
+</code></pre>
+<h3 id="valuenucleus-evolution">ValueNucleus Evolution</h3>
+<pre class="language-dart"><code class="language-dart">final parent = ValueNucleus&lt;int&gt;(
+  transform: (host, input, {user}) =&gt; Pulse(host.value + 1),
+  context: Context.system,
+);
+
+final child = ValueNucleus&lt;int&gt;.evolve(
+  principal: parent,
+  testRule: TestCell((value, {host, ...}) =&gt; value &gt; 0),
+);
+// child inherits transform from parent, but adds validation
+</code></pre>
+<hr>
+<h2 id="testing-nucleus">Testing Nucleus</h2>
+<h3 id="unit-testing-a-nucleus">Unit Testing a Nucleus</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+void main() {
+  test('Nucleus creates correctly', () {
+    final nucleus = Nucleus(
+      receptor: Receptor.passThrough,
+      testRule: TestCell.allowAll,
+      context: Context.system,
+    );
+    
+    expect(nucleus.receptor, Receptor.passThrough);
+    expect(nucleus.testRule, TestCell.allowAll);
+    expect(nucleus.context, Context.system);
+  });
+  
+  test('Nucleus inherits properties', () {
+    final parent = Nucleus(
+      context: Context.module('parent'),
+      receptor: Receptor.passThrough,
+    );
+    
+    final child = Nucleus.evolve(
+      principal: parent,
+      testRule: myRule,
+    );
+    
+    expect(child.context, Context.module('parent'));
+    expect(child.receptor, Receptor.passThrough);
+    expect(child.testRule, myRule);
+  });
+}
+</code></pre>
+<h3 id="testing-activation">Testing Activation</h3>
+<pre class="language-dart"><code class="language-dart">test('Nucleus activates correctly', () {
+  final nucleus = Nucleus(...);
+  final cell = MockCell();
+  
+  final activated = nucleus.activate(cell);
+  expect(activated, true);
+  expect(nucleus.isActivated, true);
+  expect(nucleus.cell, cell);
+});
+</code></pre>
+<h3 id="testing-with-mock-cell">Testing with Mock Cell</h3>
+<pre class="language-dart"><code class="language-dart">class MockCell extends CellBase {
+  MockCell() : super();
+}
+
+test('Nucleus works with mock cell', () {
+  final nucleus = Nucleus(
+    receptor: Receptor((cell, pulse, {user}) {
+      return Pulse('processed: ${pulse.payload}');
+    }),
+  );
+  
+  final cell = MockCell();
+  nucleus.activate(cell);
+  
+  final result = nucleus.receptor.call(Pulse('test'));
+  expect(result.payload, 'processed: test');
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-factories-for-creation">1. Use Factories for Creation</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Factory function
+Nucleus createAuthNucleus() {
+  return Nucleus(
+    context: Context.module('auth'),
+    testRule: authRule,
+    receptor: authReceptor,
+  );
+}
+
+// ❌ BAD - Inline creation everywhere
+final nucleus1 = Nucleus(...);  // Duplicated
+final nucleus2 = Nucleus(...);  // Duplicated
+</code></pre>
+<h3 id="2-share-nuclei-when-possible">2. Share Nuclei When Possible</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Shared nucleus
+final sharedNucleus = Nucleus(...);
+final cell1 = Cell.fromNucleus(sharedNucleus);
+final cell2 = Cell.fromNucleus(sharedNucleus);
+
+// ❌ BAD - Separate nuclei for same behavior
+final nucleus1 = Nucleus(...);
+final nucleus2 = Nucleus(...);
+</code></pre>
+<h3 id="3-use-evolve-for-specialization">3. Use evolve for Specialization</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Inherit and specialize
+final base = Nucleus(...);
+final specialized = Nucleus.evolve(
+  principal: base,
+  testRule: stricterRule,
+);
+
+// ❌ BAD - Recreate from scratch
+final specialized = Nucleus(
+  // Same as base, with one change
+  context: base.context,
+  receptor: base.receptor,
+  testRule: stricterRule,
+);
+</code></pre>
+<h3 id="4-use-clone-for-independence">4. Use clone for Independence</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Clone for independent use
+final clone = original.clone;
+final cell = Cell.fromNucleus(clone);
+
+// ❌ BAD - Share activated nucleus
+final cell = Cell.fromNucleus(original);  // original is now activated
+final cell2 = Cell.fromNucleus(original); // Will clone automatically
+</code></pre>
+<h3 id="5-document-your-blueprints">5. Document Your Blueprints</h3>
+<pre class="language-dart"><code class="language-dart">/// Authentication nucleus for user sessions.
+///
+/// Features:
+/// - Validates session tokens
+/// - Enforces role-based access
+/// - Auto-expires after 30 minutes
+Nucleus createAuthNucleus() {
+  return Nucleus(
+    ephemeralPolicy: EphemeralPolicy(
+      duration: Duration(minutes: 30),
+      onEvent: (object, {required cell, policy, arguments, user}) {
+        // Reset expiration on activity
+        return (events: 0);
+      },
+      onInvalidate: (nucleus) {
+        // Cleanup session
+        return true;
+      },
+    ),
+    // ...
+  );
+}
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete example showing a multi-tenant application using Nucleus:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────────────────
+// 1. Define Tenant-Specific Behavior
+// ─────────────────────────────────────────────────────────────────────────
+
+class TenantContext {
+  final String tenantId;
+  final String domain;
+  final List&lt;String&gt; features;
+
+  TenantContext({
+    required this.tenantId,
+    required this.domain,
+    this.features = const [],
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 2. Base Nucleus
+// ─────────────────────────────────────────────────────────────────────────
+
+final baseNucleus = Nucleus(
+  context: Context.module('multi-tenant'),
+  receptor: Receptor((cell, pulse, {user}) {
+    print('Processing in base nucleus');
+    return pulse;
+  }),
+  testRule: TestCell((value, {host, ...}) =&gt; value != null),
+);
+
+// ─────────────────────────────────────────────────────────────────────────
+// 3. Tenant-Specific Nuclei
+// ─────────────────────────────────────────────────────────────────────────
+
+Nucleus createTenantNucleus(TenantContext tenant) {
+  return Nucleus.evolve(
+    principal: baseNucleus,
+    context: Context.module(tenant.domain),
+    testRule: TestCell((value, {host, arguments, user}) {
+      // Tenant-specific validation
+      if (value is Map) {
+        return value['tenantId'] == tenant.tenantId;
+      }
+      return true;
+    }),
+    user: tenant,  // Store tenant context
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 4. Feature-Specific Nuclei
+// ─────────────────────────────────────────────────────────────────────────
+
+Nucleus createFeatureNucleus(TenantContext tenant, String feature) {
+  final base = createTenantNucleus(tenant);
+  
+  return Nucleus.evolve(
+    principal: base,
+    receptor: Receptor((cell, pulse, {user}) {
+      if (tenant.features.contains(feature)) {
+        print('Feature $feature enabled for tenant ${tenant.tenantId}');
+        return pulse;
+      }
+      print('Feature $feature disabled for tenant ${tenant.tenantId}');
+      return null;
+    }),
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 5. Usage
+// ─────────────────────────────────────────────────────────────────────────
+
+void main() {
+  // Define tenants
+  final tenantA = TenantContext(
+    tenantId: 'tenant-a',
+    domain: 'finance',
+    features: ['reporting', 'analytics'],
+  );
+  
+  final tenantB = TenantContext(
+    tenantId: 'tenant-b',
+    domain: 'hr',
+    features: ['employee-management'],
+  );
+
+  // Create tenant-specific nuclei
+  final nucleusA = createTenantNucleus(tenantA);
+  final nucleusB = createTenantNucleus(tenantB);
+
+  // Create cells from nuclei
+  final cellA = Cell.fromNucleus(nucleusA);
+  final cellB = Cell.fromNucleus(nucleusB);
+
+  // Create feature-specific cells
+  final reportingNucleus = createFeatureNucleus(tenantA, 'reporting');
+  final reportingCell = Cell.fromNucleus(reportingNucleus);
+
+  // Test
+  print('Tenant A cell: ${cellA.context.domains}');
+  print('Tenant B cell: ${cellB.context.domains}');
+  print('Reporting cell: ${reportingCell.context.domains}');
+
+  // All cells share the base behavior but with tenant-specific overrides
+}
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nucleus</strong></td>
+<td>Immutable blueprint for a cell</td>
+</tr>
+<tr>
+<td><strong>Flyweight</strong></td>
+<td>Shared across many cells</td>
+</tr>
+<tr>
+<td><strong>Inheritance</strong></td>
+<td>Prototype-based via <code>principal</code></td>
+</tr>
+<tr>
+<td><strong>Clone</strong></td>
+<td>Create independent copy</td>
+</tr>
+<tr>
+<td><strong>Activation</strong></td>
+<td>Bind to a live cell</td>
+</tr>
+<tr>
+<td><strong>ValueNucleus</strong></td>
+<td>Specialized for state cells</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Nucleus is immutable</strong> - Create new ones, don't modify</li>
+<li><strong>Share when possible</strong> - Flyweight pattern saves memory</li>
+<li><strong>Use evolve for specialization</strong> - Inherit and override</li>
+<li><strong>Use clone for independence</strong> - Create separate copies</li>
+<li><strong>Activate once</strong> - Activated nuclei can't be re-activated</li>
+<li><strong>Document your blueprints</strong> - Explain what each does</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: Base + specialization
+final base = Nucleus(...);
+final specialized = Nucleus.evolve(principal: base, ...);
+
+// Pattern: Shared blueprint
+final shared = Nucleus(...);
+final cell1 = Cell.fromNucleus(shared);
+final cell2 = Cell.fromNucleus(shared);
+
+// Pattern: Clone for independence
+final clone = original.clone;
+final cell = Cell.fromNucleus(clone);
+
+// Pattern: Factory function
+Nucleus createMyNucleus() =&gt; Nucleus(...);
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Nucleus">
+  <span class="name "><a href="../cell/Nucleus-class.html">Nucleus</a></span> 
+    <span class="category advanced cp-7 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-nucleus cp-12 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
+
+</dt>
+<dd>
+  The immutable blueprint underlying every <a href="../cell/Cell-class.html">Cell</a> — its <a href="../cell/Nucleus/receptor.html">receptor</a>,
+<a href="../cell/Nucleus/testRule.html">testRule</a>, <a href="../cell/Nucleus/context.html">context</a>, <a href="../cell/Nucleus/synapses.html">synapses</a>, and lifecycle policy, stored
+separately from the live cell instance.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Nucleus topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Getting Started</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+      <li class="section-subtitle">Core 16 Operators</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Advanced · Nucleus topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Nucleus-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/Nucleus-class.html">Nucleus</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

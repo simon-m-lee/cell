@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the get function from the cell library, for the Dart programming language.">
+  <title>get function - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">get&lt;<wbr><span class="type-parameter">T</span>&gt; function</li>
+  </ol>
+  <div class="self-name">get</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;cell-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">get&lt;<wbr><span class="type-parameter">T</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">T</span>
+<span class="name ">get</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="get-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">fn</span>, {</span></li>
+<li><span class="parameter" id="get-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">fallback</span>, </span></li>
+<li><span class="parameter" id="get-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span>, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>A robust functional utility for safely executing operations of type <code>T</code>
+with multi-stage recovery logic and hierarchical fallbacks.</p>
+<p>The <code>get&lt;T&gt;</code> function implements a <strong>Defensive Execution Pattern</strong>, commonly
+used in reactive state hydration, configuration parsing, or data
+transformation within the <code>cell.core</code> framework. It provides a structured
+alternative to deeply nested <code>try-catch</code> blocks, ensuring that the system
+remains resilient even when facing malformed inputs or unexpected
+imperative side-effects.</p>
+<h3 id="execution-pipeline">Execution Pipeline:</h3>
+<p>This utility follows a strictly prioritized "Primary-Secondary-Static"
+resolution sequence:</p>
+<ol>
+<li><strong>Stage 1: Primary Execution (<code>fn</code>)</strong>:
+The function attempts to execute the primary <code>fn</code> and cast its result
+to the expected type <code>T</code>.</li>
+<li><strong>Stage 2: Secondary Recovery (<code>fallback</code>)</strong>:
+If Stage 1 fails (due to a runtime exception or a type-cast error),
+the utility attempts to execute the <code>fallback</code> function. This is
+ideal for emitting alternative lookup logic or logging the failure.</li>
+<li><strong>Stage 3: Static Default (<code>orElse</code>)</strong>:
+If both functional attempts fail (or if the <code>fallback</code> throws), the
+utility attempts to return the provided <code>orElse</code> constant.</li>
+<li><strong>Terminal Failure</strong>:
+If all stages fail and <code>orElse</code> is either null or incompatible with
+type <code>T</code>, the original exception from Stage 1 is rethrown to ensure
+visibility of the root cause.</li>
+</ol>
+<h3 id="architectural-use-cases">Architectural Use Cases:</h3>
+<ul>
+<li><strong>State Hydration</strong>: Attempting to parse a saved JSON value into a
+cell's internal <a href="../cell/Box-class.html">Box</a>, with a default "Guest" state if parsing fails.</li>
+<li><strong>Contextual Lookups</strong>: Searching for a value in a local <a href="../cell/Context-class.html">Context</a>,
+falling back to a global <code>Context.system</code> lookup.</li>
+<li><strong>Dynamic Typing</strong>: Safely casting <code>dynamic</code> records into specific
+reactive descriptors.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>fn</code>: The primary <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> to execute. It should return a value
+compatible with type <code>T</code>.</li>
+<li><code>fallback</code>: An optional recovery <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> emitted only if <code>fn</code>
+encounters an error.</li>
+<li><code>orElse</code>: A static value of type <code>T</code> to return as the ultimate
+safety net if all functional calls fail.</li>
+</ul>
+<h3 id="example-safe-configuration-parsing">Example: Safe Configuration Parsing</h3>
+<pre class="language-dart"><code class="language-dart">final timeout = get&lt;int&gt;(
+  () =&gt; int.parse(remoteConfig['timeout']),
+  fallback: () =&gt; localSettings.defaultTimeout,
+  orElse: 3000,
+);
+</code></pre>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The expected return type of the operation.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">T get&lt;T&gt;(Function fn, {Function? fallback, T? orElse}) {
+  try {
+    return fn() as T;
+  } catch (e) {
+    try {
+      if (fallback != null) return fallback() as T;
+    } catch (_) {}
+    try {
+      return orElse as T;
+    } catch (_) {
+      throw e;
+    }
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">get&lt;<wbr><span class="type-parameter">T</span>&gt; function</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

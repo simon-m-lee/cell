@@ -16,20 +16,16 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
     <li class="self-crumb">deputy abstract method</li>
   </ol>
@@ -37,20 +33,16 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,10 +54,11 @@
 
     <section class="multi-line-signature">
       
-
-<span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
-<span class="name ">deputy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="deputy-param-test"><span>covariant</span> <span class="type-annotation"><a href="../../cell/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">test</span>, </span></li>
-<li><span class="parameter" id="deputy-param-mapObject"><span>covariant</span> <span class="type-annotation"><a href="../../cell/MapObject-class.html">MapObject</a>?</span> <span class="parameter-name">mapObject</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+<span class="name ">deputy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../../cell/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span></li>
+<li><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
 </ol>})
 
       
@@ -73,19 +66,69 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates an <a href="../../cell/Deputy-mixin.html">Deputy</a> cell from an existing <a href="../../cell/Cell-class.html">Cell</a> instance with reduced permissions.</p>
+  <p>Creates a <strong>deputy</strong>: a proxy <a href="../../cell/Cell-class.html">Cell</a> that shares the same underlying
+state and identity as this cell, but operates under a different
+<code>context</code> and/or <code>testRule</code>.</p>
+<p>A deputy is not a copy. It points at the same physical storage and
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> as its principal — <code>cell == cell.deputy()</code> is always <code>true</code>, and
+changes to one are visible through the other. What differs is <em>what the
+deputy is allowed to do</em>: <code>testRule</code> governs it, and it is layered
+<em>additively</em> on top of the principal's own rule, so a deputy can only
+narrow permissions, never grant ones the principal doesn't already have.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to create restricted views of a cell – e.g. read‑only, scoped
+authority, temporary access, or sandboxed simulations.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><code>testRule</code>: additional restrictions (layered on top of principal's).</li>
+<li><code>context</code>: the deputy's own mandate (authority, clearance, lease).</li>
+<li><code>ephemeralPolicy</code>: independent lifecycle for this handle.</li>
+<li><code>synapses</code>: independent observer registry for this handle.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The deputy's <code>testRule</code> is <em>added</em> to the principal's – you cannot
+bypass the principal's own rules.</li>
+<li>Deputies are equal to their principal: <code>deputy == principal</code> is <code>true</code>.</li>
+</ul>
+<h3 id="example-read-only-view">Example: read-only view</h3>
+<pre class="language-dart"><code class="language-dart">final readOnly = await cell.deputy(testRule: TestCell.readOnly);
+readOnly.value;        // works
+readOnly.apply(...);   // blocked — modifiable whitelist is empty for readOnly
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>context</code>: The deputy's <a href="../../cell/DeputyContext-class.html">DeputyContext</a> — its authority, role, and
+clearance. Defaults to <a href="../../cell/DeputyContext/system-constant.html">DeputyContext.system</a> (inherits the
+principal's identity, tagged as a delegate).</li>
+<li><code>testRule</code>: Additional <a href="../../cell/TestCell-class.html">TestCell</a> policy, layered on top of (not
+replacing) the principal's own rule. Defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>
+(no additional restriction beyond the principal's).</li>
+<li><code>ephemeralPolicy</code>: Optional TTL/event-count lifecycle for this
+specific handle, independent of the principal's own lifecycle.</li>
+<li><code>synapses</code>: The deputy's own downstream observer registry. Defaults
+to <a href="../../cell/Synapses/enabled-constant.html">Synapses.enabled</a> — a fresh, independent registry, not shared
+with the principal's.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a> resolving to a <a href="../../cell/Cell-class.html">Cell</a> sharing this instance's state under
+the specified restrictions.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Cell deputy({covariant TestObject? test, covariant MapObject? mapObject});</code></pre>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;Cell&gt; deputy({
+  covariant DeputyContext context = DeputyContext.system,
+  covariant TestCell testRule = TestCell.allowAll,
+  EphemeralPolicy? ephemeralPolicy,
+  Synapses synapses = Synapses.enabled,
+});</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -93,41 +136,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
     <li class="self-crumb">deputy abstract method</li>
 </ol>
 
-
     <h5>Cell class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

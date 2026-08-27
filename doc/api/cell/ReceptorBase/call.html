@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the ReceptorBase class, for the Dart programming language.">
+  <title>call method - ReceptorBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;ReceptorBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation"><a href="../../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The internal execution entry point for signal propagation and
+transformation.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This method is the primary driver of the receptor's operational logic.
+It is invoked automatically by the framework when a <a href="../../cell/Pulse-class.html">Pulse</a> arrives
+at the cell boundary. Manual invocation is recommended only for:</p>
+<ul>
+<li><strong>Testing</strong>: Verifying the integration of validation and transformation
+logic.</li>
+<li><strong>Custom Propagation</strong>: Building specialized reactive engines that
+orchestrate their own pulse timing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Proxy Scrutiny</strong>: Performs a security handshake if the incoming
+pulse is a defensive proxy (<a href="../../cell/Shell-class.html">Shell</a>).</li>
+<li><strong>Cycle Prevention</strong>: Verifies that the pulse hasn't already been
+processed by this cell to prevent infinite recursive loops.</li>
+<li><strong>Governance</strong>: If the cell is governed, it applies architectural
+policies and appends forensic trace information to the pulse.</li>
+<li><strong>Validation</strong>: Invokes the host cell's internal validation logic
+to ensure the pulse complies with all operational invariants.</li>
+<li><strong>Transformation Pipeline</strong>: Executes the sequential logic stages
+(sanitization, core logic, commitment) synchronously.</li>
+<li><strong>Broadcast</strong>: If successful, the resulting pulse is automatically
+propagated to all downstream synapses.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Safety Shield</strong>: The entire call stack is protected by a resilience
+boundary. Exceptions are caught and logged to the pulse's forensic
+trace, and the signal is safely terminated (<code>null</code>) to protect graph
+stability.</li>
+<li><strong>Synchronous Execution</strong>: The method executes synchronously and
+returns the result immediately. For asynchronous execution, use
+<a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a>.</li>
+<li><strong>Auditability</strong>: In governed mode, every execution step is recorded,
+providing a complete audit trail of how data flowed through the graph.</li>
+<li><strong>Short-circuiting</strong>: Signal propagation is aborted immediately if
+the cell is invalidated, validation fails, or a transformation
+stage returns <code>null</code>.</li>
+<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
+validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
+checks. This is the only async operation in the call path.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to process.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the signal was terminated.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;Pulse?&gt; call(covariant PulseBase pulse) {
+
+  if (pulse is Shell) {
+    return pulse.scrutinize(this, null);
+  }
+
+  if (!isActivated || !pulse._checker.add(cell)) return null;
+
+  FutureOr&lt;Pulse?&gt; proceed() {
+
+    if (isGoverned) {
+      if (cell.isInvalidated || pulse.isInvalidated) return null;
+
+      final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
+      if (ephemeralPolicy != null) {
+        ephemeralPolicy(pulse, cell: cell);
+        if (pulse.isInvalidated) return null;
+      }
+
+      if (pulse.isGoverned) {
+
+        if (pulse.isInvalidated) return null;
+
+        final pulseEphemeralPolicy = pulse.policy;
+        if (pulseEphemeralPolicy != null) {
+          pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
+          if (pulse.isInvalidated) return null;
+        }
+
+        final step = cell.context is DeputyContext
+            ? (cell.context as DeputyContext).role ?? cell.toString()
+            : cell.toString();
+
+        pulse = pulse.withStep(step) as PulseBase;
+      }
+
+    }
+
+    final result = _onPulseReceived(pulse);
+    if (result != null) {
+      _propagate(pulse, result: result);
+    }
+    return result;
+  }
+
+  final validation = cell.validate(pulse, host: cell);
+  if (validation is Future&lt;bool&gt;) {
+    return validation.then((isValid) =&gt; isValid ? proceed() : null);
+  } else if (!validation) {
+    return null;
+  }
+
+  return proceed();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+</ol>
+
+    <h5>ReceptorBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -16,41 +16,33 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
-    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Signal</span>, <span class="type-parameter">O extends Signal</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call abstract method</li>
   </ol>
   <div class="self-name">call</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,46 +54,74 @@
 
     <section class="multi-line-signature">
       
-
-<span class="returntype">dynamic</span>
-<span class="name ">call</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="call-param-cell"><span>required</span> <span>covariant</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span></li>
-<li><span class="parameter" id="call-param-signal"><span>required</span> <span>covariant</span> <span class="type-annotation">I</span> <span class="parameter-name">signal</span>, </span></li>
-<li><span class="parameter" id="call-param-notified"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">notified</span>, </span></li>
-</ol>})
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Processes a signal through the receptor pipeline.</p>
-<p>Execution flow:</p>
-<ol>
-<li>Validates signal against cell's <a href="../../cell/TestObject-class.html">TestObject</a></li>
-<li>Applies transformation if provided</li>
-<li>Propagates output to synapses</li>
-<li>Handles errors gracefully</li>
-</ol>
-<p>Parameters:</p>
+  <p>Orchestrates the formal transition of a signal from <strong>Perception</strong> to
+<strong>Reasoning</strong> by executing the transformation pipeline.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the central execution entry point for receptor logic. You rarely
+call this method directly in application code, as the framework invokes
+it automatically when a <a href="../../cell/Pulse-class.html">Pulse</a> arrives at the cell's boundary.</p>
+<p>Manual invocation is primarily used for:</p>
 <ul>
-<li><code>cell</code>: The processing cell (required)</li>
-<li><code>signal</code>: Input signal (required)</li>
-<li><code>notified</code>: Tracks propagation to prevent loops</li>
+<li><strong>Testing</strong>: Verifying a receptor's transformation or filtering logic
+in isolation.</li>
+<li><strong>Middleware</strong>: Manually triggering cell updates from specialized
+event sources.</li>
 </ul>
-<p><a href="../../cell/Sync-class.html">Sync</a> Receptor returns a <code>O?</code> the output signal or null if processing fails.
-<a href="../../cell/Async-class.html">Async</a> Receptor returns a <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future&lt;O?&gt;</a> for asynchronous processing.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Handshake</strong>: It performs an authorization handshake if the incoming
+pulse is a defensive proxy (shell).</li>
+<li><strong>Validation</strong>: It validates the pulse against the host cell's
+governance policies and invariants.</li>
+<li><strong>Pipeline Execution</strong>: It sequentially executes the internal stages
+(e.g., <code>preProcess</code> → <code>instruction</code> → <code>postProcess</code>).</li>
+<li><strong>Result</strong>: It returns the final transformed <a href="../../cell/Pulse-class.html">Pulse</a> to be committed
+to state, or <code>null</code> if the signal was dropped/filtered.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Operational Perimeter</strong>: The execution is bound to the host cell's
+context. Accessing state or context during the call is guaranteed to
+be consistent with the cell's current operational phase.</li>
+<li><strong>Resilience</strong>: The entire execution is shielded. Exceptions are
+caught, logged to the pulse's forensic metadata, and the signal is
+terminated (<code>null</code>) to protect graph stability.</li>
+<li><strong>Synchronous Execution</strong>: The method executes synchronously and
+returns the result immediately. For asynchronous execution, use
+<a href="../../cell/Receptor/async.html">Receptor.async</a>.</li>
+<li><strong>Short-circuiting</strong>: If the host cell is invalidated or the signal
+fails a security check, the method returns <code>null</code> immediately without
+running the transformation logic.</li>
+<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
+validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
+checks. This is the only async operation in the call path.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to process.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the signal was terminated.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">call({required covariant C cell, required covariant I signal, Set&lt;Cell&gt;? notified});</code></pre>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;Pulse?&gt; call(Pulse pulse);</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -109,41 +129,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
-    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Signal</span>, <span class="type-parameter">O extends Signal</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call abstract method</li>
 </ol>
-
 
     <h5>Receptor class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

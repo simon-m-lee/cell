@@ -16,20 +16,16 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
     <li><a href="../../cell/Deputy-mixin.html">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">operator == method</li>
   </ol>
@@ -37,20 +33,16 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -67,7 +59,6 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
 <span class="name ">operator ==</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
@@ -77,33 +68,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>The equality operator.</p>
-<p>The default behavior for all <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>s is to return true if and
-only if this object and <code>other</code> are the same object.</p>
-<p>Override this method to specify a different equality relation on
-a class. The overriding method must still be an equivalence relation.
-That is, it must be:</p>
-<ul>
-<li>
-<p>Total: It must return a boolean for all arguments. It should never throw.</p>
-</li>
-<li>
-<p>Reflexive: For all objects <code>o</code>, <code>o == o</code> must be true.</p>
-</li>
-<li>
-<p>Symmetric: For all objects <code>o1</code> and <code>o2</code>, <code>o1 == o2</code> and <code>o2 == o1</code> must
-either both be true, or both be false.</p>
-</li>
-<li>
-<p>Transitive: For all objects <code>o1</code>, <code>o2</code>, and <code>o3</code>, if <code>o1 == o2</code> and
-<code>o2 == o3</code> are true, then <code>o1 == o3</code> must be true.</p>
-</li>
-</ul>
-<p>The method should also be consistent over time,
-so whether two objects are equal should only change
-if at least one of the objects was modified.</p>
-<p>If a subclass overrides the equality operator, it should override
-the <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a> method as well to maintain consistency.</p>
+  <p>Determines equality based on the underlying source of truth.</p>
+<p>A <a href="../../cell/Deputy-mixin.html">Deputy</a> is considered equal to another <a href="../../cell/Deputy-mixin.html">Deputy</a> or a <a href="../../cell/Cell-class.html">Cell</a> if they
+both share the same <code>bind</code> identity.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is automatic – you don't need to call it. It ensures that deputies
+and principals are interchangeable in collections and comparisons.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Two deputies are equal if they point to the same underlying cell. A deputy
+is equal to its principal. This is enforced by comparing the <code>bind</code> identity.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final cell = ValueCell&lt;int&gt;(value: 42);
+final deputy = await cell.deputy();
+print(cell == deputy); // true
+final set = {cell, deputy}; // Only one entry (identity-based)
+</code></pre>
 </section>
 
 
@@ -116,10 +95,12 @@ bool operator ==(Object other) {
     return true;
   }
   if (other is Deputy) {
-    return identical(_properties.bind, other._properties.bind);
+    &#47;&#47; Two deputies are equal if they represent the same underlying cell
+    return identical(_nucleus.bind, other._nucleus.bind);
   }
   if (other is Cell) {
-    return identical(other._properties.bind, other);
+    &#47;&#47; A deputy is equal to a cell if it is a proxy for that specific cell
+    return identical(other._nucleus.bind, other);
   }
   return false;
 }</code></pre>
@@ -127,7 +108,6 @@ bool operator ==(Object other) {
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -135,41 +115,31 @@ bool operator ==(Object other) {
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
     <li><a href="../../cell/Deputy-mixin.html">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">operator == method</li>
 </ol>
 
-
     <h5>Deputy mixin</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

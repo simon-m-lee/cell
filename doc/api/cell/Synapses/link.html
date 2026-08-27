@@ -16,41 +16,33 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
-    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">S extends Signal</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">link abstract method</li>
   </ol>
   <div class="self-name">link</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,10 +54,9 @@
 
     <section class="multi-line-signature">
       
-
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-link"><span class="type-annotation">L</span> <span class="parameter-name">link</span>, {</span></li>
-<li><span class="parameter" id="link-param-host"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">host</span>, </span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-cell"><span class="type-annotation">L</span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="link-param-downstreamCell"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">downstreamCell</span>, </span></li>
 </ol>})
 
       
@@ -73,29 +64,49 @@
     </section>
     
 <section class="desc markdown">
-  <p>Establishes a new connection from host to target cell.</p>
-<p>Parameters:</p>
+  <p>Establishes a formal reactive connection (link) between the host <code>cell</code>
+and a <code>downstreamCell</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to dynamically add an observer to a cell at runtime – e.g.,
+when a UI component mounts.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The method validates the link via the cell's <a href="../../cell/TestCell-class.html">TestCell</a>, then adds the
+downstream cell to the registry. If the cell is already linked, it's a
+no‑op. Returns <code>true</code> on success, <code>false</code> if rejected.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><a href="../../cell/Synapses/link.html">link</a>: The cell to link to</li>
-<li><code>host</code>: The cell that owns these synapses (used for validation)</li>
+<li>The link is governed by the host cell's validation rules – you can't
+link to a cell that the host doesn't allow.</li>
+<li>Deputies and their principals are considered equivalent for linking.</li>
 </ul>
-<p>Returns true if:</p>
-<ol>
-<li>Host's test rules pass (<a href="../../cell/TestObject/link.html">TestObject.link</a>)</li>
-<li>Connection didn't already exist</li>
-</ol>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final linked = await synapses.link(source, downstreamCell: observer);
+if (linked) { /* observer now receives updates */ }
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: The host cell that owns these synapses (the source of the
+signals).</li>
+<li><code>downstreamCell</code>: The cell that should receive signals from the host
+(the target observer).</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<ul>
+<li><code>true</code> if the link was successfully established or already existed.</li>
+<li><code>false</code> if the connection was rejected by security rules or if
+the synapses are disabled.</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool link(L link, {required Cell host});</code></pre>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;bool&gt; link(L cell, {required Cell downstreamCell});</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -103,41 +114,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
-    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">S extends Signal</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">link abstract method</li>
 </ol>
-
 
     <h5>Synapses class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

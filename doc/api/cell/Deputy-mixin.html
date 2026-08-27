@@ -16,40 +16,32 @@
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
   <link rel="icon" href="../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
     <li class="self-crumb">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span> mixin</li>
   </ol>
   <div class="self-name">Deputy</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,13 +54,31 @@
 
     
 <section class="desc markdown">
-  <p>A mixin that provides the ability to create <a href="../cell/Deputy-mixin.html">Deputy</a> for a cell.</p>
+  <p>The mixin implementing proxy behavior for <a href="../cell/Cell/deputy.html">Cell.deputy</a> — you don't
+use this directly.</p>
+<p>This exists purely so that a deputy (a proxy sharing its principal's
+state under a different <a href="../cell/TestCell-class.html">TestCell</a>/<a href="../cell/Context-class.html">Context</a>) is architecturally
+transparent: it's equal to its principal (<code>==</code> compares by underlying
+identity, not object reference), shares its <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, and delegates
+<a href="../cell/Deputy/unmodifiable.html">unmodifiable</a> correctly. All of that machinery lives here so
+individual <code>Cell.*</code> implementations don't have to reimplement it.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't. Use <a href="../cell/Cell/deputy.html">Cell.deputy</a> – that's the entire interface you need.
+It returns a plain <a href="../cell/Cell-class.html">Cell</a> (or <a href="../cell/OpenCell-class.html">OpenCell</a>, if called on one); nothing
+about <code>Deputy</code> itself is part of your day-to-day usage.</p>
+<h3 id="the-one-behavior-worth-knowing">The one behavior worth knowing</h3>
+<p>A deputy's <a href="../cell/TestCell-class.html">TestCell</a> is always <strong>additive</strong> to its principal's – see
+<a href="../cell/Cell/deputy.html">Cell.deputy</a>'s own docs for what that means in practice. That
+guarantee is enforced by this mixin, not by convention, so it holds
+no matter how many layers of <code>deputy()</code> you stack.</p>
+<p>See also: <a href="../cell/Cell/deputy.html">Cell.deputy</a> (the real entry point), <a href="../cell/Cell/unmodifiable.html">Cell.unmodifiable</a>
+(a specific, common deputy — read-only).</p>
 </section>
 
 
       <section>
         <dl class="dl-horizontal">
-            <dt>Superclass Constraints</dt>
+            <dt>Superclass constraints</dt>
             <dd><ul class="comma-separated dark mixin-relationships">
                 <li><a href="../cell/Cell-class.html">Cell</a></li>
             </ul></dd>
@@ -77,16 +87,7 @@
 
           
 
-            <dt>Mixin Applications</dt>
-            <dd>
-              <ul class="comma-separated mixin-relationships">
-                <li><a href="../cell/CellDeputy-class.html">CellDeputy</a></li>
-                <li><a href="../cell_collection_library/CollectiveListDeputy-class.html">CollectiveListDeputy</a></li>
-                <li><a href="../cell_collection_library/CollectiveQueueDeputy-class.html">CollectiveQueueDeputy</a></li>
-                <li><a href="../cell_collection_library/CollectiveSetDeputy-class.html">CollectiveSetDeputy</a></li>
-                <li><a href="../cell_collection_library/CollectiveValueDeputy-class.html">CollectiveValueDeputy</a></li>
-              </ul>
-            </dd>
+          
 
           
         </dl>
@@ -99,61 +100,104 @@
     <h2>Properties</h2>
     <dl class="properties">
         <dt id="async" class="property inherited">
-  <span class="name"><a href="../cell/Cell/async.html">async</a></span>
-  <span class="signature">&#8594; <a href="../cell/CellAsync-class.html">CellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  <span class="name"><a href="../cell/Deputy/async.html">async</a></span>
+  <span class="signature">&#8594; <a href="../cell/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
   
 
 </dt>
 <dd class="inherited">
-  Creates an async variant for <a href="../cell/Cell/modifiable.html">modifiable</a> operations
+  Provides a high-level, asynchronous interface for interacting with this
+<a href="../cell/Cell-class.html">Cell</a> node.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
-        <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+        <dt id="context" class="property inherited">
+  <span class="name"><a href="../cell/Deputy/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell/Context-class.html">Context</a></span>
   
 
 </dt>
 <dd class="inherited">
-  The hash code for this object.
+  The operational <a href="../cell/Context-class.html">Context</a> defining the security tier, execution priority,
+and administrative authority of this <a href="../cell/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../cell/Deputy/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Returns the hash code of the underlying bound cell to maintain
+consistency with the overridden <a href="../cell/Deputy/operator_equals.html">==</a> operator.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property inherited">
+  <span class="name"><a href="../cell/Deputy/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
+that oversees its operational boundaries, security constraints, and administrative metadata.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property inherited">
+  <span class="name"><a href="../cell/Deputy/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell/Cell-class.html">Cell</a> has initiated its <strong>Automatic Termination</strong>
+sequence and is currently in the process of being neutralized.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isTerminal" class="property inherited">
+  <span class="name"><a href="../cell/Deputy/isTerminal.html">isTerminal</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A boolean indicator identifying whether this <a href="../cell/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
+within the reactive graph.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="modifiable" class="property inherited">
-  <span class="name"><a href="../cell/Cell/modifiable.html">modifiable</a></span>
+  <span class="name"><a href="../cell/Deputy/modifiable.html">modifiable</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
   
 
 </dt>
 <dd class="inherited">
-  Returns an iterable containing modifiable functions.
+  Defines the exhaustive whitelist of functions and commands that are
+permitted to be executed on this node via the dynamic <a href="../cell/Cell/apply.html">apply</a> method.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="runtimeType" class="property inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="name"><a href="../cell/Deputy/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
   
 
 </dt>
 <dd class="inherited">
   A representation of the runtime type of the object.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="test" class="property inherited">
-  <span class="name"><a href="../cell/Cell/test.html">test</a></span>
-  <span class="signature">&#8594; <a href="../cell/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd class="inherited">
-  Gets the test object associated with the cell.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -165,13 +209,27 @@
 
 </dt>
 <dd>
-  Creates an unmodifiable view of this cell.
+  Resolves the unmodifiable (read-only) view of the underlying cell.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="validate" class="property inherited">
+  <span class="name"><a href="../cell/Deputy/validate.html">validate</a></span>
+  <span class="signature">&#8594; <a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The primary structural gatekeeper and validation rule governing this cell's
+integrity and security.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
     </dl>
   </section>
+
     
   <section
       class="summary offset-anchor"
@@ -179,33 +237,34 @@
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell/Deputy/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Applies a function with controlled validation.
+  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="deputy" class="callable">
-  <span class="name"><a href="../cell/Deputy/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-test"><span>covariant</span> <span class="type-annotation"><a href="../cell/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">test</span>, </span><span class="parameter" id="deputy-param-mapObject"><span>covariant</span> <span class="type-annotation"><a href="../cell/MapObject-class.html">MapObject</a>?</span> <span class="parameter-name">mapObject</span></span>})
-    <span class="returntype parameter">&#8594; C</span>
+  <span class="name"><a href="../cell/Deputy/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Creates an <a href="../cell/Deputy-mixin.html">Deputy</a> cell from an existing <a href="../cell/Cell-class.html">Cell</a> instance with reduced permissions.
+  Synthesizes a specialized <strong>Mandate Handle</strong> (Deputy) of this cell, providing
+a functionally distinct and scoped interface to the underlying state.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
         <dt id="noSuchMethod" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+  <span class="name"><a href="../cell/Deputy/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -218,7 +277,7 @@
 </dd>
 
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+  <span class="name"><a href="../cell/Deputy/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
@@ -246,7 +305,7 @@
 
 </dt>
 <dd>
-  The equality operator.
+  Determines equality based on the underlying source of truth.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -258,7 +317,6 @@
     
 
 </div> <!-- /.main-content -->
-
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -266,40 +324,30 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell/cell-library.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
     <li class="self-crumb">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span> mixin</li>
 </ol>
-
 
   <h5>cell library</h5>
   <div id="dartdoc-sidebar-left-content"></div>
 </div>
-
 <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../static-assets/highlight.pack.js?v1"></script>
 <script src="../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

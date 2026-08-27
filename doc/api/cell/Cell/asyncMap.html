@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the asyncMap method from the Cell class, for the Dart programming language.">
+  <title>asyncMap method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">asyncMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+<span class="name ">asyncMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), {</span></li>
+<li><span class="parameter" id="asyncMap-param-concurrency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">concurrency</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="asyncMap-param-latestOnly"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">latestOnly</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="asyncMap-param-exhaust"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exhaust</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Asynchronous Data Transformer</strong>—a specialized node that
+runs background tasks for every emission from an upstream source.</p>
+<p>In the framework's reactive network, the <a href="../../cell/Cell/asyncMap.html">asyncMap</a> factory acts as an
+<strong>Active Bridge</strong>. It allows you to perform long-running operations—like
+network requests, database queries, or heavy computations—without blocking
+the main reactive flow.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Remote Data Fetching</strong>: Fetching JSON from an API whenever a selection
+changes.</li>
+<li><strong>Async Validation</strong>: Checking a username's availability against a
+server before proceeding.</li>
+<li><strong>Heavy Computation</strong>: Running complex logic that should stay off the
+primary execution thread.</li>
+<li><strong>Sequential Enrichment</strong>: Fetching "Step 2" data only after "Step 1"
+has successfully emitted.</li>
+<li><strong>Data Enrichment</strong>: Turn a simple ID or command into a complex
+object that requires a <code>Future</code> to fetch (e.g., turning a <code>userId</code> into
+a <code>UserProfile</code>).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The cell monitors the <code>source</code> for new data pulses.</li>
+<li>Every incoming payload is passed to the <code>mapper</code> function, which
+returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
+<li><strong>Concurrency Control</strong>: Based on your settings, the cell manages how
+many futures run at once (see Concurrency below).</li>
+<li>When a future completes, its result is wrapped in an <a href="../../cell/EvolvedPulse-class.html">EvolvedPulse</a>
+and broadcast to observers.</li>
+</ol>
+<h3 id="concurrency-modes">Concurrency Modes</h3>
+<ul>
+<li><strong>Parallel (Default)</strong>: Set <code>concurrency</code> to <code>0</code>. All futures run as
+soon as they are triggered. Results are emitted as soon as they finish.</li>
+<li><strong>Sequential</strong>: Set <code>concurrency</code> to <code>1</code>. The cell waits for the
+current future to finish before starting the next one.</li>
+<li><strong>Throttled</strong>: Set <code>concurrency</code> to a specific number (e.g., <code>3</code>) to
+limit how many background tasks run simultaneously.</li>
+<li><strong>Switching</strong>: Set <code>latestOnly</code> to <code>true</code>. If a new signal arrives
+while a future is still running, the old future is ignored and only
+ the most recent one will emit.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Causal Integrity</strong>: Even though the result arrives later, the
+<a href="../../cell/EvolvedPulse-class.html">EvolvedPulse</a> tracks the original stimulus, preserving the forensic
+trail across the asynchronous boundary.</li>
+<li><strong>Error Handling</strong>: If the <code>mapper</code> throws an error or the future fails,
+the signal is terminated to prevent corrupted data from entering the
+reactive network.</li>
+<li><strong>Order Preservation</strong>: In parallel mode (<code>concurrency</code> <code>0</code>), results
+might arrive out of order if the second task finishes faster than the
+first. Use <code>concurrency</code> <code>1</code> if order is critical.</li>
+</ul>
+<h3 id="choosing-between-transformations-asyncmap-vs-switchmap">Choosing Between Transformations: asyncMap vs. switchMap</h3>
+<p>While both factories handle asynchronous logic, they serve different
+purposes in the reactive graph:</p>
+<ul>
+<li>
+<p><strong><a href="../../cell/Cell/asyncMap.html">Cell.asyncMap</a></strong> is for <strong>Background Tasks</strong>. The <code>mapper</code> returns
+a <code>Future</code>. Use this when you want to take an input and perform a
+discrete, long-running action (like a calculation or a specific
+network request) that results in a single value.</p>
+</li>
+<li>
+<p><strong><a href="../../cell/Cell/switchMap.html">Cell.switchMap</a></strong> is for <strong>Dynamic Routing</strong>. The <code>mapper</code> returns
+a <code>Cell</code>. Use this when you want to switch your entire subscription
+to a new "live" stream of data based on a selection.</p>
+</li>
+</ul>
+<p><strong>Summary</strong>: Use <a href="../../cell/Cell/asyncMap.html">asyncMap</a> for a background job; use <a href="../../cell/Cell/switchMap.html">switchMap</a> to
+pick a new live data source.</p>
+<h3 id="example-profile-loader">Example: Profile Loader</h3>
+<pre class="language-dart"><code class="language-dart">final userId = Cell.ingress&lt;int&gt;();
+
+final profile = Cell.asyncMap&lt;int, UserProfile&gt;(
+  userId.cell,
+  (id) =&gt; api.fetchProfile(id),
+  latestOnly: true, // Only care about the user most recently clicked
+);
+</code></pre>
+<h3 id="example-exhaust">Example (exhaust)</h3>
+<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;void&gt;();
+final saves = Cell.asyncMap&lt;void, String&gt;(
+  clicks.cell,
+  (_) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return 'saved';
+  },
+  exhaust: true,
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Stimulus Source.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>The Async Logic.</strong> A function that returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> for
+each input.</li>
+<li><code>concurrency</code>: <strong>Flow Limit.</strong> How many futures to run at once.
+<code>0</code> = unlimited, <code>1</code> = one at a time.</li>
+<li><code>latestOnly</code>: <strong>Discard Policy.</strong> If <code>true</code>, only the result of the
+most recent input is emitted.</li>
+<li><code>exhaust</code> – exhaustMap-style (ignore upstream while busy)</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Cell-class.html">Cell</a> instance representing an <strong>Asynchronous Transformation</strong>. It
+emits the resolved results of the background tasks.</p>
+<h3 id="example">Example:</h3>
+<p>See <code>example/async_map_demo.dart</code> for a complete walkthrough of concurrent background tasks.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/Cell/switchMap.html">Cell.switchMap</a>: To switch to a different source cell entirely.</li>
+<li><a href="../../cell/Cell/fromFuture.html">Cell.fromFuture</a>: To bridge a single, one-time async result.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Cell asyncMap&lt;S, T&gt;(
+  Cell source,
+  Future&lt;T&gt; Function(S value) mapper, {
+  int concurrency = 0,
+  bool latestOnly = false,
+  bool exhaust = false,
+}) =&gt;
+    _asyncMap&lt;S, T&gt;(
+      source,
+      mapper,
+      concurrency: concurrency,
+      latestOnly: latestOnly,
+      exhaust: exhaust,
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

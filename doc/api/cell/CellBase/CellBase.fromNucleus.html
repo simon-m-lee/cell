@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CellBase.fromNucleus constructor from Class CellBase from the cell library, for the Dart programming language.">
+  <title>CellBase.fromNucleus constructor - CellBase - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/CellBase-class.html">CellBase</a></li>
+    <li class="self-crumb">CellBase.fromNucleus constructor</li>
+  </ol>
+  <div class="self-name">CellBase.fromNucleus</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;CellBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">CellBase.fromNucleus</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">CellBase.fromNucleus</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../../cell/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">nucleus</span></span></li>
+</ol>)
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes a <a href="../../cell/CellBase-class.html">CellBase</a> instance using a pre-configured <a href="../../cell/Nucleus-class.html">Nucleus</a>
+blueprint, formally integrating it into the reactive data-flow graph.</p>
+<p>This named constructor is the primary <strong>Hydration Engine</strong> for the
+framework. While standard constructors are used for fresh instances,
+<code>fromNucleus</code> is utilized for advanced architectural scenarios such
+as state restoration, prototype-based cloning (via <code>evolve</code>), and
+the instantiation of specialized <a href="../../cell/Deputy-mixin.html">Deputy</a> proxies.</p>
+<h3 id="1-purpose-transition-from-template-to-node">1. Purpose: Transition from Template to Node</h3>
+<p>In the framework's <strong>Flyweight Architecture</strong>, a <a href="../../cell/Nucleus-class.html">Nucleus</a> often exists
+as a stateless template or "DNA." This constructor performs the
+critical transition of "Re-animating" that template into a live,
+stateful execution node:</p>
+<ol>
+<li><strong>Flyweight Isolation</strong>: It inspects the <code>nucleus</code>. If the
+provided nucleus is already <strong>activated</strong> (bound to another cell),
+the constructor automatically generates a <strong>Decoupled Copy</strong>.
+This prevents "State Bleeding" where two distinct cells
+accidentally share the same synchronization lock or observer list.</li>
+<li><strong>Lifecycle Activation</strong>: It invokes the nucleus's internal
+activation sequence, notifying the underlying property record
+that it now governs this specific cell instance.</li>
+</ol>
+<h3 id="2-automated-dag-wiring-self-registration">2. Automated DAG Wiring (Self-Registration)</h3>
+<p>Upon invocation, this constructor performs critical <strong>Self-Wiring</strong>
+logic to maintain the integrity of the <strong>Directed Acyclic Graph (DAG)</strong>:</p>
+<ul>
+<li><strong>Upstream Discovery</strong>: It queries the nucleus for an upstream
+<code>bind</code> target (the "Principal").</li>
+<li><strong>Reactive Linking</strong>: If a principal is found, the constructor
+automatically registers this new cell as a downstream observer
+within the principal's <code>synapses</code>. This ensures that a new
+deputy or child node is immediately synchronized with its source
+upon birth.</li>
+</ul>
+<h3 id="3-conactivity--resilience">3. Conactivity &amp; Resilience</h3>
+<p>The initialization process is designed to be <strong>Conactive</strong>. The
+auto-wiring logic is wrapped in a guarded block to ensure that if
+a complex relational binding fails (e.g., due to a temporary
+synchronization lock conflict during a high-frequency reactive wave),
+the system continues to initialize the cell to maintain graph
+availability.</p>
+<h3 id="4-usage-in-custom-factories">4. Usage in Custom Factories</h3>
+<p>This constructor is the intended target for high-level factory methods
+(like <code>OpenCell.perform</code> or <code>ValueCell.create</code>) that need to
+instantiate specialized cells from shared logic templates.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>nucleus</code>: The <a href="../../cell/Nucleus-class.html">Nucleus</a> record defining the behavioral logic,
+synchronization lock, execution <a href="../../cell/CellBase/context.html">context</a>, and relational links
+for this cell.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">CellBase.fromNucleus(Nucleus nucleus) : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
+  try {
+    _nucleus.activate(this);
+    final bind = nucleus.bind;
+    if (bind != null) {
+      final synapses = bind._nucleus.synapses;
+      synapses.link(bind, downstreamCell: this);
+    }
+  } catch(_) {}
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/CellBase-class.html">CellBase</a></li>
+    <li class="self-crumb">CellBase.fromNucleus constructor</li>
+</ol>
+
+    <h5>CellBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

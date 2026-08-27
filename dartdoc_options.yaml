@@ -1,0 +1,85 @@
+# Package root: packages/cell/dartdoc_options.yaml
+# Paths are POSIX and relative to this file.
+#
+# After editing, regenerate:
+#   dart doc .
+# Then open doc/api/index.html (Topics + Libraries).
+#
+# Category keys MUST match {@category ...} text in Dart doc comments.
+# Guide filenames use HowTo-*.md (hyphens), as in the current package.
+
+dartdoc:
+  categories:
+    # ── Essential / basic ──────────────────────────────────────────
+    "Getting Started":
+      markdown: guide/HowTo-Start.md
+      displayName: Getting Started
+    "Core 16 Operators":
+      markdown: guide/HowTo-16_Essential_Operators.md
+      displayName: Core 16 Operators
+    "Pulse":
+      markdown: guide/HowTo-Pulse.md
+      displayName: Pulse
+    "Signals & Synapses":
+      markdown: guide/HowTo-Synapses.md
+      displayName: Signals & Synapses
+    "Testing & Validation":
+      markdown: guide/HowTo-TestCell.md
+      displayName: Testing & Validation
+    "Instructions":
+      markdown: guide/HowTo-Instruction.md
+      displayName: Instructions
+    "Pipelines & Internal":
+      markdown: guide/HowTo-Receptor.md
+      displayName: Pipelines & Receptors
+
+    # ── Advanced (governance, isolation, internals) ────────────────
+    "Advanced":
+      markdown: guide/HowTo-Advanced.md
+      displayName: Advanced
+    "Pulse Context":
+      markdown: guide/HowTo-PulseContext.md
+      displayName: "Advanced · Pulse Context"
+    "Pulse Ephemeral Policy":
+      markdown: guide/HowTo-PulseEphemeralPolicy.md
+      displayName: "Advanced · Pulse Ephemeral Policy"
+    "Context":
+      markdown: guide/HowTo-Context.md
+      displayName: "Advanced · Context"
+    "Deputy Context":
+      markdown: guide/HowTo-DeputyContext.md
+      displayName: "Advanced · Deputy Context"
+    "Nucleus":
+      markdown: guide/HowTo-Nucleus.md
+      displayName: "Advanced · Nucleus"
+    "Propagation Policy":
+      markdown: guide/HowTo-PropagationPolicy.md
+      displayName: "Advanced · Propagation Policy"
+    "Ephemeral Policy":
+      markdown: guide/HowTo-EphemeralPolicy.md
+      displayName: "Advanced · Ephemeral Policy"
+    "Transactions":
+      markdown: guide/HowTo-Transaction.md
+      displayName: "Advanced · Transactions"
+    "txApply":
+      markdown: guide/HowTo-TransactionOnApply.md
+      displayName: "Advanced · txApply"
+
+  categoryOrder:
+    - "Getting Started"
+    - "Core 16 Operators"
+    - "Pulse"
+    - "Signals & Synapses"
+    - "Testing & Validation"
+    - "Instructions"
+    - "Pipelines & Internal"
+    - "Advanced"
+    - "Pulse Context"
+    - "Pulse Ephemeral Policy"
+    - "Context"
+    - "Deputy Context"
+    - "Nucleus"
+    - "Propagation Policy"
+    - "Ephemeral Policy"
+    - "Transactions"
+    - "txApply"

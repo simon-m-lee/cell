@@ -1,171 +1,128 @@
-// Copyright (c) 2025, authors: Lee Man Hoi Simon. Please see the AUTHORS file
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
-// MIT license that can be found in the LICENSE file.
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-/// `cell:core` is a reactive programming framework centered around the [Cell] class and its extensions,
-/// particularly the [Collective] family of classes that implement reactive collections
-/// [CollectiveSet], [CollectiveList], [CollectiveQueue] and [CollectiveValue].
-/// This framework provides a comprehensive reactive programming solution for Dart, with
-/// particular strength in managing complex state and data flow in applications.
+/// Cell — reactive state for Dart.
 ///
-/// ## Features
+/// A **cell** holds a value. A **pulse** is the immutable message that moves a
+/// change. Operators (`Cell.state`, `Cell.observe`, …) wire cells together.
 ///
-/// 1. **Reactive Programming Model**: Automatic propagation of changes through a network of cells
+/// [Receptor], [TestCell], [Context], and [Synapses] are optional. Defaults are
+/// pass-through. Nothing is authorized or redacted unless you pass a rule.
 ///
-/// 2. **Validation System**: Configurable rules for what operations are allowed
+/// Alpha. Operator lists and guide names have moved; treat this comment as the
+/// learning order, not a stability guarantee.
 ///
-/// 3. **Flexible Signal Processing**: Customizable signal transformation and propagation
+/// ## Learning order
 ///
-/// 4. **Collection Support**: Reactive versions of common collection types
+/// Get data in → hold state → react → shape streams → go async → combine →
+/// isolate writes.
 ///
-/// 5. **Modifiable/Unmodifiable Views**: Both mutable and immutable variants of all containers
+/// | # | Factory | Use when |
+/// |---|---------|----------|
+/// | 1 | [Cell.state] | Persistent mutable state |
+/// | 2 | [Cell.ingress] | Manual `emit` / `ingest` |
+/// | 3 | [Cell.observe] | Side effects; `start` / `stop` |
+/// | 4 | [Cell.derive] | Projection of one source |
+/// | 5 | [Cell.debounce] | Emit after silence |
+/// | 6 | [Cell.merge] | Fan-in |
+/// | 7 | [Cell.distinct] | Skip equal consecutive values |
+/// | 8 | [Cell.throttle] | Rate limit |
+/// | 9 | [Cell.synthesis] | Aggregate several sources |
+/// | 10 | [Cell.asyncMap] | Async map (`concurrency`, `latestOnly`) |
+/// | 11 | [Cell.hub] | Route by pulse type |
+/// | 12 | [Cell.switchMap] | Follow the latest inner cell |
+/// | 13 | [Cell.fromFuture] / [Cell.fromStream] | Bridge `dart:async` |
+/// | 14 | [Cell.sanitized] | Redact before egress |
+/// | 15 | [Cell.open] | Manual topology |
+/// | 16 | [Cell.transaction] | Multi-cell buffered writes |
+/// | 17 | [Cell.txApply] | Staged `apply` + compensation |
 ///
-/// 6. **Asynchronous Support**: Async interfaces for all operations
+/// Each works with zero knowledge of [Receptor], [TestCell], [Context], or
+/// [Synapses] — all optional, all defaulted. They represent the
+/// **Standard Entry Point**, allowing you to build complex reactive systems
+/// by connecting simple building blocks. While you focus on your logic, the
+/// framework automatically manages the input (Ingress), logic (Transformation),
+/// and notifications (Egress), handling all security checks and verification
+/// steps in the background.
 ///
+/// 1–4 are enough for a first app. 16–17 are the unusual part: commit-time
+/// locks, isolation, savepoints, compensation. See the Advanced topic in
+/// generated docs.
 ///
-/// ## Core Components and Their Relationships
+/// ## Transactions
 ///
-/// 1. [Cell] - The Fundamental Reactive Unit
+/// [Cell.transaction] buffers `update`/`read` and applies them together.
+/// Locks are taken at **commit**, not for the whole `begin`…`commit` window.
 ///
-///    `Purpose`: Acts as the basic building block of reactivity
+/// [Cell.txApply] stages `cell.apply(fn, tx: tx, compensate: undo)`. It is not
+/// a second syntax for assigning `value`.
 ///
-///    `Key Relationships`:
-///    - Contains Properties that define its behavior
-///    - Uses Receptor for signal processing
-///    - Manages Synapses for communication with other cells
-///    - Can be wrapped by Deputy for delegation
-///    - Uses TestObject/TestRule for validation
+/// ## Governance (opt-in)
 ///
-/// 2. [Receptor] - Signal Processing
+/// [Context], [DeputyContext], [PulseContext], [EphemeralPolicy], and
+/// [PulseEphemeralPolicy] record who / why / how and can enforce TTL or
+/// clearance **if** a [TestCell] (or deputy) actually denies the operation.
 ///
-///    `Purpose`: Handles signal transformation and propagation
+/// [Context.describe] stores a description. It is not a legal basis, a
+/// retention schedule, or an audit log.
 ///
-///    Key Relationships:
-///    - Attached to a Cell via Properties
-///    - Processes incoming Signal objects
-///    - Can trigger Synapses to propagate signals
-///    - Has both synchronous (_Receptor) and asynchronous (ReceptorAsync) implementations
+/// Guides live in `guide/` (`HowTo-Start.md`, `HowTo-Transaction.md`, …).
 ///
-/// 3. [Synapses] - Inter-Cell Communication
-///
-///    `Purpose`: Manages connections between cells
-///
-///    `Key Relationships`:
-///    - Maintained in Properties
-///    - Used by Cell to propagate signals to linked cells
-///    - Can be enabled or disabled
-///    - Has implementations for sync (_Synapses) and no-op (_SynapsesNever) behavior
-///
-/// 4. [Properties] - Cell Configuration
-///
-///    `Purpose`: Contains all configurable aspects of a cell
-///
-///    `Key Relationships`:
-///    - Owned by Cell
-///    - Contains Receptor, Synapses, and TestObject
-///    - Manages cell binding relationships
-///    - Can be extended (e.g., CollectiveProperties for collections)
-///
-/// 5. [TestRule]/[TestObject] - Validation System
-///
-///    `Purpose`: Provides validation rules for cell operations
-///
-///    `Key Relationships`:
-///    - Stored in Properties
-///    - Used by Cell to validate signals and actions
-///    - Can be combined using operator +
-///    - Specialized versions exist (e.g., TestCollective for collections)
-///
-/// 6. [Signal] - Data Carrier
-///
-///    `Purpose`: Carries data between cells
-///
-///    `Key Relationships`:
-///    - Processed by Receptor
-///    - Propagated through Synapses
-///    - Validated by TestObject
-///    - Specialized versions exist (e.g., Post for collections)
-///
-/// 7. [Deputy] - Delegation Pattern
-///
-///    `Purpose`: Wraps cells to modify behavior
-///
-///    `Key Relationships`:
-///    - Implements same interface as wrapped Cell
-///    - Delegates to original cell while adding functionality
-///    - Can modify TestObject behavior
-///    - Used via deputy() factory method
-///
-/// ## Key Architectural Patterns
-///
-/// **Reactive Flow**:
-/// - Signals enter through [Receptor]
-/// - [TestObject] validates the signal
-/// - If valid, processed by [Receptor].`transform`
-/// - Output signal propagated via [Synapses]
-///
-/// **Decorator Pattern**:
-/// - [Deputy] wraps cells to modify behavior
-/// - [CellAsync] adds asynchronous capabilities
-///
-/// **Composite Pattern**:
-/// - [TestObject] can contain multiple [TestRule] instances
-/// - [Collective] types manage collections of cells
-///
-/// **Strategy Pattern**:
-/// - Different [Receptor] implementations handle signal processing
-/// - [Synapses] implementations vary propagation behavior
-///
-/// ## Detailed Component Interactions
-///
-/// **Signal Processing Flow**:
-/// - A [Signal] arrives at a [Cell]
-/// - The [Cell]'s [Properties].`receptor` processes it
-/// - The [Receptor] checks with [TestObject] for [validation]
-/// - If valid, applies transformation (if any)
-/// - Resulting signal is sent through [Synapses] to linked cells
-///
-/// **Cell Initialization**:
-/// - [Cell] created with or without [Properties]
-/// - If no Properties, defaults are used:
-///   - [Receptor.unchanged]
-///   - [Synapses.enabled]
-///   - [TestObject.passed]
-/// - If binding to another cell, synapses are linked
-///
-/// **[Deputy] Functionality**:
-/// - Wraps an existing Cell
-/// - Can modify:
-///   - Test behavior by combining with new [TestObject]
-///   - Mapping behavior via MapObject
-/// - Maintains reference to original cell
-///
-/// **Test System Operation**:
-/// - [TestObject] contains one or more [TestRules]
-/// - Rules can test:
-///   - `Signals` ([TestSignalRule])
-///   - `Actions` ([TestActionRule])
-///   - `Links` ([TestLinkRule])
-/// - Rules can be combined for complex validation
-///
-/// ## Disclaimer
-/// It is an A.I. generated document. The content is based on the code
-/// provided and may not accurately reflect the intended functionality or usage of the package.
-/// Please review and modify as necessary to ensure accuracy and clarity.
-///
-/// {@category Core}
+/// {@category Getting Started}
+/// {@category Core 16 Operators}
 // ignore: unnecessary_library_name
-library cell.core;
+library cell;
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:core';
 
-part 'src/cell/cell.dart';
-part 'src/cell/deputy.dart';
-part 'src/cell/receptor.dart';
-part 'src/cell/synapses.dart';
-part 'src/cell/properties.dart';
-part 'src/cell/map_object.dart';
-part 'src/cell/utils.dart';
-part 'src/cell/test_object.dart';
-part 'src/cell/test_rule.dart';
+import 'package:cell/src/internal/commons.dart';
+
+import 'package:uuid/uuid.dart';
+
+import 'package:synchronized/synchronized.dart';
+export 'package:synchronized/synchronized.dart';
+
+import 'src/test_rule.dart';
+export 'src/test_rule.dart';
+
+export 'src/internal/commons.dart';
+
+export 'src/test_rule_meta.dart';
+
+part 'src/cell.dart';
+part 'src/deputy.dart';
+part 'src/pulse.dart';
+part 'src/receptor.dart';
+part 'src/synapses.dart';
+part 'src/nucleus.dart';
+part 'src/test_cell.dart';
+part 'src/value.dart';
+part 'src/context.dart';
+
+//
+
+part 'src/internal/cell.dart';
+part 'src/internal/cell_policy.dart';
+part 'src/internal/deputy.dart';
+part 'src/internal/deputy_context.dart';
+part 'src/internal/pulse.dart';
+part 'src/internal/pulse_policy.dart';
+part 'src/internal/pulse_context.dart';
+part 'src/internal/receptor.dart';
+part 'src/internal/synapses.dart';
+part 'src/internal/nucleus.dart';
+part 'src/internal/test_cell.dart';
+part 'src/internal/value.dart';
+part 'src/internal/context.dart';
+
+part 'src/internal/operator/operators.dart';
+part 'src/internal/operator/operator_async_map.dart';
+part 'src/internal/operator/operator_throttle.dart';
+part 'src/internal/operator/operator_debounce.dart';
+part 'src/internal/operator/operator_transaction.dart';
+part 'src/internal/operator/operator_hub.dart';
+part 'src/internal/operator/operator_tx_apply.dart';
+

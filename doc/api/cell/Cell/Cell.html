@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the Cell constructor from Class Cell from the cell library, for the Dart programming language.">
-  <title>Cell constructor - Cell - cell library - Dart API</title>
+  <meta name="description" content="API docs for the Cell.new constructor from Class Cell from the cell library, for the Dart programming language.">
+  <title>Cell.new constructor - Cell - cell library - Dart API</title>
 
 
   
@@ -16,41 +16,33 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
-    <li class="self-crumb">Cell factory constructor</li>
+    <li class="self-crumb">Cell.new factory constructor</li>
   </ol>
-  <div class="self-name">Cell</div>
+  <div class="self-name">Cell.new</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
   <div
       id="dartdoc-main-content"
       class="main-content"
@@ -63,21 +55,66 @@
     <section class="multi-line-signature">
       
       <span class="name ">Cell</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
-<li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../../cell/Signal-class.html">Signal</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span></li>
-<li><span class="parameter" id="-param-test"><span class="type-annotation"><a href="../../cell/TestObject-class.html">TestObject</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">test</span>, </span></li>
-<li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span></li>
+<li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span></li>
 </ol>})
     </section>
-
     
 <section class="desc markdown">
-  <p>Creates a new <a href="../../cell/Cell-class.html">Cell</a> with optional binding and configuration</p>
-<p>Parameters:</p>
+  <p>Creates a standard, stateful <a href="../../cell/Cell-class.html">Cell</a> instance—the foundational execution
+node of the reactive network.</p>
+<p>This factory is the primary <strong>Human-Centric</strong> entry point for the framework.
+It assembles the cell's <strong>Architectural Nucleus</strong> with sensible defaults,
+allowing developers to focus on business logic without the overhead of
+explicit governance configuration.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need a basic reactive node that processes pulses
+without persistent state. Most applications will use <a href="../../cell/Cell/state.html">Cell.state</a> or
+<a href="../../cell/Cell/ingress.html">Cell.ingress</a> instead; this constructor is a fallback for custom
+relays or stateless processors.</p>
+<h3 id="how-it-works">How it works</h3>
 <ul>
-<li><code>bind</code>: Optional <a href="../../cell/Cell-class.html">Cell</a> to bind to (creates observing/chaining)</li>
-<li><code>receptor</code>: How this cell processes incoming signals (default: Receptor.unchanged)</li>
-<li><code>test</code>: TestObject that validates operations (default: TestObject.passed)</li>
-<li><code>synapses</code>: Whether this cell can be linked to others (default: Linkable.enabled)</li>
+<li><code>bind</code>: Links to an upstream cell – this cell will automatically
+receive pulses from it.</li>
+<li><code>receptor</code>: Defines how incoming pulses are transformed.
+Defaults to <a href="../../cell/Receptor/passThrough-constant.html">Receptor.passThrough</a> (no transformation).</li>
+<li><code>testRule</code>: Validation gate for incoming pulses.
+Defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a> (no restrictions).</li>
+<li><code>synapses</code>: Controls who receives this cell's outgoing pulses.
+Defaults to <a href="../../cell/Synapses/enabled-constant.html">Synapses.enabled</a> (broadcasts to all observers).</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>The <code>receptor</code> and <code>testRule</code> are shared across deputies unless
+overridden. If you need different behavior for a restricted view,
+use <a href="../../cell/Cell/deputy.html">deputy</a> instead of creating a separate cell.</p>
+<h3 id="example-reactive-counter">Example: Reactive Counter</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell(
+  receptor: Receptor((cell, pulse, {user}) {
+    final current = cell.state as int? ?? 0;
+    return Pulse(current + 1);
+  }),
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>bind</code>: Optional upstream <a href="../../cell/Cell-class.html">Cell</a>. Establishes the primary <strong>Ingress
+Link</strong> for automated signal flow.</li>
+<li><code>receptor</code>: The <strong>Transformation Pipeline</strong> defining how the cell
+synthesizes incoming <a href="../../cell/Pulse-class.html">Pulse</a> data. Defaults to <a href="../../cell/Receptor/passThrough-constant.html">Receptor.passThrough</a>.</li>
+<li><code>testRule</code>: The <strong>Integrity Gate</strong> validator used to authorize and
+sanitize state changes. Defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
+<li><code>synapses</code>: Configuration for the <strong>Signal Distribution Network</strong>
+(Egress). Defaults to <a href="../../cell/Synapses/enabled-constant.html">Synapses.enabled</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A live <a href="../../cell/Cell-class.html">Cell</a> instance integrated into the reactive ecosystem,
+ready to observe, transform, and broadcast signals.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell/Cell/Cell.governed.html">Cell.governed</a>: For explicit governance, lifecycle policies, and
+atomic isolation.</li>
+<li><a href="../../cell/Cell/deputy.html">Cell.deputy</a>: For creating capability-gated proxies of existing cells.</li>
 </ul>
 </section>
 
@@ -88,14 +125,13 @@
   <pre class="language-dart"><code class="language-dart">factory Cell({
   Cell? bind,
   Receptor receptor,
-  TestObject test,
-  Synapses synapses
+  TestCell testRule,
+  Synapses synapses,
 }) = _Cell;</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -103,41 +139,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
-    <li class="self-crumb">Cell factory constructor</li>
+    <li class="self-crumb">Cell.new factory constructor</li>
 </ol>
-
 
     <h5>Cell class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

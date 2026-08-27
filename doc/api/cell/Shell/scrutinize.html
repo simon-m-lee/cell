@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the scrutinize method from the Shell class, for the Dart programming language.">
+  <title>scrutinize method - Shell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Shell-class.html">Shell<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></a></li>
+    <li class="self-crumb">scrutinize abstract method</li>
+  </ol>
+  <div class="self-name">scrutinize</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Shell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">scrutinize</span> abstract method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">dynamic</span>
+<span class="name ">scrutinize</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="scrutinize-param-object"><span>covariant</span> <span class="type-annotation">T</span> <span class="parameter-name">object</span>, </span></li>
+<li><span class="parameter" id="scrutinize-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span></li>
+<li><span class="parameter" id="scrutinize-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span></li>
+</ol>])
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Filters the underlying object through a <strong>Capability Lens</strong>, returning a
+version of the data compatible with the caller's authorization scope and intent.</p>
+<p>This method is invoked by <a href="../../cell/Receptor-class.html">Receptor</a>s and <a href="../../cell/TestCell-class.html">TestCell</a>s during the
+<strong>Validation Phase</strong> to verify the compatibility between a signal and
+a specific <strong>Managed Node</strong>.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>object</code>: The entity being scrutinized (e.g., a <a href="../../cell/Pulse-class.html">Pulse</a> or <a href="../../cell/Cell-class.html">Cell</a>).
+Marked as <code>covariant</code> to allow specialized shells to restrict the
+types of objects they can project.</li>
+<li><code>positionalArguments</code>: Optional parameters for the scrutiny logic,
+often containing contextual metadata or <strong>Capability Attenuation</strong> keys.</li>
+<li><code>namedArguments</code>: Highly specific triggers or flags (e.g., <code>dryRun: true</code>)
+that modify how the shell projects the underlying data during the
+<strong>Reactive Update Cycle</strong>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <code>dynamic</code> result representing the <strong>Authorized State</strong>. This may be
+the internal kernel itself if <strong>AUTHORIZED</strong>, a redacted copy,
+or <code>null</code> if the interaction is <strong>NEUTRALIZED</strong> (Fail-Closed).</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">dynamic scrutinize(covariant T object, List? positionalArguments, [Map&lt;Symbol, dynamic&gt;? namedArguments]);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Shell-class.html">Shell<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></a></li>
+    <li class="self-crumb">scrutinize abstract method</li>
+</ol>
+
+    <h5>Shell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

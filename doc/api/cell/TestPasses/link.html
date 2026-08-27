@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the link method from the TestPasses class, for the Dart programming language.">
+  <title>link method - TestPasses class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/TestPasses-class.html">TestPasses</a></li>
+    <li class="self-crumb">link method</li>
+  </ol>
+  <div class="self-name">link</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;TestPasses-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">link</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+<span class="name ">link</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="link-param-link"><span>covariant</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">link</span>, {</span></li>
+<li><span class="parameter" id="link-param-host"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">host</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Validates the establishment of a reactive <a href="../../cell/TestPasses/link.html">link</a> from a candidate <a href="../../cell/Cell-class.html">Cell</a>
+to the <code>host</code> cell, supporting <strong>Hybrid Convergence</strong> (Sync/Async).</p>
+<p>This method serves as the <strong>Topology Gatekeeper</strong> for the reactive graph.
+In the Cell framework, a link is more than a simple reference; it is a
+directional synapse through which signals and state changes propagate.
+This method ensures that the graph's structure adheres to defined
+architectural constraints and security boundaries.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't call this directly – the framework invokes it automatically
+when <a href="../../cell/Synapses/link.html">Synapses.link</a> is called. It can be called for testing.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>It collects all <a href="../../cell/TestLinkRule-class.html">TestLinkRule</a>s in the chain.</li>
+<li>Each rule is given the candidate link and the host.</li>
+<li>If any rule returns <code>false</code>, the link is rejected.</li>
+<li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The link rule is only evaluated for <code>Cell</code> objects – other objects
+always pass.</li>
+<li>This validation occurs <strong>before</strong> the link is added to the synapses
+registry, so a rejected link never becomes visible.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Domain Isolation
+final domainPolicy = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
+  if (object is Cell) {
+    final targetDomains = object.context.domains ?? '';
+    final hostDomains = host?.context.domains ?? '';
+    return targetDomains == hostDomains; // Same domain only
+  }
+  return true;
+});
+
+final cell = Cell(testRule: domainPolicy);
+final sameDomain = Cell(context: Context.module('Finance'));
+final diffDomain = Cell(context: Context.module('HR'));
+
+// This link is allowed (same domain)
+await cell._nucleus.synapses.link(cell, downstreamCell: sameDomain);
+
+// This link is blocked (different domain)
+await cell._nucleus.synapses.link(cell, downstreamCell: diffDomain);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><a href="../../cell/TestPasses/link.html">link</a>: The candidate <a href="../../cell/Cell-class.html">Cell</a> attempting to connect.</li>
+<li><code>host</code>: The target <a href="../../cell/Cell-class.html">Cell</a> to which the link is requested.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the link is permitted; <code>false</code> otherwise.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;bool&gt; link(covariant Cell link, {required Cell host}) =&gt; true;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/TestPasses-class.html">TestPasses</a></li>
+    <li class="self-crumb">link method</li>
+</ol>
+
+    <h5>TestPasses class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-beta.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

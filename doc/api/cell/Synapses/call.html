@@ -16,41 +16,33 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
-    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">S extends Signal</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call abstract method</li>
   </ol>
   <div class="self-name">call</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -62,33 +54,41 @@
 
     <section class="multi-line-signature">
       
-
 <span class="returntype">void</span>
-<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-signal"><span>covariant</span> <span class="type-annotation">S</span> <span class="parameter-name">signal</span>, {</span></li>
-<li><span class="parameter" id="call-param-notified"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">notified</span>, </span></li>
-</ol>})
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Propagates a signal through all linked cells.</p>
-<p><code>signal</code> - The signal to propagate
-<code>notified</code> - Optional set to track which cells have already been notified
-             to prevent duplicate notifications in complex graphs</p>
+  <p>Synchronously orchestrates the atomic propagation wave for the
+provided <code>pulse</code> across all registered downstream observers.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You don't call this directly – the framework invokes it when a cell's
+state changes. You might use it for manual testing.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It applies the filter (if any), then delivers the pulse to each observer
+in sequence, respecting the propagation policy. If a cycle is detected,
+the branch is silently terminated.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The broadcast is synchronous by default – use the <code>async</code> view for
+non‑blocking delivery.</li>
+<li>If a downstream observer is invalidated, it's skipped.</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">void call(covariant S signal, {Set&lt;Cell&gt;? notified});</code></pre>
+  <pre class="language-dart"><code class="language-dart">void call(covariant P pulse);</code></pre>
 </section>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -96,41 +96,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
-    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">S extends Signal</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Synapses-class.html">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call abstract method</li>
 </ol>
-
 
     <h5>Synapses class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

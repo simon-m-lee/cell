@@ -16,20 +16,16 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell.dart</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -37,20 +33,16 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
@@ -60,27 +52,48 @@
 <h1><span class="kind-property">unmodifiable</span> property 
 </h1></div>
 
+    
 
+    
         
   <section id="getter">
-
     <section class="multi-line-signature">
       
       <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+      get
       <span class="name ">unmodifiable</span>
       
 
     </section>
-
     
 <section class="desc markdown">
-  <p>Creates an unmodifiable view of this cell.</p>
-<p>Returns a cell that:</p>
+  <p>Returns a read-only, reactive projection (Deputy) of this <a href="../../cell/Cell-class.html">Cell</a>.</p>
+<p>This getter is a cornerstone of the framework's <strong>Security and
+Encapsulation</strong> architecture. It implements the <strong>Deputy Pattern</strong>,
+providing a mechanism to expose a cell's state and reactivity to
+downstream observers while strictly prohibiting the authority to
+emit state transitions or structural modifications.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to give read‑only access to a cell – e.g. to a
+UI widget, a logger, or an external plugin.</p>
+<h3 id="how-it-works">How it works</h3>
 <ul>
-<li>Shares the same internal state</li>
-<li>Blocks all mutating operations</li>
-<li>Maintains all existing synapses</li>
+<li>Returns a deputy with <code>testRule = TestCell.readOnly</code> (blocks mutations).</li>
+<li>The deputy shares the same state, lock, and synapses as the principal.</li>
 </ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The deputy's <code>apply</code> method is disabled (modifiable is empty).</li>
+<li>It is still reactive – changes to the principal are reflected.</li>
+</ul>
+<h3 id="example-read-only-ui-view">Example: Read-Only UI View</h3>
+<pre class="language-dart"><code class="language-dart">final dataCell = Cell.state&lt;int&gt;(value: 42);
+final readOnly = dataCell.unmodifiable;
+MyWidget(data: readOnly);
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Cell-class.html">Cell</a> instance representing a read-only projection of the current
+  node, effectively disabling all mutating operations.</p>
 </section>
 
     
@@ -93,7 +106,6 @@
 
 
 </div> <!-- /.main-content -->
-
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -101,41 +113,31 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell</a></li>
-    <li><a href="../../cell/cell-library.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
     <li><a href="../../cell/Cell-class.html">Cell</a></li>
     <li class="self-crumb">unmodifiable property</li>
 </ol>
 
-
   <h5>Cell class</h5>
   <div id="dartdoc-sidebar-left-content"></div>
 </div><!--/.sidebar-offcanvas-->
-
 <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

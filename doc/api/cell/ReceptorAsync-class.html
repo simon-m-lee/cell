@@ -16,53 +16,99 @@
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
   <link rel="icon" href="../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell/cell-library.html">cell.dart</a></li>
-    <li class="self-crumb">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">R extends <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>&gt;</span> class</li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ReceptorAsync</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
-
 <div
     id="dartdoc-main-content"
     class="main-content"
     data-above-sidebar="cell&#47;cell-library-sidebar.html"
     data-below-sidebar="cell&#47;ReceptorAsync-class-sidebar.html">
     <div>
-<h1><span class="kind-class">ReceptorAsync&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Signal</span>, <span class="type-parameter">O extends Signal</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span>&gt;</span> class 
+<h1><span class="kind-class">ReceptorAsync&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span> class 
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An <a href="../cell/Async-class.html">Async</a> version of <a href="../cell/Receptor-class.html">Receptor</a> for handling asynchronous signal processing.</p>
+  <p>An asynchronous execution handle for a <a href="../cell/Receptor-class.html">Receptor</a> that facilitates
+non‑blocking pulse processing and lifecycle synchronization.</p>
+<p><a href="../cell/ReceptorAsync-class.html">ReceptorAsync</a> provides a <code>Future</code>-based API for interacting with cells,
+ensuring that reactive signals can be injected from asynchronous contexts
+while maintaining strict causal order and transactional integrity.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use the async view when you need to bridge asynchronous events into the
+reactive graph.</p>
+<ul>
+<li><strong>Event Integration</strong>: Injecting pulses from timers, network responses,
+or user interactions.</li>
+<li><strong>Deterministic Testing</strong>: Waiting for a reactive wave to fully settle
+before asserting results.</li>
+<li><strong>Backpressure Management</strong>: Coordinating sequential updates in high-
+throughput scenarios.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Queueing</strong>: Pulses are added to a thread-safe internal queue to
+preserve the order of arrival.</li>
+<li><strong>Sequential Processing</strong>: A worker drains the queue, executing each
+pulse within the cell's atomic perimeter using the synchronous pipeline.</li>
+<li><strong>Future Mapping</strong>: It converts the receptor's synchronous logic into
+a guaranteed <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API.</li>
+<li><strong>Synchronized Completion</strong>: It can optionally wait for every
+downstream synapse to finish propagation before resolving.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Memory Awareness</strong>: The internal buffer is unbounded; high-frequency
+bursts without proper awaiting can lead to memory pressure.</li>
+<li><strong>Causal Consistency</strong>: By default, it preserves the order of signals
+even if the underlying transformations are asynchronous.</li>
+<li><strong>Atomicity</strong>: Even when called asynchronously, the actual state transition
+is protected by the cell's lock, preventing race conditions.</li>
+<li><strong>Identity Integrity</strong>: The async handle is a stateless proxy; it
+shares the same operational context and metadata as the primary receptor.</li>
+<li><strong>Synchronous Pipeline</strong>: The underlying pipeline executes synchronously.
+The async adapter only manages the execution timing and completion.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>C</code>: The type of the host <a href="../cell/Cell-class.html">Cell</a>.</li>
+</ul>
+<h3 id="example-fire-and-forget">Example: Fire-and-Forget</h3>
+<pre class="language-dart"><code class="language-dart">receptor.async.call(Pulse('Update'));
+</code></pre>
+<h3 id="example-await-full-propagation">Example: Await Full Propagation</h3>
+<pre class="language-dart"><code class="language-dart">await receptor.async.call(Pulse('Critical'), serializedCompletion: true);
+// At this point, the entire downstream graph has settled.
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/Receptor/async.html">Receptor.async</a> – The getter that provides this handle.</li>
+</ul>
 </section>
 
 
@@ -74,14 +120,13 @@
   <dt>Implemented types</dt>
   <dd>
     <ul class="comma-separated clazz-relationships">
-        <li><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></li>
         <li><a href="../cell/Async-class.html">Async</a></li>
     </ul>
   </dd>
         
 
 
-
+        
         
 
 
@@ -91,35 +136,21 @@
     
   <section class="summary offset-anchor" id="constructors">
     <h2>Constructors</h2>
-
     <dl class="constructor-summary-list">
-        <dt id="ReceptorAsync" class="callable">
-          <span class="name"><a href="../cell/ReceptorAsync/ReceptorAsync.html">ReceptorAsync</a></span><span class="signature">(<span class="parameter" id="-param-receptor"><span class="type-annotation">R</span> <span class="parameter-name">receptor</span></span>)</span>
+        <dt id="ReceptorAsync.new" class="callable">
+          <span class="name"><a href="../cell/ReceptorAsync/ReceptorAsync.html">ReceptorAsync</a></span><span class="signature">(<span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell/ReceptorBase-class.html">ReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span></span>)</span>
         </dt>
         <dd>
-          Creates a new instance of <a href="../cell/ReceptorAsync-class.html">ReceptorAsync</a>.
-            <div class="constructor-modifier features">const</div>
+          Creates an asynchronous adapter for a synchronous <a href="../cell/Receptor-class.html">Receptor</a>.
         </dd>
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor"
+      class="summary offset-anchor inherited"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="async" class="property">
-  <span class="name"><a href="../cell/ReceptorAsync/async.html">async</a></span>
-  <span class="signature">&#8594; <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Asynchronously processes a signal through this receptor
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
-
-</dd>
-
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -146,6 +177,7 @@
 
     </dl>
   </section>
+
     
   <section
       class="summary offset-anchor"
@@ -153,15 +185,16 @@
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="call" class="callable">
-  <span class="name"><a href="../cell/ReceptorAsync/call.html">call</a></span><span class="signature">(<wbr>{<span class="parameter" id="call-param-cell"><span>required</span> <span>covariant</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="call-param-signal"><span>required</span> <span>covariant</span> <span class="type-annotation">I</span> <span class="parameter-name">signal</span>, </span><span class="parameter" id="call-param-notified"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">notified</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">O?</span>&gt;</span></span>
+  <span class="name"><a href="../cell/ReceptorAsync/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-pulse"><span class="type-annotation"><a href="../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="call-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">true</span>, </span><span class="parameter" id="call-param-hook"><span class="type-annotation">void</span> <span class="parameter-name">hook</span>({<span class="parameter" id="param-input"><span>required</span> <span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, </span><span class="parameter" id="param-result"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span></span>})?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Processes a signal through the receptor pipeline.
-  <div class="features"><span class="feature">override</span></div>
+  Injects a pulse into the receptor's transformation pipeline
+asynchronously.
+  
 
 </dd>
 
@@ -218,9 +251,7 @@
     
     
 
-
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -228,40 +259,30 @@
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell</a></li>
-    <li><a href="../cell/cell-library.html">cell</a></li>
-    <li class="self-crumb">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">O extends <a href="../cell/Signal-class.html">Signal</a></span>, <span class="type-parameter">R extends <a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>&gt;</span> class</li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span> class</li>
 </ol>
-
 
     <h5>cell library</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div>
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     cell
-      1.0.0
+      1.0.0-beta.1
   </span>
-
   
 </footer>
-
 
 
 <script src="../static-assets/highlight.pack.js?v1"></script>
 <script src="../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 
