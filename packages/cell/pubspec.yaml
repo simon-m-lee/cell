@@ -1,9 +1,12 @@
 name: cell
 description: Foundation layer of the Cell Framework — Cells, Nucleus, Context, Deputy Pattern, and Conactive execution with Causal Integrity.
 version: 1.0.0-rc.1
-homepage: https://github.com/simon-m-lee/cell-mitosis
-repository: https://github.com/simon-m-lee/cell-mitosis/tree/main/packages/cell
-issue_tracker: https://github.com/simon-m-lee/cell-mitosis/issues
+# Point this to the main project landing page
+homepage: https://github.com/simon-m-lee/cell
+# Point this specifically to the package subdirectory in the repository
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell
+# Align the tracker with the new repository name
+issue_tracker: https://github.com/simon-m-lee/cell/issues
 
 #resolution: workspace
 
