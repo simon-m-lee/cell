@@ -183,3 +183,7 @@ This is the initial "Mitosis" release of the Cell Framework, currently in a **Pr
 - **Code Stage**: Preview (Public Preview).
 - **Goal**: Gathering feedback on the ergonomics of the **Switching Fabric** and the effectiveness of **Scene-Driven Governance**.
 - **Naming Convention**: Major architectural milestones will follow biological nomenclature. "Mitosis" represents the birth and initial division of the framework.
+
+## 1.0.0-beta.1 (2025)
+
+- Initial Commit

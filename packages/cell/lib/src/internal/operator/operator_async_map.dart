@@ -101,6 +101,7 @@ class _AsyncMapState<S, T> {
   final List<S> _queue = <S>[];
   int _inFlight = 0;
   int _generation = 0;
+  // ignore: unused_field
   Object? _pin;
 
   void retain(Object pin) => _pin = pin;

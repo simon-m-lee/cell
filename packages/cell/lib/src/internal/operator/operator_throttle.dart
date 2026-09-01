@@ -117,6 +117,7 @@ class _ThrottleState {
   Timer? timer;
   bool hasTrailing = false;
   Pulse? trailingPulse;
+  // ignore: unused_field
   Object? _pin;
 
   void retain(Object pin) => _pin = pin;

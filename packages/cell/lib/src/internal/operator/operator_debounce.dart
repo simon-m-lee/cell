@@ -106,6 +106,7 @@ Cell _debounce(
 class _DebounceState {
   Timer? timer;
   Pulse? pending;
+  // ignore: unused_field
   Object? _pin;
 
   void retain(Object pin) => _pin = pin;
