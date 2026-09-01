@@ -4,7 +4,7 @@ description: >-
   solution for Dart, with particular strength in managing complex state 
   and data flow in applications.
 
-version: 1.0.0-beta.1
+version: 1.0.0-beta.2
 # repository: https://github.com/my_org/my_repo
 
 environment:
