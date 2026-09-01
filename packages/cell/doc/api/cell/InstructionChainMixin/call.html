@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the InstructionChainMixin mixin, for the Dart programming language.">
+  <title>call method - InstructionChainMixin mixin - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/InstructionChainMixin-mixin.html">InstructionChainMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;InstructionChainMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">O?</span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="call-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="call-param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes the transformation chain synchronously with future propagation support.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the primary implementation of the <a href="../../cell/Instruction/call.html">Instruction.call</a> contract
+for composite instructions. It is invoked automatically when a pulse
+enters a receptor or a nested chain.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Strategy Resolution</strong>: It first checks for a custom orchestration
+strategy provided during construction.</li>
+<li><strong>Execution</strong>:
+<ul>
+<li>If a strategy exists, it is executed synchronously with the
+current pulse and context.</li>
+<li>Otherwise, it falls back to the default sequential evaluation.</li>
+</ul>
+</li>
+<li><strong>Safety Boundary</strong>: The entire call is wrapped in a safety
+boundary. Orchestration errors are caught, logged to the pulse's
+trace, and the signal is terminated to protect the graph.</li>
+<li><strong>Normalization</strong>: The result is validated to ensure type
+consistency.</li>
+<li><strong>Future Propagation</strong>: The <code>future</code> callback is passed through
+to enable asynchronous continuation.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Terminal Failures</strong>: If an error occurs during orchestration itself,
+this implementation returns <code>null</code> to ensure that corrupted logic
+does not propagate invalid states.</li>
+<li><strong>Monitoring</strong>: It supports optional callbacks for external
+monitoring of the chain's final output.</li>
+<li><strong>Dynamic Resolution</strong>: It retrieves execution logic dynamically,
+maintaining high memory efficiency even for complex graphs.</li>
+<li><strong>Synchronous Execution</strong>: The chain executes synchronously and
+returns the result immediately.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to transform.</li>
+<li><code>cell</code>: The host cell context.</li>
+<li><code>future</code>: Optional callback for asynchronous continuation.</li>
+<li><code>token</code>: Optional token for identifying the instruction.</li>
+<li><code>user</code>: Optional user metadata.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The final transformed pulse, or <code>null</code> if terminated.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+O? call(I pulse, {
+  C? cell,
+  void Function({required Pulse? result, required dynamic token})? future,
+  dynamic token,
+}) {
+
+  void future_({required Pulse? result, required dynamic token}) {
+    future?.call(result: result, token: token);
+  }
+
+  try {
+    Pulse? result;
+    final strategy = _instruction;
+    if (strategy != null) {
+      try {
+        result = strategy(pulse, cell: cell, user: _user, future: future_);
+      } catch (_) {
+        result = strategy(pulse, cell: cell, user: _user);
+      }
+    } else {
+      result = _chainRule(pulse, cell: cell, user: _user);
+    }
+
+    if (result == null) return null;
+    return result as dynamic;
+  } catch (e, stackTrace) {
+    (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+  }
+  return null;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/InstructionChainMixin-mixin.html">InstructionChainMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+</ol>
+
+    <h5>InstructionChainMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

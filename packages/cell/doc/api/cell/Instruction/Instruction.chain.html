@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Instruction.chain constructor from Class Instruction from the cell library, for the Dart programming language.">
+  <title>Instruction.chain constructor - Instruction - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Instruction-class.html">Instruction<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">Instruction.chain const constructor</li>
+  </ol>
+  <div class="self-name">Instruction.chain</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;Instruction-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Instruction&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.chain</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">Instruction&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.chain</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="chain-param-instructions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">instructions</span>, {</span></li>
+<li><span class="parameter" id="chain-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="chain-param-strategy"><span class="type-annotation">O?</span> <span class="parameter-name">strategy</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates an <a href="../../cell/InstructionChain-class.html">InstructionChain</a> that orchestrates multiple instructions.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to compose several discrete processing steps into
+a single, reusable pipeline. It is the primary tool for building
+multi-stage transformations where logic is partitioned into small units.</p>
+<ul>
+<li><strong>Sequential Processing</strong>: The standard way to apply a series of
+filters and transformations in a specific order.</li>
+<li><strong>Custom Orchestration</strong>: Use the <code>strategy</code> parameter when you need
+non-linear execution, such as branching, parallel processing, or
+conditional logic based on the current pulse state.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>By default, it iterates through the <code>instructions</code> collection in
+insertion order.</li>
+<li>The output of the first instruction is passed as the input to the
+second, and so on.</li>
+<li>If a <code>strategy</code> is provided, the default sequential loop is replaced
+by your custom function, which receives the list of instructions and
+the current context.</li>
+<li>All executions are synchronous. For asynchronous orchestration,
+use <a href="../../cell/Instruction/Instruction.future.html">Instruction.future</a> within individual instructions or use
+<a href="../../cell/Receptor/async.html">Receptor.async</a> for the overall pipeline.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Short-circuiting</strong>: In the default strategy, if any instruction in
+the chain returns <code>null</code>, the entire process terminates immediately
+and the result is <code>null</code>.</li>
+<li><strong>Error Recovery</strong>: The chain maintains the resilience of its parts.
+If an instruction fails, the chain recovers with the last "good"
+pulse state rather than crashing the pipeline.</li>
+<li><strong>Recursive Composition</strong>: Since the resulting chain is itself an
+<a href="../../cell/Instruction-class.html">Instruction</a>, you can nest chains within other chains to build
+hierarchical processing trees.</li>
+<li><strong>Synchronous Pipeline</strong>: The chain executes synchronously. Each
+instruction must complete before the next begins.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instructions</code>: The ordered collection of logic units to execute.</li>
+<li><code>user</code>: Optional metadata passed to the <code>strategy</code> or individual
+instructions.</li>
+<li><code>strategy</code>: A function to override the default sequential execution
+logic.</li>
+</ul>
+<h3 id="example-pipeline-with-conditional-skip">Example: Pipeline with conditional skip</h3>
+<pre class="language-dart"><code class="language-dart">final pipeline = Instruction.chain(
+  [trim, validate, log],
+  strategy: (pulse, {cell, user}) {
+    // Example: Skip validation if 'user' flag is set
+    var current = trim(pulse, cell: cell);
+    if (user != 'skip_val') {
+      current = validate(current!, cell: cell);
+    }
+    return current != null ? log(current, cell: cell) : null;
+  },
+);
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const factory Instruction.chain(Iterable&lt;Instruction&gt; instructions, {dynamic user,
+  O? Function(I pulse, {C? cell, dynamic user})? strategy}) = InstructionChain&lt;C,I,O&gt;;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Instruction-class.html">Instruction<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">Instruction.chain const constructor</li>
+</ol>
+
+    <h5>Instruction class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

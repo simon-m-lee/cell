@@ -1,0 +1,41 @@
+name: cell_mitosis
+
+packages:
+  - packages/cell
+
+command:
+  bootstrap:
+    runPubGet: true
+    usePubspecOverrides: true
+
+scripts:
+  # Core development commands
+  analyze:
+    run: melos exec -- dart analyze .
+    description: Run static analysis on all packages
+
+  test:
+    run: melos exec -- dart test
+    description: Run all tests
+
+  format:
+    run: melos exec -- dart format .
+    description: Format the entire codebase
+
+  build:
+    run: melos exec -- dart run build_runner build --delete-conflicting-outputs
+    description: Regenerate all code (ontogeny, etc.)
+
+  # Mesh-specific commands
+  mesh:test:
+    run: melos exec --scope="cell_mesh*" -- dart test
+    description: Test only Cell Mesh packages
+
+  mesh:build:
+    run: melos exec --scope="cell_mesh*" -- dart run build_runner build --delete-conflicting-outputs
+    description: Build Cell Mesh packages
+
+  # Convenience shortcuts
+  lint: melos analyze
+  check: melos analyze && melos test
+  clean: melos clean

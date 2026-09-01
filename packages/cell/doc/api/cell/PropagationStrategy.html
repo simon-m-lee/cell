@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PropagationStrategy enum from the cell library, for the Dart programming language.">
+  <title>PropagationStrategy enum - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">PropagationStrategy enum</li>
+  </ol>
+  <div class="self-name">PropagationStrategy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;PropagationStrategy-enum-sidebar.html">
+    <div>
+
+      <h1>
+        <span class="kind-enum">PropagationStrategy</span>
+        enum 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Defines the tactical execution models for <strong>Pulse Propagation</strong> within
+the Cell framework's reactive graph.</p>
+<p>The <a href="../cell/PropagationStrategy.html">PropagationStrategy</a> governs the temporal and behavioral characteristics
+of how a stimulus (a <a href="../cell/Pulse-class.html">Pulse</a>) travels from a source <a href="../cell/Cell-class.html">Cell</a> through its
+<a href="../cell/Synapses-class.html">Synapses</a> to downstream observers. By selecting a strategy, developers
+can optimise for latency, throughput, or stability, essentially defining
+the "metabolic rate" of specific branches in the reactive graph.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You typically set a strategy via a <a href="../cell/PropagationPolicy-class.html">PropagationPolicy</a> when creating synapses:
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+Choose the strategy that matches your use case – most common are
+<code>immediate</code> (default), <code>debounced</code> (for user input), and <code>throttled</code>
+(for rate‑limiting).</li>
+<li><strong>immediate</strong>: For critical state updates that must be synchronous.</li>
+<li><strong>async</strong>: To break deep recursion or offload to the event loop.</li>
+<li><strong>debounced</strong>: For search‑as‑you‑type, where only the final value matters.</li>
+</ul>
+<ul>
+<li><strong>throttled</strong>: For rate‑limiting high‑frequency events (e.g., scroll).</li>
+<li><strong>batched</strong>: For aggregating multiple updates into one (e.g., logging).</li>
+<li><strong>audit</strong>: To get the latest value at a fixed interval.</li>
+<li><strong>exhaust</strong>: To prevent concurrent processing of overlapping signals.</li>
+<li><strong>sample</strong>: To emit a constant‑rate heartbeat of the current state.</li>
+<li><strong>resilient</strong>: To protect against downstream failures (circuit breaker).</li>
+<li><strong>debounceLeading</strong>: To respond immediately to the first event, then wait.</li>
+<li><strong>retry</strong>: To automatically retry failed deliveries.</li>
+<li><strong>persistent</strong>: To replay the last state to new observers.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The strategy is applied at the egress point – when a pulse is about to
+be broadcast to observers.</li>
+<li>The policy holds the strategy and any timing parameters.</li>
+<li>The synapses implementation switches on the strategy to determine how
+to buffer, delay, or batch outgoing pulses.</li>
+<li>Each strategy has a specific behaviour; see the individual enum values
+for details.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>immediate</code> strategy is the fastest and most predictable – it ensures
+that changes are propagated synchronously, but can cause deep call stacks.</li>
+<li><code>async</code> simply schedules the broadcast on the next event loop tick,
+breaking the synchronous chain.</li>
+<li><code>debounced</code> and <code>throttled</code> use timers that are started on the first
+interaction; they are lazy and don't allocate timers until needed.</li>
+<li><code>persistent</code> does <strong>not</strong> affect regular propagation; it only replays
+the last pulse to newly linked observers.</li>
+<li><code>retry</code> and <code>resilient</code> are more advanced and require careful tuning
+of batchSize and timers to avoid loops.</li>
+<li>The strategy is <strong>per‑synapse</strong>, not per‑pulse – it applies to all
+pulses emitted by that cell.</li>
+</ul>
+<h3 id="example-debounced-search">Example: Debounced Search</h3>
+<pre class="language-dart"><code class="language-dart">final searchSynapses = Synapses&lt;String, Cell&gt;(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/PropagationPolicy-class.html">PropagationPolicy</a> – the configuration container.</li>
+<li><a href="../cell/Synapses-class.html">Synapses</a> – the distribution network that uses the policy.</li>
+</ul>
+</section>
+
+
+      <section>
+        <dl class="dl-horizontal">
+          
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark eNum-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></li>
+      <li>PropagationStrategy</li>
+    </ul>
+  </dd>
+
+          
+          
+          
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a></li>
+  </ul></dd>
+          
+
+
+        </dl>
+      </section>
+
+      <section class="summary offset-anchor" id="values">
+        <h2>Values</h2>
+        <dl class="properties">
+            <dt id="immediate" class="constant">
+    <span class="name ">immediate</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Default Synchronous</strong> strategy. Pulses are delivered immediately
+and recursively within the current execution pulse.</p>
+<ul>
+<li><strong>Behavior</strong>: When a cell is triggered, it immediately invokes the
+receptors of all linked cells on the same stack frame.</li>
+<li><strong>Use Case</strong>: Ideal for critical state logic, validation rules, and
+scenarios where "Tearing" (inconsistent state between related nodes)
+must be strictly avoided.</li>
+<li><strong>Trade-off</strong>: High-frequency updates can lead to UI jank or
+temporary blocking of the event loop if the downstream graph is deep.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="async" class="constant">
+    <span class="name ">async</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Microtask Deferral</strong> strategy. Pulses are scheduled to be
+broadcast on the next turn of the event loop.</p>
+<ul>
+<li><strong>Behavior</strong>: Uses <code>Future</code> or <code>scheduleMicrotask</code> to decouple the
+source trigger from the observer execution.</li>
+<li><strong>Use Case</strong>: Beneficial for breaking up long execution chains and
+ensuring the current function returns before downstream side effects
+begin.</li>
+<li><strong>Trade-off</strong>: Introduces a small amount of latency and breaks
+immediate synchronous execution flow.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="batched" class="constant">
+    <span class="name ">batched</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Accumulative Processing</strong> strategy. Multiple signals are
+collected into a buffer and delivered as a single unit.</p>
+<ul>
+<li><strong>Behavior</strong>: Pulses are held in a <code>buffer</code> until a
+specific <code>batchSize</code> is reached or a time window expires. They
+are then delivered as a single <a href="../cell/Pulse-class.html">Pulse</a> containing a collection
+of payloads.</li>
+<li><strong>Use Case</strong>: High-throughput scenarios like logging, bulk
+database writes, or multi-item UI updates where processing
+individuals would be inefficient.</li>
+<li><strong>Trade-off</strong>: Increased memory overhead for the buffer and
+delayed delivery for the first items in the batch.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="buffered" class="constant">
+    <span class="name ">buffered</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Temporal Aggregation</strong> strategy for lossless signal delivery.</p>
+<ul>
+<li><strong>Behavior</strong>: Pulses are accumulated in an internal queue during a
+deterministic time window. Unlike <a href="../cell/PropagationStrategy.html">throttled</a> or <a href="../cell/PropagationStrategy.html">debounced</a>, no
+intermediate signals are discarded. Once the <code>throttleTime</code> expires,
+all captured pulses are broadcast as a single composite event.</li>
+<li><strong>Use Case</strong>: Ideal for high-density telemetry, audit trails, and
+I/O-heavy operations (like database persistence or network logging)
+where preserving every event is critical, but processing them
+individually is inefficient.</li>
+<li><strong>Trade-off</strong>: Introduces a delivery delay for all signals in the
+buffer equal to the remaining duration of the current temporal cycle,
+and increases memory pressure proportional to the burst volume.</li>
+<li><strong>Memory</strong>: Requires temporary heap storage for the accumulated
+pulses until the flush occurs.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="debounced" class="constant">
+    <span class="name ">debounced</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Trailing Edge</strong> strategy. Delivery is delayed until a
+specified period of "silence" has passed.</p>
+<ul>
+<li><strong>Behavior</strong>: Each new pulse resets a <code>debounced</code> timer. The
+pulse is only broadcast if no new signals are received within
+that window.</li>
+<li><strong>Use Case</strong>: Search-as-you-type inputs, window resizing, or
+any scenario where only the <em>final</em> state after a burst of
+activity is relevant.</li>
+<li><strong>Trade-off</strong>: Pulses that arrive during the burst are
+discarded; only the last one survives.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="throttled" class="constant">
+    <span class="name ">throttled</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Fixed Frequency</strong> strategy. Ensures signals are delivered at
+a controlled, maximum rate.</p>
+<ul>
+<li><strong>Behavior</strong>: The first pulse is delivered immediately, and a
+<code>throttled</code> timer starts. Subsequent signals during this
+window are ignored until the timer expires.</li>
+<li><strong>Use Case</strong>: Limiting expensive operations like scroll event
+listeners, API rate-limiting, or physical hardware sensors
+that emit more data than the consumer needs.</li>
+<li><strong>Trade-off</strong>: Intermediate data points between throttle ticks
+are lost, providing a "sampled" view of the state.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="audit" class="constant">
+    <span class="name ">audit</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Trailing-Edge Sampling</strong> strategy. Ensures the latest state within
+a periodic window is delivered.</p>
+<ul>
+<li><strong>Behavior</strong>: Similar to <a href="../cell/PropagationStrategy.html">throttled</a>, but instead of delivering the
+first pulse of a window, it delivers the <em>most recent</em> pulse received
+when the <code>throttleTime</code> expires.</li>
+<li><strong>Use Case</strong>: Real-time dashboards or telemetry where you need the
+freshest data point at a fixed frequency, without the "silence"
+requirement of <a href="../cell/PropagationStrategy.html">debounced</a>.</li>
+<li><strong>Trade-off</strong>: Introduces a constant latency equal to the
+<code>throttleTime</code>.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="exhaust" class="constant">
+    <span class="name ">exhaust</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Concurrency Lock</strong> strategy. Ignores new signals while a
+previous signal is still being processed.</p>
+<ul>
+<li><strong>Behavior</strong>: If a <a href="../cell/Pulse-class.html">Pulse</a> is currently traversing the downstream
+receptor chain (especially useful for async flows), any new pulses
+arriving at the hub are dropped until the cycle completes.</li>
+<li><strong>Use Case</strong>: Preventing "Race Conditions" in expensive side effects,
+such as avoiding multiple simultaneous database writes or redundant
+API calls.</li>
+<li><strong>Trade-off</strong>: Intermediate state changes are completely lost if
+they occur while the "gate" is closed.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="sample" class="constant">
+    <span class="name ">sample</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Fixed-Interval Heartbeat</strong> strategy. Periodically emits the
+current state regardless of arrival frequency.</p>
+<ul>
+<li><strong>Behavior</strong>: Ignores the arrival of individual pulses and instead
+"samples" the current value of the source cell at a fixed interval
+defined by <code>throttleTime</code>.</li>
+<li><strong>Use Case</strong>: Constant-rate telemetry, physics engines, or
+monitoring systems where "no change" is just as important as "change."</li>
+<li><strong>Trade-off</strong>: Can result in redundant broadcasts if the state
+hasn't changed, and misses high-frequency fluctuations.</li>
+<li><strong>Non‑obvious</strong>: The heartbeat rebroadcasts the <em>first</em> pulse
+captured when the timer starts. The pulse cycle checker then
+drops later ticks of that same instance, so observers typically
+see one delivery. Unlinking the last observer cancels the
+<a href="https://api.flutter.dev/flutter/dart-async/Timer/Timer.periodic.html">Timer.periodic</a> so it does not leak.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="resilient" class="constant">
+    <span class="name ">resilient</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Stability Governance</strong> strategy (Circuit Breaker). Stops
+propagation if downstream failures exceed a threshold.</p>
+<ul>
+<li><strong>Behavior</strong>: Monitors for errors in downstream receptors. If a
+failure threshold is met, the strategy enters an "Open" state,
+silencing the synapse to prevent cascade failures.</li>
+<li><strong>Use Case</strong>: Resilient distributed systems, unreliable network
+integrations, or experimental AI logic that might crash.</li>
+<li><strong>Trade-off</strong>: Requires a "Reset" or "Half-Open" logic to resume
+normal operations after a failure.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="debounceLeading" class="constant">
+    <span class="name ">debounceLeading</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Leading-Edge Debounce</strong> strategy. Delivers the first signal
+and silences subsequent signals during the window.</p>
+<ul>
+<li><strong>Behavior</strong>: High-responsiveness. Delivers the <em>first</em> pulse
+immediately, then ignores all others until the <code>throttleTime</code>
+silence window is met.</li>
+<li><strong>Use Case</strong>: Button debouncing where the user expects immediate
+UI feedback, but the backend must be protected from double-clicks.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="retry" class="constant">
+    <span class="name ">retry</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Transient Resilience</strong> strategy. Retries failed downstream
+deliveries.</p>
+<ul>
+<li><strong>Behavior</strong>: If a downstream receptor throws an exception,
+the synapse will re-attempt delivery after a delay.</li>
+<li><strong>Use Case</strong>: Unreliable network observers or distributed nodes
+that may be momentarily offline.</li>
+</ul>
+  
+
+</dd>
+
+            <dt id="persistent" class="constant">
+    <span class="name ">persistent</span>
+  <span class="signature">&#8594; const <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>State-Preserving Relink</strong> strategy. Ensures newly linked observers
+receive the last known state.</p>
+<ul>
+<li><strong>Behavior</strong>: When a new <a href="../cell/Cell-class.html">Cell</a> is linked, it
+automatically receives the most recent <a href="../cell/Pulse-class.html">Pulse</a> emitted by the source.</li>
+<li><strong>Use Case</strong>: Late-binding UI components or dynamic observers that
+need to "catch up" to the current system state.</li>
+</ul>
+  
+
+</dd>
+
+        </dl>
+      </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="index" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Enum/index.html">index</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A numeric identifier for the enumerated value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumName/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a> extension</span>
+      </p>
+  The name of the enum value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="values" class="constant">
+    <span class="name "><a href="../cell/PropagationStrategy/values-constant.html">values</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A constant List of the values in this enum, in order of their declaration.
+  
+
+</dd>
+
+    </dl>
+  </section>
+</div><!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">PropagationStrategy enum</li>
+</ol>
+
+  <h5>cell library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!-- /.sidebar-offcanvas -->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

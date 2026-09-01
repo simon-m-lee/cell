@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the validate property from the OpenSynapsesMixin mixin, for the Dart programming language.">
+  <title>validate property - OpenSynapsesMixin mixin - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
+    <li class="self-crumb">validate property</li>
+  </ol>
+  <div class="self-name">validate</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;OpenSynapsesMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">validate</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+      <span class="returntype"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+      get
+      <span class="name ">validate</span>
+      <div class="features"><span class="feature">inherited</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The authoritative <strong>Integrity Gate</strong> and validation rule governing this
+cell's structural and operational boundaries.</p>
+<p>This property returns the <a href="../../cell/TestCell-class.html">TestCell</a> instance—essentially the "Cell
+Membrane"—which serves as the primary <strong>Security Policy</strong> for the node.
+It dictates the conditions under which state transitions, signal
+propagation, and command execution (<a href="../../cell/Cell/apply.html">apply</a>) are permitted.</p>
+<h3 id="architectural-significance-the-integrity-gate">Architectural Significance: The Integrity Gate</h3>
+<p>In the Cell-Mitosis ecosystem, every interaction with a cell is
+intercepted by its <a href="../../cell/Cell/validate.html">validate</a> rule. This ensures that the reactive
+graph remains in a consistent and authorized state, regardless of
+where a stimulus originates.</p>
+<h3 id="validation-scope">Validation Scope</h3>
+<p>The <a href="../../cell/Cell/validate.html">validate</a> rule inspects multiple facets of an interaction:</p>
+<ul>
+<li><strong>Data Integrity</strong>: Does the incoming value meet the domain constraints?</li>
+<li><strong>Action Authority</strong>: Is the specific function passed to <a href="../../cell/Cell/apply.html">apply</a>
+permitted by this node's security profile?</li>
+<li><strong>Causal Lineage</strong>: Is the <a href="../../cell/Pulse-class.html">Pulse</a> originating from an authorized
+upstream source or <a href="../../cell/Context-class.html">Context</a>?</li>
+</ul>
+<h3 id="relationship-with-deputies">Relationship with Deputies</h3>
+<p>When a cell is evolved into an attenuated proxy via <a href="../../cell/Cell/deputy.html">deputy</a>, the
+resulting handle possesses its own <a href="../../cell/Cell/validate.html">validate</a> rule. However:</p>
+<ul>
+<li><strong>Rule Layering</strong>: The deputy's rule is layered <em>on top</em> of the
+principal's rule.</li>
+<li><strong>Additive Constraint</strong>: A deputy can only narrow the permissions
+(e.g., making a cell read-only); it can never bypass the root
+<a href="../../cell/Cell/validate.html">validate</a> logic of the underlying principal cell.</li>
+</ul>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Security Auditing</strong>: Inspecting the current constraints of a node
+at runtime for debugging or logging.</li>
+<li><strong>Dynamic Proxying</strong>: Capturing the current rule to synthesize a
+new <code>Nucleus</code> or a specialized <a href="../../cell/Cell-class.html">Cell</a> with similar constraints.</li>
+<li><strong>Custom Handlers</strong>: Developing framework-level tools that need to
+simulate or pre-verify a <a href="../../cell/Pulse-class.html">Pulse</a> before dispatching it.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Before any state modification occurs, the cell invokes the internal
+validation logic of the <a href="../../cell/TestCell-class.html">TestCell</a>. If this check fails, the cell
+suppresses the update, returns <code>null</code> to the caller, and prevents any
+downstream notification, effectively neutralizing the "threat" to the
+graph's integrity.</p>
+<h3 id="returns">Returns:</h3>
+<p>The <a href="../../cell/TestCell-class.html">TestCell</a> validator representing the active security perimeter
+of this node.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TestCell get validate;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
+    <li class="self-crumb">validate property</li>
+</ol>
+
+  <h5>OpenSynapsesMixin mixin</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

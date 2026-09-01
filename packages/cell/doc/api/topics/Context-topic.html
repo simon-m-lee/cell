@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Advanced · Context topic docs, for the Dart programming language.">
+  <title>Advanced · Context topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Context topic</li>
+  </ol>
+  <div class="self-name">Advanced · Context</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Advanced · Context</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-context-in-the-cell-framework">How to Use Context in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-context">What is Context?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#context-system-root-context">Context System (Root Context)</a></li>
+<li><a href="#creating-contexts">Creating Contexts</a></li>
+<li><a href="#predefined-context-factories">Predefined Context Factories</a></li>
+<li><a href="#ontology-dimensions">Ontology Dimensions</a></li>
+<li><a href="#context-inheritance">Context Inheritance</a></li>
+<li><a href="#using-context-with-cells">Using Context with Cells</a></li>
+<li><a href="#testing-context">Testing Context</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>Context</strong> is the operational environment that defines the security tier, execution priority, and administrative authority of a Cell. It acts as a mandatory metadata layer that informs validation rules and processing mechanisms about the provenance and permissions of any entity attempting to interact with a node.</p>
+<h3 id="when-to-use-context">When to Use Context</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default configuration</td>
+<td>Use <code>Context.system</code></td>
+</tr>
+<tr>
+<td>Application logic</td>
+<td>Use <code>Context.module()</code></td>
+</tr>
+<tr>
+<td>Infrastructure nodes</td>
+<td>Use <code>Context.core()</code></td>
+</tr>
+<tr>
+<td>Sensitive operations</td>
+<td>Use <code>Context.secureEnclave()</code></td>
+</tr>
+<tr>
+<td>Public interfaces</td>
+<td>Use <code>Context.publicInterface()</code></td>
+</tr>
+<tr>
+<td>Autonomous reasoning</td>
+<td>Use <code>Context.shieldedCortex()</code></td>
+</tr>
+<tr>
+<td>Input ingestion</td>
+<td>Use <code>Context.receptor()</code></td>
+</tr>
+<tr>
+<td>Policy enforcement</td>
+<td>Use <code>Context.integrityGate()</code></td>
+</tr>
+<tr>
+<td>Maintenance tasks</td>
+<td>Use <code>Context.homeostasis()</code></td>
+</tr>
+<tr>
+<td>Simulation/testing</td>
+<td>Use <code>Context.sandbox()</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-context">What is Context?</h2>
+<p>A <code>Context</code> is the <strong>operational environment</strong> that defines:</p>
+<ul>
+<li><strong>Security Tier</strong> - How sensitive is this operation?</li>
+<li><strong>Execution Priority</strong> - How urgent is this operation?</li>
+<li><strong>Authority Domain</strong> - What areas does this operate in?</li>
+<li><strong>Compliance Requirements</strong> - What regulations apply?</li>
+<li><strong>Stakeholders</strong> - Who is responsible?</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Immutable</strong></td>
+<td>Cannot be modified after creation</td>
+</tr>
+<tr>
+<td><strong>Inheritable</strong></td>
+<td>Supports prototype-based inheritance</td>
+</tr>
+<tr>
+<td><strong>Type-Safe</strong></td>
+<td>Strong typing with Governance dimensions</td>
+</tr>
+<tr>
+<td><strong>Composable</strong></td>
+<td>Can combine multiple dimensions</td>
+</tr>
+<tr>
+<td><strong>Auditable</strong></td>
+<td>Provides lineage for tracing</td>
+</tr>
+<tr>
+<td><strong>Governed</strong></td>
+<td>Controls what operations are allowed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="relationship-with-cell">Relationship with Cell</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CELL                                             │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                       CONTEXT                                        │   │
+│  │                                                                      │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
+│  │  │                    ONTOLOGY (Structural)                     │    │   │
+│  │  │  • type: "payment_processor"                                │    │   │
+│  │  │  • domains: "finance"                                       │    │   │
+│  │  │  • taxonomy: "module"                                       │    │   │
+│  │  │  • constraints: { max_amount: 10000 }                      │    │   │
+│  │  │  • compliance: "PCI-DSS"                                   │    │   │
+│  │  └─────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                      │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
+│  │  │                    MANDATE (Authority)                       │    │   │
+│  │  │  • role: "Admin"                                            │    │   │
+│  │  │  • clearance: Clearance.administrative                      │    │   │
+│  │  │  • authority: "READ, WRITE"                                 │    │   │
+│  │  │  • isolation: Isolation.scoped                             │    │   │
+│  │  └─────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                      │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
+│  │  │                   PROVENANCE (History)                       │    │   │
+│  │  │  • actor: "admin_001"                                       │    │   │
+│  │  │  • reason: "Manual override"                                │    │   │
+│  │  │  • strategy: ReasoningStrategy.manual                      │    │   │
+│  │  │  • traceId: "abc-123-def"                                   │    │   │
+│  │  └─────────────────────────────────────────────────────────────┘    │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-context-is-immutable">1. Context is Immutable</h3>
+<p>Once created, a Context cannot be changed. To modify, create a new Context using <code>evolve()</code>:</p>
+<pre class="language-dart"><code class="language-dart">// ❌ Can't modify
+final context = Context.system;
+// context.domains = 'finance';  // Not allowed
+
+// ✅ Create a new one
+final newContext = context.evolve((evolvable) {
+  if (evolvable == Ontology.domains) {
+    return Ontology.domains.entry('finance');
+  }
+  return null;
+});
+</code></pre>
+<h3 id="2-context-supports-inheritance">2. Context Supports Inheritance</h3>
+<p>Contexts can inherit from other contexts:</p>
+<pre class="language-dart"><code class="language-dart">final base = Context.module('base');
+final specialized = base.evolve((evolvable) {
+  if (evolvable == Ontology.subDomains) {
+    return Ontology.subDomains.entry('specialized');
+  }
+  return null;
+});
+</code></pre>
+<h3 id="3-context-is-type-safe">3. Context is Type-Safe</h3>
+<p>Each dimension has a specific type:</p>
+<pre class="language-dart"><code class="language-dart">// ✅ Type-safe dimensions
+final domainEntry = Ontology.domains.entry('finance');  // String
+final constraintEntry = Ontology.constraints.entry({'max': 100});  // Map
+final clearanceEntry = Mandate.clearance.entry(Clearance.administrative);  // Enum
+
+// ❌ Type mismatch (compiler error)
+// Ontology.domains.entry(42);  // Error: int is not String
+</code></pre>
+<h3 id="4-context-provides-lineage">4. Context Provides Lineage</h3>
+<p>Track the evolution of a dimension:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.module('finance');
+final evolved = context.evolve(...);
+final lineage = evolved.lineage(Ontology.domains);
+// ['finance', 'finance, treasury']
+</code></pre>
+<hr>
+<h2 id="context-system-root-context">Context System (Root Context)</h2>
+<h3 id="what-is-contextsystem">What is Context.system?</h3>
+<p><code>Context.system</code> is the canonical root context for the entire framework. It serves as the ultimate fallback for all ontological lookups.</p>
+<pre class="language-dart"><code class="language-dart">// Default context for all cells
+final cell = Cell();  // context = Context.system
+
+// Safe defaults
+print(Context.system.domains);    // null
+print(Context.system.constraints); // null
+</code></pre>
+<h3 id="properties-of-contextsystem">Properties of Context.system</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>domains</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>taxonomy</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>compliance</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>stakeholders</code></td>
+<td>null</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>null</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-contextsystem">When to Use Context.system</h3>
+<ul>
+<li>Default for most application code</li>
+<li>When no specific security requirements</li>
+<li>For development and testing</li>
+<li>For simple prototypes</li>
+</ul>
+<hr>
+<h2 id="creating-contexts">Creating Contexts</h2>
+<h3 id="method-1-using-named-parameters">Method 1: Using Named Parameters</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context(
+  type: 'payment_processor',
+  identity: 'payment_gateway_01',
+  domains: 'finance',
+  subDomains: 'payments, refunds',
+  stakeholders: 'finance_team, compliance',
+  constraints: {'max_amount': 10000, 'currency': 'USD'},
+  compliance: 'PCI-DSS',
+  version: '2.0.0',
+);
+</code></pre>
+<h3 id="method-2-using-entries">Method 2: Using Entries</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context.fromEntries([
+  Ontology.type.entry('payment_processor'),
+  Ontology.domains.entry('finance'),
+  Ontology.constraints.entry({'max_amount': 10000}),
+  Ontology.compliance.entry('PCI-DSS'),
+]);
+</code></pre>
+<h3 id="method-3-using-factories">Method 3: Using Factories</h3>
+<pre class="language-dart"><code class="language-dart">// Infrastructure
+final coreContext = Context.core('gateway', identity: 'ingress_01');
+
+// Application logic
+final moduleContext = Context.module('payment', identity: 'payment_processor');
+
+// Secure operations
+final secureContext = Context.secureEnclave(
+  partOf: 'PaymentModule',
+  compliances: 'PCI-DSS, GDPR',
+);
+
+// Public interface
+final publicContext = Context.publicInterface(
+  partOf: 'API Gateway',
+  domains: 'Web/v1',
+  stakeholders: 'Mobile_App, Partner_API',
+);
+</code></pre>
+<h3 id="method-4-using-describe-ai-powered">Method 4: Using Describe (AI-Powered)</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context.describe(
+  'A secure audit log for the Healthcare domain compliant with HIPAA'
+);
+// Automatically extracts:
+// - domains: healthcare
+// - compliance: HIPAA
+// - taxonomy: audit_log
+</code></pre>
+<hr>
+<h2 id="predefined-context-factories">Predefined Context Factories</h2>
+<h3 id="1-contextcore">1. Context.core</h3>
+<p>For infrastructure nodes, gateways, and architectural plumbing:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.core(
+  'gateway',                    // Required: type
+  identity: 'ingress_01',       // Optional: instance name
+  partOf: 'Edge_Service',       // Optional: parent module
+  others: {'rate_limit': 1000}, // Optional: custom metadata
+);
+
+// Properties:
+// - type: 'gateway'
+// - taxonomy: 'core'
+// - domains: 'system'
+// - priority: 0 (highest)
+</code></pre>
+<h3 id="2-contextmodule">2. Context.module</h3>
+<p>For domain-specific logic, feature components, and business logic:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.module(
+  'payment_engine',             // Required: type
+  identity: 'v3_processor',     // Optional: instance name
+  partOf: 'Checkout_Service',   // Optional: parent module
+  others: {'currency': 'USD'},  // Optional: custom metadata
+);
+
+// Properties:
+// - type: 'payment_engine'
+// - taxonomy: 'module'
+// - domains: 'logic'
+// - priority: 10 (standard)
+</code></pre>
+<h3 id="3-contextsecureenclave">3. Context.secureEnclave</h3>
+<p>For high-integrity state, sensitive logic, or administrative policies:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.secureEnclave(
+  partOf: 'CryptoModule',       // Required: parent module
+  compliances: 'FIPS-140-2, PCI-DSS', // Required: regulations
+  constraints: {'min_key_size': 2048}, // Optional: limits
+  others: {'hardware_id': 'HSM-001'},  // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'enclave'
+// - domains: 'security'
+// - subDomains: 'integrity-gate'
+// - isNot: 'External_Signals,Unauthenticated_Telemetry'
+// - sensitivity: Sensitivity.restricted
+// - audit_level: AuditLevel.full
+// - priority: 0 (highest)
+</code></pre>
+<h3 id="4-contextpublicinterface">4. Context.publicInterface</h3>
+<p>For boundary nodes interacting with external users or systems:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.publicInterface(
+  partOf: 'Public_Web_API',     // Required: interface name
+  domains: 'Web/v1',            // Required: functional domain
+  stakeholders: 'Mobile_App_Users, Partner_SDK', // Optional: external entities
+  others: {'rate_limit': 100},  // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'interface'
+// - subDomains: 'ingress'
+// - isNot: 'Internal_Commands,Private_State_Mutation'
+// - sensitivity: Sensitivity.public
+// - audit_level: AuditLevel.none
+// - priority: 50 (standard)
+</code></pre>
+<h3 id="5-contextshieldedcortex">5. Context.shieldedCortex</h3>
+<p>For high-reasoning nodes performing sensitive autonomous decisions:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.shieldedCortex(
+  partOf: 'Trading_Floor_A',    // Required: governing unit
+  domains: 'Finance/HighFreq',   // Required: functional domain
+  compliances: 'SEC, FINRA',     // Required: regulations
+  constraints: {'max_position': 1000000}, // Optional: limits
+  others: {'model_version': 'v3'}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'cortex'
+// - subDomains: 'reasoning-enclave'
+// - isNot: 'Background_Noise,Unverified_Inference'
+// - strategy: ReasoningStrategy.formal
+// - sensitivity: Sensitivity.restricted
+// - audit_level: AuditLevel.detailed
+// - priority: 10 (high)
+</code></pre>
+<h3 id="6-contextreceptor">6. Context.receptor</h3>
+<p>For nodes specialized in normalizing and validating environmental stimuli:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.receptor(
+  dataSources: 'MQTT_Broker, IoT_Devices', // Required: origins
+  domains: 'Telemetry',          // Required: functional area
+  others: {'sample_rate': 100},  // Optional: metadata
+);
+
+// Properties:
+// - dataSources: 'MQTT_Broker, IoT_Devices'
+// - domains: 'Telemetry'
+// - subDomains: 'Receptor'
+// - taxonomy: 'sensor_receptor'
+// - audit_level: AuditLevel.minimal
+// - sensitivity: Sensitivity.public
+// - priority: 40 (elevated)
+</code></pre>
+<h3 id="7-contextintegritygate">7. Context.integrityGate</h3>
+<p>For nodes acting as the framework's "Judicial Branch":</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.integrityGate(
+  partOf: 'Treasury/Compliance', // Required: organizational unit
+  compliances: 'SOX, Internal_Policy_v2', // Required: standards
+  constraints: {'fail_closed': true}, // Optional: parameters
+  others: {'audit_strictness': 'high'}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'governance_gate'
+// - subDomains: 'integrity-gate'
+// - strategy: ReasoningStrategy.reflexive
+// - sensitivity: Sensitivity.restricted
+// - audit_level: AuditLevel.full
+// - priority: 0 (highest)
+// - strict_mode: true
+</code></pre>
+<h3 id="8-contexthomeostasis">8. Context.homeostasis</h3>
+<p>For internal maintenance, resource balancing, and systemic health:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.homeostasis(
+  partOf: 'System/Memory',      // Required: system module
+  label: 'LruCacheMonitor',      // Optional: human-readable label
+  constraints: {'max_memory_mb': 512}, // Optional: limits
+  others: {'cleanup_interval': 60}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'stability_loop'
+// - subDomains: 'Homeostasis'
+// - strategy: ReasoningStrategy.reflexive
+// - sensitivity: Sensitivity.internal
+// - priority: 75 (high maintenance)
+</code></pre>
+<h3 id="9-contextsandbox">9. Context.sandbox</h3>
+<p>For speculative reasoning, risk-free simulation, and experimentation:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.sandbox(
+  partOf: 'Finance/Strategies',  // Required: system module
+  reason: 'Evaluating heuristic v2 performance', // Optional: justification
+  readOnlyParent: true,          // Optional: read-only access
+  others: {'simulation_id': 'sim_001'}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'simulation_workspace'
+// - subDomains: 'Sandbox'
+// - strategy: ReasoningStrategy.probabilistic
+// - ephemeral: true
+// - sensitivity: Sensitivity.public
+// - audit_level: AuditLevel.none
+// - priority: 30 (lower than live)
+</code></pre>
+<h3 id="10-contextauditlog">10. Context.auditLog</h3>
+<p>For non-repudiation, forensic logging, and compliance tracking:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.auditLog(
+  partOf: 'Treasury/Ledger',    // Required: audited module
+  compliances: 'PCI-DSS, SOC2', // Required: regulations
+  others: {'retention_days': 365}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'audit_ledger'
+// - subDomains: 'compliance-logging'
+// - strategy: ReasoningStrategy.deterministic
+// - sensitivity: Sensitivity.private
+// - audit_level: AuditLevel.full
+// - priority: 90 (background)
+</code></pre>
+<h3 id="11-contexttransienttask">11. Context.transientTask</h3>
+<p>For short-lived computational scenes or one-off agentic missions:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.transientTask(
+  partOf: 'System/Maintenance', // Required: module
+  stakeholders: 'MigrationTeam', // Required: responsible entities
+  lease: Duration(hours: 1),    // Required: validity duration
+  constraints: {'batch_size': 1000}, // Optional: limits
+  others: {'task_id': 'migrate_001'}, // Optional: metadata
+);
+
+// Properties:
+// - taxonomy: 'transient_worker'
+// - subDomains: 'Ephemeral_Task'
+// - strategy: ReasoningStrategy.probabilistic
+// - lease_duration_ms: 3600000 (1 hour)
+// - auto_delete: true
+// - priority: 60 (standard background)
+</code></pre>
+<hr>
+<h2 id="ontology-dimensions">Ontology Dimensions</h2>
+<h3 id="static-pillars-non-evolvable">Static Pillars (Non-Evolvable)</h3>
+<p>These dimensions cannot be changed after creation:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>domains</code></td>
+<td><code>String</code></td>
+<td>High-level functional areas</td>
+<td><code>'Finance, PII'</code></td>
+</tr>
+<tr>
+<td><code>dataSources</code></td>
+<td><code>String</code></td>
+<td>Origins of information</td>
+<td><code>'Auth_Service, User_DB'</code></td>
+</tr>
+<tr>
+<td><code>taxonomy</code></td>
+<td><code>String</code></td>
+<td>Categorical identity</td>
+<td><code>'Repository'</code></td>
+</tr>
+<tr>
+<td><code>topology</code></td>
+<td><code>String</code></td>
+<td>Network role</td>
+<td><code>'Principal'</code></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>String</code></td>
+<td>Structural revision</td>
+<td><code>'2.1.0'</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="fluid-boundaries-evolvable">Fluid Boundaries (Evolvable)</h3>
+<p>These dimensions can be refined using <code>evolve()</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td><code>String</code></td>
+<td>Category of operation</td>
+<td><code>'security_event'</code></td>
+</tr>
+<tr>
+<td><code>identity</code></td>
+<td><code>String</code></td>
+<td>Unique instance name</td>
+<td><code>'Auth_Node_ReadOnly'</code></td>
+</tr>
+<tr>
+<td><code>subDomains</code></td>
+<td><code>String</code></td>
+<td>Specialized operational zones</td>
+<td><code>'Tax_Calculation, VAT'</code></td>
+</tr>
+<tr>
+<td><code>stakeholders</code></td>
+<td><code>String</code></td>
+<td>Accountable entities</td>
+<td><code>'Finance_Admin'</code></td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td><code>Map&lt;String, dynamic&gt;</code></td>
+<td>Operational rules</td>
+<td><code>{'max_value': 100}</code></td>
+</tr>
+<tr>
+<td><code>isNot</code></td>
+<td><code>String</code></td>
+<td>Exclusionary boundaries</td>
+<td><code>'Currency_Exchange'</code></td>
+</tr>
+<tr>
+<td><code>compliance</code></td>
+<td><code>String</code></td>
+<td>Regulatory frameworks</td>
+<td><code>'GDPR, SOC2'</code></td>
+</tr>
+<tr>
+<td><code>partOf</code></td>
+<td><code>String</code></td>
+<td>Parent container</td>
+<td><code>'Global_Ledger_Service'</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="using-ontology-dimensions">Using Ontology Dimensions</h3>
+<pre class="language-dart"><code class="language-dart">// Create entries
+final domainEntry = Ontology.domains.entry('finance');
+final typeEntry = Ontology.type.entry('payment_processor');
+final constraintEntry = Ontology.constraints.entry({'max_amount': 10000});
+
+// Build context
+final context = Context.fromEntries([domainEntry, typeEntry, constraintEntry]);
+
+// Access values
+print(context.domains);      // 'finance'
+print(context.type);         // 'payment_processor'
+print(context.constraints);  // {'max_amount': 10000}
+</code></pre>
+<hr>
+<h2 id="context-inheritance">Context Inheritance</h2>
+<h3 id="prototype-based-inheritance">Prototype-Based Inheritance</h3>
+<p>Contexts can inherit from other contexts:</p>
+<pre class="language-dart"><code class="language-dart">// Parent context
+final parent = Context.module('finance', stakeholders: 'admin');
+
+// Child context - inherits from parent
+final child = parent.evolve((evolvable) {
+  if (evolvable == Ontology.subDomains) {
+    return Ontology.subDomains.entry('payments');
+  }
+  return null;
+});
+
+print(child.domains);      // 'finance' (inherited)
+print(child.stakeholders); // 'admin' (inherited)
+print(child.subDomains);   // 'payments' (overridden)
+</code></pre>
+<h3 id="inheritance-chain">Inheritance Chain</h3>
+<pre class="language-dart"><code class="language-dart">// Root
+final root = Context.system;
+
+// Level 1
+final level1 = root.evolve((evolvable) {
+  return Ontology.type.entry('module');
+});
+
+// Level 2
+final level2 = level1.evolve((evolvable) {
+  return Ontology.domains.entry('finance');
+});
+
+// Level 3
+final level3 = level2.evolve((evolvable) {
+  return Ontology.subDomains.entry('payments');
+});
+
+// Resolution:
+// - type: 'module' (from level1)
+// - domains: 'finance' (from level2)
+// - subDomains: 'payments' (from level3)
+</code></pre>
+<h3 id="lineage-tracking">Lineage Tracking</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context.module('finance');
+final evolved = context.evolve((evolvable) {
+  if (evolvable == Ontology.domains) {
+    return Ontology.domains.entry('finance, treasury');
+  }
+  return null;
+});
+
+final lineage = evolved.lineage(Ontology.domains);
+// ['finance', 'finance, treasury']
+</code></pre>
+<hr>
+<h2 id="using-context-with-cells">Using Context with Cells</h2>
+<h3 id="basic-cell-with-context">Basic Cell with Context</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context.module('auth');
+final cell = Cell(
+  context: context,
+  receptor: Receptor.passThrough,
+);
+
+print(cell.context.domains); // 'auth'
+</code></pre>
+<h3 id="governed-cell-with-context">Governed Cell with Context</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context.secureEnclave(
+  partOf: 'CryptoModule',
+  compliances: 'FIPS-140-2',
+);
+
+final cell = Cell.governed(
+  context: context,
+  receptor: Receptor.passThrough,
+  testRule: TestCell.allowAll,
+  synapses: Synapses.enabled,
+  forceLock: true,
+);
+</code></pre>
+<h3 id="cell-with-deputy-context">Cell with Deputy Context</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(...);
+
+// Read-only deputy
+final readOnly = await cell.deputy(
+  context: DeputyContext.observer(
+    baseContext: Context.system,
+    task: 'Monitor',
+  ),
+);
+</code></pre>
+<h3 id="context-aware-validation">Context-Aware Validation</h3>
+<pre class="language-dart"><code class="language-dart">final contextAwareRule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
+  final ctx = host?.context;
+  return ctx?.domains?.contains('Admin') ?? false;
+});
+
+final cell = Cell(
+  testRule: contextAwareRule,
+  context: Context.module('Admin', stakeholders: 'Admin'),
+);
+</code></pre>
+<hr>
+<h2 id="testing-context">Testing Context</h2>
+<h3 id="unit-testing-context">Unit Testing Context</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+void main() {
+  test('Context creates correctly', () {
+    final context = Context.module('auth');
+    expect(context.taxonomy, 'module');
+    expect(context.domains, 'logic');
+    expect(context.priority, 10);
+  });
+
+  test('Context inherits properties', () {
+    final parent = Context.module('base');
+    final child = parent.evolve((evolvable) {
+      if (evolvable == Ontology.subDomains) {
+        return Ontology.subDomains.entry('specialized');
+      }
+      return null;
+    });
+    
+    expect(child.taxonomy, 'module');
+    expect(child.domains, 'logic');
+    expect(child.subDomains, 'specialized');
+  });
+
+  test('Context lineage tracks evolution', () {
+    final context = Context.module('finance');
+    final evolved = context.evolve((evolvable) {
+      if (evolvable == Ontology.domains) {
+        return Ontology.domains.entry('finance, treasury');
+      }
+      return null;
+    });
+    
+    expect(evolved.lineage(Ontology.domains), ['finance', 'finance, treasury']);
+  });
+}
+</code></pre>
+<h3 id="testing-context-with-rules">Testing Context with Rules</h3>
+<pre class="language-dart"><code class="language-dart">test('Rule uses context', () {
+  final rule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
+    return host?.context.domains?.contains('Admin') ?? false;
+  });
+  
+  final adminContext = Context.module('Admin', stakeholders: 'Admin');
+  final adminCell = Cell(testRule: rule, context: adminContext);
+  
+  final userContext = Context.module('User');
+  final userCell = Cell(testRule: rule, context: userContext);
+  
+  expect(rule.call('anything', host: adminCell), true);
+  expect(rule.call('anything', host: userCell), false);
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-predefined-factories">1. Use Predefined Factories</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use factories
+final context = Context.module('payment');
+
+// ❌ BAD - Manual construction
+final context = Context(
+  type: 'payment',
+  domains: 'logic',
+  taxonomy: 'module',
+);
+</code></pre>
+<h3 id="2-use-evolve-for-changes">2. Use Evolve for Changes</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Evolve from existing
+final base = Context.module('finance');
+final specialized = base.evolve((evolvable) {
+  if (evolvable == Ontology.subDomains) {
+    return Ontology.subDomains.entry('payments');
+  }
+  return null;
+});
+
+// ❌ BAD - Recreate from scratch
+final specialized = Context(
+  type: 'module',
+  domains: 'logic',
+  subDomains: 'payments',
+);
+</code></pre>
+<h3 id="3-use-static-pillars-for-identity">3. Use Static Pillars for Identity</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Static identity
+final context = Context.module('auth');  // taxonomy is 'module'
+
+// ❌ BAD - Trying to change static pillar (ignored)
+final evolved = context.evolve((evolvable) {
+  return Ontology.taxonomy.entry('gateway');  // Ignored - not evolvable
+});
+</code></pre>
+<h3 id="4-use-constraints-for-runtime-rules">4. Use Constraints for Runtime Rules</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Runtime constraints
+final context = Context(
+  constraints: {'max_retries': 3, 'timeout': 5000},
+);
+
+// ❌ BAD - Hardcoded values
+// Use constraints for values that need to be configured at runtime
+</code></pre>
+<h3 id="5-document-context-purpose">5. Document Context Purpose</h3>
+<pre class="language-dart"><code class="language-dart">/// Secure payment processing context.
+///
+/// Features:
+/// - PCI-DSS compliant
+/// - Admin-only access
+/// - Maximum amount: $10,000
+final paymentContext = Context.secureEnclave(
+  partOf: 'PaymentModule',
+  compliances: 'PCI-DSS',
+  constraints: {'max_amount': 10000},
+);
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete multi-tenant application using Context:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────────────────
+// 1. Tenant Contexts
+// ─────────────────────────────────────────────────────────────────────────
+
+class TenantConfig {
+  final String id;
+  final String domain;
+  final List&lt;String&gt; features;
+  final Map&lt;String, dynamic&gt; limits;
+
+  TenantConfig({
+    required this.id,
+    required this.domain,
+    this.features = const [],
+    this.limits = const {},
+  });
+}
+
+Context createTenantContext(TenantConfig tenant) {
+  return Context.module(
+    tenant.id,
+    identity: 'tenant_${tenant.id}',
+    partOf: 'MultiTenantApp',
+    others: {
+      'features': tenant.features,
+      'limits': tenant.limits,
+    },
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 2. Feature-Specific Contexts
+// ─────────────────────────────────────────────────────────────────────────
+
+Context createFeatureContext(TenantConfig tenant, String feature) {
+  final base = createTenantContext(tenant);
+  return base.evolve((evolvable) {
+    if (evolvable == Ontology.subDomains) {
+      return Ontology.subDomains.entry(feature);
+    }
+    if (evolvable == Ontology.constraints) {
+      return Ontology.constraints.entry({
+        'feature': feature,
+        ...tenant.limits,
+      });
+    }
+    return null;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 3. Role-Based Contexts
+// ─────────────────────────────────────────────────────────────────────────
+
+Context createRoleContext(Context base, String role) {
+  return base.evolve((evolvable) {
+    if (evolvable == Ontology.stakeholders) {
+      return Ontology.stakeholders.entry(role);
+    }
+    if (evolvable == Ontology.constraints) {
+      return Ontology.constraints.entry({'role': role});
+    }
+    return null;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 4. Cell Creation
+// ─────────────────────────────────────────────────────────────────────────
+
+Cell createTenantCell(TenantConfig tenant, String role) {
+  final tenantContext = createTenantContext(tenant);
+  final roleContext = createRoleContext(tenantContext, role);
+  
+  return Cell(
+    context: roleContext,
+    receptor: Receptor((cell, pulse, {user}) {
+      final ctx = cell.context;
+      print('Processing in tenant: ${ctx.type}');
+      print('Role: ${ctx.stakeholders}');
+      
+      // Check feature availability
+      final features = ctx.others?['features'] as List? ?? [];
+      if (features.contains('analytics')) {
+        print('Analytics enabled');
+      }
+      
+      return pulse;
+    }),
+    testRule: TestCell((object, {host, arguments, user}) {
+      final ctx = host?.context;
+      final role = ctx?.stakeholders ?? '';
+      return role.contains('Admin') || role.contains('Editor');
+    }),
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 5. Main Demo
+// ─────────────────────────────────────────────────────────────────────────
+
+void main() {
+  print('═══ Multi-Tenant Context Demo ═══\n');
+  
+  // Define tenants
+  final tenantA = TenantConfig(
+    id: 'tenant-a',
+    domain: 'finance',
+    features: ['reporting', 'analytics'],
+    limits: {'max_users': 100},
+  );
+  
+  final tenantB = TenantConfig(
+    id: 'tenant-b',
+    domain: 'hr',
+    features: ['employee-management'],
+    limits: {'max_users': 50},
+  );
+  
+  // Create cells
+  final adminCell = createTenantCell(tenantA, 'Admin');
+  final editorCell = createTenantCell(tenantB, 'Editor');
+  final viewerCell = createTenantCell(tenantA, 'Viewer');
+  
+  // Test contexts
+  print('Tenant A Admin:');
+  print('  Type: ${adminCell.context.type}');
+  print('  Stakeholders: ${adminCell.context.stakeholders}');
+  print('  Features: ${adminCell.context.others?['features']}');
+  
+  print('\nTenant B Editor:');
+  print('  Type: ${editorCell.context.type}');
+  print('  Stakeholders: ${editorCell.context.stakeholders}');
+  print('  Features: ${editorCell.context.others?['features']}');
+  
+  // Test validation
+  final testRule = adminCell.validate;
+  print('\nValidation:');
+  print('  Admin tenant: ${testRule.call('data', host: adminCell)}');
+  print('  Viewer tenant: ${testRule.call('data', host: viewerCell)}');
+  
+  print('\n═══ Done ═══');
+}
+</code></pre>
+<p><strong>Expected Output:</strong></p>
+<pre class="language-dart"><code>═══ Multi-Tenant Context Demo ═══
+
+Tenant A Admin:
+  Type: tenant-a
+  Stakeholders: Admin
+  Features: [reporting, analytics]
+
+Tenant B Editor:
+  Type: tenant-b
+  Stakeholders: Editor
+  Features: [employee-management]
+
+Validation:
+  Admin tenant: true
+  Viewer tenant: false
+
+═══ Done ═══
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Context</strong></td>
+<td>Operational environment for a cell</td>
+</tr>
+<tr>
+<td><strong>Ontology</strong></td>
+<td>Structural dimensions (identity, domains, constraints)</td>
+</tr>
+<tr>
+<td><strong>Mandate</strong></td>
+<td>Authority dimensions (role, clearance, permissions)</td>
+</tr>
+<tr>
+<td><strong>Provenance</strong></td>
+<td>Historical dimensions (actor, reason, strategy)</td>
+</tr>
+<tr>
+<td><strong>Inheritance</strong></td>
+<td>Prototype-based via <code>evolve()</code></td>
+</tr>
+<tr>
+<td><strong>Lineage</strong></td>
+<td>Track evolution of dimensions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Context is immutable</strong> - Use <code>evolve()</code> to create new ones</li>
+<li><strong>Static pillars cannot change</strong> - Use evolvable dimensions for runtime changes</li>
+<li><strong>Use predefined factories</strong> - Prefer <code>module()</code>, <code>secureEnclave()</code>, etc.</li>
+<li><strong>Document your contexts</strong> - Explain purpose and constraints</li>
+<li><strong>Use constraints</strong> - For runtime configuration</li>
+<li><strong>Check lineage</strong> - For debugging and auditing</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: Module context
+final context = Context.module('payment');
+
+// Pattern: Secure context
+final context = Context.secureEnclave(
+  partOf: 'CryptoModule',
+  compliances: 'FIPS-140-2',
+);
+
+// Pattern: Evolution
+final evolved = base.evolve((evolvable) {
+  if (evolvable == Ontology.domains) {
+    return Ontology.domains.entry('finance');
+  }
+  return null;
+});
+
+// Pattern: Deputy context
+final deputy = DeputyContext.observer(
+  baseContext: Context.system,
+  task: 'Monitor',
+);
+
+// Pattern: Context-aware validation
+final rule = TestCell&lt;Cell&gt;((_, {host, ...}) =&gt; host.context.domains == 'admin');
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Context">
+  <span class="name "><a href="../cell/Context-class.html">Context</a></span> 
+    <span class="category advanced cp-8 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-context cp-11 linked" title="This is part of the Advanced · Context topic."><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></span>
+
+</dt>
+<dd>
+  Metadata describing a <a href="../cell/Cell-class.html">Cell</a>'s tier, domain, and operational
+boundaries — used by <a href="../cell/TestCell-class.html">TestCell</a> rules to make context-aware decisions.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Context topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Advanced · Context topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Context-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/Context-class.html">Context</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

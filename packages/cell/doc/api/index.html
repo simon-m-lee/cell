@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell API docs, for the Dart programming language.">
+  <title>cell - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">cell package</li>
+  </ol>
+  <div class="self-name">cell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell">cell</h1>
+<p>Reactive state for Dart. A <strong>cell</strong> holds a value or relays a signal. A <strong>pulse</strong> is the immutable message that moves a change. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire cells together.</p>
+<p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Mitosis-1.0.0--rc.1-blue.svg" alt="Version"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Status-RC-yellow.svg" alt="Status"></a></p>
+<p>Validation, deputies, provenance, and timing control are available when you need them. Defaults are pass-through and allow-all — you can ship a counter without learning <code>Nucleus</code>.</p>
+<p>This is the foundation package of the Cell Framework (Mitosis). Sibling packages add collections, relations, stream combinators, persistence, and codegen.</p>
+<hr>
+<h2 id="when-it-fits">When it fits</h2>
+<p>Cell is a good match if you want:</p>
+<ul>
+<li>Persistent reactive state with an explicit update path</li>
+<li>Events (clicks, sockets, sensors) entering the same graph as state</li>
+<li>Validation that is a gate, not a callback you remember to call</li>
+<li>Restricted views of the same data without copying it (<code>deputy</code>, <code>unmodifiable</code>)</li>
+<li>Multi-cell commits (<code>transaction</code>) or staged commands with undo (<code>txApply</code>)</li>
+<li>Debounce / throttle / batch as library behavior rather than ad-hoc <code>Timer</code>s</li>
+</ul>
+<p>It is more machinery than you need for a couple of flags, a basic form, or a single <code>Future</code>. For Rx-style combinators (<code>merge</code>, <code>zip</code>, <code>scan</code>, windows), use <strong>cell_flow</strong>.</p>
+<hr>
+<h2 id="install">Install</h2>
+<p>The package is not on pub.dev. From this monorepo:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell:
+    path: packages/cell
+</code></pre>
+<p>From git:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell:
+    git:
+      url: https://github.com/simon-m-lee/Cell-Framework-Mitosis.git
+      path: packages/cell
+</code></pre>
+<p>Requires Dart <code>&gt;=3.5.0 &lt;4.0.0</code>.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+</code></pre>
+<hr>
+<h2 id="quick-example">Quick example</h2>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+void main() {
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) {
+      final delta = input.payload as int? ?? 1;
+      return Pulse(host.value + delta);
+    },
+  );
+
+  final observer = Cell.observe(
+    source: counter.cell,
+    effect: (pulse) =&gt; print('Counter: ${pulse.payload}'),
+  );
+
+  counter.update(5); // prints: Counter: 5
+  observer.stop();
+}
+</code></pre>
+<p><code>evolve</code> returning <code>null</code> rejects the update. Omit <code>evolve</code> to treat <code>update</code> as a direct assignment.</p>
+<p>Runnable demos live in <a href="example/"><code>example/</code></a>. Start with <code>example/state_demo.dart</code>.</p>
+<hr>
+<h2 id="core-operators">Core operators</h2>
+<p>You can build most application graphs from these factories. None of them require configuring <code>Receptor</code>, <code>TestCell</code>, <code>Context</code>, or <code>Synapses</code>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Factory</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>Cell.state</code></td>
+<td>Persistent mutable state</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Cell.ingress</code></td>
+<td>Manual <code>emit</code> / <code>ingest</code> of external events</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Cell.observe</code></td>
+<td>Side effects; <code>start</code> / <code>stop</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Cell.derive</code></td>
+<td>Pure projection of one source</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>Cell.debounce</code></td>
+<td>Emit after a silence window</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Cell.distinct</code></td>
+<td>Skip equal consecutive payloads</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>Cell.throttle</code></td>
+<td>Cap emission frequency</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Cell.synthesis</code></td>
+<td>Aggregate several sources</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Cell.asyncMap</code></td>
+<td>Map each value to a <code>Future</code> (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>)</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>Cell.hub</code></td>
+<td>Route by <code>Pulse.type</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>Cell.switchMap</code></td>
+<td>Follow the latest inner cell</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>Cell.fromFuture</code> / <code>Cell.fromStream</code></td>
+<td>Bridge <code>dart:async</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>Cell.sanitized</code></td>
+<td>Redact before egress</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>Cell.open</code></td>
+<td>Manual topology (<code>emit</code> / <code>link</code>)</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>Cell.transaction</code></td>
+<td>Multi-cell buffered writes</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>Cell.txApply</code></td>
+<td>Staged <code>apply</code> + compensation</td>
+</tr>
+</tbody>
+</table>
+<p>Also implemented, outside that numbered set: <strong><code>Cell.valve</code></strong> (predicate gate). Fan-in of several sources is <code>Cell.synthesis</code> (or combinators in cell_flow).</p>
+<p>Learning order: get data in → hold state → react → shape streams → go async → combine → isolate writes. Operators 1–4 are enough for a first app.</p>
+<hr>
+<h2 id="how-much-you-need-to-know">How much you need to know</h2>
+<p>Layers are optional, not a reading list.</p>
+<ol>
+<li><strong>Operators</strong> — intended default for application code.</li>
+<li><strong>Pipelines and propagation</strong> — custom <code>Receptor</code> / <code>Instruction</code>, and <code>Synapses</code> + <code>PropagationPolicy</code>, when a factory’s default is not enough.</li>
+<li><strong>Validation and authority</strong> — <code>TestCell</code> and <code>Context</code>. Off by default (<code>TestCell.allowAll</code>, <code>Context.system</code>).</li>
+<li><strong>Internals</strong> — <code>Nucleus</code>, <code>Cell.governed</code>, <code>Cell.fromNucleus</code>, lifecycle policies. For extending the framework or high-integrity nodes.</li>
+</ol>
+<p>A deputy is a proxy, not a copy: <code>cell == cell.deputy()</code> is true. Rules on a deputy can only <strong>narrow</strong> what the principal already allows.</p>
+<p>See <a href="ARCHITECTURE.md">ARCHITECTURE.md</a> for the design rationale.</p>
+<hr>
+<h2 id="documentation">Documentation</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="guide/HowTo-Start.md">HowTo-Start.md</a></td>
+<td>Walkthrough of the core concepts</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-16_Essential_Operators.md">HowTo-16_Essential_Operators.md</a></td>
+<td>Operator reference and learning path</td>
+</tr>
+<tr>
+<td><a href="FEATURES.md">FEATURES.md</a></td>
+<td>Source-checked feature catalog</td>
+</tr>
+<tr>
+<td><a href="ARCHITECTURE.md">ARCHITECTURE.md</a></td>
+<td>Why the pieces are shaped this way</td>
+</tr>
+<tr>
+<td><a href="TEST_VERIFICATION.md">TEST_VERIFICATION.md</a></td>
+<td>Unit-test inventory, measured coverage, and how to run the suite</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-TestCell.md">HowTo-TestCell.md</a></td>
+<td>Validation rules</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Synapses.md">HowTo-Synapses.md</a></td>
+<td>Linking, filters, propagation</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Receptor.md">HowTo-Receptor.md</a></td>
+<td>Transformation pipelines</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Instruction.md">HowTo-Instruction.md</a></td>
+<td>Instruction stages</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Transaction.md">HowTo-Transaction.md</a></td>
+<td>Buffered multi-cell writes</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-TransactionOnApply.md">HowTo-TransactionOnApply.md</a></td>
+<td>Staged <code>apply</code> + compensation</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Advanced.md">HowTo-Advanced.md</a></td>
+<td>Index of optional governance machinery</td>
+</tr>
+</tbody>
+</table>
+<p>Guides use <code>HowTo-*.md</code> (hyphens). Generate API docs with <code>dart doc .</code> and open <code>doc/api/index.html</code>.</p>
+<p>If a guide and the source disagree, <strong>the source is current</strong>.</p>
+<hr>
+<h2 id="ecosystem">Ecosystem</h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>cell</strong> (this)</td>
+<td>Nodes, pulses, operators, governance, transactions</td>
+</tr>
+<tr>
+<td><strong>cell_tissue</strong></td>
+<td>Reactive collections (list / map / set / queue)</td>
+</tr>
+<tr>
+<td><strong>cell_organ</strong></td>
+<td>Relatable models (one / many, cascade, blend)</td>
+</tr>
+<tr>
+<td><strong>cell_flow</strong></td>
+<td>79 instruction factories on <code>Flow</code>, plus fluent chaining (<code>mapTo</code>, <code>asyncExpand</code>, <code>zip</code>, …)</td>
+</tr>
+<tr>
+<td><strong>cell_memory</strong></td>
+<td>Persistence</td>
+</tr>
+<tr>
+<td><strong>cell_ontogeny</strong></td>
+<td>Code generation</td>
+</tr>
+</tbody>
+</table>
+<p>Flutter has no dedicated widgets here. Bind with <code>Cell.observe</code> (or an adapter) and drive <code>setState</code> or your existing state library.</p>
+<hr>
+<h2 id="status">Status</h2>
+<p><strong>RC</strong> (Mitosis <code>1.0.0-rc.1</code>, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.</p>
+<p>A fuller developer list is in <a href="KNOWN_ISSUES.md">KNOWN_ISSUES.md</a>. Known limits, so this page does not over-promise:</p>
+<ul>
+<li>Not published to pub.dev. No independent security or correctness audit.</li>
+<li><code>Context</code>, <code>PulseContext</code>, and <code>Sensitivity</code> let you <em>attach</em> classification, actor, and purpose. They do not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation. <code>Context.describe('…')</code> stores text; it is not a legal basis or an audit log.</li>
+</ul>
+<p>Feedback and issues are useful at this stage.</p>
+<pre class="language-bash"><code class="language-bash">dart analyze lib
+# Files are test_*.dart — bare `dart test` finds nothing. See TEST_VERIFICATION.md.
+dart test @(Get-ChildItem test/test_*.dart | ForEach-Object { "test/$($_.Name)" })
+dart format .
+dart doc .
+</code></pre>
+<hr>
+<h2 id="license">License</h2>
+<p>MIT or Apache-2.0. See <a href="LICENSE">LICENSE</a>.</p>
+<h2 id="authors">Authors</h2>
+<p>Lee Man Hoi Simon. See <a href="AUTHORS">AUTHORS</a> for copyright holders.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <h3>Features</h3>
+          <p>Cell Framework — Feature Catalog</p>
+            <dt id="cell">
+  <span class="name"><a href="cell/">cell</a></span> 
+    <span class="category features cp-0 linked" title="This is part of the Features topic."><a href="topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>Cell — reactive state for Dart.
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li class="self-crumb">cell package</li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="topics/Features-topic.html">Features</a></li>
+        <li><a href="topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="cell/">cell</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

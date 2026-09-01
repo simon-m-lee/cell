@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Cell class from the cell library, for the Dart programming language.">
+  <title>Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Cell class</li>
+  </ol>
+  <div class="self-name">Cell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Cell-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Cell</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+    <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
+ 
+    <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.</p>
+<p>Internally, a <a href="../cell/Cell-class.html">Cell</a>'s behavior is split into four independent,
+swappable pieces — a <a href="../cell/Receptor-class.html">Receptor</a> (how it transforms an incoming
+<a href="../cell/Pulse-class.html">Pulse</a>), a <a href="../cell/TestCell-class.html">TestCell</a> (what it's allowed to accept), a <a href="../cell/Context-class.html">Context</a> (what
+tier/domain it belongs to), and <a href="../cell/Synapses-class.html">Synapses</a> (who it notifies on change).
+You don't construct any of these directly for ordinary use — they all
+have working defaults, and the static operators below hide them
+entirely.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p><strong>First 16 operators</strong>: Almost everything is built from one of these. They will
+cover most of your daily reactive programming needs. They're ordered from
+most essential to more advanced.</p>
+<p>These are ordered for a learning path:
+get data in →
+hold state →
+react in the UI →
+shape streams →
+go async →
+combine sources.</p>
+<ul>
+<li><a href="../cell/Cell/ingress.html">Cell.ingress</a> — How intent/events enter the graph</li>
+<li><a href="../cell/Cell/state.html">Cell.state</a> — Retained app state you read and update</li>
+<li><a href="../cell/Cell/observe.html">Cell.observe</a> — Side effects: UI, logging, wiring widgets</li>
+<li><a href="../cell/Cell/derive.html">Cell.derive</a> — Pure view-models / projections from state</li>
+<li><a href="../cell/Cell/hub.html">Cell.hub</a> — Routing signals to specific handlers</li>
+<li><a href="../cell/Cell/open.html">Cell.open</a> — Module boundaries for manual control</li>
+<li><a href="../cell/Cell/distinct.html">Cell.distinct</a> — Skip redundant updates and rebuilds</li>
+<li><a href="../cell/Cell/valve.html">Cell.valve</a> — Flow control: only allow pulses when a condition is met</li>
+<li><a href="../cell/Cell/throttle.html">Cell.throttle</a>/<a href="../cell/Cell/debounce.html">Cell.debounce</a> — Timing control: input rate-limiting</li>
+<li><a href="../cell/Cell/asyncMap.html">Cell.asyncMap</a> — HTTP/DB work (latestOnly / exhaust)</li>
+<li><a href="../cell/Cell/fromFuture.html">Cell.fromFuture</a>/<a href="../cell/Cell/fromStream.html">Cell.fromStream</a> — Bridge Futures and Streams into Cell</li>
+<li><a href="../cell/Cell/synthesis.html">Cell.synthesis</a> — merge multiple sources into one consensus</li>
+<li><a href="../cell/Cell/sanitized.html">Cell.sanitized</a> — Data sanitization / validation</li>
+<li><a href="../cell/Cell/switchMap.html">Cell.switchMap</a> - Selected user / tab / locale → active upstream</li>
+<li><a href="../cell/Cell/transaction.html">Cell.transaction</a> — Multi-cell atomic updates (money, stock, forms)</li>
+<li><a href="../cell/Cell/txApply.html">Cell.txApply</a> —  batch multiple apply() into a single commit.</li>
+</ul>
+<p>Each works with zero knowledge of <a href="../cell/Receptor-class.html">Receptor</a>, <a href="../cell/TestCell-class.html">TestCell</a>, <a href="../cell/Context-class.html">Context</a>, or
+<a href="../cell/Synapses-class.html">Synapses</a> — all optional, all defaulted. They represent the
+<strong>Standard Entry Point</strong>, allowing you to build complex reactive systems
+by connecting simple building blocks. While you focus on your logic, the
+framework automatically manages the input (Ingress), logic (Transformation),
+and notifications (Egress), handling all security checks and verification
+steps in the background.</p>
+<h3 id="identity">Identity</h3>
+<p>A cell obtained via <a href="../cell/Cell/deputy.html">deputy</a> or <a href="../cell/Cell/unmodifiable.html">unmodifiable</a> is a <em>proxy</em>, not a
+copy — it shares its principal's underlying state. <code>cell == cell.deputy()</code> is <code>true</code>; they're interchangeable in <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>s.
+What differs is what each is <em>permitted</em> to do (<a href="../cell/Cell/validate.html">validate</a>), never what
+data it holds.</p>
+<h3 id="going-further">Going further</h3>
+<p><a href="../cell/Cell/Cell.governed.html">Cell.governed</a> and <a href="../cell/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a> expose full control over
+lifecycle, security tier, and concurrency. Reach for these only when
+the operators above are genuinely insufficient — e.g. building
+infrastructure nodes, not typical application state.</p>
+<p>For a rich ecosystem of reactive primitives, see <strong>cell_flow</strong>—a
+complementary library providing 79 instruction-layer <code>Flow</code> factories
+for complex stream orchestration, advanced filtering, and
+high-level data synchronization.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/Pulse-class.html">Pulse</a> (the signal a cell processes).</li>
+<li><a href="../cell/ValueCell-class.html">ValueCell</a> (the concrete stateful type returned by <a href="../cell/Cell/state.html">Cell.state</a>).</li>
+<li><strong>HowTo</strong>: See <code>guide/HowTo-Start.md</code> for a comprehensive guide on
+getting started with the Cell architecture and reactive patterns.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../cell/CellBase-class.html">CellBase</a></li>
+              <li><a href="../cell/Deputy-mixin.html">Deputy</a></li>
+              <li><a href="../cell/OpenCell-class.html">OpenCell</a></li>
+              <li><a href="../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+              <li><a href="../cell/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
+          </ul></dd>
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Cell.new" class="callable">
+          <span class="name"><a href="../cell/Cell/Cell.html">Cell</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a standard, stateful <a href="../cell/Cell-class.html">Cell</a> instance—the foundational execution
+node of the reactive network.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="Cell.fromNucleus" class="callable">
+          <span class="name"><a href="../cell/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a></span><span class="signature">(<span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../cell/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">nucleus</span></span>)</span>
+        </dt>
+        <dd>
+          Activates a live <a href="../cell/Cell-class.html">Cell</a> instance from a pre-configured <a href="../cell/Nucleus-class.html">Nucleus</a> blueprint.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="Cell.governed" class="callable">
+          <span class="name"><a href="../cell/Cell/Cell.governed.html">Cell.governed</a></span><span class="signature">({<span class="parameter" id="governed-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="governed-param-context"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="governed-param-bind"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="governed-param-receptor"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="governed-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="governed-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="governed-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a fully managed <a href="../cell/Cell-class.html">Cell</a> instance with explicit control over
+its <strong>Identity Lifecycle</strong>, <strong>Administrative Policy</strong>, and
+<strong>Atomic Isolation</strong>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="async" class="property">
+  <span class="name"><a href="../cell/Cell/async.html">async</a></span>
+  <span class="signature">&#8594; <a href="../cell/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Provides a high-level, asynchronous interface for interacting with this
+<a href="../cell/Cell-class.html">Cell</a> node.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="context" class="property">
+  <span class="name"><a href="../cell/Cell/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd>
+  The operational <a href="../cell/Context-class.html">Context</a> defining the security tier, execution priority,
+and administrative authority of this <a href="../cell/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property">
+  <span class="name"><a href="../cell/Cell/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <a href="../cell/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
+that oversees its operational boundaries, security constraints, and administrative metadata.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property">
+  <span class="name"><a href="../cell/Cell/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <a href="../cell/Cell-class.html">Cell</a> has initiated its <strong>Automatic Termination</strong>
+sequence and is currently in the process of being neutralized.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isTerminal" class="property">
+  <span class="name"><a href="../cell/Cell/isTerminal.html">isTerminal</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  A boolean indicator identifying whether this <a href="../cell/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="modifiable" class="property">
+  <span class="name"><a href="../cell/Cell/modifiable.html">modifiable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Defines the exhaustive whitelist of functions and commands authorized for
+execution on this node via the dynamic <a href="../cell/Cell/apply.html">apply</a> method.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="unmodifiable" class="property">
+  <span class="name"><a href="../cell/Cell/unmodifiable.html">unmodifiable</a></span>
+  <span class="signature">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd>
+  Returns a read-only, reactive projection (Deputy) of this <a href="../cell/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="validate" class="property">
+  <span class="name"><a href="../cell/Cell/validate.html">validate</a></span>
+  <span class="signature">&#8594; <a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The authoritative <strong>Integrity Gate</strong> and validation rule governing this
+cell's structural and operational boundaries.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="apply" class="callable">
+  <span class="name"><a href="../cell/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
+  
+
+</dd>
+
+        <dt id="deputy" class="callable">
+  <span class="name"><a href="../cell/Cell/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../cell/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
+governance and restricted authority.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="asyncMap" class="callable">
+  <span class="name"><a href="../cell/Cell/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="asyncMap-param-mapper"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), {</span><span class="parameter" id="asyncMap-param-concurrency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">concurrency</span> = <span class="default-value">0</span>, </span><span class="parameter" id="asyncMap-param-latestOnly"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">latestOnly</span> = <span class="default-value">false</span>, </span><span class="parameter" id="asyncMap-param-exhaust"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">exhaust</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes an <strong>Asynchronous Data Transformer</strong>—a specialized node that
+runs background tasks for every emission from an upstream source.
+  
+
+</dd>
+
+        <dt id="debounce" class="callable">
+  <span class="name"><a href="../cell/Cell/debounce.html">debounce</a></span><span class="signature">(<wbr><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="debounce-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="debounce-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">false</span>, </span><span class="parameter" id="debounce-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Limits propagation by waiting for a period of stability in the <code>source</code>
+(classic Rx <code>debounceTime</code>).
+  
+
+</dd>
+
+        <dt id="derive" class="callable">
+  <span class="name"><a href="../cell/Cell/derive.html">derive</a></span><span class="signature">&lt;<wbr><span class="type-parameter">I extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="derive-param-source"><span>required</span> <span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="derive-param-project"><span>required</span> <span class="type-annotation">O?</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a new <a href="../cell/Cell-class.html">Cell</a> that acts as a <strong>Reactive Projection</strong> (or View)
+of an existing source cell.
+  
+
+</dd>
+
+        <dt id="distinct" class="callable">
+  <span class="name"><a href="../cell/Cell/distinct.html">distinct</a></span><span class="signature">(<wbr><span class="parameter" id="distinct-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="distinct-param-equals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">equals</span>(<span class="parameter" id="param-previous"><span class="type-annotation">dynamic</span> <span class="parameter-name">previous</span>, </span><span class="parameter" id="param-next"><span class="type-annotation">dynamic</span> <span class="parameter-name">next</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Filters out consecutive duplicate payloads from a source <a href="../cell/Cell-class.html">Cell</a>.
+  
+
+</dd>
+
+        <dt id="fromFuture" class="callable">
+  <span class="name"><a href="../cell/Cell/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromFuture-param-future"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">future</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../cell/Cell-class.html">Cell</a> that emits the result of a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> exactly once.
+  
+
+</dd>
+
+        <dt id="fromStream" class="callable">
+  <span class="name"><a href="../cell/Cell/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="fromStream-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">cancelOnError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="fromStream-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../cell/Cell-class.html">Cell</a> that emits the values produced by a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.
+  
+
+</dd>
+
+        <dt id="hub" class="callable">
+  <span class="name"><a href="../cell/Cell/hub.html">hub</a></span><span class="signature">(<wbr>{<span class="parameter" id="hub-param-spokes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>&gt;</span>?</span> <span class="parameter-name">spokes</span>, </span><span class="parameter" id="hub-param-governedSpokes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/DeputyContext-class.html">DeputyContext</a></span>, <span class="type-parameter"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">governedSpokes</span>, </span><span class="parameter" id="hub-param-registrations"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/SpokeRegistration.html">SpokeRegistration</a></span>&gt;</span>?</span> <span class="parameter-name">registrations</span>, </span><span class="parameter" id="hub-param-routing"><span class="type-annotation"><a href="../cell/HubRouting.html">HubRouting</a></span> <span class="parameter-name">routing</span> = <span class="default-value">HubRouting.exact</span>, </span><span class="parameter" id="hub-param-multicast"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">multicast</span> = <span class="default-value">false</span>, </span><span class="parameter" id="hub-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="hub-param-distribution"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">distribution</span>(<span class="parameter" id="param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">role</span></span>)?, </span><span class="parameter" id="hub-param-relay"><span class="type-annotation">void</span> <span class="parameter-name">relay</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)?, </span><span class="parameter" id="hub-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/HubHandle.html">HubHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Multi-Destination Router</strong>—a specialized node that acts as
+a reactive demultiplexer, directing signals to specialized handlers.
+  
+
+</dd>
+
+        <dt id="ingress" class="callable">
+  <span class="name"><a href="../cell/Cell/ingress.html">ingress</a></span><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="ingress-param-refine"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I?</span>&gt;</span>?</span> <span class="parameter-name">refine</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">input</span></span>)?, </span><span class="parameter" id="ingress-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="ingress-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="ingress-param-context"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="ingress-param-receptor"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="ingress-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="ingress-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="ingress-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/IngressHandle.html">IngressHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Stateless Event Gateway</strong>—the primary entry point for
+bridging imperative signals into the reactive graph.
+  
+
+</dd>
+
+        <dt id="observe" class="callable">
+  <span class="name"><a href="../cell/Cell/observe.html">observe</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="observe-param-source"><span>required</span> <span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="observe-param-effect"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">effect</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="observe-param-initiallyStarted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">initiallyStarted</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/EgressHandle.html">EgressHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes an <strong>Output Terminal</strong> designed to observe the reactive graph
+and emit imperative side effects.
+  
+
+</dd>
+
+        <dt id="open" class="callable">
+  <span class="name"><a href="../cell/Cell/open.html">open</a></span><span class="signature">(<wbr>{<span class="parameter" id="open-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="open-param-context"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="open-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="open-param-receptor"><span class="type-annotation"><a href="../cell/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="open-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="open-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="open-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/OpenCell-class.html">OpenCell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Manual Control Interface</strong>—a specialized node that allows
+you to manually push data into the reactive network or change how cells
+are connected at runtime.
+  
+
+</dd>
+
+        <dt id="sanitized" class="callable">
+  <span class="name"><a href="../cell/Cell/sanitized.html">sanitized</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="sanitized-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="sanitized-param-redact"><span>required</span> <span class="type-annotation">P</span> <span class="parameter-name">redact</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="sanitized-param-minSensitivity"><span class="type-annotation"><a href="../cell/Sensitivity.html">Sensitivity</a></span> <span class="parameter-name">minSensitivity</span> = <span class="default-value">Sensitivity.confidential</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Privacy Guard</strong>—a security-hardened node that
+automatically modifies <a href="../cell/Pulse-class.html">Pulse</a> payloads based on their <a href="../cell/Sensitivity.html">Sensitivity</a>
+and compliance mandates.
+  
+
+</dd>
+
+        <dt id="state" class="callable">
+  <span class="name"><a href="../cell/Cell/state.html">state</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="state-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="state-param-evolve"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">evolve</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/StateHandle.html">StateHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Stateful Micro-Service</strong>—the primary primitive for
+reactive state management.
+  
+
+</dd>
+
+        <dt id="switchMap" class="callable">
+  <span class="name"><a href="../cell/Cell/switchMap.html">switchMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="switchMap-param-mapper"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Dynamic Provider Switch</strong>—a specialized node that
+swaps its data source at runtime based on the selection from another cell.
+  
+
+</dd>
+
+        <dt id="synthesis" class="callable">
+  <span class="name"><a href="../cell/Cell/synthesis.html">synthesis</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="synthesis-param-sources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">sources</span>, {</span><span class="parameter" id="synthesis-param-aggregator"><span>required</span> <span class="type-annotation">P?</span> <span class="parameter-name">aggregator</span>(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="param-emit"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">emit</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Multi-Source Convergence Node</strong>—the primary primitive
+for merging disparate data streams into a unified reactive output.
+  
+
+</dd>
+
+        <dt id="throttle" class="callable">
+  <span class="name"><a href="../cell/Cell/throttle.html">throttle</a></span><span class="signature">(<wbr><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="throttle-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, {</span><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Limits the frequency of updates from a <code>source</code> cell by enforcing a
+minimum <code>duration</code> between emissions.
+  
+
+</dd>
+
+        <dt id="transaction" class="callable">
+  <span class="name"><a href="../cell/Cell/transaction.html">transaction</a></span><span class="signature">(<wbr>[<span class="parameter" id="transaction-param-options"><span class="type-annotation"><a href="../cell/TransactionOptions-class.html">TransactionOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const TransactionOptions()</span></span>])
+    <span class="returntype parameter">&#8594; <a href="../cell/TransactionScope.html">TransactionScope</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an atomic multi-cell transaction with configurable isolation.
+  
+
+</dd>
+
+        <dt id="txApply" class="callable">
+  <span class="name"><a href="../cell/Cell/txApply.html">txApply</a></span><span class="signature">(<wbr>[<span class="parameter" id="txApply-param-options"><span class="type-annotation"><a href="../cell/TxApplyOptions-class.html">TxApplyOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const TxApplyOptions()</span></span>])
+    <span class="returntype parameter">&#8594; <a href="../cell/ApplyTransactionScope-class.html">ApplyTransactionScope</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  An Atomic Evolution Sequencer that executes multiple state mutations
+within a single coordinated transaction.
+  
+
+</dd>
+
+        <dt id="valve" class="callable">
+  <span class="name"><a href="../cell/Cell/valve.html">valve</a></span><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="valve-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="valve-param-gate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">gate</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span>), {</span><span class="parameter" id="valve-param-synapses"><span class="type-annotation"><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/Cell-class.html">Cell</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Conditional Gate</strong>—a specialized node that acts as a
+reactive circuit breaker, controlling signal propagation through the graph.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Cell class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

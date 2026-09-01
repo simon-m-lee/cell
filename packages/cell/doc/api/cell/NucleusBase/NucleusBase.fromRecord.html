@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the NucleusBase.fromRecord constructor from Class NucleusBase from the cell library, for the Dart programming language.">
+  <title>NucleusBase.fromRecord constructor - NucleusBase - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.fromRecord const constructor</li>
+  </ol>
+  <div class="self-name">NucleusBase.fromRecord</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;NucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">NucleusBase.fromRecord</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">NucleusBase.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span></li>
+</ol>)
+    </section>
+    
+<section class="desc markdown">
+  <p>Reconstitutes a <a href="../../cell/NucleusBase-class.html">NucleusBase</a> from a raw <strong>Flyweight Record</strong>, facilitating
+the restoration of architectural blueprints from a compressed state.</p>
+<p>The <a href="../../cell/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a> constructor is the framework's primary mechanism for
+<strong>Structural Deserialization</strong>. By utilizing the <strong>Flyweight Strategy</strong>, it
+allows for the creation of persistent, static, or cloned reactive
+configurations with zero runtime calculation overhead, bypassing the
+property masking logic.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Structural Evolution</strong>: Efficiently creating a new nucleus from the
+resolved record of a principal during <a href="../../cell/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a> or <a href="../../cell/Nucleus/clone.html">Nucleus.clone</a>.</li>
+<li><strong>Flyweight Reification</strong>: Instantiating static nuclei (like <a href="../../cell/Nucleolus-class.html">Nucleolus</a>)
+at compile-time to eliminate runtime heap allocation pressure.</li>
+<li><strong>Module Restoration</strong>: Re-hydrating a nucleus from a persisted
+<strong>Causal Trace</strong> or snapshot for system auditing and recovery.</li>
+<li><strong>Low-Level Trust</strong>: When property sets have already been resolved or
+optimized by other internal framework processes.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Direct State Injection</strong>: Bypasses the standard <code>mask</code> utility and
+bitmask optimization, assigning the <code>record</code> directly to internal storage.</li>
+<li><strong>Structural Hydration</strong>: Populates the node's blueprint using a tiered
+record structure containing <code>local</code> properties and an optional
+<code>principal</code> for inheritance.</li>
+<li><strong>Hydration Logic</strong>: It assumes the <strong>Flyweight Optimization</strong> has
+already been applied to the input, allowing for immediate reification.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Trust Model</strong>: Operates on a "Trusted Input" model; it does not validate
+that mandatory pillars (like <a href="../../cell/NucleusBase/testRule.html">testRule</a>) are present if the <a href="../../cell/NucleusBase/principal.html">principal</a>
+is missing.</li>
+<li><strong>Deterministic Identity</strong>: By utilizing <code>const</code> records, the framework
+maintains referential equality across the graph, ensuring a
+stable <strong>Causal Provenance</strong>.</li>
+<li><strong>Zero-Cost Path</strong>: Provides a zero-latency path for restoring nuclei
+within performance-critical reactive waves.</li>
+<li><strong>Manual Pillar Resolution</strong>: Property resolution will fall back to the
+<code>principal</code> defined within the record, not an external argument.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Primarily used internally for structural evolution:
+const optimizedNucleus = NucleusBase.fromRecord(
+  record: (
+    local: (context: Context.module, receptor: MyCustomReceptor()),
+    principal: Nucleus.empty
+  )
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>record</code>: <strong>The Blueprint Signature.</strong> The internal data structure serving
+as the node's identity and governance configuration.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/NucleusBase-class.html">NucleusBase</a> instance reconstituted from its internal state.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/NucleusBase-class.html">NucleusBase</a>: The standard parameter-based constructor.</li>
+<li><a href="../../cell/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>: For hierarchical property inheritance.</li>
+<li><a href="../../cell/Nucleolus-class.html">Nucleolus</a>: For static, compile-time blueprint reification.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const NucleusBase.fromRecord(this.record);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.fromRecord const constructor</li>
+</ol>
+
+    <h5>NucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

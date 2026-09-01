@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the unmodifiable property from the CellBase class, for the Dart programming language.">
+  <title>unmodifiable property - CellBase class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/CellBase-class.html">CellBase</a></li>
+    <li class="self-crumb">unmodifiable property</li>
+  </ol>
+  <div class="self-name">unmodifiable</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;CellBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">unmodifiable</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="../../cell/Cell-class.html">Cell</a></span>
+      get
+      <span class="name ">unmodifiable</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a read-only, reactive projection (Deputy) of this <a href="../../cell/Cell-class.html">Cell</a>.</p>
+<p>This getter is a cornerstone of the framework's <strong>Security and
+Encapsulation</strong> architecture. It implements the <strong>Deputy Pattern</strong>,
+providing a mechanism to expose a cell's state and reactivity to
+downstream observers while strictly prohibiting the authority to
+emit state transitions or structural modifications.</p>
+<h3 id="relationship-with-modifiable">Relationship with <a href="../../cell/CellBase/modifiable.html">modifiable</a></h3>
+<p>There is a direct inverse relationship between these two members:</p>
+<ul>
+<li><strong><a href="../../cell/CellBase/modifiable.html">modifiable</a></strong>: Represents the <strong>Capability Manifest</strong>—the whitelist
+of functions authorized to mutate the cell via <a href="../../cell/CellBase/apply.html">apply</a>.</li>
+<li><strong><a href="../../cell/CellBase/unmodifiable.html">unmodifiable</a></strong>: Returns a new <a href="../../cell/Cell-class.html">Cell</a> handle where the <a href="../../cell/CellBase/modifiable.html">modifiable</a>
+list is effectively <strong>shadowed and emptied</strong>. Even if the principal
+cell defines authorized mutations, the deputy produced by this getter
+strips away that authority, ensuring <a href="../../cell/CellBase/apply.html">apply</a> will always fail.</li>
+</ul>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to follow the <strong>Principle of Least Privilege</strong>. Pass an
+<code>unmodifiable</code> handle to UI components, logging services, or external
+plugins that need to react to state changes but should never be allowed
+to trigger them.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Integrity Gate Override</strong>: The deputy is initialized with
+<a href="../../cell/TestCell/readOnly-constant.html">TestCell.readOnly</a>, which automatically rejects all incoming <a href="../../cell/Pulse-class.html">Pulse</a>s.</li>
+<li><strong>State Sharing</strong>: The deputy shares the exact same underlying state,
+lock, and <a href="../../cell/Synapses-class.html">Synapses</a> as the principal cell, ensuring zero-latency
+reactivity without memory duplication.</li>
+<li><strong>Capability Stripping</strong>: The deputy’s <a href="../../cell/CellBase/modifiable.html">modifiable</a> getter is
+hardcoded to return an empty iterable, removing all entry points for
+the dynamic command pattern.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Identity Logic</strong>: While the deputy is a different object instance, it
+maintains logical identity with the principal for structural comparisons.</li>
+<li><strong>Reactivity Flow</strong>: The deputy remains a fully functional reactive
+node; it simply acts as an "Egress-Only" valve in the topology.</li>
+</ul>
+<h3 id="example-encapsulating-domain-logic">Example: Encapsulating Domain Logic</h3>
+<pre class="language-dart"><code class="language-dart">class UserAccount {
+  // The internal, private state that allows mutations
+  final Cell&lt;int&gt; _balance = Cell.state(value: 100);
+
+  // Expose only the unmodifiable deputy to the UI
+  Cell&lt;int&gt; get balance =&gt; _balance.unmodifiable;
+
+  void deposit(int amount) {
+    // Only the owner of the private _balance can call apply
+    _balance.apply((val) =&gt; val + amount);
+  }
+}
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/Cell-class.html">Cell</a> instance representing a read-only projection of the current
+node, with a nullified <a href="../../cell/CellBase/modifiable.html">modifiable</a> manifest.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Cell get unmodifiable =&gt; this;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/CellBase-class.html">CellBase</a></li>
+    <li class="self-crumb">unmodifiable property</li>
+</ol>
+
+  <h5>CellBase class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

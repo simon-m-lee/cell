@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Features topic docs, for the Dart programming language.">
+  <title>Features topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Features topic</li>
+  </ol>
+  <div class="self-name">Features</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Features</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="cell-framework--feature-catalog">Cell Framework — Feature Catalog</h1>
+<p><strong>Package:</strong> <code>cell</code><br>
+<strong>Version:</strong> <code>1.0.0-rc.1</code> (RC / Mitosis Release Candidate)<br>
+<strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
+<strong>License:</strong> MIT or Apache-2.0<br>
+<strong>Author:</strong> Lee Man Hoi Simon (see <a href="AUTHORS"><code>AUTHORS</code></a>)<br>
+<strong>Location:</strong> <code>packages/cell</code></p>
+<p>This document is a complete, categorized inventory of features in the <strong>cell</strong> package — the foundation layer of the Cell Framework. Use it to decide whether Cell covers a requirement, which operator to reach for, and what is opt-in versus on by default.</p>
+<p>It is derived from the public API in <code>lib/</code> and the guides in <code>guide/</code>. If a guide and the source disagree, <strong>the source is current</strong>. Test contracts live in <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-what-cell-is">What Cell Is</a></li>
+<li><a href="#2-status-and-boundaries">Status and Boundaries</a></li>
+<li><a href="#3-progressive-disclosure">Progressive Disclosure</a></li>
+<li><a href="#4-core-reactive-primitives">Core Reactive Primitives</a></li>
+<li><a href="#5-standard-entry-operators">Standard Entry Operators</a></li>
+<li><a href="#6-additional-cell-factories">Additional Cell Factories</a></li>
+<li><a href="#7-cell-instance-api">Cell Instance API</a></li>
+<li><a href="#8-opencell">OpenCell</a></li>
+<li><a href="#9-valuecell-and-state-storage">ValueCell and State Storage</a></li>
+<li><a href="#10-pulse-system">Pulse System</a></li>
+<li><a href="#11-receptor-and-instruction-pipelines">Receptor and Instruction Pipelines</a></li>
+<li><a href="#12-synapses-and-propagation">Synapses and Propagation</a></li>
+<li><a href="#13-validation">Validation</a></li>
+<li><a href="#14-transactions">Transactions</a></li>
+<li><a href="#15-governance-and-security">Governance and Security</a></li>
+<li><a href="#16-lifecycle-policies">Lifecycle Policies</a></li>
+<li><a href="#17-concurrency-and-locks">Concurrency and Locks</a></li>
+<li><a href="#18-async-and-stream-integration">Async and Stream Integration</a></li>
+<li><a href="#19-nucleus-and-hydration">Nucleus and Hydration</a></li>
+<li><a href="#20-internal-utilities">Internal Utilities</a></li>
+<li><a href="#21-ecosystem-packages">Ecosystem Packages</a></li>
+<li><a href="#22-documentation-and-examples">Documentation and Examples</a></li>
+<li><a href="#23-use-case-decision-matrix">Use-Case Decision Matrix</a></li>
+<li><a href="#24-known-gaps">Known Gaps</a></li>
+<li><a href="#25-quick-reference">Quick Reference</a></li>
+</ol>
+<hr>
+<h2 id="1-what-cell-is">1. What Cell Is</h2>
+<p>Cell is a reactive state-management library for Dart. A <strong>cell</strong> is a node in a directed graph. A <strong>pulse</strong> is the immutable message that moves a change through that graph. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire nodes together.</p>
+<p>The design intent, compared with opaque stream-of-values libraries:</p>
+<ul>
+<li>State changes can carry <strong>causal history</strong> (trace, parent chain, source).</li>
+<li><strong>Validation</strong> is a first-class gate (<code>TestCell</code>), not a callback you remember to call.</li>
+<li>Restricted views are <strong>proxies</strong>, not copies (<code>Cell.deputy()</code>, <code>cell.unmodifiable</code>).</li>
+<li><strong>When</strong> observers are notified is a framework concern (<code>PropagationPolicy</code>), not ad-hoc <code>Timer</code> code.</li>
+<li>Multi-cell consistency has two explicit mechanisms: buffered writes (<code>Cell.transaction</code>) and staged commands with compensation (<code>Cell.txApply</code>).</li>
+</ul>
+<p>Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule. Defaults are pass-through and allow-all.</p>
+<hr>
+<h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
+<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.1</code>. Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons are exercised end-to-end. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Published on pub.dev</td>
+<td>Not published. Depend from source / git.</td>
+</tr>
+<tr>
+<td>Production-ready</td>
+<td>No. No independent security or correctness audit.</td>
+</tr>
+<tr>
+<td>Regulatory compliance (GDPR, HIPAA, PCI-DSS)</td>
+<td>Metadata fields exist so <em>you</em> can attach classification, purpose, and actor. Cell does not implement or certify compliance.</td>
+</tr>
+<tr>
+<td><code>Context.describe('…')</code></td>
+<td>Stores a description string. It is not a legal basis, retention schedule, or audit log.</td>
+</tr>
+<tr>
+<td>Unit tests</td>
+<td><strong>1115</strong> tests in <strong>20</strong> files named <code>test_*.dart</code> (not <code>*_test.dart</code>). Last full run <strong>1115 passed</strong>. Bare <code>dart test</code> finds nothing — pass explicit files. See <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>.</td>
+</tr>
+<tr>
+<td>Line coverage</td>
+<td><strong>95.9%</strong> of instrumented <code>lib/</code> (3397 / 3541). Measured coverage, not a production-readiness certificate.</td>
+</tr>
+</tbody>
+</table>
+<p>Dependencies: <code>uuid</code>, <code>synchronized</code>, <code>meta</code>.</p>
+<hr>
+<h2 id="3-progressive-disclosure">3. Progressive Disclosure</h2>
+<p>Four concentric tiers. You only learn a tier when you need it.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>What you use</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Entry</strong></td>
+<td>The Core 16 operators</td>
+<td>Day-to-day application code. Zero knowledge of Receptor / TestCell / Context / Synapses required.</td>
+</tr>
+<tr>
+<td><strong>2. Composition</strong></td>
+<td>Custom <code>Receptor</code> / <code>Instruction</code>, <code>Synapses</code> + <code>PropagationPolicy</code></td>
+<td>Built-in operator behavior is not enough.</td>
+</tr>
+<tr>
+<td><strong>3. Governance</strong></td>
+<td><code>TestCell</code>, <code>Context</code>, <code>DeputyContext</code>, <code>PulseContext</code></td>
+<td>Explicit rules about who can do what. Off by default.</td>
+</tr>
+<tr>
+<td><strong>4. Internal</strong></td>
+<td><code>Nucleus</code>, <code>Cell.governed</code>, <code>Cell.fromNucleus</code>, policy internals</td>
+<td>Extending the framework, custom operators, high-integrity nodes.</td>
+</tr>
+</tbody>
+</table>
+<p>If a Tier 1 operator required Nucleus knowledge to use correctly, that would be a design smell.</p>
+<hr>
+<h2 id="4-core-reactive-primitives">4. Core Reactive Primitives</h2>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>Cell</code></strong></td>
+<td>Node that holds state or relays signals. Validates incoming changes and broadcasts accepted ones.</td>
+</tr>
+<tr>
+<td><strong><code>OpenCell</code></strong></td>
+<td>Cell with a public <code>emit</code> / <code>ingest</code> / <code>link</code> surface for imperative injection and dynamic topology.</td>
+</tr>
+<tr>
+<td><strong><code>ValueCell&lt;V&gt;</code></strong></td>
+<td>Stateful cell with a persistent <code>Box&lt;V&gt;</code>. Returned by <code>Cell.state</code>.</td>
+</tr>
+<tr>
+<td><strong><code>Pulse&lt;P&gt;</code></strong></td>
+<td>Immutable signal: payload, type tag, priority, optional provenance, iterable over its own trace.</td>
+</tr>
+<tr>
+<td><strong><code>Receptor</code></strong></td>
+<td>Transformation pipeline a cell runs incoming pulses through.</td>
+</tr>
+<tr>
+<td><strong><code>Instruction</code></strong></td>
+<td>Single stage (or chain of stages) inside a receptor.</td>
+</tr>
+<tr>
+<td><strong><code>Synapses</code></strong></td>
+<td>Observer registry and distribution mechanism, with pluggable propagation strategies.</td>
+</tr>
+<tr>
+<td><strong><code>TestCell</code> / <code>TestRule</code></strong></td>
+<td>Validation gate for mutations, links, pulses, and <code>apply</code> actions. Combine with <code>+</code>.</td>
+</tr>
+<tr>
+<td><strong><code>Context</code> / <code>DeputyContext</code> / <code>PulseContext</code></strong></td>
+<td>Optional metadata: domain, authority, provenance. Attached at cell, deputy, or pulse level.</td>
+</tr>
+<tr>
+<td><strong><code>Nucleus</code></strong></td>
+<td>Immutable configuration bundle a cell wraps: receptor, test rule, context, synapses, optional lock and bind.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="update-cycle">Update cycle</h3>
+<p>Every accepted change, regardless of which operator produced it, goes through the same cycle:</p>
+<ol>
+<li><strong>Validate</strong> against the cell’s <code>TestCell</code>.</li>
+<li><strong>Transform</strong> through the <code>Receptor</code> pipeline.</li>
+<li><strong>Commit</strong> under the cell’s <code>Lock</code> (when present).</li>
+<li><strong>Broadcast</strong> via <code>Synapses</code> to observers.</li>
+</ol>
+<h3 id="identity">Identity</h3>
+<p>A cell obtained via <code>deputy</code> or <code>unmodifiable</code> is a <strong>proxy</strong>, not a copy. It shares the principal’s storage and lock.</p>
+<pre class="language-dart"><code class="language-dart">cell == cell.deputy()  // true — interchangeable in Set / Map
+</code></pre>
+<p>What differs is what each is <em>permitted</em> to do, never what data it holds. Deputy rules are <strong>additive-only</strong>: they can only narrow permissions.</p>
+<hr>
+<h2 id="5-standard-entry-operators">5. Standard Entry Operators</h2>
+<p>The documented <strong>Core 16</strong> — ordered for a learning path: get data in → hold state → react → shape streams → go async → combine → isolate writes.</p>
+<p>Each works with defaults: <code>Receptor.passThrough</code>, <code>TestCell.allowAll</code>, <code>Context.system</code>, <code>Synapses.enabled</code>.</p>
+<h3 id="phase-1--get-data-in-hold-state-react">Phase 1 — Get data in, hold state, react</h3>
+<h4 id="1-cellstatev">1. <code>Cell.state&lt;V&gt;()</code></h4>
+<p>Persistent mutable state atom.</p>
+<pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; state&lt;V&gt;({
+  V? initial,
+  Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input)? evolve,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Returns</strong></td>
+<td><code>StateHandle&lt;V&gt;</code>: <code>cell</code>, <code>update(V?)</code>, <code>updateAsync(V?)</code>, <code>ingest(Pulse&lt;V&gt;, {serializedCompletion})</code></td>
+</tr>
+<tr>
+<td><strong>Behavior</strong></td>
+<td><code>initial</code> is written directly to storage (bypasses evolve). <code>evolve</code> returning <code>null</code> rejects the update. State cells allocate their own lock by default.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Counters, settings, profiles, form fields, any retained value you read and update.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-cellingressi">2. <code>Cell.ingress&lt;I&gt;()</code></h4>
+<p>Stateless event gateway. No retained value.</p>
+<pre class="language-dart"><code class="language-dart">static IngressHandle&lt;I&gt; ingress&lt;I&gt;({
+  Pulse&lt;I?&gt;? Function(Cell host, Pulse&lt;I&gt; input)? refine,
+  EphemeralPolicy? ephemeralPolicy,
+  Cell? source,
+  Context context = Context.system,
+  Receptor receptor = Receptor.passThrough,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Returns</strong></td>
+<td><code>IngressHandle&lt;I&gt;</code>: <code>cell</code>, <code>emit(I)</code>, <code>emitAsync(I)</code>, <code>ingest(Pulse&lt;I&gt;, {serializedCompletion})</code></td>
+</tr>
+<tr>
+<td><strong>Behavior</strong></td>
+<td><code>refine</code> may transform or drop (<code>null</code>). <code>ingest(..., serializedCompletion: true)</code> awaits the whole downstream cascade.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Button clicks, WebSocket messages, sensors, tests, any imperative event that should enter the graph.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3-cellobservep">3. <code>Cell.observe&lt;P&gt;()</code></h4>
+<p>Terminal side-effect sink. Does not propagate further.</p>
+<pre class="language-dart"><code class="language-dart">static EgressHandle&lt;P&gt; observe&lt;P extends Pulse&gt;({
+  required Cell source,
+  required void Function(P pulse) effect,
+  bool initiallyStarted = true,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Returns</strong></td>
+<td><code>EgressHandle&lt;P&gt;</code>: <code>cell</code>, <code>start()</code>, <code>stop()</code></td>
+</tr>
+<tr>
+<td><strong>Behavior</strong></td>
+<td><code>stop()</code> pauses effects without unlinking. Create dormant with <code>initiallyStarted: false</code>.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>UI rebuilds, logging, persistence, analytics, hardware commands.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-cellderivei-o">4. <code>Cell.derive&lt;I, O&gt;()</code></h4>
+<p>Pure 1-to-1 projection. Stateless.</p>
+<pre class="language-dart"><code class="language-dart">static Cell derive&lt;I extends Pulse, O extends Pulse&gt;({
+  required Cell source,
+  required O Function(I input) project,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Result is an <code>EvolvedPulse</code> (causal lineage preserved). <code>project</code> returning <code>null</code> suppresses the signal.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>View-models, formatting, type conversion, extracting a field, implicit filtering.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2--shape-streams">Phase 2 — Shape streams</h3>
+<h4 id="5-celldebounce">5. <code>Cell.debounce()</code></h4>
+<p>Emit after a silence window (Rx <code>debounceTime</code>).</p>
+<pre class="language-dart"><code class="language-dart">static Cell debounce(Cell source, Duration duration, {bool leading = false, EphemeralPolicy? ephemeralPolicy})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Each new pulse resets the timer. Only the latest value is emitted after <code>duration</code> of quiet. <code>leading: true</code> also emits the first pulse of a burst immediately. A hosted <code>ephemeralPolicy</code> uses a governed output receptor; reclaim cancels a pending timer.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Search-as-you-type, autosave, form validation, resize handlers.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="6-celldistinct">6. <code>Cell.distinct()</code></h4>
+<p>Skip consecutive duplicate <strong>payloads</strong>.</p>
+<pre class="language-dart"><code class="language-dart">static Cell distinct(Cell source, {bool Function(dynamic previous, dynamic next)? equals})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>First pulse always passes. Sequence <code>1, 2, 1</code> emits three times. Comparison is payload-scoped; timestamps / trace are ignored. Default equality is <code>==</code>.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Avoid redundant rebuilds, skip identical sensor heartbeats, suppress no-op transitions.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="7-cellthrottle">7. <code>Cell.throttle()</code></h4>
+<p>Cap emission frequency.</p>
+<pre class="language-dart"><code class="language-dart">static Cell throttle(
+  Cell source,
+  Duration duration, {
+  bool leading = true,
+  bool trailing = false,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Default: first pulse immediate, rest of the window dropped. <code>trailing: true</code> also emits the last pulse when the window ends.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Scroll / pointer sampling, API rate limits, ~60 fps UI, sensor downsampling.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3--go-async">Phase 3 — Go async</h3>
+<h4 id="8-cellasyncmaps-t">8. <code>Cell.asyncMap&lt;S, T&gt;()</code></h4>
+<p>Map each payload to a <code>Future&lt;T&gt;</code> with concurrency control.</p>
+<pre class="language-dart"><code class="language-dart">static Cell asyncMap&lt;S, T&gt;(
+  Cell source,
+  Future&lt;T&gt; Function(S value) mapper, {
+  int concurrency = 0,
+  bool latestOnly = false,
+  bool exhaust = false,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Parallel</strong></td>
+<td><code>concurrency: 0</code> (default) — all futures run; results may complete out of order.</td>
+</tr>
+<tr>
+<td><strong>Sequential</strong></td>
+<td><code>concurrency: 1</code> — wait for the current future before starting the next.</td>
+</tr>
+<tr>
+<td><strong>Limited</strong></td>
+<td><code>concurrency: N</code> — at most N in flight.</td>
+</tr>
+<tr>
+<td><strong>Switch</strong></td>
+<td><code>latestOnly: true</code> — ignore results of superseded futures.</td>
+</tr>
+<tr>
+<td><strong>Exhaust</strong></td>
+<td><code>exhaust: true</code> — ignore upstream while a future is in flight.</td>
+</tr>
+</tbody>
+</table>
+<p>Failed futures terminate that signal (they do not enter the graph). Lineage is preserved across the async boundary via <code>EvolvedPulse</code>.</p>
+<p><strong>Use when:</strong> HTTP, DB, heavy compute, ID → profile enrichment.</p>
+<h4 id="9-cellfromfuturet">9. <code>Cell.fromFuture&lt;T&gt;()</code></h4>
+<p>Bridge a one-shot <code>Future</code> into a cell. Emits at most once.</p>
+<pre class="language-dart"><code class="language-dart">static Cell fromFuture&lt;T&gt;(Future&lt;T&gt; future)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Success emits the value. Failures emit a pulse with <code>type: 'error'</code> and the error as payload. Invalidating the cell before completion discards the result. The cell stays alive after emission unless you invalidate it.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Config load, one-shot API, adapting an existing <code>async</code> API.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="10-cellfromstreamt">10. <code>Cell.fromStream&lt;T&gt;()</code></h4>
+<p>Bridge a Dart <code>Stream</code> into a cell.</p>
+<pre class="language-dart"><code class="language-dart">static Cell fromStream&lt;T&gt;(Stream&lt;T&gt; stream, {bool cancelOnError = false})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>No replay of past events. Default: stream errors are ignored. <code>cancelOnError: true</code> tears down the subscription on error.</td>
+</tr>
+<tr>
+<td><strong>Caveat</strong></td>
+<td>The subscription is cancelled on cell invalidation / GC. Pass <code>ephemeralPolicy</code> when you need an explicit TTL or event-budget teardown.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>WebSockets, file watchers, <code>Stream.periodic</code>, third-party SDK streams.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="11-cellswitchmaps-t">11. <code>Cell.switchMap&lt;S, T&gt;()</code></h4>
+<p>Follow the latest inner <strong>cell</strong> produced by a mapper.</p>
+<pre class="language-dart"><code class="language-dart">static Cell switchMap&lt;S, T&gt;(Cell source, Cell Function(S value) mapper)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Does <strong>not</strong> emit the source value. Unlinks the previous inner cell automatically. Silent until the current inner cell emits.</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Selected user / tab / locale → active upstream. Contrast with <code>asyncMap</code>, which maps to a <code>Future</code>, not a <code>Cell</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-4--combine-and-route">Phase 4 — Combine and route</h3>
+<h4 id="12-cellsynthesisp">12. <code>Cell.synthesis&lt;P&gt;()</code></h4>
+<p>Aggregate several sources into one consensus pulse.</p>
+<pre class="language-dart"><code class="language-dart">static Cell synthesis&lt;P extends Pulse&gt;(
+  Iterable&lt;Cell&gt; sources, {
+  required P? Function(Iterable&lt;Cell&gt; cells, Pulse emit) aggregator,
+})
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Fires when <strong>any</strong> source emits. Aggregator sees all sources plus the triggering pulse. Returning <code>null</code> suppresses. If sources update inside one <code>Cell.transaction</code>, the aggregator fires once at commit (no intermediate glitch).</td>
+</tr>
+<tr>
+<td><strong>Use when</strong></td>
+<td>Forms, dashboards, multi-sensor fusion, “enable submit when all fields valid”.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="13-cellhub">13. <code>Cell.hub()</code></h4>
+<p>Route by <code>Pulse.type</code> to named spokes.</p>
+<pre class="language-dart"><code class="language-dart">static HubHandle hub({
+  Map&lt;String, Pulse? Function(Cell cell, Pulse pulse, {dynamic user})&gt;? spokes,
+  Map&lt;DeputyContext, Receptor&gt;? governedSpokes,
+  List&lt;SpokeRegistration&gt;? registrations,
+  HubRouting routing = HubRouting.exact,
+  bool multicast = false,
+  String? fallback,
+  Synapses Function(String role)? distribution,
+  void Function(Pulse pulse)? relay,
+  Cell? source,
+})
+</code></pre>
+<p><strong>Routing modes (<code>HubRouting</code>):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>exact</code></td>
+<td><code>Pulse.type</code> equals spoke key</td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td>Longest prefix wins</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td><code>*</code> and <code>?</code> wildcards</td>
+</tr>
+<tr>
+<td><code>multicast</code></td>
+<td>Every matching spoke</td>
+</tr>
+</tbody>
+</table>
+<p><code>SpokeRegistration</code> adds priority, custom <code>match</code>, handler <strong>or</strong> receptor, and optional <code>DeputyContext</code> per spoke. Higher priority is evaluated first. Custom <code>relay</code> bypasses default routing.</p>
+<p><strong>Returns</strong> <code>HubHandle</code>: <code>root</code>, <code>spokes</code>, <code>emit</code>, <code>emitAsync</code>, <code>ingest</code>.</p>
+<p><strong>Use when:</strong> Event buses, command dispatch, WebSocket demux, telemetry fan-out.</p>
+<h4 id="14-cellsanitizedp">14. <code>Cell.sanitized&lt;P&gt;()</code></h4>
+<p>Redact payloads at or above a sensitivity threshold. Source cell is unchanged.</p>
+<pre class="language-dart"><code class="language-dart">static Cell sanitized&lt;P extends Pulse&gt;(
+  Cell source, {
+  required P Function(P pulse) redact,
+  Sensitivity minSensitivity = Sensitivity.confidential,
+})
+</code></pre>
+<p>Missing sensitivity is treated as <code>Sensitivity.public</code> (no redaction). Redacted pulses are <code>EvolvedPulse</code> instances (lineage kept).</p>
+<p><strong>Use when:</strong> UI / log / telemetry views of PII or credentials. This is a building block, not a compliance program.</p>
+<h3 id="phase-5--orchestration">Phase 5 — Orchestration</h3>
+<h4 id="15-celltransaction">15. <code>Cell.transaction()</code></h4>
+<p>Multi-cell buffered writes. Locks are taken at <strong>commit</strong>, not for the whole <code>begin</code>…<code>commit</code> window.</p>
+<pre class="language-dart"><code class="language-dart">static TransactionScope transaction([
+  TransactionOptions options = const TransactionOptions(),
+])
+</code></pre>
+<p>See <a href="#14-transactions">Transactions</a>.</p>
+<h4 id="16-cellopen--celltxapply">16. <code>Cell.open()</code> / <code>Cell.txApply()</code></h4>
+<p><code>Cell.open</code> is the Core-16 entry for manual topology (see <a href="#8-opencell">OpenCell</a>). <code>Cell.txApply</code> stages <code>cell.apply(...)</code> calls with compensation (see <a href="#14-transactions">Transactions</a>).</p>
+<hr>
+<h2 id="6-additional-cell-factories">6. Additional Cell Factories</h2>
+<p>These exist on <code>Cell</code> but sit outside (or beside) the Core 16 numbering.</p>
+<h3 id="cellvalvep"><code>Cell.valve&lt;P&gt;()</code></h3>
+<p>Conditional gate. Implemented.</p>
+<pre class="language-dart"><code class="language-dart">static Cell valve&lt;P extends Pulse&gt;(
+  Cell source,
+  bool Function(P pulse) gate, {
+  Synapses synapses = Synapses.enabled,
+})
+</code></pre>
+<p><code>true</code> forwards the original pulse; <code>false</code> drops it before synapses (debounce timers etc. never start). Stateless — no memory of the last passed value (use <code>distinct</code> for history).</p>
+<p><strong>Use when:</strong> Auth gates, feature flags, empty-query suppression, maintenance-mode pruning.</p>
+<blockquote>
+<p>Older README text said valve was unimplemented. The factory exists in <code>lib/src/cell.dart</code> and <code>example/valve_demo.dart</code>.</p>
+</blockquote>
+<h3 id="cell--generic-constructor"><code>Cell()</code> — generic constructor</h3>
+<p>Stateless relay / custom processor.</p>
+<pre class="language-dart"><code class="language-dart">factory Cell({
+  Cell? bind,
+  Receptor receptor,   // default passThrough
+  TestCell testRule,   // default allowAll
+  Synapses synapses,   // default enabled
+})
+</code></pre>
+<p>Prefer <code>state</code> / <code>ingress</code> for application code. Use this for custom relays.</p>
+<h3 id="cellgoverned"><code>Cell.governed()</code></h3>
+<p>All governance parameters explicit. No silent system fallback for context.</p>
+<pre class="language-dart"><code class="language-dart">factory Cell.governed({
+  EphemeralPolicy? ephemeralPolicy,
+  Context context,
+  Cell? bind,
+  Receptor receptor,
+  TestCell testRule,
+  Synapses synapses,
+  bool forceLock,
+})
+</code></pre>
+<p>Governed cells participate in a <strong>reciprocal handshake</strong>: pulse and receptor scrutinize each other’s context; either side can neutralize the pulse.</p>
+<p><strong>Use when:</strong> TTL, authority tiers, or a dedicated lock. Not for typical app state.</p>
+<h3 id="cellfromnucleusnucleus"><code>Cell.fromNucleus(Nucleus)</code></h3>
+<p>Hydrate a live cell from a nucleus blueprint.</p>
+<p>If the nucleus is already activated it is <strong>cloned</strong> so two cells do not share activation state. Lock, receptor, test rule, context, synapses, and hosted <code>ephemeralPolicy</code> are inherited. Bind is linked after hydration; a failed link still leaves the cell initialized.</p>
+<p><strong>Use when:</strong> Reconstructing from a blueprint, cloning behavior, framework-level infrastructure. Application code should rarely need this.</p>
+<h3 id="opencellperform"><code>OpenCell.perform()</code></h3>
+<p>Open cell bound to a source, running a <code>perform</code> function on each injected pulse.</p>
+<pre class="language-dart"><code class="language-dart">static OpenCell perform(
+  Cell source,
+  Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform, {
+  dynamic user,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+})
+</code></pre>
+<hr>
+<h2 id="7-cell-instance-api">7. Cell Instance API</h2>
+<p>Every cell exposes:</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate</code></td>
+<td>The cell’s <code>TestCell</code></td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>Operational <code>Context</code> (immutable for that instance)</td>
+</tr>
+<tr>
+<td><code>isTerminal</code></td>
+<td>No outgoing broadcast (e.g. observe sinks)</td>
+</tr>
+<tr>
+<td><code>isInvalidated</code></td>
+<td>Hosted <code>EphemeralPolicy</code> has started teardown (<code>Nucleus.isInvalidated</code> / <code>Cell.isInvalidated</code> follow that policy; a deputy without its own policy follows the principal)</td>
+</tr>
+<tr>
+<td><code>isGoverned</code></td>
+<td>Managed by an explicit policy / context perimeter</td>
+</tr>
+<tr>
+<td><code>deputy({context, testRule, ephemeralPolicy, synapses})</code></td>
+<td>Capability-narrowed proxy; contextual lineage required (<code>context.parent == this.context</code>, or <code>DeputyContext.system</code> as root)</td>
+</tr>
+<tr>
+<td><code>unmodifiable</code></td>
+<td>Read-only deputy (<code>TestCell.readOnly</code>; empty <code>modifiable</code>)</td>
+</tr>
+<tr>
+<td><code>apply(function, {positionalArguments, namedArguments, tx, compensate, …})</code></td>
+<td>Command-pattern gateway. Function must be in <code>modifiable</code>. Returns <code>null</code> if the integrity gate rejects.</td>
+</tr>
+<tr>
+<td><code>modifiable</code></td>
+<td>Whitelist of functions <code>apply</code> may invoke</td>
+</tr>
+<tr>
+<td><code>async</code></td>
+<td><code>ModifiableAsync</code> wrapper — operations scheduled through the cell lock, results as <code>Future</code></td>
+</tr>
+</tbody>
+</table>
+<p>Deputy creation is a no-op (returns <code>this</code>) if requested parameters match the current configuration.</p>
+<hr>
+<h2 id="8-opencell">8. OpenCell</h2>
+<p><code>OpenCell</code> extends <code>Cell</code> with a public injection / topology surface.</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>emit(Pulse)</code></td>
+<td>Inject a pulse (still validated; an async <code>testRule</code> is awaited)</td>
+</tr>
+<tr>
+<td><code>ingest(Pulse, {serializedCompletion})</code></td>
+<td>Async ingestion; <code>serializedCompletion: true</code> waits for graph stability</td>
+</tr>
+<tr>
+<td><code>link(Cell)</code></td>
+<td>Attach a downstream observer; returns an unlinker, or <code>null</code> if rejected</td>
+</tr>
+<tr>
+<td><code>deputy(...)</code></td>
+<td>Returns an <code>OpenCell</code> deputy (typed)</td>
+</tr>
+<tr>
+<td><code>async</code></td>
+<td><code>OpenCellAsync</code> — non-blocking <code>emit</code> / <code>ingest</code> (with or without a lock)</td>
+</tr>
+<tr>
+<td><code>modifiable</code></td>
+<td>Whitelist includes <code>emit</code>, <code>ingest</code>, <code>link</code>, and <code>apply</code></td>
+</tr>
+</tbody>
+</table>
+<p>Factories: <code>OpenCell()</code>, <code>OpenCell.governed()</code>, <code>Cell.open()</code>, <code>OpenCell.perform()</code>.</p>
+<p>Even “open” cells are not backdoors: <code>testRule</code> and <code>context</code> still apply to emit and link.</p>
+<hr>
+<h2 id="9-valuecell-and-state-storage">9. ValueCell and State Storage</h2>
+<p><code>ValueCell&lt;V&gt;</code> is the concrete stateful type behind <code>Cell.state</code>.</p>
+<ul>
+<li>Storage is a <code>Box&lt;V&gt;</code> shared with deputies (zero-copy).</li>
+<li><code>ValueNucleus</code> forces a lock by default (unlike a generic <code>Nucleus</code>). <code>ValueNucleus.from</code> / <code>ValueNucleus.evolve</code> pair an <code>Instruction</code> (or custom receptor) with <code>postProcessRule</code>.</li>
+<li><code>ValueCell.postProcessRule</code> is the commitment instruction that writes <code>pulse.payload</code> into the box. Custom receptors must include it or state will not persist — prefer <code>ValueCell.receptor(...)</code> which pre-wires that rule.</li>
+<li><code>ValueCell.terminal</code> holds state with <code>Synapses.disabled</code> (no broadcast).</li>
+<li><code>UnmodifiableValueCell&lt;V&gt;</code> is the read-only view; a nested <code>Cell</code> payload is projected as <code>unmodifiable</code>.</li>
+<li><code>ValueCellAsync&lt;V&gt;</code> is the async wrapper (<code>async.state</code> / <code>updateAsync</code>).</li>
+</ul>
+<p><code>StateHandle&lt;V&gt;</code> fields: <code>cell</code>, <code>update</code>, <code>updateAsync</code>, <code>ingest</code>.</p>
+<hr>
+<h2 id="10-pulse-system">10. Pulse System</h2>
+<h3 id="construction">Construction</h3>
+<table>
+<thead>
+<tr>
+<th>Factory</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pulse(payload, {type, source, priority, step})</code></td>
+<td>Ungoverned pulse. Still has timestamp and trace. Default context is <code>PulseContext.system</code>.</td>
+</tr>
+<tr>
+<td><code>Pulse.governed({policy, context, payload, type, source, step, priority, onComplete, onError, onProgress})</code></td>
+<td>TTL / hop limits, provenance, lifecycle callbacks. Callbacks are inherited through <code>evolve</code>.</td>
+</tr>
+<tr>
+<td><code>Pulse.batch(pulses, …)</code></td>
+<td>Flat <code>CollectivePulse</code> — atomic bundle, not a causal chain.</td>
+</tr>
+</tbody>
+</table>
+<p>Default priority is <code>20</code> (0–100, higher = more urgent). Suggested bands: 0–20 background, 21–50 routine, 51–80 user, 81–95 critical, 96–100 emergency.</p>
+<h3 id="types">Types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pulse&lt;P&gt;</code></td>
+<td>Iterable over its lineage; <code>Comparable</code></td>
+</tr>
+<tr>
+<td><code>EvolvedPulse&lt;P&gt;</code></td>
+<td>Child of another pulse; payload inherited from root (not copied)</td>
+</tr>
+<tr>
+<td><code>CollectivePulse&lt;P&gt;</code></td>
+<td>Bundle; <code>payload</code> is <code>Iterable&lt;Pulse&lt;P&gt;&gt;</code></td>
+</tr>
+<tr>
+<td><code>UnmodifiablePulse&lt;P&gt;</code></td>
+<td>Frozen view</td>
+</tr>
+<tr>
+<td><code>PulseShell</code></td>
+<td>Defensive proxy; receivers must pass <code>scrutinize</code> before seeing the kernel</td>
+</tr>
+</tbody>
+</table>
+<h3 id="properties-and-operations">Properties and operations</h3>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>payload</code></td>
+<td>Data (walks to root for evolved pulses)</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>Semantic tag used by hubs</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>Originating cell</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>Urgency</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>Creation time</td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td><code>PulseContext</code></td>
+</tr>
+<tr>
+<td><code>policy</code></td>
+<td>Optional <code>PulseEphemeralPolicy</code></td>
+</tr>
+<tr>
+<td><code>trace</code></td>
+<td>Step breadcrumbs</td>
+</tr>
+<tr>
+<td><code>root</code> / <code>parent</code></td>
+<td>Lineage</td>
+</tr>
+<tr>
+<td><code>isComposite</code> / <code>isInvalidated</code> / <code>isGoverned</code></td>
+<td>Flags</td>
+</tr>
+<tr>
+<td><code>withStep(String)</code></td>
+<td>Append a trace step</td>
+</tr>
+<tr>
+<td><code>evolve(...)</code></td>
+<td>New child pulse with inherited payload / callbacks</td>
+</tr>
+<tr>
+<td><code>scrutinize(receptor, …)</code></td>
+<td>Reciprocal handshake; <code>null</code> = neutralized</td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td><code>PulseShell</code> wrapper</td>
+</tr>
+<tr>
+<td><code>unmodifiable</code></td>
+<td>Frozen view</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fluent-extensions-pulseextension">Fluent extensions (<code>PulseExtension</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map&lt;T&gt;(mapper)</code></td>
+<td>Transform payload via <code>evolve(pulse:)</code>; call as <code>PulseExtension(pulse).map</code> (<code>Pulse</code> is an <code>Iterable</code>, so <code>pulse.map</code> is <code>Iterable.map</code>). Result is an <code>EvolvedPulse</code>. Mixed-type mapping cannot walk <code>Pulse.root</code> — use <code>EvolvedPulse.parent</code>.</td>
+</tr>
+<tr>
+<td><code>cast&lt;T&gt;()</code></td>
+<td>Re-type payload via <code>evolve(pulse:)</code>; same Iterable hiding — <code>PulseExtension(pulse).cast&lt;T&gt;()</code></td>
+</tr>
+<tr>
+<td><code>attach(context)</code></td>
+<td>New pulse with updated context metadata</td>
+</tr>
+<tr>
+<td><code>tap(effect)</code></td>
+<td>Side-effect without changing the pulse</td>
+</tr>
+<tr>
+<td><code>batch</code> (on <code>Iterable&lt;Pulse&gt;</code>)</td>
+<td>Bundle helpers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sensitivity-on-pulse--deputy-context">Sensitivity (on pulse / deputy context)</h3>
+<p><code>public</code> &lt; <code>internal</code> &lt; <code>private</code> &lt; <code>confidential</code> &lt; <code>restricted</code> &lt; <code>secret</code></p>
+<p>Used by <code>Cell.sanitized</code> and by rules you write. Not a legal classification by itself.</p>
+<hr>
+<h2 id="11-receptor-and-instruction-pipelines">11. Receptor and Instruction Pipelines</h2>
+<h3 id="receptor">Receptor</h3>
+<table>
+<thead>
+<tr>
+<th>Factory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Receptor.passThrough</code></td>
+<td>Singleton no-op (default)</td>
+</tr>
+<tr>
+<td><code>Receptor((cell, pulse, {user}) =&gt; …)</code></td>
+<td>Closure receptor</td>
+</tr>
+<tr>
+<td><code>Receptor.instruction(Instruction, {user})</code></td>
+<td>Wrap one instruction</td>
+</tr>
+<tr>
+<td><code>Receptor.pipeline({instruction, preProcess, postProcess, reaction, init, user, isGoverned})</code></td>
+<td>Three-stage pipeline, optional reaction / init / governance</td>
+</tr>
+</tbody>
+</table>
+<p><code>Receptor.async</code> (<code>ReceptorAsync</code>) runs the same pipeline without blocking the caller. Exceptions in an instruction are caught; the last good pulse is kept so a pipeline does not crash the graph.</p>
+<h3 id="instruction">Instruction</h3>
+<table>
+<thead>
+<tr>
+<th>Factory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Instruction((pulse, {cell, user}) =&gt; …)</code></td>
+<td>Sync stage; <code>null</code> drops the signal</td>
+</tr>
+<tr>
+<td><code>Instruction.future((pulse, {cell, user, future, token}) =&gt; …)</code></td>
+<td>Suspend (<code>return null</code>), resume later via <code>future(result:, token:)</code></td>
+</tr>
+<tr>
+<td><code>Instruction.chain(instructions, {user, strategy})</code></td>
+<td>Sequential (or custom-strategy) composition</td>
+</tr>
+</tbody>
+</table>
+<p><code>Instruction.future</code> is the primitive behind debounce / throttle / delay-style operators. If the host cell is disposed before resume, the continuation is a no-op.</p>
+<p><code>InstructionChain</code> is itself an <code>Instruction</code>, so chains nest.</p>
+<p>Walkthroughs: <code>example/receptor_pipeline_walkthrough.dart</code>, <code>example/instruction_pipeline_walkthrough.dart</code>.</p>
+<hr>
+<h2 id="12-synapses-and-propagation">12. Synapses and Propagation</h2>
+<h3 id="synapses">Synapses</h3>
+<table>
+<thead>
+<tr>
+<th>Factory / constant</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Synapses.enabled</code></td>
+<td>Default. Flyweight; a real registry is allocated per cell.</td>
+</tr>
+<tr>
+<td><code>Synapses.disabled</code></td>
+<td>Terminal: <code>call</code> is no-op; <code>link</code> / <code>unlink</code> return <code>false</code>. Shared singleton.</td>
+</tr>
+<tr>
+<td><code>Synapses({policy, downstreams, filter, relay})</code></td>
+<td>Custom network</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>call(pulse)</code></td>
+<td>Broadcast (framework-invoked)</td>
+</tr>
+<tr>
+<td><code>link(cell, {downstreamCell})</code></td>
+<td>Add observer (validated; deputies ≡ principals)</td>
+</tr>
+<tr>
+<td><code>unlink(cell, {downstreamCell})</code></td>
+<td>Remove observer</td>
+</tr>
+<tr>
+<td><code>async</code></td>
+<td><code>AsyncSynapses</code> — non-blocking broadcast + async cycle checker</td>
+</tr>
+</tbody>
+</table>
+<p>A custom <code>relay</code> <strong>replaces</strong> sequential broadcast; you must deliver pulses yourself.</p>
+<p>Cycle detection: a looping branch is silently terminated.</p>
+<h3 id="filterrule">FilterRule</h3>
+<p>Outgoing-pulse filter, chainable with <code>+</code> or <code>FilterRule.chain</code>. Returning <code>null</code> drops the pulse. Optional custom <code>strategy</code>. A chained <code>parent</code> is stored as <code>_record.parent</code> and actually runs.</p>
+<h3 id="propagationstrategy">PropagationStrategy</h3>
+<p>Configured via <code>PropagationPolicy</code> on a synapse (independent of which operator produced the pulse).</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>immediate</code></td>
+<td>Default. Sync, same stack frame.</td>
+</tr>
+<tr>
+<td><code>async</code></td>
+<td>Next microtask / event-loop turn.</td>
+</tr>
+<tr>
+<td><code>batched</code></td>
+<td>Buffer until <code>batchSize</code> or time window; deliver as a collection.</td>
+</tr>
+<tr>
+<td><code>buffered</code></td>
+<td>Lossless time-window queue; flush as one composite event.</td>
+</tr>
+<tr>
+<td><code>debounced</code></td>
+<td>Trailing edge after <code>debounceTime</code> silence.</td>
+</tr>
+<tr>
+<td><code>throttled</code></td>
+<td>Leading edge, then drop until <code>throttleTime</code>.</td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td>Trailing-edge sample at a fixed interval (freshest value).</td>
+</tr>
+<tr>
+<td><code>exhaust</code></td>
+<td>Drop new pulses while a previous one is still in flight.</td>
+</tr>
+<tr>
+<td><code>sample</code></td>
+<td>Heartbeat of the <strong>first</strong> captured pulse on <code>throttleTime</code>. Later ticks of that same instance are typically dropped by the cycle checker (observers usually see one delivery). Unlinking the last observer cancels <code>Timer.periodic</code> so it does not leak.</td>
+</tr>
+<tr>
+<td><code>resilient</code></td>
+<td>Circuit breaker on downstream failures.</td>
+</tr>
+<tr>
+<td><code>debounceLeading</code></td>
+<td>First pulse immediate, then silence window.</td>
+</tr>
+<tr>
+<td><code>retry</code></td>
+<td>Re-attempt failed downstream delivery (<code>batchSize</code> = max retries).</td>
+</tr>
+<tr>
+<td><code>persistent</code></td>
+<td>Newly linked observers receive the last pulse.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="propagationpolicy">PropagationPolicy</h3>
+<pre class="language-dart"><code class="language-dart">PropagationPolicy({
+  PropagationStrategy strategy,  // default immediate
+  Duration debounceTime,         // default 150 ms
+  Duration throttleTime,
+  int batchSize,
+})
+</code></pre>
+<p>Policy is per-synapse and immutable. Unused parameters for a given strategy are ignored.</p>
+<hr>
+<h2 id="13-validation">13. Validation</h2>
+<h3 id="testcell">TestCell</h3>
+<table>
+<thead>
+<tr>
+<th>Built-in</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TestCell.allowAll</code></td>
+<td>Singleton pass (<code>TestPasses</code>) — default</td>
+</tr>
+<tr>
+<td><code>TestCell.readOnly</code></td>
+<td>Blocks mutations</td>
+</tr>
+</tbody>
+</table>
+<p>Custom:</p>
+<pre class="language-dart"><code class="language-dart">TestCell&lt;C&gt;((object, {host, arguments, user}) =&gt; /* FutureOr&lt;bool&gt; */)
+TestCell.chain([rule1, rule2, …], {parent, strategy})
+TestRule&lt;C&gt;((object, {host, arguments, user}) =&gt; /* FutureOr&lt;bool&gt; */)
+TestRule.chain([rule1, rule2, …], {parent, strategy})
+</code></pre>
+<ul>
+<li>Combine with <code>+</code>. Default strategy is <strong>fail-fast</strong>.</li>
+<li>Async rules (<code>Future&lt;bool&gt;</code>) make the whole chain wait, including a parent after this rule passes.</li>
+<li>Parent is evaluated <strong>after</strong> this rule passes (inheritance).</li>
+<li>A custom <code>strategy</code> replaces sequential evaluation (e.g. “any of these”).</li>
+<li><code>TestRule</code> is the base integrity gate; <code>TestCell</code> extends it and orchestrates pulses, links, and <code>apply</code> actions. Equality / <code>hashCode</code> follow the flyweight record.</li>
+</ul>
+<p>Specialized rule types: <code>TestPulseRule</code>, <code>TestLinkRule</code>, <code>TestActionRule</code>. <code>TestCell</code> implements all three (pulses, links, <code>apply</code> actions). <code>TestCell.action</code> validates positional <strong>and</strong> named arguments via <code>call</code>.</p>
+<p>Deputies <strong>layer</strong> rules on the principal; they cannot widen authority.</p>
+<h3 id="testrule-metadata-code-gen-helpers">TestRule metadata (code-gen helpers)</h3>
+<p>Used by higher packages (<code>cell_organ</code> / <code>cell_ontogeny</code>) as annotations / reusable predicates:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DefaultValue</code></td>
+<td>Compile-time default for generated fields</td>
+</tr>
+<tr>
+<td><code>MaxLength</code></td>
+<td>String / collection length</td>
+</tr>
+<tr>
+<td><code>ValueRange</code></td>
+<td>Numeric range</td>
+</tr>
+<tr>
+<td><code>EntryPattern</code></td>
+<td>Regex / pattern match</td>
+</tr>
+<tr>
+<td><code>Values</code></td>
+<td>Allow-list</td>
+</tr>
+<tr>
+<td><code>EmailPattern</code></td>
+<td>Email-shaped strings</td>
+</tr>
+<tr>
+<td><code>WebsiteUrlPattern</code></td>
+<td>URL-shaped strings</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="14-transactions">14. Transactions</h2>
+<p>Two distinct mechanisms. Do not treat them as two syntaxes for the same thing.</p>
+<h3 id="celltransaction--buffered-value-writes"><code>Cell.transaction</code> — buffered value writes</h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.transaction(TransactionOptions(
+  isolation: IsolationLevel.repeatableRead,
+  timeout: Duration(seconds: 5),
+  onEvent: (e) =&gt; print(e),
+));
+await tx.begin([from, to]);
+final a = tx.read(from);
+tx.update(from, a - 50);
+tx.update(to, tx.read(to) + 50);
+await tx.commit();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td>Stage <code>update</code> / <code>read</code>; apply together at commit</td>
+</tr>
+<tr>
+<td><strong>Locks</strong></td>
+<td>Held <strong>only during commit</strong></td>
+</tr>
+<tr>
+<td><strong>Savepoints</strong></td>
+<td><code>tx.savepoint()</code> + <code>rollback(savepoint: sp)</code> for partial undo</td>
+</tr>
+<tr>
+<td><strong>Validation</strong></td>
+<td>At commit: each cell’s <code>testRule</code> <strong>and</strong> optional <code>TransactionOptions.validate</code></td>
+</tr>
+<tr>
+<td><strong>Reentrant</strong></td>
+<td>Not reentrant — commit or rollback before starting another</td>
+</tr>
+</tbody>
+</table>
+<p><strong>IsolationLevel</strong></p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Guarantee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>readCommitted</code> (default)</td>
+<td>Reads live values. Fastest. Lost-update possible if you read-then-write.</td>
+</tr>
+<tr>
+<td><code>repeatableRead</code></td>
+<td>Snapshot at <code>begin</code>. Commit aborts with <code>TransactionConflictException</code> if a participant changed. Does not prevent phantom reads on collections.</td>
+</tr>
+<tr>
+<td><code>serializable</code></td>
+<td>Repeatable read + read-set tracking + a global commit gate (total order). Safest, most expensive.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LockOrdering:</strong> <code>byHashCode</code> (default, deadlock-safe), <code>insertion</code> (only safe if every tx uses the same order), <code>explicit</code> (custom comparator).</p>
+<p><strong>Events:</strong> <code>TransactionBegun</code>, <code>TransactionUpdated</code>, <code>TransactionCommitted</code>, <code>TransactionRolledBack</code>, <code>TransactionTimedOut</code>.</p>
+<p><strong>Exceptions:</strong> <code>TransactionValidationException</code>, <code>TransactionConflictException</code> (retry from <code>begin</code>), <code>TransactionTimeoutException</code>. Failed validation / conflict / timeout <strong>auto-rollback</strong>.</p>
+<p><strong>Options:</strong> <code>isolation</code>, <code>ordering</code>, <code>comparator</code>, <code>timeout</code>, <code>validate</code>, <code>apply</code> (replaces default write path), <code>onEvent</code>.</p>
+<h3 id="celltxapply--staged-apply--compensation-saga"><code>Cell.txApply</code> — staged <code>apply()</code> + compensation (saga)</h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.txApply(TxApplyOptions(stopOnFirstFailure: true));
+await tx.begin([cell1, cell2]);
+cell1.apply(fn1, tx: tx, compensate: undo1);
+cell2.apply(fn2, tx: tx, compensate: undo2);
+await tx.commit();
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td>Stage whitelisted function calls, not raw values</td>
+</tr>
+<tr>
+<td><strong>Compensation</strong></td>
+<td>Per-step undo; optional retry / backoff</td>
+</tr>
+<tr>
+<td><strong>Reentrancy</strong></td>
+<td>Nested <code>txApply</code> joins the parent scope</td>
+</tr>
+<tr>
+<td><strong>Observers</strong></td>
+<td>See the <strong>final</strong> graph state, not intermediate applies</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CompensationErrorPolicy:</strong> <code>bestEffort</code>, <code>failFast</code>, <code>collectThenThrow</code>.</p>
+<p><strong>TxApplyOptions:</strong> <code>onEvent</code>, <code>stopOnFirstFailure</code>, <code>comparator</code>, <code>compensateIfNotExecuted</code>, <code>compensationErrorPolicy</code>, <code>onCompensationFailures</code>, <code>compensationMaxAttempts</code>, <code>compensationBackoff</code>, <code>isRetryableCompensationError</code>.</p>
+<p><strong>Events:</strong> <code>TxApplyBegun</code>, <code>TxApplyStaged</code>, <code>TxApplyCommitted</code>, <code>TxApplyRolledBack</code>, <code>TxApplyRejected</code>, <code>TxApplyCompensationFailed</code>, <code>TxApplyCompensationRetry</code>.</p>
+<p><strong>Exceptions:</strong> <code>TxApplyException</code>, <code>TxApplyCompensationException</code>. <code>ApplyRejected</code> is the sentinel returned when a staged apply is denied.</p>
+<p>Use <strong>transaction</strong> when coordinating cell <em>state</em>. Use <strong>txApply</strong> when coordinating <em>side-effecting functions</em> that need an undo path.</p>
+<hr>
+<h2 id="15-governance-and-security">15. Governance and Security</h2>
+<p>All of this is <strong>opt-in</strong>. Defaults: <code>Context.system</code>, <code>DeputyContext.system</code>, <code>PulseContext.system</code>, <code>TestCell.allowAll</code>.</p>
+<h3 id="three-parallel-vocabularies">Three parallel vocabularies</h3>
+<table>
+<thead>
+<tr>
+<th>Enum</th>
+<th>Lives on</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ontology</code></td>
+<td><code>Context</code></td>
+<td>What the <strong>node</strong> is (domain, taxonomy, topology, version, …)</td>
+</tr>
+<tr>
+<td><code>Mandate</code></td>
+<td><code>DeputyContext</code></td>
+<td>What a <strong>proxy</strong> may do (authority, role, clearance, isolation, …)</td>
+</tr>
+<tr>
+<td><code>Provenance</code></td>
+<td><code>PulseContext</code></td>
+<td>Who / why / how a <strong>signal</strong> was produced (actor, reason, purpose, …)</td>
+</tr>
+</tbody>
+</table>
+<p>Static pillars cannot be changed via <code>evolve</code>. Evolvable dimensions can.</p>
+<h3 id="context-node-identity">Context (node identity)</h3>
+<p><strong>Factories</strong></p>
+<table>
+<thead>
+<tr>
+<th>Factory</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Context.system</code></td>
+<td>Root / default</td>
+</tr>
+<tr>
+<td><code>Context.describe(String)</code></td>
+<td>Prose → stored description (not a compliance program)</td>
+</tr>
+<tr>
+<td><code>Context({…})</code></td>
+<td>Explicit ontology fields</td>
+</tr>
+<tr>
+<td><code>Context.fromEntries(...)</code></td>
+<td>Build from <code>GovernanceEntry</code> list</td>
+</tr>
+<tr>
+<td><code>Context.core</code></td>
+<td>Infrastructure node</td>
+</tr>
+<tr>
+<td><code>Context.module</code></td>
+<td>Application / business module</td>
+</tr>
+<tr>
+<td><code>Context.secureEnclave</code></td>
+<td>High-constraint perimeter</td>
+</tr>
+<tr>
+<td><code>Context.publicInterface</code></td>
+<td>External-facing surface</td>
+</tr>
+<tr>
+<td><code>Context.shieldedCortex</code></td>
+<td>Isolated reasoning / sensitive core</td>
+</tr>
+<tr>
+<td><code>Context.receptor</code></td>
+<td>Transformation-node tagging</td>
+</tr>
+<tr>
+<td><code>Context.integrityGate</code></td>
+<td>Validator-node tagging</td>
+</tr>
+<tr>
+<td><code>Context.homeostasis</code></td>
+<td>Self-maintenance node</td>
+</tr>
+<tr>
+<td><code>Context.sandbox</code></td>
+<td>Untrusted / experimental</td>
+</tr>
+<tr>
+<td><code>Context.auditLog</code></td>
+<td>Audit-oriented node</td>
+</tr>
+<tr>
+<td><code>Context.transientTask</code></td>
+<td>Short-lived work</td>
+</tr>
+<tr>
+<td><code>Context.deputy</code> / <code>Context.pulse</code></td>
+<td>Produce a <code>DeputyContext</code> / <code>PulseContext</code> from a base</td>
+</tr>
+</tbody>
+</table>
+<p>Ontology fields include: <code>type</code>, <code>identity</code>, <code>domains</code>, <code>dataSources</code>, <code>taxonomy</code>, <code>topology</code>, <code>version</code>, <code>subDomains</code>, <code>stakeholders</code>, <code>constraints</code>, <code>isNot</code>, <code>compliances</code>, <code>partOf</code>, <code>others</code>.</p>
+<h3 id="deputycontext-capability-narrowing">DeputyContext (capability narrowing)</h3>
+<p><strong>Preset factories:</strong> <code>observer</code>, <code>delegate</code>, <code>sandbox</code>, <code>intervention</code>, <code>janitor</code>, <code>architect</code>, <code>auditor</code>, <code>ambassador</code>, <code>shielded</code>, <code>gatekeeper</code>, <code>homeostasis</code>.</p>
+<p><strong>Clearance</strong> (ordinal, <code>authorizes</code>): <code>observational</code> &lt; <code>minimal</code> &lt; <code>standard</code> &lt; <code>administrative</code> &lt; <code>privileged</code> &lt; <code>unrestricted</code>.</p>
+<p><strong>Isolation:</strong> <code>shared</code>, <code>scoped</code>, <code>restricted</code>, <code>sandboxed</code>, <code>total</code> — blast radius of a deputy (sandbox mutations are not committed to the principal).</p>
+<p>Also: <code>Sovereignty</code>, <code>AuditLevel</code> (<code>none</code> … <code>full</code>), <code>ReasoningStrategy</code> (<code>manual</code>, <code>deterministic</code>, <code>probabilistic</code>, …), <code>PriorityTier</code>, <code>Sensitivity</code>.</p>
+<p>Lineage: a deputy context must descend from the current context (<code>parent</code> chain). Jumping trees throws <code>AssertionError</code>.</p>
+<h3 id="pulsecontext-signal-provenance">PulseContext (signal provenance)</h3>
+<p><strong>Factories:</strong> <code>regulated</code>, <code>homeostasis</code>, <code>systemInternal</code>, <code>userAction</code>, <code>complianceAudit</code>, <code>aiInference</code>, <code>selfCorrection</code>, <code>infrastructureChange</code>, <code>securityIntervention</code>, <code>telemetry</code>, <code>inference</code>, <code>collaboration</code>, <code>hypothesis</code>, <code>instruction</code>.</p>
+<p>Typical fields: actor, reason, purpose, sensitivity, strategy, trace identifiers. <code>Identity.next()</code> issues UUID v4 ids.</p>
+<p>These attach metadata that <strong>your</strong> <code>TestCell</code> rules can read. The framework does not automatically enforce “purpose limitation” or write an audit log.</p>
+<hr>
+<h2 id="16-lifecycle-policies">16. Lifecycle Policies</h2>
+<h3 id="ephemeralpolicy-cell-ttl">EphemeralPolicy (cell TTL)</h3>
+<p>Attached to a cell / nucleus.</p>
+<table>
+<thead>
+<tr>
+<th>Knob</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duration</code></td>
+<td>TTL from <strong>first interaction</strong> (not construction)</td>
+</tr>
+<tr>
+<td><code>eventLimit</code></td>
+<td>Invalidate after N counted events</td>
+</tr>
+<tr>
+<td><code>onEvent</code></td>
+<td>Your counter logic (usage, errors, custom matches)</td>
+</tr>
+<tr>
+<td><code>onInvalidate</code></td>
+<td>Cleanup hook; return <code>true</code> to confirm</td>
+</tr>
+</tbody>
+</table>
+<p>A negative event count from <code>onEvent</code> ignores that event. The policy is stored on the nucleus inheritable record; after reclaim, <code>policy.isInvalidated</code>, <code>Nucleus.isInvalidated</code>, and <code>Cell.isInvalidated</code> are all <code>true</code>. An unused hosted policy stays live.</p>
+<h3 id="pulseephemeralpolicy-pulse-ttl--hops">PulseEphemeralPolicy (pulse TTL / hops)</h3>
+<table>
+<thead>
+<tr>
+<th>Knob</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>duration</code></td>
+<td>Pulse TTL (timer starts on first hop)</td>
+</tr>
+<tr>
+<td><code>hopLimit</code></td>
+<td>Max node traversals</td>
+</tr>
+<tr>
+<td><code>onEvent</code></td>
+<td>Called per hop; may update or reset <code>hops</code></td>
+</tr>
+<tr>
+<td><code>onInvalidate</code></td>
+<td>Called when the pulse dies</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="17-concurrency-and-locks">17. Concurrency and Locks</h2>
+<ul>
+<li>Each cell <strong>may</strong> hold a <code>Lock</code> from <code>package:synchronized</code> (re-exported).</li>
+<li>The four-step update cycle runs inside that lock when present.</li>
+<li><code>forceLock: true</code> on governed / open / ingress factories allocates a dedicated lock.</li>
+<li>Value cells get a lock by default.</li>
+<li>Sharing a nucleus lock groups cells into one atomic domain.</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">Future&lt;T&gt; withLocks&lt;T&gt;(Iterable&lt;Lock?&gt; locks, Future&lt;T&gt; Function() body)
+Future&lt;T&gt; withCellLocks&lt;T&gt;(
+  Iterable&lt;Cell&gt; cells,
+  Future&lt;T&gt; Function() body, {
+  int Function(Cell a, Cell b)? order,
+})
+</code></pre>
+<p>Locks are acquired in deterministic order (default: <code>hashCode</code>) and released LIFO. <code>null</code> locks are skipped. Re-entrant locks are safe on the same isolate.</p>
+<p>Async counterparts exist throughout so async callers are not a weaker path: <code>ReceptorAsync</code>, <code>AsyncSynapses</code>, <code>ValueCellAsync</code>, <code>OpenCellAsync</code>, <code>ModifiableAsync</code>.</p>
+<p>The library is isolate-compatible in the Dart sense (no shared-memory mutation across isolates). It does not magically share cells across isolates.</p>
+<hr>
+<h2 id="18-async-and-stream-integration">18. Async and Stream Integration</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One-shot Future</td>
+<td><code>Cell.fromFuture</code></td>
+</tr>
+<tr>
+<td>Continuous Stream</td>
+<td><code>Cell.fromStream</code></td>
+</tr>
+<tr>
+<td>Async map</td>
+<td><code>Cell.asyncMap</code> (<code>concurrency</code>, <code>latestOnly</code>, <code>exhaust</code>)</td>
+</tr>
+<tr>
+<td>Dynamic inner cell</td>
+<td><code>Cell.switchMap</code></td>
+</tr>
+<tr>
+<td>Await full cascade</td>
+<td><code>ingest(..., serializedCompletion: true)</code> on ingress / hub / state / open</td>
+</tr>
+<tr>
+<td>Async observe / apply</td>
+<td><code>cell.async</code>, <code>receptor.async</code>, <code>synapses.async</code></td>
+</tr>
+<tr>
+<td>Instruction resume</td>
+<td><code>Instruction.future</code> + token</td>
+</tr>
+</tbody>
+</table>
+<p>Hybrid return types are <code>FutureOr&lt;T&gt;</code> where an operation may be sync or async depending on locks and rules.</p>
+<hr>
+<h2 id="19-nucleus-and-hydration">19. Nucleus and Hydration</h2>
+<p><code>Nucleus</code> is the immutable blueprint a cell wraps.</p>
+<table>
+<thead>
+<tr>
+<th>Factory</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Nucleus({…})</code></td>
+<td>Root blueprint; bitmask stores only non-defaults, including <code>ephemeralPolicy</code> (inheritable bit 8)</td>
+</tr>
+<tr>
+<td><code>Nucleus.evolve({principal, …})</code></td>
+<td>Prototype inheritance; <code>bind</code> is <strong>not</strong> inherited</td>
+</tr>
+<tr>
+<td><code>Nucleus.empty()</code></td>
+<td>Flyweight zero-state (<code>Nucleolus</code> singleton)</td>
+</tr>
+<tr>
+<td><code>Nucleus.create</code> / typed helpers</td>
+<td>Custom cell types</td>
+</tr>
+</tbody>
+</table>
+<p><code>Inheritable</code> / <code>InheritableHandle</code> support property resolution up the principal chain. <code>Nucleolus</code> is the empty root (<code>isInvalidated</code> is always <code>false</code>). <code>Nucleus.isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>; clones copy that policy.</p>
+<p>Activate with <code>Cell.fromNucleus</code>. Prefer <code>Cell.deputy</code> over manual <code>Nucleus.evolve</code> in application code.</p>
+<hr>
+<h2 id="20-internal-utilities">20. Internal Utilities</h2>
+<p>Exported from <code>package:cell/cell.dart</code> (via <code>commons.dart</code> and related):</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Lock</code></td>
+<td>Re-exported from <code>synchronized</code></td>
+</tr>
+<tr>
+<td><code>Box&lt;T&gt;</code> / <code>SyncBox&lt;T&gt;</code> / <code>FinalBox&lt;T&gt;</code></td>
+<td>Storage cells use internally</td>
+</tr>
+<tr>
+<td><code>SyncSet</code>, <code>QueueList</code>, <code>AsyncQueueList</code></td>
+<td>Locked / deque collections</td>
+</tr>
+<tr>
+<td><code>PriorityQueue</code>, <code>AsyncPriorityQueue</code>, <code>SyncQueue</code></td>
+<td>Ordered queues for propagation</td>
+</tr>
+<tr>
+<td><code>CycleChecker</code> / <code>SyncCycleChecker</code></td>
+<td>Graph cycle detection</td>
+</tr>
+<tr>
+<td><code>Unmodifiable</code> / <code>Async&lt;C&gt;</code></td>
+<td>Marker mixins</td>
+</tr>
+<tr>
+<td><code>FunctionObject</code> / <code>TypeObject</code> / <code>FunctionTypeObject</code></td>
+<td>Reflection helpers for <code>apply</code></td>
+</tr>
+<tr>
+<td><code>SymbolConverter</code></td>
+<td>JSON conversion for <code>Symbol</code></td>
+</tr>
+<tr>
+<td><code>SynthesisCell</code></td>
+<td>Concrete multi-source cell used by <code>Cell.synthesis</code></td>
+</tr>
+</tbody>
+</table>
+<p>These are public because operators and higher packages need them. Application code should not reach for them unless building infrastructure.</p>
+<hr>
+<h2 id="21-ecosystem-packages">21. Ecosystem Packages</h2>
+<p>Cell is the foundation. Sibling packages in this repo:</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Layer</th>
+<th>What it adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>cell</strong> (this)</td>
+<td>Cell</td>
+<td>Nodes, pulses, Core operators, governance, transactions</td>
+</tr>
+<tr>
+<td><strong>cell_tissue</strong></td>
+<td>Tissue</td>
+<td>Grouped cells: list / map / set / queue / value collections with collective events</td>
+</tr>
+<tr>
+<td><strong>cell_organ</strong></td>
+<td>Organ</td>
+<td>Relatable models: one/many relations, blend, cascade, entity fields</td>
+</tr>
+<tr>
+<td><strong>cell_flow</strong></td>
+<td>Flow</td>
+<td>79 uniquely named instruction operators on <code>Flow</code> (33 files under <code>lib/src/instruction/</code>); fluent chaining; <code>zip</code> / <code>combineLatest</code> in <code>nucleus/</code></td>
+</tr>
+<tr>
+<td><strong>cell_memory</strong></td>
+<td>Memory</td>
+<td>Persistence / stored models, columns, store operations</td>
+</tr>
+<tr>
+<td><strong>cell_ontogeny</strong></td>
+<td>Ontogeny</td>
+<td>Code generation for models, interfaces, and references</td>
+</tr>
+</tbody>
+</table>
+<p>If you need Rx-style combinators (<code>merge</code>, <code>zip</code>, <code>window</code>, <code>scan</code>), look in <strong>cell_flow</strong>, not in this package.</p>
+<p>Flutter: no dedicated widgets. Bind with <code>Cell.observe</code> (or any adapter) and call <code>setState</code> / notify your existing state library.</p>
+<hr>
+<h2 id="22-documentation-and-examples">22. Documentation and Examples</h2>
+<h3 id="guides-guide">Guides (<code>guide/</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HowTo-Start.md</code></td>
+<td>Getting started</td>
+</tr>
+<tr>
+<td><code>HowTo-16_Essential_Operators.md</code></td>
+<td>Core operators, learning path</td>
+</tr>
+<tr>
+<td><code>HowTo-Instruction.md</code></td>
+<td>Instruction stages</td>
+</tr>
+<tr>
+<td><code>HowTo-Receptor.md</code></td>
+<td>Transformation pipelines</td>
+</tr>
+<tr>
+<td><code>HowTo-Synapses.md</code></td>
+<td>Linking, filters, propagation</td>
+</tr>
+<tr>
+<td><code>HowTo-TestCell.md</code></td>
+<td>Validation</td>
+</tr>
+<tr>
+<td><code>HowTo-Pulse.md</code></td>
+<td>Signals</td>
+</tr>
+<tr>
+<td><code>HowTo-PulseContext.md</code></td>
+<td>Pulse provenance</td>
+</tr>
+<tr>
+<td><code>HowTo-PulseEphemeralPolicy.md</code></td>
+<td>Pulse TTL / hops</td>
+</tr>
+<tr>
+<td><code>HowTo-Context.md</code></td>
+<td>Node identity</td>
+</tr>
+<tr>
+<td><code>HowTo-DeputyContext.md</code></td>
+<td>Restricted views</td>
+</tr>
+<tr>
+<td><code>HowTo-EphemeralPolicy.md</code></td>
+<td>Cell TTL / event budget</td>
+</tr>
+<tr>
+<td><code>HowTo-PropagationPolicy.md</code></td>
+<td>Delivery timing</td>
+</tr>
+<tr>
+<td><code>HowTo-Nucleus.md</code></td>
+<td>Blueprints</td>
+</tr>
+<tr>
+<td><code>HowTo-Transaction.md</code></td>
+<td>Buffered multi-cell writes</td>
+</tr>
+<tr>
+<td><code>HowTo-TransactionOnApply.md</code></td>
+<td>Staged apply + compensation</td>
+</tr>
+<tr>
+<td><code>HowTo-Advanced.md</code></td>
+<td>Index of optional machinery</td>
+</tr>
+</tbody>
+</table>
+<p>Also: <code>README.md</code> (overview + status), <code>ARCHITECTURE.md</code> (design intent), <code>TEST_VERIFICATION.md</code> (test inventory and measured <code>lib/</code> coverage), <code>KNOWN_ISSUES.md</code> (RC gaps).</p>
+<p>Generate API docs: <code>dart doc .</code><br>
+Categories include Getting Started, Core, Core 16 Operators, Transactions, Governance, Advanced, and the primitive-specific topics.</p>
+<h3 id="runnable-examples-example">Runnable examples (<code>example/</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state_demo.dart</code></td>
+<td><code>Cell.state</code></td>
+</tr>
+<tr>
+<td><code>ingress_demo.dart</code></td>
+<td><code>Cell.ingress</code></td>
+</tr>
+<tr>
+<td><code>observe_demo.dart</code></td>
+<td>Side effects / start-stop</td>
+</tr>
+<tr>
+<td><code>derive_demo.dart</code></td>
+<td>Projections</td>
+</tr>
+<tr>
+<td><code>distinct_demo.dart</code></td>
+<td>Duplicate suppression</td>
+</tr>
+<tr>
+<td><code>throttle_demo.dart</code></td>
+<td>Rate limiting</td>
+</tr>
+<tr>
+<td><code>stability_search_demo.dart</code></td>
+<td>Debounced search</td>
+</tr>
+<tr>
+<td><code>async_map_demo.dart</code></td>
+<td>Concurrent async map</td>
+</tr>
+<tr>
+<td><code>synthesis_demo.dart</code></td>
+<td>Multi-source aggregation</td>
+</tr>
+<tr>
+<td><code>hub_demo.dart</code></td>
+<td>Routing</td>
+</tr>
+<tr>
+<td><code>sanitized_demo.dart</code></td>
+<td>Redaction</td>
+</tr>
+<tr>
+<td><code>valve_demo.dart</code></td>
+<td>Conditional gate</td>
+</tr>
+<tr>
+<td><code>open_cell_demo.dart</code></td>
+<td>Manual topology</td>
+</tr>
+<tr>
+<td><code>transaction_demo.dart</code></td>
+<td>Buffered transactions</td>
+</tr>
+<tr>
+<td><code>atomic_multi_update.dart</code></td>
+<td><code>txApply</code> / compensation</td>
+</tr>
+<tr>
+<td><code>receptor_pipeline_walkthrough.dart</code></td>
+<td>Receptor pipelines</td>
+</tr>
+<tr>
+<td><code>instruction_pipeline_walkthrough.dart</code></td>
+<td>Instruction chains</td>
+</tr>
+</tbody>
+</table>
+<p>Some dartdoc comments still point at examples that are not in this package (<code>from_future_demo</code>, <code>from_stream_demo</code>, <code>switch_map_demo</code>, <code>stream_bridge_demo</code>). Related demos live under <code>packages/cell_flow/example/</code>.</p>
+<h3 id="tests-test">Tests (<code>test/</code>)</h3>
+<p>Files are named <code>test_*.dart</code>, not <code>*_test.dart</code>. Therefore:</p>
+<ul>
+<li><code>dart test</code> with no path finds <strong>no tests</strong></li>
+<li><code>dart test test</code> is a name filter, not a directory</li>
+<li>Pass explicit files (see <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>)</li>
+</ul>
+<p><strong>1115</strong> tests in <strong>20</strong> files. Last full run: <strong>1115 passed / 0 failed / 0 skipped</strong>. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and operator phases 1–4.</p>
+<pre class="language-bash"><code class="language-bash">dart analyze lib
+# PowerShell — all suites:
+dart test @(Get-ChildItem test/test_*.dart | ForEach-Object { "test/$($_.Name)" })
+dart format .
+dart doc .
+</code></pre>
+<hr>
+<h2 id="23-use-case-decision-matrix">23. Use-Case Decision Matrix</h2>
+<h3 id="use-this-package-when-you-need">Use this package when you need</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Feature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistent reactive state</td>
+<td><code>Cell.state</code> + optional <code>TestCell</code></td>
+</tr>
+<tr>
+<td>Imperative events into a graph</td>
+<td><code>Cell.ingress</code></td>
+</tr>
+<tr>
+<td>UI / logging / persistence side effects</td>
+<td><code>Cell.observe</code></td>
+</tr>
+<tr>
+<td>Projections / view-models</td>
+<td><code>Cell.derive</code></td>
+</tr>
+<tr>
+<td>Multi-field forms / dashboards</td>
+<td><code>Cell.synthesis</code></td>
+</tr>
+<tr>
+<td>Multi-cell atomic writes</td>
+<td><code>Cell.transaction</code></td>
+</tr>
+<tr>
+<td>Side-effecting steps with undo</td>
+<td><code>Cell.txApply</code></td>
+</tr>
+<tr>
+<td>HTTP / DB with cancel-previous</td>
+<td><code>Cell.asyncMap(latestOnly: true)</code></td>
+</tr>
+<tr>
+<td>Follow a selected inner source</td>
+<td><code>Cell.switchMap</code></td>
+</tr>
+<tr>
+<td>Bridge <code>Future</code> / <code>Stream</code></td>
+<td><code>fromFuture</code> / <code>fromStream</code></td>
+</tr>
+<tr>
+<td>Typed event routing</td>
+<td><code>Cell.hub</code></td>
+</tr>
+<tr>
+<td>Rate / silence control</td>
+<td><code>throttle</code> / <code>debounce</code> / synapse <code>PropagationPolicy</code></td>
+</tr>
+<tr>
+<td>Conditional flow</td>
+<td><code>Cell.valve</code> or <code>derive</code> returning <code>null</code></td>
+</tr>
+<tr>
+<td>Read-only or scoped handles</td>
+<td><code>unmodifiable</code> / <code>deputy</code></td>
+</tr>
+<tr>
+<td>Redacted egress views</td>
+<td><code>Cell.sanitized</code></td>
+</tr>
+<tr>
+<td>Provenance on signals</td>
+<td><code>PulseContext</code>, <code>withStep</code>, evolved pulses</td>
+</tr>
+<tr>
+<td>Plugin / module boundary</td>
+<td><code>Cell.open</code></td>
+</tr>
+<tr>
+<td>Custom operator</td>
+<td><code>Nucleus</code> + <code>Instruction</code> + <code>Cell.fromNucleus</code></td>
+</tr>
+<tr>
+<td>Deadlock-free multi-lock</td>
+<td><code>withCellLocks</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="prefer-something-else-when-you-only-need">Prefer something else when you only need</h3>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Simpler option</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A counter or a couple of flags</td>
+<td><code>ValueNotifier</code>, a variable</td>
+</tr>
+<tr>
+<td>Basic Flutter form state</td>
+<td>Provider, Riverpod, or the widget itself</td>
+</tr>
+<tr>
+<td>A simple event bus</td>
+<td><code>StreamController</code></td>
+</tr>
+<tr>
+<td>One API call</td>
+<td>A <code>Future</code></td>
+</tr>
+<tr>
+<td>Rx combinators (merge, zip, window, scan)</td>
+<td><strong>cell_flow</strong>, or <code>dart:async</code> / RxDart</td>
+</tr>
+<tr>
+<td>Battle-tested production SM today</td>
+<td>A published, audited library</td>
+</tr>
+</tbody>
+</table>
+<h3 id="complexity-vs-fit">Complexity vs. fit</h3>
+<ul>
+<li><strong>Small UI:</strong> Provider / Riverpod / <code>setState</code> is less machinery.</li>
+<li><strong>Medium:</strong> Cell is worth it if you already want validation, deputies, or transactions.</li>
+<li><strong>Complex / regulated-adjacent:</strong> Cell’s provenance, TestCell, and transactions are the point — still bring your own legal and operational controls.</li>
+</ul>
+<hr>
+<h2 id="24-known-gaps">24. Known Gaps</h2>
+<p>Honest list, so this catalog does not over-promise:</p>
+<ol>
+<li><strong>RC APIs</strong> — operator lists and guide names have moved; treat Core 16 numbering as a learning order, not a stability guarantee.</li>
+<li><strong><code>fromStream</code> teardown</strong> — the subscription is cancelled on invalidation / GC; attach <code>ephemeralPolicy</code> when you need an explicit TTL or event budget.</li>
+<li><strong>Guides vs. code</strong> — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private <code>_nucleus</code>; the unit tests use public APIs only.</li>
+<li><strong>Valve</strong> — implemented (<code>Cell.valve</code>, <code>example/valve_demo.dart</code>, tests). Generated <code>doc/api/</code> HTML may still lag until <code>dart doc</code> is regenerated.</li>
+<li><strong>No pub.dev, no audit, no compliance certification.</strong></li>
+<li><strong>Transaction / compensation internals</strong> have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.</li>
+<li><strong>Remaining lower <code>lib/</code> line coverage</strong> — <code>context.dart</code> 90.3%, <code>internal/pulse.dart</code> 90.4%, <code>receptor.dart</code> 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see <code>TEST_VERIFICATION.md</code>).</li>
+</ol>
+<hr>
+<h2 id="25-quick-reference">25. Quick Reference</h2>
+<h3 id="operators-at-a-glance">Operators at a glance</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Kind</th>
+<th>Returns</th>
+<th>One-line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state</code></td>
+<td>Entry</td>
+<td><code>StateHandle&lt;V&gt;</code></td>
+<td>Persistent state</td>
+</tr>
+<tr>
+<td><code>ingress</code></td>
+<td>Entry</td>
+<td><code>IngressHandle&lt;I&gt;</code></td>
+<td>Manual events</td>
+</tr>
+<tr>
+<td><code>observe</code></td>
+<td>Entry</td>
+<td><code>EgressHandle&lt;P&gt;</code></td>
+<td>Side effects</td>
+</tr>
+<tr>
+<td><code>derive</code></td>
+<td>Entry</td>
+<td><code>Cell</code></td>
+<td>Pure projection</td>
+</tr>
+<tr>
+<td><code>debounce</code></td>
+<td>Shape</td>
+<td><code>Cell</code></td>
+<td>After silence</td>
+</tr>
+<tr>
+<td><code>distinct</code></td>
+<td>Shape</td>
+<td><code>Cell</code></td>
+<td>Skip consecutive dupes</td>
+</tr>
+<tr>
+<td><code>throttle</code></td>
+<td>Shape</td>
+<td><code>Cell</code></td>
+<td>Max frequency</td>
+</tr>
+<tr>
+<td><code>valve</code></td>
+<td>Shape</td>
+<td><code>Cell</code></td>
+<td>Predicate gate</td>
+</tr>
+<tr>
+<td><code>asyncMap</code></td>
+<td>Async</td>
+<td><code>Cell</code></td>
+<td><code>Future</code> per item</td>
+</tr>
+<tr>
+<td><code>fromFuture</code></td>
+<td>Async</td>
+<td><code>Cell</code></td>
+<td>One-shot Future</td>
+</tr>
+<tr>
+<td><code>fromStream</code></td>
+<td>Async</td>
+<td><code>Cell</code></td>
+<td>Stream bridge</td>
+</tr>
+<tr>
+<td><code>switchMap</code></td>
+<td>Async</td>
+<td><code>Cell</code></td>
+<td>Latest inner cell</td>
+</tr>
+<tr>
+<td><code>synthesis</code></td>
+<td>Combine</td>
+<td><code>Cell</code></td>
+<td>Fan-in / consensus</td>
+</tr>
+<tr>
+<td><code>hub</code></td>
+<td>Combine</td>
+<td><code>HubHandle</code></td>
+<td>Route by type</td>
+</tr>
+<tr>
+<td><code>sanitized</code></td>
+<td>Combine</td>
+<td><code>Cell</code></td>
+<td>Redact by sensitivity</td>
+</tr>
+<tr>
+<td><code>open</code></td>
+<td>Topology</td>
+<td><code>OpenCell</code></td>
+<td>Manual emit / link</td>
+</tr>
+<tr>
+<td><code>transaction</code></td>
+<td>Orchestrate</td>
+<td><code>TransactionScope</code></td>
+<td>Buffered multi-write</td>
+</tr>
+<tr>
+<td><code>txApply</code></td>
+<td>Orchestrate</td>
+<td><code>ApplyTransactionScope</code></td>
+<td>Staged apply + undo</td>
+</tr>
+<tr>
+<td><code>Cell()</code> / <code>governed</code> / <code>fromNucleus</code></td>
+<td>Low-level</td>
+<td><code>Cell</code></td>
+<td>Custom / infra</td>
+</tr>
+</tbody>
+</table>
+<h3 id="transaction-comparison">Transaction comparison</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>Cell.transaction</code></th>
+<th><code>Cell.txApply</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stages</td>
+<td>Values (<code>update</code> / <code>read</code>)</td>
+<td>Commands (<code>apply</code>)</td>
+</tr>
+<tr>
+<td>Undo</td>
+<td>Rollback / savepoints</td>
+<td>Per-step <code>compensate</code></td>
+</tr>
+<tr>
+<td>Locks</td>
+<td>Commit-time</td>
+<td>Participant coordination</td>
+</tr>
+<tr>
+<td>Nested</td>
+<td>Not reentrant</td>
+<td>Joins parent</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Money, stock, form commit</td>
+<td>Sagas, side effects</td>
+</tr>
+</tbody>
+</table>
+<h3 id="governance-defaults">Governance defaults</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Default</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Context</code></td>
+<td><code>Context.system</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>DeputyContext</code></td>
+<td><code>DeputyContext.system</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>PulseContext</code></td>
+<td><code>PulseContext.system</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>TestCell</code></td>
+<td><code>TestCell.allowAll</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>EphemeralPolicy</code></td>
+<td>none</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>PulseEphemeralPolicy</code></td>
+<td>none</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>PropagationPolicy</code></td>
+<td><code>immediate</code></td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="design-patterns-mapped">Design patterns (mapped)</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Observer</td>
+<td>Cell ↔ Synapses</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>Pulse; <code>Cell.apply</code> + <code>modifiable</code></td>
+</tr>
+<tr>
+<td>Proxy</td>
+<td>Deputy / unmodifiable</td>
+</tr>
+<tr>
+<td>Strategy</td>
+<td>Receptor, TestCell, Synapses, PropagationStrategy</td>
+</tr>
+<tr>
+<td>Chain of Responsibility</td>
+<td>Instruction / TestCell / FilterRule <code>+</code></td>
+</tr>
+<tr>
+<td>Unit of Work</td>
+<td><code>Cell.transaction</code></td>
+</tr>
+<tr>
+<td>Saga</td>
+<td><code>Cell.txApply</code></td>
+</tr>
+<tr>
+<td>Mediator</td>
+<td><code>Cell.hub</code></td>
+</tr>
+<tr>
+<td>Guard</td>
+<td>TestCell</td>
+</tr>
+<tr>
+<td>Decorator</td>
+<td>Operator chaining</td>
+</tr>
+<tr>
+<td>Prototype</td>
+<td><code>Nucleus.evolve</code></td>
+</tr>
+<tr>
+<td>Flyweight</td>
+<td><code>Synapses.enabled/disabled</code>, <code>Context.system</code>, empty nucleus</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="cell">
+  <span class="name"><a href="../cell/">cell</a></span> 
+    <span class="category features cp-0 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+
+</dt>
+<dd>Cell — reactive state for Dart.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Features topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Features topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Features-topic.html#libraries">Libraries</a></li>
+      <li><a href="../cell/">cell</a></li>
+
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the async property from the Receptor class, for the Dart programming language.">
+  <title>async property - Receptor class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">async property</li>
+  </ol>
+  <div class="self-name">async</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Receptor-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">async</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+      <span class="returntype"><a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>
+      get
+      <span class="name ">async</span>
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns an asynchronous execution adapter for this receptor.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to interact with the receptor from an
+asynchronous context or require precise control over the signal's
+propagation lifecycle.</p>
+<ul>
+<li><strong>Asynchronous Entry</strong>: Triggering pulses from <code>Future</code>-returning
+functions, network responses, or stream listeners.</li>
+<li><strong>Deterministic Completion</strong>: When you need to ensure that the
+entire reactive wave is finished before proceeding (e.g., in tests
+or complex multi-step updates).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The getter provides a <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> proxy that wraps the receptor's
+core transformation logic.</li>
+<li>It converts the synchronous pipeline execution into an asynchronous
+<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API.</li>
+<li>It exposes advanced synchronization options, such as waiting for
+serialized completion across the entire downstream graph.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lightweight View</strong>: The async adapter is a stateless view of the
+primary receptor; it consumes negligible memory and shares all
+underlying instruction metadata.</li>
+<li><strong>Full Propagation</strong>: While a standard <code>await call()</code> only waits for
+ the immediate transformation, <code>async.call(..., serializedCompletion: true)</code>
+waits for every downstream side-effect to settle.</li>
+<li><strong>Atomic Integrity</strong>: It maintains the integrity of the cell's
+transaction boundary even when invoked from an asynchronous loop.</li>
+<li><strong>Queueing</strong>: Pulses are queued and processed sequentially to preserve
+causal order.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> handle for asynchronous pulse injection.</p>
+<h3 id="example-waiting-for-full-propagation">Example: Waiting for Full Propagation</h3>
+<pre class="language-dart"><code class="language-dart">// Trigger a pulse and wait for the entire graph to settle
+await receptor.async.call(myPulse, serializedCompletion: true);
+</code></pre>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReceptorAsync&lt;C&gt; get async;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">async property</li>
+</ol>
+
+  <h5>Receptor class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

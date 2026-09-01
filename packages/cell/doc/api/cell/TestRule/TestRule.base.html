@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TestRule.base constructor from Class TestRule from the cell library, for the Dart programming language.">
+  <title>TestRule.base constructor - TestRule - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.base const constructor</li>
+  </ol>
+  <div class="self-name">TestRule.base</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;TestRule-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.base</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.base</span>(<wbr>)
+    </section>
+    
+<section class="desc markdown">
+  <p>The foundational constructor for <strong>Metadata-Driven Validation Annotations</strong>,
+enabling the declarative definition of business invariants.</p>
+<p><a href="../../cell/TestRule/TestRule.base.html">TestRule.base</a> provides the structural anchoring required for classes
+(such as <a href="../../cell/ValueRange-class.html">ValueRange</a>, <a href="../../cell/EntryPattern-class.html">EntryPattern</a>, and <a href="../../cell/Values-class.html">Values</a>) to be used as
+Dart annotations. This allows integrity rules to be embedded directly
+into the data schema rather than being injected at runtime.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Annotation Definition</strong>: Use as the super-constructor for custom
+validation classes intended for use as <code>@Annotation</code> markers.</li>
+<li><strong>Static Schema Mapping</strong>: Use to define structural constraints on
+POJOs or data models that will be wrapped in cells.</li>
+<li><strong>Declarative Validation</strong>: When you want validation logic to be
+discoverable via reflection/introspection for UI or API generation.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Annotation Reification</strong>: It initializes the internal <code>_record</code>
+to an empty unit <code>()</code>. This marks the instance as a stateless
+metadata node.</li>
+<li><strong>Structural Blueprinting</strong>: When the framework encounters these
+annotations on a class member, it automatically synthesizes them
+into the reactive graph's validation layer.</li>
+<li><strong>Stateless Logic</strong>: Subclasses typically provide concrete validation
+logic by overriding the <a href="../../cell/TestRule/call.html">call</a> method, while relying on <code>base</code> for
+type safety within the governance system.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Statelessness</strong>: Rules extending <code>base</code> should remain strictly
+stateless. They rely purely on the input value and metadata,
+making them safe for global caching and concurrent access.</li>
+<li><strong>Zero-Cost Metadata</strong>: Because it is a <code>const</code> constructor,
+annotation-based rules do not incur runtime overhead unless they are
+explicitly evaluated.</li>
+<li><strong>Visibility</strong>: Annotations are visible to external tools (like code
+generators or documentation engines) that might not have access to
+the runtime reactive graph.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class MaxLength extends TestRule&lt;Never&gt; {
+  final int length;
+  const MaxLength(this.length) : super.base();
+
+  @override
+  bool call(dynamic val, {Never? host, dynamic arguments}) =&gt;
+      val is String &amp;&amp; val.length &lt;= length;
+}
+
+// Usage in a data model
+class User {
+  @MaxLength(20)
+  final String username;
+  User(this.username);
+}
+
+
+### Parameters:
+(None)
+
+### Returns:
+A [TestRule] instance acting as a Metadata Blueprint.
+
+### See Also:
+* [TestRule]: The primary constructor for functional validation rules.
+* [ValueRange]: A standard implementation for numerical constraints.
+* [EntryPattern]: A standard implementation for string regex validation.
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const TestRule.base() : _record = ();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.base const constructor</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

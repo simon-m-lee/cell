@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the observe method from the Cell class, for the Dart programming language.">
+  <title>observe method - Cell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">observe&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">observe</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;Cell-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">observe&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/EgressHandle.html">EgressHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+<span class="name ">observe</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="observe-param-source"><span>required</span> <span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="observe-param-effect"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">effect</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="observe-param-initiallyStarted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">initiallyStarted</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Output Terminal</strong> designed to observe the reactive graph
+and emit imperative side effects.</p>
+<p>The <a href="../../cell/Cell/observe.html">observe</a> factory creates a point of <strong>Signal Termination</strong>—the boundary
+where reactive <a href="../../cell/Pulse-class.html">Pulse</a>s exit the automated graph and are converted into
+real-world actions (e.g., UI updates, disk persistence, or hardware commands).</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to react to a cell's changes with side effects:
+updating UI, writing to a database, sending a network request, or logging.</p>
+<ul>
+<li><strong>UI Binding</strong>: Updating views or controllers in response to state changes.</li>
+<li><strong>Persistence</strong>: Saving the results of a transformation chain to storage.</li>
+<li><strong>External Integration</strong>: Triggering third-party APIs or hardware signals.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The observer establishes a persistent link to the <code>source</code> source.</li>
+<li>Every pulse emitted by the source is passed through the <code>testRule</code>.</li>
+<li>If the stimulus is valid, the <code>effect</code> callback is executed.</li>
+<li>The returned <a href="../../cell/EgressHandle.html">EgressHandle</a> allows you to <code>start</code> or <code>stop</code> the observer
+manually, providing complete lifecycle control.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Terminal Nature</strong>: This node is a "sink"—it has no downstream
+observers and never propagates pulses further, effectively preventing
+causal loops.</li>
+<li><strong>Dormancy</strong>: Observers can be created in a dormant state if
+<code>initiallyStarted</code> is <code>false</code>, meaning they will ignore pulses until
+<code>.start()</code> is called on the handle.</li>
+</ul>
+<h3 id="example-ui-update-observer">Example: UI Update Observer</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(initial: 0);
+final uiUpdate = Cell.observe&lt;int&gt;(
+  source: counter.cell,
+  effect: (pulse) {
+    // Execute the side-effect (Egress)
+    setState(() =&gt; count = pulse.payload);
+  },
+);
+
+uiUpdate.start();
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Ingress Source.</strong> The <a href="../../cell/Cell-class.html">Cell</a> instance to observe.</li>
+<li><code>effect</code>: <strong>The Egress Logic.</strong> An imperative callback executed
+when a valid stimulus is received. This function is the terminal
+point for side effects and focuses purely on the <a href="../../cell/Pulse-class.html">Pulse</a>.</li>
+<li><code>initiallyStarted</code>: <strong>Initial Lifecycle State.</strong> If <code>true</code>, the
+observer begins processing signals immediately upon creation.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>An <a href="../../cell/EgressHandle.html">EgressHandle</a> (Record) providing:</p>
+<ul>
+<li><code>cell</code>: The live observer node.</li>
+<li><code>start</code>: A closure to enable side-effect processing.</li>
+<li><code>stop</code>: A closure to disable side-effect processing.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/EgressHandle.html">EgressHandle</a>: For controlling the lifecycle (start/stop) of the observer.</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/observe_demo.dart</code> for a complete executable
+walkthrough of UI side-effects, terminal lifecycle management, and forensic logging.
+{@category Core 16 Operators}</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static EgressHandle&lt;P&gt; observe&lt;P extends Pulse&gt;({
+  required Cell source,
+  required void Function(P pulse) effect,
+  bool initiallyStarted = true,
+}) =&gt;
+    _observe(
+      bind: source,
+      effect: effect,
+      initiallyStarted: initiallyStarted,
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Cell-class.html">Cell</a></li>
+    <li class="self-crumb">observe&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt; static method</li>
+</ol>
+
+    <h5>Cell class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

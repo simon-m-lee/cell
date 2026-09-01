@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Sensitivity enum from the cell library, for the Dart programming language.">
+  <title>Sensitivity enum - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Sensitivity enum</li>
+  </ol>
+  <div class="self-name">Sensitivity</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Sensitivity-enum-sidebar.html">
+    <div>
+
+      <h1>
+        <span class="kind-enum">Sensitivity</span>
+        enum 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Defines the <strong>Information Classification</strong> and data-privacy tier of a <a href="../cell/Pulse-class.html">Pulse</a>.</p>
+<p>Sensitivity levels determine the encryption requirements, redaction policies,
+and visibility of the <a href="../cell/Pulse/payload.html">Pulse.payload</a> across different <a href="../cell/Isolation.html">Isolation</a> levels.</p>
+<p>Within the framework's <strong>Capability-Based Access Control (CBAC)</strong> model,
+this enum enables <strong>Automated Compliance Enforcement</strong>.</p>
+<p>During the <strong>Reactive Update Cycle</strong>, a <strong>Managed Node</strong> or
+<strong>Integrity Gate (<a href="../cell/TestCell-class.html">TestCell</a>)</strong> utilizes the sensitivity tier to
+determine if a specific agent possesses the required <a href="../cell/Clearance.html">Clearance</a> to
+authorize the signal's <strong>Ingress</strong> or to perform a state mutation during
+the <strong>Transformation Phase</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Attach a sensitivity level to a pulse to indicate its data classification.
+This helps enforce privacy and compliance rules.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses sensitivity to determine redaction, encryption, and
+access control. Higher sensitivity requires higher clearance.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><code>restricted</code> and <code>secret</code> emit automatic redaction in logs.</li>
+<li>Some cells reject pulses with insufficient sensitivity clearance.</li>
+</ul>
+<p>See also: <a href="../cell/PulseContext/sensitivity.html">PulseContext.sensitivity</a>.</p>
+</section>
+
+
+      <section>
+        <dl class="dl-horizontal">
+          
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark eNum-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></li>
+      <li>Sensitivity</li>
+    </ul>
+  </dd>
+
+          
+          
+          
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a></li>
+  </ul></dd>
+          
+
+
+        </dl>
+      </section>
+
+      <section class="summary offset-anchor" id="values">
+        <h2>Values</h2>
+        <dl class="properties">
+            <dt id="public" class="constant">
+    <span class="name ">public</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 0: Public.</strong>
+Non-sensitive data that can be safely logged, cached, and transmitted
+across unencrypted channels.</p>
+<p><em>Example:</em> App version numbers, current theme name, or public constants.</p>
+  
+
+</dd>
+
+            <dt id="internal" class="constant">
+    <span class="name ">internal</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 1: Internal.</strong>
+Data intended for system-wide use but not for external exposure. Restricted
+from egress to external third-party adapters.</p>
+<p><em>Example:</em> System-wide telemetry, cell topology metadata, or heartbeat signals.</p>
+  
+
+</dd>
+
+            <dt id="private" class="constant">
+    <span class="name ">private</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 2: Private.</strong>
+Data restricted to the local <strong>Sovereign Resident</strong> or the immediate
+cell cluster. Never broadcast across public synapses.</p>
+<p><em>Example:</em> An agent's local scratchpad, internal monologue, or local loop counters.</p>
+  
+
+</dd>
+
+            <dt id="confidential" class="constant">
+    <span class="name ">confidential</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 3: Confidential.</strong>
+Sensitive operational data requiring standard encryption at rest. Typically
+masked in low-level audit logs.</p>
+<p><em>Example:</em> Feature flags, internal resource URIs, or obfuscated user IDs.</p>
+  
+
+</dd>
+
+            <dt id="restricted" class="constant">
+    <span class="name ">restricted</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 4: Restricted.</strong>
+Highly sensitive data, including PII (Personally Identifiable Information).
+Never logged in plaintext.</p>
+<p><em>Example:</em> User email addresses, physical geolocation, or billing history.</p>
+  
+
+</dd>
+
+            <dt id="secret" class="constant">
+    <span class="name ">secret</span>
+  <span class="signature">&#8594; const <a href="../cell/Sensitivity.html">Sensitivity</a></span>
+  
+
+</dt>
+<dd>
+  <p><strong>Level 5: Secret.</strong>
+The highest tier of confidentiality. Restricted to <a href="../cell/Isolation.html">Isolation.sandboxed</a>
+or <a href="../cell/Isolation.html">Isolation.total</a> environments to prevent leakage.</p>
+<p><em>Example:</em> Private cryptographic keys, OAuth tokens, or administrative passwords.</p>
+  
+
+</dd>
+
+        </dl>
+      </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="index" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Enum/index.html">index</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A numeric identifier for the enumerated value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isHighRisk" class="property">
+  <span class="name"><a href="../cell/Sensitivity/isHighRisk.html">isHighRisk</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> if the data carries significant legal or security risk,
+requiring elevated <a href="../cell/Clearance.html">Clearance</a> for any mutation.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumName/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a> extension</span>
+      </p>
+  The name of the enum value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="requiresMasking" class="property">
+  <span class="name"><a href="../cell/Sensitivity/requiresMasking.html">requiresMasking</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> if the data requires proactive masking or redaction
+within <a href="../cell/AuditLevel.html">AuditLevel.standard</a> logs.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="values" class="constant">
+    <span class="name "><a href="../cell/Sensitivity/values-constant.html">values</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Sensitivity.html">Sensitivity</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A constant List of the values in this enum, in order of their declaration.
+  
+
+</dd>
+
+    </dl>
+  </section>
+</div><!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Sensitivity enum</li>
+</ol>
+
+  <h5>cell library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!-- /.sidebar-offcanvas -->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

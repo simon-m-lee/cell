@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ingest method from the OpenReceptorMixin mixin, for the Dart programming language.">
+  <title>ingest method - OpenReceptorMixin mixin - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">ingest method</li>
+  </ol>
+  <div class="self-name">ingest</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;OpenReceptorMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">ingest</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">ingest</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ingest-param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="ingest-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Awaitable Signal Injection</strong>—a specialized entry point
+that waits for the entire reactive network to finish processing a change.</p>
+<p>The <a href="../../cell/OpenReceptorMixin/ingest.html">ingest</a> acts as a <strong>Guaranteed Completion Port</strong>. Unlike <a href="../../cell/OpenReceptorMixin/emit.html">emit</a>,
+which returns as soon as the signal enters the network, <a href="../../cell/OpenReceptorMixin/ingest.html">ingest</a> returns
+a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that only resolves once every downstream cell, effect, and
+observer has finished their work.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when your code needs to be absolutely sure that the application
+has fully reacted to a signal before moving to the next step.</p>
+<ul>
+<li><strong>Integration Testing</strong>: Waiting for the app state to fully settle
+before running expectations or assertions.</li>
+<li><strong>Sequential Workflows</strong>: Pushing a "Save" command and waiting for
+all background synchronization effects to finish.</li>
+<li><strong>Critical Transitions</strong>: Ensuring that a UI "Loading" state only
+clears after all downstream data transformations are complete.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The pulse is injected into the cell's transformation logic.</li>
+<li>The framework tracks the "causal tree"—every downstream change
+triggered by this specific pulse.</li>
+<li>The returned <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> stays active while pulses are still moving
+through the fabric.</li>
+<li>Once all related side effects are done, the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Full Propagation</strong>: This doesn't just wait for the immediate cell;
+it waits for the <em>entire</em> ripple effect across the network.</li>
+<li><strong>Serialization</strong>: If <code>serializedCompletion</code> is set to <code>true</code>, the
+network ensures this pulse is processed in a strict queue, preventing
+it from overlapping with other incoming signals.</li>
+<li><strong>Error Handling</strong>: If a downstream effect fails, the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> will
+still complete once the failure is handled, ensuring your code
+doesn't hang indefinitely.</li>
+</ul>
+<h3 id="example-atomic-setup">Example: Atomic Setup</h3>
+<pre class="language-dart"><code class="language-dart">// Inject a setup signal and wait for all modules to initialize
+await systemGate.ingest(Pulse('INIT_ALL'), serializedCompletion: true);
+
+// Now we are guaranteed that every observer has finished its setup
+proceedToHomePage();
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: <strong>The Stimulus.</strong> The data to be injected into the network.</li>
+<li><code>serializedCompletion</code>: <strong>Order Enforcement.</strong> If <code>true</code>, ensures
+this signal is processed and finished in the exact order it arrived.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that resolves once the entire downstream reactive chain
+is settled.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell/OpenReceptorMixin/emit.html">emit</a>: For a "fire-and-forget" manual injection.</li>
+<li><a href="../../cell/Cell/open.html">Cell.open</a>: The factory used to create cells that support this method.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; ingest(Pulse pulse, {bool serializedCompletion = false}) async {
+  final receptor = _nucleus.receptor;
+  return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">ingest method</li>
+</ol>
+
+    <h5>OpenReceptorMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

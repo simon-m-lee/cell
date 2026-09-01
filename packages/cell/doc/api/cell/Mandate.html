@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Mandate enum from the cell library, for the Dart programming language.">
+  <title>Mandate enum - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Mandate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+  </ol>
+  <div class="self-name">Mandate</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Mandate-enum-sidebar.html">
+    <div>
+
+      <h1>
+        <span class="kind-enum">Mandate&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+        enum 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Defines the <strong>Capability Profile and Authorization Scope</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You rarely need to interact with <a href="../cell/Mandate.html">Mandate</a> directly. Use the <a href="../cell/DeputyContext-class.html">DeputyContext</a>
+factories like <code>DeputyContext.observer</code>, <code>DeputyContext.delegate</code>, etc.
+Those factories set the mandate dimensions for you.</p>
+<p>If you need a custom mandate, you can create one using the <a href="../cell/DeputyContext-class.html">DeputyContext</a>
+constructor directly.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The mandate defines what a deputy can do (authority), its identity (role),
+its autonomy (sovereignty), its structural rank (clearance), its temporal
+validity (lease), and its operational guardrails (constraints).</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>Some dimensions are static (immutable) while others are evolvable.</li>
+<li>The <a href="../cell/Mandate/evolvable.html">evolvable</a> flag controls whether a dimension can be refined when
+you call <code>evolve()</code> on a <a href="../cell/DeputyContext-class.html">DeputyContext</a>.</li>
+<li>Static pillars (like <code>role</code>) prevent identity drift.</li>
+</ul>
+<p>See also: <a href="../cell/DeputyContext-class.html">DeputyContext</a>, <a href="../cell/Clearance.html">Clearance</a>, <a href="../cell/Isolation.html">Isolation</a>, <a href="../cell/Sovereignty.html">Sovereignty</a>.</p>
+</section>
+
+
+      <section>
+        <dl class="dl-horizontal">
+          
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark eNum-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></li>
+      <li>Mandate</li>
+    </ul>
+  </dd>
+
+          
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a></li>
+  </ul></dd>
+          
+
+
+        </dl>
+      </section>
+
+      <section class="summary offset-anchor" id="values">
+        <h2>Values</h2>
+        <dl class="properties">
+            <dt id="authority" class="constant">
+    <span class="name ">authority</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The specific <strong>Functional Permission</strong> or operational "Verb" authorized
+for this <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (Comma-separated)
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to define what actions the deputy is allowed to perform
+(e.g., <code>'READ'</code>, <code>'WRITE'</code>, <code>'DELETE'</code>). It's the primary way to enforce
+least privilege at the functional level.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>During the mutual authorization handshake, the framework compares the
+deputy's authority string against the receptor's requirements. If the
+required verb isn't present, the pulse is neutralised.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is an evolvable dimension – a deputy can further restrict its own
+authority when spawning child deputies.</li>
+<li>Multiple verbs can be comma-separated (e.g., <code>'READ, WRITE'</code>).</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'PRUNE_EXPIRED_RECORDS'</code> – only allowed to delete stale data.</li>
+<li><code>'MASK_PII_FIELDS'</code> – only allowed to transform data for compliance.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="role" class="constant">
+    <span class="name ">role</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The intended <strong>Mission Identity</strong> or functional designation assigned to
+the <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p>The <code>role</code> provides a semantic classification of the deputy's purpose
+within the system. Unlike <a href="../cell/Mandate.html">authority</a>, which defines what the deputy
+<em>can</em> do, the <code>role</code> defines what the deputy <em>is</em> in the context of the
+current scene.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>
+<strong>Mutability</strong>: <strong>Static Pillar</strong> (Invariant)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to categorise deputies for auditing, monitoring, or group-based
+policies. It's the semantic identity of the agent.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The role is used by <code>TestCell</code> rules and monitoring tools to apply
+group‑based policies or filter logs. It is scrutinised during the mutual
+handshake.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a static pillar – once set, it cannot be changed. This prevents
+"role creep".</li>
+<li>A role like <code>'Auditor'</code> signals diagnostic intent, even if the deputy
+has write authority.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'Auditor'</code> – diagnostic, even with write permissions.</li>
+<li><code>'PolicyEnforcer'</code> – applies encryption to pulses.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="isolation" class="constant">
+    <span class="name ">isolation</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Isolation.html">Isolation</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Execution Boundary</strong> and virtualization level assigned to the
+<a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p><strong>Type</strong>: <a href="../cell/Isolation.html">Isolation</a>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to control the blast radius of a deputy's actions – e.g., to run
+a simulation without affecting production state.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The isolation level determines where the deputy's pulses are executed:</p>
+<ul>
+<li><code>shared</code>: direct live execution.</li>
+<li><code>scoped</code>: restricted to a domain.</li>
+<li><code>restricted</code>: zero‑trust filtering.</li>
+<li><code>sandboxed</code>: virtualized, no side‑effects.</li>
+<li><code>total</code>: air‑gapped, only ingests.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a deputy can tighten isolation for child tasks.</li>
+<li><code>sandboxed</code> mutations are not committed to the principal state.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>Isolation.sandboxed</code> – safe for speculative logic.</li>
+<li><code>Isolation.restricted</code> – live state but strict filtering.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;Isolation&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="sovereignty" class="constant">
+    <span class="name ">sovereignty</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Sovereignty.html">Sovereignty</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Decision-Making Autonomy</strong> and oversight level granted to
+the <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p><strong>Type</strong>: <a href="../cell/Sovereignty.html">Sovereignty</a>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to control whether a deputy can act independently or needs
+approval – e.g., an emergency agent might be preemptive.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Sovereignty levels determine if a pulse requires approval before being
+committed:</p>
+<ul>
+<li><code>supervised</code>: all pulses queued for approval.</li>
+<li><code>collaborative</code>: mutates non‑critical state freely, blocks on high‑impact.</li>
+<li><code>sovereign</code>: fully autonomous.</li>
+<li><code>preemptive</code>: can override others for system safety.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a deputy can be promoted (e.g., from supervised to
+sovereign) based on trust.</li>
+<li>High‑sensitivity operations are blocked if sovereignty is insufficient.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>Sovereignty.supervised</code> – suggests changes, waits for principal.</li>
+<li><code>Sovereignty.preemptive</code> – overrides for emergency shutdown.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;Sovereignty&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="clearance" class="constant">
+    <span class="name ">clearance</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Clearance.html">Clearance</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The formal <strong>Structural Clearance</strong> level defining the deputy's mutation
+capacity and architectural "Rank."</p>
+<p><strong>Type</strong>: <a href="../cell/Clearance.html">Clearance</a>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to control the severity of mutations – e.g., prevent structural
+changes with <code>observational</code> clearance.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Clearance is a ranked integer. The framework compares the deputy's
+clearance against the required level for an operation. If it's lower,
+the pulse is neutralised.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a deputy can downgrade clearance for child tasks.</li>
+<li><code>observational</code> blocks all state mutations.</li>
+<li><code>administrative</code> allows structural refactoring.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>Clearance.observational</code> – read‑only.</li>
+<li><code>Clearance.standard</code> – mutate values.</li>
+<li><code>Clearance.administrative</code> – link/unlink cells.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;Clearance&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="auditLevel" class="constant">
+    <span class="name ">auditLevel</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/AuditLevel.html">AuditLevel</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The required <strong>Observability Granularity</strong> and rigor of the causal trace.</p>
+<p><strong>Type</strong>: <a href="../cell/AuditLevel.html">AuditLevel</a>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to control logging verbosity – e.g., full audit for compliance,
+none for high‑frequency telemetry.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The audit level determines how much trace data is preserved. Higher levels
+capture more metadata but cost more performance.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a supervisor can increase audit rigour for risky
+tasks.</li>
+<li>Some high‑integrity cells reject pulses with low audit levels.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>AuditLevel.full</code> – forensics.</li>
+<li><code>AuditLevel.none</code> – high‑frequency heartbeats.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;AuditLevel&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="justification" class="constant">
+    <span class="name ">justification</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The semantic <strong>Rationale</strong> or human-readable "Why" behind the
+delegation of authority to the <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to document the mission intent – valuable for auditing and
+Explainable AI (XAI).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The justification is stored as a string and included in the causal trace.
+Receptors can use it to verify that the action aligns with the stated
+mission.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a deputy can refine the justification for sub‑tasks.</li>
+<li>It provides the "why" for forensic analysis.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'Optimizing database indices due to high latency.'</code></li>
+<li><code>'Suspected PII leak; masking outbound telemetry.'</code></li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="constraints" class="constant">
+    <span class="name ">constraints</span>
+  <span class="signature">&#8594; const <a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>A machine-readable map of <strong>Quantifiable Operational Boundaries</strong> and
+resource limits.</p>
+<p><strong>Type</strong>: <code>Map&lt;String, dynamic&gt;</code>
+<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to set numeric limits like <code>max_hop_count</code>, <code>timeout_ms</code>, or
+<code>batch_size</code> to prevent runaway processes.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework checks these constraints in real time during the validation
+phase. If a pulse would exceed a limit, it's neutralised.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is evolvable – a deputy can tighten constraints for child tasks.</li>
+<li>Constraints are enforced at the integrity gate level.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>{ 'max_hop_count': 5, 'timeout_ms': 500 }</code></li>
+<li><code>{ 'max_nodes_modified': 100, 'batch_size': 10 }</code></li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Mandate&lt;Map&lt;String, dynamic&gt;&gt;(true)</code></span>
+    </div>
+</dd>
+
+        </dl>
+      </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="evolvable" class="property">
+  <span class="name"><a href="../cell/Mandate/evolvable.html">evolvable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <strong>Mandate Dimension</strong> is a structural invariant  /// or a dynamic operational attribute.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="index" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Enum/index.html">index</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A numeric identifier for the enumerated value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumName/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a> extension</span>
+      </p>
+  The name of the enum value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="entry" class="callable inherited">
+  <span class="name"><a href="../cell/GovernanceMixin/entry.html">entry</a></span><span class="signature">(<wbr><span class="parameter" id="entry-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a strongly-typed <a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a> for this governance dimension.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isType" class="callable inherited">
+  <span class="name"><a href="../cell/GovernanceMixin/isType.html">isType</a></span><span class="signature">(<wbr><span class="parameter" id="isType-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates if the provided <code>value</code> matches the expected type <code>V</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="compose" class="callable">
+  <span class="name"><a href="../cell/Mandate/compose.html">compose</a></span><span class="signature">(<wbr><span class="parameter" id="compose-param-resolver"><span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-dimension"><span class="type-annotation"><a href="../cell/Mandate.html">Mandate</a></span> <span class="parameter-name">dimension</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a comprehensive <strong>Mission Profile</strong> by synthesizing a value for
+every defined dimension in the <a href="../cell/Mandate.html">Mandate</a> ontology.
+  
+
+</dd>
+
+        <dt id="evolve" class="callable">
+  <span class="name"><a href="../cell/Mandate/evolve.html">evolve</a></span><span class="signature">(<wbr><span class="parameter" id="evolve-param-resolver"><span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-evolvable"><span class="type-annotation"><a href="../cell/Mandate.html">Mandate</a></span> <span class="parameter-name">evolvable</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Specialized Mission Extension</strong> by resolving only the
+fluid dimensions of the <a href="../cell/Mandate.html">Mandate</a> ontology.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="values" class="constant">
+    <span class="name "><a href="../cell/Mandate/values-constant.html">values</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Mandate.html">Mandate</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A constant List of the values in this enum, in order of their declaration.
+  
+
+</dd>
+
+    </dl>
+  </section>
+</div><!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Mandate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+</ol>
+
+  <h5>cell library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!-- /.sidebar-offcanvas -->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

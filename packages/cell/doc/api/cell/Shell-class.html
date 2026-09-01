@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Shell class from the cell library, for the Dart programming language.">
+  <title>Shell class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">Shell<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">Shell</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;Shell-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Shell&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+    <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.</p>
+<p><a href="../cell/Shell-class.html">Shell</a> acts as the primary mechanism for the <strong>Reciprocal Handshake</strong>,
+wrapping a core kernel (such as a <a href="../cell/Pulse-class.html">Pulse</a>) to facilitate the <strong>Ingress Phase</strong>
+of the reactive update cycle. It ensures that sensitive internal state is
+only released to consumers that satisfy specific security invariants, acting
+as a portable <strong>Integrity Gate</strong> across the switching fabric.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Capability-Based Access Control (CBAC)</strong>: When you need to gate access
+to a signal's payload based on the identity or authority of the target node.</li>
+<li><strong>Capability Attenuation</strong>: Providing a redacted or masked view of an
+object to prevent domain violations during traversal.</li>
+<li><strong>Authorization Challenges</strong>: Enforcing business invariants by requiring a
+formal challenge-response before a stimulus is allowed to affect state.</li>
+<li><strong>Signal Projection</strong>: Creating transient, read-only views of core
+framework entities to be shared across the <strong>Egress Gateway</strong> without
+exposing the mutable kernel.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Authorization Challenge</strong>: The shell wraps a kernel and requires the
+caller (the <code>T</code> authority) to invoke <a href="../cell/Shell/scrutinize.html">scrutinize</a>, passing their own
+identity or authority tokens.</li>
+<li><strong>Reciprocal Handshake</strong>: The shell evaluates the caller's credentials
+against the kernel's internal security policy and contextual requirements.</li>
+<li><strong>Dynamic Projection</strong>: Based on the result of the scrutiny, the shell
+either returns the internal kernel (<strong>AUTHORIZED</strong>), a filtered version,
+or <code>null</code> (<strong>NEUTRALIZED</strong>).</li>
+<li><strong>Causal Provenance Preservation</strong>: The shell maintains the identity
+and lineage of the underlying object, ensuring metadata (trace,
+timestamp, context) is preserved throughout the handshake.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Flyweight Strategy</strong>: Many implementations (like <a href="../cell/PulseShell-class.html">PulseShell</a>) utilize
+<code>const</code> constructors and shared storage to minimize heap pressure
+during high-frequency propagation waves.</li>
+<li><strong>Fail-Closed Design</strong>: If the scrutiny process fails or is bypassed,
+the shell remains opaque, preventing unauthorized leak of the internal
+cytoplasm.</li>
+<li><strong>Identity Transparency</strong>: The shell does not replace the identity of the
+underlying stimulus but acts as a perceptual lens through which the
+stimulus is viewed by specific consumers.</li>
+<li><strong>Structural Blueprint</strong>: It defines the zero-cost anchoring for
+defensive proxies, allowing security protocols to be embedded directly
+into the signal propagation logic.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class SecureShell&lt;P&gt; implements Shell&lt;Cell&gt; {
+  final Pulse&lt;P&gt; _kernel;
+  const SecureShell(this._kernel);
+
+  @override
+  dynamic scrutinize(Cell host, List? args, [Map&lt;Symbol, dynamic&gt;? named]) {
+    // Only authorize nodes with matching security context
+    if (host.context.clearance &gt;= _kernel.context.priority) {
+      return _kernel;
+    }
+    return null; // Neutralized
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><strong><code>T</code></strong>: <strong>The Target Authority.</strong> The type of entity (usually a <a href="../cell/Cell-class.html">Cell</a>
+or <a href="../cell/Receptor-class.html">Receptor</a>) that this shell is designed to challenge and authorize.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../cell/Shell-class.html">Shell</a> instance acting as a <strong>Defensive Gateway</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell/PulseShell-class.html">PulseShell</a>: The standard implementation for reactive signals.</li>
+<li><a href="../cell/Receptor-class.html">Receptor</a>: The primary consumer that interacts with these shells.</li>
+<li><a href="../cell/TestRule-class.html">TestRule</a>: Often used within scrutiny logic to enforce business invariants.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../cell/PulseShell-class.html">PulseShell</a></li>
+          </ul></dd>
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="scrutinize" class="callable">
+  <span class="name"><a href="../cell/Shell/scrutinize.html">scrutinize</a></span><span class="signature">(<wbr><span class="parameter" id="scrutinize-param-object"><span>covariant</span> <span class="type-annotation">T</span> <span class="parameter-name">object</span>, </span><span class="parameter" id="scrutinize-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="scrutinize-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Filters the underlying object through a <strong>Capability Lens</strong>, returning a
+version of the data compatible with the caller's authorization scope and intent.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">Shell<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the map method from the PulseExtension extension, for the Dart programming language.">
+  <title>map method - PulseExtension extension - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/PulseExtension.html">PulseExtension<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">map&lt;<wbr><span class="type-parameter">T</span>&gt; method</li>
+  </ol>
+  <div class="self-name">map</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;PulseExtension-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">map&lt;<wbr><span class="type-parameter">T</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+<span class="name ">map</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="map-param-mapper"><span class="type-annotation">T</span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-payload"><span class="type-annotation">P</span> <span class="parameter-name">payload</span></span></li>
+</ol>)</span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Transforms the payload of this pulse into a new type <code>T</code> while preserving
+its causal history.</p>
+<p>This method is the primary way to evolve a signal across different logical
+layers of an application (e.g., mapping a raw network <code>int</code> status to a
+UI-ready <code>String</code> message).</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>It applies the <code>mapper</code> function to the current <a href="../../cell/Pulse/payload.html">payload</a>.</li>
+<li>It creates a new <a href="../../cell/Pulse-class.html">Pulse</a> instance with the result.</li>
+<li>It calls <a href="../../cell/Pulse/evolve.html">evolve</a> to link the new pulse to this instance as its
+parent, ensuring the <a href="../../cell/Pulse/trace.html">trace</a> and <a href="../../cell/Pulse/context.html">context</a> are carried forward.</li>
+</ol>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final countPulse = Pulse&lt;int&gt;(10);
+
+// Transform int payload to String while keeping causal history
+final displayPulse = countPulse.map((count) =&gt; 'Current count: $count');
+
+print(displayPulse.payload); // "Current count: 10"
+print(displayPulse.trace);   // Shows the path from countPulse
+</code></pre>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p><a href="../../cell/Pulse-class.html">Pulse</a> is an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>, so <code>pulse.map(...)</code> resolves to <a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">Iterable.map</a>.
+Call this as <code>PulseExtension(pulse).map(...)</code> (as <a href="../../cell/PulseIterableExtension/mapEach.html">mapEach</a> does).
+The result is an <a href="../../cell/EvolvedPulse-class.html">EvolvedPulse</a> whose <a href="../../cell/EvolvedPulse/parent.html">EvolvedPulse.parent</a> is <code>this</code>.
+Mixed-type mapping (<code>int</code> → <code>String</code>) cannot walk <a href="../../cell/Pulse/root.html">Pulse.root</a>: <code>root</code>
+casts the ancestor as <code>PulseBase&lt;P&gt;</code> of the child type. Use
+<a href="../../cell/EvolvedPulse/parent.html">EvolvedPulse.parent</a> instead. Same-type mapping keeps <code>root</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Pulse&lt;T&gt; map&lt;T&gt;(T Function(P payload) mapper) {
+  &#47;&#47; 1. Transform the payload.
+  &#47;&#47; We cast &#39;payload&#39; to P to satisfy non-nullable type expectations if necessary.
+  final transformedValue = mapper(payload as P);
+
+  &#47;&#47; 2. Create the new pulse instance.
+  final newPulse = Pulse&lt;T&gt;(transformedValue);
+
+  &#47;&#47; 3. Evolve this pulse with the mapped child so the result is Pulse&lt;T&gt;
+  &#47;&#47;    (payload type of the child) and this instance remains the parent.
+  return evolve(pulse: newPulse) as Pulse&lt;T&gt;;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/PulseExtension.html">PulseExtension<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">map&lt;<wbr><span class="type-parameter">T</span>&gt; method</li>
+</ol>
+
+    <h5>PulseExtension extension on <a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

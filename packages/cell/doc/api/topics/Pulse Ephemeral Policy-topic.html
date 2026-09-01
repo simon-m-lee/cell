@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Advanced · Pulse Ephemeral Policy topic docs, for the Dart programming language.">
+  <title>Advanced · Pulse Ephemeral Policy topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Pulse Ephemeral Policy topic</li>
+  </ol>
+  <div class="self-name">Advanced · Pulse Ephemeral Policy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Advanced · Pulse Ephemeral Policy</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-pulseephemeralpolicy-in-the-cell-framework">How to Use PulseEphemeralPolicy in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-pulseephemeralpolicy">What is PulseEphemeralPolicy?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#creating-a-pulseephemeralpolicy">Creating a PulseEphemeralPolicy</a></li>
+<li><a href="#time-based-policies">Time-Based Policies</a></li>
+<li><a href="#hop-based-policies">Hop-Based Policies</a></li>
+<li><a href="#combined-policies">Combined Policies</a></li>
+<li><a href="#using-with-pulses">Using with Pulses</a></li>
+<li><a href="#testing-pulseephemeralpolicy">Testing PulseEphemeralPolicy</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>PulseEphemeralPolicy</strong> is the lifecycle management system for individual pulses. It prevents "zombie signals" and infinite propagation loops by establishing hard boundaries for both temporal duration (TTL) and topological distance (Hops). Unlike <code>EphemeralPolicy</code> which manages cell lifecycles, <code>PulseEphemeralPolicy</code> governs the lifespan of individual signals as they traverse the reactive graph.</p>
+<h3 id="when-to-use-pulseephemeralpolicy">When to Use PulseEphemeralPolicy</h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication tokens</td>
+<td>TTL-based policy</td>
+</tr>
+<tr>
+<td>Broadcast messages</td>
+<td>Hop-limit policy</td>
+</tr>
+<tr>
+<td>Circuit breakers</td>
+<td>Combined TTL + hop policy</td>
+</tr>
+<tr>
+<td>One-time commands</td>
+<td>TTL with short duration</td>
+</tr>
+<tr>
+<td>Distributed propagation</td>
+<td>Hop-limit with callbacks</td>
+</tr>
+<tr>
+<td>Audit trails</td>
+<td>Combined policy with logging</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="what-is-pulseephemeralpolicy">What is PulseEphemeralPolicy?</h2>
+<p><code>PulseEphemeralPolicy</code> defines the <strong>lifecycle constraints</strong> and <strong>termination logic</strong> for a pulse as it traverses the reactive graph. It prevents signals from propagating forever and ensures timely cleanup of transient messages.</p>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Signal-Level</strong></td>
+<td>Applies to individual pulses, not cells</td>
+</tr>
+<tr>
+<td><strong>TTL Support</strong></td>
+<td>Time-based expiration</td>
+</tr>
+<tr>
+<td><strong>Hop Limit</strong></td>
+<td>Distance-based expiration</td>
+</tr>
+<tr>
+<td><strong>Lazy Timer</strong></td>
+<td>TTL starts on first interaction, not creation</td>
+</tr>
+<tr>
+<td><strong>Callback-based</strong></td>
+<td>Custom logic on invalidation</td>
+</tr>
+<tr>
+<td><strong>Hop Tracking</strong></td>
+<td>Counts traversals through cells</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-pulseephemeralpolicy-vs-ephemeralpolicy">When to Use PulseEphemeralPolicy vs EphemeralPolicy</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>PulseEphemeralPolicy</th>
+<th>EphemeralPolicy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scope</strong></td>
+<td>Individual pulse</td>
+<td>Entire cell</td>
+</tr>
+<tr>
+<td><strong>Granularity</strong></td>
+<td>Fine (per signal)</td>
+<td>Coarse (per node)</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Seconds, milliseconds</td>
+<td>Minutes, hours</td>
+</tr>
+<tr>
+<td><strong>Hop Tracking</strong></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>Tokens, broadcasts</td>
+<td>Caching, sessions</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-ttl-time-to-live">1. TTL (Time-To-Live)</h3>
+<p>The maximum time a pulse can exist before expiration:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  onEvent: (cell, {required policy}) {
+    // Reset hop counter on each event
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired after 30 seconds');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="2-hop-limit">2. Hop Limit</h3>
+<p>The maximum number of cells a pulse can traverse:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    // Increment hop counter
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse exceeded hop limit (5)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="3-combined-constraints">3. Combined Constraints</h3>
+<p>Both TTL and hop limit can be used together:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired (10s or 3 hops)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="4-lazy-timer">4. Lazy Timer</h3>
+<p>The TTL timer starts on the <strong>first interaction</strong>, not at creation:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) {
+    print('First interaction - timer starts now');
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// Timer starts when pulse first reaches a cell
+receptor.call(pulse);  // Timer starts NOW
+// Pulse expires 10 seconds after this interaction
+</code></pre>
+<h3 id="5-hop-tracking">5. Hop Tracking</h3>
+<p>The hop counter tracks how many cells the pulse has traversed:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    print('Hop ${policy.hops + 1}: traversing ${cell.runtimeType}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) =&gt; true,
+);
+</code></pre>
+<hr>
+<h2 id="creating-a-pulseephemeralpolicy">Creating a PulseEphemeralPolicy</h2>
+<h3 id="method-1-ttl-only">Method 1: TTL Only</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) {
+    // Reset hop counter on each event
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired after 10 seconds');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-2-hop-limit-only">Method 2: Hop Limit Only</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse exceeded hop limit');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-3-combined-policy">Method 3: Combined Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired (30s or 3 hops)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-4-with-user-data">Method 4: With User Data</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  hopLimit: 3,
+  user: {'source': 'auth_service', 'priority': 'high'},
+  onEvent: (cell, {required policy}) {
+    final user = policy._user as Map&lt;String, dynamic&gt;;
+    print('Processing from ${user['source']}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="method-5-with-custom-hop-logic">Method 5: With Custom Hop Logic</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    // Only count certain cell types
+    if (cell is ProcessingCell) {
+      return (hops: policy.hops + 1);
+    }
+    // Skip counting for other cell types
+    return (hops: policy.hops);
+  },
+  onInvalidate: (pulse) =&gt; true,
+);
+</code></pre>
+<hr>
+<h2 id="time-based-policies">Time-Based Policies</h2>
+<h3 id="short-lived-token">Short-Lived Token</h3>
+<pre class="language-dart"><code class="language-dart">final tokenPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 5),
+  onEvent: (cell, {required policy}) {
+    print('Token validation at ${cell.runtimeType}');
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('🔑 Token expired after 5 seconds');
+    return true;
+  },
+);
+
+final tokenPulse = Pulse.governed&lt;String&gt;(
+  payload: 'auth_token_123',
+  policy: tokenPolicy,
+);
+</code></pre>
+<h3 id="session-timeout">Session Timeout</h3>
+<pre class="language-dart"><code class="language-dart">final sessionPolicy = PulseEphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (cell, {required policy}) {
+    print('Session activity at ${cell.runtimeType}');
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('🔒 Session expired after 5 minutes');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="command-timeout">Command Timeout</h3>
+<pre class="language-dart"><code class="language-dart">final commandPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 2),
+  onEvent: (cell, {required policy}) {
+    return (hops: 0);
+  },
+  onInvalidate: (pulse) {
+    print('⏰ Command timed out');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="hop-based-policies">Hop-Based Policies</h2>
+<h3 id="broadcast-limit">Broadcast Limit</h3>
+<pre class="language-dart"><code class="language-dart">final broadcastPolicy = PulseEphemeralPolicy(
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    print('📡 Broadcast hop ${policy.hops + 1}/3 at ${cell.runtimeType}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('📡 Broadcast stopped after 3 hops');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="pipeline-depth-limit">Pipeline Depth Limit</h3>
+<pre class="language-dart"><code class="language-dart">final pipelinePolicy = PulseEphemeralPolicy(
+  hopLimit: 10,
+  onEvent: (cell, {required policy}) {
+    print('Pipeline depth: ${policy.hops + 1}/10');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('⚠️ Pipeline depth exceeded (10)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="recursive-guard">Recursive Guard</h3>
+<pre class="language-dart"><code class="language-dart">final recursivePolicy = PulseEphemeralPolicy(
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    print('Recursive call depth: ${policy.hops + 1}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('🔄 Recursion depth exceeded');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="combined-policies">Combined Policies</h2>
+<h3 id="token-with-hop-limit">Token with Hop Limit</h3>
+<pre class="language-dart"><code class="language-dart">final secureTokenPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) {
+    print('Token validation: ${policy.hops + 1}/3 hops');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('🔐 Token expired (10s or 3 hops)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="broadcast-with-ttl">Broadcast with TTL</h3>
+<pre class="language-dart"><code class="language-dart">final broadcastWithTTL = PulseEphemeralPolicy(
+  duration: Duration(seconds: 5),
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) {
+    print('Broadcast: hop ${policy.hops + 1}/5');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('📢 Broadcast expired (5s or 5 hops)');
+    return true;
+  },
+);
+</code></pre>
+<h3 id="circuit-breaker">Circuit Breaker</h3>
+<pre class="language-dart"><code class="language-dart">final circuitBreakerPolicy = PulseEphemeralPolicy(
+  hopLimit: 2,
+  duration: Duration(seconds: 1),
+  onEvent: (cell, {required policy}) {
+    print('Circuit breaker check: ${policy.hops + 1}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('🔌 Circuit breaker tripped');
+    return true;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="using-with-pulses">Using with Pulses</h2>
+<h3 id="basic-usage-with-governed-pulse">Basic Usage with Governed Pulse</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) =&gt; (hops: 0),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+final pulse = Pulse.governed&lt;String&gt;(
+  payload: 'Hello',
+  policy: policy,
+);
+</code></pre>
+<h3 id="with-context">With Context</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+final pulse = Pulse.governed&lt;String&gt;(
+  payload: 'Sensitive Data',
+  policy: policy,
+  context: PulseContext(
+    actor: 'admin_001',
+    reason: 'Accessing user data',
+    sensitivity: Sensitivity.confidential,
+  ),
+);
+</code></pre>
+<h3 id="with-callbacks">With Callbacks</h3>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) {
+    print('📊 Processing at: ${cell.runtimeType}');
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('✅ Pulse completed');
+    return true;
+  },
+);
+
+final pulse = Pulse.governed&lt;String&gt;(
+  payload: 'Complete Task',
+  policy: policy,
+  onComplete: (pulse) {
+    print('🎉 Task complete!');
+  },
+  onError: (pulse, error, {stackTrace}) {
+    print('❌ Task failed: $error');
+  },
+);
+</code></pre>
+<h3 id="in-a-receptor">In a Receptor</h3>
+<pre class="language-dart"><code class="language-dart">final receptor = Receptor((cell, pulse, {user}) {
+  // The framework automatically checks invalidation
+  if (pulse.isInvalidated) {
+    print('Skipping invalidated pulse');
+    return null;
+  }
+  
+  // Process the pulse
+  print('Processing: ${pulse.payload}');
+  return pulse;
+});
+</code></pre>
+<h3 id="in-a-pipeline">In a Pipeline</h3>
+<pre class="language-dart"><code class="language-dart">final pipeline = Instruction&lt;Cell, Pulse, Pulse&gt;(
+  (pulse, {cell, user}) {
+    // Check invalidation at each step
+    if (pulse.isInvalidated) {
+      print('Pulse invalidated, stopping pipeline');
+      return null;
+    }
+    
+    // Process...
+    return pulse;
+  },
+);
+</code></pre>
+<hr>
+<h2 id="testing-pulseephemeralpolicy">Testing PulseEphemeralPolicy</h2>
+<h3 id="testing-ttl">Testing TTL</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+test('Pulse expires after TTL', () async {
+  var invalidated = false;
+  
+  final policy = PulseEphemeralPolicy(
+    duration: Duration(milliseconds: 100),
+    onEvent: (cell, {required policy}) =&gt; (hops: 0),
+    onInvalidate: (pulse) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final pulse = Pulse.governed&lt;String&gt;(
+    payload: 'test',
+    policy: policy,
+  );
+  
+  // First interaction starts timer
+  final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
+  receptor.call(pulse);
+  
+  expect(invalidated, false);
+  
+  await Future.delayed(Duration(milliseconds: 150));
+  
+  // Pulse should be invalidated
+  expect(invalidated, true);
+  expect(pulse.isInvalidated, true);
+});
+</code></pre>
+<h3 id="testing-hop-limit">Testing Hop Limit</h3>
+<pre class="language-dart"><code class="language-dart">test('Pulse expires after hop limit', () {
+  var invalidated = false;
+  var hops = 0;
+  
+  final policy = PulseEphemeralPolicy(
+    hopLimit: 3,
+    onEvent: (cell, {required policy}) {
+      hops = policy.hops + 1;
+      return (hops: hops);
+    },
+    onInvalidate: (pulse) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final pulse = Pulse.governed&lt;String&gt;(
+    payload: 'test',
+    policy: policy,
+  );
+  
+  final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
+  
+  // Send through 3 cells
+  for (int i = 0; i &lt; 3; i++) {
+    receptor.call(pulse);
+    expect(invalidated, false);
+  }
+  
+  // 4th hop should invalidate
+  receptor.call(pulse);
+  expect(invalidated, true);
+  expect(pulse.isInvalidated, true);
+});
+</code></pre>
+<h3 id="testing-combined-conditions">Testing Combined Conditions</h3>
+<pre class="language-dart"><code class="language-dart">test('Pulse expires when either condition is met', () async {
+  var invalidated = false;
+  
+  final policy = PulseEphemeralPolicy(
+    duration: Duration(milliseconds: 100),
+    hopLimit: 10,
+    onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+    onInvalidate: (pulse) {
+      invalidated = true;
+      return true;
+    },
+  );
+  
+  final pulse = Pulse.governed&lt;String&gt;(
+    payload: 'test',
+    policy: policy,
+  );
+  
+  final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
+  
+  // 5 hops (not enough for hop limit)
+  for (int i = 0; i &lt; 5; i++) {
+    receptor.call(pulse);
+  }
+  
+  expect(invalidated, false);
+  
+  // Wait for TTL
+  await Future.delayed(Duration(milliseconds: 150));
+  
+  expect(invalidated, true);
+  expect(pulse.isInvalidated, true);
+});
+</code></pre>
+<h3 id="testing-policy-state">Testing Policy State</h3>
+<pre class="language-dart"><code class="language-dart">test('Policy tracks hops correctly', () {
+  final policy = PulseEphemeralPolicy(
+    hopLimit: 5,
+    onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+    onInvalidate: (pulse) =&gt; true,
+  );
+  
+  final pulse = Pulse.governed&lt;String&gt;(
+    payload: 'test',
+    policy: policy,
+  );
+  
+  expect(policy.hops, -1);  // Not yet tracked
+  
+  final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
+  receptor.call(pulse);
+  expect(policy.hops, 1);
+  
+  receptor.call(pulse);
+  expect(policy.hops, 2);
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-set-appropriate-ttl">1. Set Appropriate TTL</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Reasonable TTL for tokens
+duration: Duration(seconds: 30)
+
+// ❌ BAD - Too short (unusable)
+duration: Duration(milliseconds: 1)
+
+// ❌ BAD - Too long (wastes resources)
+duration: Duration(hours: 24)
+</code></pre>
+<h3 id="2-set-appropriate-hop-limit">2. Set Appropriate Hop Limit</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Reasonable hop limit
+hopLimit: 5
+
+// ❌ BAD - Too short (unreachable)
+hopLimit: 1
+
+// ❌ BAD - Too long (infinite loop risk)
+hopLimit: 1000
+</code></pre>
+<h3 id="3-track-hops-for-debugging">3. Track Hops for Debugging</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Log hop progression
+onEvent: (cell, {required policy}) {
+  print('Hop ${policy.hops + 1}: traversing ${cell.runtimeType}');
+  return (hops: policy.hops + 1);
+}
+
+// ❌ BAD - No tracking
+onEvent: (cell, {required policy}) =&gt; (hops: 0)
+</code></pre>
+<h3 id="4-clean-up-resources">4. Clean Up Resources</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Clean up on invalidation
+onInvalidate: (pulse) {
+  // Close connections, clear caches
+  connection.close();
+  return true;
+}
+
+// ❌ BAD - No cleanup
+onInvalidate: (pulse) =&gt; true
+</code></pre>
+<h3 id="5-use-combined-policies-for-security">5. Use Combined Policies for Security</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - TTL + hop limit
+final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// ❌ BAD - Only one constraint
+final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) =&gt; (hops: 0),
+  onInvalidate: (pulse) =&gt; true,
+);
+</code></pre>
+<h3 id="6-check-invalidation-state">6. Check Invalidation State</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Check before processing
+if (pulse.isInvalidated) {
+  print('Pulse is invalid');
+  return null;
+}
+process(pulse);
+
+// ❌ BAD - No check
+process(pulse);  // May process stale data
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete distributed command processing system:</p>
+<pre class="language-dart"><code class="language-dart">import 'dart:async';
+import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────────────────
+// 1. Command Types
+// ─────────────────────────────────────────────────────────────────────────
+
+class Command {
+  final String id;
+  final String type;
+  final Map&lt;String, dynamic&gt; data;
+  final DateTime createdAt;
+
+  Command({
+    required this.id,
+    required this.type,
+    this.data = const {},
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  @override
+  String toString() =&gt; 'Command($type: $id)';
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 2. Create Command with Policy
+// ─────────────────────────────────────────────────────────────────────────
+
+Pulse&lt;Command&gt; createCommand(Command cmd, {Duration? ttl, int? hopLimit}) {
+  final policy = PulseEphemeralPolicy(
+    duration: ttl ?? Duration(seconds: 5),
+    hopLimit: hopLimit ?? 3,
+    onEvent: (cell, {required policy}) {
+      print('📡 ${cmd.id}: hop ${policy.hops + 1} at ${cell.runtimeType}');
+      return (hops: policy.hops + 1);
+    },
+    onInvalidate: (pulse) {
+      print('⏰ ${cmd.id}: expired');
+      return true;
+    },
+  );
+
+  return Pulse.governed&lt;Command&gt;(
+    payload: cmd,
+    policy: policy,
+    onComplete: (pulse) {
+      print('✅ ${cmd.id}: completed');
+    },
+    onError: (pulse, error, {stackTrace}) {
+      print('❌ ${cmd.id}: failed: $error');
+    },
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 3. Command Processors (Cells)
+// ─────────────────────────────────────────────────────────────────────────
+
+// Validator - checks command validity
+final validator = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final cmd = pulse.payload as Command;
+    if (cmd.data.isEmpty) {
+      print('⚠️ ${cmd.id}: validation failed');
+      return null;  // Stops propagation
+    }
+    print('✅ ${cmd.id}: validated');
+    return pulse;
+  }),
+);
+
+// Processor - processes the command
+final processor = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final cmd = pulse.payload as Command;
+    print('⚙️ ${cmd.id}: processing ${cmd.type}');
+    // Simulate processing
+    return pulse;
+  }),
+);
+
+// Logger - logs the result
+final logger = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final cmd = pulse.payload as Command;
+    print('📝 ${cmd.id}: logged');
+    return pulse;
+  }),
+);
+
+// Notifier - sends notification
+final notifier = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final cmd = pulse.payload as Command;
+    print('🔔 ${cmd.id}: notification sent');
+    return pulse;
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────────────────
+// 4. Build Pipeline
+// ─────────────────────────────────────────────────────────────────────────
+
+final pipelineCell = Cell(
+  synapses: Synapses(
+    downstreams: [validator, processor, logger, notifier],
+  ),
+  receptor: Receptor.passThrough,
+);
+
+// ─────────────────────────────────────────────────────────────────────────
+// 5. Command Dispatcher
+// ─────────────────────────────────────────────────────────────────────────
+
+void dispatchCommand(Command cmd) {
+  final pulse = createCommand(cmd);
+  pipelineCell._nucleus.receptor.call(pulse);
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 6. Main Demo
+// ─────────────────────────────────────────────────────────────────────────
+
+void main() async {
+  print('═══ Command Processing with PulseEphemeralPolicy ═══\n');
+
+  // Valid command
+  print('1. Dispatching valid command:');
+  dispatchCommand(Command(
+    id: 'CMD-001',
+    type: 'update_user',
+    data: {'userId': 123, 'name': 'Alice'},
+  ));
+
+  // Invalid command (empty data)
+  print('\n2. Dispatching invalid command:');
+  dispatchCommand(Command(
+    id: 'CMD-002',
+    type: 'invalid',
+    data: {},
+  ));
+
+  // Command that will expire (long processing)
+  print('\n3. Dispatching command with short TTL:');
+  final shortLived = createCommand(
+    Command(id: 'CMD-003', type: 'slow_operation'),
+    ttl: Duration(milliseconds: 50),
+    hopLimit: 1,
+  );
+  pipelineCell._nucleus.receptor.call(shortLived);
+
+  // Wait for expiration
+  await Future.delayed(Duration(milliseconds: 100));
+
+  print('\n═══ Done ═══');
+}
+</code></pre>
+<p><strong>Expected Output:</strong></p>
+<pre class="language-dart"><code>═══ Command Processing with PulseEphemeralPolicy ═══
+
+1. Dispatching valid command:
+📡 CMD-001: hop 1 at _Cell
+✅ CMD-001: validated
+📡 CMD-001: hop 2 at _Cell
+⚙️ CMD-001: processing update_user
+📡 CMD-001: hop 3 at _Cell
+📝 CMD-001: logged
+✅ CMD-001: completed
+
+2. Dispatching invalid command:
+📡 CMD-002: hop 1 at _Cell
+⚠️ CMD-002: validation failed
+✅ CMD-002: completed
+
+3. Dispatching command with short TTL:
+📡 CMD-003: hop 1 at _Cell
+⏰ CMD-003: expired
+
+═══ Done ═══
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PulseEphemeralPolicy</strong></td>
+<td>Pulse lifecycle management</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Time-To-Live (TTL)</td>
+</tr>
+<tr>
+<td><strong>Hop Limit</strong></td>
+<td>Maximum traversals</td>
+</tr>
+<tr>
+<td><strong>onEvent</strong></td>
+<td>Called on each hop</td>
+</tr>
+<tr>
+<td><strong>onInvalidate</strong></td>
+<td>Called when pulse expires</td>
+</tr>
+<tr>
+<td><strong>Hops</strong></td>
+<td>Current traversal count</td>
+</tr>
+<tr>
+<td><strong>isInvalidated</strong></td>
+<td>Check if pulse is expired</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Timer is lazy</strong> - Starts on first interaction, not creation</li>
+<li><strong>Hop limit counts traversals</strong> - Through each cell</li>
+<li><strong>Combined conditions</strong> - TTL and hop limit can be used together</li>
+<li><strong>Check invalidation</strong> - Always check <code>pulse.isInvalidated</code></li>
+<li><strong>Clean up resources</strong> - Use onInvalidate for cleanup</li>
+<li><strong>Track hops for debugging</strong> - Log progression</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: TTL only
+final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 5),
+  onEvent: (cell, {required policy}) =&gt; (hops: 0),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// Pattern: Hop limit only
+final policy = PulseEphemeralPolicy(
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// Pattern: Combined TTL + hop limit
+final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 5),
+  hopLimit: 3,
+  onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) =&gt; true,
+);
+
+// Pattern: Token with TTL
+final tokenPolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 10),
+  onEvent: (cell, {required policy}) =&gt; (hops: 0),
+  onInvalidate: (pulse) {
+    print('Token expired');
+    return true;
+  },
+);
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="PulseEphemeralPolicy">
+  <span class="name "><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
+    <span class="category advanced cp-8 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-pulse-ephemeral-policy cp-10 linked" title="This is part of the Advanced · Pulse Ephemeral Policy topic."><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></span>
+
+</dt>
+<dd>
+  A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
+for a <a href="../cell/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Advanced · Pulse Ephemeral Policy topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Advanced · Pulse Ephemeral Policy topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Pulse Ephemeral Policy-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

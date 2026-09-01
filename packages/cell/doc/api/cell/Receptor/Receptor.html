@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Receptor.new constructor from Class Receptor from the cell library, for the Dart programming language.">
+  <title>Receptor.new constructor - Receptor - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">Receptor.new factory constructor</li>
+  </ol>
+  <div class="self-name">Receptor.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell&#47;Receptor-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Receptor&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Receptor&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-instruction"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">instruction</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-cell"><span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})</span></li>
+</ol>)
+    </section>
+    
+<section class="desc markdown">
+  <p>The primary factory for creating a functional pulse processor for a <a href="../../cell/Cell-class.html">Cell</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the most common way to define custom cell behavior. Use it when
+you need a single, concise logic step to transform or filter incoming
+signals.</p>
+<ul>
+<li><strong>One-off Logic</strong>: Best for anonymous functions that don't need
+to be reused elsewhere.</li>
+<li><strong>Simple Mapping</strong>: Ideal for basic data transformations (e.g.,
+scaling a number or formatting a string).</li>
+<li><strong>Basic Filtering</strong>: Perfect for dropping invalid inputs by
+returning <code>null</code>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>You provide an <code>instruction</code> function that receives the host <a href="../../cell/Receptor/cell.html">cell</a>,
+the incoming <code>pulse</code>, and optional <code>user</code> metadata.</li>
+<li>The function is automatically wrapped into an internal logic unit.</li>
+<li>If the function returns a <a href="../../cell/Pulse-class.html">Pulse</a>, the signal continues downstream.</li>
+<li>If the function returns <code>null</code>, the signal is dropped.</li>
+<li>The function executes synchronously.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Resilience</strong>: The provided function is executed within a safety
+boundary. If it throws an exception, the error is logged to the
+pulse's forensic metadata, and the signal is terminated (<code>null</code>)
+to prevent graph instability.</li>
+<li><strong>Stateless Template</strong>: The receptor created is a blueprint. It
+does not hold state and only becomes "active" when bound to a
+specific cell context.</li>
+<li><strong>Type Safety</strong>: While the factory takes a generic <a href="../../cell/Pulse-class.html">Pulse</a>, the
+internal logic maintains the type integrity of the payload
+during transformation.</li>
+<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.
+For asynchronous processing, use <a href="../../cell/Receptor/async.html">Receptor.async</a>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The transformation or filtering function. Returning
+<code>null</code> stops the pulse from propagating further.</li>
+</ul>
+<h3 id="example-input-doubler">Example: Input Doubler</h3>
+<pre class="language-dart"><code class="language-dart">final doubleReceptor = Receptor((cell, pulse, {user}) {
+  final value = pulse.payload as int;
+  return Pulse(value * 2);
+});
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory Receptor(Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
+  return _Receptor&lt;C&gt;(instruction: Instruction&lt;C,Pulse,Pulse&gt;((pulse, {C? cell, future, token, dynamic user}) {
+    return instruction.call(cell!, pulse, user: user);
+  }));
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">Receptor.new factory constructor</li>
+</ol>
+
+    <h5>Receptor class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

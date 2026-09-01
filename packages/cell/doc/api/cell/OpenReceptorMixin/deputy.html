@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the deputy method from the OpenReceptorMixin mixin, for the Dart programming language.">
+  <title>deputy method - OpenReceptorMixin mixin - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell.dart</a></li>
+    <li><a href="../../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">deputy abstract method</li>
+  </ol>
+  <div class="self-name">deputy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;OpenReceptorMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">deputy</span> abstract method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span>
+<span class="name ">deputy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../../cell/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span></li>
+<li><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">inherited</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
+governance and restricted authority.</p>
+<p>A Deputy is a defensive proxy that shares the same underlying state and
+identity as its principal, but operates under a different <code>context</code> or
+<code>testRule</code>. It is the primary tool for implementing <strong>Capability-Based
+Access Control (CBAC)</strong> within the switching fabric.</p>
+<h3 id="causal-integrity--lineage">Causal Integrity &amp; Lineage</h3>
+<p>To maintain strict provenance, the framework enforces <strong>Contextual Lineage</strong>:</p>
+<ul>
+<li>The new <code>context</code> must be a direct descendant of the current deputy's
+context (<code>context.parent == this.context</code>).</li>
+<li>The <a href="../../cell/DeputyContext/system-constant.html">DeputyContext.system</a> acts as a root authority, allowing
+evolution into any specialized context.</li>
+<li><strong>Integrity Gate</strong>: Attempting to "jump" a deputy to an unrelated
+context tree triggers an <a href="https://api.flutter.dev/flutter/dart-core/AssertionError-class.html">AssertionError</a>.</li>
+</ul>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Privilege Attenuation</strong>: Creating a read-only or restricted-write
+view of a cell to pass to untrusted components.</li>
+<li><strong>Contextual Isolation</strong>: Scoping a cell's signals to a specific
+operational tier (e.g., UI-only, Background-only).</li>
+<li><strong>Lifecycle Decoupling</strong>: Assigning a different <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> to
+a specific handle without affecting the principal's persistence.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><strong>Shared State</strong>: The deputy points at the same physical storage and
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> as its principal. Changes to one are immediately visible to both.</li>
+<li><strong>Additive Rules</strong>: The <code>testRule</code> is layered <em>additively</em> on top of
+the principal's own rules. A deputy can only narrow permissions, never
+grant authority the principal doesn't already possess.</li>
+<li><strong>Reciprocal Handshake</strong>: The proxy initialization performs a
+cryptographic or logical handshake to ensure the binding is authorized.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Identity Preservation</strong>: A deputy remains logically consistent with
+its principal. Comparisons such as <code>deputy == principal</code> evaluate to
+<code>true</code> to ensure predictable behavior within the reactive graph.</li>
+<li><strong>No-op Optimization</strong>: If the requested parameters match the current
+configuration, the method returns the current instance (this) to
+prevent "proxy nesting" and maintain a flat execution stack.</li>
+<li><strong>Contextual Authority</strong>: While state is shared, the authority to
+trigger <a href="../../cell/Cell/apply.html">apply</a> is uniquely governed by the deputy's specific
+<code>context</code>, enabling granular permission modeling within a single
+state atom.</li>
+</ul>
+<h3 id="example-creating-a-scoped-read-only-view">Example: Creating a Scoped Read-Only View</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Evolve the context to a specialized scope
+final userContext = currentContext.evolve(reason: 'UI_Binding');
+
+// 2. Create the attenuated deputy
+final readOnlyView = await cell.deputy(
+  context: userContext,
+  testRule: TestCell.readOnly,
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>context</code>: The <a href="../../cell/DeputyContext-class.html">DeputyContext</a> defining the authority tier. Must follow
+<strong>Causal Lineage</strong> from the current context.</li>
+<li><code>testRule</code>: Additional <a href="../../cell/TestCell-class.html">TestCell</a> restrictions, layered on top of
+existing rules. Defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
+<li><code>ephemeralPolicy</code>: Optional independent lifecycle governance for this
+specific proxy handle.</li>
+<li><code>synapses</code>: Configuration for an independent observer registry,
+allowing isolated signal distribution for this deputy.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a> resolving to an attenuated <a href="../../cell/Cell-class.html">Cell</a> proxy.</p>
+<ul>
+<li><strong>Proxy Synthesis</strong>: Returns a new deputy instance that shares the
+underlying state of the principal but enforces the specialized
+governance defined by the parameters.</li>
+<li><strong>Identity Preservation</strong>: If the requested parameters (context,
+rules, etc.) match the current configuration, the method returns
+the current instance (<code>this</code>) to prevent redundant proxy wrapping
+and ensure referential efficiency.</li>
+<li><strong>Handshake Resolution</strong>: Because the <strong>Reciprocal Handshake</strong>
+and context evolution may involve asynchronous authorization, the
+result is wrapped in a <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a> to support both immediate
+synthesis and deferred clearance.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;Cell&gt; deputy({
+  covariant DeputyContext context = DeputyContext.system,
+  covariant TestCell testRule = TestCell.allowAll,
+  EphemeralPolicy? ephemeralPolicy,
+  Synapses synapses = Synapses.enabled,
+});</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell</a></li>
+    <li><a href="../../cell/">cell</a></li>
+    <li><a href="../../cell/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">deputy abstract method</li>
+</ol>
+
+    <h5>OpenReceptorMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

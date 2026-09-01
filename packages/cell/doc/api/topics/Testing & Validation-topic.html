@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Testing &amp; Validation topic docs, for the Dart programming language.">
+  <title>Testing &amp; Validation topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Testing & Validation topic</li>
+  </ol>
+  <div class="self-name">Testing &amp; Validation</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Testing &amp; Validation</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-testcell-in-the-cell-framework">How to Use TestCell in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-is-testcell">What is TestCell?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#creating-validation-rules">Creating Validation Rules</a></li>
+<li><a href="#built-in-testrule-annotations">Built-in TestRule Annotations</a></li>
+<li><a href="#composing-rules">Composing Rules</a></li>
+<li><a href="#specialized-rules">Specialized Rules</a></li>
+<li><a href="#using-testcell-with-cells">Using TestCell with Cells</a></li>
+<li><a href="#testing-testcell">Testing TestCell</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>TestCell</strong> is the validation gate of the Cell Framework. Every reactive node has a <code>TestCell</code> that governs what operations are allowed. It acts as the <strong>security policy</strong>, <strong>business rule engine</strong>, and <strong>data validator</strong> for your reactive graph.</p>
+<h3 id="when-to-use-testcell">When to Use TestCell</h3>
+<ul>
+<li><strong>Data Validation</strong> - Ensure data meets business requirements</li>
+<li><strong>Security</strong> - Control who can modify state</li>
+<li><strong>Access Control</strong> - Restrict operations based on context</li>
+<li><strong>Business Rules</strong> - Enforce domain invariants</li>
+<li><strong>Input Sanitization</strong> - Filter invalid data</li>
+<li><strong>Authorization</strong> - Check permissions before actions</li>
+</ul>
+<hr>
+<h2 id="what-is-testcell">What is TestCell?</h2>
+<p>A <code>TestCell</code> is a validation gate that decides what's allowed. It governs four kinds of actions:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Description</th>
+<th>Validation Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>State Changes</strong></td>
+<td>Modifying a cell's value</td>
+<td><code>call()</code></td>
+</tr>
+<tr>
+<td><strong>Function Execution</strong></td>
+<td>Executing a function via <code>apply()</code></td>
+<td><code>action()</code></td>
+</tr>
+<tr>
+<td><strong>Linking</strong></td>
+<td>Establishing connections between cells</td>
+<td><code>link()</code></td>
+</tr>
+<tr>
+<td><strong>Pulse Processing</strong></td>
+<td>Processing incoming signals</td>
+<td><code>pulse()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="default-policies">Default Policies</h3>
+<pre class="language-dart"><code class="language-dart">// Allow everything (default)
+final allowAll = TestCell.allowAll;
+
+// Block mutations (read-only)
+final readOnly = TestCell.readOnly;
+</code></pre>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-testcell-is-composable">1. TestCell is Composable</h3>
+<p>Rules can be combined using the <code>+</code> operator:</p>
+<pre class="language-dart"><code class="language-dart">final policy = isPositive + isAuthorized + isInRange;
+</code></pre>
+<h3 id="2-testcell-supports-async">2. TestCell Supports Async</h3>
+<p>Rules can return <code>Future&lt;bool&gt;</code> for async validation:</p>
+<pre class="language-dart"><code class="language-dart">final asyncRule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) async {
+  final result = await database.checkAuthorization(object);
+  return result;
+});
+</code></pre>
+<h3 id="3-testcell-is-stateless">3. TestCell is Stateless</h3>
+<p>Rules are flyweights - they can be shared across many cells:</p>
+<pre class="language-dart"><code class="language-dart">// Single instance shared by all cells
+final sharedRule = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value &gt; 0);
+final cell1 = Cell(testRule: sharedRule);
+final cell2 = Cell(testRule: sharedRule);
+</code></pre>
+<h3 id="4-testcell-supports-deputies">4. TestCell Supports Deputies</h3>
+<p>Deputies layer rules on top of principals:</p>
+<pre class="language-dart"><code class="language-dart">// Principal rule
+final principalRule = TestCell&lt;int&gt;((value, ...) =&gt; value &gt;= 0);
+
+// Deputy adds additional restriction
+final deputyRule = TestCell&lt;int&gt;((value, ...) =&gt; value &lt;= 100);
+final combined = principalRule + deputyRule;
+</code></pre>
+<hr>
+<h2 id="creating-validation-rules">Creating Validation Rules</h2>
+<h3 id="method-1-simple-rule">Method 1: Simple Rule</h3>
+<pre class="language-dart"><code class="language-dart">// Rule that validates positive numbers
+final isPositive = TestCell&lt;int&gt;((value, {host, arguments, user}) {
+  return value &gt; 0;
+});
+
+// Rule that validates non-empty strings
+final isNotEmpty = TestCell&lt;String&gt;((value, {host, arguments, user}) {
+  return value.isNotEmpty;
+});
+</code></pre>
+<h3 id="method-2-context-aware-rule">Method 2: Context-Aware Rule</h3>
+<pre class="language-dart"><code class="language-dart">// Rule that checks the host cell's context
+final isAuthorized = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
+  final ctx = host?.context;
+  return ctx?.domains?.contains('Admin') ?? false;
+});
+</code></pre>
+<h3 id="method-3-rule-with-user-data">Method 3: Rule with User Data</h3>
+<pre class="language-dart"><code class="language-dart">// Rule with configurable threshold
+final thresholdRule = TestCell&lt;int&gt;(
+  (value, {host, arguments, user}) {
+    final limit = user as int? ?? 100;
+    return value &lt;= limit;
+  },
+  user: 50,  // Default limit
+);
+</code></pre>
+<h3 id="method-4-async-rule">Method 4: Async Rule</h3>
+<pre class="language-dart"><code class="language-dart">// Async rule checking external service
+final asyncAuthRule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) async {
+  final user = host?.context.identity;
+  if (user == null) return false;
+  
+  // Check external authorization service
+  final authorized = await authService.isAuthorized(user);
+  return authorized;
+});
+</code></pre>
+<hr>
+<h2 id="built-in-testrule-annotations">Built-in TestRule Annotations</h2>
+<p>The Cell Framework provides several ready-to-use <code>TestRule</code> annotations for common validation scenarios. These can be used immediately in code or as metadata annotations for code generation.</p>
+<h3 id="1-maxlength---stringcollection-length-validation">1. MaxLength - String/Collection Length Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Direct field limit - username cannot exceed 50 characters
+@MaxLength(50)
+final String username;
+
+// List cannot have more than 10 elements
+@MaxLength(10)
+final List&lt;String&gt; tags;
+
+// Composite validation - each string &lt;= 20 AND list &lt;= 5 items
+@MaxLength(20, hostLength: 5)
+final List&lt;String&gt; categories;
+
+// Host-only validation - only validates the container
+@MaxLength.host(100)
+final String comment;  // Does not limit comment length, but container (e.g., List&lt;Comment&gt;) &lt;= 100
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">// Direct usage
+final maxLengthRule = MaxLength(50);
+expect(await maxLengthRule.call('short text'), true);
+expect(await maxLengthRule.call('x' * 60), false);
+
+// With host validation
+final hostRule = MaxLength(10, hostLength: 5);
+final list = ['one', 'two', 'three', 'four', 'five', 'six']; // 6 elements
+expect(await hostRule.call('item', host: list), false); // hostLength exceeded
+</code></pre>
+<h3 id="2-valuerange---numeric-range-validation">2. ValueRange - Numeric Range Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Age validation (1-120)
+@ValueRange(min: 1, max: 120)
+final int age;
+
+// Percentage validation (0.0-1.0)
+@ValueRange(min: 0.0, max: 1.0)
+final double opacity;
+
+// Coordinate validation
+@ValueRange(min: -180, max: 180)
+final double longitude;
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">final rangeRule = ValueRange(min: 0, max: 100);
+expect(await rangeRule.call(50), true);
+expect(await rangeRule.call(-1), false);
+expect(await rangeRule.call(101), false);
+expect(await rangeRule.call('not a number'), true); // Non-numeric passes
+</code></pre>
+<h3 id="3-entrypattern---patternregex-validation">3. EntryPattern - Pattern/Regex Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Basic pattern validation
+@EntryPattern(pattern: r'^\d{3}-\d{2}-\d{4}$')
+final String ssn;
+
+// Case-insensitive with null support
+@EntryPattern(
+  pattern: r'^[a-z]+$',
+  caseSensitive: false,
+  allowNull: true,
+)
+final String? username;
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">final patternRule = EntryPattern(pattern: r'^[A-Z][a-z]+$');
+expect(await patternRule.call('Hello'), true);
+expect(await patternRule.call('hello'), false); // Case-sensitive by default
+expect(await patternRule.call(''), false); // Empty not allowed
+expect(await patternRule.call(null), false); // Null not allowed
+</code></pre>
+<h3 id="4-emailpattern---email-format-validation">4. EmailPattern - Email Format Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Standard email validation (case-insensitive, null allowed)
+@EmailPattern()
+final String workEmail;
+
+// Custom pattern with strict domain
+@EmailPattern(
+  pattern: r'^[a-z.]+@corporate\.com$',
+  allowNull: true,
+)
+final String? corporateEmail;
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">final emailRule = EmailPattern();
+expect(await emailRule.call('user@example.com'), true);
+expect(await emailRule.call('user@example'), false);
+expect(await emailRule.call('invalid'), false);
+expect(await emailRule.call(null), true); // Null allowed by default
+expect(await emailRule.call(''), false); // Empty not allowed
+</code></pre>
+<h3 id="5-websiteurlpattern---url-validation">5. WebsiteUrlPattern - URL Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Standard URL validation (null allowed)
+@WebsiteUrlPattern()
+final String portfolioUrl;
+
+// Strict HTTPS URL validation
+@WebsiteUrlPattern(
+  pattern: r'^https:\/\/corporate\.com\/[a-z]+$',
+  allowNull: true,
+)
+final String? officialPage;
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">final urlRule = WebsiteUrlPattern();
+expect(await urlRule.call('https://example.com'), true);
+expect(await urlRule.call('http://example.com'), true);
+expect(await urlRule.call('example.com'), true); // Optional protocol
+expect(await urlRule.call('not a url'), false);
+expect(await urlRule.call(null), true); // Null allowed by default
+</code></pre>
+<h3 id="6-values---whitelist-validation">6. Values - Whitelist Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Status validation
+@Values(['pending', 'approved', 'rejected'])
+final String status;
+
+// User role validation
+@Values(['admin', 'editor', 'viewer'])
+final String userRole;
+
+// Numeric options (Fibonacci estimation)
+@Values([1, 2, 3, 5, 8])
+final int storyPoints;
+
+// Nullable options
+@Values([null, 'small', 'medium', 'large'])
+final String? size;
+</code></pre>
+<p><strong>Usage in Code:</strong></p>
+<pre class="language-dart"><code class="language-dart">final valuesRule = Values(['pending', 'approved', 'rejected']);
+expect(await valuesRule.call('pending'), true);
+expect(await valuesRule.call('approved'), true);
+expect(await valuesRule.call('unknown'), false);
+expect(await valuesRule.call(null), false); // Null not in list
+</code></pre>
+<h3 id="7-defaultvalue---code-generation-annotation">7. DefaultValue - Code Generation Annotation</h3>
+<pre class="language-dart"><code class="language-dart">// Default values for code generation
+@DefaultValue(42)
+final int id;
+
+@DefaultValue('Unnamed')
+final String name;
+
+@DefaultValue(true)
+final bool isEnabled;
+
+@DefaultValue(UserRole.guest)
+final UserRole role;
+
+@DefaultValue(['standard'])
+final List&lt;String&gt; permissions;
+
+@DefaultValue({'theme': 'light'})
+final Map&lt;String, dynamic&gt; config;
+</code></pre>
+<hr>
+<h2 id="composing-rules">Composing Rules</h2>
+<h3 id="using-the--operator">Using the <code>+</code> Operator</h3>
+<pre class="language-dart"><code class="language-dart">final isPositive = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value &gt; 0);
+final isEven = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value % 2 == 0);
+final isInRange = TestCell&lt;int&gt;((value, {host, ...}) =&gt; value &lt;= 100);
+
+// All rules must pass
+final policy = isPositive + isEven + isInRange;
+</code></pre>
+<h3 id="using-built-in-rules-with-custom-rules">Using Built-in Rules with Custom Rules</h3>
+<pre class="language-dart"><code class="language-dart">// Combine built-in rules with custom logic
+final maxLength = MaxLength(50);
+final isNotEmpty = TestCell&lt;String&gt;((value, {host, ...}) =&gt; value.isNotEmpty);
+final emailPattern = EmailPattern();
+
+final userPolicy = isNotEmpty + maxLength + emailPattern;
+</code></pre>
+<h3 id="using-chain-factory">Using Chain Factory</h3>
+<pre class="language-dart"><code class="language-dart">final policy = TestCell.chain([
+  isPositive,
+  isEven,
+  isInRange,
+]);
+</code></pre>
+<h3 id="custom-chain-strategy">Custom Chain Strategy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = TestCell.chain(
+  [rule1, rule2, rule3],
+  strategy: (object, {host, arguments, user}) {
+    // Custom logic: rule2 only runs if object is not null
+    if (object == null) {
+      return rule3.call(object, host: host);
+    }
+    return rule1.call(object, host: host)
+        .then((r) =&gt; r ? rule2.call(object, host: host) : false)
+        .then((r) =&gt; r ? rule3.call(object, host: host) : false);
+  },
+);
+</code></pre>
+<hr>
+<h2 id="specialized-rules">Specialized Rules</h2>
+<h3 id="testactionrule---function-execution-validation">TestActionRule - Function Execution Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Only allow read operations
+final readOnlyAction = TestActionRule&lt;Cell&gt;(
+  (action, {host, arguments, user}) {
+    final actionName = action.toString();
+    return actionName.contains('read') || actionName.contains('get');
+  },
+);
+
+// Validate function arguments
+final argValidation = TestActionRule&lt;Cell&gt;(
+  (action, {host, arguments, user}) {
+    final args = arguments?.positionalArguments;
+    if (args != null &amp;&amp; args.isNotEmpty) {
+      return args.first is int &amp;&amp; (args.first as int) &gt; 0;
+    }
+    return true;
+  },
+);
+</code></pre>
+<h3 id="testlinkrule---graph-topology-validation">TestLinkRule - Graph Topology Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Only allow links between cells in the same domain
+final sameDomain = TestLinkRule&lt;Cell&gt;(
+  (link, {host, user}) {
+    return link.context.domains == host.context.domains;
+  },
+);
+
+// Block links to ValueCells
+final noValueCells = TestLinkRule&lt;Cell&gt;(
+  (link, {host, user}) {
+    return link is! ValueCell;
+  },
+);
+</code></pre>
+<h3 id="testpulserule---signal-validation">TestPulseRule - Signal Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Only accept high-priority pulses
+final highPriorityOnly = TestPulseRule&lt;Cell&gt;(
+  (pulse, {host, user}) {
+    return pulse.priority &gt;= 50;
+  },
+);
+
+// Only accept pulses from admin actors
+final adminOnly = TestPulseRule&lt;Cell&gt;(
+  (pulse, {host, user}) {
+    return pulse.context.actor == 'admin';
+  },
+);
+</code></pre>
+<hr>
+<h2 id="using-testcell-with-cells">Using TestCell with Cells</h2>
+<h3 id="basic-cell-with-validation">Basic Cell with Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Using a built-in rule
+final maxLength = MaxLength(50);
+
+final cell = Cell(
+  testRule: maxLength,
+  receptor: Receptor((cell, pulse, {user}) {
+    final text = pulse.payload as String?;
+    if (text == null) return null;
+    return Pulse(text);
+  }),
+);
+
+// Valid update
+cell._nucleus.receptor.call(Pulse('short text'));  // Passes
+
+// Invalid update (blocked)
+cell._nucleus.receptor.call(Pulse('x' * 60));  // Blocked by MaxLength
+</code></pre>
+<h3 id="valuecell-with-validation">ValueCell with Validation</h3>
+<pre class="language-dart"><code class="language-dart">// Combine multiple built-in rules
+final emailPolicy = EmailPattern() + MaxLength(100);
+
+final handle = Cell.state&lt;String&gt;(
+  initial: 'user@example.com',
+  evolve: (host, input) {
+    return Pulse(input.payload as String? ?? '');
+  },
+  testRule: emailPolicy,
+);
+
+handle.update('valid@email.com');  // Passes
+handle.update('invalid');          // Fails (email pattern)
+handle.update('x' * 200 + '@test.com');  // Fails (max length)
+</code></pre>
+<h3 id="model-class-with-annotation-validation">Model Class with Annotation Validation</h3>
+<pre class="language-dart"><code class="language-dart">class UserProfile {
+  @MaxLength(50)
+  final String username;
+  
+  @EmailPattern()
+  final String email;
+  
+  @ValueRange(min: 1, max: 120)
+  final int age;
+  
+  @Values(['admin', 'editor', 'viewer'])
+  final String role;
+  
+  @WebsiteUrlPattern()
+  final String? website;
+  
+  UserProfile({
+    required this.username,
+    required this.email,
+    required this.age,
+    required this.role,
+    this.website,
+  });
+  
+  // Code generation would add validation methods
+  Future&lt;bool&gt; validate() async {
+    final usernameValid = await MaxLength(50).call(username);
+    final emailValid = await EmailPattern().call(email);
+    final ageValid = await ValueRange(min: 1, max: 120).call(age);
+    final roleValid = await Values(['admin', 'editor', 'viewer']).call(role);
+    final websiteValid = website == null || await WebsiteUrlPattern().call(website);
+    return usernameValid &amp;&amp; emailValid &amp;&amp; ageValid &amp;&amp; roleValid &amp;&amp; websiteValid;
+  }
+}
+</code></pre>
+<h3 id="composite-validation-policy">Composite Validation Policy</h3>
+<pre class="language-dart"><code class="language-dart">// Build a comprehensive validation policy
+final userPolicy = TestCell.chain([
+  MaxLength(50),
+  EmailPattern(),
+  ValueRange(min: 1, max: 120),
+  Values(['admin', 'editor', 'viewer']),
+]);
+
+// Use in a cell
+final userCell = Cell(
+  testRule: userPolicy,
+  context: Context.module('user-management'),
+);
+</code></pre>
+<hr>
+<h2 id="testing-testcell">Testing TestCell</h2>
+<h3 id="testing-built-in-rules">Testing Built-in Rules</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+import 'package:cell/cell.dart';
+
+void main() {
+  test('MaxLength validates string length', () {
+    final rule = MaxLength(10);
+    expect(rule.call('short'), true);
+    expect(rule.call('exactly ten'), true);
+    expect(rule.call('too long'), false);
+  });
+  
+  test('MaxLength validates iterable length', () {
+    final rule = MaxLength(3);
+    final list = [1, 2, 3];
+    expect(rule.call(list), true);
+    list.add(4);
+    expect(rule.call(list), false);
+  });
+  
+  test('MaxLength with host validation', () {
+    final rule = MaxLength(10, hostLength: 3);
+    final host = ['a', 'b', 'c', 'd']; // 4 elements &gt; 3
+    expect(rule.call('item', host: host), false);
+    
+    final validHost = ['a', 'b', 'c']; // 3 elements &lt;= 3
+    expect(rule.call('item', host: validHost), true);
+  });
+  
+  test('ValueRange validates numeric range', () {
+    final rule = ValueRange(min: 0, max: 100);
+    expect(rule.call(50), true);
+    expect(rule.call(-1), false);
+    expect(rule.call(101), false);
+    expect(rule.call('not a number'), true);
+  });
+  
+  test('EmailPattern validates email format', () {
+    final rule = EmailPattern();
+    expect(rule.call('user@example.com'), true);
+    expect(rule.call('user@example'), false);
+    expect(rule.call('invalid'), false);
+    expect(rule.call(null), true);
+    expect(rule.call(''), false);
+  });
+  
+  test('Values validates whitelist', () {
+    final rule = Values(['pending', 'approved', 'rejected']);
+    expect(rule.call('pending'), true);
+    expect(rule.call('approved'), true);
+    expect(rule.call('unknown'), false);
+    expect(rule.call(null), false);
+  });
+}
+</code></pre>
+<h3 id="testing-combined-policies">Testing Combined Policies</h3>
+<pre class="language-dart"><code class="language-dart">test('Combined user policy validates correctly', () {
+  final policy = MaxLength(50) + EmailPattern() + ValueRange(min: 1, max: 120);
+  
+  final validUser = {
+    'username': 'john_doe',
+    'email': 'john@example.com',
+    'age': 25,
+  };
+  expect(policy.call(validUser), true);
+  
+  final invalidUser = {
+    'username': 'x' * 60,
+    'email': 'invalid',
+    'age': 150,
+  };
+  expect(policy.call(invalidUser), false);
+});
+</code></pre>
+<h3 id="testing-with-mock-host">Testing with Mock Host</h3>
+<pre class="language-dart"><code class="language-dart">class MockCell extends CellBase {
+  MockCell() : super();
+}
+
+test('Rule uses host context', () {
+  final rule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
+    return host?.context.domains?.contains('Admin') ?? false;
+  });
+  
+  final adminHost = Cell(context: Context.module('Admin', domains: 'Admin'));
+  final userHost = Cell(context: Context.module('User', domains: 'User'));
+  
+  expect(rule.call('anything', host: adminHost), true);
+  expect(rule.call('anything', host: userHost), false);
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-built-in-rules-when-possible">1. Use Built-in Rules When Possible</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use built-in rules
+final emailRule = EmailPattern();
+final rangeRule = ValueRange(min: 0, max: 100);
+final valuesRule = Values(['pending', 'approved']);
+
+// ❌ BAD - Re-implement built-in logic
+final emailRule = TestCell&lt;String&gt;((email, {host, ...}) {
+  return email.contains('@') &amp;&amp; email.contains('.');
+});
+</code></pre>
+<h3 id="2-compose-rules-for-complex-validation">2. Compose Rules for Complex Validation</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Compose simple rules
+final userPolicy = MaxLength(50) + EmailPattern() + ValueRange(min: 1, max: 120);
+
+// ❌ BAD - Single complex rule
+final userPolicy = TestCell&lt;Map&gt;((data, {host, ...}) {
+  final username = data['username'] as String?;
+  if (username == null || username.length &gt; 50) return false;
+  final email = data['email'] as String?;
+  if (email == null || !email.contains('@')) return false;
+  // ... more validation
+  return true;
+});
+</code></pre>
+<h3 id="3-use-annotations-for-model-classes">3. Use Annotations for Model Classes</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Declarative validation
+class User {
+  @MaxLength(50)
+  final String name;
+  
+  @EmailPattern()
+  final String email;
+  
+  @ValueRange(min: 0, max: 120)
+  final int age;
+}
+
+// ❌ BAD - Imperative validation scattered everywhere
+class User {
+  final String name;
+  final String email;
+  final int age;
+  
+  bool validate() {
+    return name.length &lt;= 50 &amp;&amp; email.contains('@') &amp;&amp; age &gt;= 0 &amp;&amp; age &lt;= 120;
+  }
+}
+</code></pre>
+<h3 id="4-handle-null-values-gracefully">4. Handle Null Values Gracefully</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Explicit null handling
+final emailRule = EmailPattern(allowNull: true);
+final nonNullEmailRule = EmailPattern(allowNull: false);
+
+// ❌ BAD - Implicit null handling
+final emailRule = TestCell&lt;String&gt;((value, {host, ...}) {
+  return value != null &amp;&amp; value.contains('@');
+});
+</code></pre>
+<h3 id="5-document-your-rules">5. Document Your Rules</h3>
+<pre class="language-dart"><code class="language-dart">/// Validates user profile data.
+///
+/// Rules:
+/// - Username: max 50 characters
+/// - Email: valid email format
+/// - Age: 1-120
+/// - Role: one of [admin, editor, viewer]
+final userProfilePolicy = MaxLength(50) + EmailPattern() + 
+    ValueRange(min: 1, max: 120) + Values(['admin', 'editor', 'viewer']);
+</code></pre>
+<h3 id="6-use-host-aware-validation">6. Use Host-Aware Validation</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Host-aware validation
+final containerRule = MaxLength(10, hostLength: 5);
+final items = ['a', 'b', 'c', 'd', 'e', 'f']; // 6 items &gt; 5
+expect(containerRule.call('item', host: items), false);
+
+// ✅ GOOD - Context-aware validation
+final contextRule = TestCell&lt;Cell&gt;((_, {host, ...}) {
+  return host?.context.isAdmin ?? false;
+});
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete user registration system using all the built-in TestRules:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────
+// 1. Define Model with Annotations
+// ─────────────────────────────────────────────────────────────
+
+class UserRegistration {
+  @MaxLength(50)
+  final String username;
+  
+  @EmailPattern()
+  final String email;
+  
+  @ValueRange(min: 1, max: 120)
+  final int age;
+  
+  @WebsiteUrlPattern(allowNull: true)
+  final String? website;
+  
+  @Values(['free', 'premium', 'enterprise'])
+  final String plan;
+  
+  @DefaultValue('active')
+  final String status;
+  
+  UserRegistration({
+    required this.username,
+    required this.email,
+    required this.age,
+    this.website,
+    required this.plan,
+    this.status = 'active',
+  });
+  
+  // Generated validation method
+  Future&lt;bool&gt; validate() async {
+    final usernameValid = await MaxLength(50).call(username);
+    final emailValid = await EmailPattern().call(email);
+    final ageValid = await ValueRange(min: 1, max: 120).call(age);
+    final websiteValid = website == null || await WebsiteUrlPattern().call(website);
+    final planValid = await Values(['free', 'premium', 'enterprise']).call(plan);
+    return usernameValid &amp;&amp; emailValid &amp;&amp; ageValid &amp;&amp; websiteValid &amp;&amp; planValid;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// 2. Define Validation Policies
+// ─────────────────────────────────────────────────────────────
+
+// Simple validation policy
+final simpleRegistrationPolicy = 
+    MaxLength(50) + EmailPattern() + ValueRange(min: 1, max: 120);
+
+// Advanced policy with all rules
+final advancedRegistrationPolicy = TestCell.chain([
+  MaxLength(50),
+  EmailPattern(),
+  ValueRange(min: 1, max: 120),
+  WebsiteUrlPattern(allowNull: true),
+  Values(['free', 'premium', 'enterprise']),
+]);
+
+// ─────────────────────────────────────────────────────────────
+// 3. Create Cell with Policy
+// ─────────────────────────────────────────────────────────────
+
+final registrationCell = Cell(
+  testRule: advancedRegistrationPolicy,
+  context: Context.module('user-registration'),
+);
+
+// ─────────────────────────────────────────────────────────────
+// 4. Test the System
+// ─────────────────────────────────────────────────────────────
+
+void main() async {
+  print('═══════════════════════════════════════════════════════════════');
+  print('  TESTCELL WITH BUILT-IN RULES DEMO');
+  print('═══════════════════════════════════════════════════════════════\n');
+  
+  // Test valid user
+  final validUser = UserRegistration(
+    username: 'john_doe',
+    email: 'john@example.com',
+    age: 25,
+    website: 'https://john.dev',
+    plan: 'premium',
+  );
+  
+  print('1. Testing Valid User:');
+  print('   Username: ${validUser.username}');
+  print('   Email: ${validUser.email}');
+  print('   Age: ${validUser.age}');
+  print('   Website: ${validUser.website}');
+  print('   Plan: ${validUser.plan}');
+  print('   Valid? ${await validUser.validate()}\n');
+  
+  // Test invalid user
+  final invalidUser = UserRegistration(
+    username: 'x' * 60,  // Too long
+    email: 'invalid',     // Invalid email
+    age: 150,             // Too old
+    website: 'not a url', // Invalid URL
+    plan: 'unknown',      // Invalid plan
+  );
+  
+  print('2. Testing Invalid User:');
+  print('   Username: ${invalidUser.username} (length: ${invalidUser.username.length})');
+  print('   Email: ${invalidUser.email}');
+  print('   Age: ${invalidUser.age}');
+  print('   Website: ${invalidUser.website}');
+  print('   Plan: ${invalidUser.plan}');
+  print('   Valid? ${await invalidUser.validate()}\n');
+  
+  // Test individual rules
+  print('3. Testing Individual Rules:');
+  
+  final maxLength = MaxLength(50);
+  print('   MaxLength("short"): ${await maxLength.call('short')}');
+  print('   MaxLength("x" * 60): ${await maxLength.call('x' * 60)}');
+  
+  final emailRule = EmailPattern();
+  print('   EmailPattern("test@example.com"): ${await emailRule.call('test@example.com')}');
+  print('   EmailPattern("invalid"): ${await emailRule.call('invalid')}');
+  
+  final rangeRule = ValueRange(min: 1, max: 120);
+  print('   ValueRange(25): ${await rangeRule.call(25)}');
+  print('   ValueRange(150): ${await rangeRule.call(150)}');
+  
+  final urlRule = WebsiteUrlPattern();
+  print('   WebsiteUrlPattern("https://example.com"): ${await urlRule.call('https://example.com')}');
+  print('   WebsiteUrlPattern("not a url"): ${await urlRule.call('not a url')}');
+  
+  final valuesRule = Values(['free', 'premium', 'enterprise']);
+  print('   Values("premium"): ${await valuesRule.call('premium')}');
+  print('   Values("unknown"): ${await valuesRule.call('unknown')}');
+  
+  // Test combined policy
+  print('\n4. Testing Combined Policy:');
+  
+  final testData = {
+    'username': 'john_doe',
+    'email': 'john@example.com',
+    'age': 25,
+    'website': 'https://john.dev',
+    'plan': 'premium',
+  };
+  print('   Valid data passes: ${await advancedRegistrationPolicy.call(testData)}');
+  
+  final invalidData = {
+    'username': 'x' * 60,
+    'email': 'invalid',
+    'age': 150,
+    'website': 'not a url',
+    'plan': 'unknown',
+  };
+  print('   Invalid data passes: ${await advancedRegistrationPolicy.call(invalidData)}');
+  
+  print('\n═══════════════════════════════════════════════════════════════');
+  print('  DEMO COMPLETE');
+  print('═══════════════════════════════════════════════════════════════');
+}
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TestCell</strong></td>
+<td>Validation gate for cells</td>
+</tr>
+<tr>
+<td><strong>MaxLength</strong></td>
+<td>Validates string/collection length</td>
+</tr>
+<tr>
+<td><strong>ValueRange</strong></td>
+<td>Validates numeric range</td>
+</tr>
+<tr>
+<td><strong>EntryPattern</strong></td>
+<td>Validates string patterns</td>
+</tr>
+<tr>
+<td><strong>EmailPattern</strong></td>
+<td>Validates email format</td>
+</tr>
+<tr>
+<td><strong>WebsiteUrlPattern</strong></td>
+<td>Validates URL format</td>
+</tr>
+<tr>
+<td><strong>Values</strong></td>
+<td>Validates whitelist membership</td>
+</tr>
+<tr>
+<td><strong>DefaultValue</strong></td>
+<td>Code generation default</td>
+</tr>
+</tbody>
+</table>
+<h3 id="built-in-rules-quick-reference">Built-in Rules Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MaxLength</code></td>
+<td>String/collection length</td>
+<td><code>@MaxLength(50)</code></td>
+</tr>
+<tr>
+<td><code>ValueRange</code></td>
+<td>Numeric range</td>
+<td><code>@ValueRange(min: 0, max: 100)</code></td>
+</tr>
+<tr>
+<td><code>EmailPattern</code></td>
+<td>Email format</td>
+<td><code>@EmailPattern()</code></td>
+</tr>
+<tr>
+<td><code>WebsiteUrlPattern</code></td>
+<td>URL format</td>
+<td><code>@WebsiteUrlPattern()</code></td>
+</tr>
+<tr>
+<td><code>EntryPattern</code></td>
+<td>Custom regex</td>
+<td><code>@EntryPattern(pattern: r'^\d+$')</code></td>
+</tr>
+<tr>
+<td><code>Values</code></td>
+<td>Whitelist</td>
+<td><code>@Values(['a', 'b', 'c'])</code></td>
+</tr>
+<tr>
+<td><code>DefaultValue</code></td>
+<td>Code generation</td>
+<td><code>@DefaultValue(42)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Use built-in rules</strong> - They handle common validation needs</li>
+<li><strong>Compose rules</strong> - Combine simple rules for complex validation</li>
+<li><strong>Use annotations</strong> - Declarative validation for model classes</li>
+<li><strong>Handle null values</strong> - Use <code>allowNull</code> parameters</li>
+<li><strong>Test in isolation</strong> - Unit test each rule</li>
+<li><strong>Document your rules</strong> - Explain what they validate</li>
+</ol>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="TestActionRule">
+  <span class="name "><a href="../cell/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-5 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating imperative logic and
+functional <a href="../cell/TestActionRule/action.html">action</a> execution within the reactive graph.
+</dd>
+
+      <dt id="TestCell">
+  <span class="name "><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-5 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  The central validation gate for a <a href="../cell/Cell-class.html">Cell</a> – it decides what's allowed.
+</dd>
+
+      <dt id="TestLinkRule">
+  <span class="name "><a href="../cell/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-5 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating <strong>Topological Synapses</strong> and
+graph formation within the reactive framework.
+</dd>
+
+      <dt id="TestPulseRule">
+  <span class="name "><a href="../cell/TestPulseRule-class.html">TestPulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-5 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A rule that validates incoming <a href="../cell/Pulse-class.html">Pulse</a> signals before they reach a cell.
+</dd>
+
+      <dt id="TestRule">
+  <span class="name "><a href="../cell/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+    <span class="category testing-&-validation cp-5 linked" title="This is part of the Testing & Validation topic."><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></span>
+
+</dt>
+<dd>
+  A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Testing & Validation topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Testing &amp; Validation topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Testing & Validation-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/TestActionRule-class.html">TestActionRule</a></li>
+      <li><a href="../cell/TestCell-class.html">TestCell</a></li>
+      <li><a href="../cell/TestLinkRule-class.html">TestLinkRule</a></li>
+      <li><a href="../cell/TestPulseRule-class.html">TestPulseRule</a></li>
+      <li><a href="../cell/TestRule-class.html">TestRule</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

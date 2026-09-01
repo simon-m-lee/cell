@@ -4,30 +4,24 @@ description: >-
   solution for Dart, with particular strength in managing complex state 
   and data flow in applications.
 
-version: 1.0.0-beta.2
-# repository: https://github.com/my_org/my_repo
+version: 1.0.0-rc.1
 
 environment:
-  sdk: ^3.5.4
-
-# Add regular dependencies here.
-dependencies:
-  # path: ^1.8.0
-
-  random_string:
-
-dev_dependencies:
-  lints: ^5.0.0
-  test: ^1.24.0
+  sdk: '>=3.6.0 <4.0.0'
 
 topics:
   - reactive
-  - asynchronous
-  - immutable
-  - validation
   - collection
+  - codegen
+  - framework
+  - relation
 
 repository: https://github.com/simon-m-lee/cell
 
 documentation: https://pub.dev/documentation/cell/latest/
+
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+
+workspace:
+  - packages/cell
 

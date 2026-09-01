@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Signals &amp; Synapses topic docs, for the Dart programming language.">
+  <title>Signals &amp; Synapses topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Signals & Synapses topic</li>
+  </ol>
+  <div class="self-name">Signals &amp; Synapses</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Signals &amp; Synapses</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-synapses-in-the-cell-framework">How to Use Synapses in the Cell Framework</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-are-synapses">What are Synapses?</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#creating-synapses">Creating Synapses</a></li>
+<li><a href="#linking-and-unlinking">Linking and Unlinking</a></li>
+<li><a href="#filtering-pulses">Filtering Pulses</a></li>
+<li><a href="#propagation-strategies">Propagation Strategies</a></li>
+<li><a href="#asynchronous-propagation">Asynchronous Propagation</a></li>
+<li><a href="#testing-synapses">Testing Synapses</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#complete-example">Complete Example</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p><strong>Synapses</strong> are the distribution network of the Cell Framework. They manage how a <code>Cell</code> broadcasts its pulses to downstream observers. Think of synapses as the <strong>nervous system</strong> of your reactive graph—they determine who gets notified when something changes.</p>
+<h3 id="when-to-use-synapses">When to Use Synapses</h3>
+<ul>
+<li><strong>Broadcasting</strong> - Notify multiple observers of state changes</li>
+<li><strong>Filtering</strong> - Transform or redact pulses before delivery</li>
+<li><strong>Rate Limiting</strong> - Debounce, throttle, or batch outgoing pulses</li>
+<li><strong>Dynamic Topology</strong> - Add/remove observers at runtime</li>
+<li><strong>Asynchronous Delivery</strong> - Non-blocking propagation</li>
+<li><strong>Persistent State</strong> - Replay last value to new observers</li>
+</ul>
+<hr>
+<h2 id="what-are-synapses">What are Synapses?</h2>
+<p>A <code>Synapses</code> instance is the <strong>observer registry</strong> for a cell. It controls:</p>
+<ul>
+<li><strong>Who</strong> receives pulses (downstream cells)</li>
+<li><strong>What</strong> they receive (filtering)</li>
+<li><strong>When</strong> they receive it (propagation strategy)</li>
+<li><strong>How</strong> they receive it (sync/async)</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dynamic</strong></td>
+<td>Observers can be added/removed at runtime</td>
+</tr>
+<tr>
+<td><strong>Filterable</strong></td>
+<td>Pulses can be transformed before delivery</td>
+</tr>
+<tr>
+<td><strong>Strategies</strong></td>
+<td>12 propagation strategies (debounce, throttle, batch, etc.)</td>
+</tr>
+<tr>
+<td><strong>Async Support</strong></td>
+<td>Non-blocking delivery via <code>async</code> view</td>
+</tr>
+<tr>
+<td><strong>Thread-Safe</strong></td>
+<td>All operations are atomic</td>
+</tr>
+<tr>
+<td><strong>Cycle Detection</strong></td>
+<td>Prevents infinite propagation loops</td>
+</tr>
+</tbody>
+</table>
+<h3 id="default-states">Default States</h3>
+<pre class="language-dart"><code class="language-dart">// Enabled - broadcasts to all observers (default)
+final synapses = Synapses.enabled;
+
+// Disabled - no propagation (terminal node)
+final synapses = Synapses.disabled;
+</code></pre>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="1-synapses-are-the-egress-point">1. Synapses are the Egress Point</h3>
+<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           CELL PROPAGATION FLOW                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐ │
+│  │   INGRESS   │ -&gt; │  RECEPTOR   │ -&gt; │   TESTCELL  │ -&gt; │  SYNAPSES   │ │
+│  │  (Input)    │    │ (Transform) │    │  (Validate) │    │  (Output)   │ │
+│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘ │
+│                                                                             │
+│  The Synapses is the final stage - it distributes the pulse to observers   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="2-synapses-are-iterable">2. Synapses are Iterable</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
+  downstreams: [logger, analytics, uiUpdater],
+);
+
+for (final observer in synapses) {
+  print('Observer: $observer');
+}
+</code></pre>
+<h3 id="3-synapses-have-an-async-view">3. Synapses Have an Async View</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;();
+
+// Synchronous broadcast
+synapses.call(pulse);
+
+// Asynchronous broadcast
+await synapses.async.call(pulse);
+</code></pre>
+<h3 id="4-synapses-support-cycle-detection">4. Synapses Support Cycle Detection</h3>
+<p>The framework automatically prevents infinite loops:</p>
+<pre class="language-dart"><code class="language-dart">// If cell A's synapses eventually loop back to A,
+// the pulse carries a visited-node record and the cycle is broken
+</code></pre>
+<hr>
+<h2 id="creating-synapses">Creating Synapses</h2>
+<h3 id="method-1-default-enabled">Method 1: Default (Enabled)</h3>
+<pre class="language-dart"><code class="language-dart">// Default - enabled with no observers
+final synapses = Synapses.enabled;
+// Or
+final synapses = Synapses&lt;String, Cell&gt;();
+</code></pre>
+<h3 id="method-2-with-initial-observers">Method 2: With Initial Observers</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
+  downstreams: [logger, analytics, uiUpdater],
+);
+</code></pre>
+<h3 id="method-3-with-filter">Method 3: With Filter</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
+  filter: FilterRule((pulse, {user}) {
+    // Only forward pulses with non-empty payload
+    return pulse.payload.isNotEmpty ? pulse : null;
+  }),
+);
+</code></pre>
+<h3 id="method-4-with-propagation-policy">Method 4: With Propagation Policy</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+<h3 id="method-5-with-custom-relay">Method 5: With Custom Relay</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
+  relay: (pulse) {
+    // Custom distribution logic
+    if (pulse.priority &gt; 50) {
+      urgentHandler.call(pulse);
+    } else {
+      normalHandler.call(pulse);
+    }
+  },
+);
+</code></pre>
+<h3 id="method-6-disabled-terminal">Method 6: Disabled (Terminal)</h3>
+<pre class="language-dart"><code class="language-dart">// No propagation - cell is a sink
+final synapses = Synapses.disabled;
+</code></pre>
+<hr>
+<h2 id="linking-and-unlinking">Linking and Unlinking</h2>
+<h3 id="adding-observers-link">Adding Observers (Link)</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell();
+final observer = Cell();
+
+final synapses = Synapses&lt;String, Cell&gt;();
+
+// Link observer to source
+final linked = await synapses.link(source, downstreamCell: observer);
+if (linked) {
+  print('Observer linked successfully');
+}
+</code></pre>
+<h3 id="removing-observers-unlink">Removing Observers (Unlink)</h3>
+<pre class="language-dart"><code class="language-dart">// Unlink observer
+final unlinked = synapses.unlink(source, downstreamCell: observer);
+if (unlinked) {
+  print('Observer unlinked');
+}
+</code></pre>
+<h3 id="dynamic-topology-example">Dynamic Topology Example</h3>
+<pre class="language-dart"><code class="language-dart">class DynamicHub {
+  final Cell source;
+  final Synapses synapses;
+  final List&lt;Cell&gt; observers = [];
+
+  DynamicHub(Cell source)
+      : source = source,
+        synapses = Synapses();
+
+  Future&lt;void&gt; addObserver(Cell observer) async {
+    final linked = await synapses.link(source, downstreamCell: observer);
+    if (linked) {
+      observers.add(observer);
+    }
+  }
+
+  void removeObserver(Cell observer) {
+    if (synapses.unlink(source, downstreamCell: observer)) {
+      observers.remove(observer);
+    }
+  }
+
+  void clearObservers() {
+    for (final observer in observers) {
+      synapses.unlink(source, downstreamCell: observer);
+    }
+    observers.clear();
+  }
+}
+</code></pre>
+<h3 id="link-with-unlinker">Link with Unlinker</h3>
+<pre class="language-dart"><code class="language-dart">// In an OpenCell, link returns an unlinker function
+final unlinker = await openCell.link(observer);
+if (unlinker != null) {
+  // Later...
+  unlinker();  // Removes the link
+}
+</code></pre>
+<hr>
+<h2 id="filtering-pulses">Filtering Pulses</h2>
+<h3 id="creating-a-filter">Creating a Filter</h3>
+<pre class="language-dart"><code class="language-dart">// Filter that redacts sensitive data
+final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
+  final data = pulse.payload;
+  return Pulse(data.copyWith(
+    email: '***@***.com',
+    phone: '***-***-****',
+  ));
+});
+
+final synapses = Synapses&lt;UserData, Cell&gt;(
+  filter: redactFilter,
+);
+</code></pre>
+<h3 id="composing-filters">Composing Filters</h3>
+<pre class="language-dart"><code class="language-dart">// Multiple filters chained
+final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
+  return Pulse(redactData(pulse.payload));
+});
+
+final positiveFilter = FilterRule&lt;int&gt;((pulse, {user}) {
+  return pulse.payload &gt; 0 ? pulse : null;
+});
+
+final formatFilter = FilterRule&lt;String&gt;((pulse, {user}) {
+  return Pulse('Formatted: ${pulse.payload}');
+});
+
+// Chain filters
+final pipeline = redactFilter + positiveFilter + formatFilter;
+
+final synapses = Synapses(
+  filter: pipeline,
+);
+</code></pre>
+<h3 id="filter-with-configuration">Filter with Configuration</h3>
+<pre class="language-dart"><code class="language-dart">final thresholdFilter = FilterRule&lt;int&gt;(
+  (pulse, {user}) {
+    final limit = user as int? ?? 100;
+    return pulse.payload &gt; limit ? pulse : null;
+  },
+  user: 50,  // Custom threshold
+);
+</code></pre>
+<hr>
+<h2 id="propagation-strategies">Propagation Strategies</h2>
+<h3 id="strategy-overview">Strategy Overview</h3>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>immediate</code></td>
+<td>Synchronous delivery (default)</td>
+<td>Critical updates</td>
+</tr>
+<tr>
+<td><code>async</code></td>
+<td>Event loop delivery</td>
+<td>Breaking recursion</td>
+</tr>
+<tr>
+<td><code>debounced</code></td>
+<td>Wait for silence</td>
+<td>Search input</td>
+</tr>
+<tr>
+<td><code>throttled</code></td>
+<td>Rate-limit frequency</td>
+<td>Scroll events</td>
+</tr>
+<tr>
+<td><code>batched</code></td>
+<td>Accumulate then deliver</td>
+<td>Logging</td>
+</tr>
+<tr>
+<td><code>buffered</code></td>
+<td>Temporal accumulation</td>
+<td>Audit trails</td>
+</tr>
+<tr>
+<td><code>audit</code></td>
+<td>Latest at interval</td>
+<td>Telemetry</td>
+</tr>
+<tr>
+<td><code>exhaust</code></td>
+<td>Ignore while busy</td>
+<td>Prevent overlapping</td>
+</tr>
+<tr>
+<td><code>sample</code></td>
+<td>Periodic heartbeat</td>
+<td>Monitoring</td>
+</tr>
+<tr>
+<td><code>resilient</code></td>
+<td>Circuit breaker</td>
+<td>Fault tolerance</td>
+</tr>
+<tr>
+<td><code>debounceLeading</code></td>
+<td>First immediate, then wait</td>
+<td>Button clicks</td>
+</tr>
+<tr>
+<td><code>retry</code></td>
+<td>Retry on failure</td>
+<td>Unreliable observers</td>
+</tr>
+<tr>
+<td><code>persistent</code></td>
+<td>Replay to new observers</td>
+<td>Late-binding UI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-immediate-default">1. Immediate (Default)</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.immediate,
+  ),
+);
+// Pulses delivered synchronously
+</code></pre>
+<h3 id="2-async">2. Async</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.async,
+  ),
+);
+// Pulses scheduled on event loop
+</code></pre>
+<h3 id="3-debounced">3. Debounced</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+// Emits after 300ms of silence
+</code></pre>
+<h3 id="4-throttled">4. Throttled</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.throttled,
+    throttleTime: Duration(milliseconds: 100),
+  ),
+);
+// At most one per 100ms
+</code></pre>
+<h3 id="5-batched">5. Batched</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.batched,
+    batchSize: 10,  // Emit after 10 pulses
+  ),
+);
+// Batches pulses into groups of 10
+</code></pre>
+<h3 id="6-buffered">6. Buffered</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.buffered,
+    throttleTime: Duration(milliseconds: 200),
+    batchSize: 50,
+  ),
+);
+// Buffers pulses, emits when timer expires or batch size reached
+</code></pre>
+<h3 id="7-persistent">7. Persistent</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.persistent,
+  ),
+);
+// New observers receive the last emitted pulse
+</code></pre>
+<hr>
+<h2 id="asynchronous-propagation">Asynchronous Propagation</h2>
+<h3 id="using-the-async-view">Using the Async View</h3>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;();
+
+// Fire and forget
+synapses.async.call(pulse);
+
+// Wait for completion
+await synapses.async.call(pulse);
+</code></pre>
+<h3 id="with-serialized-completion">With Serialized Completion</h3>
+<pre class="language-dart"><code class="language-dart">// Waits for all downstream effects to settle
+await synapses.async.call(
+  pulse,
+  serializedCompletion: true,
+);
+</code></pre>
+<h3 id="testing-with-async-hooks">Testing with Async Hooks</h3>
+<pre class="language-dart"><code class="language-dart">await synapses.async.call(
+  pulse,
+  hook: ({result, input}) {
+    print('Input: ${input.payload}');
+    print('Result: ${result?.payload}');
+  },
+);
+</code></pre>
+<hr>
+<h2 id="testing-synapses">Testing Synapses</h2>
+<h3 id="unit-testing-linkunlink">Unit Testing Link/Unlink</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
+
+void main() {
+  test('Link adds observer', () async {
+    final source = Cell();
+    final observer = Cell();
+    final synapses = Synapses&lt;String, Cell&gt;();
+    
+    final linked = await synapses.link(source, downstreamCell: observer);
+    expect(linked, true);
+    expect(synapses.length, 1);
+  });
+  
+  test('Unlink removes observer', () {
+    final source = Cell();
+    final observer = Cell();
+    final synapses = Synapses&lt;String, Cell&gt;(
+      downstreams: [observer],
+    );
+    
+    final unlinked = synapses.unlink(source, downstreamCell: observer);
+    expect(unlinked, true);
+    expect(synapses.isEmpty, true);
+  });
+}
+</code></pre>
+<h3 id="testing-propagation">Testing Propagation</h3>
+<pre class="language-dart"><code class="language-dart">test('Synapses broadcasts pulses to observers', () {
+  final source = Cell();
+  final observer1 = Cell();
+  final observer2 = Cell();
+  
+  final synapses = Synapses&lt;String, Cell&gt;(
+    downstreams: [observer1, observer2],
+  );
+  
+  var received1 = false;
+  var received2 = false;
+  
+  observer1._nucleus.receptor = Receptor((cell, pulse, {user}) {
+    received1 = true;
+    return pulse;
+  });
+  
+  observer2._nucleus.receptor = Receptor((cell, pulse, {user}) {
+    received2 = true;
+    return pulse;
+  });
+  
+  synapses.call(Pulse('test'));
+  
+  expect(received1, true);
+  expect(received2, true);
+});
+</code></pre>
+<h3 id="testing-filters">Testing Filters</h3>
+<pre class="language-dart"><code class="language-dart">test('Filter transforms pulses', () {
+  final filter = FilterRule&lt;String&gt;((pulse, {user}) {
+    return Pulse(pulse.payload.toUpperCase());
+  });
+  
+  final synapses = Synapses&lt;String, Cell&gt;(
+    filter: filter,
+    downstreams: [observer],
+  );
+  
+  var received = '';
+  observer._nucleus.receptor = Receptor((cell, pulse, {user}) {
+    received = pulse.payload as String? ?? '';
+    return pulse;
+  });
+  
+  synapses.call(Pulse('hello'));
+  
+  expect(received, 'HELLO');
+});
+</code></pre>
+<h3 id="testing-propagation-strategies">Testing Propagation Strategies</h3>
+<pre class="language-dart"><code class="language-dart">test('Debounced strategy delays emission', () async {
+  final synapses = Synapses&lt;String, Cell&gt;(
+    policy: PropagationPolicy(
+      strategy: PropagationStrategy.debounced,
+      debounceTime: Duration(milliseconds: 50),
+    ),
+    downstreams: [observer],
+  );
+  
+  var received = false;
+  observer._nucleus.receptor = Receptor((cell, pulse, {user}) {
+    received = true;
+    return pulse;
+  });
+  
+  synapses.call(Pulse('test'));
+  expect(received, false);  // Not yet
+  
+  await Future.delayed(Duration(milliseconds: 60));
+  expect(received, true);   // Now delivered
+});
+</code></pre>
+<hr>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-disabled-synapses-for-terminal-nodes">1. Use Disabled Synapses for Terminal Nodes</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Terminal observer
+final observer = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    // Side effects only
+    print(pulse.payload);
+    return null;
+  }),
+);
+
+// ❌ BAD - Observer with enabled synapses (wasteful)
+final observer = Cell(
+  synapses: Synapses.enabled,  // Never used
+  receptor: Receptor(...),
+);
+</code></pre>
+<h3 id="2-use-filters-for-security">2. Use Filters for Security</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Redact sensitive data
+final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
+  return Pulse(pulse.payload.copyWith(
+    ssn: '***-**-****',
+    creditCard: '****',
+  ));
+});
+
+final synapses = Synapses(
+  filter: redactFilter,
+);
+
+// ❌ BAD - Expose sensitive data
+final synapses = Synapses();  // No filtering
+</code></pre>
+<h3 id="3-use-propagation-strategies-for-performance">3. Use Propagation Strategies for Performance</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Debounce high-frequency events
+final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+
+// ❌ BAD - No rate limiting
+final synapses = Synapses();  // Every event propagates
+</code></pre>
+<h3 id="4-clean-up-observers">4. Clean Up Observers</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Unlink when done
+final unlinker = await openCell.link(observer);
+// Later...
+unlinker?.call();
+
+// ❌ BAD - Memory leak
+await openCell.link(observer);
+// Never unlinked
+</code></pre>
+<h3 id="5-use-persistent-for-late-binding-ui">5. Use Persistent for Late-Binding UI</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - New observers get current state
+final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.persistent,
+  ),
+);
+
+// When a new UI widget mounts, it receives the current state
+</code></pre>
+<h3 id="6-use-async-for-non-critical-updates">6. Use Async for Non-Critical Updates</h3>
+<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Async for logging
+synapses.async.call(pulse);  // Fire and forget
+
+// ❌ BAD - Blocking for logging
+synapses.call(pulse);  // Synchronous, may block
+</code></pre>
+<hr>
+<h2 id="complete-example">Complete Example</h2>
+<p>Here's a complete logging and monitoring system using Synapses:</p>
+<pre class="language-dart"><code class="language-dart">import 'dart:async';
+import 'package:cell/cell.dart';
+
+// ─────────────────────────────────────────────────────────────
+// 1. Define Log Levels and Events
+// ─────────────────────────────────────────────────────────────
+
+enum LogLevel { debug, info, warning, error }
+
+class LogEvent {
+  final LogLevel level;
+  final String message;
+  final DateTime timestamp;
+  final Map&lt;String, dynamic&gt; metadata;
+
+  LogEvent({
+    required this.level,
+    required this.message,
+    this.metadata = const {},
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+
+  @override
+  String toString() =&gt; 
+      '[${level.name.toUpperCase()}] $message (${timestamp})';
+}
+
+// ─────────────────────────────────────────────────────────────
+// 2. Create Filter Rules
+// ─────────────────────────────────────────────────────────────
+
+// Filter that only passes events above a certain level
+FilterRule&lt;LogEvent&gt; levelFilter(LogLevel minLevel) {
+  return FilterRule&lt;LogEvent&gt;((pulse, {user}) {
+    final event = pulse.payload;
+    final levels = [LogLevel.debug, LogLevel.info, LogLevel.warning, LogLevel.error];
+    return levels.indexOf(event.level) &gt;= levels.indexOf(minLevel)
+        ? pulse
+        : null;
+  });
+}
+
+// Filter that redacts sensitive data
+final redactFilter = FilterRule&lt;LogEvent&gt;((pulse, {user}) {
+  final event = pulse.payload;
+  final redactedMetadata = Map&lt;String, dynamic&gt;.from(event.metadata);
+  redactedMetadata.remove('password');
+  redactedMetadata.remove('apiKey');
+  
+  return Pulse(LogEvent(
+    level: event.level,
+    message: event.message,
+    metadata: redactedMetadata,
+    timestamp: event.timestamp,
+  ));
+});
+
+// ─────────────────────────────────────────────────────────────
+// 3. Create Observers (Cells)
+// ─────────────────────────────────────────────────────────────
+
+// Console logger
+final consoleLogger = Cell(
+  synapses: Synapses.disabled,  // Terminal node
+  receptor: Receptor((cell, pulse, {user}) {
+    final event = pulse.payload as LogEvent?;
+    if (event != null) {
+      print('${event.timestamp} ${event.message}');
+    }
+    return null;
+  }),
+);
+
+// File writer (simulated)
+final fileWriter = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final event = pulse.payload as LogEvent?;
+    if (event != null) {
+      // Write to file (simulated)
+      print('   [File] Writing: $event');
+    }
+    return null;
+  }),
+);
+
+// Metrics collector
+final metricsCollector = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final event = pulse.payload as LogEvent?;
+    if (event != null) {
+      // Record metrics (simulated)
+      print('   [Metrics] Recording: ${event.level} - ${event.message}');
+    }
+    return null;
+  }),
+);
+
+// Error alert
+final errorAlert = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    final event = pulse.payload as LogEvent?;
+    if (event != null &amp;&amp; event.level == LogLevel.error) {
+      print('   [Alert] 🚨 ERROR: ${event.message}');
+    }
+    return null;
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────
+// 4. Create Synapses with Strategies
+// ─────────────────────────────────────────────────────────────
+
+// Main log hub - distributes to all observers
+final logHub = Synapses&lt;LogEvent, Cell&gt;(
+  filter: levelFilter(LogLevel.info) + redactFilter,
+  downstreams: [consoleLogger, fileWriter, metricsCollector, errorAlert],
+);
+
+// ─────────────────────────────────────────────────────────────
+// 5. Create Source Cell
+// ─────────────────────────────────────────────────────────────
+
+final logSource = Cell(
+  synapses: logHub,
+  receptor: Receptor((cell, pulse, {user}) {
+    // Pass through
+    return pulse;
+  }),
+);
+
+// ─────────────────────────────────────────────────────────────
+// 6. Utility Function
+// ─────────────────────────────────────────────────────────────
+
+void log(LogLevel level, String message, {Map&lt;String, dynamic&gt; metadata = const {}}) {
+  final event = LogEvent(
+    level: level,
+    message: message,
+    metadata: metadata,
+  );
+  logSource._nucleus.receptor.call(Pulse(event));
+}
+
+// ─────────────────────────────────────────────────────────────
+// 7. Main Demo
+// ─────────────────────────────────────────────────────────────
+
+void main() {
+  print('═══ Logging System with Synapses ═══\n');
+
+  // Log messages at different levels
+  log(LogLevel.info, 'User logged in', metadata: {'userId': 123});
+  log(LogLevel.debug, 'Cache hit', metadata: {'key': 'user:123'});
+  log(LogLevel.warning, 'High memory usage', metadata: {'usage': '85%'});
+  log(LogLevel.error, 'Database connection failed', 
+      metadata: {'error': 'timeout', 'password': 'secret123'});
+
+  print('\n═══ Done ═══');
+}
+</code></pre>
+<p><strong>Expected Output:</strong></p>
+<pre class="language-dart"><code>═══ Logging System with Synapses ═══
+
+2024-01-15 14:30:00.000 User logged in
+   [File] Writing: [INFO] User logged in (2024-01-15 14:30:00.000)
+   [Metrics] Recording: info - User logged in
+2024-01-15 14:30:00.010 Cache hit
+   [File] Writing: [DEBUG] Cache hit (2024-01-15 14:30:00.010)
+   [Metrics] Recording: debug - Cache hit
+2024-01-15 14:30:00.020 High memory usage
+   [File] Writing: [WARNING] High memory usage (2024-01-15 14:30:00.020)
+   [Metrics] Recording: warning - High memory usage
+2024-01-15 14:30:00.030 Database connection failed
+   [File] Writing: [ERROR] Database connection failed (2024-01-15 14:30:00.030)
+   [Metrics] Recording: error - Database connection failed
+   [Alert] 🚨 ERROR: Database connection failed
+
+═══ Done ═══
+</code></pre>
+<hr>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Synapses</strong></td>
+<td>Distribution network for cell pulses</td>
+</tr>
+<tr>
+<td><strong>Link</strong></td>
+<td>Add an observer</td>
+</tr>
+<tr>
+<td><strong>Unlink</strong></td>
+<td>Remove an observer</td>
+</tr>
+<tr>
+<td><strong>Filter</strong></td>
+<td>Transform/redact pulses before delivery</td>
+</tr>
+<tr>
+<td><strong>Propagation Strategy</strong></td>
+<td>Control timing of delivery</td>
+</tr>
+<tr>
+<td><strong>Async</strong></td>
+<td>Non-blocking propagation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-rules">Key Rules</h3>
+<ol>
+<li><strong>Use disabled synapses</strong> for terminal nodes (observers)</li>
+<li><strong>Use filters</strong> for security and data transformation</li>
+<li><strong>Use propagation strategies</strong> for performance</li>
+<li><strong>Clean up observers</strong> with unlink or unlinker</li>
+<li><strong>Use async</strong> for non-critical updates</li>
+<li><strong>Test</strong> links, filters, and strategies</li>
+</ol>
+<h3 id="common-patterns">Common Patterns</h3>
+<pre class="language-dart"><code class="language-dart">// Pattern: Distribution hub
+final hub = Synapses(downstreams: [observer1, observer2, observer3]);
+
+// Pattern: Filtering pipeline
+final filter = redactFilter + validateFilter + formatFilter;
+
+// Pattern: Rate limiting
+final synapses = Synapses(
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+
+// Pattern: Dynamic topology
+final unlinker = await openCell.link(observer);
+
+// Pattern: Async propagation
+await synapses.async.call(pulse);
+</code></pre>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="FilterRule">
+  <span class="name "><a href="../cell/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+    <span class="category signals-&-synapses cp-4 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  A filter that can transform, redact, or suppress a <a href="../cell/Pulse-class.html">Pulse</a> before it is
+broadcast to downstream observers.
+</dd>
+
+      <dt id="Pulse">
+  <span class="name "><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+    <span class="category pulse cp-3 linked" title="This is part of the Pulse topic."><a href="../topics/Pulse-topic.html">Pulse</a></span>
+    <span class="category signals-&-synapses cp-4 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  A reactive signal — the fundamental unit of communication in the framework.
+</dd>
+
+      <dt id="Synapses">
+  <span class="name "><a href="../cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> 
+    <span class="category signals-&-synapses cp-4 linked" title="This is part of the Signals & Synapses topic."><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></span>
+
+</dt>
+<dd>
+  The distribution fabric for a <a href="../cell/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li class="self-crumb">Signals & Synapses topic</li>
+</ol>
+
+  <h5><span class="package-name">cell</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></li>
+        <li><a href="../topics/Pulse-topic.html">Pulse</a></li>
+        <li><a href="../topics/Signals & Synapses-topic.html">Signals&nbsp;&&nbsp;Synapses</a></li>
+        <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
+        <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
+        <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
+        <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
+        <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
+        <li><a href="../topics/Context-topic.html">Advanced&nbsp;·&nbsp;Context</a></li>
+        <li><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></li>
+        <li><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></li>
+        <li><a href="../topics/Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Ephemeral&nbsp;Policy</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Features</li>
+        <li class="section-subitem"><a href="../cell/">cell</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Signals &amp; Synapses topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Signals & Synapses-topic.html#classes">Classes</a></li>
+      <li><a href="../cell/FilterRule-class.html">FilterRule</a></li>
+      <li><a href="../cell/Pulse-class.html">Pulse</a></li>
+      <li><a href="../cell/Synapses-class.html">Synapses</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

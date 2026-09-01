@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the DeputyContext class from the cell library, for the Dart programming language.">
+  <title>DeputyContext class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">DeputyContext class</li>
+  </ol>
+  <div class="self-name">DeputyContext</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;DeputyContext-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">DeputyContext</span> class 
+ 
+    <span class="category advanced cp-8 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-deputy-context cp-12 linked" title="This is part of the Advanced · Deputy Context topic."><a href="../topics/Deputy Context-topic.html">Advanced&nbsp;·&nbsp;Deputy&nbsp;Context</a></span>
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell/Deputy-mixin.html">Deputy</a>.</p>
+<p><a href="../cell/DeputyContext-class.html">DeputyContext</a> serves as a contractual bridge between a Principal <a href="../cell/Cell-class.html">Cell</a> and its
+delegated agent. It codifies the "Mission" of the deputy, defining its <a href="../cell/Clearance.html">Clearance</a>,
+operational <a href="../cell/DeputyContext/role.html">role</a>, and the <code>authority</code> granted by the principal.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You typically create a <a href="../cell/DeputyContext-class.html">DeputyContext</a> using one of the named factories:</p>
+<ul>
+<li><a href="../cell/DeputyContext/DeputyContext.observer.html">DeputyContext.observer</a> – read‑only monitoring.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.delegate.html">DeputyContext.delegate</a> – active state‑mutating task.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.sandbox.html">DeputyContext.sandbox</a> – speculative "what‑if" simulation.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.intervention.html">DeputyContext.intervention</a> – emergency recovery.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.janitor.html">DeputyContext.janitor</a> – resource cleanup.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.architect.html">DeputyContext.architect</a> – structural refactoring.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.auditor.html">DeputyContext.auditor</a> – compliance auditing.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.ambassador.html">DeputyContext.ambassador</a> – cross‑domain communication.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.shielded.html">DeputyContext.shielded</a> – secure enclave reasoning.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.gatekeeper.html">DeputyContext.gatekeeper</a> – policy enforcement.</li>
+<li><a href="../cell/DeputyContext/DeputyContext.homeostasis.html">DeputyContext.homeostasis</a> – background maintenance.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The context holds all the mandate dimensions (authority, clearance, isolation,
+etc.) and is passed to <a href="../cell/Cell/deputy.html">Cell.deputy</a> to create a restricted proxy. The deputy
+shares the same state as the principal but applies these governance rules.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>Some dimensions are static (immutable) while others are evolvable – see
+<a href="../cell/Mandate.html">Mandate</a> for details.</li>
+<li>The context supports prototype-based inheritance: if a dimension isn't set,
+it's resolved from the parent context.</li>
+</ul>
+<p>See also: <a href="../cell/Mandate.html">Mandate</a>, <a href="../cell/Cell/deputy.html">Cell.deputy</a>, <a href="../cell/DeputyContext/system-constant.html">DeputyContext.system</a>.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell/ContextBase-class.html">ContextBase</a></li>
+      <li>DeputyContext</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="DeputyContext.new" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.html">DeputyContext</a></span><span class="signature">({<span class="parameter" id="-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="-param-authority"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">authority</span>, </span><span class="parameter" id="-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span><span class="parameter" id="-param-isolation"><span class="type-annotation"><a href="../cell/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span> = <span class="default-value">Isolation.scoped</span>, </span><span class="parameter" id="-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span>, </span><span class="parameter" id="-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+        </dt>
+        <dd>
+          Initializes a <strong>Formal Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>, establishing the legal
+and operational boundaries granted by a Principal <a href="../cell/Cell-class.html">Cell</a>.
+        </dd>
+        <dt id="DeputyContext.ambassador" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.ambassador.html">DeputyContext.ambassador</a></span><span class="signature">({<span class="parameter" id="ambassador-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="ambassador-param-targetDomain"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">targetDomain</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Protocol Negotiator Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>
+communicating across different <strong>System</strong> or <strong>Host</strong> boundaries.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.architect" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.architect.html">DeputyContext.architect</a></span><span class="signature">({<span class="parameter" id="architect-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="architect-param-mission"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">mission</span>, </span><span class="parameter" id="architect-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes an <strong>Infrastructure Orchestration Blueprint</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>
+tasked with topology refactoring, resource scaling, or graph evolution.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.auditor" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.auditor.html">DeputyContext.auditor</a></span><span class="signature">({<span class="parameter" id="auditor-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="auditor-param-regulation"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">regulation</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Compliance Witness Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> performing
+third-party auditing, integrity verification, or regulatory reporting.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.delegate" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.delegate.html">DeputyContext.delegate</a></span><span class="signature">({<span class="parameter" id="delegate-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="delegate-param-task"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">task</span>, </span><span class="parameter" id="delegate-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes an <strong>Operational Delegation Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>
+empowered to perform specific, state-mutating tasks on behalf of a
+Principal.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.fromEntries" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.fromEntries.html">DeputyContext.fromEntries</a></span><span class="signature">(<span class="parameter" id="fromEntries-param-entries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">entries</span>, {</span><span class="parameter" id="fromEntries-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="fromEntries-param-parent"><span class="type-annotation"><a href="../cell/Context-class.html">Context</a>?</span> <span class="parameter-name">parent</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Delegated Governance Environment</strong> from a collection of
+strongly-typed mandate entries.
+        </dd>
+        <dt id="DeputyContext.gatekeeper" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.gatekeeper.html">DeputyContext.gatekeeper</a></span><span class="signature">({<span class="parameter" id="gatekeeper-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Governance Enforcement Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a>
+specialized in validating other mandates and enforcing structural laws.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.homeostasis" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.homeostasis.html">DeputyContext.homeostasis</a></span><span class="signature">({<span class="parameter" id="homeostasis-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Metabolic Homeostasis Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> managing
+the health, resource allocation, and background stability of the
+<strong>Switching Fabric</strong>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.intervention" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.intervention.html">DeputyContext.intervention</a></span><span class="signature">({<span class="parameter" id="intervention-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="intervention-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes an <strong>Emergency Intervention Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> performing
+high-stakes system recovery, security shielding, or crisis mitigation.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.janitor" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.janitor.html">DeputyContext.janitor</a></span><span class="signature">({<span class="parameter" id="janitor-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="janitor-param-target"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">target</span>, </span><span class="parameter" id="janitor-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.administrative</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Structural Hygiene Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> managing
+resource cleanup, metabolic maintenance, and transient scene disposal.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.observer" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.observer.html">DeputyContext.observer</a></span><span class="signature">({<span class="parameter" id="observer-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="observer-param-task"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">task</span>, </span><span class="parameter" id="observer-param-clearance"><span class="type-annotation"><a href="../cell/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Read-Only Observation Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> intended
+for passive telemetry, auditing, and non-destructive monitoring.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.sandbox" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.sandbox.html">DeputyContext.sandbox</a></span><span class="signature">({<span class="parameter" id="sandbox-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="sandbox-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">role</span> = <span class="default-value">&#39;Reasoning_Sandbox&#39;</span></span>})</span>
+        </dt>
+        <dd>
+          Creates an <strong>Experimental Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> to perform simulated
+reasoning or speculative "What-if" analysis.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="DeputyContext.shielded" class="callable">
+          <span class="name"><a href="../cell/DeputyContext/DeputyContext.shielded.html">DeputyContext.shielded</a></span><span class="signature">({<span class="parameter" id="shielded-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="shielded-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a <strong>Shielded Logic Mandate</strong> for a <a href="../cell/Deputy-mixin.html">Deputy</a> performing
+sensitive autonomous decisions in an isolated environment.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="auditLevel" class="property">
+  <span class="name"><a href="../cell/DeputyContext/auditLevel.html">auditLevel</a></span>
+  <span class="signature">&#8594; <a href="../cell/AuditLevel.html">AuditLevel</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="clearance" class="property">
+  <span class="name"><a href="../cell/DeputyContext/clearance.html">clearance</a></span>
+  <span class="signature">&#8594; <a href="../cell/Clearance.html">Clearance</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="compliance" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/compliance.html">compliance</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The regulatory standards or compliance frameworks (e.g., GDPR, PCI-DSS)
+governing this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="constraints" class="property">
+  <span class="name"><a href="../cell/DeputyContext/constraints.html">constraints</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  Operational guardrails and logic parameters governing resource usage
+and agent behavior.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="dataSources" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/dataSources.html">dataSources</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The origins of information (synthetic or organic) that this context
+is permitted to ingest.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="domains" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/domains.html">domains</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The primary high-level functional areas or business namespaces this
+context belongs to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Generates a unique hash derived from the <strong>Ontological Footprint</strong>
+of the context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="identity" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/identity.html">identity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The unique instance name or specific label assigned to this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isNot" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/isNot.html">isNot</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Explicit prohibitions defining what this context is strictly
+forbidden from becoming or accessing.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isolation" class="property">
+  <span class="name"><a href="../cell/DeputyContext/isolation.html">isolation</a></span>
+  <span class="signature">&#8594; <a href="../cell/Isolation.html">Isolation</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="justification" class="property">
+  <span class="name"><a href="../cell/DeputyContext/justification.html">justification</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="partOf" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/partOf.html">partOf</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The parent system module or container that this context
+represents a logical slice of.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="role" class="property">
+  <span class="name"><a href="../cell/DeputyContext/role.html">role</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sovereignty" class="property">
+  <span class="name"><a href="../cell/DeputyContext/sovereignty.html">sovereignty</a></span>
+  <span class="signature">&#8594; <a href="../cell/Sovereignty.html">Sovereignty</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="stakeholders" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/stakeholders.html">stakeholders</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The entities, users, or autonomous agents responsible for or impacted
+by this context's execution.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subDomains" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/subDomains.html">subDomains</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Granular subdivisions of the primary <a href="../cell/ContextBase/domains.html">domains</a>, used for precise
+scoping of authority.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="taxonomy" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/taxonomy.html">taxonomy</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The fundamental categorical identity or functional archetype of this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="topology" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/topology.html">topology</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The structural position or network role of this context within the
+organizational hierarchy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="type" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/type.html">type</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The categorical archetype or "Kind" of functional operation this context
+represents.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="version" class="property inherited">
+  <span class="name"><a href="../cell/ContextBase/version.html">version</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The schema or ontological version used to interpret the metadata
+within this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="evolve" class="callable">
+  <span class="name"><a href="../cell/DeputyContext/evolve.html">evolve</a></span><span class="signature">(<wbr><span class="parameter" id="evolve-param-resolver"><span>covariant</span> <span class="type-annotation"><a href="../cell/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-evolvable"><span class="type-annotation"><a href="../cell/Governance-class.html">Governance</a></span> <span class="parameter-name">evolvable</span></span>), {</span><span class="parameter" id="evolve-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell/DeputyContext-class.html">DeputyContext</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Specialized Mission Extension</strong> by resolving the fluid
+dimensions of the <a href="../cell/Mandate.html">Mandate</a> pillars.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lineage" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/lineage.html">lineage</a></span><span class="signature">(<wbr><span class="parameter" id="lineage-param-dimension"><span>covariant</span> <span class="type-annotation"><a href="../cell/Ontology.html">Ontology</a></span> <span class="parameter-name">dimension</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Traverses the hierarchical tree to produce a <strong>Causal Trace</strong> of a specific
+<strong>knowledge dimension</strong> associated with this context.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs <strong>Identity Synthesis</strong> by comparing the structural convergence
+of two <strong>Somatic Signatures</strong>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator []" class="callable inherited">
+  <span class="name"><a href="../cell/ContextBase/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-dimension"><span class="type-annotation"><a href="../cell/Governance-class.html">Governance</a></span> <span class="parameter-name">dimension</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses a specific <strong>Governance Pillar</strong> or ontological dimension by its
+type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic reasoning.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="system" class="constant">
+    <span class="name "><a href="../cell/DeputyContext/system-constant.html">system</a></span>
+  <span class="signature">&#8594; const _DeputyContextSystem</span>
+  
+
+</dt>
+<dd>
+  The canonical system context for deputies, providing safe defaults.
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">DeputyContext class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

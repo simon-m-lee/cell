@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PropagationPolicy class from the cell library, for the Dart programming language.">
+  <title>PropagationPolicy class - cell library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell.dart</a></li>
+    <li class="self-crumb">PropagationPolicy class</li>
+  </ol>
+  <div class="self-name">PropagationPolicy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell&#47;cell-library-sidebar.html"
+    data-below-sidebar="cell&#47;PropagationPolicy-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">PropagationPolicy</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A declarative blueprint defining the <strong>Temporal Dynamics</strong> and
+<strong>Operational Governance</strong> of pulse propagation.</p>
+<p>The <a href="../cell/PropagationPolicy-class.html">PropagationPolicy</a> acts as the <strong>Structural Configuration</strong> for
+a <a href="../cell/Synapses-class.html">Synapses</a> instance. It determines how the framework reconciles
+high‑frequency stimuli, manages aggregation buffers, and ensures
+transactional integrity.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You create a policy when you need non‑default propagation behavior:
+<pre class="language-dart"><code class="language-dart">final policy = PropagationPolicy(
+  strategy: PropagationStrategy.debounced,
+  debounceTime: Duration(milliseconds: 300),
+);
+final synapses = Synapses(policy: policy);
+</code></pre>
+</li>
+<li>Use a custom policy when the default <code>immediate</code> propagation is not
+suitable – e.g., to avoid UI jank, to batch updates, or to rate‑limit.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The policy holds the selected <a href="../cell/PropagationPolicy/strategy.html">strategy</a> and its parameters.</li>
+<li>When a pulse is emitted, the synapses checks the policy and applies
+the appropriate buffering, timing, or filtering logic.</li>
+<li>The policy is immutable – you set it once at synapses creation.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The policy is <strong>per‑synapse</strong>, so different branches of the graph can
+have different propagation behaviors.</li>
+<li><code>debounceTime</code> is used for <code>debounced</code> and <code>debounceLeading</code>.</li>
+<li><code>throttleTime</code> is used for <code>throttled</code>, <code>audit</code>, <code>sample</code>, <code>buffered</code>,
+and some others.</li>
+<li><code>batchSize</code> is used for <code>batched</code>, <code>retry</code> (as max retries), and
+<code>buffered</code> (as max buffer size before flush).</li>
+<li>If a strategy doesn't use a parameter, it's simply ignored.</li>
+<li>All durations default to sensible values, so you can omit them if the
+defaults work for you.</li>
+</ul>
+<h3 id="example-debounced-search">Example: Debounced Search</h3>
+<pre class="language-dart"><code class="language-dart">const searchConfig = PropagationPolicy(
+  strategy: PropagationStrategy.debounced,
+  debounceTime: Duration(milliseconds: 300),
+);
+</code></pre>
+<h3 id="example-highfrequency-sensor-throttle">Example: High‑Frequency Sensor Throttle</h3>
+<pre class="language-dart"><code class="language-dart">const sensorConfig = PropagationPolicy(
+  strategy: PropagationStrategy.throttled,
+  throttleTime: Duration(milliseconds: 16), // ~60fps
+);
+</code></pre>
+<h3 id="example-bulk-data-batching">Example: Bulk Data Batching</h3>
+<pre class="language-dart"><code class="language-dart">const loggingConfig = PropagationPolicy(
+  strategy: PropagationStrategy.batched,
+  batchSize: 50,
+);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell/PropagationStrategy.html">PropagationStrategy</a> – the execution model.</li>
+<li><a href="../cell/Synapses-class.html">Synapses</a> – the distribution network that uses the policy.</li>
+</ul>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="PropagationPolicy.new" class="callable">
+          <span class="name"><a href="../cell/PropagationPolicy/PropagationPolicy.html">PropagationPolicy</a></span><span class="signature">({<span class="parameter" id="-param-strategy"><span class="type-annotation"><a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span> <span class="parameter-name">strategy</span> = <span class="default-value">PropagationStrategy.immediate</span>, </span><span class="parameter" id="-param-debounceTime"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">debounceTime</span> = <span class="default-value">const Duration(milliseconds: 150)</span>, </span><span class="parameter" id="-param-throttleTime"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">throttleTime</span> = <span class="default-value">const Duration(milliseconds: 200)</span>, </span><span class="parameter" id="-param-batchSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">batchSize</span> = <span class="default-value">10</span></span>})</span>
+        </dt>
+        <dd>
+          A declarative policy object used to define the <strong>Temporal Dynamics</strong>
+and <strong>Operational Safety</strong> of pulse propagation within a <a href="../cell/Cell-class.html">Cell</a>.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="batchSize" class="property">
+  <span class="name"><a href="../cell/PropagationPolicy/batchSize.html">batchSize</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The maximum capacity of the aggregation buffer before a signal flush
+occurs when using <a href="../cell/PropagationStrategy.html">PropagationStrategy.batched</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="debounceTime" class="property">
+  <span class="name"><a href="../cell/PropagationPolicy/debounceTime.html">debounceTime</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>
+  
+
+</dt>
+<dd>
+  The window of <strong>Environmental Stability</strong> required before a signal
+is committed when using <a href="../cell/PropagationStrategy.html">PropagationStrategy.debounced</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../cell/PropagationPolicy/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="strategy" class="property">
+  <span class="name"><a href="../cell/PropagationPolicy/strategy.html">strategy</a></span>
+  <span class="signature">&#8594; <a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  The specific tactical model used for pulse delivery.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="throttleTime" class="property">
+  <span class="name"><a href="../cell/PropagationPolicy/throttleTime.html">throttleTime</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>
+  
+
+</dt>
+<dd>
+  The minimum interval between consecutive signal emissions when using
+<a href="../cell/PropagationStrategy.html">PropagationStrategy.throttled</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../cell/PropagationPolicy/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  A string representation of this object.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../cell/PropagationPolicy/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The equality operator.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="mask" class="callable">
+  <span class="name"><a href="../cell/PropagationPolicy/mask.html">mask</a></span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-strategy"><span class="type-annotation"><a href="../cell/PropagationStrategy.html">PropagationStrategy</a></span> <span class="parameter-name">strategy</span> = <span class="default-value">PropagationStrategy.immediate</span>, </span><span class="parameter" id="mask-param-debounceTime"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">debounceTime</span>, </span><span class="parameter" id="mask-param-throttleTime"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">throttleTime</span>, </span><span class="parameter" id="mask-param-batchSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">batchSize</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell</a></li>
+    <li><a href="../cell/">cell</a></li>
+    <li class="self-crumb">PropagationPolicy class</li>
+</ol>
+
+    <h5>cell library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
