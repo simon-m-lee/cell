@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Flow class from the cell_flow library, for the Dart programming language.">
+  <title>Flow class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">flow.dart</a></li>
+    <li class="self-crumb">Flow class</li>
+  </ol>
+  <div class="self-name">Flow</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;Flow-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Flow</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.</p>
+<p><a href="../cell_flow/Flow-class.html">Flow</a> is the administrative facade over <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> operators.
+Each static method constructs the matching instruction and binds it
+with <code>.toHandle(source:)</code>.</p>
+<p>Categories:</p>
+<ul>
+<li><strong>Create</strong> — <a href="../cell_flow/Flow/of.html">of</a>, <a href="../cell_flow/Flow/fromIterable.html">fromIterable</a>, <a href="../cell_flow/Flow/range.html">range</a>, <a href="../cell_flow/Flow/fromFuture.html">fromFuture</a>, <a href="../cell_flow/Flow/fromStream.html">fromStream</a></li>
+<li><strong>Transform</strong> — <a href="../cell_flow/Flow/map.html">map</a>, <a href="../cell_flow/Flow/pluck.html">pluck</a>, <a href="../cell_flow/Flow/scan.html">scan</a>, <a href="../cell_flow/Flow/reduce.html">reduce</a>, <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a></li>
+<li><strong>Filter</strong> — <a href="../cell_flow/Flow/filter.html">filter</a>, <a href="../cell_flow/Flow/take.html">take</a>, <a href="../cell_flow/Flow/skip.html">skip</a>, <a href="../cell_flow/Flow/distinct.html">distinct</a></li>
+<li><strong>Flatten</strong> — <a href="../cell_flow/Flow/concatMap.html">concatMap</a>, <a href="../cell_flow/Flow/mergeMap.html">mergeMap</a>, <a href="../cell_flow/Flow/switchMap.html">switchMap</a>, <a href="../cell_flow/Flow/exhaustMap.html">exhaustMap</a>, <a href="../cell_flow/Flow/asyncExpand.html">asyncExpand</a></li>
+<li><strong>Combine</strong> — <a href="../cell_flow/Flow/merge.html">merge</a>, <a href="../cell_flow/Flow/zip.html">zip</a>, <code>combineLatest</code>, <a href="../cell_flow/Flow/race.html">race</a></li>
+<li><strong>Time</strong> — <a href="../cell_flow/Flow/delay.html">delay</a>, <a href="../cell_flow/Flow/debounce.html">debounce</a>, <a href="../cell_flow/Flow/throttle.html">throttle</a>, <a href="../cell_flow/Flow/sample.html">sample</a>, <a href="../cell_flow/Flow/interval.html">interval</a>, <a href="../cell_flow/Flow/timeout.html">timeout</a></li>
+<li><strong>Collect</strong> — <code>buffer</code>, <a href="https://api.flutter.dev/flutter/dart-html/window.html">window</a>, <a href="../cell_flow/Flow/groupBy.html">groupBy</a>, <a href="../cell_flow/Flow/pairwise.html">pairwise</a></li>
+<li><strong>Control</strong> — <a href="../cell_flow/Flow/retry.html">retry</a>, <a href="../cell_flow/Flow/share.html">share</a>, <a href="../cell_flow/Flow/startWith.html">startWith</a>, <a href="../cell_flow/Flow/tap.html">tap</a>, <code>route</code></li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell_flow/CellBase-class.html">CellBase</a></li>
+      <li>Flow</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a></li>
+  </ul></dd>
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Flow.new" class="callable">
+          <span class="name"><a href="../cell_flow/Flow/Flow.html">Flow</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="async" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/async.html">async</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides a high-level, asynchronous interface for interacting with this
+<code>Cell</code> node.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="context" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The operational <a href="../cell_flow/Context-class.html">Context</a> defining the security tier, execution priority,
+and administrative authority of this <a href="../cell_flow/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a hash code for this <a href="../cell_flow/Cell-class.html">Cell</a> derived from its <strong>Root Genotypic Identity</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell_flow/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
+that oversees its operational boundaries, security constraints, and administrative metadata.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell_flow/Cell-class.html">Cell</a> has initiated its <strong>Automatic Termination</strong>
+sequence and is currently in the process of being neutralized.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isTerminal" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/isTerminal.html">isTerminal</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A boolean indicator identifying whether this <a href="../cell_flow/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="modifiable" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/modifiable.html">modifiable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Defines the exhaustive whitelist of functions and commands authorized for
+execution on this node via the dynamic <a href="../cell_flow/CellBase/apply.html">apply</a> method.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="unmodifiable" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/unmodifiable.html">unmodifiable</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a read-only, reactive projection (Deputy) of this <a href="../cell_flow/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validate" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/validate.html">validate</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The authoritative <strong>Integrity Gate</strong> and validation rule governing this
+cell's structural and operational boundaries.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="apply" class="callable inherited">
+  <span class="name"><a href="../cell_flow/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_flow/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes a <strong>State Transition</strong> or arbitrary logic via the <strong>Command Pattern</strong> gateway.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="deputy" class="callable inherited">
+  <span class="name"><a href="../cell_flow/CellBase/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
+governance and restricted authority.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="filter" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/filter.html">filter</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="filter-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="fromFuture" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromFuture-param-future"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">future</span>, </span><span class="parameter" id="fromFuture-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span><span class="parameter" id="fromFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromFuture-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="fromIterable" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/fromIterable.html">fromIterable</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromIterable-param-iterable"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="fromStream" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="fromStream-param-stream"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">stream</span>, </span><span class="parameter" id="fromStream-param-onError"><span class="type-annotation">StreamErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="map" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="of" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/of.html">of</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="of-param-values"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">values</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="range" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/range.html">range</a></span><span class="signature">(<wbr>{<span class="parameter" id="range-param-start"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="range-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="range-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">step</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="repeat" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/repeat.html">repeat</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="repeat-param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="repeat-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="tap" class="callable">
+  <span class="name"><a href="../cell_flow/CellFlowOperators/tap.html">tap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
+        provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
+      </p>
+  
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="../cell_flow/CellBase/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell_flow/CellBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Determines logical identity between two <a href="../cell_flow/Cell-class.html">Cell</a> nodes within the reactive graph.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="asyncExpand" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncExpand.html">asyncExpand</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncExpand-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncExpand-param-expand"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">expand</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncExpand-param-onError"><span class="type-annotation">ExpandErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Flatten an inner sequence per payload (Dart <code>asyncExpand</code>).
+  
+
+</dd>
+
+        <dt id="asyncExpandConcurrent" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncExpandConcurrent.html">asyncExpandConcurrent</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncExpandConcurrent-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncExpandConcurrent-param-expand"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">expand</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncExpandConcurrent-param-onError"><span class="type-annotation">ExpandErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Concurrent flatten.
+  
+
+</dd>
+
+        <dt id="asyncExpandExhaust" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncExpandExhaust.html">asyncExpandExhaust</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncExpandExhaust-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncExpandExhaust-param-expand"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">expand</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncExpandExhaust-param-onError"><span class="type-annotation">ExpandErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Exhaust flatten — ignore while busy.
+  
+
+</dd>
+
+        <dt id="asyncExpandLatest" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncExpandLatest.html">asyncExpandLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncExpandLatest-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncExpandLatest-param-expand"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">expand</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncExpandLatest-param-onError"><span class="type-annotation">ExpandErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Switch flatten — drop the previous inner.
+  
+
+</dd>
+
+        <dt id="asyncFold" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncFold.html">asyncFold</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncFold-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncFold-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="asyncFold-param-accumulate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span></span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncFold-param-snapshot"><span class="type-annotation">FoldSnapshot<span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span>?</span> <span class="parameter-name">snapshot</span>, </span><span class="parameter" id="asyncFold-param-onError"><span class="type-annotation">FoldErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Async running fold (queued).
+  
+
+</dd>
+
+        <dt id="asyncMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMap-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMap-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Map each payload through an async function (queued).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="asyncMapConcurrent" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapConcurrent.html">asyncMapConcurrent</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapConcurrent-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapConcurrent-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapConcurrent-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Overlapping <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a>.
+  
+
+</dd>
+
+        <dt id="asyncMapLatest" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapLatest.html">asyncMapLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapLatest-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapLatest-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapLatest-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Drop in-flight maps when a new pulse arrives.
+  
+
+</dd>
+
+        <dt id="asyncMapWithFallback" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapWithFallback.html">asyncMapWithFallback</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapWithFallback-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapWithFallback-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapWithFallback-param-fallback"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="asyncMapWithFallback-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit <code>fallback</code> when the mapper throws.
+  
+
+</dd>
+
+        <dt id="asyncMapWithIndex" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapWithIndex.html">asyncMapWithIndex</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapWithIndex-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapWithIndex-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>), </span><span class="parameter" id="asyncMapWithIndex-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Async map with a 0-based index.
+  
+
+</dd>
+
+        <dt id="asyncMapWithRetry" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapWithRetry.html">asyncMapWithRetry</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapWithRetry-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapWithRetry-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapWithRetry-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">3</span>, </span><span class="parameter" id="asyncMapWithRetry-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retry the mapper up to <code>count</code> extra times.
+  
+
+</dd>
+
+        <dt id="asyncMapWithTimeout" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncMapWithTimeout.html">asyncMapWithTimeout</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMapWithTimeout-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMapWithTimeout-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapWithTimeout-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="asyncMapWithTimeout-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Time-box one projection.
+  
+
+</dd>
+
+        <dt id="asyncReduce" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncReduce.html">asyncReduce</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncReduce-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncReduce-param-accumulate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">S</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncReduce-param-onError"><span class="type-annotation">FoldErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  First value is the seed; later values accumulate.
+  
+
+</dd>
+
+        <dt id="audit" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/audit.html">audit</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="audit-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="audit-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span>, </span><span class="parameter" id="audit-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  After a source value, emit it on the next <code>notifier</code> pulse.
+  
+
+</dd>
+
+        <dt id="auditTime" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/auditTime.html">auditTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="auditTime-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="auditTime-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="auditTime-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit the latest value <code>duration</code> after a source move.
+  
+
+</dd>
+
+        <dt id="bufferCount" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/bufferCount.html">bufferCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="bufferCount-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="bufferCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span><span class="parameter" id="bufferCount-param-skip"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">skip</span>, </span><span class="parameter" id="bufferCount-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit a list every <code>size</code> items (Rx <code>bufferCount</code>).
+  
+
+</dd>
+
+        <dt id="bufferTime" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/bufferTime.html">bufferTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="bufferTime-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="bufferTime-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="bufferTime-param-emitEmpty"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitEmpty</span> = <span class="default-value">false</span>, </span><span class="parameter" id="bufferTime-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Flush every <code>duration</code> (Rx <code>bufferTime</code>).
+  
+
+</dd>
+
+        <dt id="bufferWhen" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/bufferWhen.html">bufferWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="bufferWhen-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="bufferWhen-param-closer"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">closer</span>, </span><span class="parameter" id="bufferWhen-param-emitEmpty"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitEmpty</span> = <span class="default-value">false</span>, </span><span class="parameter" id="bufferWhen-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Flush when <code>closer</code> pulses.
+  
+
+</dd>
+
+        <dt id="bufferWithPredicate" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/bufferWithPredicate.html">bufferWithPredicate</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="bufferWithPredicate-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="bufferWithPredicate-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="bufferWithPredicate-param-includeTrigger"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeTrigger</span> = <span class="default-value">true</span>, </span><span class="parameter" id="bufferWithPredicate-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Close the buffer when <code>test</code> is true.
+  
+
+</dd>
+
+        <dt id="bufferWithTimeAndCount" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/bufferWithTimeAndCount.html">bufferWithTimeAndCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="bufferWithTimeAndCount-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="bufferWithTimeAndCount-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="bufferWithTimeAndCount-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="bufferWithTimeAndCount-param-emitEmpty"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitEmpty</span> = <span class="default-value">false</span>, </span><span class="parameter" id="bufferWithTimeAndCount-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Flush on count <strong>or</strong> duration.
+  
+
+</dd>
+
+        <dt id="combineLatestWith" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/combineLatestWith.html">combineLatestWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="combineLatestWith-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="combineLatestWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="combineLatestWith-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="combineLatestWith-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Combine latest of <code>source</code> and <code>others</code>.
+  
+
+</dd>
+
+        <dt id="concat" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/concat.html">concat</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="concat-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="concat-param-inners"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">inners</span>, </span><span class="parameter" id="concat-param-onError"><span class="type-annotation">ConcatErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Play static inners after the first pulse (Rx <code>concat</code>).
+  
+
+</dd>
+
+        <dt id="concatAll" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/concatAll.html">concatAll</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="concatAll-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Each payload is an inner, queued (Rx <code>concatAll</code>).
+  
+
+</dd>
+
+        <dt id="concatLatest" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/concatLatest.html">concatLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="concatLatest-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Last item of each inner.
+  
+
+</dd>
+
+        <dt id="concatMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/concatMap.html">concatMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="concatMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="concatMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sequential inner flatten (Rx <code>concatMap</code>).
+  
+
+</dd>
+
+        <dt id="debounce" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/debounce.html">debounce</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="debounce-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="debounce-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Debounce trailing.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="deferFuture" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/deferFuture.html">deferFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="deferFuture-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="deferFuture-param-create"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">create</span>(<span class="parameter" id="param-trigger"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">trigger</span></span>), </span><span class="parameter" id="deferFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="deferFuture-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Start a new future on every pulse (Rx <code>defer</code>).
+  
+
+</dd>
+
+        <dt id="deferStream" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/deferStream.html">deferStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="deferStream-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="deferStream-param-create"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">create</span>(), </span><span class="parameter" id="deferStream-param-onError"><span class="type-annotation">StreamErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="deferStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Create a new stream on every pulse.
+  
+
+</dd>
+
+        <dt id="delay" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/delay.html">delay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="delay-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="delay-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="delay-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Shift every value by <code>duration</code> (Rx <code>delay</code>).
+  
+
+</dd>
+
+        <dt id="delayLatest" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/delayLatest.html">delayLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="delayLatest-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="delayLatest-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="delayLatest-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Only the latest value after <code>duration</code> (trailing delay).
+  
+
+</dd>
+
+        <dt id="delayWhen" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/delayWhen.html">delayWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="delayWhen-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="delayWhen-param-when"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">when</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="delayWhen-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Wait for <code>when</code> before forwarding (Rx <code>delayWhen</code>).
+  
+
+</dd>
+
+        <dt id="delayWithSelector" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/delayWithSelector.html">delayWithSelector</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="delayWithSelector-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="delayWithSelector-param-durationOf"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">durationOf</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="delayWithSelector-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Per-value delay.
+  
+
+</dd>
+
+        <dt id="distinct" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/distinct.html">distinct</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="distinct-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Distinct consecutive (or global) values.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="exhaustMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/exhaustMap.html">exhaustMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="exhaustMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="exhaustMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Ignore new inners while one is running (Rx <code>exhaustMap</code>).
+  
+
+</dd>
+
+        <dt id="filter" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/filter.html">filter</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="filter-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="filter-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Keep typed payloads that pass <code>test</code> (Rx <code>filter</code>).
+  
+
+</dd>
+
+        <dt id="fromFuture" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/fromFuture.html">fromFuture</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromFuture-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="fromFuture-param-future"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">future</span>, </span><span class="parameter" id="fromFuture-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span><span class="parameter" id="fromFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromFuture-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Bridge a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> on the first pulse (Rx <code>from(Future)</code>).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="fromIterable" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/fromIterable.html">fromIterable</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromIterable-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="fromIterable-param-iterable"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit each element of <code>iterable</code> on the first pulse (Rx <code>from</code>).
+  
+
+</dd>
+
+        <dt id="fromStream" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/fromStream.html">fromStream</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fromStream-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="fromStream-param-stream"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">stream</span>, </span><span class="parameter" id="fromStream-param-onError"><span class="type-annotation">StreamErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="fromStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribe to <code>stream</code> on the first pulse (Rx <code>from(Stream)</code>).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="groupBy" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/groupBy.html">groupBy</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">K</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="groupBy-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="groupBy-param-keyOf"><span>required</span> <span class="type-annotation">K</span> <span class="parameter-name">keyOf</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="groupBy-param-onError"><span class="type-annotation">GroupErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Tag each value with <code>keyOf</code> (Rx <code>groupBy</code> flattened).
+  
+
+</dd>
+
+        <dt id="groupByCount" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/groupByCount.html">groupByCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">K</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="groupByCount-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="groupByCount-param-keyOf"><span>required</span> <span class="type-annotation">K</span> <span class="parameter-name">keyOf</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="groupByCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span><span class="parameter" id="groupByCount-param-onError"><span class="type-annotation">GroupErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit a group's list when it hits <code>size</code>.
+  
+
+</dd>
+
+        <dt id="groupCollect" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/groupCollect.html">groupCollect</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">K</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="groupCollect-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="groupCollect-param-keyOf"><span>required</span> <span class="type-annotation">K</span> <span class="parameter-name">keyOf</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="groupCollect-param-groups"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">groups</span>, </span><span class="parameter" id="groupCollect-param-onError"><span class="type-annotation">GroupErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Running <code>Map&lt;K, List&lt;S&gt;&gt;</code>.
+  
+
+</dd>
+
+        <dt id="iif" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/iif.html">iif</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="iif-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="iif-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="iif-param-thenMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">thenMap</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="iif-param-elseMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">elseMap</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Boolean dispatch (Rx <code>iif</code>).
+  
+
+</dd>
+
+        <dt id="interval" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/interval.html">interval</a></span><span class="signature">(<wbr><span class="parameter" id="interval-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="interval-param-period"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">period</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Periodic ticks after the first pulse.
+  
+
+</dd>
+
+        <dt id="map" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Project each typed payload (Rx <code>map</code>). Named apart from <code>dart:core</code> Map.
+  
+
+</dd>
+
+        <dt id="mapNotNull" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapNotNull.html">mapNotNull</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapNotNull-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapNotNull-param-project"><span>required</span> <span class="type-annotation">T?</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapNotNull-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Project and drop null results.
+  
+
+</dd>
+
+        <dt id="mapTo" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapTo.html">mapTo</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapTo-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapTo-param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="mapTo-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit the same <code>value</code> for every typed pulse (Rx <code>mapTo</code>).
+  
+
+</dd>
+
+        <dt id="mapWhen" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapWhen.html">mapWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapWhen-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapWhen-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapWhen-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapWhen-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Project only when <code>test</code> is true.
+  
+
+</dd>
+
+        <dt id="mapWithIndex" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapWithIndex.html">mapWithIndex</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapWithIndex-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapWithIndex-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>), </span><span class="parameter" id="mapWithIndex-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Project with a 0-based index.
+  
+
+</dd>
+
+        <dt id="merge" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/merge.html">merge</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="merge-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="merge-param-sources"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">sources</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Merge extra <code>sources</code>; <code>source</code> only arms <code>future</code>.
+  
+
+</dd>
+
+        <dt id="mergeAll" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mergeAll.html">mergeAll</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mergeAll-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mergeAll-param-onError"><span class="type-annotation">MergeErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Payload is an inner to merge (Rx <code>mergeAll</code>).
+  
+
+</dd>
+
+        <dt id="mergeMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mergeMap.html">mergeMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mergeMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mergeMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Concurrent inner flatten (Rx <code>mergeMap</code> / <code>flatMap</code>).
+  
+
+</dd>
+
+        <dt id="mergeWith" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mergeWith.html">mergeWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mergeWith-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mergeWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Forward source and <code>others</code> (Rx <code>mergeWith</code>).
+  
+
+</dd>
+
+        <dt id="of" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/of.html">of</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="of-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="of-param-values"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">values</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit <code>values</code> once when <code>source</code> is first pulsed (Rx <code>of</code>).
+  
+
+</dd>
+
+        <dt id="pairwise" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/pairwise.html">pairwise</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="pairwise-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Consecutive pairs <code>(previous, current)</code>.
+  
+
+</dd>
+
+        <dt id="partition" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/partition.html">partition</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="partition-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="partition-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partition-param-onError"><span class="type-annotation">PartitionErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Tag each value with whether <code>test</code> matched.
+  
+
+</dd>
+
+        <dt id="partitionMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/partitionMap.html">partitionMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="partitionMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="partitionMap-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partitionMap-param-thenMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">thenMap</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partitionMap-param-elseMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">elseMap</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partitionMap-param-onError"><span class="type-annotation">PartitionErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Map matched / unmatched with different projectors.
+  
+
+</dd>
+
+        <dt id="partitionOnly" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/partitionOnly.html">partitionOnly</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="partitionOnly-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="partitionOnly-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partitionOnly-param-matched"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">matched</span> = <span class="default-value">true</span>, </span><span class="parameter" id="partitionOnly-param-onError"><span class="type-annotation">PartitionErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Keep only the matching side.
+  
+
+</dd>
+
+        <dt id="pluck" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/pluck.html">pluck</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="pluck-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="pluck-param-key"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">key</span>, </span><span class="parameter" id="pluck-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pick <code>payload[key]</code> as <code>T</code> (Rx <code>pluck</code>).
+  
+
+</dd>
+
+        <dt id="pluckAll" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/pluckAll.html">pluckAll</a></span><span class="signature">(<wbr><span class="parameter" id="pluckAll-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="pluckAll-param-keys"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">keys</span>, </span><span class="parameter" id="pluckAll-param-orElse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">orElse</span>, </span><span class="parameter" id="pluckAll-param-useOrElse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useOrElse</span> = <span class="default-value">false</span>, </span><span class="parameter" id="pluckAll-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pluck several keys into a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>.
+  
+
+</dd>
+
+        <dt id="pluckOr" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/pluckOr.html">pluckOr</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="pluckOr-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="pluckOr-param-key"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">key</span>, </span><span class="parameter" id="pluckOr-param-orElse"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">orElse</span>, </span><span class="parameter" id="pluckOr-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pluck with <code>orElse</code> when the field is missing.
+  
+
+</dd>
+
+        <dt id="pluckPath" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/pluckPath.html">pluckPath</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="pluckPath-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="pluckPath-param-path"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">path</span>, </span><span class="parameter" id="pluckPath-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span>, </span><span class="parameter" id="pluckPath-param-useOrElse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useOrElse</span> = <span class="default-value">false</span>, </span><span class="parameter" id="pluckPath-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Walk a nested <code>path</code>.
+  
+
+</dd>
+
+        <dt id="race" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/race.html">race</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="race-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="race-param-competitors"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">competitors</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  First inner to emit wins (Rx <code>race</code>).
+  
+
+</dd>
+
+        <dt id="range" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/range.html">range</a></span><span class="signature">(<wbr><span class="parameter" id="range-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="range-param-start"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="range-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="range-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">step</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emit <code>count</code> integers from <code>start</code> (Rx <code>range</code>).
+  
+
+</dd>
+
+        <dt id="reduce" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/reduce.html">reduce</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="reduce-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="reduce-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="reduce-param-accumulate"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Readable running fold (in-memory, not persistent state).
+  
+
+</dd>
+
+        <dt id="repeat" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/repeat.html">repeat</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="repeat-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="repeat-param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="repeat-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Repeat <code>value</code> <code>count</code> times on the first pulse.
+  
+
+</dd>
+
+        <dt id="retry" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/retry.html">retry</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="retry-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="retry-param-task"><span>required</span> <span class="type-annotation">RetryTask<span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">task</span>, </span><span class="parameter" id="retry-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">3</span>, </span><span class="parameter" id="retry-param-onError"><span class="type-annotation">RetryErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="retry-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Retry a failing inner.
+  
+
+</dd>
+
+        <dt id="sample" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/sample.html">sample</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="sample-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="sample-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span>, </span><span class="parameter" id="sample-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Latest source value when <code>notifier</code> pulses.
+  
+
+</dd>
+
+        <dt id="sampleTime" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/sampleTime.html">sampleTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="sampleTime-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="sampleTime-param-period"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">period</span>, </span><span class="parameter" id="sampleTime-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Latest source value every <code>period</code>.
+  
+
+</dd>
+
+        <dt id="scan" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/scan.html">scan</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="scan-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="scan-param-accumulate"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Running accumulate (Rx <code>scan</code>).
+  
+
+</dd>
+
+        <dt id="share" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/share.html">share</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="share-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Share one subscription (Rx <code>share</code>).
+  
+
+</dd>
+
+        <dt id="shareReplay" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/shareReplay.html">shareReplay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="shareReplay-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="shareReplay-param-size"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Share with a replay buffer.
+  
+
+</dd>
+
+        <dt id="skip" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/skip.html">skip</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="skip-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="skip-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Skip the first <code>count</code> values.
+  
+
+</dd>
+
+        <dt id="skipRepeated" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/skipRepeated.html">skipRepeated</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="skipRepeated-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Skip consecutive duplicates.
+  
+
+</dd>
+
+        <dt id="skipUntil" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/skipUntil.html">skipUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="skipUntil-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="skipUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Skip until <code>notifier</code> pulses.
+  
+
+</dd>
+
+        <dt id="skipWhen" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/skipWhen.html">skipWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="skipWhen-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="skipWhen-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Drop values while <code>test</code> is true.
+  
+
+</dd>
+
+        <dt id="skipWhile" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/skipWhile.html">skipWhile</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="skipWhile-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="skipWhile-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Skip while <code>test</code> is true.
+  
+
+</dd>
+
+        <dt id="startWith" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/startWith.html">startWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="startWith-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="startWith-param-value"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="startWith-param-replaceFirst"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">replaceFirst</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Prefix values on the first pulse (Rx <code>startWith</code>).
+  
+
+</dd>
+
+        <dt id="switchMap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/switchMap.html">switchMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="switchMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Switch inner flatten (Rx <code>switchMap</code>).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="take" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/take.html">take</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="take-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="take-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Take the first <code>count</code> values.
+  
+
+</dd>
+
+        <dt id="takeUntil" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/takeUntil.html">takeUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="takeUntil-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="takeUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Take until <code>notifier</code> pulses.
+  
+
+</dd>
+
+        <dt id="takeWhile" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/takeWhile.html">takeWhile</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="takeWhile-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="takeWhile-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Take while <code>test</code> is true.
+  
+
+</dd>
+
+        <dt id="tap" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/tap.html">tap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="tap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Side effect without changing the value (Rx <code>tap</code>).
+  
+
+</dd>
+
+        <dt id="tapAll" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/tapAll.html">tapAll</a></span><span class="signature">(<wbr><span class="parameter" id="tapAll-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="tapAll-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Tap every pulse, including wrong types.
+  
+
+</dd>
+
+        <dt id="tapWithIndex" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/tapWithIndex.html">tapWithIndex</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="tapWithIndex-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="tapWithIndex-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>), </span><span class="parameter" id="tapWithIndex-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Tap with a 0-based index.
+  
+
+</dd>
+
+        <dt id="throttle" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/throttle.html">throttle</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="throttle-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Throttle with leading / trailing flags.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="timeout" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/timeout.html">timeout</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="timeout-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="timeout-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="timeout-param-onError"><span class="type-annotation">TimeoutErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="timeout-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Idle timeout after the last pulse.
+  
+
+</dd>
+
+        <dt id="timeoutWithFallback" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/timeoutWithFallback.html">timeoutWithFallback</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="timeoutWithFallback-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="timeoutWithFallback-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="timeoutWithFallback-param-fallback"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="timeoutWithFallback-param-once"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">once</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Timeout with a fallback value.
+  
+
+</dd>
+
+        <dt id="windowCount" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/windowCount.html">windowCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="windowCount-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="windowCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span><span class="parameter" id="windowCount-param-skip"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">skip</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Window by count (list payload).
+  
+
+</dd>
+
+        <dt id="windowTime" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/windowTime.html">windowTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="windowTime-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="windowTime-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Window by time.
+  
+
+</dd>
+
+        <dt id="withLatestFrom" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/withLatestFrom.html">withLatestFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withLatestFrom-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="withLatestFrom-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="withLatestFrom-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="withLatestFrom-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Source pulses carry latest <code>others</code> (Rx <code>withLatestFrom</code>).
+  
+
+</dd>
+
+        <dt id="zip" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/zip.html">zip</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="zip-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="zip-param-sources"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">sources</span>, </span><span class="parameter" id="zip-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span>)?, </span><span class="parameter" id="zip-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Zip extra <code>sources</code>; <code>source</code> arms <code>future</code>.
+  
+
+</dd>
+
+        <dt id="zipAll" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/zipAll.html">zipAll</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="zipAll-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="zipAll-param-width"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span>, </span><span class="parameter" id="zipAll-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Pack <code>width</code> source values into a list.
+  
+
+</dd>
+
+        <dt id="zipWith" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/zipWith.html">zipWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="zipWith-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="zipWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="zipWith-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span>)?, </span><span class="parameter" id="zipWith-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Zip <code>source</code> with <code>others</code> by index (Rx <code>zipWith</code>).
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">Flow class</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PulseContext.telemetry constructor from Class PulseContext from the cell_flow library, for the Dart programming language.">
+  <title>PulseContext.telemetry constructor - PulseContext - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/PulseContext-class.html">PulseContext</a></li>
+    <li class="self-crumb">PulseContext.telemetry factory constructor</li>
+  </ol>
+  <div class="self-name">PulseContext.telemetry</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;PulseContext-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">PulseContext.telemetry</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">PulseContext.telemetry</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="telemetry-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span></li>
+<li><span class="parameter" id="telemetry-param-actor"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">actor</span>, </span></li>
+<li><span class="parameter" id="telemetry-param-reason"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">reason</span>, </span></li>
+<li><span class="parameter" id="telemetry-param-purpose"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">purpose</span> = <span class="default-value">&#39;METRIC_COLLECTION&#39;</span>, </span></li>
+<li><span class="parameter" id="telemetry-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">priority</span> = <span class="default-value">10</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Syntheses a <strong>Telemetry &amp; Observation Blueprint</strong> for high‑frequency
+signals that provide visibility without driving state mutation.</p>
+<p>This factory is the architectural standard for <strong>Non‑Invasive Monitoring</strong>.
+It ensures that observability pulses carry a consistent <strong>Causal Trace</strong>
+while minimising metabolic and storage overhead.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when emitting heartbeat signals or performance metrics from
+within a cell.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Sets <code>auditLevel</code> to <code>none</code> to avoid log bloat.</li>
+<li>Sets <code>priority</code> to 10 (background).</li>
+<li>Sets <code>sensitivity</code> to <code>public</code>.</li>
+<li>Uses <code>deterministic</code> strategy.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>These pulses are never audited – they are pure telemetry.</li>
+<li>They are low priority and will not interfere with critical operations.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final context = PulseContext.telemetry(
+  baseContext: currentPulse.context,
+  actor: 'Throughput_Monitor',
+  reason: 'Reporting batch completion latency',
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>baseContext</code>: Ancestral <a href="../../cell_flow/Context-class.html">Context</a> for lineage.</li>
+<li><code>actor</code>: The monitoring service or sensor name.</li>
+<li><code>reason</code>: The specific metric being reported.</li>
+<li><code>purpose</code>: Observation category, defaulting to 'METRIC_COLLECTION'.</li>
+<li><code>priority</code>: Urgency, defaulting to 10.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory PulseContext.telemetry({
+  required Context baseContext,
+  required String actor,
+  required String reason,
+  String purpose = &#39;METRIC_COLLECTION&#39;,
+  int priority = 10,
+}) {
+  return PulseContext.fromEntries([
+    &#47;&#47; --- Static Pillars (Non-Evolvable Identity) ---
+    Provenance.actor.entry(actor),
+    Provenance.traceId.entry(Identity.next()),
+    if (baseContext is PulseContext)
+      Provenance.parentTraceId.entry(baseContext.traceId!),
+    Provenance.sensitivity.entry(Sensitivity.public),
+
+    &#47;&#47; --- Fluid Boundaries (Evolvable Intent) ---
+    Provenance.strategy.entry(ReasoningStrategy.deterministic),
+    Provenance.confidence.entry(1.0),
+
+    &#47;&#47; Default to none to prevent log-bloat from diagnostic cycles
+    Provenance.auditLevel.entry(AuditLevel.none),
+
+    Provenance.priority.entry(priority),
+    Provenance.purpose.entry(purpose),
+    Provenance.reason.entry(reason),
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/PulseContext-class.html">PulseContext</a></li>
+    <li class="self-crumb">PulseContext.telemetry factory constructor</li>
+</ol>
+
+    <h5>PulseContext class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

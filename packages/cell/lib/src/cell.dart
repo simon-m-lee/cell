@@ -462,30 +462,40 @@ abstract interface class Cell {
   ///    current value of type [V].
   /// 2. **Ingress**: It accepts pulses from manual `update()` calls or
   ///    upstream [bind] dependencies.
-  /// 3. **Evolution**: If an [evolve] function is provided, it is invoked
-  ///    synchronously for every incoming pulse. It compares the
-  ///    `host.value` (current state) with the `input` pulse to decide
-  ///    the next state.
-  /// 4. **Commitment**: If `evolve` returns a new [Pulse], the state is
+  /// 3. **Validation**: If a [testRule] is provided, the incoming pulse is
+  ///    evaluated against the rule. If the rule rejects the stimulus, the
+  ///    cycle terminates.
+  /// 4. **Evolution**: If an [evolve] function is provided, it is invoked
+  ///    synchronously. It compares the `host.value` (current state) with the
+  ///    `input` pulse to decide the next state.
+  /// 5. **Commitment**: If `evolve` returns a new [Pulse], the state is
   ///    updated and immediately broadcast via [Synapses].
   ///
   /// ### Non‑obvious
   /// - **Initial Seed**: The [initial] value is written directly to storage,
-  ///   bypassing the transformation cycle.
+  ///   bypassing the transformation and validation cycle.
+  /// - **Testing & Integrity**: The [testRule] acts as an **Integrity Gate**,
+  ///   allowing you to enforce constraints (e.g., "value must never be negative")
+  ///   or inject mock behaviors during unit testing without altering production
+  ///   transformation logic.
   /// - **Null Filtering**: If [evolve] returns `null`, the update is
   ///   rejected, the storage remains unchanged, and no propagation occurs.
   /// - **Atomic Isolation**: By default, state updates are serialized
   ///   through an internal [Lock] to prevent race conditions during
   ///   concurrent async operations.
   ///
-  /// ### Example: Counter
+  /// ### Example: Validated Counter
   /// ```dart
-  /// final counter = Cell.state(0, (host, input) {
-  ///   final delta = input.payload as int;
-  ///   return Pulse(host.value + delta);
-  /// });
+  /// final counter = Cell.state<int>(
+  ///   initial: 0,
+  ///   // Transformation logic
+  ///   evolve: (host, input) => Pulse(host.value + (input.payload as int)),
+  ///   // Integrity Gate: Only allow increments less than 100
+  ///   testRule: (host, input) => (input.payload as int) < 100,
+  /// );
   ///
-  /// counter.update(5); // value becomes 5
+  /// counter.update(5);  // value becomes 5
+  /// counter.update(150); // Rejected by testRule; value remains 5
   /// ```
   ///
   /// ### Parameters:
@@ -494,6 +504,9 @@ abstract interface class Cell {
   /// * [evolve]: **Optional.** The **Transformation Pipeline** logic. It
   ///   determines how the incoming `input` maps to the final committed
   ///   state based on the current `host.value`.
+  /// * [testRule]: **Integrity Gate.** A safety check that must approve
+  ///   every incoming stimulus before it reaches the transformation logic.
+  ///   Useful for enforcing domain invariants and mocking test scenarios.
   ///
   /// ### Returns:
   /// A [StateHandle] (Record) providing:
@@ -510,6 +523,7 @@ abstract interface class Cell {
   static StateHandle<V> state<V>({
     V? initial,
     Pulse<V>? Function(ValueCell<V> host, Pulse input)? evolve,
+    TestCell testRule = TestCell.allowAll,
   }) {
     return ValueCell.create<V>(
       ValueNucleus<V>(
@@ -517,6 +531,7 @@ abstract interface class Cell {
             evolve != null
                 ? (host, input, {user}) => evolve(host, input)
                 : null,
+        testRule: testRule,
       ),
       initial: initial,
     );

@@ -425,7 +425,8 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
 /// See also:
 /// * [Instruction] – The individual building blocks.
 /// * [Instruction.chain] – The factory for creating chains with custom logic.
-class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> with InstructionChainMixin<C,I,O> {
+// class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> with InstructionChainMixin<C,I,O> {
+class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> {
 
   /// Internal constructor for creating an [InstructionChain].
   ///
@@ -461,6 +462,174 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
               ? (instructions: instructions, instruction: strategy)
               : (instructions: instructions)
   );
+
+
+  /// Retrieves the custom strategy or default chain rule.
+  ///
+  /// ### Returns:
+  /// The instruction function to execute, or the default chain rule if no
+  /// custom strategy is provided.
+  @override
+  Function? get _instruction {
+    return get<Function?>(() => _record.instruction, orElse: _chainRule);
+  }
+
+  /// Retrieves the list of instructions in the chain.
+  ///
+  /// ### Returns:
+  /// An iterable of [Instruction] objects in execution order, or `null`
+  /// if no instructions are stored.
+  Iterable<Instruction>? get _instructions => get<Iterable<Instruction>?>(() => _record.instructions, orElse: null);
+
+  /// Executes the transformation chain synchronously with future propagation support.
+  ///
+  /// ### When to use
+  /// This is the primary implementation of the [Instruction.call] contract
+  /// for composite instructions. It is invoked automatically when a pulse
+  /// enters a receptor or a nested chain.
+  ///
+  /// ### How it works
+  /// 1. **Strategy Resolution**: It first checks for a custom orchestration
+  ///    strategy provided during construction.
+  /// 2. **Execution**:
+  ///    - If a strategy exists, it is executed synchronously with the
+  ///      current pulse and context.
+  ///    - Otherwise, it falls back to the default sequential evaluation.
+  /// 3. **Safety Boundary**: The entire call is wrapped in a safety
+  ///    boundary. Orchestration errors are caught, logged to the pulse's
+  ///    trace, and the signal is terminated to protect the graph.
+  /// 4. **Normalization**: The result is validated to ensure type
+  ///    consistency.
+  /// 5. **Future Propagation**: The [future] callback is passed through
+  ///    to enable asynchronous continuation.
+  ///
+  /// ### Non‑obvious
+  /// - **Terminal Failures**: If an error occurs during orchestration itself,
+  ///   this implementation returns `null` to ensure that corrupted logic
+  ///   does not propagate invalid states.
+  /// - **Monitoring**: It supports optional callbacks for external
+  ///   monitoring of the chain's final output.
+  /// - **Dynamic Resolution**: It retrieves execution logic dynamically,
+  ///   maintaining high memory efficiency even for complex graphs.
+  /// - **Synchronous Execution**: The chain executes synchronously and
+  ///   returns the result immediately.
+  ///
+  /// ### Parameters:
+  /// - [pulse]: The incoming pulse to transform.
+  /// - [cell]: The host cell context.
+  /// - [future]: Optional callback for asynchronous continuation.
+  /// - [token]: Optional token for identifying the instruction.
+  /// - [user]: Optional user metadata.
+  ///
+  /// ### Returns:
+  /// The final transformed pulse, or `null` if terminated.
+  @override
+  O? call(I pulse, {
+    C? cell,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token,
+  }) {
+
+    void future_({required Pulse? result, required dynamic token}) {
+      future?.call(result: result, token: token);
+    }
+
+    try {
+      Pulse? result;
+      final strategy = _instruction;
+      if (strategy != null) {
+        try {
+          result = strategy(pulse, cell: cell, user: _user, future: future_);
+        } catch (_) {
+          result = strategy(pulse, cell: cell, user: _user);
+        }
+      } else {
+        result = _chainRule(pulse, cell: cell, user: _user);
+      }
+
+      if (result == null) return null;
+      return result as dynamic;
+    } catch (e, stackTrace) {
+      (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+    }
+    return null;
+  }
+
+  /// Executes the transformation chain synchronously.
+  ///
+  /// ### How it works
+  /// 1. It iterates through the instruction list in order.
+  /// 2. Each instruction's result becomes the input for the next.
+  /// 3. If an instruction supports future propagation, it handles the
+  ///    callback chain.
+  /// 4. If any instruction returns `null`, the chain short-circuits.
+  ///
+  /// ### Parameters:
+  /// - [pulse]: The incoming pulse to transform.
+  /// - [cell]: The host cell context.
+  /// - [user]: Optional user metadata.
+  /// - [future]: Optional callback for asynchronous continuation.
+  ///
+  /// ### Returns:
+  /// The final transformed pulse, or `null` if terminated.
+  O? _chainRule(I pulse, {C? cell, dynamic user, void Function({required Pulse? result, required dynamic token})? future}) {
+    final instructions = _instructions;
+    if (instructions != null) {
+
+      void future_({required  Pulse? result, required dynamic token}) {
+        if (token is Function) {
+          Instruction instruction;
+          for (int i=0; i<instructions.length; i++) {
+            instruction = instructions.elementAt(i);
+
+            if (!identical(token, instruction)) {
+              continue;
+            }
+
+            try {
+              result = instruction.call(result as Pulse, cell: cell,
+                  future: future_,
+                  token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
+              );
+            } catch(_) {
+              result = instruction.call(result as Pulse, cell: cell);
+            }
+
+            if (result == null) {
+              return;
+            }
+          }
+        } else if (future != null) {
+          future(result: result, token: token);
+        }
+      }
+
+      Pulse? result = pulse;
+      Instruction instruction;
+
+      for (int i=0; i<instructions.length; i++) {
+        instruction = instructions.elementAt(i);
+        try {
+          result = instruction.call(result as Pulse, cell: cell,
+              future: future_,
+              token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
+          );
+        } catch (e, stackTrace) {
+          try {
+            result = instruction.call(result as Pulse, cell: cell);
+          } catch (_) {
+            (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
+            result = null;
+          }
+        }
+        if (result == null) return null;
+      }
+
+      if (result == null) return null;
+      return result as dynamic;
+    }
+    return pulse as dynamic;
+  }
 
 }
 

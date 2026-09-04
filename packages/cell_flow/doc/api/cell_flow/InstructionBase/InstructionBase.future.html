@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the InstructionBase.future constructor from Class InstructionBase from the cell_flow library, for the Dart programming language.">
+  <title>InstructionBase.future constructor - InstructionBase - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/InstructionBase-class.html">InstructionBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">InstructionBase.future const constructor</li>
+  </ol>
+  <div class="self-name">InstructionBase.future</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;InstructionBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">InstructionBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.future</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">InstructionBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.future</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="future-param-instruction"><span class="type-annotation">O?</span> <span class="parameter-name">instruction</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>}), {</span></li>
+<li><span class="parameter" id="future-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a base rule with future propagation support.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this constructor when the instruction needs to control when
+propagation continues after an asynchronous operation, such as for
+implementing delays, debouncing, or conditional propagation.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The <code>instruction</code> function receives a <a href="../../cell_flow/InstructionBase/InstructionBase.future.html">future</a> callback.</li>
+<li>The <code>token</code> parameter identifies which instruction is being processed.</li>
+<li>The callback must be called to continue propagation.</li>
+<li>The instruction itself returns <code>null</code> immediately, deferring the
+actual propagation to the callback.</li>
+</ol>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The function with access to the <a href="../../cell_flow/InstructionBase/InstructionBase.future.html">future</a> callback.</li>
+<li><code>user</code>: Optional user metadata.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const InstructionBase.future(
+    O? Function(I pulse, {C? cell, dynamic user,
+    void Function({required Pulse? result, required dynamic token})? future,
+    dynamic token
+    }) instruction, {dynamic user})
+    : _record = user != null ? (long: instruction, user: user) : (long: instruction);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/InstructionBase-class.html">InstructionBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">InstructionBase.future const constructor</li>
+</ol>
+
+    <h5>InstructionBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

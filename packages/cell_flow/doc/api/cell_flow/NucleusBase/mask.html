@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mask method from the NucleusBase class, for the Dart programming language.">
+  <title>mask method - NucleusBase class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">mask static method</li>
+  </ol>
+  <div class="self-name">mask</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;NucleusBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">mask</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+<span class="name ">mask</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="mask-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="mask-param-bind"><span class="type-annotation"><a href="../../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="mask-param-context"><span class="type-annotation"><a href="../../cell_flow/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="mask-param-receptor"><span class="type-annotation"><a href="../../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="mask-param-testRule"><span class="type-annotation"><a href="../../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
+<li><span class="parameter" id="mask-param-synapses"><span class="type-annotation"><a href="../../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="mask-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="mask-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates a memory-optimized, multi-tiered <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> that serves as the
+fundamental state and behavior definition for a <a href="../../cell_flow/Nucleus-class.html">Nucleus</a>.</p>
+<p>This static helper is the core engine of the framework's <strong>Structural
+Flyweight Pattern</strong>. It translates high-level configuration parameters
+into a strictly typed, nested Dart <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> to minimize memory pressure.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <code>mask</code> when you need to synthesize the physical storage for a nucleus,
+typically during:</p>
+<ul>
+<li><strong>Nucleus Initialization</strong>: Defining the blueprint for a new reactive node.</li>
+<li><strong>Structural Evolution</strong>: Creating specialized extensions or deputies
+with localized overrides.</li>
+<li><strong>Framework Bootstrapping</strong>: Defining static, compile-time nuclei
+with zero runtime allocation overhead.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Dual-Stage Bitmasking</strong>: Translates the provided parameters into
+numeric bitsets (a 4-bit <code>inheritableMask</code> and a 6-bit composition <code>mask</code>).</li>
+<li><strong>Nullable Field Omission</strong>: Instead of a class with multiple nullable
+fields, it uses Dart's <code>switch</code> expressions to allocate a record
+containing <em>only</em> the specific fields that are non-default. This
+effectively eliminates the "Nullable Field Tax."</li>
+<li><strong>Tiered Segregation</strong>:
+<ul>
+<li><strong>Inheritable Segment</strong>: Logic-defining properties (<code>context</code>,
+<code>receptor</code>, <code>testRule</code>, <code>ephemeralPolicy</code>) that can be inherited.</li>
+<li><strong>Local Segment</strong>: Instance-specific anchors (<code>bind</code>, <code>synapses</code>,
+<a href="../../cell_flow/NucleusBase/lock.html">lock</a>) and metadata (<code>user</code>, <code>others</code>).</li>
+</ul>
+</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Receptor Auto-Cloning</strong>: If the provided <code>receptor</code> is already
+"activated" (bound to another cell), <code>mask</code> automatically clones it
+to ensure independent logic states for the new node.</li>
+<li><strong>Synapses Provisioning</strong>: Passing <a href="../../cell_flow/Synapses/enabled-constant.html">Synapses.enabled</a> triggers the
+allocation of a new registry, ensuring every node has a unique
+egress network for its dependents.</li>
+<li><strong>Lock Injection</strong>: By default, it allocates a new reentrant <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
+to serve as the node's atomic boundary, unless <code>forceLock</code> is <code>true</code>.</li>
+<li><strong>Timestamping</strong>: Every record is tagged with a <code>timestamp</code> to
+facilitate causal ordering and cache invalidation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Guard.</strong> Defines when the nucleus
+should be invalidated.</li>
+<li><code>bind</code>: <strong>Upstream Anchor.</strong> The cell this node monitors in the DAG.</li>
+<li><code>context</code>: <strong>Governance Tier.</strong> The execution authority (defaults to
+<a href="../../cell_flow/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: <strong>Transformation Logic.</strong> The pipeline processing
+incoming pulses.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation predicate for state changes.</li>
+<li><code>synapses</code>: <strong>Egress Registry.</strong> The observer network for signal
+propagation.</li>
+<li><code>forceLock</code>: <strong>Atomic Control.</strong> If <code>true</code>, suppresses the allocation
+of a new synchronization lock.</li>
+<li><code>user</code>: <strong>Extension Data.</strong> Compact storage for metadata or specialized
+state.</li>
+<li><code>others</code>: <strong>Overflow Slot.</strong> Reserved for framework extensions and
+ad-hoc records.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A compact <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> representing the physical storage for the nucleus.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/NucleusBase-class.html">NucleusBase</a>: The primary implementation utilizing this masking logic.</li>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The synchronization primitive injected by this method.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Record mask({
+  EphemeralPolicy? ephemeralPolicy,
+
+  Cell? bind,
+  Context? context,
+  Receptor? receptor,
+  TestCell? testRule,
+  Synapses? synapses,
+
+  bool forceLock = false,
+
+  Record? user,
+  dynamic others
+}) {
+
+  if (synapses == Synapses.enabled) {
+    synapses = Synapses();
+  }
+
+  if (receptor != null) {
+    if (receptor == Receptor.passThrough) {
+      receptor = _Receptor();
+    } else
+      if (receptor.isActivated) {
+      receptor = receptor.clone;
+    }
+  }
+
+  final inheritableMask = (
+      (context != null &amp;&amp; context != Context.system         ? 1 : 0) |
+      (receptor != null &amp;&amp; receptor != Receptor.passThrough ? 2 : 0) |
+      (testRule != null &amp;&amp; !identical(testRule, TestCell.allowAll) ? 4 : 0) |
+      (ephemeralPolicy != null                              ? 8 : 0)
+  );
+
+  final inheritable = switch (inheritableMask) {
+    0 =&gt; (),
+    1 =&gt; (context: context),
+    2 =&gt; (receptor: receptor),
+    3 =&gt; (context: context, receptor: receptor),
+    4 =&gt; (testRule: testRule),
+    5 =&gt; (context: context, testRule: testRule),
+    6 =&gt; (receptor: receptor, testRule: testRule),
+    7 =&gt; (context: context, receptor: receptor, testRule: testRule),
+    8 =&gt; (ephemeralPolicy: ephemeralPolicy),
+    9 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context),
+    10 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor),
+    11 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor),
+    12 =&gt; (ephemeralPolicy: ephemeralPolicy, testRule: testRule),
+    13 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, testRule: testRule),
+    14 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor, testRule: testRule),
+    15 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, testRule: testRule),
+    _ =&gt; ()
+  };
+
+  final mask = (
+      (inheritableMask != 0  ? 1 : 0) |
+      (user != null         ? 2 : 0) |
+      (forceLock             ? 4 : 0) |
+      (synapses != null &amp;&amp; synapses != Synapses.disabled    ? 8 : 0) |
+      (bind != null                     ? 16 : 0) |
+      (others != null                   ? 32 : 0)
+  );
+
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
+
+  return switch (mask) {
+    0 =&gt; (timestamp: timestamp),
+    1 =&gt; (timestamp: timestamp, inheritable: inheritable),
+    2 =&gt; (timestamp: timestamp, user: user),
+    3 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user),
+    4 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true)),
+    5 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true)),
+    6 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true)),
+    7 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true)),
+    8 =&gt; (timestamp: timestamp, synapses: synapses),
+    9 =&gt; (timestamp: timestamp, inheritable: inheritable, synapses: synapses),
+    10 =&gt; (timestamp: timestamp, user: user, synapses: synapses),
+    11 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, synapses: synapses),
+    12 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), synapses: synapses),
+    13 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), synapses: synapses),
+    14 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), synapses: synapses),
+    15 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), synapses: synapses),
+    16 =&gt; (timestamp: timestamp, bind: bind),
+    17 =&gt; (timestamp: timestamp, inheritable: inheritable, bind: bind),
+    18 =&gt; (timestamp: timestamp, user: user, bind: bind),
+    19 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, bind: bind),
+    20 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), bind: bind),
+    21 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), bind: bind),
+    22 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), bind: bind),
+    23 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), bind: bind),
+    24 =&gt; (timestamp: timestamp, synapses: synapses, bind: bind),
+    25 =&gt; (timestamp: timestamp, inheritable: inheritable, synapses: synapses, bind: bind),
+    26 =&gt; (timestamp: timestamp, user: user, synapses: synapses, bind: bind),
+    27 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, synapses: synapses, bind: bind),
+    28 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), synapses: synapses, bind: bind),
+    29 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), synapses: synapses, bind: bind),
+    30 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), synapses: synapses, bind: bind),
+    31 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), synapses: synapses, bind: bind),
+
+    32 =&gt; (timestamp: timestamp, others: others),
+    33 =&gt; (timestamp: timestamp, inheritable: inheritable, others: others),
+    34 =&gt; (timestamp: timestamp, user: user, others: others),
+    35 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, others: others),
+    36 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), others: others),
+    37 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), others: others),
+    38 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), others: others),
+    39 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), others: others),
+    40 =&gt; (timestamp: timestamp, synapses: synapses, others: others),
+    41 =&gt; (timestamp: timestamp, inheritable: inheritable, synapses: synapses, others: others),
+    42 =&gt; (timestamp: timestamp, user: user, synapses: synapses, others: others),
+    43 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, synapses: synapses, others: others),
+    44 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), synapses: synapses, others: others),
+    45 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), synapses: synapses, others: others),
+    46 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), synapses: synapses, others: others),
+    47 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), synapses: synapses, others: others),
+
+    48 =&gt; (timestamp: timestamp, bind: bind, others: others),
+    49 =&gt; (timestamp: timestamp, inheritable: inheritable, bind: bind, others: others),
+    50 =&gt; (timestamp: timestamp, user: user, bind: bind, others: others),
+    51 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, bind: bind, others: others),
+    52 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), bind: bind, others: others),
+    53 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), bind: bind, others: others),
+    54 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), bind: bind, others: others),
+    55 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), bind: bind, others: others),
+    56 =&gt; (timestamp: timestamp, synapses: synapses, bind: bind, others: others),
+    57 =&gt; (timestamp: timestamp, inheritable: inheritable, synapses: synapses, bind: bind, others: others),
+    58 =&gt; (timestamp: timestamp, user: user, synapses: synapses, bind: bind, others: others),
+    59 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, synapses: synapses, bind: bind, others: others),
+    60 =&gt; (timestamp: timestamp, lock: Lock(reentrant: true), synapses: synapses, bind: bind, others: others),
+    61 =&gt; (timestamp: timestamp, inheritable: inheritable, lock: Lock(reentrant: true), synapses: synapses, bind: bind, others: others),
+    62 =&gt; (timestamp: timestamp, user: user, lock: Lock(reentrant: true), synapses: synapses, bind: bind, others: others),
+    63 =&gt; (timestamp: timestamp, inheritable: inheritable, user: user, lock: Lock(reentrant: true), synapses: synapses, bind: bind, others: others),
+
+    _ =&gt; ()
+  };
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">mask static method</li>
+</ol>
+
+    <h5>NucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SpokeRegistration typedef from the cell_flow library, for the Dart programming language.">
+  <title>SpokeRegistration typedef - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">flow.dart</a></li>
+    <li class="self-crumb">SpokeRegistration typedef</li>
+  </ol>
+  <div class="self-name">SpokeRegistration</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-typedef">SpokeRegistration</span> typedef 
+ 
+</h1></div>
+    <section class="multi-line-signature">
+        
+  
+<span class="name ">SpokeRegistration</span> = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)</span>
+
+
+    </section>
+
+    
+<section class="desc markdown">
+  <p>A configuration record for an individual <strong>Spoke (Destination)</strong>
+within a <a href="../cell_flow/Cell/hub.html">Cell.hub</a>.</p>
+<p>A <code>SpokeRegistration</code> acts like a registered address in a post office.
+It defines the "Who" (<code>key</code>), the "How important" (<code>priority</code>), and
+the "What to do" (<code>handler</code> or <code>receptor</code>) when a signal arrives.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Use this when building complex hubs that require fine-grained control
+over routing, such as when multiple handlers might match the same
+signal or when you need specialized security per spoke.</li>
+<li><strong>Priority Routing</strong>: When two spokes match (e.g., <code>'user.*'</code> and
+<code>'user.login'</code>), use <code>priority</code> to ensure the specific one wins.</li>
+<li><strong>Custom Filtering</strong>: When the standard <a href="../cell_flow/HubRouting.html">HubRouting</a> isn't enough,
+supply a <code>match</code> function for complex logic.</li>
+<li><strong>Governed Security</strong>: Use <code>context</code> to assign a <a href="../cell_flow/DeputyContext-class.html">DeputyContext</a>
+to a specific spoke, enforcing <strong>Capability-Based Access Control</strong>.</li>
+<li><strong>Mixed Routing</strong>: When you need some spokes to use exact matching
+and others to use pattern matching within the same hub.</li>
+<li><strong>Fallback Routes</strong>: The <code>key</code> of a registration can be used as a
+<a href="../cell_flow/Cell/hub.html">Cell.hub</a> fallback when no other spokes match.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>When a hub receives a pulse, it iterates through its list of
+<code>SpokeRegistrations</code>. It compares the <code>Pulse.type</code> against the <code>key</code>
+(or runs the <code>match</code> predicate). If a match is found, the signal
+is routed to that spoke's internal cell.</p>
+<h3 id="nonobvious-the-key-becomes-the-spokes-role">Non‑obvious: the key becomes the spoke's role</h3>
+<p>The <code>key</code> also becomes the <code>role</code> in the automatically generated
+<a href="../cell_flow/DeputyContext-class.html">DeputyContext</a> if one isn't provided. This means the spoke's
+identity is derived from its routing address.</p>
+<h3 id="nonobvious-exactly-one-of-handler-or-receptor-must-be-provided">Non‑obvious: exactly one of handler or receptor must be provided</h3>
+<p>A spoke can be defined either as a simple function (<code>handler</code>) or as
+a full reactive node (<code>receptor</code>). They are mutually exclusive — you
+must provide exactly one. The <code>handler</code> is wrapped into a <a href="../cell_flow/Receptor-class.html">Receptor</a>
+internally if provided alone.</p>
+<h3 id="nonobvious-priority-determines-evaluation-order">Non‑obvious: priority determines evaluation order</h3>
+<p>Higher <code>priority</code> values are evaluated first. When multiple spokes
+match a signal and the hub is not in multicast mode, the one with the
+highest priority receives the pulse. This is how you ensure specific
+routes are preferred over general ones.</p>
+<h3 id="example-basic-spoke-registration">Example: Basic Spoke Registration</h3>
+<pre class="language-dart"><code class="language-dart">final registration = (
+  key: 'auth.success',
+  priority: 10,
+  handler: (cell, pulse, {user}) {
+    print('Login successful!');
+    return pulse;
+  },
+);
+</code></pre>
+<h3 id="example-governed-spoke-with-custom-context">Example: Governed Spoke with Custom Context</h3>
+<pre class="language-dart"><code class="language-dart">final secureSpoke = (
+  key: 'admin.audit',
+  priority: 20,
+  match: (type) =&gt; type?.startsWith('admin.') ?? false,
+  receptor: Receptor((cell, pulse, {user}) {
+    // Process admin audit signals
+    return pulse;
+  }),
+  context: DeputyContext(
+    baseContext: Context.system,
+    authority: 'AUDIT',
+    role: 'Auditor',
+    clearance: Clearance.administrative,
+  ),
+);
+</code></pre>
+<h3 id="example-pattern-matching-spoke">Example: Pattern Matching Spoke</h3>
+<pre class="language-dart"><code class="language-dart">final patternSpoke = (
+  key: 'user.*.profile',  // Matches 'user.123.profile', 'user.456.profile'
+  priority: 5,
+  match: (type) =&gt; type != null &amp;&amp; RegExp(r'^user\..+\.profile$').hasMatch(type),
+  handler: (cell, pulse, {user}) {
+    // Handle user profile updates
+    return pulse;
+  },
+);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_flow/Cell/hub.html">Cell.hub</a> – the factory that uses these registrations.</li>
+<li><a href="../cell_flow/HubRouting.html">HubRouting</a> – the routing strategies available for hubs.</li>
+<li><a href="../cell_flow/HubHandle.html">HubHandle</a> – the handle returned by <a href="../cell_flow/Cell/hub.html">Cell.hub</a>.</li>
+<li><a href="../cell_flow/DeputyContext-class.html">DeputyContext</a> – the security context for governed spokes.</li>
+</ul>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">typedef SpokeRegistration = ({
+  &#47;&#47;&#47; The routing address or label used to identify this destination.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Depending on the [HubRouting] mode, this key is matched against
+  &#47;&#47;&#47; the incoming [Pulse.type].
+  String key,
+
+  &#47;&#47;&#47; The precedence of this spoke relative to others.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; When multiple spokes match a single [Pulse.type], the hub uses this
+  &#47;&#47;&#47; value to decide which one to prefer (unless in `multicast` mode).
+  &#47;&#47;&#47; Higher values are evaluated and triggered first.
+  int priority,
+
+  &#47;&#47;&#47; A specialized filter that determines if a signal belongs to this spoke.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; When provided, this logic overrides the global [HubRouting] strategy
+  &#47;&#47;&#47; for this specific registration. Return `true` to accept the pulse.
+  bool Function(String? type)? match,
+
+  &#47;&#47;&#47; The functional logic to execute when a pulse is routed to this spoke.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Use this for &quot;Simple Mode&quot; where you just want to run a function.
+  &#47;&#47;&#47; Exactly one of [handler] or [receptor] must be non-null.
+  Pulse? Function(Cell cell, Pulse pulse, {dynamic user})? handler,
+
+  &#47;&#47;&#47; A pre-built reactive object that manages its own state and logic.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Use this for &quot;Governed Mode&quot; where the spoke is a complex cell with
+  &#47;&#47;&#47; its own security and lifecycle rules.
+  Receptor? receptor,
+
+  &#47;&#47;&#47; The specialized permission and identity record for this spoke.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; If provided, this [DeputyContext] enforces specific **Authority**
+  &#47;&#47;&#47; and **Role** restrictions for all signals arriving at this destination.
+  DeputyContext? context,
+});</code></pre>
+</section>
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">SpokeRegistration typedef</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the operator + method from the TestRule class, for the Dart programming language.">
+  <title>operator + method - TestRule class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">operator + method</li>
+  </ol>
+  <div class="self-name">operator +</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;TestRule-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">operator +</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_flow/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>
+<span class="name ">operator +</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../../cell_flow/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">other</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Composes two <a href="../../cell_flow/TestRule-class.html">TestRule</a> instances into a sequential <strong>Validation Pipeline</strong>.</p>
+<p>This operator implements the <strong>Chain of Responsibility</strong> pattern using
+<strong>Atomic Composition</strong>. It allows individual, granular rules to be
+linked together into a singular governance unit, facilitating the construction
+of complex policy layers from simple, stateless blueprints.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Policy Layering</strong>: Building complex validation structures (e.g.,
+<code>isNotNull + isNotEmpty + isEmail</code>) without creating monolithic classes.</li>
+<li><strong>Developer Ergonomics</strong>: Providing a clean, readable syntax for building
+validation pipelines that is easier to scan than nested constructors.</li>
+<li><strong>Modular Validation</strong>: Combining reusable, domain-specific rules into
+a single integrity gate for a specific <a href="../../cell_flow/Cell-class.html">Cell</a>.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Sequential Evaluation</strong>: When the resulting rule is called, the
+receiver (left side) is evaluated first.</li>
+<li><strong>Short-Circuit Logic</strong>: If the first rule returns <code>false</code>, the
+<code>other</code> rule is never executed, and the entire operation returns
+<code>false</code> immediately.</li>
+<li><strong>Cumulative Integrity</strong>: The pipeline only returns <code>true</code> if both
+the principal rule and the <code>other</code> rule satisfy their invariants.</li>
+<li><strong>Hybrid Convergence</strong>: The operator preserves <code>FutureOr</code> semantics.
+If either rule is asynchronous, the execution engine ensures the
+reactive wave is correctly awaited, maintaining <strong>Causal Integrity</strong>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Evaluation Order</strong>: Execution is strictly left-to-right. This is
+critical when a downstream rule depends on a type-check or null-check
+performed by an upstream rule.</li>
+<li><strong>Structural Efficiency</strong>: Under the hood, this operator delegates to
+<a href="../../cell_flow/TestRule/TestRule.chain.html">TestRule.chain</a>, which utilizes the framework's <strong>Flyweight Strategy</strong>
+to minimize memory overhead for long validation chains.</li>
+<li><strong>Short-Circuit Performance</strong>: By failing early, the pipeline avoids
+expensive validation logic (like database lookups) if a basic
+structural invariant has already failed.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final isNotNull = TestRule&lt;String?&gt;((val, {host, arguments, user}) =&gt; val != null);
+final isNotEmpty = TestRule&lt;String&gt;((val, {host, arguments, user}) =&gt; val.isNotEmpty);
+final maxLength = TestRule&lt;String&gt;((val, {host, arguments, user}) =&gt; val.length &lt;= 50);
+
+// Compose into a pipeline
+final validName = isNotNull + isNotEmpty + maxLength;
+
+// Usage
+final result = await validName.call('Simon'); // returns true
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>other</code>: <strong>The Successor Gate.</strong> The next <a href="../../cell_flow/TestRule-class.html">TestRule</a> to be appended to
+the validation chain. Uses <code>covariant</code> to ensure type compatibility
+with the host environment <code>C</code>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_flow/TestRule-class.html">TestRule</a> instance representing a <strong>Composite Validation Pipeline</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/TestRule/TestRule.chain.html">TestRule.chain</a>: The underlying factory used for composite synthesis.</li>
+<li><a href="../../cell_flow/TestCell-class.html">TestCell</a>: The primary engine that evaluates these combined pipelines.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TestRule&lt;C&gt; operator +(covariant TestRule&lt;C&gt; other) {
+  return TestRule&lt;C&gt;.chain([this, other]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">operator + method</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_flow API docs, for the Dart programming language.">
+  <title>cell_flow - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">cell_flow package</a></li>
+  </ol>
+  <div class="self-name">cell_flow</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_flow">cell_flow</h1>
+<p><strong>Codename: Mitosis</strong> · <code>1.0.0-rc.1</code></p>
+<p>Rx-shaped operators for the <a href="https://github.com/simon-m-lee/cell">Cell</a> framework. Debounce, switchMap, zip, retry and the rest of the usual stream vocabulary — as <code>FlowInstruction</code>s on the <strong>same graph</strong> as <code>package:cell</code>.</p>
+<p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Status-Alpha-orange.svg" alt="Status"></a></p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: 1.0.0-rc.1
+  cell_flow: 1.0.0-rc.1
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart'; // re-exports package:cell
+</code></pre>
+<p>Status: <strong>release candidate</strong>. Not a completeness claim. Verify behaviour against source.</p>
+<hr>
+<h2 id="why-flow-exists">Why Flow exists</h2>
+<p><strong>cell</strong> already gives you nodes (<code>Cell</code>), signals (<code>Pulse</code>), integrity (<code>TestCell</code>), and gates (<code>Receptor</code>). Everyday stream work would otherwise be custom <code>Timer</code>s and one-off receptors.</p>
+<p><strong>cell_flow</strong> names those policies:</p>
+<table>
+<thead>
+<tr>
+<th>You write</th>
+<th>Flow runs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.debounce</code></td>
+<td>last value after silence</td>
+</tr>
+<tr>
+<td><code>Flow.switchMap</code></td>
+<td>drop the previous inner</td>
+</tr>
+<tr>
+<td><code>Flow.zip</code></td>
+<td>pair by index, not by latest</td>
+</tr>
+<tr>
+<td><code>Filter + MapValue + Tap</code></td>
+<td>one Receptor, one lock</td>
+</tr>
+</tbody>
+</table>
+<p>The graph, locks, and provenance stay in <strong>cell</strong>. Flow only decides <em>which</em> pulses leave and <em>when</em>.</p>
+<hr>
+<h2 id="three-ways-in">Three ways in</h2>
+<pre class="language-dart"><code class="language-dart">final box = Cell.ingress&lt;String&gt;();
+
+// 1. Static factory
+final a = Flow.filter&lt;String&gt;(box.cell, test: (q) =&gt; q.length &gt;= 2);
+
+// 2. Fluent (same factories)
+final b = box.cell
+    .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
+    .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;String&gt;&gt;(mapper: api.search);
+
+// 3. Instruction chain → one purpose-built Receptor
+final gate = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
+    Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
+    Distinct&lt;String&gt;();
+final c = gate.toHandle(source: box.cell);
+</code></pre>
+<p>Drive ingress with <code>emitAsync</code>, observe the handle’s cell:</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(source: c.cell, effect: (Pulse p) =&gt; print(p.payload));
+await box.emitAsync('  Ada  ');
+</code></pre>
+<p>Fluent <code>filter().map()</code> is <strong>two cells</strong>. <code>Filter + MapValue</code> is <strong>one</strong> Receptor. Use <code>+</code> for sync policy; keep timers and HTTP on the next node.</p>
+<hr>
+<h2 id="operator-map">Operator map</h2>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td><code>of</code>, <code>fromIterable</code>, <code>range</code>, <code>fromFuture</code>, <code>fromStream</code></td>
+</tr>
+<tr>
+<td>Transform</td>
+<td><code>map</code>, <code>mapTo</code>, <code>pluck</code>, <code>scan</code>, <code>reduce</code>, <code>pairwise</code></td>
+</tr>
+<tr>
+<td>Async</td>
+<td><code>asyncMap</code> / <code>Latest</code> / <code>Concurrent</code>, <code>asyncExpand</code>, <code>asyncFold</code></td>
+</tr>
+<tr>
+<td>Filter</td>
+<td><code>filter</code>, <code>take</code> / <code>skip</code>, <code>distinct</code></td>
+</tr>
+<tr>
+<td>Flatten</td>
+<td><code>concatMap</code>, <code>mergeMap</code>, <code>switchMap</code>, <code>exhaustMap</code></td>
+</tr>
+<tr>
+<td>Combine</td>
+<td><code>merge</code>, <code>zip</code>, <code>combineLatest</code>, <code>withLatestFrom</code>, <code>race</code></td>
+</tr>
+<tr>
+<td>Time</td>
+<td><code>delay</code>, <code>debounce</code>, <code>throttle</code>, <code>sample</code>, <code>auditTime</code>, <code>timeout</code>, <code>interval</code></td>
+</tr>
+<tr>
+<td>Collect</td>
+<td><code>bufferCount</code>, <code>bufferTime</code>, <code>window</code>, <code>groupBy</code>, <code>partition</code></td>
+</tr>
+<tr>
+<td>Control</td>
+<td><code>startWith</code>, <code>share</code>, <code>retry</code>, <code>tap</code>, <code>iif</code></td>
+</tr>
+</tbody>
+</table>
+<p>Full tables: <a href="FEATURES-Flow.md"><code>FEATURES-Flow.md</code></a>.<br>
+Design: <a href="ARCHITECTURE-Flow.md"><code>ARCHITECTURE-Flow.md</code></a>.</p>
+<p>Cells <strong>do not complete</strong>. Concatenate <strong>inners</strong> (list / <code>Future</code> / <code>Stream</code>), not “Cell A then Cell B”. <code>reduce</code> / <code>scan</code> are running folds, not a terminal value.</p>
+<hr>
+<h2 id="example-search-box">Example: search box</h2>
+<pre class="language-dart"><code class="language-dart">final query = Cell.ingress&lt;String&gt;();
+
+final results = query.cell
+    .map&lt;String, String&gt;(project: (q) =&gt; q.trim().toLowerCase())
+    .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
+    .distinct&lt;String&gt;()
+    .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: (q) =&gt; api.search(q));
+</code></pre>
+<p>Runnable gates in this package: <code>example_sanitize_text.dart</code>, <code>example_search_query_gate.dart</code>, <code>example_checkout_quote.dart</code>, and the other <code>example_*.dart</code> files.</p>
+<hr>
+<h2 id="package-layout">Package layout</h2>
+<pre class="language-text"><code class="language-text">package:cell_flow/flow.dart
+  part  src/flow.dart               Flow.* facade
+  part  src/flow_core.dart          FlowInstruction, toHandle, operator +
+  part  src/fluent_operator.dart    Cell / FlowHandle extensions
+  import src/instruction/*.dart     operator classes
+</code></pre>
+<p>Application code should import <strong>only</strong> <code>package:cell_flow/flow.dart</code>.</p>
+<hr>
+<h2 id="docs">Docs</h2>
+<table>
+<thead>
+<tr>
+<th>Doc</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="ARCHITECTURE-Flow.md">ARCHITECTURE-Flow.md</a></td>
+<td>Why Flow is shaped this way</td>
+</tr>
+<tr>
+<td><a href="FEATURES-Flow.md">FEATURES-Flow.md</a></td>
+<td>Feature catalog</td>
+</tr>
+<tr>
+<td><a href="HowTo-Fluent_Operator.md">HowTo-Fluent_Operator.md</a></td>
+<td>Method chaining</td>
+</tr>
+<tr>
+<td><a href="HowTo-FlowInstruction-Receptor.md">HowTo-FlowInstruction-Receptor.md</a></td>
+<td>Purpose-built Receptors</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="versioning">Versioning</h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cell</code></td>
+<td><code>1.0.0-rc.1</code></td>
+</tr>
+<tr>
+<td><code>cell_flow</code></td>
+<td><code>1.0.0-rc.1</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitosis</strong> is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be <code>1.0.0</code>.</p>
+<p>Keep the two packages on the same numeric line.</p>
+<hr>
+<h2 id="license">License</h2>
+<p>MIT or Apache-2.0 — see <code>LICENSE</code> and the file headers.</p>
+<p>Copyright (c) 2025-Present Lee Man Hoi Simon. See <code>AUTHORS</code>.</p>
+<p>Operator <em>names</em> follow ReactiveX vocabulary. Implementations are original Cell Flow; using <code>switchMap</code> as a name does not require an RxJS copyright header.</p>
+<hr>
+<h2 id="links">Links</h2>
+<ul>
+<li>Repo: <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
+<li>This package: <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">packages/cell_flow</a></li>
+<li>Issues: <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
+</ul>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="cell_flow">
+  <span class="name"><a href="cell_flow/">flow</a></span> 
+
+</dt>
+<dd>A high-performance reactive orchestration layer for the Cell framework (codename <strong>Mitosis</strong>).
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">cell_flow package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="cell_flow/">flow</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

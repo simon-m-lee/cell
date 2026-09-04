@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ReceptorBase.new constructor from Class ReceptorBase from the cell_flow library, for the Dart programming language.">
+  <title>ReceptorBase.new constructor - ReceptorBase - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">ReceptorBase.new constructor</li>
+  </ol>
+  <div class="self-name">ReceptorBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;ReceptorBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ReceptorBase&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ReceptorBase&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-instruction"><span class="type-annotation"><a href="../../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span></li>
+<li><span class="parameter" id="-param-preProcess"><span class="type-annotation"><a href="../../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span></li>
+<li><span class="parameter" id="-param-postProcess"><span class="type-annotation"><a href="../../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span></li>
+<li><span class="parameter" id="-param-reaction"><span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span></li>
+<li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?, </span></li>
+<li><span class="parameter" id="-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes the foundational engine for pulse transformation and
+state governance.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the primary constructor for building specialized receptors. Use
+it to assemble a structured processing pipeline where sanitization,
+core logic, and commitment are explicitly separated.</p>
+<ul>
+<li><strong>Complex Validations</strong>: When you need to guard a cell with multi-stage
+checks (pre-processing).</li>
+<li><strong>Functional Mapping</strong>: When using a simple <code>reaction</code> function instead
+of a full instruction object.</li>
+<li><strong>Governance Nodes</strong>: When creating cells that must adhere to strict
+architectural invariants (<code>isGoverned</code>).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Pipeline Assembly</strong>: It organizes optional logic units into a
+hierarchical sequence: <code>preProcess</code> → <code>instruction</code>/<code>reaction</code> → <code>postProcess</code>.</li>
+<li><strong>Input Gating</strong>: The <code>preProcess</code> stage acts as a "Sanitizer." If it
+returns <code>null</code>, the receptor terminates propagation immediately.</li>
+<li><strong>Core Transformation</strong>: The <code>instruction</code> (or <code>reaction</code> closure)
+executes the primary mapping of the stimulus to the cell's value type.</li>
+<li><strong>Commitment</strong>: The <code>postProcess</code> stage handles final integrity
+checks and persistence logic before the pulse is broadcast downstream.</li>
+<li><strong>Metadata Injection</strong>: The <code>user</code> factory generates dynamic
+metadata passed to every stage.</li>
+<li><strong>Synchronous Pipeline</strong>: All stages execute synchronously in sequence.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Memory Efficiency</strong>: It utilizes a <strong>Flyweight Record Strategy</strong>. The
+internal storage shape is optimized at construction to only allocate
+memory for the logic units actually provided.</li>
+<li><strong>Safety Shield</strong>: Each stage of the pipeline is independently wrapped
+in a resilience boundary. Exceptions are caught and logged to the
+pulse's trace, ensuring a logic failure doesn't crash the entire graph.</li>
+<li><strong>Stateless Template</strong>: Like all receptors, this constructor creates
+a blueprint. It only acquires a concrete execution context once
+bound to a specific cell.</li>
+<li><strong>Initialization Hook</strong>: The <code>init</code> parameter allows for setup logic
+that runs exactly once when the receptor is first activated by a cell.</li>
+<li><strong>Synchronous Execution</strong>: The <a href="../../cell_flow/ReceptorBase/call.html">call</a> method executes synchronously.
+Use <a href="../../cell_flow/ReceptorAsync-class.html">ReceptorAsync</a> for asynchronous pulse injection.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The core <a href="../../cell_flow/Instruction-class.html">Instruction</a> defining the primary transformation.</li>
+<li><code>preProcess</code>: Logic for early-stage filtering or sanitization.</li>
+<li><code>postProcess</code>: Logic for late-stage persistence and commitment.</li>
+<li><code>reaction</code>: A simplified functional interface for basic transformations.</li>
+<li><code>init</code>: A one-time setup hook triggered during cell activation.</li>
+<li><code>user</code>: A factory for dynamic metadata passed to the pipeline.</li>
+<li><code>isGoverned</code>: Flags this receptor as subject to architectural governance.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReceptorBase({
+  Instruction? instruction,
+  Instruction? preProcess,
+  Instruction? postProcess,
+  Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
+  void Function()? init,
+  dynamic Function()? user,
+  bool isGoverned = false,
+}) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, init: init, isGoverned: isGoverned)
+);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">ReceptorBase.new constructor</li>
+</ol>
+
+    <h5>ReceptorBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

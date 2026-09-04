@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Modifiable class from the cell_flow library, for the Dart programming language.">
+  <title>Modifiable class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">flow.dart</a></li>
+    <li class="self-crumb">Modifiable class</li>
+  </ol>
+  <div class="self-name">Modifiable</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;Modifiable-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Modifiable</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A specialized architectural marker and base interface for objects that support
+controlled mutation through the framework's dynamic command pattern.</p>
+<p><a href="../cell_flow/Modifiable-class.html">Modifiable</a> serves as a foundational component of the cell's security
+and reactive architecture, defining the formal contract for <strong>Mutation
+Entry Points</strong>—specific operations permitted to alter the state or
+structural topology of a node.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Custom Components</strong>: Use when building custom reactive nodes that
+require internal state changes without exposing public mutable fields.</li>
+<li><strong>Access Control</strong>: Use to define the boundary between a mutable
+principal and its read-only views or deputies.</li>
+<li><strong>Whitelisting</strong>: Use to explicitly define which internal methods are
+safe to trigger from external reactive stimuli.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Command Pattern</strong>: Works with <a href="../cell_flow/Cell/apply.html">Cell.apply</a> to facilitate a decoupled
+execution gateway, allowing actions to be emitted on a node without
+compile-time knowledge of its concrete type.</li>
+<li><strong>Whitelisting</strong>: Subclasses explicitly register a map of permitted
+methods. Only these "Whitelisted Operations" can be triggered via
+the command gateway.</li>
+<li><strong>Integrity Gating</strong>: Every mutation request is validated by a
+<a href="../cell_flow/TestCell-class.html">TestCell</a> to ensure the caller has sufficient authority.</li>
+<li><strong>Atomicity</strong>: All state transitions are automatically wrapped in a
+synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to prevent "torn states" in high-frequency
+reactive waves.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Zero-Cost Immutability</strong>: By returning an empty whitelist, an
+object becomes effectively immutable while remaining a first-class
+member of the reactive graph.</li>
+<li><strong>Proxying Infrastructure</strong>: It provides the base logic needed for
+<a href="../cell_flow/Cell/deputy.html">Cell.deputy</a> to intercept and delegate calls safely.</li>
+<li><strong>Flyweight Architecture</strong>: The use of a <code>const</code> constructor allows
+the system to manage unmodifiable views with minimal heap pressure.</li>
+<li><strong>State Isolation</strong>: Subclasses are responsible for ensuring that
+modifications trigger the appropriate reactive pulses to maintain graph
+consistency.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flow/Cell/apply.html">Cell.apply</a>: The primary method for executing commands on a
+<a href="../cell_flow/Modifiable-class.html">Modifiable</a> instance.</li>
+<li><a href="../cell_flow/TestCell-class.html">TestCell</a>: The security validator for mutation requests.</li>
+<li><a href="../cell_flow/Nucleus-class.html">Nucleus</a>: The blueprint that often manages the state targeted by
+these modifications.</li>
+</ul>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Modifiable.new" class="callable">
+          <span class="name"><a href="../cell_flow/Modifiable/Modifiable.html">Modifiable</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          Internal constant constructor for <a href="../cell_flow/Modifiable-class.html">Modifiable</a>.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">Modifiable class</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

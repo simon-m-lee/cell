@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the Instruction class, for the Dart programming language.">
+  <title>call method - Instruction class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/Instruction-class.html">Instruction<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">call abstract method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;Instruction-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> abstract method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">O?</span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="call-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="call-param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes the transformation logic of this instruction synchronously.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Typically, you do not call this method directly. The framework invokes it
+automatically when a pulse arrives at a <a href="../../cell_flow/Receptor-class.html">Receptor</a>. Manual invocation is
+recommended primarily for:</p>
+<ul>
+<li><strong>Testing</strong>: Verifying instruction logic in isolation.</li>
+<li><strong>Orchestration</strong>: Building custom execution flows within an
+<a href="../../cell_flow/Instruction/Instruction.chain.html">Instruction.chain</a> strategy.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The instruction takes the incoming <code>pulse</code> and the host <code>cell</code> context.</li>
+<li>It applies the internal transformation function or composite chain logic.</li>
+<li>It returns the resulting <a href="../../cell_flow/Pulse-class.html">Pulse</a> (transformed or original), or <code>null</code>
+to terminate the signal.</li>
+<li>The <code>future</code> callback, if provided, enables asynchronous continuation
+of the pipeline.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Resilience</strong>: The execution is shielded by a safety boundary. Any
+unhandled exception is captured, logged to the pulse's forensic
+metadata, and the original <code>pulse</code> is returned to prevent graph
+deadlocks or total pipeline failure.</li>
+<li><strong>Synchronous Execution</strong>: This method executes synchronously and
+returns the result immediately. It does not return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
+<li><strong>Future Propagation</strong>: If the instruction was created with
+<a href="../../cell_flow/Instruction/Instruction.future.html">Instruction.future</a>, the <code>future</code> callback is provided to enable
+asynchronous continuation of the pipeline.</li>
+<li><strong>Side Effects</strong>: While instructions should ideally be pure, manual
+calls can be used to trigger side effects while preserving the
+underlying signal's metadata and context.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to transform.</li>
+<li><code>cell</code>: The host cell context.</li>
+<li><code>future</code>: Optional callback for asynchronous continuation.</li>
+<li><code>token</code>: Optional token for identifying the instruction.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the signal was terminated.</p>
+<h3 id="example-testing-an-instruction">Example: Testing an Instruction</h3>
+<pre class="language-dart"><code class="language-dart">final doubleValue = Instruction&lt;Cell, int, int&gt;((p, {cell, user}) =&gt; Pulse(p.payload * 2));
+final result = doubleValue.call(Pulse(10));
+print((result as Pulse).payload); // 20
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">O? call(I pulse, {
+  C? cell,
+  void Function({required Pulse? result, required dynamic token})? future,
+  dynamic token
+});</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/Instruction-class.html">Instruction<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">call abstract method</li>
+</ol>
+
+    <h5>Instruction class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

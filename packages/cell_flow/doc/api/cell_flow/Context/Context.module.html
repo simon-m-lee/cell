@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Context.module constructor from Class Context from the cell_flow library, for the Dart programming language.">
+  <title>Context.module constructor - Context - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/Context-class.html">Context</a></li>
+    <li class="self-crumb">Context.module factory constructor</li>
+  </ol>
+  <div class="self-name">Context.module</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;Context-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Context.module</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Context.module</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="module-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, {</span></li>
+<li><span class="parameter" id="module-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">identity</span>, </span></li>
+<li><span class="parameter" id="module-param-partOf"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">partOf</span>, </span></li>
+<li><span class="parameter" id="module-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Module‑Level Context</strong> for domain‑specific logic, feature
+components, and specialized state atoms.</p>
+<p>In the framework's <strong>Scene‑Driven Ontology</strong>, a <code>module</code> context identifies
+"User‑Space" logic. It serves as the primary organizational unit for the
+functional features of an application and defines the <strong>Sovereign Resident</strong>
+profile for a feature's logical boundary.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the standard factory for most application‑level cells. Use it for
+business logic, feature modules, and domain‑specific state containers.</p>
+<ul>
+<li>Payment processing, user management, inventory control.</li>
+<li>Feature modules (e.g., 'Auth', 'Cart', 'Checkout').</li>
+<li>Any cell that implements application‑specific logic.</li>
+<li>Components that should run with standard (non‑infrastructure) priority.</li>
+</ul>
+<p>Only reach for <a href="../../cell_flow/Context/Context.core.html">Context.core</a> when building system‑level infrastructure.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The factory sets the following ontological dimensions:</p>
+<ul>
+<li><code>type</code>: the provided <code>type</code> argument (e.g., 'PaymentEngine', 'UserService').
+This aligns with <code>Pulse.type</code> for routing and filtering.</li>
+<li><code>identity</code>: an optional unique name for this specific instance.</li>
+<li><code>partOf</code>: the parent module or service, if provided.</li>
+<li><code>taxonomy</code>: fixed to <code>'module'</code> – identifies the cell as application‑level.</li>
+<li><code>domains</code>: fixed to <code>'logic'</code> – scopes the cell to the logic domain.</li>
+<li><code>priority</code>: set to <code>10</code> – standard priority for application logic,
+lower than infrastructure (0) but higher than background tasks.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>type</code> parameter is required – it provides the semantic category of
+the module, which is used for routing and policy enforcement.</li>
+<li>The <code>priority</code> of <code>10</code> means these cells execute after core infrastructure
+but before background or telemetry tasks.</li>
+<li>The <code>taxonomy</code> and <code>domains</code> are static pillars – they cannot be evolved.</li>
+<li>If you need to add custom metadata (e.g., feature flags, versioning),
+use the <code>others</code> map.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final paymentContext = Context.module(
+  type: 'PaymentEngine',
+  identity: 'V3_Processor',
+  partOf: 'Checkout_Service',
+  others: {'currency': 'USD', 'retry_count': 3},
+);
+// The context is now ready for a module‑level payment cell.
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>type</code>: <strong>Required</strong>. The categorical archetype of the module
+(e.g., 'PaymentEngine', 'UserService', 'InventoryManager'). This is
+stored in <a href="../../cell_flow/Ontology.html">Ontology.type</a> and mirrors the <code>type</code> parameter in <a href="../../cell_flow/Pulse-class.html">Pulse</a>.</li>
+<li><code>identity</code>: Optional. A unique instance name for this specific node,
+stored in <a href="../../cell_flow/Ontology.html">Ontology.identity</a>. If omitted, the cell will be anonymous.</li>
+<li><code>partOf</code>: Optional. The parent system module or service, stored in
+<a href="../../cell_flow/Ontology.html">Ontology.partOf</a>.</li>
+<li><code>others</code>: Optional. A catch‑all map for additional metadata (e.g.,
+feature flags, version tags, or environment‑specific configuration).</li>
+</ul>
+<h3 id="returns">Returns</h3>
+<p>A <a href="../../cell_flow/Context-class.html">Context</a> configured for standard application‑level operation.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_flow/Context/Context.core.html">Context.core</a> – for system‑level infrastructure.</li>
+<li><a href="../../cell_flow/Ontology.html">Ontology.type</a> – the dimension that stores the type.</li>
+<li><a href="../../cell_flow/Pulse/type.html">Pulse.type</a> – the pulse property that aligns with the context type.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory Context.module(String type, {String? identity, String? partOf, Map&lt;String, dynamic&gt;? others}) =&gt;
+    Context.fromEntries(
+      [
+        Ontology.type.entry(type),
+        if (identity != null) Ontology.identity.entry(identity),
+        if (partOf != null) Ontology.partOf.entry(partOf),
+        Ontology.taxonomy.entry(&#39;module&#39;),
+        Ontology.domains.entry(&#39;logic&#39;),
+      ],
+      others: {
+        &#39;priority&#39;: 10,
+        ...?others,
+      },
+    );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/Context-class.html">Context</a></li>
+    <li class="self-crumb">Context.module factory constructor</li>
+</ol>
+
+    <h5>Context class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

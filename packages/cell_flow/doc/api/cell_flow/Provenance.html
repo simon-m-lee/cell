@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Provenance enum from the cell_flow library, for the Dart programming language.">
+  <title>Provenance enum - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">flow.dart</a></li>
+    <li class="self-crumb">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+  </ol>
+  <div class="self-name">Provenance</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;Provenance-enum-sidebar.html">
+    <div>
+
+      <h1>
+        <span class="kind-enum">Provenance&lt;<wbr><span class="type-parameter">V</span>&gt;</span>
+        enum 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Defines the <strong>Causal Accountability, Audit Trail, and Operational Intent</strong>
+of a <a href="../cell_flow/Pulse-class.html">Pulse</a>.</p>
+<p><a href="../cell_flow/Provenance.html">Provenance</a> documents the transient lifecycle of a signal. While <a href="../cell_flow/Ontology.html">Ontology</a>
+describes the "Static Scene" (what a node is), <a href="../cell_flow/Provenance.html">Provenance</a> provides the dynamic
+<strong>Chain of Custody</strong> (who, why, and how) for every stimulus traversing the
+reactive tissue.</p>
+<p>This metadata is utilised by the <strong>Policy Enforcement Point (PEP)</strong> to
+perform <strong>Capability-Based Access Control (CBAC)</strong> and ensure
+<strong>Execution Traceability</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You rarely interact with <a href="../cell_flow/Provenance.html">Provenance</a> directly. Instead, use the
+<a href="../cell_flow/PulseContext-class.html">PulseContext</a> factories like <code>PulseContext.userAction</code>,
+<code>PulseContext.aiInference</code>, or <code>PulseContext.regulated</code>. These factories
+populate the relevant provenance dimensions for you.</li>
+<li>If you need a custom pulse context, you can create one with the
+<a href="../cell_flow/PulseContext-class.html">PulseContext</a> constructor, passing the appropriate dimensions manually.
+But in most cases, the pre‑defined factories are sufficient.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Each <a href="../cell_flow/Provenance.html">Provenance</a> dimension is a typed key that holds a value of type <code>V</code>.</li>
+<li>Some dimensions are <strong>Static Pillars</strong> (<code>evolvable: false</code>) – they are
+immutable and cannot be changed once a pulse is created. These anchor
+the pulse's identity (e.g., <code>actor</code>, <code>traceId</code>).</li>
+<li>Others are <strong>Fluid Boundaries</strong> (<code>evolvable: true</code>) – they can be
+refined as the pulse moves through the graph (e.g., <code>reason</code>,
+<code>confidence</code>, <code>priority</code>).</li>
+<li>The framework uses these dimensions during validation (via <a href="../cell_flow/TestCell-class.html">TestCell</a>)
+and auditing (via the causal trace).</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <a href="../cell_flow/Provenance/evolvable.html">Provenance.evolvable</a> flag is enforced by the engine – you cannot change
+a static pillar via <code>evolve()</code>.</li>
+<li>The <code>compose</code> and <code>evolve</code> static methods are used internally by
+<a href="../cell_flow/PulseContext-class.html">PulseContext</a> to build contexts. You rarely call them directly.</li>
+<li>The <a href="../cell_flow/Provenance.html">integrity</a> dimension is a cryptographic checksum of the payload,
+ensuring tamper‑proofing – it's automatically handled by the framework.</li>
+</ul>
+<h3 id="example-creating-a-pulse-with-provenance">Example: Creating a Pulse with Provenance</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
+  payload: 42,
+  context: PulseContext.userAction(
+    actor: 'admin_01',
+    reason: 'Manual override',
+    priority: 80,
+  ),
+);
+
+final fullProvenance = PulseContext.fromEntries([
+  // --- Static Pillars (Non-Evolvable Identity) ---
+  Provenance.actor.entry('Autonomous_Optimizer_7'), // Identity Source
+  Provenance.traceId.entry('trace_882-xf'),        // Causal Anchor
+  Provenance.parentTraceId.entry('trace_881-xf'),  // Lineage Link
+
+  // --- Fluid Boundaries (Evolvable Intent) ---
+  Provenance.reason.entry('Resource_Saturation_Detected'), // Rationale
+  Provenance.purpose.entry('TOPOLOGY_REFRESH'),           // Mission Category
+  Provenance.strategy.entry(ReasoningStrategy.probabilistic), // Logic Pedigree
+  Provenance.confidence.entry(0.85),                        // Trust Scalar
+  Provenance.priority.entry(40),                           // Urgency Rank
+  Provenance.compliance.entry('GDPR_EU_DATA_LOCALITY'),    // Safety Policy
+]);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_flow/PulseContext-class.html">PulseContext</a> – the runtime container for these dimensions.</li>
+<li><a href="../cell_flow/Ontology.html">Ontology</a> – the static structural identity of a node.</li>
+<li><a href="../cell_flow/Mandate.html">Mandate</a> – the authority profile of a deputy.</li>
+</ul>
+</section>
+
+
+      <section>
+        <dl class="dl-horizontal">
+          
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark eNum-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></li>
+      <li>Provenance</li>
+    </ul>
+  </dd>
+
+          
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell_flow/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated eNum-relationships">
+        <li><a href="../cell_flow/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+          
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a></li>
+  </ul></dd>
+          
+
+
+        </dl>
+      </section>
+
+      <section class="summary offset-anchor" id="values">
+        <h2>Values</h2>
+        <dl class="properties">
+            <dt id="actor" class="constant">
+    <span class="name ">actor</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The unique identifier for the <strong>Principal, Service, or AI Agent</strong>
+responsible for initiating or transforming this <a href="../cell_flow/Pulse-class.html">Pulse</a>.</p>
+<p>The <code>actor</code> (of type <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>) establishes the <strong>Identity Layer</strong> of the
+signal. It is the primary key used by the system to look up the <a href="../cell_flow/Mandate.html">Mandate</a>
+or permissions associated with the source of the stimulus.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set automatically by the <a href="../cell_flow/PulseContext-class.html">PulseContext</a> factories. You rarely
+need to set it manually.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>During the mutual authorization handshake, the <code>actor</code> is scrutinised
+to verify that the source has the required clearance and authority.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – once set, it cannot be changed.</li>
+<li>The framework uses this for identity‑based access control.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'user_8823_admin'</code> – direct manual intervention.</li>
+<li><code>'service_cache_manager'</code> – background maintenance.</li>
+<li><code>'agent_thermal_optimizer_4'</code> – AI instance.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="reason" class="constant">
+    <span class="name ">reason</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>A semantic justification explaining <strong>why</strong> the specific <a href="../cell_flow/Pulse-class.html">Pulse</a> was
+created or transformed.</p>
+<p>While <a href="../cell_flow/Provenance.html">purpose</a> describes the high-level mission, <code>reason</code> provides the
+<strong>Immediate Causal Logic</strong> behind a mutation. It is a critical component
+of the system's <strong>Audit Dimension</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set automatically by factories, but you can override it when
+evolving a pulse.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The <code>reason</code> is used for Explainable AI (XAI) and is inspected by
+integrity gates to ensure the mutation is justified.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is an <strong>evolvable</strong> dimension – you can refine it as the pulse
+traverses the graph.</li>
+<li>It should be human‑readable for audit purposes.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'Clamping signal to [0,1] range to prevent somatic overflow.'</code></li>
+<li>`'Refactoring topology to meet current Resource constraints.'</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="purpose" class="constant">
+    <span class="name ">purpose</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The strategic operational mission or <strong>Mission Category</strong> that governs
+the life‑cycle and routing of a <a href="../cell_flow/Pulse-class.html">Pulse</a>.</p>
+<p>While <a href="../cell_flow/Provenance.html">reason</a> explains the immediate "why", <code>purpose</code> defines the
+<strong>Strategic Intent</strong>. It acts as a high‑level classifier used by the
+framework for traffic shaping, priority queueing, and somatic shedding.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set by the factories (e.g., <code>PulseContext.homeostasis</code> sets it
+to <code>'SYSTEM_MAINTENANCE'</code>). You rarely set it manually.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Receptors can use <code>purpose</code> to filter or prioritise pulses – e.g.,
+dropping analytics pulses when under load.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is <strong>evolvable</strong> – a pulse can be refined to a more specific
+purpose as it moves through the graph.</li>
+<li>It is compared against the cell's <a href="../cell_flow/Ontology.html">Ontology.domains</a> during validation.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'SYSTEM_MAINTENANCE'</code> – background grooming.</li>
+<li><code>'USER_TRANSACTION'</code> – user‑driven updates.</li>
+<li><code>'FORENSIC_AUDIT'</code> – observational pulses.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="strategy" class="constant">
+    <span class="name ">strategy</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/ReasoningStrategy.html">ReasoningStrategy</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The specific <strong>Reasoning Strategy</strong> or algorithmic pedigree used to
+generate or transform this <a href="../cell_flow/Pulse-class.html">Pulse</a>.</p>
+<p>The <code>strategy</code> defines the <strong>Methodology of Intent</strong>. It allows the
+framework to evaluate the reliability and source logic of a signal.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set by factories (e.g., <code>aiInference</code> sets it to <code>probabilistic</code>).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Integrity gates can reject pulses that use an unacceptable strategy,
+e.g., a cell might only accept <code>deterministic</code> signals.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is <strong>evolvable</strong> – a <code>probabilistic</code> signal can be upgraded to
+<code>deterministic</code> after validation.</li>
+<li>The strategy influences trust and auditing.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>ReasoningStrategy.deterministic</code> – hard‑coded business rules.</li>
+<li><code>ReasoningStrategy.probabilistic</code> – AI/ML generated.</li>
+<li><code>ReasoningStrategy.manual</code> – human intervention.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;ReasoningStrategy&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="confidence" class="constant">
+    <span class="name ">confidence</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>A numerical value (0.0 to 1.0) representing the <strong>Reliability Estimate</strong>
+of the pulse's payload.</p>
+<p><code>confidence</code> represents the "Certainty Weight" of the stimulus. It is
+the primary metric for <strong>Probabilistic Homeostasis</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set by AI‑related factories (e.g., <code>aiInference</code>).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>TestCells can require a minimum confidence; low‑confidence signals
+may be routed for supervised approval.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is <strong>evolvable</strong> – confidence can be adjusted as more evidence
+is gathered.</li>
+<li>The default is 1.0 for deterministic and manual signals.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>0.65</code> – uncertain AI suggestion.</li>
+<li><code>0.98</code> – high‑confidence sensor fusion.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;double&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="priority" class="constant">
+    <span class="name ">priority</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Execution Urgency</strong> (0-100) assigned to the signal.</p>
+<p><code>priority</code> defines the scheduling importance of the <a href="../cell_flow/Pulse-class.html">Pulse</a>. It
+determines the signal's position in the dispatch queue.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this when you need to control the order of processing. Most
+factories set it appropriately (e.g., <code>userAction</code> sets 60).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The dispatcher uses this to prioritise pulses; higher numbers leapfrog
+lower ones. The framework uses standard tiers: background (0-20),
+routine (21-50), high (51-80), critical (81-95), emergency (96-100).</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is <strong>evolvable</strong> – priority can be promoted or demoted.</li>
+<li>The default is 21 (routine) if not set.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>10</code> – background telemetry.</li>
+<li><code>90</code> – critical system recovery.</li>
+</ul>
+<h3 id="priority-tiers">Priority Tiers:</h3>
+<ul>
+<li><strong>0-20</strong>: Background (telemetry, maintenance)</li>
+<li><strong>21-50</strong>: Routine (standard operations)</li>
+<li><strong>51-80</strong>: High (user interactions)</li>
+<li><strong>81-95</strong>: Critical (system safety)</li>
+<li><strong>96-100</strong>: Emergency (system recovery)</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;int&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="compliance" class="constant">
+    <span class="name ">compliance</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Regulatory Framework</strong> or legal protocol that governs the
+handling of this <a href="../cell_flow/Pulse-class.html">Pulse</a>.</p>
+<p><code>compliance</code> provides the <strong>Legal Context</strong> for the stimulus. It
+dictates how the payload must be treated, stored, and transmitted.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when the pulse must adhere to specific regulations (GDPR,
+HIPAA, etc.). The <code>regulated</code> factory sets it automatically.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Integrity gates can block pulses that lack required compliance markers.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – cannot be changed once set.</li>
+<li>The framework enforces compliance constraints automatically.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>'GDPR'</code> – triggers redaction of PII.</li>
+<li><code>'PCI-DSS'</code> – forces encryption and full audit.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="sensitivity" class="constant">
+    <span class="name ">sensitivity</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Sensitivity.html">Sensitivity</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Information Classification</strong> tier of the payload.</p>
+<p><code>sensitivity</code> establishes the <strong>Privacy Perimeter</strong> for the signal.
+It informs the framework how to handle data at rest, in transit, and
+during observability.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set by factories (e.g., <code>userAction</code> defaults to <code>public</code>;
+<code>regulated</code> sets <code>confidential</code>).</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses sensitivity to enforce redaction, encryption, and
+access control.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – cannot be changed.</li>
+<li>Higher sensitivity requires higher clearance to process.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>Sensitivity.public</code> – safe for logging.</li>
+<li><code>Sensitivity.secret</code> – restricted to secure enclaves.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;Sensitivity&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="auditLevel" class="constant">
+    <span class="name ">auditLevel</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/AuditLevel.html">AuditLevel</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The specific <strong>Observability Density</strong> applied to this pulse.</p>
+<p><code>auditLevel</code> defines the <strong>Forensic Fidelity</strong> of the signal. It
+determines how much causal metadata and payload information is captured.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is set by factories – e.g., <code>regulated</code> sets <code>full</code>.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this to decide what to log and trace.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is <strong>evolvable</strong> – a pulse can be promoted to <code>full</code> on demand.</li>
+<li>Higher audit levels may impact performance.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>AuditLevel.none</code> – high‑frequency telemetry, no logging.</li>
+<li><code>AuditLevel.full</code> – forensic‑grade trace.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;AuditLevel&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="traceId" class="constant">
+    <span class="name ">traceId</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The globally unique <strong>Causal Anchor</strong> for tracing a signal across
+distributed execution paths.</p>
+<p><code>traceId</code> establishes the <strong>Deterministic Lineage</strong> of a pulse. It
+ensures that every state change can be correlated back to its origin.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is automatically generated by the framework. You never set it
+manually.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The traceId is used for deduplication and to link parent/child pulses.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – immutable.</li>
+<li>It is generated as a UUID v4.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="parentTraceId" class="constant">
+    <span class="name ">parentTraceId</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <a href="../cell_flow/Provenance.html">traceId</a> of the <a href="../cell_flow/Pulse-class.html">Pulse</a> that logically preceded or triggered this one.</p>
+<p><code>parentTraceId</code> establishes the <strong>Causal Link</strong> between pulses,
+enabling multi‑step reasoning chains.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is automatically set when you evolve a pulse.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this to link a child pulse to its parent,
+preserving the full causal chain.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – immutable.</li>
+<li>If a parent pulse is invalidated, children may also be invalidated.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="integrity" class="constant">
+    <span class="name ">integrity</span>
+  <span class="signature">&#8594; const <a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The cryptographic or checksum‑based <strong>Verification Signature</strong>
+ensuring the pulse's payload has not been tampered with.</p>
+<p><code>integrity</code> provides the <strong>Immutable Shield</strong> for the pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is automatically computed by the framework. You never set it.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework hashes the payload and stores the hash; on receipt,
+the hash is re‑computed and compared.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <strong>static pillar</strong> – immutable.</li>
+<li>If the payload changes, the integrity signature must be re‑generated.</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>sha256:e3b0c442...</code> – standard hash.</li>
+<li><code>rsa-sig:a92f81...</code> – signed with a private key.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Provenance&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+        </dl>
+      </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="evolvable" class="property">
+  <span class="name"><a href="../cell_flow/Provenance/evolvable.html">evolvable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <strong>Provenance Dimension</strong> is a structural
+invariant or a dynamic operational attribute.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="index" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Enum/index.html">index</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A numeric identifier for the enumerated value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumName/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumName.html">EnumName</a> extension</span>
+      </p>
+  The name of the enum value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="entry" class="callable inherited">
+  <span class="name"><a href="../cell_flow/GovernanceMixin/entry.html">entry</a></span><span class="signature">(<wbr><span class="parameter" id="entry-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a strongly-typed <a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a> for this governance dimension.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isType" class="callable inherited">
+  <span class="name"><a href="../cell_flow/GovernanceMixin/isType.html">isType</a></span><span class="signature">(<wbr><span class="parameter" id="isType-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates if the provided <code>value</code> matches the expected type <code>V</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="compose" class="callable">
+  <span class="name"><a href="../cell_flow/Provenance/compose.html">compose</a></span><span class="signature">(<wbr><span class="parameter" id="compose-param-resolver"><span class="type-annotation"><a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-dimension"><span class="type-annotation"><a href="../cell_flow/Provenance.html">Provenance</a></span> <span class="parameter-name">dimension</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a comprehensive <strong>Signal Manifest</strong> by synthesising a value for
+every defined dimension in the <a href="../cell_flow/Provenance.html">Provenance</a> ontology.
+  
+
+</dd>
+
+        <dt id="evolve" class="callable">
+  <span class="name"><a href="../cell_flow/Provenance/evolve.html">evolve</a></span><span class="signature">(<wbr><span class="parameter" id="evolve-param-resolver"><span class="type-annotation"><a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">resolver</span>(<span class="parameter" id="param-evolvable"><span class="type-annotation"><a href="../cell_flow/Provenance.html">Provenance</a></span> <span class="parameter-name">evolvable</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Governance-class.html">Governance</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Syntheses a <strong>Specialised Signal Extension</strong> by resolving only the
+fluid dimensions of the <a href="../cell_flow/Provenance.html">Provenance</a> ontology.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="values" class="constant">
+    <span class="name "><a href="../cell_flow/Provenance/values-constant.html">values</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Provenance.html">Provenance</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A constant List of the values in this enum, in order of their declaration.
+  
+
+</dd>
+
+    </dl>
+  </section>
+</div><!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
+</ol>
+
+  <h5>cell_flow library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!-- /.sidebar-offcanvas -->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

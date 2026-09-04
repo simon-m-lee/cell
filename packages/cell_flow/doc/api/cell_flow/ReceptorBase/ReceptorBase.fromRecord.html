@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ReceptorBase.fromRecord constructor from Class ReceptorBase from the cell_flow library, for the Dart programming language.">
+  <title>ReceptorBase.fromRecord constructor - ReceptorBase - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">ReceptorBase.fromRecord constructor</li>
+  </ol>
+  <div class="self-name">ReceptorBase.fromRecord</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;ReceptorBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ReceptorBase&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;.fromRecord</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ReceptorBase&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;.fromRecord</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>A foundational constructor that initializes a <a href="../../cell_flow/ReceptorBase-class.html">ReceptorBase</a> from a
+pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of configuration properties.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This constructor serves as the primary initialization anchor for the entire
+receptor hierarchy. You typically don't use it directly; it is designed
+to be invoked by public factories to efficiently store the operational
+strategy gathered during the construction phase.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Configuration Anchoring</strong>: It receives a compact <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing
+the transformation logic, validation rules, and metadata.</li>
+<li><strong>Property Resolution</strong>: During signal propagation, the receptor
+resolves its operational logic from this unified bundle.</li>
+<li><strong>Architectural Decoupling</strong>: It separates the public-facing API from
+the internal storage mechanism, ensuring the framework can optimize
+memory usage without impacting user code.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Flyweight Strategy</strong>: Unlike standard field-based architectures,
+Record-based storage ensures that instances only allocate memory for
+the properties they actually use. This significantly reduces the
+heap footprint in graphs with millions of reactive nodes.</li>
+<li><strong>Const Support</strong>: This initialization pattern allows receptors to be
+defined as <code>const</code>, enabling the compiler to deduplicate identical
+logic units across the entire application.</li>
+<li><strong>Immutability</strong>: By anchoring a pre-compiled record, the receptor
+guarantees that its behavior is fixed at construction, preserving
+the deterministic consistency of the reactive pulse chain.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>record</code>: The optimized configuration bundle for the receptor.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReceptorBase.fromRecord({Record record = ()}) : _record = record;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">ReceptorBase.fromRecord constructor</li>
+</ol>
+
+    <h5>ReceptorBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

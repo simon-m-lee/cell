@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the NucleusBase class from the cell_flow library, for the Dart programming language.">
+  <title>NucleusBase class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">flow.dart</a></li>
+    <li class="self-crumb">NucleusBase class</li>
+  </ol>
+  <div class="self-name">NucleusBase</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+    data-below-sidebar="cell_flow&#47;NucleusBase-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">NucleusBase</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>The foundational base implementation of the <a href="../cell_flow/Nucleus-class.html">Nucleus</a> contract, providing
+a memory-optimized storage engine for reactive cell properties.</p>
+<p><a href="../cell_flow/NucleusBase-class.html">NucleusBase</a> serves as the architectural core of the framework's property
+management system. It implements the <strong>Flyweight</strong> and <strong>Prototype</strong> patterns
+by utilizing Dart <strong>Records</strong> and <strong>Bitmask Optimization</strong> to store only
+the specific properties that deviate from framework defaults.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You rarely interact with this directly – it's the base class for all nuclei.
+Use <a href="../cell_flow/Cell-class.html">Cell</a> or <a href="../cell_flow/Cell/state.html">Cell.state</a> factories; they handle nuclei for you.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It stores cell configuration (context, receptor, testRule, etc.) in a
+compact record that omits default values.</li>
+<li>Supports prototype inheritance via a <code>principal</code> link – if a property
+isn't found locally, it walks up the chain.</li>
+<li>Provides low-level getters for all nucleus properties.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The internal record is immutable; changes create a new nucleus.</li>
+<li>The <code>forceLock</code> parameter in the primary constructor defaults to <code>true</code>,
+but in <code>evolve</code> it's typically inherited from the principal.</li>
+<li>The <code>mask</code> static method is the engine behind flyweight storage.</li>
+</ul>
+<p>See also: <a href="../cell_flow/Nucleus-class.html">Nucleus</a>, <code>_Nucleus</code>, <a href="../cell_flow/Nucleolus-class.html">Nucleolus</a>.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell_flow/Nucleus-class.html">Nucleus</a></li>
+    </ul>
+  </dd>
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="NucleusBase.new" class="callable">
+          <span class="name"><a href="../cell_flow/NucleusBase/NucleusBase.html">NucleusBase</a></span><span class="signature">({<span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_flow/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-principal"><span class="type-annotation"><a href="../cell_flow/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">principal</span></span>})</span>
+        </dt>
+        <dd>
+          The primary constructor for <a href="../cell_flow/NucleusBase-class.html">NucleusBase</a>, initializing a memory-optimized
+tiered property storage for a reactive <a href="../cell_flow/Cell-class.html">Cell</a>.
+        </dd>
+        <dt id="NucleusBase.evolve" class="callable">
+          <span class="name"><a href="../cell_flow/NucleusBase/NucleusBase.evolve.html">NucleusBase.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../cell_flow/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_flow/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../cell_flow/Nucleus-class.html">Nucleus</a> to
+support hierarchical property inheritance and contextual overrides.
+        </dd>
+        <dt id="NucleusBase.fromRecord" class="callable">
+          <span class="name"><a href="../cell_flow/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
+        </dt>
+        <dd>
+          Reconstitutes a <a href="../cell_flow/NucleusBase-class.html">NucleusBase</a> from a raw <strong>Flyweight Record</strong>, facilitating
+the restoration of architectural blueprints from a compressed state.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="bind" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/bind.html">bind</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a>?</span>
+  
+
+</dt>
+<dd>
+  The upstream <a href="../cell_flow/Cell-class.html">Cell</a> dependency that serves as the primary <strong>Ingress Source</strong>
+for this node's reactive logic.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="cell" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/cell.html">cell</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd>
+  Returns the live <a href="../cell_flow/Cell-class.html">Cell</a> instance that this nucleus is bound to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="clone" class="property inherited">
+  <span class="name"><a href="../cell_flow/Nucleus/clone.html">clone</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Nucleus-class.html">Nucleus</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Generates a decoupled, peer-level replica of the current <a href="../cell_flow/Nucleus-class.html">Nucleus</a> blueprint
+with an independent synchronization domain.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="context" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd>
+  The operational tier and execution environment assigned to the <a href="../cell_flow/Cell-class.html">Cell</a>
+associated with this <a href="../cell_flow/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="inheritable" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/inheritable.html">inheritable</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/InheritableHandle.html">InheritableHandle</a></span>
+  
+
+</dt>
+<dd>
+  Retrieves the optimized <strong>Logic Inheritance Handle</strong> containing the
+shared behavioral configuration for this <a href="../cell_flow/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isActivated" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/isActivated.html">isActivated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this nucleus has been bound to a live <a href="../cell_flow/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the associated <a href="../cell_flow/Cell-class.html">Cell</a> has been formally invalidated
+and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lock" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd>
+  The synchronization primitive used to ensure thread-safe and atomic
+operations across the reactive <a href="../cell_flow/Cell-class.html">Cell</a> associated with this <a href="../cell_flow/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="principal" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/principal.html">principal</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Nucleus-class.html">Nucleus</a>?</span>
+  
+
+</dt>
+<dd>
+  The optional reference to a precursor <a href="../cell_flow/Nucleus-class.html">Nucleus</a> in the inheritance
+hierarchy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="receptor" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/receptor.html">receptor</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The <strong>Transformation Pipeline</strong> and pulse processing engine for the
+associated <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="record" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/record.html">record</a></span>
+  <span class="signature">&#8594; dynamic</span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="synapses" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/synapses.html">synapses</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The connectivity manager responsible for tracking and notifying downstream
+observers of this <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="testRule" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/testRule.html">testRule</a></span>
+  <span class="signature">&#8594; <a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
+mutations and operational permissions for the associated <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="timestamp" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/timestamp.html">timestamp</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span>
+  
+
+</dt>
+<dd>
+  The <strong>Temporal Origin</strong> and synthesis record of this <a href="../cell_flow/Nucleus-class.html">Nucleus</a> instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="user" class="property">
+  <span class="name"><a href="../cell_flow/NucleusBase/user.html">user</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span>
+  
+
+</dt>
+<dd>
+  Retrieves the optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing developer-defined metadata or
+custom property extensions for the associated <a href="../cell_flow/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="activate" class="callable">
+  <span class="name"><a href="../cell_flow/NucleusBase/activate.html">activate</a></span><span class="signature">(<wbr><span class="parameter" id="activate-param-cell"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Activates this nucleus by binding it to a live <a href="../cell_flow/Cell-class.html">Cell</a> instance.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../cell_flow/NucleusBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The equality operator.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="mask" class="callable">
+  <span class="name"><a href="../cell_flow/NucleusBase/mask.html">mask</a></span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="mask-param-bind"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="mask-param-context"><span class="type-annotation"><a href="../cell_flow/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="mask-param-receptor"><span class="type-annotation"><a href="../cell_flow/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="mask-param-testRule"><span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="mask-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="mask-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="mask-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a memory-optimized, multi-tiered <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> that serves as the
+fundamental state and behavior definition for a <a href="../cell_flow/Nucleus-class.html">Nucleus</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">NucleusBase class</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

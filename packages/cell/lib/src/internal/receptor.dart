@@ -948,7 +948,23 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       if (instruction == null) continue;
       if (currentPulse == null) break;
       try {
-        currentPulse = instruction.call(currentPulse.last, cell: cell) as PulseBase?;
+        if (identical(instruction, _instruction)) {
+          if (_postProcess != null) {
+            currentPulse = instruction.call(currentPulse.last, cell: cell,
+                future: ({required result, required token}) => result != null
+                    ? _postProcess!.call(result)
+                    : null
+            ) as PulseBase?;
+          } else {
+            currentPulse = instruction.call(currentPulse.last, cell: cell,
+                future: ({required result, required token}) => result != null
+                    ? cell._nucleus.synapses.call(result)
+                    : null
+            ) as PulseBase?;
+          }
+        } else {
+          currentPulse = instruction.call(currentPulse.last, cell: cell) as PulseBase?;
+        }
       } catch (e, stackTrace) {
         pulse._fail(e, stackTrace: stackTrace);
         return null;
