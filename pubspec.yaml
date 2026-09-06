@@ -23,5 +23,5 @@ documentation: https://pub.dev/documentation/cell/latest/
 issue_tracker: https://github.com/simon-m-lee/cell/issues
 
 workspace:
-  - packages/cell
+#  - packages/cell
 
