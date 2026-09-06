@@ -1,5 +1,5 @@
 
-## 1.0.0-rc.2(Mitosis) - Release Candidate
+## Mitosis (1.0.0-rc.2) - Release Candidate
 
 This release introduces **PulseShell** defensive proxies and advanced **Receptor scrutiny**, providing high-integrity reactive orchestration for the Mitosis layer. It also hardens transactional state propagation and resolves edge cases in asynchronous operators.
 

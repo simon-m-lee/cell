@@ -1,4 +1,4 @@
-name: cell
+name: cell_framework
 description: >-
   A programming framework provides a comprehensive reactive programming 
   solution for Dart, with particular strength in managing complex state 
@@ -23,5 +23,5 @@ documentation: https://pub.dev/documentation/cell/latest/
 issue_tracker: https://github.com/simon-m-lee/cell/issues
 
 workspace:
-#  - packages/cell
+  - packages/cell
 

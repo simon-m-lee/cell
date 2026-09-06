@@ -8,6 +8,8 @@ repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell
 # Align the tracker with the new repository name
 issue_tracker: https://github.com/simon-m-lee/cell/issues
 
+resolution: workspace
+
 environment:
   sdk: '>=3.5.0 <4.0.0'
 
