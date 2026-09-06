@@ -16,9 +16,6 @@ dartdoc:
     "Features":
       markdown: FEATURES-Flow.md
       displayName: Operator Catalog
-    "Comparison":
-      markdown: ANALYSIS-Flow-vs-Rx.md
-      displayName: Flow vs Rx
 
     # ── Learning & Demos ──────────────────────────────────────────
     "Walkthroughs":

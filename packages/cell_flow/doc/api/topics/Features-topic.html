@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Operator Catalog topic docs, for the Dart programming language.">
+  <title>Operator Catalog topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Operator Catalog topic</li>
+  </ol>
+  <div class="self-name">Operator Catalog</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Operator Catalog</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="cell_flow--feature-catalog">cell_flow — Feature catalog</h1>
+<p><strong>Author:</strong> Lee Man Hoi Simon (see <code>AUTHORS</code>)</p>
+<p>Catalog of <strong>cell_flow</strong> operators and entry points. Design intent lives
+in <a href="ARCHITECTURE-Flow.md"><code>ARCHITECTURE-Flow.md</code></a>. Fluent usage:
+<a href="HowTo-Fluent_Operator.md"><code>HowTo-Fluent_Operator.md</code></a>. One-Receptor
+pipelines: <a href="HowTo-FlowInstruction-Receptor.md"><code>HowTo-FlowInstruction-Receptor.md</code></a>.</p>
+<p>Import once:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+</code></pre>
+<p>Every <code>Flow.*</code> factory is <code>SomeInstruction(...).toHandle(source: source)</code>.
+Fluent methods on <code>Cell</code> / <code>FlowHandle</code> call those factories.</p>
+<p>Cells do not complete. “Terminal” Rx names here mean a <strong>running</strong> or
+<strong>inner-sequence</strong> adaptation, not stream completion.</p>
+<hr>
+<h2 id="1-entry-points">1. Entry points</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static facade</td>
+<td><code>Flow.map</code>, <code>Flow.debounce</code>, …</td>
+<td>Application default</td>
+</tr>
+<tr>
+<td>Fluent on <code>Cell</code></td>
+<td><code>cell.filter()</code>, <code>cell.map()</code>, <code>cell.fromFuture()</code></td>
+<td>Start a pipeline</td>
+</tr>
+<tr>
+<td>Fluent on <code>FlowHandle</code></td>
+<td><code>handle.debounce().asyncMapLatest()</code></td>
+<td>Continue a pipeline</td>
+</tr>
+<tr>
+<td>Instruction class</td>
+<td><code>Filter&lt;int&gt;((n) =&gt; n &gt; 0).toHandle(source: …)</code></td>
+<td>Custom Receptor</td>
+</tr>
+<tr>
+<td>Instruction chain</td>
+<td><code>Filter + MapValue + Tap</code></td>
+<td>One Receptor, one lock</td>
+</tr>
+<tr>
+<td>Handle</td>
+<td><code>{ cell, emit, emitAsync, ingest }</code></td>
+<td>Same idea as <code>IngressHandle</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-create">2. Create</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Rx analogue</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Values</td>
+<td><code>Of</code> / <code>of</code></td>
+<td><code>of</code></td>
+<td>Play values on first arming pulse</td>
+</tr>
+<tr>
+<td>Iterable</td>
+<td><code>FromIterable</code> / <code>fromIterable</code></td>
+<td><code>from</code></td>
+<td>Same, from an iterable</td>
+</tr>
+<tr>
+<td>Range</td>
+<td><code>Range</code> / <code>range</code></td>
+<td><code>range</code></td>
+<td><code>start</code> + <code>count</code> + <code>step</code></td>
+</tr>
+<tr>
+<td>Repeat</td>
+<td><code>Repeat</code> / <code>repeat</code></td>
+<td>value <code>repeat</code></td>
+<td>Same value <code>count</code> times</td>
+</tr>
+<tr>
+<td>Future</td>
+<td><code>FromFuture</code> / <code>fromFuture</code></td>
+<td><code>from(Future)</code></td>
+<td>One Future, first pulse</td>
+</tr>
+<tr>
+<td>Defer future</td>
+<td><code>DeferFuture</code> / <code>deferFuture</code></td>
+<td><code>defer</code></td>
+<td>New Future every pulse</td>
+</tr>
+<tr>
+<td>Stream</td>
+<td><code>FromStream</code> / <code>fromStream</code></td>
+<td><code>from(Stream)</code></td>
+<td>One subscription, first pulse</td>
+</tr>
+<tr>
+<td>Defer stream</td>
+<td><code>DeferStream</code> / <code>deferStream</code></td>
+<td><code>defer</code> + stream</td>
+<td>New Stream every pulse</td>
+</tr>
+<tr>
+<td>Many futures</td>
+<td><code>FromFutures</code>, <code>FromFuturesInOrder</code>, <code>ForkJoinFutures</code>, <code>RaceFutures</code></td>
+<td>merge / concat / forkJoin / race</td>
+<td>See <code>from_future.dart</code></td>
+</tr>
+<tr>
+<td>Future helpers</td>
+<td><code>FromFutureWithRetry</code>, <code>WithTimeout</code>, <code>WithFallback</code>, <code>MapToFuture</code></td>
+<td>retry / timeout / catch</td>
+<td>Per trigger</td>
+</tr>
+</tbody>
+</table>
+<p>Also: <code>ConcatFromFuture</code>, <code>MergeFromFuture</code>, <code>SwitchFromFuture</code>,
+<code>ExhaustFromFuture</code>; <code>ConcatFromStream</code>, <code>MergeFromStream</code>,
+<code>SwitchFromStream</code>, <code>MapToStream</code>.</p>
+<hr>
+<h2 id="3-transform">3. Transform</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Rx analogue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Map</td>
+<td><code>MapValue</code> / <code>map</code></td>
+<td><code>map</code> (<code>MapValue</code> avoids <code>dart:core</code> <code>Map</code>)</td>
+</tr>
+<tr>
+<td>Map to constant</td>
+<td><code>MapTo</code> / <code>mapTo</code></td>
+<td><code>mapTo</code></td>
+</tr>
+<tr>
+<td>Indexed map</td>
+<td><code>MapWithIndex</code> / <code>mapWithIndex</code></td>
+<td><code>map</code> + index</td>
+</tr>
+<tr>
+<td>Drop nulls</td>
+<td><code>MapNotNull</code> / <code>mapNotNull</code></td>
+<td><code>mapNotNull</code></td>
+</tr>
+<tr>
+<td>Conditional map</td>
+<td><code>MapWhen</code> / <code>mapWhen</code></td>
+<td>map if predicate</td>
+</tr>
+<tr>
+<td>Pluck field</td>
+<td><code>Pluck</code> / <code>pluck</code></td>
+<td><code>pluck</code></td>
+</tr>
+<tr>
+<td>Pluck or default</td>
+<td><code>PluckOr</code> / <code>pluckOr</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Several keys</td>
+<td><code>PluckAll</code> / <code>pluckAll</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Nested path</td>
+<td><code>PluckPath</code> / <code>pluckPath</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Running fold</td>
+<td><code>Scan</code> / <code>scan</code></td>
+<td><code>scan</code> (first value seeds)</td>
+</tr>
+<tr>
+<td>Named running fold</td>
+<td><code>Reduce</code> / <code>reduce</code></td>
+<td>running, not terminal</td>
+</tr>
+<tr>
+<td>Pairs</td>
+<td><code>Pairwise</code> / <code>pairwise</code></td>
+<td><code>pairwise</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-async-transform">4. Async transform</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Concurrency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Async map</td>
+<td><code>AsyncMap</code> / <code>asyncMap</code></td>
+<td>queued</td>
+</tr>
+<tr>
+<td>Concurrent map</td>
+<td><code>AsyncMapConcurrent</code> / <code>asyncMapConcurrent</code></td>
+<td>overlap</td>
+</tr>
+<tr>
+<td>Latest map</td>
+<td><code>AsyncMapLatest</code> / <code>asyncMapLatest</code></td>
+<td>drop in-flight</td>
+</tr>
+<tr>
+<td>Indexed async map</td>
+<td><code>AsyncMapWithIndex</code></td>
+<td>queued + index</td>
+</tr>
+<tr>
+<td>Retry / timeout / fallback</td>
+<td><code>AsyncMapWithRetry</code>, <code>WithTimeout</code>, <code>WithFallback</code></td>
+<td>per item</td>
+</tr>
+<tr>
+<td>Async expand</td>
+<td><code>AsyncExpand</code> / <code>asyncExpand</code></td>
+<td>queued flatten</td>
+</tr>
+<tr>
+<td>Concurrent / latest / exhaust expand</td>
+<td><code>AsyncExpandConcurrent</code>, <code>Latest</code>, <code>Exhaust</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Async fold</td>
+<td><code>AsyncFold</code> / <code>asyncFold</code></td>
+<td>queued accumulate</td>
+</tr>
+<tr>
+<td>Latest / exhaust fold</td>
+<td><code>AsyncFoldLatest</code>, <code>AsyncFoldExhaust</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Async reduce</td>
+<td><code>AsyncReduce</code> / <code>asyncReduce</code></td>
+<td>first value is seed</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-filter-take-skip-distinct">5. Filter, take, skip, distinct</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Rx analogue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Predicate</td>
+<td><code>Filter</code> / <code>filter</code></td>
+<td><code>filter</code></td>
+</tr>
+<tr>
+<td>Async filter</td>
+<td><code>AsyncFilter</code> + concurrent / latest / retry / timeout / fallback</td>
+<td></td>
+</tr>
+<tr>
+<td>Not null</td>
+<td><code>FilterNotNull</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Type narrow</td>
+<td><code>FilterType</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Allow / block set</td>
+<td><code>FilterAllowed</code>, <code>FilterBlocked</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Min gap</td>
+<td><code>FilterByTime</code></td>
+<td>spacing, first immediate</td>
+</tr>
+<tr>
+<td>Take n / while / until</td>
+<td><code>Take</code>, <code>TakeWhile</code>, <code>TakeUntil</code></td>
+<td><code>take*</code></td>
+</tr>
+<tr>
+<td>Skip n / while / until / when / repeated / last</td>
+<td><code>Skip*</code></td>
+<td><code>skip*</code></td>
+</tr>
+<tr>
+<td>Distinct</td>
+<td><code>Distinct</code> / <code>distinct</code></td>
+<td>consecutive (see <code>distinct.dart</code> for variants)</td>
+</tr>
+</tbody>
+</table>
+<p><code>Debounce</code> / <code>Throttle</code> / <code>Take</code> / <code>Skip</code> / <code>Distinct</code> are <strong>not</strong> defined
+in <code>filter.dart</code>; they have their own files.</p>
+<hr>
+<h2 id="6-flatten">6. Flatten</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Concat map</td>
+<td><code>ConcatMap</code> / <code>concatMap</code></td>
+<td>queue inners</td>
+</tr>
+<tr>
+<td>Concat static / all / first / latest</td>
+<td><code>Concat</code>, <code>ConcatAll</code>, <code>ConcatFirst</code>, <code>ConcatLatest</code></td>
+<td>inners, not Cell-then-Cell</td>
+</tr>
+<tr>
+<td>Merge map</td>
+<td><code>MergeMap</code> / <code>mergeMap</code></td>
+<td>overlap inners</td>
+</tr>
+<tr>
+<td>Switch map</td>
+<td><code>SwitchMap</code> / <code>switchMap</code></td>
+<td>latest inner</td>
+</tr>
+<tr>
+<td>Exhaust map</td>
+<td><code>ExhaustMap</code> / <code>exhaustMap</code></td>
+<td>ignore while busy</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-combine">7. Combine</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Pairing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merge with / merge / merge all</td>
+<td><code>MergeWith</code>, <code>Merge</code>, <code>MergeAll</code></td>
+<td>interleave</td>
+</tr>
+<tr>
+<td>Zip with / zip / zip all</td>
+<td><code>ZipWith</code>, <code>Zip</code>, <code>ZipAll</code></td>
+<td>same index</td>
+</tr>
+<tr>
+<td>Combine latest</td>
+<td><code>CombineLatestWith</code>, <code>CombineLatest</code></td>
+<td>latest of every source</td>
+</tr>
+<tr>
+<td>With latest from</td>
+<td><code>WithLatestFrom</code> / <code>withLatestFrom</code></td>
+<td>source pulse + latest others</td>
+</tr>
+<tr>
+<td>Race</td>
+<td><code>Race</code> / <code>race</code></td>
+<td>first inner to emit</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-time">8. Time</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>When it emits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Delay</td>
+<td><code>Delay</code> / <code>delay</code></td>
+<td>after fixed duration (keeps all values)</td>
+</tr>
+<tr>
+<td>Delay selector / when</td>
+<td><code>DelayWithSelector</code>, <code>DelayWhen</code></td>
+<td>per value / notifier</td>
+</tr>
+<tr>
+<td>Delay latest / trailing</td>
+<td><code>DelayLatest</code>, <code>DelayWithTrailing</code></td>
+<td>only last after wait</td>
+</tr>
+<tr>
+<td>Delay + timeout cap</td>
+<td><code>DelayWithTimeout</code></td>
+<td>drop if wait &gt; timeout</td>
+</tr>
+<tr>
+<td>Debounce</td>
+<td><code>Debounce</code> / <code>debounce</code></td>
+<td>last after silence</td>
+</tr>
+<tr>
+<td>Throttle</td>
+<td><code>Throttle</code> / <code>throttle</code></td>
+<td>leading / trailing window</td>
+</tr>
+<tr>
+<td>Sample / sample time</td>
+<td><code>Sample</code>, <code>SampleTime</code></td>
+<td>notifier or period, latest pending</td>
+</tr>
+<tr>
+<td>Audit / audit time</td>
+<td><code>Audit</code>, <code>AuditTime</code></td>
+<td>after source, then notifier / duration</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td><code>Timeout</code>, <code>TimeoutWithFallback</code>, …</td>
+<td>idle too long</td>
+</tr>
+<tr>
+<td>Interval</td>
+<td><code>Interval</code>, <code>IntervalWithValue</code>, <code>IntervalWithState</code>, <code>TimerPulse</code></td>
+<td>ticks after first pulse</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="9-collect-and-route">9. Collect and route</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Buffer count / time / when / predicate</td>
+<td><code>BufferCount</code>, <code>BufferTime</code>, <code>BufferWhen</code>, <code>BufferWithPredicate</code></td>
+<td><code>List</code></td>
+</tr>
+<tr>
+<td>Buffer time and count</td>
+<td><code>BufferWithTimeAndCount</code></td>
+<td>count <strong>or</strong> duration</td>
+</tr>
+<tr>
+<td>Window count / time</td>
+<td><code>WindowCount</code>, <code>WindowTime</code></td>
+<td>window lists</td>
+</tr>
+<tr>
+<td>Group by / collect / count</td>
+<td><code>GroupBy</code>, <code>GroupCollect</code>, <code>GroupByCount</code></td>
+<td><code>Grouped</code> or <code>Map</code></td>
+</tr>
+<tr>
+<td>Partition / map / only</td>
+<td><code>Partition</code>, <code>PartitionMap</code>, <code>PartitionOnly</code></td>
+<td>match vs rest</td>
+</tr>
+<tr>
+<td>Boolean branch</td>
+<td><code>Iif</code> / <code>iif</code></td>
+<td>then / else projectors</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="10-control-multicast-side-effect">10. Control, multicast, side effect</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Class / <code>Flow.</code></th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Start with</td>
+<td><code>StartWith</code> / <code>startWith</code></td>
+<td>prefix on first pulse</td>
+</tr>
+<tr>
+<td>Share / share replay</td>
+<td><code>Share</code>, <code>ShareReplay</code></td>
+<td>multicast</td>
+</tr>
+<tr>
+<td>Retry</td>
+<td><code>Retry</code> / <code>retry</code></td>
+<td><code>RetryTask</code> + count</td>
+</tr>
+<tr>
+<td>Tap / tap all / tap index</td>
+<td><code>Tap</code>, <code>TapAll</code>, <code>TapWithIndex</code></td>
+<td>side effect, same value</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="11-what-flow-is-not">11. What Flow is not</h2>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Use instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistent app state, undo, transactions</td>
+<td><strong>cell</strong> <code>Cell.state</code>, <code>Cell.transaction</code></td>
+</tr>
+<tr>
+<td>Integrity / authority metadata</td>
+<td><strong>cell</strong> <code>TestCell</code>, <code>Context</code></td>
+</tr>
+<tr>
+<td>A completing stream</td>
+<td>Dart <code>Stream</code> / <code>Cell.fromStream</code> as a source, not “complete this Cell”</td>
+</tr>
+<tr>
+<td><code>concat(cellA, cellB)</code></td>
+<td>concat <strong>inners</strong>; Cells do not complete</td>
+</tr>
+<tr>
+<td>Terminal <code>reduce</code> / <code>last</code> / <code>toList</code></td>
+<td>running <code>scan</code> / <code>reduce</code>, or <code>buffer</code> / <code>take</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="12-examples-in-this-tree">12. Examples in this tree</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Intent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>example_sanitize_text.dart</code></td>
+<td>trim + drop blanks (<code>+</code> chain)</td>
+</tr>
+<tr>
+<td><code>example_search_query_gate.dart</code></td>
+<td>search box policy</td>
+</tr>
+<tr>
+<td><code>example_checkout_quote.dart</code></td>
+<td>cart → total</td>
+</tr>
+<tr>
+<td><code>example_moderation_gate.dart</code></td>
+<td>comment blocklist</td>
+</tr>
+<tr>
+<td><code>example_sensor_threshold.dart</code></td>
+<td>°C → °F</td>
+</tr>
+<tr>
+<td><code>example_form_email.dart</code></td>
+<td>email field</td>
+</tr>
+<tr>
+<td><code>example_order_status_tap.dart</code></td>
+<td>paid/shipped + audit</td>
+</tr>
+<tr>
+<td><code>example_price_cents.dart</code></td>
+<td>cents → dollars</td>
+</tr>
+<tr>
+<td><code>example_feature_flag_iif.dart</code></td>
+<td>beta preview</td>
+</tr>
+<tr>
+<td><code>example_take_first_valid_pin.dart</code></td>
+<td>PIN take 3</td>
+</tr>
+</tbody>
+</table>
+<p>Each instruction file also has a <code>main</code> demo and a <code>*_test.dart</code> where
+tests were requested.</p>
+<hr>
+<h2 id="13-naming-clashes">13. Naming clashes</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Collision</th>
+<th>How Flow spells it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Map</code></td>
+<td><code>dart:core</code></td>
+<td><code>MapValue</code> / <code>Flow.map</code></td>
+</tr>
+<tr>
+<td><code>Skip</code>, <code>Take</code>, <code>Retry</code>, <code>Timeout</code></td>
+<td><code>package:test</code></td>
+<td>hide in tests: <code>import 'package:test/test.dart' hide Timeout;</code></td>
+</tr>
+<tr>
+<td><code>Partition</code></td>
+<td>routing vs group-by</td>
+<td>standalone <code>partition.dart</code></td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>persistent cell state</td>
+<td>running fold is <code>reduce</code> / <code>scan</code>, not <code>Flow.state</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="cell_flow">
+  <span class="name"><a href="../cell_flow/">flow</a></span> 
+    <span class="category operator-catalog cp-0 linked" title="This is part of the Operator Catalog topic."><a href="../topics/Features-topic.html">Operator&nbsp;Catalog</a></span>
+
+</dt>
+<dd>A high-performance reactive orchestration layer for the Cell framework (codename <strong>Mitosis</strong>).
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Operator Catalog topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Features-topic.html">Operator&nbsp;Catalog</a></li>
+        <li><a href="../topics/Instructions-topic.html">Custom&nbsp;Receptors&nbsp;&&nbsp;Instructions</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Operator Catalog</li>
+        <li class="section-subitem"><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Operator Catalog topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Features-topic.html#libraries">Libraries</a></li>
+      <li><a href="../cell_flow/">flow</a></li>
+
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

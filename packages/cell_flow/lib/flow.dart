@@ -69,6 +69,7 @@
 /// * `FEATURES-Flow.md`: Detailed catalog of every available operator.
 /// * `HowTo-Fluent_Operator.md`: Best practices for method-chaining.
 /// * `HowTo-FlowInstruction-Receptor.md`: Advanced custom gate composition.
+/// {@category Features}
 library cell_flow;
 
 import 'dart:async';
