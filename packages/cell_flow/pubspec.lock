@@ -44,10 +44,9 @@ packages:
   cell:
     dependency: "direct main"
     description:
-      name: cell
-      sha256: b98d580b8824ff29363e4fdd3d7bcf1e3ca78c7ae993d753f9cd855ae108c01c
-      url: "https://pub.dev"
-    source: hosted
+      path: "../cell"
+      relative: true
+    source: path
     version: "1.0.0-rc.2"
   cli_config:
     dependency: transitive

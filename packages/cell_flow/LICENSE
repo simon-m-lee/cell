@@ -1,0 +1,74 @@
+Copyright (c) 2025-2026 Lee Man Hoi Simon
+
+The "Cell" Project is dual-licensed under the MIT License and the
+Apache License, Version 2.0. You may use this software under the terms
+of either license, at your option.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+
+-------------------------------------------------------------------------
+Additional notice (trademarks and endorsement)
+-------------------------------------------------------------------------
+
+This notice does not change the copyright license you choose above.
+It reserves names and marks; it does not limit use, modification, or
+distribution of the source or binaries under MIT or Apache-2.0.
+
+"Cell", "Cell Framework", "Cell Mitosis", the project logos, and the
+names of the copyright holder and contributors are not licensed under
+MIT or Apache-2.0. Those names and marks remain the property of their
+owners.
+
+You may state that your product is based on or interoperates with this
+software, and you must keep the copyright and license notices required
+by MIT or Apache-2.0.
+
+You may not use the names or marks above, or the names of the copyright
+holder or contributors, to state or imply endorsement, sponsorship, or
+official status of a modified version, packaged distribution, or
+related product without prior written permission.
+
+Apache-2.0 already contains a trademark clause (section 6). This notice
+states the same reservation for users who choose MIT.
+
+-------------------------------------------------------------------------
+Option 1: MIT License
+-------------------------------------------------------------------------
+
+Copyright (c) 2025-Present Lee Man Hoi Simon
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------
+Option 2: Apache License, Version 2.0
+-------------------------------------------------------------------------
+
+Copyright (c) 2025-Present Lee Man Hoi Simon
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
