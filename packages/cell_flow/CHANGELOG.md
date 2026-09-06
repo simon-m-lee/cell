@@ -1,3 +1,10 @@
+## Mitosis (1.0.0-rc.2.0.1) - Release Candidate
+
+- **Legal & Compliance**:
+  - Updated `LICENSE` file to ensure proper legal coverage.
+  - Standardized copyright headers across the `cell_flow` package.
+  - Updated authorship and repository metadata.
+  
 ## Mitosis (1.0.0-rc.2) - Release Candidate
 
 - **Expanded Async Topography**:

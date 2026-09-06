@@ -1,6 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// MIT or Apache-2.0 license that can be found in the LICENSE file.
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 /// A real-life practical executable walkthrough demonstrating the use of
 /// Flow.retry and Flow.timeout for handling flaky network connections
