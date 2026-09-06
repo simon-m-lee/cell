@@ -66,6 +66,67 @@
     
 <section class="desc markdown">
   <p>After a source value, emit it on the next <code>notifier</code> pulse.</p>
+<p><a href="../../cell_flow/Flow/audit.html">audit</a> is similar to <a href="../../cell_flow/Flow/sample.html">sample</a> but the audit is triggered by the
+notifier after a source pulse has arrived.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/audit.html">audit</a> when you want to audit a value after a source pulse
+and wait for a notifier to confirm.</p>
+<ul>
+<li><strong>Confirmation</strong>: Waiting for a confirmation before emitting.</li>
+<li><strong>Gate Control</strong>: Emitting only when a gate signal arrives.</li>
+<li><strong>Synchronization</strong>: Synchronizing emission with a notifier.</li>
+<li><strong>Validation</strong>: Validating values before emission.</li>
+<li><strong>Conditional Emission</strong>: Emitting only under certain conditions.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse is type-checked and stored as the pending value.</li>
+<li>The <code>waiting</code> flag is set to true.</li>
+<li>When the <code>notifier</code> cell pulses:
+a. If <code>waiting</code> is true, the pending value is emitted.
+b. The pending value is cleared.
+c. The <code>waiting</code> flag is set to false.</li>
+<li>If no source pulse has arrived since the last audit, the
+notifier pulse is ignored.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Waiting Flag</strong>: The waiting flag tracks if a source pulse
+has arrived since the last audit.</li>
+<li><strong>One-Time Audit</strong>: Each source pulse can only be audited once.</li>
+<li><strong>Ignored Ticks</strong>: Notifier ticks with no waiting are ignored.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>notifier</code>: <strong>Notifier Cell.</strong> The cell that triggers the audit.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the audited values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.ingress&lt;int&gt;();
+final gate = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.audit&lt;int&gt;(
+  source.cell,
+  notifier: gate.cell,
+);
+
+source.emit(1);
+source.emit(2);
+gate.emit(null); // -&gt; 2
+// gate.emit(null); // ignored (no pending)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/sample.html">sample</a>: For sampling on notifier.</li>
+<li><a href="../../cell_flow/Flow/auditTime.html">auditTime</a>: For time-based audit.</li>
+</ul>
 </section>
 
 
@@ -73,10 +134,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle audit&lt;S&gt;(
-  Cell source, {
-  required Cell notifier,
-  SampleErrorHandler? onError,
-}) {
+    Cell source, {
+      required Cell notifier,
+      SampleErrorHandler? onError,
+    }) {
   return Audit&lt;S&gt;(notifier, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

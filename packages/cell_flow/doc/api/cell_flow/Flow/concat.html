@@ -66,6 +66,65 @@
     
 <section class="desc markdown">
   <p>Play static inners after the first pulse (Rx <code>concat</code>).</p>
+<p><a href="../../cell_flow/Flow/concat.html">concat</a> concatenates a fixed list of inners (lists, futures,
+streams, or values) in order, emitting all values from each inner
+before moving to the next.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/concat.html">concat</a> when you have a fixed list of sequences to play
+in order.</p>
+<ul>
+<li><strong>Sequence Concatenation</strong>: Playing multiple sequences in order.</li>
+<li><strong>Predefined Workflows</strong>: Executing predefined steps.</li>
+<li><strong>Static Data Sources</strong>: Combining static data sources.</li>
+<li><strong>Initialization</strong>: Initializing multiple resources in order.</li>
+<li><strong>Test Data</strong>: Combining test data sequences.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Each inner in <code>inners</code> is drained in order.</li>
+<li>All values from each inner are emitted.</li>
+<li>The instruction stops after all inners are played.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fixed Inners</strong>: The inners are fixed at construction time.</li>
+<li><strong>First Pulse Only</strong>: The instruction only arms on the first pulse.</li>
+<li><strong>Sequential</strong>: Inners are played one after another.</li>
+<li><strong>Error Isolation</strong>: Errors in one inner don't stop the next.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>inners</code>: <strong>Fixed Inners.</strong> The sequences to play in order.
+Each inner can be a <code>List</code>, <code>Future</code>, <code>Stream</code>, or raw value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the concatenated values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final arm = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.concat&lt;String&gt;(
+  arm.cell,
+  inners: [
+    ['a', 'b'],
+    ['c'],
+  ],
+);
+
+arm.emit(null);
+// Outputs: a, b, c
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concatMap.html">concatMap</a>: For per-trigger sequences.</li>
+<li><a href="../../cell_flow/Flow/concatAll.html">concatAll</a>: For dynamic sequence concatenation.</li>
+</ul>
 </section>
 
 
@@ -73,10 +132,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle concat&lt;T&gt;(
-  Cell source, {
-  required Iterable&lt;Object?&gt; inners,
-  ConcatErrorHandler? onError,
-}) {
+    Cell source, {
+      required Iterable&lt;Object?&gt; inners,
+      ConcatErrorHandler? onError,
+    }) {
   return Concat&lt;T&gt;(inners, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

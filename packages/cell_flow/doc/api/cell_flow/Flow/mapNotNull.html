@@ -66,7 +66,67 @@
     </section>
     
 <section class="desc markdown">
-  <p>Project and drop null results.</p>
+  <p>Projects each payload and suppresses the pulse if the result is <code>null</code>.</p>
+<p><a href="../../cell_flow/Flow/mapNotNull.html">mapNotNull</a> is similar to <a href="../../cell_flow/Flow/map.html">map</a> but the transformation
+function can return <code>null</code>, which will be dropped (not emitted).</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mapNotNull.html">mapNotNull</a> when you want to skip values that don't meet a
+criteria by returning <code>null</code>.</p>
+<ul>
+<li><strong>Filtering with Transformation</strong>: Filter and transform in one step.</li>
+<li><strong>Optional Values</strong>: Only emitting when a value is present.</li>
+<li><strong>Validation</strong>: Skipping invalid values.</li>
+<li><strong>Conditional Mapping</strong>: Only mapping valid values.</li>
+<li><strong>Data Cleaning</strong>: Skipping null or invalid data.</li>
+<li><strong>Optional Extraction</strong>: Extracting optional fields.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>project</code> is called with the payload.</li>
+<li>If <code>project</code> returns <code>null</code>, the pulse is dropped.</li>
+<li>If <code>project</code> returns a non-null value, it's emitted.</li>
+<li>If <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapNotNull'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Null Dropping</strong>: <code>null</code> results are dropped silently.</li>
+<li><strong>Type Safety</strong>: The output type <code>T</code> is non-nullable.</li>
+<li><strong>Error Handling</strong>: If <code>project</code> throws, the pulse is dropped.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>Optional Transformation Function.</strong> Called with each
+typed payload, returns <code>T?</code> or <code>null</code> to drop.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload (non-nullable).</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.mapNotNull&lt;int, int&gt;(
+  input.cell,
+  project: (n) =&gt; n.isEven ? n : null,
+);
+
+input.emit(1); // dropped
+input.emit(2); // -&gt; 2
+input.emit(3); // dropped
+input.emit(4); // -&gt; 4
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/map.html">map</a>: For standard mapping.</li>
+<li><a href="../../cell_flow/Flow/mapWhen.html">mapWhen</a>: For conditional mapping.</li>
+</ul>
 </section>
 
 
@@ -74,10 +134,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapNotNull&lt;S, T&gt;(
-  Cell source, {
-  required T? Function(S value) project,
-  MapErrorHandler? onError,
-}) {
+    Cell source, {
+      required T? Function(S value) project,
+      MapErrorHandler? onError,
+    }) {
   return MapNotNull&lt;S, T&gt;(project, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

@@ -71,6 +71,71 @@
     
 <section class="desc markdown">
   <p>Map matched / unmatched with different projectors.</p>
+<p><a href="../../cell_flow/Flow/partitionMap.html">partitionMap</a> is similar to <a href="../../cell_flow/Flow/partition.html">partition</a> but instead of emitting
+a <code>Split</code> record, it applies different mapping functions to
+matched and unmatched values.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/partitionMap.html">partitionMap</a> when you need to transform matched and
+unmatched values differently.</p>
+<ul>
+<li><strong>Conditional Formatting</strong>: Formatting values based on predicate.</li>
+<li><strong>Different Processing</strong>: Processing matched/unmatched differently.</li>
+<li><strong>Type Conversion</strong>: Converting to different types based on status.</li>
+<li><strong>Labeling</strong>: Labeling values based on match status.</li>
+<li><strong>Data Enrichment</strong>: Enriching values differently based on status.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>test</code> is called with the payload.</li>
+<li>If <code>test</code> returns <code>true</code>, <code>thenMap</code> is called with the value.</li>
+<li>If <code>test</code> returns <code>false</code>, <code>elseMap</code> is called with the value.</li>
+<li>The result is emitted.</li>
+<li>If <code>test</code>, <code>thenMap</code>, or <code>elseMap</code> throws, the pulse is dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No State</strong>: No state is maintained between pulses.</li>
+<li><strong>Per-Item Emit</strong>: Emits one value for each input.</li>
+<li><strong>Different Mappers</strong>: Two different mapping functions.</li>
+<li><strong>Type Safety</strong>: Generic over value type <code>S</code> and output type <code>T</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> for matched values.</li>
+<li><code>thenMap</code>: <strong>Matched Mapper.</strong> Called with values where <code>test</code>
+returns <code>true</code>.</li>
+<li><code>elseMap</code>: <strong>Unmatched Mapper.</strong> Called with values where <code>test</code>
+returns <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.partitionMap&lt;int, String&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+  thenMap: (n) =&gt; 'even-$n',
+  elseMap: (n) =&gt; 'odd-$n',
+);
+
+input.emit(1); // -&gt; odd-1
+input.emit(2); // -&gt; even-2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/partition.html">partition</a>: For tagging values with match status.</li>
+<li><a href="../../cell_flow/Flow/partitionOnly.html">partitionOnly</a>: For filtering by match status.</li>
+</ul>
 </section>
 
 
@@ -78,12 +143,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle partitionMap&lt;S, T&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  required T Function(S value) thenMap,
-  required T Function(S value) elseMap,
-  PartitionErrorHandler? onError,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      required T Function(S value) thenMap,
+      required T Function(S value) elseMap,
+      PartitionErrorHandler? onError,
+    }) {
   return PartitionMap&lt;S, T&gt;(
     test,
     thenMap: thenMap,

@@ -65,7 +65,89 @@
     </section>
     
 <section class="desc markdown">
-  <p>Sequential inner flatten (Rx <code>concatMap</code>).</p>
+  <p>Maps each payload to an inner sequence and flattens them <strong>sequentially</strong>
+(Rx <code>concatMap</code>).</p>
+<p><a href="../../cell_flow/Flow/concatMap.html">concatMap</a> acts as a <strong>Sequential Flattener</strong>. Each incoming trigger
+is transformed into an inner sequence, and the items are emitted in order.
+Each inner sequence finishes before the next starts.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/concatMap.html">concatMap</a> when you need to flatten sequences in order:</p>
+<ul>
+<li><strong>Multi-Phase Workflows</strong>: Each trigger starts a workflow that must
+complete before the next starts.</li>
+<li><strong>Unrolling Lists/Streams</strong>: Expanding a list of items per command.</li>
+<li><strong>Ordered Processing</strong>: When the order of results must match the
+order of triggers.</li>
+<li><strong>Resource Constraints</strong>: When you want to limit concurrent operations.</li>
+<li><strong>File Processing</strong>: Processing files one at a time.</li>
+<li><strong>Database Transactions</strong>: Sequential transactions.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each trigger pulse's payload is extracted and type-checked.</li>
+<li>The <code>project</code> function is called with the payload.</li>
+<li>The <code>project</code> returns an inner sequence (Stream, Future, Iterable, or value).</li>
+<li>The inner sequence is drained recursively, emitting each item.</li>
+<li>The next trigger is queued and only starts when the current sequence completes.</li>
+<li>Results are emitted in input order.</li>
+</ol>
+<h3 id="supported-inner-types">Supported Inner Types</h3>
+<p>The <code>project</code> can return any of the following:</p>
+<ul>
+<li><strong><code>Stream</code></strong>: Each event in the stream is emitted sequentially.</li>
+<li><strong><code>Future</code></strong>: The single value is emitted when the future completes.</li>
+<li><strong><code>Iterable</code></strong>: Each element is emitted in order.</li>
+<li><strong><code>T</code></strong>: The value itself is emitted directly.</li>
+<li><strong><code>null</code></strong>: No emission (the pulse is dropped).</li>
+<li><strong>Nested combinations</strong>: <code>Future&lt;Iterable&lt;T&gt;&gt;</code>, etc., are recursively expanded.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Strict Sequencing</strong>: The instruction processes inputs one at a time.
+Each sequence must complete before the next starts.</li>
+<li><strong>Queueing</strong>: If triggers arrive while a sequence is in progress,
+they are queued in FIFO order.</li>
+<li><strong>Error Handling</strong>: Errors in the <code>project</code> or during draining are
+reported via <code>onError</code>.</li>
+<li><strong>Backpressure</strong>: The instruction processes inputs sequentially,
+automatically providing backpressure.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>The Flattening Logic.</strong> Takes an input value and returns
+an inner sequence (Stream, Future, Iterable, or value).</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final orders = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.concatMap&lt;String, String&gt;(
+  orders.cell,
+  project: (id) async* {
+    yield '$id:created';
+    yield '$id:paid';
+    yield '$id:shipped';
+  },
+);
+
+orders.emit('ORD-1');
+// -&gt; ORD-1:created, ORD-1:paid, ORD-1:shipped
+orders.emit('ORD-2');
+// starts after ORD-1 completes
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mergeMap.html">mergeMap</a>: For concurrent flattening.</li>
+<li><a href="../../cell_flow/Flow/switchMap.html">switchMap</a>: For latest-only flattening.</li>
+<li><a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
+</ul>
 </section>
 
 
@@ -73,9 +155,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle concatMap&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) project,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) project,
+    }) {
   return ConcatMap&lt;S, T&gt;(project).toHandle(source: source);
 }</code></pre>
 </section>

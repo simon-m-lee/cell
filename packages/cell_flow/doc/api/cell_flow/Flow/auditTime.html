@@ -66,6 +66,63 @@
     
 <section class="desc markdown">
   <p>Emit the latest value <code>duration</code> after a source move.</p>
+<p><a href="../../cell_flow/Flow/auditTime.html">auditTime</a> is similar to "debounce of the latest value after it
+moved". It waits for a period of silence after the last pulse
+before emitting the latest value.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/auditTime.html">auditTime</a> when you want to wait for a period of silence
+after the last pulse before emitting.</p>
+<ul>
+<li><strong>Debouncing</strong>: Debouncing the latest value after activity stops.</li>
+<li><strong>Stabilization</strong>: Waiting for values to stabilize.</li>
+<li><strong>Rate Limiting</strong>: Limiting the rate of emissions.</li>
+<li><strong>Idle Detection</strong>: Detecting idle periods.</li>
+<li><strong>User Input</strong>: Waiting for user to stop typing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse is type-checked and stored as the pending value.</li>
+<li>If there's already a scheduled timer, it's not reset (one-shot).</li>
+<li>After <code>duration</code>, the pending value is emitted.</li>
+<li>The timer is a one-shot, not periodic.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Shot Timer</strong>: The timer fires once and stops.</li>
+<li><strong>No Reset</strong>: Unlike debounce, the timer is not reset on new pulses.</li>
+<li><strong>Latest in Window</strong>: The latest value in the window is emitted.</li>
+<li><strong>Scheduled Flag</strong>: Prevents multiple timers from running.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Audit Duration.</strong> The time to wait after a source
+pulse before emitting the latest value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the audited values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.auditTime&lt;int&gt;(
+  source.cell,
+  duration: Duration(milliseconds: 100),
+);
+
+source.emit(1);
+source.emit(2);
+// After 100ms: -&gt; 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/audit.html">audit</a>: For audit on notifier.</li>
+<li><a href="../../cell_flow/Flow/debounce.html">debounce</a>: For resetting the timer on each pulse.</li>
+</ul>
 </section>
 
 
@@ -73,10 +130,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle auditTime&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  SampleErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration duration,
+      SampleErrorHandler? onError,
+    }) {
   return AuditTime&lt;S&gt;(duration, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

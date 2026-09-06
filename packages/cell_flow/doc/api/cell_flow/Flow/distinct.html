@@ -63,7 +63,70 @@
     </section>
     
 <section class="desc markdown">
-  <p>Distinct consecutive (or global) values.</p>
+  <p>Suppresses pulses that have been seen before (globally or consecutively
+depending on configuration).</p>
+<p><a href="../../cell_flow/Flow/distinct.html">distinct</a> acts as a <strong>Global Duplicate Filter</strong>. It keeps track of all
+values that have ever been emitted and drops any value that has been seen
+before, regardless of position.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/distinct.html">distinct</a> when you need to ensure each value is emitted only once.</p>
+<ul>
+<li><strong>Unique Items</strong>: Processing unique items from a stream.</li>
+<li><strong>Set-Like Deduplication</strong>: Implementing set-like deduplication.</li>
+<li><strong>Event Tracking</strong>: Tracking unique events.</li>
+<li><strong>ID Deduplication</strong>: Deduplicating IDs.</li>
+<li><strong>Data Cleaning</strong>: Removing duplicates from a stream.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each typed pulse's payload is extracted.</li>
+<li>The payload is compared to all previously seen values using <code>equals</code>.</li>
+<li>If a match is found, the pulse is dropped.</li>
+<li>If no match is found, the pulse passes through and the value is stored.</li>
+</ol>
+<h3 id="memory-considerations">Memory Considerations</h3>
+<ul>
+<li><strong>O(n) Memory</strong>: The instruction stores all seen values in a list.</li>
+<li><strong>Unbounded Growth</strong>: Memory grows with the number of unique values.</li>
+<li><strong>Use <a href="../../cell_flow/Flow/skipRepeated.html">skipRepeated</a></strong> when only consecutive repeats matter to avoid
+unbounded memory growth.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Global Scope</strong>: Any previously seen value is dropped, even if it
+appeared long ago.</li>
+<li><strong>Memory Growth</strong>: The instruction stores all seen values, so memory
+grows with the number of unique values.</li>
+<li><strong>Custom Comparator</strong>: Providing an <code>equals</code> function allows for
+custom comparison logic.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the filtered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final nums = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.distinct&lt;int&gt;(nums.cell);
+
+nums.emit(1); // passes through
+nums.emit(2); // passes through
+nums.emit(1); // dropped
+nums.emit(3); // passes through
+nums.emit(2); // dropped
+// Result: `[1, 2, 3]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/skipRepeated.html">skipRepeated</a>: For consecutive-only deduplication.</li>
+<li><a href="../../cell_flow/Flow/filter.html">filter</a>: For general filtering.</li>
+</ul>
 </section>
 
 

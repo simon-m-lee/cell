@@ -1672,7 +1672,6 @@ abstract interface class Cell {
   /// - **Example**: See `example/async_map_demo.dart` for a complete
   ///   walkthrough of managing parallel fetches, latest-only search updates, 
   ///   and ordered sequential background tasks..
-///   {@example example/async_map_demo.dart}
   /// * [Cell.switchMap]: To switch to a different source cell entirely.
   /// * [Cell.fromFuture]: To bridge a single, one-time async result.
   /// {@category asyncMap}

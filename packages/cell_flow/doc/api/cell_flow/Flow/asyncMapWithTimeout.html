@@ -68,6 +68,60 @@
     
 <section class="desc markdown">
   <p>Time-box one projection.</p>
+<p><a href="../../cell_flow/Flow/asyncMapWithTimeout.html">asyncMapWithTimeout</a> ensures that async operations complete within
+a specified time limit, throwing an error if they exceed it.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncMapWithTimeout.html">asyncMapWithTimeout</a> when operations must complete quickly.</p>
+<ul>
+<li><strong>Time-Sensitive Operations</strong>: Operations that must complete quickly.</li>
+<li><strong>User Experience</strong>: Preventing hanging operations.</li>
+<li><strong>Service Level Agreements</strong>: Enforcing response time limits.</li>
+<li><strong>Resource Protection</strong>: Preventing resource exhaustion.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each operation is started with a timeout.</li>
+<li>If the operation exceeds <code>duration</code>, a <a href="https://api.flutter.dev/flutter/dart-async/TimeoutException-class.html">TimeoutException</a> is thrown.</li>
+<li>The error is reported via <code>onError</code>.</li>
+<li>The instruction continues with the next input.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Timer Precision</strong>: Timers are based on the event loop.</li>
+<li><strong>Cancellation</strong>: Timed-out operations are cancelled.</li>
+<li><strong>Error Reporting</strong>: Timeouts are reported via <code>onError</code>.</li>
+<li><strong>Sequential</strong>: Operations run one after another.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>Mapping Function.</strong> Called with each typed payload,
+returns a <code>FutureOr&lt;T&gt;</code>.</li>
+<li><code>duration</code>: <strong>Timeout Duration.</strong> Required. Operations exceeding
+this time will be cancelled.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final requests = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.asyncMapWithTimeout&lt;String, String&gt;(
+  requests.cell,
+  mapper: (url) async =&gt; await http.get(url).then((r) =&gt; r.body),
+  duration: Duration(seconds: 5),
+);
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>: For sequential mapping.</li>
+<li><a href="../../cell_flow/Flow/timeout.html">timeout</a>: For idle timeout.</li>
+</ul>
 </section>
 
 
@@ -75,11 +129,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMapWithTimeout&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;T&gt; Function(S value) mapper,
-  required Duration duration,
-  AsyncMapErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;T&gt; Function(S value) mapper,
+      required Duration duration,
+      AsyncMapErrorHandler? onError,
+    }) {
   return AsyncMapWithTimeout&lt;S, T&gt;(
     mapper,
     duration: duration,

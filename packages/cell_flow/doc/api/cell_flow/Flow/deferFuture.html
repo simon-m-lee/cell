@@ -67,7 +67,75 @@
     </section>
     
 <section class="desc markdown">
-  <p>Start a new future on every pulse (Rx <code>defer</code>).</p>
+  <p>Executes <code>create</code> to start a new future on every pulse received from
+<code>source</code> (Rx <code>defer</code> for futures).</p>
+<p><a href="../../cell_flow/Flow/deferFuture.html">deferFuture</a> acts as an <strong>Asynchronous Per-Trigger Loader</strong>. Each
+trigger pulse starts a <strong>new</strong> <code>Future</code> from <code>create</code>. The trigger
+payload is passed through so the factory can depend on the stimulus.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/deferFuture.html">deferFuture</a> when you need a new future for each trigger:</p>
+<ul>
+<li><strong>Per-Request Loading</strong>: Loading data for each user request</li>
+<li><strong>Dynamic Loading</strong>: Loading data based on the trigger payload</li>
+<li><strong>Refresh Operations</strong>: Reloading data on each refresh trigger</li>
+<li><strong>Lazy Evaluation</strong>: Evaluating a future only when triggered</li>
+<li><strong>Search Operations</strong>: Performing a new search for each query</li>
+<li><strong>Pagination</strong>: Loading the next page on each trigger</li>
+<li><strong>Form Submissions</strong>: Submitting each form as a separate operation</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each trigger pulse calls <code>create</code> with the pulse.</li>
+<li>The <code>create</code> function returns a <code>Future&lt;S&gt;</code>.</li>
+<li>The future is awaited (optionally under <a href="../../cell_flow/Flow/timeout.html">timeout</a>).</li>
+<li>Success emits <code>Pulse&lt;S&gt;</code> with step <code>DeferFuture</code>.</li>
+<li>Failure is reported through <code>onError</code> and optionally an error pulse.</li>
+<li>Results are emitted in input order (sequential processing).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Per-Trigger</strong>: Each trigger starts a new future.</li>
+<li><strong>Sequential</strong>: The instruction processes inputs one at a time.
+Each async operation must complete before the next starts.</li>
+<li><strong>Payload Access</strong>: The trigger payload is passed to <code>create</code> so
+the future can depend on the stimulus.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code> and optionally
+as error pulses with <code>type: 'error'</code>.</li>
+<li><strong>Timeout</strong>: Optional timeout can be applied to each future operation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers each future.</li>
+<li><code>create</code>: <strong>The Future Factory.</strong> Takes the trigger pulse and returns
+a <code>Future&lt;S&gt;</code>.</li>
+<li><a href="../../cell_flow/Flow/timeout.html">timeout</a>: <strong>Timeout Duration.</strong> Optional. If provided, the operation
+will fail if it exceeds this duration.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code> (default), errors
+emit a pulse with <code>type: 'error'</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the output payload from the future.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final userIds = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.deferFuture&lt;UserProfile&gt;(
+  userIds.cell,
+  create: (p) async =&gt; await api.fetchUser(p.payload as int),
+);
+
+userIds.emit(1); // Loads user 1
+userIds.emit(2); // Loads user 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a>: For one-shot future loading.</li>
+<li><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>: For mapping each value through an async function.</li>
+</ul>
 </section>
 
 
@@ -75,11 +143,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle deferFuture&lt;S&gt;(
-  Cell source, {
-  required Future&lt;S&gt; Function(Pulse trigger) create,
-  FutureErrorHandler? onError,
-  bool emitErrorPulse = true,
-}) {
+    Cell source, {
+      required Future&lt;S&gt; Function(Pulse trigger) create,
+      FutureErrorHandler? onError,
+      bool emitErrorPulse = true,
+    }) {
   return DeferFuture&lt;S&gt;(
     create,
     onError: onError,

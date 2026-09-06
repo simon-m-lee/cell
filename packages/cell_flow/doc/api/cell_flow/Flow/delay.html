@@ -66,6 +66,62 @@
     
 <section class="desc markdown">
   <p>Shift every value by <code>duration</code> (Rx <code>delay</code>).</p>
+<p><a href="../../cell_flow/Flow/delay.html">delay</a> is the fundamental delay operator. It delays each pulse
+by a fixed duration before forwarding it.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/delay.html">delay</a> when you need to introduce a fixed time delay
+between receiving a pulse and forwarding it.</p>
+<ul>
+<li><strong>Debouncing</strong>: Delaying actions to avoid rapid triggers.</li>
+<li><strong>Animation</strong>: Delaying UI updates for animation timing.</li>
+<li><strong>Throttling</strong>: Introducing latency for rate limiting.</li>
+<li><strong>Synchronization</strong>: Synchronizing with external timing.</li>
+<li><strong>Testing</strong>: Simulating network latency.</li>
+<li><strong>User Experience</strong>: Adding deliberate delays for UX.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>A timer is started for <code>duration</code>.</li>
+<li>When the timer fires, the pulse is forwarded.</li>
+<li>The pulse gets the step <code>'Delay'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fixed Delay</strong>: The delay is the same for all pulses.</li>
+<li><strong>No Cancellation</strong>: Previous delays are not cancelled.</li>
+<li><strong>Provenance Preservation</strong>: The forwarded pulse preserves the
+source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Delay Duration.</strong> The time to wait before
+forwarding each pulse.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the delayed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.delay&lt;int&gt;(
+  input.cell,
+  duration: Duration(milliseconds: 500),
+);
+
+input.emit(42); // Will be emitted after 500ms
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/delayWithSelector.html">delayWithSelector</a>: For payload-dependent delay.</li>
+<li><a href="../../cell_flow/Flow/delayWhen.html">delayWhen</a>: For notifier-based delay.</li>
+<li><a href="../../cell_flow/Flow/delayLatest.html">delayLatest</a>: For trailing delay.</li>
+</ul>
 </section>
 
 
@@ -73,10 +129,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle delay&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  DelayErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration duration,
+      DelayErrorHandler? onError,
+    }) {
   return Delay&lt;S&gt;(duration, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

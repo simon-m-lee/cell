@@ -68,6 +68,60 @@
     
 <section class="desc markdown">
   <p>Emit <code>fallback</code> when the mapper throws.</p>
+<p><a href="../../cell_flow/Flow/asyncMapWithFallback.html">asyncMapWithFallback</a> provides a safety net for async operations
+that may fail, ensuring that a value is always emitted.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncMapWithFallback.html">asyncMapWithFallback</a> when you want to provide a default
+value on error.</p>
+<ul>
+<li><strong>Graceful Degradation</strong>: Providing a default on failure.</li>
+<li><strong>Caching</strong>: Serving stale cached data on failure.</li>
+<li><strong>Offline Support</strong>: Providing offline defaults.</li>
+<li><strong>Resilience</strong>: Preventing failures from propagating.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each operation is attempted.</li>
+<li>If successful, the result is emitted.</li>
+<li>If the operation fails, <code>fallback</code> is emitted instead.</li>
+<li>The instruction always emits a value.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Always Emits</strong>: A value is always emitted (success or fallback).</li>
+<li><strong>Error Isolation</strong>: Errors are caught and handled gracefully.</li>
+<li><strong>Type Safety</strong>: The fallback must return the same type <code>T</code>.</li>
+<li><strong>Sequential</strong>: Operations run one after another.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>Mapping Function.</strong> Called with each typed payload,
+returns a <code>FutureOr&lt;T&gt;</code>.</li>
+<li><code>fallback</code>: <strong>Fallback Value.</strong> Emitted when the mapping fails.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final requests = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.asyncMapWithFallback&lt;String, String&gt;(
+  requests.cell,
+  mapper: (url) async =&gt; await api.fetch(url),
+  fallback: 'Cached data',
+);
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>: For sequential mapping.</li>
+<li><a href="../../cell_flow/Flow/asyncMapWithRetry.html">asyncMapWithRetry</a>: For retry logic.</li>
+</ul>
 </section>
 
 
@@ -75,11 +129,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMapWithFallback&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;T&gt; Function(S value) mapper,
-  required T fallback,
-  AsyncMapErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;T&gt; Function(S value) mapper,
+      required T fallback,
+      AsyncMapErrorHandler? onError,
+    }) {
   return AsyncMapWithFallback&lt;S, T&gt;(
     mapper,
     fallback: fallback,

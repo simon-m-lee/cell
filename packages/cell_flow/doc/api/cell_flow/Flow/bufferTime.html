@@ -66,7 +66,67 @@
     </section>
     
 <section class="desc markdown">
-  <p>Flush every <code>duration</code> (Rx <code>bufferTime</code>).</p>
+  <p>Periodically flushes the collected payloads into a list and emits it (Rx <code>bufferTime</code>).</p>
+<p><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a> batches incoming values into time-based buffers.
+The clock starts on the first typed pulse and flushes the buffer
+every <code>duration</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a> when you need to batch values by time.</p>
+<ul>
+<li><strong>Rate Limiting</strong>: Limiting the rate of processed items.</li>
+<li><strong>Time-Based Batching</strong>: Grouping items by time interval.</li>
+<li><strong>Sliding Windows</strong>: Implementing sliding time windows.</li>
+<li><strong>Throttling</strong>: Throttling processing to a fixed rate.</li>
+<li><strong>Metrics</strong>: Aggregating metrics over time.</li>
+<li><strong>Logging</strong>: Batching log entries by time.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse starts the timer.</li>
+<li>Each pulse's payload is added to the buffer.</li>
+<li>Every <code>duration</code>, the buffer is emitted as a list.</li>
+<li>The buffer is cleared after emission.</li>
+<li>If <code>emitEmpty</code> is <code>false</code>, empty buffers are skipped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lazy Start</strong>: The timer starts on the first pulse, not on
+instruction creation.</li>
+<li><strong>Continuous</strong>: The timer continues indefinitely until disposed.</li>
+<li><strong>Empty Skip</strong>: <code>emitEmpty</code> controls whether empty buffers are
+emitted.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Buffer Duration.</strong> The time interval for each buffer.</li>
+<li><code>emitEmpty</code>: <strong>Emit Empty Buffers.</strong> If <code>true</code>, empty buffers are
+emitted as empty lists. Defaults to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the buffered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.bufferTime&lt;int&gt;(
+  input.cell,
+  duration: Duration(seconds: 1),
+  emitEmpty: false,
+);
+
+// Emits accumulated values every second
+// Outputs: `[1, 2]`, `[3, 4]`, `[5]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+<li><a href="../../cell_flow/Flow/bufferWhen.html">bufferWhen</a>: For trigger-based buffering.</li>
+</ul>
 </section>
 
 
@@ -74,11 +134,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferTime&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  bool emitEmpty = false,
-  BufferErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration duration,
+      bool emitEmpty = false,
+      BufferErrorHandler? onError,
+    }) {
   return BufferTime&lt;S&gt;(
     duration,
     emitEmpty: emitEmpty,

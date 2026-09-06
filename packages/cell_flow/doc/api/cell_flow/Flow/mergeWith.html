@@ -65,6 +65,62 @@
     
 <section class="desc markdown">
   <p>Forward source and <code>others</code> (Rx <code>mergeWith</code>).</p>
+<p><a href="../../cell_flow/Flow/mergeWith.html">mergeWith</a> acts as a <strong>Source Merger</strong>. It combines the bound source
+cell with additional cells, forwarding pulses from all of them in an
+interleaved fashion.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mergeWith.html">mergeWith</a> when you need to combine multiple sources:</p>
+<ul>
+<li><strong>UI Events</strong>: Combine clicks from several widgets</li>
+<li><strong>Data Sources</strong>: Merge a local cache Cell with a network Cell</li>
+<li><strong>Multiple Inputs</strong>: Combine events from different input devices</li>
+<li><strong>Feature Flags</strong>: Merge different feature streams</li>
+<li><strong>Real-time Data</strong>: Combine real-time data from multiple sources</li>
+<li><strong>User Actions</strong>: Merge different user actions into one stream</li>
+<li><strong>Sensors</strong>: Combine readings from multiple sensors</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Observers are started on all <code>others</code> cells.</li>
+<li>The bound source pulse passes through (if <code>forwardSource</code> is true).</li>
+<li>Pulses from <code>others</code> are forwarded with step <code>MergeWith.other</code>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Interleaved</strong>: Pulses from different sources are interleaved.</li>
+<li><strong>Order Preservation</strong>: Within each source, order is preserved.</li>
+<li><strong>Error Handling</strong>: Type errors are reported via <code>onError</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>The Additional Cells.</strong> Cells to merge with the source.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the merged values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final button1 = Cell.ingress&lt;int&gt;();
+final button2 = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.mergeWith&lt;int&gt;(
+  button1.cell,
+  others: [button2.cell],
+);
+
+button1.emit(1);
+button2.emit(2);
+// Outputs: 1, 2 (interleaved)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/merge.html">merge</a>: For merging extra sources only.</li>
+<li><a href="../../cell_flow/Flow/mergeAll.html">mergeAll</a>: For flattening inner sequences.</li>
+</ul>
 </section>
 
 
@@ -72,9 +128,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mergeWith&lt;T&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; others,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; others,
+    }) {
   return MergeWith&lt;T&gt;(others).toHandle(source: source);
 }</code></pre>
 </section>

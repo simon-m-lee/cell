@@ -1,0 +1,63 @@
+# Package root: packages/cell_flow/dartdoc_options.yaml
+# Paths are POSIX and relative to this file.
+#
+# After editing, regenerate:
+#   dart doc .
+# Then open doc/api/index.html (Topics + Libraries).
+#
+# Category keys MUST match {@category ...} text in Dart doc comments.
+
+dartdoc:
+  categories:
+    # ── Foundation ──────────────────────────────────────────────
+    "Architecture":
+      markdown: ARCHITECTURE-Flow.md
+      displayName: Architecture (Mitosis)
+    "Features":
+      markdown: FEATURES-Flow.md
+      displayName: Operator Catalog
+    "Comparison":
+      markdown: ANALYSIS-Flow-vs-Rx.md
+      displayName: Flow vs Rx
+
+    # ── Learning & Demos ──────────────────────────────────────────
+    "Walkthroughs":
+      markdown: DEMO_GUIDE.md
+      displayName: High-Fidelity Walkthroughs
+    "ICU Alarm Pipeline":
+      markdown: example/ICU-alarm-pipeline(enhanced)-WalkThrough.md
+      displayName: "Demo · ICU Alarm Pipeline"
+    "Pharmacy Dispense":
+      markdown: example/domain-cells-txApply(enhanced)-WalkThrough.md
+      displayName: "Demo · Pharmacy Transactions"
+    "Search Stability":
+      markdown: example/stability_search-WalkThrough.md
+      displayName: "Demo · Search Stability"
+    "Examples":
+      markdown: README.md
+      displayName: Quick Start & Examples
+
+    # ── Advanced Guides ──────────────────────────────────────────
+    "Instructions":
+      markdown: guide/HowTo-FlowInstruction-Receptor.md
+      displayName: Custom Receptors & Instructions
+    "Fluent API":
+      markdown: guide/HowTo-Fluent_Operator.md
+      displayName: Method Chaining (Fluent)
+
+  categoryOrder:
+    - "Architecture"
+    - "Features"
+    - "Comparison"
+    - "Walkthroughs"
+    - "ICU Alarm Pipeline"
+    - "Pharmacy Dispense"
+    - "Search Stability"
+    - "Examples"
+    - "Instructions"
+    - "Fluent API"
+
+  # Link to the core cell package documentation if available
+  # (Assumes standard pub layout or mono-repo relative path)
+  # externalLinks:
+  #   cell: ../cell/doc/api/

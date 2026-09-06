@@ -15,13 +15,13 @@
 /// While the core `Cell` library handles state and synchronous pulse
 /// propagation, **Mitosis** (cell_flow) provides the machinery for:
 /// * **Transformation**: Reshaping data as it traverses the graph via
-///   operators like [map], [scan], and [buffer].
+///   operators like [Flow.map], [Flow.scan], and [Flow.bufferCount].
 /// * **Temporal Control**: Managing the dimension of time using
-///   [debounce], [throttle], [delay], and [interval].
+///   [Flow.debounce], [Flow.throttle], [Flow.delay], and [Flow.interval].
 /// * **Asynchronous Bridging**: Safely integrating [Future] and [Stream]
-///   workloads into the synchronous graph via [asyncMap] and [switchMap].
+///   workloads into the synchronous graph via [Flow.asyncMap] and [Flow.switchMap].
 /// * **Topological Routing**: Multiplexing and demultiplexing pulses
-///   through [groupBy], [partition], and [window].
+///   through [Flow.groupBy], [Flow.partition], and [Flow.windowCount].
 ///
 /// ### Core Mechanics
 /// 1. **Unified Graph**: Unlike traditional Rx wrappers, `cell_flow`
@@ -95,14 +95,14 @@ import 'package:cell_flow/src/instruction/async_fold.dart';
 import 'package:cell_flow/src/instruction/async_expand.dart';
 
 // ── Filter / take / skip / distinct ───────────────────────────
-import 'package:cell_flow/src/instruction/filter.dart' hide Distinct, Debounce, Throttle;
+import 'package:cell_flow/src/instruction/filter.dart';
 import 'package:cell_flow/src/instruction/distinct.dart';
-import 'package:cell_flow/src/instruction/take.dart' hide TakeWhile, Take;
-import 'package:cell_flow/src/instruction/skip.dart' hide Skip, SkipWhile;
+import 'package:cell_flow/src/instruction/take.dart';
+import 'package:cell_flow/src/instruction/skip.dart';
 
 // ── Flatten ───────────────────────────────────────────────────
 import 'package:cell_flow/src/instruction/concat.dart';
-import 'package:cell_flow/src/instruction/concat_map.dart' hide ConcatAll;
+import 'package:cell_flow/src/instruction/concat_map.dart';
 import 'package:cell_flow/src/instruction/merge_map.dart';
 import 'package:cell_flow/src/instruction/switch_map.dart';
 import 'package:cell_flow/src/instruction/exhaust_map.dart';
@@ -115,7 +115,7 @@ import 'package:cell_flow/src/instruction/race.dart';
 
 // ── Time ──────────────────────────────────────────────────────
 import 'package:cell_flow/src/instruction/delay.dart';
-import 'package:cell_flow/src/instruction/debounce.dart' hide SampleTime, AuditTime;
+import 'package:cell_flow/src/instruction/debounce.dart';
 import 'package:cell_flow/src/instruction/throttle.dart';
 import 'package:cell_flow/src/instruction/sample.dart';
 import 'package:cell_flow/src/instruction/interval.dart';

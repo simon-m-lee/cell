@@ -68,6 +68,64 @@
     
 <section class="desc markdown">
   <p>Tap with a 0-based index.</p>
+<p><a href="../../cell_flow/Flow/tapWithIndex.html">tapWithIndex</a> is similar to <a href="../../cell_flow/Flow/tap.html">tap</a> but the callback receives the
+index of each value in the sequence.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/tapWithIndex.html">tapWithIndex</a> when you need the index of each value in your
+side effect.</p>
+<ul>
+<li><strong>Position Tracking</strong>: Tracking the position of values.</li>
+<li><strong>Progress Reporting</strong>: Reporting progress through a sequence.</li>
+<li><strong>Index-Based Logging</strong>: Logging with index information.</li>
+<li><strong>Sequence Debugging</strong>: Debugging sequence order.</li>
+<li><strong>Batch Processing</strong>: Tracking batch position.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>onValue</code> is called with the payload and index.</li>
+<li>The index starts at 0 and increments on each typed pulse.</li>
+<li>If <code>onValue</code> throws an error, the pulse is dropped.</li>
+<li>If <code>onValue</code> succeeds, the pulse is passed through unchanged.</li>
+<li>The index is incremented after the callback.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Index Type</strong>: The index is a 0-based integer.</li>
+<li><strong>Typed Only</strong>: Only typed pulses increment the index.</li>
+<li><strong>Error Handling</strong>: If <code>onValue</code> throws, the pulse is dropped
+and the index is not incremented.</li>
+<li><strong>Provenance Preservation</strong>: The pulse gets the <code>'TapWithIndex'</code> step.</li>
+<li><strong>Synchronous Callback</strong>: <code>onValue</code> is synchronous.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>onValue</code>: <strong>Indexed Side Effect Callback.</strong> Called with each
+typed payload and its index. If it throws, the pulse is dropped.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the tapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final items = Cell.ingress&lt;Item&gt;();
+
+final handle = Flow.tapWithIndex&lt;Item&gt;(
+  items.cell,
+  onValue: (item, index) {
+    print('Processing item ${index + 1}');
+  },
+);
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/tap.html">tap</a>: For simple side effects.</li>
+<li><a href="../../cell_flow/Flow/tapAll.html">tapAll</a>: For side effects on all pulses.</li>
+</ul>
 </section>
 
 
@@ -75,10 +133,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle tapWithIndex&lt;S&gt;(
-  Cell source, {
-  required void Function(S value, int index) onValue,
-  TapErrorHandler? onError,
-}) {
+    Cell source, {
+      required void Function(S value, int index) onValue,
+      TapErrorHandler? onError,
+    }) {
   return TapWithIndex&lt;S&gt;(onValue, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

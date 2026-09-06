@@ -143,9 +143,12 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
     return;
   }
 
+  &#47;&#47; assert(incoming is PulseBase,
+  &#47;&#47; &#39;Receptor call failed: The [incoming] pulse is not implemented from PulseBase.&#39;
+  &#47;&#47; );
+
   var pulse = incoming as PulseBase;
   final cell = _receptor.cell;
-
   if (await pulse._checker.async.add(cell) == false) {
     return;
   }
@@ -161,7 +164,7 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
   await _queue.add(pulse);
 
   Future&lt;void&gt; drain() =&gt; _unawaitedLock.synchronized(() async {
-    PulseBase? out;
+    Pulse? out;
 
     while (await _queue.isNotEmpty) {
       final p = await _queue.removeFirst();
@@ -178,15 +181,22 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
         }
       }
 
+      final validation = cell.validate.call(pulse, host: cell);
+      final passed = validation is Future&lt;bool&gt; ? await validation : validation;
+      if (!passed) return;
+
       final lock = cell._nucleus.lock;
       if (lock != null) {
         out = await lock.synchronized(() async {
-          final result = _receptor._onPulseReceived(p);
-          return result;
+          return _receptor._proceed(p);
         });
       } else {
-        final result = _receptor._onPulseReceived(p);
-        out = result;
+        final result = _receptor._proceed(p);
+        if (result is Future&lt;Pulse?&gt;) {
+          out = await result;
+        } else {
+          out = result;
+        }
       }
 
       final hookFn = hook as void Function({Pulse? result, required Pulse input})?;

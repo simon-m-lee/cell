@@ -20,7 +20,9 @@ environment:
 # pub.dev does not allow path / git dependencies in published packages.
 # Keep this version in lockstep with package:cell (Mitosis RC).
 dependencies:
-  cell: 1.0.0-rc.1
+#  cell: 1.0.0-rc.1
+  cell:
+    path: ../cell
 
 dev_dependencies:
   lints: ^5.0.0

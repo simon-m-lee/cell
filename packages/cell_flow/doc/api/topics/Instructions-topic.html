@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Custom Receptors &amp; Instructions topic docs, for the Dart programming language.">
+  <title>Custom Receptors &amp; Instructions topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Custom Receptors & Instructions topic</li>
+  </ol>
+  <div class="self-name">Custom Receptors &amp; Instructions</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Custom Receptors &amp; Instructions</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-build-a-purpose-built-receptor-with-an-instructionchain-of-flowinstructions">How to build a purpose-built Receptor with an InstructionChain of FlowInstructions</h1>
+<p>A <strong>Receptor</strong> is the gate that runs <strong>Instructions</strong> when a pulse hits a Cell.<br>
+A <strong>FlowInstruction</strong> <em>is</em> an <code>Instruction</code>.<br>
+<code>operator +</code> and <code>Instruction.chain</code> both produce an <strong>InstructionChain</strong>.<br>
+<code>toHandle</code> wraps that chain in <code>Receptor.instruction(...)</code> and hangs it on a Nucleus.</p>
+<p>You get <strong>one</strong> Receptor, <strong>one</strong> lock, <strong>one</strong> Cell — many operators inside.</p>
+<pre class="language-dart"><code>Filter + MapValue + Tap + Distinct
+        │
+        ▼
+_FlowInstructionChain  extends  InstructionChain
+        │
+        ▼
+Receptor.instruction(chain)
+        │
+        ▼
+Nucleus(bind: source, receptor: …)  →  Cell.fromNucleus
+</code></pre>
+<p>Fluent <code>source.filter().map()</code> is different: <strong>each</strong> step is its own Receptor/Cell. Use a chain when the steps should share ingress, lock, and identity.</p>
+<hr>
+<h2 id="1-smallest-purpose-built-receptor">1. Smallest purpose-built Receptor</h2>
+<p>Sanitize a string in one gate: trim → drop empty → tag.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+
+final sanitize = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
+    Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
+    Tap&lt;String&gt;((s) =&gt; debugPrint('kept $s'));
+
+final ingress = Cell.ingress&lt;String&gt;();
+final handle = sanitize.toHandle(source: ingress.cell);
+
+Cell.observe(
+  source: handle.cell,
+  effect: (Pulse p) =&gt; print(p.payload),
+);
+
+await ingress.emitAsync('  ada  '); // ada
+await ingress.emitAsync('   ');     // dropped
+</code></pre>
+<p><code>+</code> is left-associative and returns another <code>FlowInstruction</code>, so you can keep appending.</p>
+<p><code>null</code> from any step <strong>stops the chain</strong> (default strategy). That is how <code>Filter</code> drops a pulse without the later <code>Tap</code> running.</p>
+<hr>
+<h2 id="2-named-domain-pipeline-many-instructions">2. Named domain pipeline (many instructions)</h2>
+<p>Give the chain a name. Reuse it on several Cells.</p>
+<pre class="language-dart"><code class="language-dart">FlowInstruction&lt;Cell, Pulse, Pulse&gt; searchPipeline() {
+  return MapValue&lt;String, String&gt;((q) =&gt; q.trim().toLowerCase()) +
+      Filter&lt;String&gt;((q) =&gt; q.length &gt;= 2) +
+      Distinct&lt;String&gt;() +
+      Tap&lt;String&gt;((q) =&gt; analytics.track('query', q));
+}
+
+final box = Cell.ingress&lt;String&gt;();
+final live = searchPipeline().toHandle(source: box.cell);
+</code></pre>
+<p>The same function can be bound to a widget Cell and a test ingress. The Receptor is created at <code>toHandle</code> time, not at function definition time.</p>
+<hr>
+<h2 id="3-explicit-instructionchain-same-idea-listed">3. Explicit <code>Instruction.chain</code> (same idea, listed)</h2>
+<p><code>+</code> is sugar. When the list is long, build the chain in one place:</p>
+<pre class="language-dart"><code class="language-dart">final checkout = Instruction.chain&lt;Cell, Pulse, Pulse&gt;([
+  Filter&lt;Cart&gt;((c) =&gt; c.lines.isNotEmpty),
+  MapValue&lt;Cart, Quote&gt;((c) =&gt; Quote.from(c)),
+  Tap&lt;Quote&gt;((q) =&gt; log.info('quote ${q.total}')),
+  Filter&lt;Quote&gt;((q) =&gt; q.total &gt; 0),
+]);
+
+final cart = Cell.ingress&lt;Cart&gt;();
+final quoted = (checkout as FlowInstruction&lt;Cell, Pulse, Pulse&gt;)
+    .toHandle(source: cart.cell);
+</code></pre>
+<p>If the factory returns a plain <code>Instruction</code>, wrap with <code>Receptor.instruction</code> yourself (next section) or keep using <code>+</code> so the result stays a <code>FlowInstruction</code> with <code>toHandle</code>.</p>
+<p>Safer pattern that stays in Flow land:</p>
+<pre class="language-dart"><code class="language-dart">FlowInstruction&lt;Cell, Pulse, Pulse&gt; checkoutFlow() =&gt;
+    Filter&lt;Cart&gt;((c) =&gt; c.lines.isNotEmpty) +
+    MapValue&lt;Cart, Quote&gt;((c) =&gt; Quote.from(c)) +
+    Tap&lt;Quote&gt;((q) =&gt; log.info('quote ${q.total}')) +
+    Filter&lt;Quote&gt;((q) =&gt; q.total &gt; 0);
+</code></pre>
+<hr>
+<h2 id="4-purpose-built-receptor-without-tohandle">4. Purpose-built Receptor without <code>toHandle</code></h2>
+<p>When you already have a Nucleus / Cell factory and want the Receptor object:</p>
+<pre class="language-dart"><code class="language-dart">final op = Filter&lt;int&gt;((n) =&gt; n &gt;= 0) +
+    MapValue&lt;int, String&gt;((n) =&gt; '#$n') +
+    Tap&lt;String&gt;(print);
+
+final receptor = Receptor.instruction(op);
+
+final nucleus = Nucleus(
+  bind: source,
+  receptor: receptor,
+  testRule: TestCell.allowAll,
+  synapses: Synapses.enabled,
+);
+final cell = Cell.fromNucleus(nucleus);
+</code></pre>
+<p>That is exactly what <code>FlowInstructionMixin.toHandle</code> does, plus <code>emit</code> / <code>emitAsync</code> helpers.</p>
+<p>Use this form when the Receptor must be stored, tested, or swapped.</p>
+<pre class="language-dart"><code class="language-dart">test('sanitize drops blanks', () {
+  final r = Receptor.instruction(
+    MapValue&lt;String, String&gt;((s) =&gt; s.trim()) + Filter&lt;String&gt;((s) =&gt; s.isNotEmpty),
+  );
+  expect(r.call(Pulse('  x  '))?.payload, 'x');
+  expect(r.call(Pulse('   ')), isNull);
+});
+</code></pre>
+<hr>
+<h2 id="5-custom-strategy-not-a-straight-line">5. Custom strategy (not a straight line)</h2>
+<p>Default chain: run in order, stop on <code>null</code>.</p>
+<p>Override <code>strategy</code> when you need skip / branch <strong>inside one Receptor</strong>:</p>
+<pre class="language-dart"><code class="language-dart">final trim = MapValue&lt;String, String&gt;((s) =&gt; s.trim());
+final validate = Filter&lt;String&gt;((s) =&gt; s.contains('@'));
+final log = Tap&lt;String&gt;((s) =&gt; print('email $s'));
+
+final emailGate = Instruction.chain&lt;Cell, Pulse, Pulse&gt;(
+  [trim, validate, log],
+  user: const {'strict': true},
+  strategy: (pulse, {cell, user}) {
+    final trimmed = trim.call(pulse, cell: cell);
+    if (trimmed == null) return null;
+
+    final strict = user is Map &amp;&amp; user['strict'] == true;
+    if (strict) {
+      final ok = validate.call(trimmed, cell: cell);
+      if (ok == null) return null;
+      return log.call(ok, cell: cell);
+    }
+    return log.call(trimmed, cell: cell);
+  },
+);
+</code></pre>
+<p>The strategy still receives the same instruction instances. It decides <strong>whether</strong> to call them. Individual FlowInstructions stay small and testable.</p>
+<hr>
+<h2 id="6-mixing-sync-chain-links-with-async-instructions">6. Mixing sync chain links with async instructions</h2>
+<p>A chain’s default walk is <strong>synchronous</strong>. <code>Filter</code> / <code>MapValue</code> / <code>Tap</code> / <code>Distinct</code> / <code>Skip</code> / <code>Take</code> belong there.</p>
+<p>Instructions built with <code>FlowInstructionBase.future</code> (<code>Delay</code>, <code>AsyncMap</code>, <code>Debounce</code>, …) emit later through the <code>future:</code> sink. Putting several of those in <strong>one</strong> <code>+</code> chain is possible but easy to get wrong: the next link may run before the async result exists.</p>
+<p>Practical split:</p>
+<table>
+<thead>
+<tr>
+<th>In the InstructionChain (one Receptor)</th>
+<th>Own Cell / fluent step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>trim, filter, map, tap, distinct, take, skip</td>
+<td>delay, debounce, asyncMap, switchMap, buffer</td>
+</tr>
+</tbody>
+</table>
+<pre class="language-dart"><code class="language-dart">// Sync policy in one Receptor
+final admit = MapValue&lt;String, String&gt;((q) =&gt; q.trim()) +
+    Filter&lt;String&gt;((q) =&gt; q.length &gt;= 2) +
+    Distinct&lt;String&gt;();
+
+final queries = Cell.ingress&lt;String&gt;();
+final admitted = admit.toHandle(source: queries.cell);
+
+// Async work as the next node
+final results = admitted.cell.asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(
+  mapper: api.search,
+);
+</code></pre>
+<p>Two Receptors, two Cells. The first is purpose-built policy; the second is I/O.</p>
+<hr>
+<h2 id="7-larger-example-moderation-gate">7. Larger example: “moderation gate”</h2>
+<p>One Receptor that encodes product rules. Downstream Cells never see rejected pulses.</p>
+<pre class="language-dart"><code class="language-dart">FlowInstruction&lt;Cell, Pulse, Pulse&gt; moderationGate({
+  required Set&lt;String&gt; blocked,
+  required void Function(String) onDrop,
+}) {
+  return MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
+      Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
+      FilterBlocked&lt;String&gt;(blocked: blocked) +
+      Filter&lt;String&gt;((s) {
+        if (s.length &gt; 280) {
+          onDrop('too-long');
+          return false;
+        }
+        return true;
+      }) +
+      Distinct&lt;String&gt;() +
+      Tap&lt;String&gt;((s) =&gt; audit.pass(s));
+}
+
+final drafts = Cell.ingress&lt;String&gt;();
+final published = moderationGate(
+  blocked: {'spam', 'scam'},
+  onDrop: (why) =&gt; metrics.inc(why),
+).toHandle(source: drafts.cell);
+</code></pre>
+<p>Swap <code>blocked</code> in tests; the Receptor shape stays the same.</p>
+<hr>
+<h2 id="8-composing-purpose-built-chains">8. Composing purpose-built chains</h2>
+<p>A chain is an Instruction, so you can nest them.</p>
+<pre class="language-dart"><code class="language-dart">final normalize = MapValue&lt;String, String&gt;((s) =&gt; s.trim().toLowerCase()) +
+    Filter&lt;String&gt;((s) =&gt; s.isNotEmpty);
+
+final dedupe = Distinct&lt;String&gt;() + Tap&lt;String&gt;((s) =&gt; cache.remember(s));
+
+final ingest = normalize + dedupe; // InstructionChain of two chains
+
+final handle = ingest.toHandle(source: raw.cell);
+</code></pre>
+<p>Keep each piece under ~5 links so the default “null stops the line” stays readable.</p>
+<hr>
+<h2 id="9-when-to-use-which-style">9. When to use which style</h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One identity, one lock, reusable policy</td>
+<td><code>FlowInstruction + FlowInstruction</code> → <code>toHandle</code> / <code>Receptor.instruction</code></td>
+</tr>
+<tr>
+<td>Long named list, optional custom control flow</td>
+<td><code>Instruction.chain([...], strategy: …)</code></td>
+</tr>
+<tr>
+<td>Each operator visible as its own Cell</td>
+<td>fluent <code>cell.filter().map().debounce()</code></td>
+</tr>
+<tr>
+<td>Async flatten / HTTP / timers</td>
+<td>own node after the sync gate</td>
+</tr>
+</tbody>
+</table>
+<p>Fluent operators and InstructionChains are complementary, not substitutes.</p>
+<pre class="language-dart"><code class="language-dart">final gate = Filter&lt;int&gt;((n) =&gt; n &gt; 0) + MapValue&lt;int, int&gt;((n) =&gt; n * 2);
+final doubled = gate.toHandle(source: raw.cell);
+
+final shown = doubled.cell
+    .debounce&lt;int&gt;(duration: const Duration(milliseconds: 50))
+    .tap&lt;int&gt;(onValue: (n) =&gt; setState(() =&gt; value = n));
+</code></pre>
+<hr>
+<h2 id="10-checklist">10. Checklist</h2>
+<ol>
+<li>Write small <code>FlowInstruction</code>s (one job each).</li>
+<li>Join with <code>+</code> (or <code>Instruction.chain</code>) until the <strong>policy</strong> is complete.</li>
+<li>Bind once: <code>toHandle(source:)</code> or <code>Receptor.instruction</code> + <code>Nucleus</code>.</li>
+<li>Drive with <code>IngressHandle.emitAsync</code>.</li>
+<li>Leave timers and HTTP off that Receptor; chain those as the next Cell.</li>
+<li>Assert the Receptor in unit tests by calling it with a <code>Pulse</code> — you do not need a full graph for the sync gate.</li>
+</ol>
+<p>That is a purpose-built Receptor: many FlowInstructions, one InstructionChain, one gate.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Instruction">
+  <span class="name "><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reusable unit of logic for processing and transforming <a href="../cell_flow/Pulse-class.html">Pulse</a> instances.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Custom Receptors & Instructions topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Instructions-topic.html">Custom&nbsp;Receptors&nbsp;&&nbsp;Instructions</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Custom Receptors &amp; Instructions topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Instructions-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Instruction-class.html">Instruction</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

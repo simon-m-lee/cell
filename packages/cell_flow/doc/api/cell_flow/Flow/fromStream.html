@@ -66,7 +66,70 @@
     </section>
     
 <section class="desc markdown">
-  <p>Subscribe to <code>stream</code> on the first pulse (Rx <code>from(Stream)</code>).</p>
+  <p>Subscribes to <code>stream</code> on the first pulse received from <code>source</code>
+(Rx <code>fromStream</code>).</p>
+<p><a href="../../cell_flow/Flow/fromStream.html">fromStream</a> bridges a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a> into the reactive graph.
+It starts listening to the stream on the first trigger pulse and
+emits each event as a pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/fromStream.html">fromStream</a> when you want to bridge an existing Stream
+into the Cell graph.</p>
+<ul>
+<li><strong>External Events</strong>: Bridging external event streams.</li>
+<li><strong>WebSocket</strong>: Bridging WebSocket messages.</li>
+<li><strong>File Watchers</strong>: Bridging file system events.</li>
+<li><strong>Timers</strong>: Bridging periodic timers.</li>
+<li><strong>Third-Party SDKs</strong>: Bridging SDK event streams.</li>
+<li><strong>Hardware Events</strong>: Bridging hardware event streams.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the subscription.</li>
+<li>The stream is listened to.</li>
+<li>Each event is emitted as a pulse.</li>
+<li>If the stream errors, an error pulse is emitted.</li>
+<li>The instruction stops after the first trigger.</li>
+<li>Each emitted event gets the step <code>'FromStream'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The stream only starts on the first trigger.</li>
+<li><strong>Single Subscription</strong>: Only one subscription is created.</li>
+<li><strong>Error Handling</strong>: Stream errors are caught and reported.</li>
+<li><strong>Provenance Preservation</strong>: Each emitted event preserves the
+source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the subscription.</li>
+<li><code>stream</code>: <strong>The Stream Source.</strong> The stream to bridge into the
+reactive graph.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code>, emits an error
+pulse on stream error. Defaults to <code>true</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the stream events.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final connect = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.fromStream&lt;int&gt;(
+  connect.cell,
+  stream: Stream.periodic(Duration(seconds: 1), (i) =&gt; i),
+);
+
+connect.emit(null);
+// Outputs: 0, 1, 2, 3, ...
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/deferStream.html">deferStream</a>: For creating a new stream on each trigger.</li>
+<li><a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a>: For bridging a single future.</li>
+</ul>
 </section>
 
 
@@ -74,11 +137,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle fromStream&lt;S&gt;(
-  Cell source, {
-  required Stream&lt;S&gt; stream,
-  StreamErrorHandler? onError,
-  bool emitErrorPulse = true,
-}) {
+    Cell source, {
+      required Stream&lt;S&gt; stream,
+      StreamErrorHandler? onError,
+      bool emitErrorPulse = true,
+    }) {
   return FromStream&lt;S&gt;(
     stream,
     onError: onError,

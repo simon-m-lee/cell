@@ -65,7 +65,71 @@
     </section>
     
 <section class="desc markdown">
-  <p>Ignore new inners while one is running (Rx <code>exhaustMap</code>).</p>
+  <p>Maps each payload to an inner sequence, but ignores new ones while a
+sequence is already active (Rx <code>exhaustMap</code>).</p>
+<p><a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a> acts as a <strong>First-Wins Flattener</strong>. Triggers that arrive
+while an inner sequence is running are dropped.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a> when you need to prevent overlapping operations:</p>
+<ul>
+<li><strong>Submit/Save Buttons</strong>: Prevent double-submission</li>
+<li><strong>Form Submission</strong>: Prevent duplicate form submissions</li>
+<li><strong>Idempotent Operations</strong>: Operations that should only run once at a time</li>
+<li><strong>Rate Limiting</strong>: You want to limit the rate of operations</li>
+<li><strong>Resource Protection</strong>: You want to prevent resource exhaustion</li>
+<li><strong>Button Click Prevention</strong>: Prevent double-click issues</li>
+<li><strong>API Calls</strong>: Prevent concurrent API calls</li>
+<li><strong>File Uploads</strong>: Prevent overlapping uploads</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first trigger starts an inner sequence.</li>
+<li>While the sequence is in flight, all subsequent triggers are dropped.</li>
+<li>When the sequence completes, the instruction is ready for the next trigger.</li>
+<li>Results are emitted from the first sequence.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Drop While Busy</strong>: Triggers while busy are silently dropped.</li>
+<li><strong>One at a Time</strong>: Only one sequence can be in flight at a time.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code>.</li>
+<li><strong>Causal Provenance</strong>: Every emitted result is wrapped as an
+<a href="../../cell_flow/EvolvedPulse-class.html">EvolvedPulse</a>, preserving the forensic history.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>The Flattening Logic.</strong> Takes an input value and returns
+an inner sequence.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.exhaustMap&lt;void, String&gt;(
+  clicks.cell,
+  project: (_) async* {
+    await submitForm();
+    yield 'Submitted!';
+  },
+);
+
+clicks.emit(null); // Starts submission
+clicks.emit(null); // Dropped (busy)
+// Only the first submission is processed
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concatMap.html">concatMap</a>: For sequential flattening.</li>
+<li><a href="../../cell_flow/Flow/mergeMap.html">mergeMap</a>: For concurrent flattening.</li>
+<li><a href="../../cell_flow/Flow/switchMap.html">switchMap</a>: For latest-only flattening.</li>
+</ul>
 </section>
 
 
@@ -73,9 +137,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle exhaustMap&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) project,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) project,
+    }) {
   return ExhaustMap&lt;S, T&gt;(project).toHandle(source: source);
 }</code></pre>
 </section>

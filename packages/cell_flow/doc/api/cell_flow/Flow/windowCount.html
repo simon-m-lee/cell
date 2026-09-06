@@ -66,6 +66,86 @@
     
 <section class="desc markdown">
   <p>Window by count (list payload).</p>
+<p><a href="../../cell_flow/Flow/windowCount.html">windowCount</a> is similar to <a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a> but emits windows as lists.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/windowCount.html">windowCount</a> when you need to batch values by count and
+emit the batch as a list.</p>
+<ul>
+<li><strong>Batching</strong>: Grouping items for batch processing.</li>
+<li><strong>Pagination</strong>: Collecting items into pages.</li>
+<li><strong>Chunking</strong>: Splitting data into chunks.</li>
+<li><strong>Aggregation</strong>: Aggregating a fixed number of items.</li>
+<li><strong>Buffering</strong>: Buffering items for efficient processing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The payload is added to the current window buffer.</li>
+<li>When the buffer reaches <code>size</code>, the window is emitted.</li>
+<li>The buffer is cleared or advanced by <code>skip</code>.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Skip</th>
+<th>Behavior</th>
+<th>Example (size=3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skip == size</code></td>
+<td>Tumbling (no overlap)</td>
+<td><code>[1, 2, 3]</code>, <code>[4, 5, 6]</code></td>
+</tr>
+<tr>
+<td><code>skip &lt; size</code></td>
+<td>Overlapping</td>
+<td><code>[1, 2, 3]</code>, <code>[2, 3, 4]</code>, <code>[3, 4, 5]</code></td>
+</tr>
+<tr>
+<td><code>skip &gt; size</code></td>
+<td>Gaps (items skipped)</td>
+<td><code>[1, 2, 3]</code>, <code>[5, 6, 7]</code> (4 skipped)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Tumbling Default</strong>: <code>skip</code> defaults to <code>size</code> (no overlap).</li>
+<li><strong>Overlap</strong>: When <code>skip</code> &lt; <code>size</code>, windows overlap.</li>
+<li><strong>Gaps</strong>: When <code>skip</code> &gt; <code>size</code>, some items are skipped.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>size</code>: <strong>Window Size.</strong> The number of items in each window.</li>
+<li><code>skip</code>: <strong>Skip Count.</strong> How many items to advance for the next
+window. Defaults to <code>size</code> (tumbling).</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the windows.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.windowCount&lt;int&gt;(
+  input.cell,
+  size: 3,
+);
+
+input.emit(1); // No output
+input.emit(2); // No output
+input.emit(3); // -&gt; [1, 2, 3]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/windowTime.html">windowTime</a>: For time-based windows.</li>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+</ul>
 </section>
 
 
@@ -73,10 +153,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle windowCount&lt;S&gt;(
-  Cell source, {
-  required int size,
-  int? skip,
-}) {
+    Cell source, {
+      required int size,
+      int? skip,
+    }) {
   return WindowCount&lt;S&gt;(size, skip: skip).toHandle(source: source);
 }</code></pre>
 </section>

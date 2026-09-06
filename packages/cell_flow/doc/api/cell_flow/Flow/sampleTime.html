@@ -66,6 +66,63 @@
     
 <section class="desc markdown">
   <p>Latest source value every <code>period</code>.</p>
+<p><a href="../../cell_flow/Flow/sampleTime.html">sampleTime</a> is similar to <a href="../../cell_flow/Flow/sample.html">sample</a> but the sampling is driven by
+a periodic timer instead of a notifier cell.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/sampleTime.html">sampleTime</a> when you want to sample the latest value at a
+fixed interval.</p>
+<ul>
+<li><strong>UI Throttling</strong>: Throttling UI updates to a fixed frame rate.</li>
+<li><strong>Sensor Sampling</strong>: Sampling sensor data at a fixed rate.</li>
+<li><strong>Heartbeat</strong>: Emitting the latest state on a heartbeat.</li>
+<li><strong>Real-time Dashboards</strong>: Updating dashboards at a fixed rate.</li>
+<li><strong>Performance</strong>: Reducing update frequency for performance.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse starts the timer.</li>
+<li>Each source pulse updates the pending value.</li>
+<li>Every <code>period</code>, the timer fires:
+a. If there's a pending value, it's emitted.
+b. The pending value is cleared.</li>
+<li>The timer continues indefinitely.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lazy Start</strong>: The timer starts on the first pulse.</li>
+<li><strong>Continuous Timer</strong>: The timer runs until the instruction is disposed.</li>
+<li><strong>Pending Only</strong>: Values are only emitted if they arrived since
+the last emission.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>period</code>: <strong>Sampling Period.</strong> The interval between samples.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the sampled values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.sampleTime&lt;int&gt;(
+  source.cell,
+  period: Duration(milliseconds: 100),
+);
+
+source.emit(1);
+source.emit(2);
+// After 100ms: -&gt; 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/sample.html">sample</a>: For notifier-based sampling.</li>
+<li><a href="../../cell_flow/Flow/interval.html">interval</a>: For emitting values at a fixed interval.</li>
+</ul>
 </section>
 
 
@@ -73,10 +130,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle sampleTime&lt;S&gt;(
-  Cell source, {
-  required Duration period,
-  SampleErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration period,
+      SampleErrorHandler? onError,
+    }) {
   return SampleTime&lt;S&gt;(period, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

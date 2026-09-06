@@ -70,6 +70,75 @@
     
 <section class="desc markdown">
   <p>Async running fold (queued).</p>
+<p><a href="../../cell_flow/Flow/asyncFold.html">asyncFold</a> is the foundational asynchronous fold operator. It
+maintains an accumulator that is updated by an async function
+for each input, processing inputs sequentially.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncFold.html">asyncFold</a> when you need to maintain state across values
+with asynchronous updates.</p>
+<ul>
+<li><strong>Running Totals</strong>: Summing values as they arrive.</li>
+<li><strong>String Concatenation</strong>: Building strings incrementally.</li>
+<li><strong>State Aggregation</strong>: Aggregating state from async operations.</li>
+<li><strong>Data Processing</strong>: Processing data with async transformations.</li>
+<li><strong>Caching</strong>: Maintaining a cache with async updates.</li>
+<li><strong>Batch Processing</strong>: Processing batches with async logic.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The <code>accumulate</code> function is called with the current accumulator
+and the payload.</li>
+<li>The new accumulator value is stored in the snapshot.</li>
+<li>The new value is emitted.</li>
+<li>Steps are processed sequentially (queue).</li>
+<li>If <code>accumulate</code> throws an error, it's reported and the instruction
+continues with the next input.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Sequential Processing</strong>: Steps run one after another.</li>
+<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
+<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
+<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
+<li><strong>Snapshot Access</strong>: The snapshot can be read externally.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>seed</code>: <strong>Initial State.</strong> The starting accumulator value.</li>
+<li><code>accumulate</code>: <strong>Accumulation Function.</strong> Called with the current
+accumulator and the payload, returns the new accumulator.</li>
+<li><code>snapshot</code>: <strong>Shared Snapshot.</strong> Optional. Creates a new one if
+not provided.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>A</code>: The type of the accumulator and output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the accumulated values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncFold&lt;int, int&gt;(
+  input.cell,
+  seed: 0,
+  accumulate: (acc, n) async =&gt; acc + n,
+);
+
+input.emit(5);  // -&gt; 5
+input.emit(3);  // -&gt; 8
+input.emit(7);  // -&gt; 15
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncReduce.html">asyncReduce</a>: For seedless accumulation.</li>
+<li><a href="../../cell_flow/Flow/asyncFoldLatest.html">Flow.asyncFoldLatest</a>: For latest-only accumulation.</li>
+<li><a href="../../cell_flow/Flow/asyncFoldExhaust.html">Flow.asyncFoldExhaust</a>: For exhaust accumulation.</li>
+</ul>
 </section>
 
 
@@ -77,12 +146,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncFold&lt;S, A&gt;(
-  Cell source, {
-  required A seed,
-  required FutureOr&lt;A&gt; Function(A acc, S value) accumulate,
-  FoldSnapshot&lt;A&gt;? snapshot,
-  FoldErrorHandler? onError,
-}) {
+    Cell source, {
+      required A seed,
+      required FutureOr&lt;A&gt; Function(A acc, S value) accumulate,
+      FoldSnapshot&lt;A&gt;? snapshot,
+      FoldErrorHandler? onError,
+    }) {
   return AsyncFold&lt;S, A&gt;(
     seed,
     accumulate,

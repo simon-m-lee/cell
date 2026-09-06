@@ -68,6 +68,71 @@
     
 <section class="desc markdown">
   <p>Zip <code>source</code> with <code>others</code> by index (Rx <code>zipWith</code>).</p>
+<p><a href="../../cell_flow/Flow/zipWith.html">zipWith</a> pairs values from the bound source with values from
+other cells by index. A value is emitted when all sources have
+produced a value at the same ordinal position.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/zipWith.html">zipWith</a> when you need to combine values from multiple
+sources by index.</p>
+<ul>
+<li><strong>Combining Streams</strong>: Combining multiple data streams.</li>
+<li><strong>Synchronization</strong>: Synchronizing events from different sources.</li>
+<li><strong>Data Alignment</strong>: Aligning data from different sources.</li>
+<li><strong>Join Operations</strong>: Joining data from multiple sources.</li>
+<li><strong>Correlation</strong>: Correlating events from different sources.</li>
+<li><strong>Multi-source Aggregation</strong>: Aggregating data from multiple sources.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source has a queue of pending values.</li>
+<li>When a value arrives, it's added to the corresponding queue.</li>
+<li>If every queue has at least one value:
+a. One value is removed from each queue.
+b. The values are combined using <code>project</code>.
+c. The result is emitted.</li>
+<li>The slowest source determines the emission rate.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Index Pairing</strong>: Values are paired by position (index).</li>
+<li><strong>Queueing</strong>: Values are queued until all sources have a value.</li>
+<li><strong>Synchronization</strong>: The slowest source determines the emission rate.</li>
+<li><strong>Memory Usage</strong>: Queues hold values until all sources have one.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>Other Sources.</strong> The cells to zip with the bound source.</li>
+<li><code>project</code>: <strong>Projection Function.</strong> Optional. Combines the row
+of values into the output type. If not provided, the row is
+emitted as a List.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>R</code>: The type of the output value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the zipped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final left = Cell.ingress&lt;int&gt;();
+final right = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.zipWith&lt;String&gt;(
+  left.cell,
+  others: [right.cell],
+  project: (row) =&gt; '${row[0]}-${row[1]}',
+);
+
+left.emit(1);
+right.emit('a'); // -&gt; '1-a'
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/zip.html">zip</a>: For zipping extra sources with an arm.</li>
+<li><a href="../../cell_flow/Flow/zipAll.html">zipAll</a>: For zipping values from a single source by count.</li>
+<li><a href="../../cell_flow/Flow/combineLatestWith.html">combineLatestWith</a>: For combining the latest values.</li>
+</ul>
 </section>
 
 
@@ -75,11 +140,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle zipWith&lt;R&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; others,
-  R Function(List&lt;Object?&gt; row)? project,
-  ZipErrorHandler? onError,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; others,
+      R Function(List&lt;Object?&gt; row)? project,
+      ZipErrorHandler? onError,
+    }) {
   return ZipWith&lt;R&gt;(
     others,
     project: project,

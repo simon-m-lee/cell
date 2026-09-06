@@ -68,7 +68,71 @@
     </section>
     
 <section class="desc markdown">
-  <p>Source pulses carry latest <code>others</code> (Rx <code>withLatestFrom</code>).</p>
+  <p>Combines the latest value from <code>source</code> with the latest values from
+<code>others</code> only when <code>source</code> emits (Rx <code>withLatestFrom</code>).</p>
+<p><a href="../../cell_flow/Flow/withLatestFrom.html">withLatestFrom</a> acts as a <strong>Source-Driven Combiner</strong>. It only emits when
+the source updates, using the latest values from the other cells at that
+moment.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/withLatestFrom.html">withLatestFrom</a> when:</p>
+<ul>
+<li>You want to combine the source with the latest values of others</li>
+<li>You only want to emit when the source updates</li>
+<li>You're implementing a "sample on source" pattern</li>
+<li>You're driving updates from one primary source</li>
+<li>You're pairing user actions with the latest state</li>
+<li>You're implementing a command pattern with state</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Observers are started on all <code>others</code> cells to track their latest values.</li>
+<li>When the bound source pulses, the <code>combine</code> function is called with
+the source value and the latest values from <code>others</code>.</li>
+<li>If any other cell has not yet produced a value, the source pulse is dropped.</li>
+<li>The result is emitted as a <a href="../../cell_flow/Pulse-class.html">Pulse</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Source-Driven</strong>: Only source updates trigger emission.</li>
+<li><strong>Latest Values</strong>: Uses the latest values from others at the time of
+source update.</li>
+<li><strong>Drop on Miss</strong>: Source pulses are dropped if any other cell has no value.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>The Additional Cells.</strong> Cells to sample the latest values from.</li>
+<li><code>combine</code>: <strong>The Combination Function.</strong> Takes the source value and a
+list of latest values from others, returns the combined result.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+<li><code>R</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the combined values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final actions = Cell.ingress&lt;String&gt;();
+final state = Cell.ingress&lt;AppState&gt;();
+
+final handle = Flow.withLatestFrom&lt;String, Processed&gt;(
+  actions.cell,
+  others: [state.cell],
+  combine: (action, latest) =&gt;
+      Processed(action: action, state: latest.single as AppState),
+);
+
+// Only emits when actions emit, using the latest state
+await state.emitAsync(initialState);
+await actions.emitAsync('update'); // emits processed action
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/combineLatestWith.html">combineLatestWith</a>: For any-update-driven combination.</li>
+<li><a href="../../cell_flow/Flow/zipWith.html">zipWith</a>: For index-based pairing.</li>
+</ul>
 </section>
 
 
@@ -76,11 +140,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle withLatestFrom&lt;S, R&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; others,
-  required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
-  CombineErrorHandler? onError,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; others,
+      required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
+      CombineErrorHandler? onError,
+    }) {
   return WithLatestFrom&lt;S, R&gt;(
     others,
     combine,

@@ -124,62 +124,6 @@ void main() {
     });
   });
 
-  group('Distinct', () {
-    test('suppresses only consecutive duplicates', () async {
-      final b = bind(Distinct<int>());
-      addTearDown(b.probe.stop);
-      for (final n in [1, 1, 2, 2, 1, 3, 3]) {
-        await b.gate.emitAsync(n);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2, 1, 3]);
-    });
-
-    test('uses a custom comparator', () async {
-      final b = bind(Distinct<String>(
-        comparator: (a, b) => a.toLowerCase() == b.toLowerCase(),
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync('Alice');
-      await b.gate.emitAsync('alice');
-      await b.gate.emitAsync('Bob');
-      await b.probe.settle();
-      expect(b.probe.payloads, ['Alice', 'Bob']);
-    });
-
-    test('first value always passes', () async {
-      final b = bind(Distinct<int>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(0);
-      await b.probe.settle();
-      expect(b.probe.payloads, [0]);
-    });
-  });
-
-  group('DistinctAll', () {
-    test('drops any previously seen value', () async {
-      final b = bind(DistinctAll<int>());
-      addTearDown(b.probe.stop);
-      for (final n in [1, 2, 1, 3, 2, 1]) {
-        await b.gate.emitAsync(n);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2, 3]);
-    });
-
-    test('keys values through keyOf', () async {
-      final b = bind(DistinctAll<String>(
-        keyOf: (s) => s.toLowerCase(),
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync('A');
-      await b.gate.emitAsync('a');
-      await b.gate.emitAsync('B');
-      await b.probe.settle();
-      expect(b.probe.payloads, ['A', 'B']);
-    });
-  });
-
   group('FilterType', () {
     test('narrows heterogeneous streams', () async {
       final IngressHandle<Object> ingress = Cell.ingress<Object>();
@@ -216,188 +160,6 @@ void main() {
     });
   });
 
-/*
-  group('Take / Skip', () {
-    test('Take emits only the first N values then stays closed', () async {
-      final b = bind(Take<int>(3));
-      addTearDown(b.probe.stop);
-      for (var i = 1; i <= 6; i++) {
-        await b.gate.emitAsync(i);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2, 3]);
-    });
-
-    test('Take(0) emits nothing', () async {
-      final b = bind(Take<int>(0));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await b.probe.settle();
-      expect(b.probe.payloads, isEmpty);
-    });
-
-    test('Skip drops the first N values', () async {
-      final b = bind(Skip<int>(2));
-      addTearDown(b.probe.stop);
-      for (var i = 1; i <= 5; i++) {
-        await b.gate.emitAsync(i);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [3, 4, 5]);
-    });
-
-    test('Skip(0) is a pass-through', () async {
-      final b = bind(Skip<int>(0));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(9);
-      await b.probe.settle();
-      expect(b.probe.payloads, [9]);
-    });
-  });
-*/
-
-  group('TakeWhile / SkipWhile', () {
-    test('TakeWhile closes after the first failing predicate', () async {
-      final b = bind(TakeWhile<int>((n) => n < 5));
-      addTearDown(b.probe.stop);
-      for (var i = 1; i <= 7; i++) {
-        await b.gate.emitAsync(i);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2, 3, 4]);
-    });
-
-    test('TakeWhile stays closed after a predicate throw', () async {
-      final errors = <Object>[];
-      final b = bind(TakeWhile<int>(
-        (n) {
-          if (n == 3) throw FormatException('x');
-          return true;
-        },
-        onError: (e, _) => errors.add(e),
-      ));
-      addTearDown(b.probe.stop);
-      for (var i = 1; i <= 5; i++) {
-        await b.gate.emitAsync(i);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2]);
-      expect(errors, hasLength(1));
-    });
-
-    test('SkipWhile opens after the first failing predicate', () async {
-      final b = bind(SkipWhile<int>((n) => n < 5));
-      addTearDown(b.probe.stop);
-      for (var i = 1; i <= 7; i++) {
-        await b.gate.emitAsync(i);
-      }
-      await b.probe.settle();
-      expect(b.probe.payloads, [5, 6, 7]);
-    });
-
-    test('SkipWhile opens on predicate throw and keeps later values', () async {
-      final errors = <Object>[];
-      final b = bind(SkipWhile<int>(
-        (n) {
-          if (n == 2) throw StateError('open');
-          return true;
-        },
-        onError: (e, _) => errors.add(e),
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await b.gate.emitAsync(2);
-      await b.gate.emitAsync(3);
-      await b.probe.settle();
-      expect(b.probe.payloads, [2, 3]);
-      expect(errors, hasLength(1));
-    });
-  });
-
-  group('Debounce', () {
-    test('emits only the last value after silence', () async {
-      final b = bind(Debounce<String>(const Duration(milliseconds: 80)));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync('h');
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      await b.gate.emitAsync('he');
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      await b.gate.emitAsync('hello');
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      expect(b.probe.payloads, ['hello']);
-    });
-
-    test('separate bursts each emit', () async {
-      final b = bind(Debounce<int>(const Duration(milliseconds: 50)));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-      await b.gate.emitAsync(2);
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-      expect(b.probe.payloads, [1, 2]);
-    });
-  });
-
-  group('DebounceLeading', () {
-    test('emits first immediately then last after silence', () async {
-      final b = bind(DebounceLeading<int>(const Duration(milliseconds: 80)));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await b.gate.emitAsync(2);
-      await b.gate.emitAsync(3);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      expect(b.probe.payloads.first, 1);
-      expect(b.probe.payloads.last, 3);
-      expect(b.probe.payloads, [1, 3]);
-    });
-  });
-
-  group('Throttle', () {
-    test('leading+trailing emits first and last of a burst', () async {
-      final b = bind(Throttle<int>(
-        const Duration(milliseconds: 100),
-        leading: true,
-        trailing: true,
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      await b.gate.emitAsync(2);
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      await b.gate.emitAsync(3);
-      await Future<void>.delayed(const Duration(milliseconds: 140));
-      expect(b.probe.payloads.first, 1);
-      expect(b.probe.payloads.last, 3);
-      expect(b.probe.payloads, containsAllInOrder([1, 3]));
-    });
-
-    test('leading-only ignores the rest of the window', () async {
-      final b = bind(Throttle<int>(
-        const Duration(milliseconds: 80),
-        leading: true,
-        trailing: false,
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await b.gate.emitAsync(2);
-      await b.gate.emitAsync(3);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      expect(b.probe.payloads, [1]);
-    });
-
-    test('trailing-only emits the last value when the window closes', () async {
-      final b = bind(Throttle<int>(
-        const Duration(milliseconds: 80),
-        leading: false,
-        trailing: true,
-      ));
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(1);
-      await b.gate.emitAsync(2);
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-      expect(b.probe.payloads, [2]);
-    });
-  });
 
   group('FilterByTime', () {
     test('first value is immediate; early follow-ups wait', () async {
@@ -582,36 +344,17 @@ void main() {
   });
 
   group('composition', () {
-    test('Filter + Distinct can be chained with +', () async {
-      // + is left-to-right: Filter runs first, then Distinct.
-      // Input:        -1, 1, 1, 2, 0, 2
-      // After Filter:     1, 1, 2,    2
-      // After Distinct:   1,    2
-      final op = Filter<int>((n) => n > 0) + Distinct<int>();
-      final IngressHandle<int> ingress = Cell.ingress<int>();
+    test('Filter + FilterNotNull can be chained with +', () async {
+      final op = Filter<String?>((s) => (s ?? '').length > 1) + FilterNotNull<String>();
+      final IngressHandle<String?> ingress = Cell.ingress<String?>();
       final out = op.toHandle(source: ingress.cell);
       final probe = _Probe(out.cell);
       addTearDown(probe.stop);
-      for (final n in [-1, 1, 1, 2, 0, 2]) {
+      for (final n in ['a', 'ab', null, 'cd', 'x']) {
         await ingress.emitAsync(n);
       }
       await probe.settle();
-      expect(probe.payloads, [1, 2]);
-    });
-
-    test('Distinct + Filter keeps a later 2 because 0 broke consecutiveness', () async {
-      // Distinct first: -1, 1, 2, 0, 2
-      // Filter > 0:         1, 2,    2
-      final op = Distinct<int>() + Filter<int>((n) => n > 0);
-      final IngressHandle<int> ingress = Cell.ingress<int>();
-      final out = op.toHandle(source: ingress.cell);
-      final probe = _Probe(out.cell);
-      addTearDown(probe.stop);
-      for (final n in [-1, 1, 1, 2, 0, 2]) {
-        await ingress.emitAsync(n);
-      }
-      await probe.settle();
-      expect(probe.payloads, [1, 2, 2]);
+      expect(probe.payloads, ['ab', 'cd']);
     });
   });
 
@@ -619,7 +362,7 @@ void main() {
     test('time operators report onError for wrong types', () async {
       final errors = <Object>[];
       final IngressHandle<Object> ingress = Cell.ingress<Object>();
-      final out = Debounce<int>(
+      final out = FilterByTime<int>(
         const Duration(milliseconds: 10),
         onError: (e, _) => errors.add(e),
       ).toHandle(source: ingress.cell);

@@ -63,7 +63,57 @@
     </section>
     
 <section class="desc markdown">
-  <p>Share one subscription (Rx <code>share</code>).</p>
+  <p>Multicasts the same pulses to all observers (Rx <code>share</code>).</p>
+<p><a href="../../cell_flow/Flow/share.html">share</a> marks a flow as shared/multicast without buffering.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/share.html">share</a> when you want to share a subscription among multiple
+observers.</p>
+<ul>
+<li><strong>Resource Sharing</strong>: Sharing a single subscription among many views.</li>
+<li><strong>Performance</strong>: Reducing duplicate work.</li>
+<li><strong>Testing</strong>: Verifying that a source is executed exactly once.</li>
+<li><strong>Debugging</strong>: Tracking pulse flow through a shared stream.</li>
+<li><strong>Monitoring</strong>: Counting pulses for dashboards.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, the pulse is passed through unchanged.</li>
+<li>The <code>seen</code> counter is incremented.</li>
+<li>The pulse gets the step <code>'Share'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Pass-through</strong>: Values are not modified or buffered.</li>
+<li><strong>Counting</strong>: The <code>seen</code> counter tracks typed pulses only.</li>
+<li><strong>Type Safety</strong>: Only payloads matching type <code>S</code> are counted.</li>
+<li><strong>Multiple Observers</strong>: Multiple observers share one subscription.</li>
+<li><strong>No Replay</strong>: Late subscribers do not receive past values.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the shared values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.share&lt;int&gt;(input.cell);
+
+// Multiple observers share one subscription
+final obs1 = Cell.observe(source: handle.cell, effect: (p) =&gt; {});
+final obs2 = Cell.observe(source: handle.cell, effect: (p) =&gt; {});
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/shareReplay.html">shareReplay</a>: For sharing with a replay buffer.</li>
+<li><a href="../../cell_flow/Flow/share.html">share</a>: For sharing only the latest value.</li>
+</ul>
 </section>
 
 

@@ -65,6 +65,59 @@
     
 <section class="desc markdown">
   <p>Window by time.</p>
+<p><a href="../../cell_flow/Flow/windowTime.html">windowTime</a> is similar to <a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a> but emits windows as lists.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/windowTime.html">windowTime</a> when you need to batch values by time and
+emit the batch as a list.</p>
+<ul>
+<li><strong>Rate Limiting</strong>: Limiting the rate of processed items.</li>
+<li><strong>Time-Based Batching</strong>: Grouping items by time interval.</li>
+<li><strong>Sliding Windows</strong>: Implementing sliding time windows.</li>
+<li><strong>Throttling</strong>: Throttling processing to a fixed rate.</li>
+<li><strong>Metrics</strong>: Aggregating metrics over time.</li>
+<li><strong>Logging</strong>: Batching log entries by time.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse starts the timer.</li>
+<li>Each pulse's payload is added to the buffer.</li>
+<li>Every <code>duration</code>, the buffer is emitted as a list.</li>
+<li>The buffer is cleared after emission.</li>
+<li>If <code>emitEmpty</code> is <code>false</code>, empty windows are skipped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lazy Start</strong>: The timer starts on the first pulse.</li>
+<li><strong>Continuous</strong>: The timer continues indefinitely.</li>
+<li><strong>Empty Skip</strong>: <code>emitEmpty</code> controls whether empty windows are
+emitted.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Window Duration.</strong> The time interval for each window.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the windows.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.windowTime&lt;int&gt;(
+  input.cell,
+  duration: Duration(seconds: 1),
+);
+
+// Emits accumulated values every second
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/windowCount.html">windowCount</a>: For count-based windows.</li>
+<li><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a>: For time-based buffering.</li>
+</ul>
 </section>
 
 
@@ -72,9 +125,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle windowTime&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-}) {
+    Cell source, {
+      required Duration duration,
+    }) {
   return WindowTime&lt;S&gt;(duration).toHandle(source: source);
 }</code></pre>
 </section>

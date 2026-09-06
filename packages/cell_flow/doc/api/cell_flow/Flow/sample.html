@@ -66,6 +66,67 @@
     
 <section class="desc markdown">
   <p>Latest source value when <code>notifier</code> pulses.</p>
+<p><a href="../../cell_flow/Flow/sample.html">sample</a> holds the latest source value and only emits it when the
+notifier pulses. If no new values have arrived since the last
+emission, the notifier pulse is ignored.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/sample.html">sample</a> when you want to emit the latest value at specific
+times defined by a notifier.</p>
+<ul>
+<li><strong>UI Updates</strong>: Emitting the latest state on a timer or animation frame.</li>
+<li><strong>Throttled Output</strong>: Outputting the latest value at a fixed rate.</li>
+<li><strong>Event Sampling</strong>: Sampling events on a separate signal.</li>
+<li><strong>Real-time Dashboards</strong>: Updating dashboards at a fixed rate.</li>
+<li><strong>Sensor Data</strong>: Sampling sensor data at a fixed rate.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse is type-checked and stored as the pending value.</li>
+<li>When the <code>notifier</code> cell pulses:
+a. If there's a pending value, it's emitted.
+b. The pending value is cleared.
+c. If no pending value, nothing is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Pending Only</strong>: Values are only emitted if they arrived since
+the last emission.</li>
+<li><strong>Ignored Ticks</strong>: Notifier ticks with no pending value are ignored.</li>
+<li><strong>Latest Only</strong>: Only the latest value is held; older values are
+overwritten.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>notifier</code>: <strong>Notifier Cell.</strong> The cell that triggers sampling.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the sampled values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.ingress&lt;int&gt;();
+final tick = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.sample&lt;int&gt;(
+  source.cell,
+  notifier: tick.cell,
+);
+
+source.emit(1);
+source.emit(2);
+tick.emit(null); // -&gt; 2
+source.emit(3);
+// tick.emit(null); // -&gt; 3
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/sampleTime.html">sampleTime</a>: For time-based sampling.</li>
+<li><a href="../../cell_flow/Flow/audit.html">audit</a>: For audit on notifier.</li>
+</ul>
 </section>
 
 
@@ -73,10 +134,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle sample&lt;S&gt;(
-  Cell source, {
-  required Cell notifier,
-  SampleErrorHandler? onError,
-}) {
+    Cell source, {
+      required Cell notifier,
+      SampleErrorHandler? onError,
+    }) {
   return Sample&lt;S&gt;(notifier, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

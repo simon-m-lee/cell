@@ -65,6 +65,60 @@
     
 <section class="desc markdown">
   <p>Periodic ticks after the first pulse.</p>
+<p><a href="../../cell_flow/Flow/interval.html">interval</a> is the foundational clock operator. It starts a timer when
+the first source pulse arrives and emits an incrementing counter at
+each tick.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/interval.html">interval</a> when you need a periodic stream of sequential integers.</p>
+<ul>
+<li><strong>Polling</strong>: Periodically checking for updates.</li>
+<li><strong>Heartbeats</strong>: Sending regular "I'm alive" signals.</li>
+<li><strong>Frame Counters</strong>: Counting animation frames or update cycles.</li>
+<li><strong>Timers</strong>: Implementing countdowns or time tracking.</li>
+<li><strong>Scheduled Tasks</strong>: Running tasks at regular intervals.</li>
+<li><strong>Testing</strong>: Simulating time-based events.</li>
+<li><strong>Rate Limiting</strong>: Implementing token bucket algorithms.</li>
+<li><strong>Metrics</strong>: Counting events per time window.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse <strong>arms</strong> the clock.</li>
+<li>A <code>Timer.periodic</code> is started with the specified <code>period</code>.</li>
+<li>On each tick, the current <code>tick</code> value is emitted.</li>
+<li>The <code>tick</code> counter increments by 1 each emission.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Arming on First Pulse</strong>: The clock starts on the first pulse, not
+on creation. This allows lazy initialization.</li>
+<li><strong>No Initial Emission</strong>: Unlike Rx, there's no <code>0</code> emission at the
+start. The first emission is after <code>period</code> has elapsed.</li>
+<li><strong>Memory Safety</strong>: The timer is cancelled when the instruction is
+disposed.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>period</code>: <strong>The Tick Interval.</strong> The duration between each emission.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the periodic ticks.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.interval(
+  start.cell,
+  period: Duration(seconds: 1),
+);
+
+start.emit(null);
+// Outputs: 0, 1, 2, 3, ... every second
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/interval.html">interval</a>: For custom value emission.</li>
+<li><a href="../../cell_flow/Flow/interval.html">interval</a>: For stateful interval emissions.</li>
+</ul>
 </section>
 
 
@@ -72,9 +126,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle interval(
-  Cell source, {
-  required Duration period,
-}) {
+    Cell source, {
+      required Duration period,
+    }) {
   return Interval(period).toHandle(source: source);
 }</code></pre>
 </section>

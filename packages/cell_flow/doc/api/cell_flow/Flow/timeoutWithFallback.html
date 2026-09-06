@@ -67,6 +67,64 @@
     
 <section class="desc markdown">
   <p>Timeout with a fallback value.</p>
+<p><a href="../../cell_flow/Flow/timeoutWithFallback.html">timeoutWithFallback</a> is similar to <a href="../../cell_flow/Flow/timeout.html">timeout</a> but emits a fallback
+value instead of an error on timeout.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/timeoutWithFallback.html">timeoutWithFallback</a> when you want to provide a default value
+on timeout instead of an error.</p>
+<ul>
+<li><strong>Default Values</strong>: Providing default values on timeout.</li>
+<li><strong>Graceful Degradation</strong>: Degrading gracefully on timeouts.</li>
+<li><strong>Cached Data</strong>: Using cached data on timeout.</li>
+<li><strong>Placeholder Values</strong>: Using placeholder values.</li>
+<li><strong>Offline Mode</strong>: Emitting offline mode values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Same as <a href="../../cell_flow/Flow/timeout.html">timeout</a> but with fallback value.</li>
+<li>On timeout, <code>fallback</code> is emitted instead of an error.</li>
+<li>If <code>once</code> is <code>true</code>, the fallback is emitted only once.</li>
+<li>If <code>once</code> is <code>false</code>, the fallback is emitted on every timeout.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Once vs Continuous</strong>: <code>once</code> controls whether the fallback is
+emitted repeatedly.</li>
+<li><strong>No Error</strong>: No error pulse is emitted.</li>
+<li><strong>Provenance Preservation</strong>: The fallback pulse preserves the
+source cell, type, and priority from the trigger pulse.</li>
+<li><strong>Type Safety</strong>: The fallback must match the payload type <code>S</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Timeout Duration.</strong> The maximum gap between pulses.</li>
+<li><code>fallback</code>: <strong>Fallback Value.</strong> The value to emit on timeout.</li>
+<li><code>once</code>: <strong>Emit Once.</strong> If <code>true</code>, the fallback is emitted only
+once. If <code>false</code>, it's emitted on every timeout. Defaults to <code>true</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the values and fallbacks.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.timeoutWithFallback&lt;int&gt;(
+  input.cell,
+  duration: Duration(seconds: 2),
+  fallback: -1,
+);
+
+// On timeout, emits -1 instead of an error
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/timeout.html">timeout</a>: For standard timeout with error.</li>
+<li><a href="../../cell_flow/Flow/timeout.html">timeout</a>: For custom error on timeout.</li>
+</ul>
 </section>
 
 
@@ -74,11 +132,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle timeoutWithFallback&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  required S fallback,
-  bool once = false,
-}) {
+    Cell source, {
+      required Duration duration,
+      required S fallback,
+      bool once = false,
+    }) {
   return TimeoutWithFallback&lt;S&gt;(
     duration,
     fallback: fallback,

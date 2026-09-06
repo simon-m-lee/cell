@@ -68,6 +68,68 @@
     
 <section class="desc markdown">
   <p>Pluck several keys into a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>.</p>
+<p><a href="../../cell_flow/Flow/pluckAll.html">pluckAll</a> extracts multiple fields from each payload and returns
+them as a map. This is useful when you need several fields at once.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/pluckAll.html">pluckAll</a> when you need to extract multiple fields from a
+payload.</p>
+<ul>
+<li><strong>Data Projection</strong>: Projecting multiple fields from an object.</li>
+<li><strong>Data Transformation</strong>: Creating a subset of fields.</li>
+<li><strong>API Responses</strong>: Extracting specific fields from API responses.</li>
+<li><strong>Data Aggregation</strong>: Aggregating multiple fields.</li>
+<li><strong>View Models</strong>: Creating view models from data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is read for each key in <code>keys</code>.</li>
+<li>For each key, the value is extracted.</li>
+<li>If <code>useOrElse</code> is <code>true</code>, missing keys get <code>orElse</code>.</li>
+<li>If <code>useOrElse</code> is <code>false</code>, missing keys trigger <code>onError</code>.</li>
+<li>The collected key-value pairs are emitted as a map.</li>
+<li>The pulse gets the step <code>'PluckAll'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Map Output</strong>: The output is always a <code>Map&lt;Object, Object?&gt;</code>.</li>
+<li><strong>Partial Success</strong>: Even if some keys fail, successful ones are
+included in the output.</li>
+<li><strong>Error Handling</strong>: Missing keys can either use defaults or trigger
+error handlers.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
+<li><code>keys</code>: <strong>The Keys to Extract.</strong> An iterable of field names or indices.</li>
+<li><code>orElse</code>: <strong>Default Value.</strong> Used when <code>useOrElse</code> is <code>true</code>.</li>
+<li><code>useOrElse</code>: <strong>Use Default.</strong> If <code>true</code>, missing keys get <code>orElse</code>.
+If <code>false</code>, missing keys trigger <code>onError</code>. Defaults to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the extracted maps.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final users = Cell.ingress&lt;Map&lt;String, Object&gt;&gt;();
+
+final handle = Flow.pluckAll(
+  users.cell,
+  keys: ['id', 'name', 'email'],
+);
+
+users.emit({
+  'id': 1,
+  'name': 'Alice',
+  'email': 'alice@example.com',
+  'extra': 'ignored'
+});
+// -&gt; {id: 1, name: Alice, email: alice@example.com}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/pluck.html">pluck</a>: For single field extraction.</li>
+<li><a href="../../cell_flow/Flow/pluckOr.html">pluckOr</a>: For single field extraction with default.</li>
+<li><a href="../../cell_flow/Flow/pluckPath.html">pluckPath</a>: For nested field extraction.</li>
+</ul>
 </section>
 
 
@@ -75,12 +137,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle pluckAll(
-  Cell source, {
-  required Iterable&lt;Object&gt; keys,
-  Object? orElse,
-  bool useOrElse = false,
-  PluckErrorHandler? onError,
-}) {
+    Cell source, {
+      required Iterable&lt;Object&gt; keys,
+      Object? orElse,
+      bool useOrElse = false,
+      PluckErrorHandler? onError,
+    }) {
   return PluckAll(
     keys,
     orElse: orElse,

@@ -68,6 +68,70 @@
     
 <section class="desc markdown">
   <p>Retry a failing inner.</p>
+<p><a href="../../cell_flow/Flow/retry.html">retry</a> executes the <code>task</code> and retries it up to <code>count</code> times
+if it fails.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/retry.html">retry</a> when you need a simple retry mechanism with a fixed
+number of attempts.</p>
+<ul>
+<li><strong>Network Requests</strong>: Retrying flaky API calls.</li>
+<li><strong>Database Operations</strong>: Retrying transient database errors.</li>
+<li><strong>File I/O</strong>: Retrying file operations that may fail temporarily.</li>
+<li><strong>External Services</strong>: Retrying calls to unreliable services.</li>
+<li><strong>Rate Limiting</strong>: Retrying after rate limit errors.</li>
+<li><strong>Transient Failures</strong>: Handling temporary failures gracefully.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>task</code>.</li>
+<li>If the task succeeds, the result is emitted.</li>
+<li>If the task fails, the error is caught.</li>
+<li>The <code>count</code> determines how many retry attempts are made.</li>
+<li>The task may run <code>count + 1</code> times total.</li>
+<li>If <code>emitErrorPulse</code> is <code>true</code>, an error pulse is emitted
+when all retries fail.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Total Attempts</strong>: The task runs up to <code>count + 1</code> times.</li>
+<li><strong>No Delay</strong>: Retries are immediate.</li>
+<li><strong>Error Swallowing</strong>: Errors are caught and don't crash the flow.</li>
+<li><strong>Error Pulse</strong>: The error pulse has type <code>'error'</code> for routing.</li>
+<li><strong>Provenance Preservation</strong>: Success and error pulses preserve
+the source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>task</code>: <strong>The Task to Execute.</strong> Takes an input value and returns
+a <code>FutureOr&lt;T&gt;</code> that may fail.</li>
+<li><code>count</code>: <strong>Maximum Retry Attempts.</strong> Defaults to 3.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code>, emits an error
+pulse when all retries fail. Defaults to <code>true</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the retried values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final userIds = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.retry&lt;int, UserProfile&gt;(
+  userIds.cell,
+  task: (id) async =&gt; await api.getUser(id),
+  count: 3,
+);
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/retry.html">retry</a>: For conditional retry logic.</li>
+<li><a href="../../cell_flow/Flow/retry.html">retry</a>: For retries with a fixed delay.</li>
+<li><a href="../../cell_flow/Flow/retry.html">retry</a>: For retries with exponential backoff.</li>
+</ul>
 </section>
 
 
@@ -75,12 +139,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle retry&lt;S, T&gt;(
-  Cell source, {
-  required RetryTask&lt;S, T&gt; task,
-  int count = 3,
-  RetryErrorHandler? onError,
-  bool emitErrorPulse = true,
-}) {
+    Cell source, {
+      required RetryTask&lt;S, T&gt; task,
+      int count = 3,
+      RetryErrorHandler? onError,
+      bool emitErrorPulse = true,
+    }) {
   return Retry&lt;S, T&gt;(
     task,
     count: count,

@@ -78,7 +78,7 @@ operators where readability and composition are paramount.</li>
 pulse-to-pulse transformation.</li>
 <li>It maintains an internal <code>_user</code> record, preserving configuration
 data (Flyweight state) across the composition lifecycle.</li>
-<li>The <code>chain</code> and <a href="../cell_flow/FlowInstruction/operator_plus.html">+</a> operators leverage <code>_FlowInstructionChain</code> to
+<li>The <a href="../cell_flow/FlowInstruction/FlowInstruction.chain.html">chain</a> and <a href="../cell_flow/FlowInstruction/operator_plus.html">+</a> operators leverage <code>_FlowInstructionChain</code> to
 lazily aggregate multiple instructions into a serial execution lane.</li>
 <li>During execution, pulses flow through the composed chain, where
 each link in the sequence refines the stimulus before passing it
@@ -114,17 +114,44 @@ final sanitizeFlow = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;Stri
   (pulse, {cell, user}) =&gt; pulse.payload.isEmpty ? null : pulse
 );
 </code></pre>
+<p>A reusable, composable definition of a reactive logic gate in the <strong>Mitosis</strong> topography.</p>
+<p><code>FlowInstruction</code> represents the "blueprint" of a reactive transformation. Unlike a
+<a href="../cell_flow/Cell-class.html">Cell</a>, which is a live, stateful node in a graph, a <code>FlowInstruction</code> is a
+stateless description of how a pulse should be evolved, filtered, or routed.</p>
+<h3 id="core-mechanics">Core Mechanics:</h3>
+<ol>
+<li><strong>Composition</strong>: Instructions can be chained using the <code>+</code> operator. For example,
+<code>MapValue(...) + Filter(...)</code> creates a single new instruction that applies
+both transformations serially.</li>
+<li><strong>Materialization</strong>: To use an instruction, it must be bound to a source cell
+using <a href="../cell_flow/FlowInstruction/toHandle.html">toHandle</a>. This creates a <a href="../cell_flow/FlowHandle.html">FlowHandle</a>, which manages the underlying
+<a href="../cell_flow/Cell-class.html">Cell</a> and <a href="../cell_flow/Receptor-class.html">Receptor</a> required to execute the logic.</li>
+<li><strong>Flyweight Receptors</strong>: Internally, these instructions are often compiled into
+highly efficient, flyweight <a href="../cell_flow/Receptor-class.html">Receptor</a> objects that minimize memory overhead.</li>
+</ol>
+<h3 id="reusable-logic-gates">Reusable Logic Gates:</h3>
+<p>Because instructions are independent of specific source cells, they can be defined
+as constants and reused across different parts of the application:</p>
+<pre class="language-dart"><code class="language-dart">// Define a reusable validation gate
+const validateEmail = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;String&gt;&gt;(
+  (pulse, {cell, user}) =&gt; pulse.payload.contains('@') ? pulse : null
+);
+
+// Apply it to different inputs
+final loginHandle = validateEmail.toHandle(source: loginField);
+final signupHandle = validateEmail.toHandle(source: signupField);
+</code></pre>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
-<li><code>C</code>: <strong>The Anchor Cell.</strong> The type of cell that hosts this instruction.</li>
+<li><code>C</code>: <strong>Anchor Cell Type.</strong> The type of cell that hosts this instruction (defaults to <a href="../cell_flow/Cell-class.html">Cell</a>).</li>
 <li><code>I</code>: <strong>Input Pulse Type.</strong> The stimulus type entering the instruction.</li>
 <li><code>O</code>: <strong>Output Pulse Type.</strong> The evolved stimulus type exiting the instruction.</li>
 </ul>
 <h3 id="see-also">See Also:</h3>
 <ul>
-<li><code>_FlowInstructionChain</code>: The internal implementation for serial composition.</li>
-<li><a href="../cell_flow/InstructionBase-class.html">InstructionBase</a>: The foundational interface for reactive logic.</li>
-<li><a href="../cell_flow/Flow-class.html">Flow</a>: The orchestrator that materializes these instructions into live cells.</li>
+<li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The live instance of an instruction bound to a source.</li>
+<li><a href="../cell_flow/FlowInstructionBase-class.html">FlowInstructionBase</a>: A base implementation for custom instruction logic.</li>
+<li><a href="../cell_flow/Instruction-class.html">Instruction</a>: The underlying core interface from <code>package:cell</code>.</li>
 </ul>
 </section>
 
@@ -155,6 +182,35 @@ final sanitizeFlow = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;Stri
     </section>
 
     
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="FlowInstruction.new" class="callable">
+          <span class="name"><a href="../cell_flow/FlowInstruction/FlowInstruction.html">FlowInstruction</a></span><span class="signature">(<span class="parameter" id="-param-instruction"><span class="type-annotation">O?</span> <span class="parameter-name">instruction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a synchronous <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>.
+            <div class="constructor-modifier features">const</div>
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="FlowInstruction.chain" class="callable">
+          <span class="name"><a href="../cell_flow/FlowInstruction/FlowInstruction.chain.html">FlowInstruction.chain</a></span><span class="signature">(<span class="parameter" id="chain-param-instructions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">instructions</span>, {</span><span class="parameter" id="chain-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="chain-param-strategy"><span class="type-annotation">O?</span> <span class="parameter-name">strategy</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?</span>})</span>
+        </dt>
+        <dd>
+          Creates a composite instruction by chaining multiple <code>instructions</code> serially.
+            <div class="constructor-modifier features">const</div>
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="FlowInstruction.future" class="callable">
+          <span class="name"><a href="../cell_flow/FlowInstruction/FlowInstruction.future.html">FlowInstruction.future</a></span><span class="signature">(<span class="parameter" id="future-param-instruction"><span class="type-annotation">O?</span> <span class="parameter-name">instruction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})?, </span><span class="parameter" id="param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="future-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Creates an asynchronous <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>.
+            <div class="constructor-modifier features">const</div>
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
     
   <section
       class="summary offset-anchor"
@@ -192,7 +248,7 @@ final sanitizeFlow = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;Stri
 
 </dt>
 <dd>
-  
+  Custom metadata associated with this instruction for auditing, logging, or tracing.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -240,7 +296,7 @@ final sanitizeFlow = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;Stri
 
 </dt>
 <dd>
-  
+  Materializes this instruction into a live <a href="../cell_flow/FlowHandle.html">FlowHandle</a> bound to a <code>source</code> cell.
   
 
 </dd>
@@ -274,7 +330,7 @@ final sanitizeFlow = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;Stri
 
 </dt>
 <dd>
-  Combines this instruction with another to create an <a href="../cell_flow/InstructionChain-class.html">InstructionChain</a>.
+  Chains this instruction with <code>other</code> to create a new serial composition.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>

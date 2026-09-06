@@ -65,7 +65,64 @@
     </section>
     
 <section class="desc markdown">
-  <p>Keep typed payloads that pass <code>test</code> (Rx <code>filter</code>).</p>
+  <p>Only forwards payloads that satisfy the <code>test</code> predicate (Rx <code>filter</code>).</p>
+<p><a href="../../cell_flow/Flow/filter.html">filter</a> keeps pulses whose payload satisfies a synchronous
+predicate. Type mismatches are dropped and reported via <code>onError</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/filter.html">filter</a> when you need to remove values from a stream.</p>
+<ul>
+<li><strong>Validation</strong>: Keeping only valid values.</li>
+<li><strong>Range Checks</strong>: Keeping values within a range.</li>
+<li><strong>Noise Reduction</strong>: Removing unwanted values.</li>
+<li><strong>Data Cleaning</strong>: Cleaning dirty data.</li>
+<li><strong>Conditional Processing</strong>: Processing only certain values.</li>
+<li><strong>Privacy</strong>: Removing sensitive data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The <code>test</code> predicate is called with the payload.</li>
+<li>If <code>test</code> returns <code>true</code>, the pulse is forwarded.</li>
+<li>If <code>test</code> returns <code>false</code>, the pulse is dropped.</li>
+<li>If <code>test</code> throws an error, the pulse is dropped.</li>
+<li>Forwarded pulses get the step <code>'Filter'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Synchronous Predicate</strong>: The predicate must be synchronous.</li>
+<li><strong>Type Safety</strong>: Only typed payloads are considered.</li>
+<li><strong>Error Handling</strong>: Errors in the predicate drop the pulse.</li>
+<li><strong>Order Preservation</strong>: Results are emitted in input order.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Returns <code>true</code> to keep the value.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the filtered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.filter&lt;int&gt;(
+  input.cell,
+  test: (n) =&gt; n % 2 == 0,
+);
+
+input.emit(1); // dropped
+input.emit(2); // -&gt; 2
+input.emit(3); // dropped
+input.emit(4); // -&gt; 4
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mapWhen.html">mapWhen</a>: For conditional mapping.</li>
+<li><a href="../../cell_flow/Flow/takeWhile.html">takeWhile</a>: For taking until a condition fails.</li>
+</ul>
 </section>
 
 
@@ -73,9 +130,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle filter&lt;S&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+    }) {
   return Filter&lt;S&gt;(test).toHandle(source: source);
 }</code></pre>
 </section>

@@ -66,7 +66,65 @@
     </section>
     
 <section class="desc markdown">
-  <p>Overlapping <a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>.</p>
+  <p>Similar to <a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>, but processes pulses <strong>concurrently</strong> as they arrive.</p>
+<p><a href="../../cell_flow/Flow/asyncMapConcurrent.html">asyncMapConcurrent</a> processes inputs concurrently, emitting
+results as they complete. Order is not preserved.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncMapConcurrent.html">asyncMapConcurrent</a> when you want maximum throughput and
+order doesn't matter.</p>
+<ul>
+<li><strong>Parallel Processing</strong>: Processing multiple items in parallel.</li>
+<li><strong>Throughput</strong>: Maximizing throughput.</li>
+<li><strong>Independent Operations</strong>: When operations are independent.</li>
+<li><strong>Batch Processing</strong>: Processing batches in parallel.</li>
+<li><strong>API Calls</strong>: Making parallel API calls.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>mapper</code> immediately.</li>
+<li>Multiple async operations run concurrently.</li>
+<li>Results are emitted as they complete.</li>
+<li>Order is not preserved.</li>
+<li>If <code>mapper</code> throws an error, it's reported independently.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Unordered</strong>: Results are emitted in completion order.</li>
+<li><strong>Unlimited Concurrency</strong>: All operations start immediately.</li>
+<li><strong>No Queuing</strong>: No queuing; operations start immediately.</li>
+<li><strong>Error Isolation</strong>: Errors are reported independently.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>Mapping Function.</strong> Called with each typed payload,
+returns a <code>FutureOr&lt;T&gt;</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncMapConcurrent&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+
+ids.emit(1); // Starts fetching
+ids.emit(2); // Starts fetching (parallel)
+// Results arrive in completion order
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a>: For sequential mapping.</li>
+<li><a href="../../cell_flow/Flow/asyncMapLatest.html">asyncMapLatest</a>: For latest-only mapping.</li>
+</ul>
 </section>
 
 
@@ -74,10 +132,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMapConcurrent&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;T&gt; Function(S value) mapper,
-  AsyncMapErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;T&gt; Function(S value) mapper,
+      AsyncMapErrorHandler? onError,
+    }) {
   return AsyncMapConcurrent&lt;S, T&gt;(mapper, onError: onError)
       .toHandle(source: source);
 }</code></pre>

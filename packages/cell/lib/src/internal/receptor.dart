@@ -293,7 +293,13 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
     dynamic token
   }) {
     void future_({required Pulse? result, required dynamic token}) {
-      future?.call(result: result, token: token);
+      if (future != null) {
+        future(result: result, token: token);
+      } else {
+        // Intentionally using print during [Instruction] unit testing.
+        // It should never happen when it is resided inside [Receptor]
+        print(UnimplementedError('[future] is null to forward (result: $result, token: $token)'));
+      }
     }
 
     try {
@@ -819,64 +825,79 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     assert(isActivated,
     'Receptor call failed: The receptor must be activated before it can process pulses. '
         'Verify that the host cell has been properly initialized and is not in a disposed state.');
+    // assert(!cell.isInvalidated,
+    // 'Receptor call failed: The [cell] the receptor is activated with is in a disposed state.');
+    assert(!incoming.isInvalidated,
+    'Receptor call failed: The [incoming] pulse is in a disposed state.');
 
     if (incoming is Shell) {
       return incoming.scrutinize(this, null);
     }
 
-    var pulse = incoming as PulseBase;
-    if (!isActivated || !pulse._checker.add(cell)) return null;
-
-    FutureOr<Pulse?> proceed() {
-
-      if (isGoverned) {
-        if (cell.isInvalidated || pulse.isInvalidated) return null;
-
-        final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
-        if (ephemeralPolicy != null) {
-          ephemeralPolicy(pulse, cell: cell);
-          if (pulse.isInvalidated) return null;
-        }
-      }
-      if (cell.isInvalidated) {
-        return null;
-      }
-
-      if (pulse.isGoverned) {
-
-        if (pulse.isInvalidated) return null;
-
-        final pulseEphemeralPolicy = pulse.policy;
-        if (pulseEphemeralPolicy != null) {
-          pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
-          if (pulse.isInvalidated) return null;
-        }
-
-        final step = cell.context is DeputyContext
-            ? (cell.context as DeputyContext).role ?? cell.toString()
-            : cell.toString();
-
-        pulse = pulse.withStep(step) as PulseBase;
-      }
-      if (pulse.isInvalidated) {
-        return null;
-      }
-
-      final result = _onPulseReceived(pulse);
-      if (result != null) {
-        _propagate(pulse, result: result);
-      }
-      return result;
+    if (incoming.isInvalidated) {
+      return null;
     }
 
-    final validation = cell.validate(pulse, host: cell);
+    assert(incoming is PulseBase,
+    'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.');
+
+    if (!(incoming as PulseBase)._checker.add(cell)) {
+      return null;
+    }
+
+    final validation = cell.validate(incoming, host: cell);
     if (validation is Future<bool>) {
-      return validation.then((isValid) => isValid ? proceed() : null);
+      return validation.then((isValid) => isValid ? _proceed(incoming) : null);
     } else if (!validation) {
       return null;
     }
 
-    return proceed();
+    return _proceed(incoming);
+  }
+
+  FutureOr<Pulse?> _proceed(PulseBase pulse) {
+
+    if (isGoverned) {
+      if (_ephemeralPolicyCheck(pulse) == false || cell.isInvalidated) {
+        return null;
+      }
+    }
+
+    if (pulse.isGoverned) {
+      if (_pulseEphemeralPolicyCheck(pulse) == false || pulse.isInvalidated) {
+        return null;
+      }
+    }
+
+    final step = cell.context is DeputyContext
+        ? (cell.context as DeputyContext).role ?? cell.toString()
+        : cell.toString();
+    pulse = pulse.withStep(step) as PulseBase;
+
+    final result = _onPulseReceived(pulse);
+    if (result != null) {
+      _propagate(pulse, result: result);
+    }
+    return result;
+
+  }
+
+  bool _pulseEphemeralPolicyCheck(PulseBase pulse) {
+    final pulseEphemeralPolicy = pulse.policy;
+    if (pulseEphemeralPolicy != null) {
+      pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
+      return pulse.isInvalidated;
+    }
+    return true;
+  }
+
+  bool _ephemeralPolicyCheck(PulseBase pulse) {
+    final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
+    if (ephemeralPolicy != null) {
+      ephemeralPolicy(pulse, cell: cell);
+      return pulse.isInvalidated;
+    }
+    return true;
   }
 
   /// Propagates a pulse to downstream synapses.
@@ -1277,9 +1298,12 @@ class ReceptorAsync<C extends Cell> implements Async {
       return;
     }
 
+    // assert(incoming is PulseBase,
+    // 'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.'
+    // );
+
     var pulse = incoming as PulseBase;
     final cell = _receptor.cell;
-
     if (await pulse._checker.async.add(cell) == false) {
       return;
     }
@@ -1295,7 +1319,7 @@ class ReceptorAsync<C extends Cell> implements Async {
     await _queue.add(pulse);
 
     Future<void> drain() => _unawaitedLock.synchronized(() async {
-      PulseBase? out;
+      Pulse? out;
 
       while (await _queue.isNotEmpty) {
         final p = await _queue.removeFirst();
@@ -1312,15 +1336,22 @@ class ReceptorAsync<C extends Cell> implements Async {
           }
         }
 
+        final validation = cell.validate.call(pulse, host: cell);
+        final passed = validation is Future<bool> ? await validation : validation;
+        if (!passed) return;
+
         final lock = cell._nucleus.lock;
         if (lock != null) {
           out = await lock.synchronized(() async {
-            final result = _receptor._onPulseReceived(p);
-            return result;
+            return _receptor._proceed(p);
           });
         } else {
-          final result = _receptor._onPulseReceived(p);
-          out = result;
+          final result = _receptor._proceed(p);
+          if (result is Future<Pulse?>) {
+            out = await result;
+          } else {
+            out = result;
+          }
         }
 
         final hookFn = hook as void Function({Pulse? result, required Pulse input})?;

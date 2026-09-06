@@ -69,6 +69,69 @@
     
 <section class="desc markdown">
   <p>Project only when <code>test</code> is true.</p>
+<p><a href="../../cell_flow/Flow/mapWhen.html">mapWhen</a> combines filtering and mapping into a single operation.
+Values that pass the test are mapped; values that fail are dropped.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mapWhen.html">mapWhen</a> when you want to filter and map in one step.</p>
+<ul>
+<li><strong>Filter and Transform</strong>: Filtering and transforming in one pass.</li>
+<li><strong>Conditional Mapping</strong>: Only mapping values that meet criteria.</li>
+<li><strong>Data Validation</strong>: Validating and transforming data.</li>
+<li><strong>Type Safety</strong>: Ensuring values meet criteria before mapping.</li>
+<li><strong>Data Cleaning</strong>: Cleaning data while transforming.</li>
+<li><strong>Selective Processing</strong>: Processing only certain values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>test</code> is called with the payload.</li>
+<li>If <code>test</code> returns <code>false</code>, the pulse is dropped.</li>
+<li>If <code>test</code> returns <code>true</code>, <code>project</code> is called with the payload.</li>
+<li>The result is emitted as a typed pulse.</li>
+<li>If <code>test</code> or <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapWhen'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Two Steps</strong>: Test then project (both synchronous).</li>
+<li><strong>Dropping</strong>: If <code>test</code> fails, the pulse is dropped.</li>
+<li><strong>Error Handling</strong>: If <code>test</code> or <code>project</code> throws, the pulse is dropped.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> to map, <code>false</code> to drop.</li>
+<li><code>project</code>: <strong>Transformation Function.</strong> Called with each typed
+payload that passes <code>test</code>, returns the transformed value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.mapWhen&lt;int, String&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+  project: (n) =&gt; 'even-$n',
+);
+
+input.emit(1); // dropped
+input.emit(2); // -&gt; even-2
+input.emit(3); // dropped
+input.emit(4); // -&gt; even-4
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/map.html">map</a>: For standard mapping.</li>
+<li><a href="../../cell_flow/Flow/mapNotNull.html">mapNotNull</a>: For dropping null results.</li>
+</ul>
 </section>
 
 
@@ -76,11 +139,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapWhen&lt;S, T&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  required T Function(S value) project,
-  MapErrorHandler? onError,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      required T Function(S value) project,
+      MapErrorHandler? onError,
+    }) {
   return MapWhen&lt;S, T&gt;(test, project, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

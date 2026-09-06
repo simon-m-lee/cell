@@ -63,7 +63,58 @@
     </section>
     
 <section class="desc markdown">
-  <p>Skip consecutive duplicates.</p>
+  <p>Suppresses pulses if their payload is identical to the previous payload.</p>
+<p><a href="../../cell_flow/Flow/skipRepeated.html">skipRepeated</a> is similar to <a href="../../cell_flow/Flow/distinct.html">distinct</a> but with different semantics:
+the first value is also skipped if it equals the seed.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/skipRepeated.html">skipRepeated</a> when you need to skip consecutive duplicates.</p>
+<ul>
+<li><strong>Noise Reduction</strong>: Reducing noise from repeated values.</li>
+<li><strong>Change Detection</strong>: Detecting when a value changes.</li>
+<li><strong>Redundant Events</strong>: Filtering out redundant events.</li>
+<li><strong>Debouncing</strong>: A simpler form of debouncing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse is stored and <strong>not</strong> emitted.</li>
+<li>For each subsequent pulse, if the payload equals the previous,
+it's skipped.</li>
+<li>If the payload is different, it's emitted and becomes the new
+previous value.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Consecutive Only</strong>: Only back-to-back duplicates are skipped.</li>
+<li><strong>No Initial Emission</strong>: The first value is always skipped.</li>
+<li><strong>State Persistence</strong>: The instruction maintains the previous value.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the filtered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ticks = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.skipRepeated&lt;int&gt;(ticks.cell);
+
+ticks.emit(1); // skipped (first value)
+ticks.emit(1); // skipped (duplicate)
+ticks.emit(2); // passes through
+ticks.emit(2); // skipped (duplicate)
+ticks.emit(3); // passes through
+// Result: [2, 3]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/distinct.html">distinct</a>: For global deduplication.</li>
+<li><a href="../../cell_flow/Flow/skipWhen.html">skipWhen</a>: For conditional skipping.</li>
+</ul>
 </section>
 
 

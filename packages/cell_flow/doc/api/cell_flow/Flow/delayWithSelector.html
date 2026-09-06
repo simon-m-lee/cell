@@ -67,6 +67,62 @@
     
 <section class="desc markdown">
   <p>Per-value delay.</p>
+<p><a href="../../cell_flow/Flow/delayWithSelector.html">delayWithSelector</a> is similar to <a href="../../cell_flow/Flow/delay.html">delay</a> but the delay duration
+is computed from the payload value.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/delayWithSelector.html">delayWithSelector</a> when the delay depends on the payload.</p>
+<ul>
+<li><strong>Priority-Based Delay</strong>: Higher priority values get shorter delays.</li>
+<li><strong>Size-Based Delay</strong>: Larger items get longer delays.</li>
+<li><strong>Type-Based Delay</strong>: Different types get different delays.</li>
+<li><strong>Conditional Delay</strong>: Delay based on payload conditions.</li>
+<li><strong>Adaptive Delay</strong>: Delay adapts to payload characteristics.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li><code>durationOf</code> is called with the payload.</li>
+<li>A timer is started for the computed duration.</li>
+<li>When the timer fires, the pulse is forwarded.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Payload-Dependent</strong>: The delay is computed from the payload.</li>
+<li><strong>Error Handling</strong>: If <code>durationOf</code> throws, the pulse is dropped.</li>
+<li><strong>Provenance Preservation</strong>: The forwarded pulse preserves the
+source cell, type, and priority from the trigger pulse.</li>
+<li><strong>Synchronous Extraction</strong>: <code>durationOf</code> is synchronous.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>durationOf</code>: <strong>Duration Selector.</strong> Called with each typed
+payload, returns the delay duration.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the delayed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.delayWithSelector&lt;String&gt;(
+  input.cell,
+  durationOf: (str) =&gt; Duration(milliseconds: str.length * 10),
+);
+
+input.emit('a');    // 10ms delay
+input.emit('hello'); // 50ms delay
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/delay.html">delay</a>: For fixed delay.</li>
+<li><a href="../../cell_flow/Flow/delayWhen.html">delayWhen</a>: For notifier-based delay.</li>
+<li><a href="../../cell_flow/Flow/delayLatest.html">delayLatest</a>: For trailing delay.</li>
+</ul>
 </section>
 
 
@@ -74,10 +130,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle delayWithSelector&lt;S&gt;(
-  Cell source, {
-  required Duration Function(S value) durationOf,
-  DelayErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration Function(S value) durationOf,
+      DelayErrorHandler? onError,
+    }) {
   return DelayWithSelector&lt;S&gt;(durationOf, onError: onError)
       .toHandle(source: source);
 }</code></pre>

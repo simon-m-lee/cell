@@ -377,11 +377,11 @@ class Merge<S> extends MergeWith<S> {
 ///
 /// ### Supported Payload Types
 /// The payload can be any of the following:
-/// - **[Stream\<T\>]**: Each event in the stream is emitted.
-/// - **[Future\<T\>]**: The single value is emitted.
-/// - **[Iterable\<T\>]**: Each element is emitted.
-/// - **[T]**: The value itself is emitted directly.
-/// - **`null`**: No emission.
+/// - `Stream<T>`: Each event in the stream is emitted.
+/// - `Future<T>`: The single value is emitted.
+/// - `Iterable<T>`: Each element is emitted.
+/// - `T`: The value itself is emitted directly.
+/// - `null`: No emission.
 /// - **Nested combinations**: Recursively expanded.
 ///
 /// ### Comparison with ConcatAll

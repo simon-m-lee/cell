@@ -164,11 +164,11 @@ Future<void> _raceList<T>({
 ///
 /// ### Supported Competitor Types
 /// Each competitor can be any of the following:
-/// - **[Stream\<T\>]**: The first event in the stream wins.
-/// - **[Future\<T\>]**: The future's value wins.
-/// - **[Iterable\<T\>]**: The first element wins.
-/// - **[T]**: The value itself wins immediately.
-/// - **`null`**: The competitor is ignored (no emission).
+/// - `Stream<T>`: The first event in the stream wins.
+/// - `Future<T>`: The future's value wins.
+/// - `Iterable<T>`: The first element wins.
+/// - `T`: The value itself wins immediately.
+/// - `null`: The competitor is ignored (no emission).
 /// - **Nested combinations**: `Future<Iterable<T>>`, `Stream<Future<T>>`,
 ///   etc., are recursively expanded.
 ///

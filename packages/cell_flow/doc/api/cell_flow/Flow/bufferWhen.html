@@ -67,6 +67,66 @@
     
 <section class="desc markdown">
   <p>Flush when <code>closer</code> pulses.</p>
+<p><a href="../../cell_flow/Flow/bufferWhen.html">bufferWhen</a> batches incoming values until an external trigger
+pulses, then emits the accumulated values as a list.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/bufferWhen.html">bufferWhen</a> when you need to batch values based on external
+triggers.</p>
+<ul>
+<li><strong>Manual Batching</strong>: Batching on user action or button click.</li>
+<li><strong>Event-Driven</strong>: Batching on specific events.</li>
+<li><strong>Request/Response</strong>: Batching until a response arrives.</li>
+<li><strong>Conditional Batching</strong>: Batching when a condition is met.</li>
+<li><strong>Interactive Batching</strong>: Batching based on user interaction.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is added to the buffer.</li>
+<li>When the <code>closer</code> cell emits a pulse:
+a. The buffer is emitted as a list.
+b. The buffer is cleared.</li>
+<li>If <code>emitEmpty</code> is <code>true</code>, empty buffers are emitted.</li>
+<li>The closer can be triggered multiple times.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Multiple Closes</strong>: The closer can be triggered repeatedly.</li>
+<li><strong>Continuous Batching</strong>: After a close, batching continues.</li>
+<li><strong>Empty Control</strong>: <code>emitEmpty</code> controls empty buffer emission.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>closer</code>: <strong>Closer Cell.</strong> The cell that triggers buffer emission
+when it pulses.</li>
+<li><code>emitEmpty</code>: <strong>Emit Empty Buffers.</strong> If <code>true</code>, empty buffers are
+emitted as empty lists. Defaults to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the buffered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final items = Cell.ingress&lt;String&gt;();
+final flush = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.bufferWhen&lt;String&gt;(
+  items.cell,
+  closer: flush.cell,
+);
+
+items.emit('a'); // buffered
+items.emit('b'); // buffered
+flush.emit(null); // -&gt; ['a', 'b']
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+<li><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a>: For time-based buffering.</li>
+</ul>
 </section>
 
 
@@ -74,11 +134,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferWhen&lt;S&gt;(
-  Cell source, {
-  required Cell closer,
-  bool emitEmpty = false,
-  BufferErrorHandler? onError,
-}) {
+    Cell source, {
+      required Cell closer,
+      bool emitEmpty = false,
+      BufferErrorHandler? onError,
+    }) {
   return BufferWhen&lt;S&gt;(
     closer,
     emitEmpty: emitEmpty,

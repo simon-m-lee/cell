@@ -68,6 +68,65 @@
     
 <section class="desc markdown">
   <p>Zip extra <code>sources</code>; <code>source</code> arms <code>future</code>.</p>
+<p><a href="../../cell_flow/Flow/zip.html">zip</a> is similar to <a href="../../cell_flow/Flow/zipWith.html">zipWith</a> but the bound source is only used
+to arm the zip operation.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/zip.html">zip</a> when you need to arm a zip operation with a separate
+trigger and zip multiple other sources.</p>
+<ul>
+<li><strong>Multiple Sources</strong>: Zipping multiple sources together.</li>
+<li><strong>Triggered Zipping</strong>: Starting zip on a trigger.</li>
+<li><strong>Synchronization</strong>: Synchronizing multiple sources.</li>
+<li><strong>Data Alignment</strong>: Aligning data from multiple sources.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The bound source arms the zip on its first pulse.</li>
+<li>Each extra source has a queue of pending values.</li>
+<li>When a value arrives from a source, it's added to its queue.</li>
+<li>If every queue has at least one value, one value is removed
+from each queue and the row is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Arm Only</strong>: The bound source only arms the zip; its payload
+is not included in the zipped output.</li>
+<li><strong>Index Pairing</strong>: Values are paired by position (index).</li>
+<li><strong>Queueing</strong>: Values are queued until all sources have a value.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>sources</code>: <strong>Sources to Zip.</strong> The cells to zip together.</li>
+<li><code>project</code>: <strong>Projection Function.</strong> Optional. Combines the row
+of values into the output type.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>R</code>: The type of the output value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the zipped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final arm = Cell.ingress&lt;void&gt;();
+final a = Cell.ingress&lt;int&gt;();
+final b = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.zip&lt;List&lt;Object?&gt;&gt;(
+  arm.cell,
+  sources: [a.cell, b.cell],
+);
+
+arm.emit(null); // Arms the zip
+a.emit(10);
+b.emit(20); // -&gt; [10, 20]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/zipWith.html">zipWith</a>: For zipping the source with other cells.</li>
+<li><a href="../../cell_flow/Flow/zipAll.html">zipAll</a>: For zipping values from a single source by count.</li>
+</ul>
 </section>
 
 
@@ -75,11 +134,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle zip&lt;R&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; sources,
-  R Function(List&lt;Object?&gt; row)? project,
-  ZipErrorHandler? onError,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; sources,
+      R Function(List&lt;Object?&gt; row)? project,
+      ZipErrorHandler? onError,
+    }) {
   return Zip&lt;R&gt;(
     sources,
     project: project,

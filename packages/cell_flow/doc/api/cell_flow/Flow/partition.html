@@ -66,7 +66,64 @@
     </section>
     
 <section class="desc markdown">
-  <p>Tag each value with whether <code>test</code> matched.</p>
+  <p>Routes pulses based on whether they satisfy the <code>test</code> predicate.</p>
+<p><a href="../../cell_flow/Flow/partition.html">partition</a> transforms each value into a <code>Split</code> record containing
+both the original value and a boolean indicating whether it passed
+the predicate.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/partition.html">partition</a> when you need to tag values with match information
+without separating them.</p>
+<ul>
+<li><strong>Categorization</strong>: Tagging items as matching or not.</li>
+<li><strong>Match Context</strong>: Preserving match information for downstream.</li>
+<li><strong>Conditional Processing</strong>: Processing based on match status.</li>
+<li><strong>Classification</strong>: Classifying items into two categories.</li>
+<li><strong>Filtering by Status</strong>: Filtering based on match status.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>test</code> is called with the payload.</li>
+<li>The result and value are wrapped in a <code>Split</code> record.</li>
+<li>The <code>Split</code> record is emitted.</li>
+<li>If <code>test</code> throws an error, the pulse is dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No State</strong>: No state is maintained between pulses.</li>
+<li><strong>Per-Item Emit</strong>: Emits one <code>Split</code> for each input.</li>
+<li><strong>Predicate Evaluation</strong>: <code>test</code> is called for each value.</li>
+<li><strong>Type Safety</strong>: Generic over value type <code>S</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> if the value matches the condition.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the partitioned values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.partition&lt;int&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+);
+
+input.emit(1); // -&gt; Split(matched: false, value: 1)
+input.emit(2); // -&gt; Split(matched: true, value: 2)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/partitionMap.html">partitionMap</a>: For mapping matched/unmatched values differently.</li>
+<li><a href="../../cell_flow/Flow/partitionOnly.html">partitionOnly</a>: For filtering by match status.</li>
+</ul>
 </section>
 
 
@@ -74,10 +131,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle partition&lt;S&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  PartitionErrorHandler? onError,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      PartitionErrorHandler? onError,
+    }) {
   return Partition&lt;S&gt;(test, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

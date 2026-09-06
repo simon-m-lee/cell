@@ -66,8 +66,90 @@
     </section>
     
 <section class="desc markdown">
-  <p>Map each payload through an async function (queued).</p>
-<p>Use for API calls, DB reads, or heavy work that returns one value.</p>
+  <p>Maps each payload through an asynchronous <code>mapper</code>.</p>
+<p><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> processes pulses <strong>sequentially</strong>. If a new pulse arrives while a
+mapper is still running, it is queued until the previous one completes.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> when you need to perform I/O or heavy computation where
+order must be strictly preserved.</p>
+<ul>
+<li><strong>Database Writes</strong>: Ensuring records are saved in order.</li>
+<li><strong>API Requests</strong>: When the server requires sequential processing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Incoming pulses are added to an internal queue.</li>
+<li>The <code>mapper</code> is called for the first item in the queue.</li>
+<li>The instruction waits for the resulting <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> to resolve.</li>
+<li>Once resolved, the next item in the queue is processed.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Backpressure</strong>: Rapid inputs will cause the queue to grow.</li>
+<li><strong>Serialization</strong>: Guaranteed to process only one future at a time.</li>
+<li><strong>Error Isolation</strong>: A failure in one mapper does not stop the queue.</li>
+</ul>
+<p><a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> is the foundational asynchronous mapping operator. It
+processes inputs one at a time, waiting for each async operation
+to complete before starting the next.</p>
+<h3 id="when-to-use-2">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncMap.html">asyncMap</a> when you need to perform async operations on each
+value and order matters.</p>
+<ul>
+<li><strong>Network Requests</strong>: Making sequential API calls.</li>
+<li><strong>Database Operations</strong>: Sequential database queries.</li>
+<li><strong>File I/O</strong>: Reading/writing files sequentially.</li>
+<li><strong>Data Enrichment</strong>: Enriching data with async sources.</li>
+<li><strong>Image Processing</strong>: Processing images sequentially.</li>
+<li><strong>Encryption/Decryption</strong>: Applying async crypto operations.</li>
+</ul>
+<h3 id="how-it-works-2">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>mapper</code>.</li>
+<li>The async operation is awaited.</li>
+<li>The result is emitted.</li>
+<li>Inputs are queued while processing.</li>
+<li>If <code>mapper</code> throws an error, it's reported and the instruction
+continues with the next input.</li>
+<li>Each emitted value gets the step <code>'AsyncMap'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious-2">Non‑obvious</h3>
+<ul>
+<li><strong>Sequential Processing</strong>: Operations run one after another.</li>
+<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
+<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
+<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>Mapping Function.</strong> Called with each typed payload,
+returns a <code>FutureOr&lt;T&gt;</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncMap&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+
+ids.emit(1); // -&gt; User 1
+ids.emit(2); // -&gt; User 2 (after User 1 completes)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncMapConcurrent.html">asyncMapConcurrent</a>: For concurrent mapping.</li>
+<li><a href="../../cell_flow/Flow/asyncMapLatest.html">asyncMapLatest</a>: For latest-only mapping.</li>
+</ul>
 </section>
 
 
@@ -75,10 +157,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMap&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;T&gt; Function(S value) mapper,
-  AsyncMapErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;T&gt; Function(S value) mapper,
+      AsyncMapErrorHandler? onError,
+    }) {
   return AsyncMap&lt;S, T&gt;(mapper, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

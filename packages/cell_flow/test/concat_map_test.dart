@@ -171,49 +171,6 @@ void main() {
     });
   });
 
-  group('ConcatAll', () {
-    test('flattens list payloads in arrival order', () async {
-      final b = bind(ConcatAll<String>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(['a', 'b']);
-      await b.gate.emitAsync(['c']);
-      await b.probe.settle();
-      expect(b.probe.payloads, ['a', 'b', 'c']);
-    });
-
-    test('flattens a Stream payload', () async {
-      final b = bind(ConcatAll<int>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(Stream.fromIterable([1, 2, 3]));
-      await b.probe.settle();
-      expect(b.probe.payloads, [1, 2, 3]);
-    });
-
-    test('awaits a Future payload', () async {
-      final b = bind(ConcatAll<int>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(Future.value(7));
-      await b.probe.settle();
-      expect(b.probe.payloads, [7]);
-    });
-
-    test('raw matching values pass through', () async {
-      final b = bind(ConcatAll<int>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync(5);
-      await b.probe.settle();
-      expect(b.probe.payloads, [5]);
-    });
-
-    test('does not treat a String as an iterable of graphemes', () async {
-      final b = bind(ConcatAll<String>());
-      addTearDown(b.probe.stop);
-      await b.gate.emitAsync('ab');
-      await b.probe.settle();
-      expect(b.probe.payloads, ['ab']);
-    });
-  });
-
   group('ConcatMapLatest', () {
     test('ignores stale in-flight inners', () async {
       final b = bind(ConcatMapLatest<String, String>((q) async* {

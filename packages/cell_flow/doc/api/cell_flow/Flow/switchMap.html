@@ -65,7 +65,90 @@
     </section>
     
 <section class="desc markdown">
-  <p>Switch inner flatten (Rx <code>switchMap</code>).</p>
+  <p>Maps each payload to an inner sequence and always switches to the
+<strong>latest</strong> one (Rx <code>switchMap</code>).</p>
+<p><a href="../../cell_flow/Flow/switchMap.html">switchMap</a> is a powerful flattening operator that "cancels" the previous
+inner sequence whenever a new source pulse arrives.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/switchMap.html">switchMap</a> for scenarios where only the most recent request is relevant:</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Cancel stale API calls when the user keeps typing.</li>
+<li><strong>Navigation</strong>: Stop loading data for the previous page when the user moves.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>A new source pulse triggers the <code>project</code> function.</li>
+<li>The resulting inner sequence (Future/Stream) is subscribed to.</li>
+<li>Any previous active inner sequence is immediately abandoned/cancelled.</li>
+<li>Only values from the current (latest) inner are emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Generation ID</strong>: Internally uses incrementing IDs to ignore stale results.</li>
+<li><strong>Cancellation</strong>: For Streams, it cancels the subscription. For Futures,
+it ignores the result.</li>
+</ul>
+<p><a href="../../cell_flow/Flow/switchMap.html">switchMap</a> acts as a <strong>Latest-Only Flattener</strong>. A new trigger
+cancels emission from the previous inner sequence.</p>
+<h3 id="when-to-use-2">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/switchMap.html">switchMap</a> when you only care about the most recent operation:</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Only the latest search query matters</li>
+<li><strong>Real-time Filtering</strong>: Only the most recent filter applies</li>
+<li><strong>Navigation</strong>: Only the latest route matters</li>
+<li><strong>Form Validation</strong>: Only the latest input should be validated</li>
+<li><strong>Live Updates</strong>: Only the most recent update is relevant</li>
+<li><strong>Selection Changes</strong>: Only the latest selection should be processed</li>
+<li><strong>Tab Switching</strong>: Only the latest tab's data should be loaded</li>
+</ul>
+<h3 id="how-it-works-2">How it works</h3>
+<ol>
+<li>Each trigger pulse starts a new inner sequence with a unique ID.</li>
+<li>If a new trigger arrives while a sequence is in flight, the previous
+sequence's ID is marked as stale.</li>
+<li>Only the sequence with the current ID can emit results.</li>
+<li>Stale sequences' items are silently dropped.</li>
+</ol>
+<h3 id="nonobvious-2">Non‑obvious</h3>
+<ul>
+<li><strong>Silent Cancellation</strong>: Cancelled sequences do not throw exceptions.
+They simply don't emit results.</li>
+<li><strong>Generation ID Tracking</strong>: Each sequence gets a unique ID. Only the
+sequence with the current ID can emit.</li>
+<li><strong>Memory Safety</strong>: The state only holds the current generation ID.</li>
+<li><strong>Error Handling</strong>: Only errors from the latest sequence are reported.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>The Flattening Logic.</strong> Takes an input value and returns
+an inner sequence.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final searchInput = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.switchMap&lt;String, Result&gt;(
+  searchInput.cell,
+  project: (q) async =&gt; await api.search(q),
+);
+
+searchInput.emit('dart');  // Starts search
+searchInput.emit('flutter'); // Cancels previous, starts new
+// Only 'flutter' results are emitted
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concatMap.html">concatMap</a>: For sequential flattening.</li>
+<li><a href="../../cell_flow/Flow/mergeMap.html">mergeMap</a>: For concurrent flattening.</li>
+<li><a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
+</ul>
 </section>
 
 
@@ -73,9 +156,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle switchMap&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) project,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) project,
+    }) {
   return SwitchMap&lt;S, T&gt;(project).toHandle(source: source);
 }</code></pre>
 </section>

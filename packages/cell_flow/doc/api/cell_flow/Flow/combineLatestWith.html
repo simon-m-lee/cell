@@ -68,7 +68,73 @@
     </section>
     
 <section class="desc markdown">
-  <p>Combine latest of <code>source</code> and <code>others</code>.</p>
+  <p>Combines the latest value from <code>source</code> with the latest values from
+<code>others</code> whenever any of them emit.</p>
+<p><a href="../../cell_flow/Flow/combineLatestWith.html">combineLatestWith</a> acts as a <strong>Multi-Source Combiner</strong>. It combines the
+latest values from the bound source and all other cells into a single
+output using a custom <code>combine</code> function.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/combineLatestWith.html">combineLatestWith</a> when you need to combine multiple reactive sources:</p>
+<ul>
+<li><strong>Form Validation</strong>: Combining multiple form fields into a validation state</li>
+<li><strong>UI State</strong>: Combining user preferences and data to compute UI state</li>
+<li><strong>Real-time Dashboards</strong>: Combining multiple data streams</li>
+<li><strong>Dependency Tracking</strong>: Combining values from different dependencies</li>
+<li><strong>Feature Flags</strong>: Combining multiple feature flags</li>
+<li><strong>Filtering</strong>: Combining filter criteria from multiple controls</li>
+<li><strong>Search</strong>: Combining search query with filters</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction and provides the source value.</li>
+<li>Observers are started on all <code>others</code> cells.</li>
+<li>Once all cells have at least one value, the <code>combine</code> function is called.</li>
+<li>The result is emitted as a <a href="../../cell_flow/Pulse-class.html">Pulse</a>.</li>
+<li>Whenever any cell updates, the <code>combine</code> function is called again.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>All Must Have Value</strong>: Emission only happens after all cells have
+at least one value.</li>
+<li><strong>Latest Values</strong>: Always uses the most recent value from each cell.</li>
+<li><strong>Any Update Triggers</strong>: Any cell update triggers a new combination.</li>
+<li><strong>Source Arming</strong>: The first source pulse is required to arm.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>The Additional Cells.</strong> Cells to combine with the source.</li>
+<li><code>combine</code>: <strong>The Combination Function.</strong> Takes the source value and a
+list of latest values from others, returns the combined result.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+<li><code>R</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the combined values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final username = Cell.ingress&lt;String&gt;();
+final password = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.combineLatestWith&lt;String, bool&gt;(
+  username.cell,
+  others: [password.cell],
+  combine: (username, latest) =&gt;
+      username.isNotEmpty &amp;&amp; (latest.single as String).isNotEmpty,
+);
+
+username.emit('user'); // No emission (password not set)
+password.emit('pass'); // Emits true
+username.emit('');     // Emits false
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/withLatestFrom.html">withLatestFrom</a>: For source-driven combination.</li>
+<li><a href="../../cell_flow/Flow/zipWith.html">zipWith</a>: For index-based pairing.</li>
+</ul>
 </section>
 
 
@@ -76,11 +142,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle combineLatestWith&lt;S, R&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; others,
-  required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
-  CombineErrorHandler? onError,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; others,
+      required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
+      CombineErrorHandler? onError,
+    }) {
   return CombineLatestWith&lt;S, R&gt;(
     others,
     combine,

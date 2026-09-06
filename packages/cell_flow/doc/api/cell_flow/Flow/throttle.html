@@ -66,7 +66,71 @@
     </section>
     
 <section class="desc markdown">
-  <p>Throttle with leading / trailing flags.</p>
+  <p>Limits the rate of emissions by enforcing a silent window of <code>duration</code>
+after a pulse.</p>
+<p><a href="../../cell_flow/Flow/throttle.html">throttle</a> acts as a <strong>Rate Limiter</strong> with fixed time windows. It controls
+the emission rate by allowing at most one value per time window, with
+configurable leading and trailing emissions.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/throttle.html">throttle</a> when you need to limit the rate of emissions:</p>
+<ul>
+<li><strong>Scroll Events</strong>: Limiting scroll events to prevent UI jank</li>
+<li><strong>API Rate Limiting</strong>: Enforcing API call rate limits</li>
+<li><strong>Sensor Data</strong>: Limiting sensor readings to a manageable rate</li>
+<li><strong>UI Events</strong>: Limiting resize, mousemove, or drag events</li>
+<li><strong>Network Requests</strong>: Preventing excessive network requests</li>
+<li><strong>Resource Protection</strong>: Protecting resources from overload</li>
+<li><strong>Real-time Updates</strong>: Controlling update frequency</li>
+<li><strong>Telemetry</strong>: Limiting telemetry emissions</li>
+</ul>
+<h3 id="throttle-modes">Throttle Modes</h3>
+<ul>
+<li><strong>Leading Only</strong> (<code>leading: true, trailing: false</code>): Emit first value,
+ignore rest during window.</li>
+<li><strong>Trailing Only</strong> (<code>leading: false, trailing: true</code>): Emit last value
+after window, skip first.</li>
+<li><strong>Both</strong> (<code>leading: true, trailing: true</code>): Emit first and last.</li>
+<li><strong>Neither</strong> (<code>leading: false, trailing: false</code>): No emissions during window.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fixed Windows</strong>: Windows are fixed duration and do not reset.</li>
+<li><strong>Leading Emission</strong>: The first pulse in a window is emitted immediately.</li>
+<li><strong>Trailing Emission</strong>: The last pulse in a window is emitted when the
+window closes.</li>
+<li><strong>Pending Value</strong>: Only the most recent value in the window is kept.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>The Time Window.</strong> The minimum time between emissions.</li>
+<li><code>leading</code>: <strong>Leading Emission.</strong> If <code>true</code>, emit the first value immediately.</li>
+<li><code>trailing</code>: <strong>Trailing Emission.</strong> If <code>true</code>, emit the last value after
+the window.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the throttled values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final scrollEvents = Cell.ingress&lt;ScrollEvent&gt;();
+
+final handle = Flow.throttle&lt;ScrollEvent&gt;(
+  scrollEvents.cell,
+  duration: Duration(milliseconds: 100),
+  leading: true,
+  trailing: true,
+);
+
+// Emits first scroll event immediately, then last after 100ms
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/debounce.html">debounce</a>: For silence-based emission.</li>
+<li><a href="../../cell_flow/Flow/sample.html">sample</a>: For sampling on notifier.</li>
+</ul>
 </section>
 
 
@@ -74,11 +138,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle throttle&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  bool leading = true,
-  bool trailing = false,
-}) {
+    Cell source, {
+      required Duration duration,
+      bool leading = true,
+      bool trailing = false,
+    }) {
   return Throttle&lt;S&gt;(
     duration,
     leading: leading,

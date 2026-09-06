@@ -67,6 +67,59 @@
     
 <section class="desc markdown">
   <p>Tap every pulse, including wrong types.</p>
+<p><a href="../../cell_flow/Flow/tapAll.html">tapAll</a> is similar to <a href="../../cell_flow/Flow/tap.html">tap</a> but the callback receives the full
+<a href="../../cell_flow/Pulse-class.html">Pulse</a> object, not just the payload.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/tapAll.html">tapAll</a> when you need to perform side effects on every pulse,
+including those that don't match the expected type.</p>
+<ul>
+<li><strong>Logging</strong>: Logging all pulses including errors.</li>
+<li><strong>Debugging</strong>: Debugging pulse flow including type mismatches.</li>
+<li><strong>Monitoring</strong>: Monitoring all pulses for metrics.</li>
+<li><strong>Auditing</strong>: Auditing all pulses including invalid ones.</li>
+<li><strong>Tracing</strong>: Tracing pulse flow through the system.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is passed to <code>onPulse</code> directly.</li>
+<li>No type checking is performed.</li>
+<li>If <code>onPulse</code> throws an error, the pulse is dropped.</li>
+<li>If <code>onPulse</code> succeeds, the pulse is passed through unchanged.</li>
+<li>The pulse gets the step <code>'TapAll'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No Type Check</strong>: The callback receives all pulses.</li>
+<li><strong>Full Pulse Access</strong>: The callback receives the full <a href="../../cell_flow/Pulse-class.html">Pulse</a> object.</li>
+<li><strong>Error Handling</strong>: If <code>onPulse</code> throws, the pulse is dropped.</li>
+<li><strong>Provenance Preservation</strong>: The pulse gets the <code>'TapAll'</code> step.</li>
+<li><strong>Synchronous Callback</strong>: <code>onPulse</code> is synchronous.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>onPulse</code>: <strong>Side Effect Callback.</strong> Called with each pulse.
+If it throws, the pulse is dropped.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the tapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;Object&gt;();
+
+final handle = Flow.tapAll(
+  input.cell,
+  onPulse: (pulse) =&gt; print('Pulse: ${pulse.payload}'),
+);
+
+input.emit(42); // Logs typed pulse
+input.emit('hello'); // Logs typed pulse
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/tap.html">tap</a>: For typed side effects.</li>
+<li><a href="../../cell_flow/Flow/tapWithIndex.html">tapWithIndex</a>: For indexed side effects.</li>
+</ul>
 </section>
 
 
@@ -74,10 +127,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle tapAll(
-  Cell source, {
-  required void Function(Pulse pulse) onPulse,
-  TapErrorHandler? onError,
-}) {
+    Cell source, {
+      required void Function(Pulse pulse) onPulse,
+      TapErrorHandler? onError,
+    }) {
   return TapAll(onPulse, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

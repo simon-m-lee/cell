@@ -131,7 +131,13 @@ O? call(I pulse, {
   dynamic token
 }) {
   void future_({required Pulse? result, required dynamic token}) {
-    future?.call(result: result, token: token);
+    if (future != null) {
+      future(result: result, token: token);
+    } else {
+      &#47;&#47; Intentionally using print during [Instruction] unit testing.
+      &#47;&#47; It should never happen when it is resided inside [Receptor]
+      print(UnimplementedError(&#39;[future] is null to forward (result: $result, token: $token)&#39;));
+    }
   }
 
   try {

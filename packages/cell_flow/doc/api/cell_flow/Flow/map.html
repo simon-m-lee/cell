@@ -66,7 +66,91 @@
     </section>
     
 <section class="desc markdown">
-  <p>Project each typed payload (Rx <code>map</code>). Named apart from <code>dart:core</code> Map.</p>
+  <p>Projects each incoming payload through the <code>project</code> function (Rx <code>map</code>).</p>
+<p><a href="../../cell_flow/Flow/map.html">map</a> is a <strong>Static Transformation Handle</strong>. It evaluates a projection
+function for every incoming pulse and forwards the transformed result.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/map.html">map</a> as your primary tool for data conversion and normalization:</p>
+<ul>
+<li><strong>Data Conversion</strong>: Changing one data type to another (e.g., <code>int</code> to <code>String</code>).</li>
+<li><strong>Normalization</strong>: Trimming strings, formatting numbers, or mapping enum values.</li>
+<li><strong>Data Enrichment</strong>: Adding calculated fields to a data model.</li>
+<li><strong>Filtering by Mapping</strong>: Returning the same value but updated (e.g., <code>user.copyWith(...)</code>).</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Every incoming pulse is type-checked against the source type <code>S</code>.</li>
+<li>If the payload matches, the <code>project</code> closure is executed synchronously.</li>
+<li>The return value is wrapped in a new <a href="../../cell_flow/Pulse-class.html">Pulse</a> and propagated downstream.</li>
+<li>Forensic metadata, including the source cell and trace history, is preserved.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Atomic Transformation</strong>: The mapping happens within the reactive wave, ensuring
+downstream observers see the transformed value immediately.</li>
+<li><strong>Error Suppression</strong>: If <code>project</code> throws an exception, the pulse is dropped
+to prevent graph corruption, and the error is reported via <code>onError</code>.</li>
+<li><strong>Stateless</strong>: The operator maintains no internal state between pulses.</li>
+</ul>
+<h3 id="when-to-use-2">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/map.html">map</a> when you need to transform each value in a stream.</p>
+<ul>
+<li><strong>Data Transformation</strong>: Converting data from one format to another.</li>
+<li><strong>Data Enrichment</strong>: Enriching data with additional information.</li>
+<li><strong>Data Cleaning</strong>: Cleaning or sanitizing data.</li>
+<li><strong>Data Projection</strong>: Projecting a subset of data.</li>
+<li><strong>Type Conversion</strong>: Converting between types.</li>
+<li><strong>Formatting</strong>: Formatting values for display.</li>
+<li><strong>Computation</strong>: Computing derived values.</li>
+</ul>
+<h3 id="how-it-works-2">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>project</code> is called with the payload.</li>
+<li>The result is emitted as a typed pulse.</li>
+<li>If <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapValue'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious-2">Non‑obvious</h3>
+<ul>
+<li><strong>Type Safety</strong>: Input type <code>S</code> and output type <code>T</code> are separate.</li>
+<li><strong>Error Handling</strong>: If <code>project</code> throws, the pulse is dropped.</li>
+<li><strong>Provenance Preservation</strong>: The emitted pulse preserves the
+source cell, type, and priority from the trigger pulse.</li>
+<li><strong>Synchronous Transformation</strong>: <code>project</code> is synchronous.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>Transformation Function.</strong> Called with each typed
+payload, returns the transformed value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.map&lt;int, int&gt;(
+  input.cell,
+  project: (n) =&gt; n * 2,
+);
+
+input.emit(5);  // -&gt; 10
+input.emit(7);  // -&gt; 14
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mapTo.html">mapTo</a>: For mapping to a constant value.</li>
+<li><a href="../../cell_flow/Flow/mapWithIndex.html">mapWithIndex</a>: For indexed mapping.</li>
+<li><a href="../../cell_flow/Flow/mapNotNull.html">mapNotNull</a>: For dropping null results.</li>
+<li><a href="../../cell_flow/Flow/mapWhen.html">mapWhen</a>: For conditional mapping.</li>
+</ul>
 </section>
 
 
@@ -74,10 +158,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle map&lt;S, T&gt;(
-  Cell source, {
-  required T Function(S value) project,
-  MapErrorHandler? onError,
-}) {
+    Cell source, {
+      required T Function(S value) project,
+      MapErrorHandler? onError,
+    }) {
   return MapValue&lt;S, T&gt;(project, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

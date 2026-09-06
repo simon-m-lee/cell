@@ -68,6 +68,67 @@
     
 <section class="desc markdown">
   <p>Emit a group's list when it hits <code>size</code>.</p>
+<p><a href="../../cell_flow/Flow/groupByCount.html">groupByCount</a> accumulates values by group and emits the list
+when a group reaches the specified size. The group is then cleared.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/groupByCount.html">groupByCount</a> when you need to batch values by group
+and emit when a batch is full.</p>
+<ul>
+<li><strong>Batch Processing</strong>: Processing items in batches by group.</li>
+<li><strong>Chunking</strong>: Chunking values by group.</li>
+<li><strong>Pagination</strong>: Paginating grouped items.</li>
+<li><strong>Bulk Operations</strong>: Performing bulk operations by group.</li>
+<li><strong>Rate Limiting</strong>: Limiting processing by group.</li>
+<li><strong>Windowed Processing</strong>: Processing windows of grouped data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>keyOf</code> is called with the payload.</li>
+<li>The value is added to the group's list.</li>
+<li>If the list reaches <code>size</code>, it's emitted as a <code>Grouped</code> record.</li>
+<li>The group is cleared from the internal map.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateful</strong>: Maintains groups until they reach the size.</li>
+<li><strong>Clear on Emit</strong>: Groups are removed after emission.</li>
+<li><strong>Per-Group Batching</strong>: Each group batches independently.</li>
+<li><strong>Incomplete Groups</strong>: Groups that never reach the size are kept.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>keyOf</code>: <strong>Key Extraction Function.</strong> Called with each typed
+payload, returns the group key.</li>
+<li><code>size</code>: <strong>Batch Size.</strong> The number of items required to emit.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>K</code>: The type of the group key.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the grouped batches.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final words = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.groupByCount&lt;String, String&gt;(
+  words.cell,
+  keyOf: (word) =&gt; word[0].toUpperCase(),
+  size: 3,
+);
+
+words.emit('apple');   // no output
+words.emit('apricot'); // no output
+words.emit('avocado'); // -&gt; Grouped(A, [apple, apricot, avocado])
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/groupBy.html">groupBy</a>: For tagging values with group keys.</li>
+<li><a href="../../cell_flow/Flow/groupCollect.html">groupCollect</a>: For accumulating values by group.</li>
+</ul>
 </section>
 
 
@@ -75,11 +136,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle groupByCount&lt;S, K&gt;(
-  Cell source, {
-  required K Function(S value) keyOf,
-  required int size,
-  GroupErrorHandler? onError,
-}) {
+    Cell source, {
+      required K Function(S value) keyOf,
+      required int size,
+      GroupErrorHandler? onError,
+    }) {
   return GroupByCount&lt;S, K&gt;(keyOf, size, onError: onError)
       .toHandle(source: source);
 }</code></pre>

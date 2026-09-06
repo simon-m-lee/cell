@@ -68,38 +68,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>Combines this instruction with another to create an <a href="../../cell_flow/InstructionChain-class.html">InstructionChain</a>.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>This is the most idiomatic and readable way to compose multiple
-instructions. Use it to fluently build a sequential processing pipeline
-without the verbosity of the <a href="../../cell_flow/Instruction/Instruction.chain.html">Instruction.chain</a> factory.</p>
-<h3 id="how-it-works">How it works</h3>
-<ol>
-<li>It creates an <a href="../../cell_flow/InstructionChain-class.html">InstructionChain</a> where <code>this</code> instruction is executed
-first.</li>
-<li>The output of <code>this</code> is passed as the input to the <code>other</code> instruction.</li>
-<li>The resulting chain is itself an <a href="../../cell_flow/Instruction-class.html">Instruction</a>, allowing for
-continuous, multi-stage composition.</li>
-</ol>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li><strong>Short-circuiting</strong>: If <code>this</code> instruction returns <code>null</code>, the <code>other</code>
-instruction is skipped entirely, and the chain terminates with <code>null</code>.</li>
-<li><strong>Left-Associativity</strong>: The operator is left-associative.
-<code>a + b + c</code> creates a logical sequence that preserves the <code>a -&gt; b -&gt; c</code>
-data flow.</li>
-<li><strong>Synchronous Composition</strong>: Both instructions execute synchronously
-in sequence. The result of the first is immediately passed to the second.</li>
-</ul>
-<h3 id="parameters">Parameters:</h3>
-<ul>
-<li><code>other</code>: The instruction to append to the processing chain.</li>
-</ul>
-<h3 id="returns">Returns:</h3>
-<p>A new <a href="../../cell_flow/InstructionChain-class.html">InstructionChain</a> containing both instructions.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final pipeline = trim + validate + persist;
-</code></pre>
+  <p>Chains this instruction with <code>other</code> to create a new serial composition.</p>
+<p>The resulting instruction will pass pulses through this one first, then through <code>other</code>.</p>
 </section>
 
 

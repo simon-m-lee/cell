@@ -68,6 +68,66 @@
     
 <section class="desc markdown">
   <p>Running <code>Map&lt;K, List&lt;S&gt;&gt;</code>.</p>
+<p><a href="../../cell_flow/Flow/groupCollect.html">groupCollect</a> accumulates values into groups and emits the
+complete map after every pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/groupCollect.html">groupCollect</a> when you need a running snapshot of all
+grouped values.</p>
+<ul>
+<li><strong>Real-time Dashboard</strong>: Showing real-time group summaries.</li>
+<li><strong>Aggregation</strong>: Aggregating values by group over time.</li>
+<li><strong>State Monitoring</strong>: Monitoring grouped state.</li>
+<li><strong>Caching</strong>: Maintaining a cache of grouped values.</li>
+<li><strong>Batch Processing</strong>: Preparing batches by group.</li>
+<li><strong>Reporting</strong>: Generating reports on grouped data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>keyOf</code> is called with the payload.</li>
+<li>The value is added to the group's list in the internal map.</li>
+<li>The current map is emitted as a snapshot.</li>
+<li>If <code>keyOf</code> throws an error, the pulse is dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateful</strong>: Maintains a map of all groups.</li>
+<li><strong>Running Snapshot</strong>: Emits the complete map after every pulse.</li>
+<li><strong>Snapshot Copy</strong>: The emitted map is a copy (not the internal map).</li>
+<li><strong>Monotonic Growth</strong>: Groups only grow; values are never removed.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>keyOf</code>: <strong>Key Extraction Function.</strong> Called with each typed
+payload, returns the group key.</li>
+<li><code>groups</code>: <strong>Initial Groups Map.</strong> Optional. Use this to seed
+the groups or to access the map externally.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>K</code>: The type of the group key.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the grouped maps.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.groupCollect&lt;int, String&gt;(
+  input.cell,
+  keyOf: (n) =&gt; n.isEven ? 'even' : 'odd',
+);
+
+input.emit(1); // -&gt; {odd: [1]}
+input.emit(2); // -&gt; {odd: [1], even: [2]}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/groupBy.html">groupBy</a>: For tagging values with group keys.</li>
+<li><a href="../../cell_flow/Flow/groupByCount.html">groupByCount</a>: For batching values by group.</li>
+</ul>
 </section>
 
 
@@ -75,11 +135,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle groupCollect&lt;S, K&gt;(
-  Cell source, {
-  required K Function(S value) keyOf,
-  Map&lt;K, List&lt;S&gt;&gt;? groups,
-  GroupErrorHandler? onError,
-}) {
+    Cell source, {
+      required K Function(S value) keyOf,
+      Map&lt;K, List&lt;S&gt;&gt;? groups,
+      GroupErrorHandler? onError,
+    }) {
   return GroupCollect&lt;S, K&gt;(
     keyOf,
     groups: groups,

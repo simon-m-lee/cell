@@ -65,7 +65,62 @@
     </section>
     
 <section class="desc markdown">
-  <p>Emit the same <code>value</code> for every typed pulse (Rx <code>mapTo</code>).</p>
+  <p>Emits the constant <code>value</code> for every pulse received from <code>source</code> (Rx <code>mapTo</code>).</p>
+<p><a href="../../cell_flow/Flow/mapTo.html">mapTo</a> is a specialized mapping operator that always emits the
+same constant value, regardless of the input. This is useful for
+converting any input into a fixed output.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mapTo.html">mapTo</a> when you need to map any input to a constant value.</p>
+<ul>
+<li><strong>Event Conversion</strong>: Converting any event to a specific event.</li>
+<li><strong>Signal Generation</strong>: Generating a fixed signal on any input.</li>
+<li><strong>Toggle</strong>: Converting any input to a toggle signal.</li>
+<li><strong>Trigger</strong>: Converting any input to a trigger signal.</li>
+<li><strong>Mapping to Void</strong>: Mapping any input to a void signal.</li>
+<li><strong>Default Responses</strong>: Always responding with a fixed value.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, the constant <code>value</code> is emitted.</li>
+<li>The input value is ignored (only the type is checked).</li>
+<li>The emitted pulse gets the step <code>'MapTo'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Input Ignored</strong>: The input value is not used in the output.</li>
+<li><strong>Type Check</strong>: The type is still checked to ensure proper typing.</li>
+<li><strong>Constant Output</strong>: The same value is emitted for every input.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>value</code>: <strong>Constant Value.</strong> The value to emit for every input.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload (for type checking).</li>
+<li><code>T</code>: The type of the constant output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.mapTo&lt;void, String&gt;(
+  clicks.cell,
+  value: 'ping',
+);
+
+clicks.emit(null); // -&gt; ping
+clicks.emit(null); // -&gt; ping
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/map.html">map</a>: For transforming inputs.</li>
+<li><a href="../../cell_flow/Flow/mapWithIndex.html">mapWithIndex</a>: For indexed mapping.</li>
+</ul>
 </section>
 
 
@@ -73,10 +128,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapTo&lt;S, T&gt;(
-  Cell source, {
-  required T value,
-  MapErrorHandler? onError,
-}) {
+    Cell source, {
+      required T value,
+      MapErrorHandler? onError,
+    }) {
   return MapTo&lt;S, T&gt;(value, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

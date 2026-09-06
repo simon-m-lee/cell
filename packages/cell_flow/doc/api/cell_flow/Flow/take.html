@@ -64,7 +64,63 @@
     </section>
     
 <section class="desc markdown">
-  <p>Take the first <code>count</code> values.</p>
+  <p>Only forwards the first <code>count</code> pulses received from <code>source</code>.</p>
+<p><a href="../../cell_flow/Flow/take.html">take</a> acts as a <strong>Count-Based Taker</strong>. It forwards the first N values
+from the stream and then stops forwarding.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/take.html">take</a> when you need to limit the number of values:</p>
+<ul>
+<li><strong>Prefetch</strong>: Getting the first page of results</li>
+<li><strong>Sampling</strong>: Taking a sample of data</li>
+<li><strong>Capping</strong>: Capping a burst of events</li>
+<li><strong>Testing</strong>: Testing with a fixed number of values</li>
+<li><strong>Pagination</strong>: Implementing "take N" operations</li>
+<li><strong>Limiting</strong>: Limiting the number of processed items</li>
+<li><strong>Preview</strong>: Showing a preview of data</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>A counter tracks how many values have been taken.</li>
+<li>If the counter is less than <code>count</code>, the pulse passes through.</li>
+<li>If the counter reaches <code>count</code>, the stream closes and all subsequent
+pulses are dropped.</li>
+<li>Results are emitted in input order.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Terminal State</strong>: Once the count is reached, the stream closes.</li>
+<li><strong>State Persistence</strong>: The instruction maintains a counter.</li>
+<li><strong>Order Preservation</strong>: Results are emitted in the same order as inputs.</li>
+<li><strong>No Completion Signal</strong>: The source cell is not completed.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>count</code>: <strong>The Number of Values to Take.</strong> Must be &gt;= 0.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the taken values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ticks = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.take&lt;int&gt;(ticks.cell, count: 3);
+
+ticks.emit(1); // passes through
+ticks.emit(2); // passes through
+ticks.emit(3); // passes through
+ticks.emit(4); // dropped
+// Result: `[1, 2, 3]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/takeWhile.html">takeWhile</a>: For conditional taking.</li>
+<li><a href="../../cell_flow/Flow/takeUntil.html">takeUntil</a>: For event-based taking.</li>
+</ul>
 </section>
 
 
@@ -72,9 +128,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle take&lt;S&gt;(
-  Cell source, {
-  required int count,
-}) {
+    Cell source, {
+      required int count,
+    }) {
   return Take&lt;S&gt;(count).toHandle(source: source);
 }</code></pre>
 </section>

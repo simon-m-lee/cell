@@ -64,6 +64,57 @@
     
 <section class="desc markdown">
   <p>Each payload is an inner, queued (Rx <code>concatAll</code>).</p>
+<p><a href="../../cell_flow/Flow/concatAll.html">concatAll</a> treats each source payload as an inner sequence and
+plays them in arrival order. This is useful when the sequences
+are dynamically generated.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/concatAll.html">concatAll</a> when each source payload is a sequence to play
+in order.</p>
+<ul>
+<li><strong>Dynamic Sequences</strong>: When sequences are generated dynamically.</li>
+<li><strong>Stream of Streams</strong>: Concatenating a stream of streams.</li>
+<li><strong>Queue Processing</strong>: Processing queued items sequentially.</li>
+<li><strong>Request/Response</strong>: Concatenating responses in order.</li>
+<li><strong>Lazy Loading</strong>: Loading data sequentially on demand.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse adds its payload to a queue.</li>
+<li>The queue is processed one inner at a time.</li>
+<li>All values from each inner are emitted.</li>
+<li>If the queue is empty, the instruction waits.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Dynamic Payloads</strong>: The inners come from the source payloads.</li>
+<li><strong>Queueing</strong>: Inners are queued and processed in order.</li>
+<li><strong>Sequential</strong>: Inners are played one after another.</li>
+<li><strong>Error Isolation</strong>: Errors in one inner don't stop the next.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the concatenated values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final lists = Cell.ingress&lt;List&lt;int&gt;&gt;();
+
+final handle = Flow.concatAll&lt;int&gt;(lists.cell);
+
+lists.emit([1, 2]); // -&gt; 1, 2
+lists.emit([3]);    // -&gt; 3
+// Outputs: 1, 2, 3
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concat.html">concat</a>: For static sequence concatenation.</li>
+<li><a href="../../cell_flow/Flow/concatMap.html">concatMap</a>: For per-trigger mapping.</li>
+</ul>
 </section>
 
 

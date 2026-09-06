@@ -67,6 +67,69 @@
     
 <section class="desc markdown">
   <p>Exhaust flatten — ignore while busy.</p>
+<p><a href="../../cell_flow/Flow/asyncExpandExhaust.html">asyncExpandExhaust</a> ignores (drops) new triggers while an inner
+sequence is still running. This prevents overlapping operations.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncExpandExhaust.html">asyncExpandExhaust</a> when you want to ignore new inputs while
+processing.</p>
+<ul>
+<li><strong>Rate Limiting</strong>: Ignoring rapid inputs while processing.</li>
+<li><strong>Debouncing</strong>: Ignoring inputs during processing.</li>
+<li><strong>Resource Protection</strong>: Preventing resource exhaustion.</li>
+<li><strong>Single Operation</strong>: Ensuring only one operation runs at a time.</li>
+<li><strong>Throttling</strong>: Throttling inputs while busy.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first incoming pulse triggers the <code>expand</code> function.</li>
+<li>While the inner sequence is running, new triggers are dropped.</li>
+<li>When the inner sequence completes, the next trigger is accepted.</li>
+<li>If <code>expand</code> throws an error, the busy flag is cleared.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Dropping</strong>: New triggers are silently dropped while busy.</li>
+<li><strong>Single Operation</strong>: Only one operation runs at a time.</li>
+<li><strong>No Queuing</strong>: No queuing; dropped triggers are lost.</li>
+<li><strong>Error Clearing</strong>: Errors clear the busy flag.</li>
+<li><strong>Drop First</strong>: The first trigger is always processed.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>expand</code>: <strong>Expansion Function.</strong> Takes an input value and returns
+a <code>FutureOr&lt;Object?&gt;</code> that can be drained.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.asyncExpandExhaust&lt;String, Result&gt;(
+  clicks.cell,
+  expand: (input) async {
+    await processInput(input);
+    return Result(input);
+  },
+);
+
+clicks.emit('first');   // -&gt; Result(first)
+clicks.emit('second');  // ignored (busy)
+clicks.emit('third');   // ignored (busy)
+// Only 'first' is processed
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncExpand.html">asyncExpand</a>: For sequential flattening.</li>
+<li><a href="../../cell_flow/Flow/asyncExpandConcurrent.html">asyncExpandConcurrent</a>: For concurrent flattening.</li>
+<li><a href="../../cell_flow/Flow/asyncExpandLatest.html">asyncExpandLatest</a>: For latest-only flattening.</li>
+</ul>
 </section>
 
 
@@ -74,10 +137,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncExpandExhaust&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) expand,
-  ExpandErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) expand,
+      ExpandErrorHandler? onError,
+    }) {
   return AsyncExpandExhaust&lt;S, T&gt;(expand, onError: onError)
       .toHandle(source: source);
 }</code></pre>

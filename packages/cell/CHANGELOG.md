@@ -1,3 +1,31 @@
+## Mitosis (1.0.0-rc.2) - Release Candidate
+
+This release introduces **PulseShell** defensive proxies and advanced **Receptor scrutiny**, providing high-integrity reactive orchestration for the Mitosis layer. It also hardens transactional state propagation and resolves edge cases in asynchronous operators.
+
+### Core Enhancements
+- **PulseShell & Scrutiny**:
+  - Introduced `PulseShell` as a defensive proxy for pulses, ensuring that untrusted receptors must pass a `scrutinize` check before accessing the underlying kernel.
+  - Refined `Receptor.pipeline` to support governed execution masks, allowing for more granular control over side effects and state mutations.
+- **Polymorphic Deputies**:
+  - Refined `deputy()` and `unmodifiable()` to return more specific types (e.g., `OpenCell`), eliminating the need for manual type-casting when working with ingress-capable proxies.
+- **Transactional Stability**:
+  - Enhanced `txApply` resilience when dealing with complex multi-cell dependency graphs and asynchronous observers.
+  - Improved internal cycle detection and trace propagation for deep reactive topographies.
+- **Operator Hardening**:
+  - Resolved type inference ambiguities in asynchronous closures (fixing the `FutureOr` return type issue).
+  - Fixed re-arming edge cases in `debounce` and `throttle` timers to prevent leaks and incorrect firing intervals.
+
+### Documentation & Verification
+- **Test Coverage**: Added dedicated test cases for `PulseShell` scrutiny and async closure type safety.
+- **Verification**: Updated `TEST_VERIFICATION.md` to reflect the latest RC2 coverage metrics and scrutiny protocols.
+- **High-Integrity Documentation Overhaul**: Regenerated library and core class KDocs with pedagogical sections (`### When to use`, `### How it works`, `### Non‑obvious`) for better developer onboarding and technical accuracy.
+
+### Fixes & Maintenance
+- **Internal Timer Reliability**: Fixed re-arming edge cases in `debounce` and `throttle` where timers could leak or fire at incorrect intervals during rapid state transitions.
+- **Type Inference**: Resolved `FutureOr` return type ambiguities in asynchronous operators, ensuring smoother integration with the Mitosis orchestration layer.
+- **Proxy Identity**: Ensured `PulseShell` proxies correctly propagate causal metadata while masking sensitive kernel internals during scrutiny phases.
+- **Project Structure**: Updated `analysis_options.yaml` and `dartdoc_options.yaml` to maintain consistent quality standards across the monorepo.
+
 ## Mitosis (1.0.0-rc.1) - Release Candidate
 
 This release promotes the **cell** core from **Beta (Public Preview)** to **Release Candidate**. The Switching Fabric, Core 16 operators, `Cell.valve`, `OpenCell.perform`, context / deputy / commons, and both transaction APIs are covered by a passing public-API unit-test suite with measured `lib/` coverage. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.

@@ -65,7 +65,64 @@
     </section>
     
 <section class="desc markdown">
-  <p>Repeat <code>value</code> <code>count</code> times on the first pulse.</p>
+  <p>Emits the same <code>value</code>, <code>count</code> times, on the first pulse received
+from <code>source</code>.</p>
+<p><a href="../../cell_flow/Flow/repeat.html">repeat</a> emits the same value multiple times on the first trigger.
+This is useful for generating repeated signals.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/repeat.html">repeat</a> when you need to emit the same value multiple times.</p>
+<ul>
+<li><strong>Heartbeats</strong>: Emitting multiple heartbeat signals.</li>
+<li><strong>Retry Signals</strong>: Emitting multiple retry attempts.</li>
+<li><strong>Test Data</strong>: Emitting repeated test values.</li>
+<li><strong>Pulses</strong>: Generating multiple pulses.</li>
+<li><strong>Acknowledgments</strong>: Sending multiple acknowledgment signals.</li>
+<li><strong>Alerts</strong>: Emitting repeated alert signals.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li><code>value</code> is emitted <code>count</code> times.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'Repeat'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The sequence only plays on the first pulse.</li>
+<li><strong>Same Value</strong>: The same value is emitted each time.</li>
+<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
+<li><code>value</code>: <strong>The Value to Repeat.</strong> The value to emit multiple times.</li>
+<li><code>count</code>: <strong>Number of Repetitions.</strong> How many times to emit the value.
+Defaults to 1.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the value to repeat.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.repeat&lt;String&gt;(
+  start.cell,
+  value: 'ping',
+  count: 3,
+);
+
+start.emit(null);
+// Outputs: ping, ping, ping
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/of.html">of</a>: For emitting fixed values.</li>
+<li><a href="../../cell_flow/Flow/fromIterable.html">fromIterable</a>: For emitting from an iterable.</li>
+<li><a href="../../cell_flow/Flow/range.html">range</a>: For emitting a numeric range.</li>
+</ul>
 </section>
 
 
@@ -73,10 +130,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle repeat&lt;T&gt;(
-  Cell source, {
-  required T value,
-  int count = 1,
-}) {
+    Cell source, {
+      required T value,
+      int count = 1,
+    }) {
   return Repeat&lt;T&gt;(value, count: count).toHandle(source: source);
 }</code></pre>
 </section>

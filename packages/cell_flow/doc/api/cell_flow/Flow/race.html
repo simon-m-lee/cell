@@ -65,6 +65,64 @@
     
 <section class="desc markdown">
   <p>First inner to emit wins (Rx <code>race</code>).</p>
+<p><a href="../../cell_flow/Flow/race.html">race</a> acts as a <strong>Competitive Selector</strong>. Multiple competitors are
+started concurrently, and the first one to produce a value of type <code>T</code>
+wins. All other competitors are ignored.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/race.html">race</a> when you have multiple sources of the same data and you want
+the fastest one:</p>
+<ul>
+<li><strong>Fastest Response</strong>: You want the fastest response from multiple sources</li>
+<li><strong>Redundant Services</strong>: You have redundant services for reliability</li>
+<li><strong>Cache vs Network</strong>: You want to race cache against network</li>
+<li><strong>Multiple APIs</strong>: You want to try multiple APIs in parallel</li>
+<li><strong>Fallback Sources</strong>: You want to try primary then fallback</li>
+<li><strong>Load Balancing</strong>: You want to pick the fastest replica</li>
+<li><strong>Performance Optimization</strong>: You want to minimize latency</li>
+<li><strong>Reliability</strong>: You want to tolerate failures from individual sources</li>
+</ul>
+<h3 id="supported-competitor-types">Supported Competitor Types</h3>
+<p>Each competitor can be any of the following:</p>
+<ul>
+<li><code>Stream&lt;T&gt;</code>: The first event in the stream wins.</li>
+<li><code>Future&lt;T&gt;</code>: The future's value wins.</li>
+<li><code>Iterable&lt;T&gt;</code>: The first element wins.</li>
+<li><code>T</code>: The value itself wins immediately.</li>
+<li><code>null</code>: The competitor is ignored (no emission).</li>
+<li><strong>Nested combinations</strong>: Recursively expanded.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Shot</strong>: The race is started on the first trigger only.</li>
+<li><strong>Concurrent</strong>: All competitors are started concurrently.</li>
+<li><strong>First Value Wins</strong>: Only the first value from any competitor is emitted.</li>
+<li><strong>Streams are Cancelled</strong>: Streams that lose are cancelled.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>competitors</code>: <strong>The Competitors.</strong> An iterable of sources to race.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload from the winner.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the winner's value.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.race&lt;String&gt;(
+  start.cell,
+  competitors: [
+    Future.delayed(Duration(milliseconds: 40), () =&gt; 'slow'),
+    Future.delayed(Duration(milliseconds: 5), () =&gt; 'fast'),
+  ],
+);
+
+start.emit(null); // Emits 'fast'
+</code></pre>
 </section>
 
 
@@ -72,9 +130,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle race&lt;T&gt;(
-  Cell source, {
-  required List&lt;Object?&gt; competitors,
-}) {
+    Cell source, {
+      required List&lt;Object?&gt; competitors,
+    }) {
   return Race&lt;T&gt;(competitors).toHandle(source: source);
 }</code></pre>
 </section>

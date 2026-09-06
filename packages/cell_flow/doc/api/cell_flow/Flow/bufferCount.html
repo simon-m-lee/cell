@@ -66,7 +66,99 @@
     </section>
     
 <section class="desc markdown">
-  <p>Emit a list every <code>size</code> items (Rx <code>bufferCount</code>).</p>
+  <p>Collects payloads into a list and emits it once it reaches <code>size</code> (Rx <code>bufferCount</code>).</p>
+<p>Collects payloads into a list and emits it once it reaches <code>size</code> (Rx <code>bufferCount</code>).</p>
+<p><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a> is a <strong>Count-Based Aggregator</strong>. It batches incoming pulses into
+fixed-size lists. It supports both tumbling (non-overlapping) and sliding
+(overlapping) windows.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a> to group items for batch processing:</p>
+<ul>
+<li><strong>Batch API Calls</strong>: Gathering N requests to send in one network call.</li>
+<li><strong>Sliding Windows</strong>: Computing moving averages or looking at the last N events.</li>
+<li><strong>Data Chunking</strong>: Breaking a high-frequency stream into manageable blocks.</li>
+<li><strong>Pairwise Logic</strong>: Use <code>size: 2, skip: 1</code> to process consecutive pairs.</li>
+</ul>
+<h3 id="skip-behavior">Skip Behavior</h3>
+<table>
+<thead>
+<tr>
+<th>Skip</th>
+<th>Behavior</th>
+<th>Example (size=3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skip == size</code></td>
+<td>Tumbling (no overlap)</td>
+<td><code>[1, 2, 3]</code>, <code>[4, 5, 6]</code></td>
+</tr>
+<tr>
+<td><code>skip &lt; size</code></td>
+<td>Overlapping</td>
+<td><code>[1, 2, 3]</code>, <code>[2, 3, 4]</code>, <code>[3, 4, 5]</code></td>
+</tr>
+<tr>
+<td><code>skip &gt; size</code></td>
+<td>Gaps (items skipped)</td>
+<td><code>[1, 2, 3]</code>, <code>[5, 6, 7]</code> (4 skipped)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked against <code>S</code>.</li>
+<li>The payload is added to an internal buffer.</li>
+<li>Once the buffer length reaches <code>size</code>, a copy of the buffer is emitted as a <code>List&lt;S&gt;</code>.</li>
+<li>The buffer is then shifted by <code>skip</code> (which defaults to <code>size</code>).</li>
+<li>If <code>skip</code> == <code>size</code>, the buffer is cleared completely (tumbling).</li>
+<li>If <code>skip</code> &lt; <code>size</code>, the last <code>size - skip</code> elements are kept (sliding).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lazy Emission</strong>: No pulse is emitted until at least <code>size</code> pulses have arrived.</li>
+<li><strong>Memory Usage</strong>: The operator holds a maximum of <code>size</code> elements in memory.</li>
+<li><strong>Overlapping Windows</strong>: If <code>skip</code> is less than <code>size</code>, elements will appear in
+multiple output lists.</li>
+<li><strong>Gaps</strong>: If <code>skip</code> is greater than <code>size</code>, some incoming elements will be
+discarded between buffers.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>size</code>: <strong>Window Size.</strong> The number of elements to include in each buffer.</li>
+<li><code>skip</code>: <strong>Stride.</strong> How many items to skip before starting a new
+buffer. Defaults to <code>size</code> (tumbling).</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the buffered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+// Tumbling window of 3
+final handle = Flow.bufferCount&lt;int&gt;(
+  input.cell,
+  size: 3,
+);
+
+input.emit(1); // No output
+input.emit(2); // No output
+input.emit(3); // -&gt; [1, 2, 3]
+input.emit(4); // No output
+input.emit(5); // No output
+input.emit(6); // -&gt; [4, 5, 6]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a>: For time-based buffering.</li>
+<li><a href="../../cell_flow/Flow/bufferWhen.html">bufferWhen</a>: For trigger-based buffering.</li>
+</ul>
 </section>
 
 
@@ -74,11 +166,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferCount&lt;S&gt;(
-  Cell source, {
-  required int size,
-  int? skip,
-  BufferErrorHandler? onError,
-}) {
+    Cell source, {
+      required int size,
+      int? skip,
+      BufferErrorHandler? onError,
+    }) {
   return BufferCount&lt;S&gt;(size, skip: skip, onError: onError)
       .toHandle(source: source);
 }</code></pre>

@@ -66,7 +66,63 @@
     </section>
     
 <section class="desc markdown">
-  <p>Create a new stream on every pulse.</p>
+  <p>Executes <code>create</code> to subscribe to a new stream on every pulse received
+from <code>source</code> (Rx <code>defer</code> for streams).</p>
+<p><a href="../../cell_flow/Flow/deferStream.html">deferStream</a> is similar to <a href="../../cell_flow/Flow/fromStream.html">fromStream</a> but creates a new stream
+subscription on each trigger pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/deferStream.html">deferStream</a> when you need a fresh stream on each trigger.</p>
+<ul>
+<li><strong>Lazy Initialization</strong>: Creating streams lazily on demand.</li>
+<li><strong>Fresh State</strong>: Getting fresh state from a stream each time.</li>
+<li><strong>Per-Trigger</strong>: Different streams for different triggers.</li>
+<li><strong>Resource Management</strong>: Managing stream resources per trigger.</li>
+<li><strong>Dynamic Sources</strong>: Creating streams dynamically.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each trigger pulse calls <code>create</code> to get a new stream.</li>
+<li>The stream is listened to.</li>
+<li>Each event is emitted as a pulse.</li>
+<li>If the stream errors, an error pulse is emitted.</li>
+<li>Each emitted event gets the step <code>'DeferStream'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>New Stream Each Time</strong>: A fresh stream is created on each trigger.</li>
+<li><strong>Lazy Creation</strong>: The stream is created when triggered.</li>
+<li><strong>Error Handling</strong>: Stream errors are caught and reported.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers each stream.</li>
+<li><code>create</code>: <strong>Stream Factory.</strong> Called on each trigger to create
+a new stream.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> Defaults to <code>true</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the stream events.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final trigger = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.deferStream&lt;int&gt;(
+  trigger.cell,
+  create: () =&gt; Stream.periodic(Duration(seconds: 1), (i) =&gt; i).take(3),
+);
+
+trigger.emit(null); // Creates and listens to a new stream
+trigger.emit(null); // Creates and listens to a new stream
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/fromStream.html">fromStream</a>: For a single stream subscription.</li>
+<li><a href="../../cell_flow/Flow/deferFuture.html">deferFuture</a>: For creating a new future on each trigger.</li>
+</ul>
 </section>
 
 
@@ -74,11 +130,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle deferStream&lt;S&gt;(
-  Cell source, {
-  required Stream&lt;S&gt; Function() create,
-  StreamErrorHandler? onError,
-  bool emitErrorPulse = true,
-}) {
+    Cell source, {
+      required Stream&lt;S&gt; Function() create,
+      StreamErrorHandler? onError,
+      bool emitErrorPulse = true,
+    }) {
   return DeferStream&lt;S&gt;(
     create,
     onError: onError,

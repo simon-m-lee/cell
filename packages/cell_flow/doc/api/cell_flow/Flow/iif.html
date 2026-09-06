@@ -69,7 +69,73 @@
     </section>
     
 <section class="desc markdown">
-  <p>Boolean dispatch (Rx <code>iif</code>).</p>
+  <p>A binary router that chooses between <code>thenMap</code> and <code>elseMap</code> based on
+<code>test</code> (Rx <code>iif</code>).</p>
+<p><a href="../../cell_flow/Flow/iif.html">iif</a> acts as a <strong>Conditional Router</strong>. It evaluates a predicate on the
+payload and routes the pulse to either the <code>thenMap</code> or <code>elseMap</code>
+transformation path.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/iif.html">iif</a> when you need to branch based on a boolean condition:</p>
+<ul>
+<li><strong>Success vs Error</strong>: Different handling for success and error payloads</li>
+<li><strong>Feature Flags</strong>: Different transformations based on feature flags</li>
+<li><strong>Cheap vs Expensive</strong>: Different processing for cheap vs expensive operations</li>
+<li><strong>Validation</strong>: Different handling for valid vs invalid inputs</li>
+<li><strong>Type Checking</strong>: Different handling based on payload type</li>
+<li><strong>State-Dependent Logic</strong>: Different behavior based on application state</li>
+<li><strong>User Roles</strong>: Different transformations for admin vs regular users</li>
+<li><strong>Environment</strong>: Different behavior based on environment (dev vs prod)</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is extracted and type-checked.</li>
+<li>The <code>test</code> predicate is evaluated on the payload.</li>
+<li>If the predicate returns <code>true</code>, the <code>thenMap</code> function is called.</li>
+<li>If the predicate returns <code>false</code>, the <code>elseMap</code> function is called.</li>
+<li>The result is emitted as a <a href="../../cell_flow/Pulse-class.html">Pulse</a>.</li>
+<li>The instruction preserves causal provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Binary Branch</strong>: Only two paths are available: then and else.</li>
+<li><strong>Type Safety</strong>: The instruction is generic over <code>S</code> (input) and
+<code>T</code> (output), ensuring compile-time type safety.</li>
+<li><strong>Error Handling</strong>: Errors in the predicate or mappers are reported
+via <code>onError</code>.</li>
+<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>The Condition.</strong> Returns <code>true</code> for the <code>thenMap</code> path.</li>
+<li><code>thenMap</code>: <strong>The Then Transformation.</strong> Called when <code>test</code> is true.</li>
+<li><code>elseMap</code>: <strong>The Else Transformation.</strong> Called when <code>test</code> is false.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the routed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final status = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.iif&lt;int, String&gt;(
+  status.cell,
+  test: (code) =&gt; code &lt; 400,
+  thenMap: (c) =&gt; 'ok-$c',
+  elseMap: (c) =&gt; 'err-$c',
+);
+
+status.emit(200); // -&gt; ok-200
+status.emit(404); // -&gt; err-404
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/partition.html">partition</a>: For tagging with match status.</li>
+<li><a href="../../cell_flow/Flow/iif.html">iif</a>: For multi-path routing.</li>
+</ul>
 </section>
 
 
@@ -77,11 +143,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle iif&lt;S, T&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  required T Function(S value) thenMap,
-  required T Function(S value) elseMap,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      required T Function(S value) thenMap,
+      required T Function(S value) elseMap,
+    }) {
   return Iif&lt;S, T&gt;(
     test,
     thenMap: thenMap,

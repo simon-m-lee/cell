@@ -66,7 +66,71 @@
     </section>
     
 <section class="desc markdown">
-  <p>Emit <code>count</code> integers from <code>start</code> (Rx <code>range</code>).</p>
+  <p>Emits a range of <code>count</code> integers starting from <code>start</code> on the first
+pulse received from <code>source</code> (Rx <code>range</code>).</p>
+<p><a href="../../cell_flow/Flow/range.html">range</a> emits a sequence of integers starting from <code>start</code> and
+incrementing by <code>step</code> for <code>count</code> times.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/range.html">range</a> when you need to emit a numeric range.</p>
+<ul>
+<li><strong>Counters</strong>: Emitting counter values.</li>
+<li><strong>Indices</strong>: Emitting index sequences.</li>
+<li><strong>Test Data</strong>: Emitting numeric test data.</li>
+<li><strong>Loops</strong>: Emitting loop iteration values.</li>
+<li><strong>Paginations</strong>: Emitting page numbers.</li>
+<li><strong>ID Generation</strong>: Emitting sequential IDs.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Values are emitted starting from <code>start</code>.</li>
+<li>Each value increases by <code>step</code>.</li>
+<li><code>count</code> values are emitted.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'Range'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The range only plays on the first pulse.</li>
+<li><strong>Step Control</strong>: <code>step</code> controls the increment between values.</li>
+<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
+<li><code>start</code>: <strong>Starting Value.</strong> The first integer in the range.</li>
+<li><code>count</code>: <strong>Number of Values.</strong> How many integers to emit.</li>
+<li><code>step</code>: <strong>Step Size.</strong> The increment between values. Defaults to 1.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.range(
+  start.cell,
+  start: 3,
+  count: 5,
+);
+
+start.emit(null);
+// Outputs: 3, 4, 5, 6, 7
+</code></pre>
+<h3 id="example-range-with-step">Example: Range with Step</h3>
+<pre class="language-dart"><code class="language-dart">final handle = Flow.range(
+  start.cell,
+  start: 2,
+  count: 5,
+  step: 2,
+);
+// Outputs: 2, 4, 6, 8, 10
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/of.html">of</a>: For emitting fixed values.</li>
+<li><a href="../../cell_flow/Flow/fromIterable.html">fromIterable</a>: For emitting from an iterable.</li>
+<li><a href="../../cell_flow/Flow/repeat.html">repeat</a>: For emitting a repeated value.</li>
+</ul>
 </section>
 
 
@@ -74,11 +138,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle range(
-  Cell source, {
-  required int start,
-  required int count,
-  int step = 1,
-}) {
+    Cell source, {
+      required int start,
+      required int count,
+      int step = 1,
+    }) {
   return Range(start, count, step: step).toHandle(source: source);
 }</code></pre>
 </section>

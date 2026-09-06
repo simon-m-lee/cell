@@ -68,6 +68,68 @@
     
 <section class="desc markdown">
   <p>Close the buffer when <code>test</code> is true.</p>
+<p><a href="../../cell_flow/Flow/bufferWithPredicate.html">bufferWithPredicate</a> batches incoming values until the predicate
+returns <code>true</code>, then emits the accumulated values as a list.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/bufferWithPredicate.html">bufferWithPredicate</a> when you need to batch based on a
+condition.</p>
+<ul>
+<li><strong>Conditional Batching</strong>: Batching when a condition is met.</li>
+<li><strong>Data Validation</strong>: Batching until validation passes.</li>
+<li><strong>State Changes</strong>: Batching on state changes.</li>
+<li><strong>Thresholds</strong>: Batching when thresholds are reached.</li>
+<li><strong>Pattern Detection</strong>: Batching when patterns are detected.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The <code>test</code> predicate is called with the payload.</li>
+<li>If <code>test</code> returns <code>false</code>, the value is added to the buffer.</li>
+<li>If <code>test</code> returns <code>true</code>:
+a. If <code>includeTrigger</code> is <code>true</code>, the value is added.
+b. The buffer is emitted as a list.
+c. The buffer is cleared.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Trigger Inclusion</strong>: <code>includeTrigger</code> controls whether the
+triggering value is included in the buffer.</li>
+<li><strong>Empty Skip</strong>: Empty buffers are not emitted.</li>
+<li><strong>Predicate Evaluation</strong>: The predicate is evaluated on each value.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> to close the buffer.</li>
+<li><code>includeTrigger</code>: <strong>Include Trigger Value.</strong> If <code>true</code>, the value
+that triggers the close is included in the buffer. Defaults to <code>true</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the buffered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.bufferWithPredicate&lt;int&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+);
+
+input.emit(1); // buffered
+input.emit(2); // -&gt; [1, 2] (even triggers flush)
+input.emit(3); // buffered
+input.emit(4); // -&gt; [3, 4]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+<li><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a>: For time-based buffering.</li>
+</ul>
 </section>
 
 
@@ -75,11 +137,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferWithPredicate&lt;S&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  bool includeTrigger = true,
-  BufferErrorHandler? onError,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      bool includeTrigger = true,
+      BufferErrorHandler? onError,
+    }) {
   return BufferWithPredicate&lt;S&gt;(
     test,
     includeTrigger: includeTrigger,

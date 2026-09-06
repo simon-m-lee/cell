@@ -66,6 +66,66 @@
     
 <section class="desc markdown">
   <p>Take while <code>test</code> is true.</p>
+<p><a href="../../cell_flow/Flow/takeWhile.html">takeWhile</a> acts as a <strong>Conditional Prefix Taker</strong>. It forwards values
+from the beginning of the stream while a condition is true, and stops
+forwarding when the condition fails.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/takeWhile.html">takeWhile</a> when you need to take values until a condition fails.</p>
+<ul>
+<li><strong>Conditional Streaming</strong>: Taking values based on a condition.</li>
+<li><strong>State Machine Transitions</strong>: Tracking state machine transitions.</li>
+<li><strong>Limiting</strong>: Limiting based on conditions.</li>
+<li><strong>Early Termination</strong>: Implementing early termination.</li>
+<li><strong>Prefix Extraction</strong>: Taking a prefix based on a condition.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The predicate is evaluated.</li>
+<li>If the predicate returns <code>true</code>, the value passes through.</li>
+<li>If the predicate returns <code>false</code>, the stream closes.</li>
+<li>The failing value is not emitted (unless <code>inclusive</code>).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Terminal State</strong>: Once the predicate returns <code>false</code>, the stream
+closes and no further values are emitted.</li>
+<li><strong>State Persistence</strong>: The instruction maintains an <code>open</code> flag.</li>
+<li><strong>Order Preservation</strong>: Results are emitted in the same order as inputs.</li>
+<li><strong>Error Handling</strong>: Errors in the predicate close the stream.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>The Taking Predicate.</strong> Returns <code>true</code> to continue
+taking values. When it returns <code>false</code>, the stream closes.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the taken values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final numbers = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.takeWhile&lt;int&gt;(
+  numbers.cell,
+  test: (n) =&gt; n &lt; 5,
+);
+
+numbers.emit(1); // passes through
+numbers.emit(2); // passes through
+numbers.emit(3); // passes through
+numbers.emit(4); // passes through
+numbers.emit(5); // closes the stream (not emitted)
+// Result: `[1, 2, 3, 4]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/take.html">take</a>: For count-based taking.</li>
+<li><a href="../../cell_flow/Flow/takeUntil.html">takeUntil</a>: For event-based taking.</li>
+</ul>
 </section>
 
 
@@ -73,9 +133,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle takeWhile&lt;S&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+    }) {
   return TakeWhile&lt;S&gt;(test).toHandle(source: source);
 }</code></pre>
 </section>

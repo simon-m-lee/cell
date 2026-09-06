@@ -188,4 +188,80 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
+
+  group('MapValueIf', () {
+    test('is MapWhen under the MapValue name', () async {
+      final b = bind(MapValueIf<int, String>(
+        (n) => n.isEven,
+        (n) => 'even-$n',
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, ['even-2']);
+    });
+  });
+
+  group('MapValueOr', () {
+    test('emits the projection when it succeeds', () async {
+      final b = bind(MapValueOr<int, int>(
+        (n) => n * 2,
+        orElse: (_, __) => -1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.payloads, [6]);
+    });
+
+    test('uses orElse when project throws', () async {
+      final errors = <Object>[];
+      final b = bind(MapValueOr<int, int>(
+        (n) => throw StateError('div'),
+        orElse: (_, __) => 0,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, [0]);
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('MapValues', () {
+    test('projects each map value', () async {
+      final b = bind(MapValues<String, int, int>((n) => n * 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1, 'b': 2});
+      await b.probe.settle();
+      expect(b.probe.payloads.single, {'a': 2, 'b': 4});
+    });
+
+    test('wrong payload types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MapValues<String, int, int>(
+        (n) => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('nope');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('MapKeys', () {
+    test('projects each map key', () async {
+      final b = bind(MapKeys<String, int, String>((k) => k.toUpperCase()));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1});
+      await b.probe.settle();
+      expect(b.probe.payloads.single, {'A': 1});
+    });
+  });
 }

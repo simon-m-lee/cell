@@ -68,6 +68,67 @@
     
 <section class="desc markdown">
   <p>Keep only the matching side.</p>
+<p><a href="../../cell_flow/Flow/partitionOnly.html">partitionOnly</a> is a filtering operator that only passes values
+that match the predicate.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/partitionOnly.html">partitionOnly</a> when you only want values that match (or don't
+match) a predicate.</p>
+<ul>
+<li><strong>Filtering</strong>: Filtering values by a condition.</li>
+<li><strong>Positive Filtering</strong>: Keeping only matching values.</li>
+<li><strong>Negative Filtering</strong>: Keeping only non-matching values.</li>
+<li><strong>Validation</strong>: Passing only valid values.</li>
+<li><strong>Data Cleaning</strong>: Keeping only clean data.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>test</code> is called with the payload.</li>
+<li>If <code>test</code> returns <code>matched</code> (default <code>true</code>), the value is emitted.</li>
+<li>If <code>test</code> returns the opposite, the value is dropped.</li>
+<li>If <code>test</code> throws an error, the pulse is dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No State</strong>: No state is maintained between pulses.</li>
+<li><strong>Filtering</strong>: Only values matching the condition are emitted.</li>
+<li><strong>Inverse Filtering</strong>: With <code>matched</code> <code>false</code>, keeps non-matching values.</li>
+<li><strong>Type Safety</strong>: Generic over value type <code>S</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> for values to be considered.</li>
+<li><code>matched</code>: <strong>Filter Mode.</strong> If <code>true</code>, keeps values where <code>test</code>
+returns <code>true</code>. If <code>false</code>, keeps values where <code>test</code> returns
+<code>false</code>. Defaults to <code>true</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the filtered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.partitionOnly&lt;int&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+);
+
+input.emit(1); // dropped
+input.emit(2); // -&gt; 2
+input.emit(3); // dropped
+input.emit(4); // -&gt; 4
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/partition.html">partition</a>: For tagging values with match status.</li>
+<li><a href="../../cell_flow/Flow/partitionMap.html">partitionMap</a>: For mapping matched/unmatched values differently.</li>
+</ul>
 </section>
 
 
@@ -75,11 +136,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle partitionOnly&lt;S&gt;(
-  Cell source, {
-  required bool Function(S value) test,
-  bool matched = true,
-  PartitionErrorHandler? onError,
-}) {
+    Cell source, {
+      required bool Function(S value) test,
+      bool matched = true,
+      PartitionErrorHandler? onError,
+    }) {
   return PartitionOnly&lt;S&gt;(
     test,
     matched: matched,

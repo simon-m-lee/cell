@@ -226,27 +226,27 @@ void main() {
       expect(deputy, isA<OpenCell>());
       expect(deputy, isNot(same(cell)));
       expect(cell == deputy, isTrue);
-      await (deputy as OpenCell).emit(Pulse<int>(3));
+      await (deputy).emit(Pulse<int>(3));
       expect(seen, [3]);
     });
 
     test('nested OpenCell deputy with defaults returns this', () {
       final cell = Cell.open();
       final first = cell.deputy(testRule: TestCell.readOnly);
-      expect((first as OpenCell).deputy(), same(first));
+      expect((first).deputy(), same(first));
     });
 
     test('OpenCell deputy exposes async handle', () {
       final cell = Cell.open();
       final deputy = cell.deputy(synapses: Synapses.disabled);
-      expect((deputy as OpenCell).async, isA<OpenCellAsync>());
+      expect((deputy).async, isA<OpenCellAsync>());
     });
 
     test('OpenCell deputy can link a downstream observer', () async {
       final open = Cell.open();
       final deputy = open.deputy(
         testRule: TestCell((object, {host, arguments, user}) => true),
-      ) as OpenCell;
+      );
       final sink = Cell();
       final unlink = deputy.link(sink);
       expect(unlink, isNotNull);

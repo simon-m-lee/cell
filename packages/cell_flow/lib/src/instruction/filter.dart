@@ -18,24 +18,20 @@ import 'package:cell_flow/flow.dart';
 /// | [AsyncFilterWithTimeout] | 1 → 0..1 | Yes | timeout drop |
 /// | [AsyncFilterWithFallback] | 1 → 0..1 | Yes | optional pass on error |
 /// | [FilterNotNull] | 1 → 0..1 | No | drop null |
-/// | [Distinct] | 1 → 0..1 | No | consecutive |
-/// | [DistinctAll] | 1 → 0..1 | No | global seen-set |
 /// | [FilterType] | 1 → 0..1 | No | `is T` |
 /// | [FilterAllowed] / [FilterBlocked] | 1 → 0..1 | No | set membership |
 /// | [FilterByTime] | 1 → 0..1 | Timer | min gap |
-/// | [Throttle] | 1 → 0..1 | Timer | leading / trailing |
-/// | [Debounce] / [DebounceLeading] | 1 → 0..1 | Timer | silence window |
-/// | [TakeWhile] / [SkipWhile] | 1 → 0..1 | No | sticky gate |
-/// | [Take] / [Skip] | 1 → 0..1 | No | count |
+///
+/// Time gates live in `debounce.dart` / `throttle.dart`. Count gates
+/// live in `take.dart` / `skip.dart`. Uniqueness lives in `distinct.dart`.
 ///
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` below for console output.
 ///
 /// ### Choosing a time operator
-/// - [Debounce] — search-as-you-type (last value after silence)
-/// - [DebounceLeading] — first click immediate, then debounce
-/// - [Throttle] — scroll / API rate limit
 /// - [FilterByTime] — minimum spacing, first value immediate
+/// - `Debounce` (`debounce.dart`) — last value after silence
+/// - `Throttle` (`throttle.dart`) — leading / trailing window
 
 // ─────────────────────────────────────────────────────────────
 // Shared helpers
@@ -103,7 +99,7 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 /// ```
 ///
 /// ### See Also:
-/// [AsyncFilter], [FilterNotNull], [FilterType], [Distinct]
+/// [AsyncFilter], [FilterNotNull], [FilterType]
 class Filter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   Filter(
     bool Function(S value) predicate, {
@@ -364,54 +360,6 @@ class FilterNotNull<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         );
 }
 
-/// Suppresses consecutive duplicates. Non-adjacent repeats still pass.
-class Distinct<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  Distinct({
-    bool Function(S a, S b)? comparator,
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final state = _DistinctState<S>();
-            final eq = comparator ?? (S a, S b) => a == b;
-            return (pulse, {cell, user}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              final payload = typed.payload as S;
-              if (state.hasPrevious && eq(state.previous as S, payload)) {
-                return null;
-              }
-              state.previous = payload;
-              state.hasPrevious = true;
-              return _mark(typed, 'Distinct');
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Suppresses any value already seen (global distinct), keyed by [keyOf].
-class DistinctAll<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  DistinctAll({
-    Object? Function(S value)? keyOf,
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final seen = <Object?>{};
-            return (pulse, {cell, user}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              final payload = typed.payload as S;
-              final key = keyOf == null ? payload : keyOf(payload);
-              if (!seen.add(key)) return null;
-              return _mark(typed, 'DistinctAll');
-            };
-          })(),
-          user: user,
-        );
-}
-
 /// Keeps payloads that are a [T] (runtime type narrowing).
 class FilterType<S, T extends S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   FilterType({
@@ -517,279 +465,12 @@ class FilterByTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         );
 }
 
-/// Rate-limits emissions to at most one leading and/or trailing value per
-/// [duration] window.
-///
-/// - `leading: true` — first pulse in a window emits immediately
-/// - `trailing: true` — last pulse in the window emits when the window closes
-class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  Throttle(
-    Duration duration, {
-    bool leading = true,
-    bool trailing = true,
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super.future(
-          (() {
-            final state = _TimeGateState<S>();
-
-            void armTrailing(
-              void Function({required Pulse? result, required dynamic token})?
-                  future,
-              dynamic token,
-              Cell? cell,
-            ) {
-              if (!trailing) return;
-              final elapsed = state.lastEmitted == null
-                  ? duration
-                  : DateTime.now().difference(state.lastEmitted!);
-              final remaining =
-                  elapsed >= duration ? duration : duration - elapsed;
-              state.timer?.cancel();
-              state.timer = Timer(remaining, () {
-                final value = state.pending;
-                final src = state.pendingPulse;
-                state.clearPending();
-                state.timer = null;
-                if (value == null || src == null || future == null) return;
-                state.lastEmitted = DateTime.now();
-                future(
-                  result: _fromPayload(value, src, cell, 'Throttle.trailing'),
-                  token: token,
-                );
-              });
-            }
-
-            return (pulse, {cell, user, future, token}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              final payload = typed.payload as S;
-              final now = DateTime.now();
-
-              if (state.lastEmitted == null) {
-                state.lastEmitted = now;
-                if (leading) {
-                  if (trailing) armTrailing(future, token, cell);
-                  return _mark(typed, 'Throttle.leading');
-                }
-                state.pending = payload;
-                state.pendingPulse = typed;
-                armTrailing(future, token, cell);
-                return null;
-              }
-
-              final elapsed = now.difference(state.lastEmitted!);
-              if (elapsed >= duration) {
-                state.lastEmitted = now;
-                state.clearPending();
-                if (trailing) armTrailing(future, token, cell);
-                return _mark(typed, 'Throttle.window');
-              }
-
-              if (trailing) {
-                state.pending = payload;
-                state.pendingPulse = typed;
-                if (state.timer?.isActive != true) {
-                  armTrailing(future, token, cell);
-                }
-              }
-              return null;
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Emits the last value after [duration] of silence.
-class Debounce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  Debounce(
-    Duration duration, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super.future(
-          (() {
-            final state = _TimeGateState<S>();
-            return (pulse, {cell, user, future, token}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-
-              state.pending = typed.payload as S;
-              state.pendingPulse = typed;
-              state.timer?.cancel();
-              state.timer = Timer(duration, () {
-                final value = state.pending;
-                final src = state.pendingPulse;
-                state.clearPending();
-                state.timer = null;
-                if (value == null || src == null) return;
-                future!(
-                  result: _fromPayload(value, src, cell, 'Debounce'),
-                  token: token,
-                );
-              });
-              return null;
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Emits the first pulse immediately, then debounces the rest of the burst.
-class DebounceLeading<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  DebounceLeading(
-    Duration duration, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super.future(
-          (() {
-            final state = _TimeGateState<S>();
-            return (pulse, {cell, user, future, token}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-
-              final timerActive = state.timer?.isActive == true;
-              if (!timerActive) {
-                state.clearPending();
-                future!(result: _mark(typed, 'DebounceLeading.leading'), token: token);
-                state.timer = Timer(duration, () {
-                  state.timer = null;
-                });
-                return null;
-              }
-
-              state.pending = typed.payload as S;
-              state.pendingPulse = typed;
-              state.timer?.cancel();
-              state.timer = Timer(duration, () {
-                final value = state.pending;
-                final src = state.pendingPulse;
-                state.clearPending();
-                state.timer = null;
-                if (value == null || src == null) return;
-                future!(
-                  result: _fromPayload(value, src, cell, 'DebounceLeading.trailing'),
-                  token: token,
-                );
-              });
-              return null;
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Passes values while [predicate] is true; then stays closed.
-class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  TakeWhile(
-    bool Function(S value) predicate, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final state = _GateState();
-            return (pulse, {cell, user}) {
-              if (state.done) return null;
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              try {
-                if (!predicate(typed.payload as S)) {
-                  state.done = true;
-                  return null;
-                }
-                return _mark(typed, 'TakeWhile');
-              } catch (e, stack) {
-                onError?.call(e, stack);
-                state.done = true;
-                return null;
-              }
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Drops values while [predicate] is true; then stays open.
-class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  SkipWhile(
-    bool Function(S value) predicate, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final state = _GateState();
-            return (pulse, {cell, user}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              if (state.done) return _mark(typed, 'SkipWhile');
-              try {
-                if (predicate(typed.payload as S)) return null;
-                state.done = true;
-                return _mark(typed, 'SkipWhile');
-              } catch (e, stack) {
-                onError?.call(e, stack);
-                state.done = true;
-                return _mark(typed, 'SkipWhile');
-              }
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// First [count] values only.
-class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  Take(
-    int count, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final state = _CountState();
-            final n = count < 0 ? 0 : count;
-            return (pulse, {cell, user}) {
-              if (state.n >= n) return null;
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              state.n++;
-              return _mark(typed, 'Take');
-            };
-          })(),
-          user: user,
-        );
-}
-
-/// Drops the first [count] values, then passes everything.
-class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  Skip(
-    int count, {
-    FilterErrorHandler? onError,
-    dynamic user,
-  }) : super(
-          (() {
-            final state = _CountState();
-            final n = count < 0 ? 0 : count;
-            return (pulse, {cell, user}) {
-              final typed = _typedOrError<S>(pulse, onError: onError);
-              if (typed == null) return null;
-              if (state.n < n) {
-                state.n++;
-                return null;
-              }
-              return _mark(typed, 'Skip');
-            };
-          })(),
-          user: user,
-        );
-}
+// Distinct → distinct.dart. Debounce → debounce.dart.
+// Throttle → throttle.dart. Take / Skip → take.dart / skip.dart.
 
 // ─────────────────────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────────────────────
-
-class _DistinctState<S> {
-  S? previous;
-  bool hasPrevious = false;
-}
 
 class _TimeGateState<S> {
   DateTime? lastEmitted;
@@ -807,14 +488,6 @@ class _TimeGateState<S> {
     pendingPulse = null;
     clearTimer();
   }
-}
-
-class _GateState {
-  bool done = false;
-}
-
-class _CountState {
-  int n = 0;
 }
 
 class _GenerationState {
@@ -835,6 +508,8 @@ class _AsyncQueueState {
 
 /// Demonstration of the filter instruction family.
 ///
+/// Distinct, debounce, throttle, take and skip live in their own files.
+///
 /// ### Expected console output:
 /// ```text
 /// ── Filter Operators Demo ──────────────────────────────────────
@@ -843,74 +518,18 @@ class _AsyncQueueState {
 ///    [Filter] 2
 ///    [Filter] 4
 ///
-/// 2. Distinct - Unique Values
-///    [Distinct] 1
-///    [Distinct] 2
-///    [Distinct] 3
-///
-/// 3. FilterNotNull - Remove Nulls
+/// 2. FilterNotNull - Remove Nulls
 ///    [FilterNotNull] hello
 ///
-/// 4. FilterType - Type Filtering
+/// 3. FilterType - Type Filtering
 ///    [FilterType] hello
 ///
-/// 5. Debounce - Search
-///    [Debounce] hello
-///
-/// 6. TakeWhile - Conditional Take
-///    [TakeWhile] 1
-///    [TakeWhile] 2
-///    [TakeWhile] 3
-///    [TakeWhile] 4
-///
-/// 7. SkipWhile - Conditional Skip
-///    [SkipWhile] 5
-///    [SkipWhile] 6
-///    [SkipWhile] 7
-///
-/// 8. Take - First N Values
-///    [Take] 1
-///    [Take] 2
-///    [Take] 3
-///
-/// 9. Skip - First N Values
-///    [Skip] 3
-///    [Skip] 4
-///    [Skip] 5
-///
-/// 10. Throttle - Rate Limiting
-///    [Throttle] 1
-///    [Throttle] 5
-///
-/// 11. AsyncFilter - Async Validation
+/// 4. AsyncFilter - Async Validation
 ///    [AsyncFilter] john is available
 ///    [AsyncFilter] jane is available
 ///
 /// ── finished ──────────────────────────────────────────────────
 /// ```
-///
-/// ### How to run
-/// ```dart
-/// void main() => main();
-/// ```
-///
-/// ### What it demonstrates
-/// 1. **Filter** — even numbers only.
-/// 2. **Distinct** — consecutive duplicates removed.
-/// 3. **FilterNotNull** — nulls dropped.
-/// 4. **FilterType** — `Object` stream narrowed to `String`.
-/// 5. **Debounce** — only the last search term after silence.
-/// 6. **TakeWhile** — values while `n < 5`, then closed.
-/// 7. **SkipWhile** — skip until `n >= 5`.
-/// 8. **Take(3)** / **Skip(2)** — count gates.
-/// 9. **Throttle** — leading + trailing in a 150ms window.
-/// 10. **AsyncFilter** — sequential async validation.
-///
-/// ### Key takeaways
-/// - All filters are 1 → 0..1 and preserve input order unless documented
-///   otherwise (concurrent / latest variants).
-/// - Time operators use real [Timer]s; wait in demos and tests.
-/// - Inject with [IngressHandle.emitAsync], not `Cell.emitAsync`.
 Future<void> main() async {
   print('── Filter Operators Demo ──────────────────────────────────────\n');
 
@@ -928,23 +547,7 @@ Future<void> main() async {
   filterObs.stop();
   print('');
 
-  print('2. Distinct - Unique Values');
-  final duplicates = Cell.ingress<int>();
-  final unique = Distinct<int>().toHandle(source: duplicates.cell);
-  final distinctObs = Cell.observe(
-    source: unique.cell,
-    effect: (Pulse p) => print('   [Distinct] ${p.payload}'),
-  );
-  await duplicates.emitAsync(1);
-  await duplicates.emitAsync(1);
-  await duplicates.emitAsync(2);
-  await duplicates.emitAsync(2);
-  await duplicates.emitAsync(3);
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  distinctObs.stop();
-  print('');
-
-  print('3. FilterNotNull - Remove Nulls');
+  print('2. FilterNotNull - Remove Nulls');
   final nullable = Cell.ingress<String?>();
   final nonNull = FilterNotNull<String>().toHandle(source: nullable.cell);
   final notNullObs = Cell.observe(
@@ -958,7 +561,7 @@ Future<void> main() async {
   notNullObs.stop();
   print('');
 
-  print('4. FilterType - Type Filtering');
+  print('3. FilterType - Type Filtering');
   final mixed = Cell.ingress<Object>();
   final strings = FilterType<Object, String>().toHandle(source: mixed.cell);
   final typeObs = Cell.observe(
@@ -972,106 +575,7 @@ Future<void> main() async {
   typeObs.stop();
   print('');
 
-  print('5. Debounce - Search');
-  final searchInput = Cell.ingress<String>();
-  final debounced = Debounce<String>(
-    const Duration(milliseconds: 200),
-  ).toHandle(source: searchInput.cell);
-  final debounceObs = Cell.observe(
-    source: debounced.cell,
-    effect: (Pulse p) => print('   [Debounce] ${p.payload}'),
-  );
-  await searchInput.emitAsync('h');
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  await searchInput.emitAsync('he');
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  await searchInput.emitAsync('hel');
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  await searchInput.emitAsync('hell');
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  await searchInput.emitAsync('hello');
-  await Future<void>.delayed(const Duration(milliseconds: 250));
-  debounceObs.stop();
-  print('');
-
-  print('6. TakeWhile - Conditional Take');
-  final takeNumbers = Cell.ingress<int>();
-  final takeWhile =
-      TakeWhile<int>((n) => n < 5).toHandle(source: takeNumbers.cell);
-  final takeWhileObs = Cell.observe(
-    source: takeWhile.cell,
-    effect: (Pulse p) => print('   [TakeWhile] ${p.payload}'),
-  );
-  for (var i = 1; i <= 7; i++) {
-    await takeNumbers.emitAsync(i);
-  }
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  takeWhileObs.stop();
-  print('');
-
-  print('7. SkipWhile - Conditional Skip');
-  final skipNumbers = Cell.ingress<int>();
-  final skipWhile =
-      SkipWhile<int>((n) => n < 5).toHandle(source: skipNumbers.cell);
-  final skipWhileObs = Cell.observe(
-    source: skipWhile.cell,
-    effect: (Pulse p) => print('   [SkipWhile] ${p.payload}'),
-  );
-  for (var i = 1; i <= 7; i++) {
-    await skipNumbers.emitAsync(i);
-  }
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  skipWhileObs.stop();
-  print('');
-
-  print('8. Take - First N Values');
-  final takeNumbers2 = Cell.ingress<int>();
-  final take3 = Take<int>(3).toHandle(source: takeNumbers2.cell);
-  final takeObs = Cell.observe(
-    source: take3.cell,
-    effect: (Pulse p) => print('   [Take] ${p.payload}'),
-  );
-  for (var i = 1; i <= 5; i++) {
-    await takeNumbers2.emitAsync(i);
-  }
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  takeObs.stop();
-  print('');
-
-  print('9. Skip - First N Values');
-  final skipNumbers2 = Cell.ingress<int>();
-  final skip2 = Skip<int>(2).toHandle(source: skipNumbers2.cell);
-  final skipObs = Cell.observe(
-    source: skip2.cell,
-    effect: (Pulse p) => print('   [Skip] ${p.payload}'),
-  );
-  for (var i = 1; i <= 5; i++) {
-    await skipNumbers2.emitAsync(i);
-  }
-  await Future<void>.delayed(const Duration(milliseconds: 50));
-  skipObs.stop();
-  print('');
-
-  print('10. Throttle - Rate Limiting');
-  final throttleInput = Cell.ingress<int>();
-  final throttled = Throttle<int>(
-    const Duration(milliseconds: 150),
-    leading: true,
-    trailing: true,
-  ).toHandle(source: throttleInput.cell);
-  final throttleObs = Cell.observe(
-    source: throttled.cell,
-    effect: (Pulse p) => print('   [Throttle] ${p.payload}'),
-  );
-  for (var i = 1; i <= 5; i++) {
-    await throttleInput.emitAsync(i);
-    await Future<void>.delayed(const Duration(milliseconds: 40));
-  }
-  await Future<void>.delayed(const Duration(milliseconds: 200));
-  throttleObs.stop();
-  print('');
-
-  print('11. AsyncFilter - Async Validation');
+  print('4. AsyncFilter - Async Validation');
   final usernames = Cell.ingress<String>();
   final available = AsyncFilter<String>(
     (username) async {

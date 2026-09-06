@@ -58,19 +58,44 @@
   <p>The Transcription Orchestrator for the Cell framework, responsible for
 converting (transcribing) external stimuli, persistent state, and logic
 into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.</p>
-<p><a href="../cell_flow/Flow-class.html">Flow</a> is the administrative facade over <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> operators.
-Each static method constructs the matching instruction and binds it
-with <code>.toHandle(source:)</code>.</p>
-<p>Categories:</p>
+<p><a href="../cell_flow/Flow-class.html">Flow</a> acts as the <strong>Administrative Facade</strong> over the <strong>Mitosis</strong> reactive
+layer. It provides a declarative, static API for building complex reactive
+pipelines without manually instantiating <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> or <a href="../cell_flow/Receptor-class.html">Receptor</a> objects.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../cell_flow/Flow-class.html">Flow</a> as your primary entry point for reactive orchestration:</p>
 <ul>
-<li><strong>Create</strong> — <a href="../cell_flow/Flow/of.html">of</a>, <a href="../cell_flow/Flow/fromIterable.html">fromIterable</a>, <a href="../cell_flow/Flow/range.html">range</a>, <a href="../cell_flow/Flow/fromFuture.html">fromFuture</a>, <a href="../cell_flow/Flow/fromStream.html">fromStream</a></li>
-<li><strong>Transform</strong> — <a href="../cell_flow/Flow/map.html">map</a>, <a href="../cell_flow/Flow/pluck.html">pluck</a>, <a href="../cell_flow/Flow/scan.html">scan</a>, <a href="../cell_flow/Flow/reduce.html">reduce</a>, <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a></li>
-<li><strong>Filter</strong> — <a href="../cell_flow/Flow/filter.html">filter</a>, <a href="../cell_flow/Flow/take.html">take</a>, <a href="../cell_flow/Flow/skip.html">skip</a>, <a href="../cell_flow/Flow/distinct.html">distinct</a></li>
-<li><strong>Flatten</strong> — <a href="../cell_flow/Flow/concatMap.html">concatMap</a>, <a href="../cell_flow/Flow/mergeMap.html">mergeMap</a>, <a href="../cell_flow/Flow/switchMap.html">switchMap</a>, <a href="../cell_flow/Flow/exhaustMap.html">exhaustMap</a>, <a href="../cell_flow/Flow/asyncExpand.html">asyncExpand</a></li>
-<li><strong>Combine</strong> — <a href="../cell_flow/Flow/merge.html">merge</a>, <a href="../cell_flow/Flow/zip.html">zip</a>, <code>combineLatest</code>, <a href="../cell_flow/Flow/race.html">race</a></li>
-<li><strong>Time</strong> — <a href="../cell_flow/Flow/delay.html">delay</a>, <a href="../cell_flow/Flow/debounce.html">debounce</a>, <a href="../cell_flow/Flow/throttle.html">throttle</a>, <a href="../cell_flow/Flow/sample.html">sample</a>, <a href="../cell_flow/Flow/interval.html">interval</a>, <a href="../cell_flow/Flow/timeout.html">timeout</a></li>
-<li><strong>Collect</strong> — <code>buffer</code>, <a href="https://api.flutter.dev/flutter/dart-html/window.html">window</a>, <a href="../cell_flow/Flow/groupBy.html">groupBy</a>, <a href="../cell_flow/Flow/pairwise.html">pairwise</a></li>
-<li><strong>Control</strong> — <a href="../cell_flow/Flow/retry.html">retry</a>, <a href="../cell_flow/Flow/share.html">share</a>, <a href="../cell_flow/Flow/startWith.html">startWith</a>, <a href="../cell_flow/Flow/tap.html">tap</a>, <code>route</code></li>
+<li><strong>Pipeline Creation</strong>: Bridging external <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>s or <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>s into cells.</li>
+<li><strong>Synchronous Logic</strong>: Applying filters, maps, and scans.</li>
+<li><strong>Asynchronous Coordination</strong>: Managing concurrency with <code>switchMap</code>, <code>mergeMap</code>, and <code>asyncMap</code>.</li>
+<li><strong>Temporal Control</strong>: Implementing <code>debounce</code>, <code>throttle</code>, and <code>delay</code> logic.</li>
+<li><strong>Topological Routing</strong>: Branching or partitioning signals through the graph.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Every static method in <a href="../cell_flow/Flow-class.html">Flow</a> acts as a factory for a specific <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>.</li>
+<li>When called, the method creates the instruction, binds it to the provided
+<code>source</code> cell, and materializes a <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.</li>
+<li>The <a href="../cell_flow/FlowHandle.html">FlowHandle</a> provides access to the output <code>.cell</code> and an <code>.emit()</code>
+mechanism, while managing the underlying receptor lifecycle.</li>
+<li>Transformations are optimized into flyweight receptors that execute
+within the host cell's switching fabric.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateless Blueprint</strong>: The methods in <a href="../cell_flow/Flow-class.html">Flow</a> are convenience wrappers. The
+authoritative logic lives in the <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> classes.</li>
+<li><strong>Resource Management</strong>: A <a href="../cell_flow/FlowHandle.html">FlowHandle</a> is a managed resource. While cells
+in Mitosis do not "complete", you should dispose of observers or handles to
+prune branches when they are no longer needed.</li>
+<li><strong>Causal Integrity</strong>: All operations in <a href="../cell_flow/Flow-class.html">Flow</a> preserve forensic metadata.
+Incoming pulses are evolved (not replaced), maintaining a full trace of
+the signal's journey across the topography.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>: The stateless blueprint for reactive logic.</li>
+<li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The live instance of a flow pipeline.</li>
+<li><a href="../cell_flow/Cell-class.html">Cell</a>: The underlying stateful node in the reactive graph.</li>
 </ul>
 </section>
 
@@ -555,6 +580,33 @@ governance and restricted authority.
 
 </dd>
 
+        <dt id="asyncFoldExhaust" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncFoldExhaust.html">asyncFoldExhaust</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncFoldExhaust-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncFoldExhaust-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="asyncFoldExhaust-param-accumulate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span></span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncFoldExhaust-param-snapshot"><span class="type-annotation">FoldSnapshot<span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span>?</span> <span class="parameter-name">snapshot</span>, </span><span class="parameter" id="asyncFoldExhaust-param-onError"><span class="type-annotation">FoldErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Similar to <a href="../cell_flow/Flow/asyncFold.html">asyncFold</a>, but ignores new triggers while an inner
+accumulation is already running.
+  
+
+</dd>
+
+        <dt id="asyncFoldLatest" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/asyncFoldLatest.html">asyncFoldLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncFoldLatest-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncFoldLatest-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="asyncFoldLatest-param-accumulate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span></span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncFoldLatest-param-snapshot"><span class="type-annotation">FoldSnapshot<span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span>?</span> <span class="parameter-name">snapshot</span>, </span><span class="parameter" id="asyncFoldLatest-param-onError"><span class="type-annotation">FoldErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Similar to <a href="../cell_flow/Flow/asyncFold.html">asyncFold</a>, but only processes the <strong>latest</strong> pulse.
+  
+
+</dd>
+
         <dt id="asyncMap" class="callable">
   <span class="name"><a href="../cell_flow/Flow/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="asyncMap-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMap-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
@@ -563,7 +615,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Map each payload through an async function (queued).
+  Maps each payload through an asynchronous <code>mapper</code>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -576,7 +628,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Overlapping <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a>.
+  Similar to <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a>, but processes pulses <strong>concurrently</strong> as they arrive.
   
 
 </dd>
@@ -589,7 +641,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Drop in-flight maps when a new pulse arrives.
+  Similar to <a href="../cell_flow/Flow/asyncMap.html">asyncMap</a>, but only processes the <strong>latest</strong> pulse.
   
 
 </dd>
@@ -693,7 +745,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Emit a list every <code>size</code> items (Rx <code>bufferCount</code>).
+  Collects payloads into a list and emits it once it reaches <code>size</code> (Rx <code>bufferCount</code>).
   
 
 </dd>
@@ -706,7 +758,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Flush every <code>duration</code> (Rx <code>bufferTime</code>).
+  Periodically flushes the collected payloads into a list and emits it (Rx <code>bufferTime</code>).
   
 
 </dd>
@@ -758,7 +810,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Combine latest of <code>source</code> and <code>others</code>.
+  Combines the latest value from <code>source</code> with the latest values from
+<code>others</code> whenever any of them emit.
   
 
 </dd>
@@ -810,7 +863,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Sequential inner flatten (Rx <code>concatMap</code>).
+  Maps each payload to an inner sequence and flattens them <strong>sequentially</strong>
+(Rx <code>concatMap</code>).
   
 
 </dd>
@@ -823,7 +877,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Debounce trailing.
+  Delays the emission of pulses until <code>duration</code> has passed since the
+last pulse (Rx <code>debounce</code>).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -836,7 +891,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Start a new future on every pulse (Rx <code>defer</code>).
+  Executes <code>create</code> to start a new future on every pulse received from
+<code>source</code> (Rx <code>defer</code> for futures).
   
 
 </dd>
@@ -849,7 +905,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Create a new stream on every pulse.
+  Executes <code>create</code> to subscribe to a new stream on every pulse received
+from <code>source</code> (Rx <code>defer</code> for streams).
   
 
 </dd>
@@ -914,7 +971,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Distinct consecutive (or global) values.
+  Suppresses pulses that have been seen before (globally or consecutively
+depending on configuration).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -927,7 +985,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Ignore new inners while one is running (Rx <code>exhaustMap</code>).
+  Maps each payload to an inner sequence, but ignores new ones while a
+sequence is already active (Rx <code>exhaustMap</code>).
   
 
 </dd>
@@ -940,7 +999,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Keep typed payloads that pass <code>test</code> (Rx <code>filter</code>).
+  Only forwards payloads that satisfy the <code>test</code> predicate (Rx <code>filter</code>).
   
 
 </dd>
@@ -953,7 +1012,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Bridge a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> on the first pulse (Rx <code>from(Future)</code>).
+  Bridges a single <code>future</code> into the graph on the first pulse received
+from <code>source</code> (Rx <code>fromFuture</code>).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -966,7 +1026,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Emit each element of <code>iterable</code> on the first pulse (Rx <code>from</code>).
+  Emits each element of <code>iterable</code> on the first pulse received from
+<code>source</code> (Rx <code>from</code>).
   
 
 </dd>
@@ -979,7 +1040,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Subscribe to <code>stream</code> on the first pulse (Rx <code>from(Stream)</code>).
+  Subscribes to <code>stream</code> on the first pulse received from <code>source</code>
+(Rx <code>fromStream</code>).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1031,7 +1093,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Boolean dispatch (Rx <code>iif</code>).
+  A binary router that chooses between <code>thenMap</code> and <code>elseMap</code> based on
+<code>test</code> (Rx <code>iif</code>).
   
 
 </dd>
@@ -1057,7 +1120,20 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Project each typed payload (Rx <code>map</code>). Named apart from <code>dart:core</code> Map.
+  Projects each incoming payload through the <code>project</code> function (Rx <code>map</code>).
+  
+
+</dd>
+
+        <dt id="mapKeys" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapKeys.html">mapKeys</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapKeys-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapKeys-param-project"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span></span>), </span><span class="parameter" id="mapKeys-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Payload is a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>; project each key.
   
 
 </dd>
@@ -1070,7 +1146,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Project and drop null results.
+  Projects each payload and suppresses the pulse if the result is <code>null</code>.
   
 
 </dd>
@@ -1083,7 +1159,59 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Emit the same <code>value</code> for every typed pulse (Rx <code>mapTo</code>).
+  Emits the constant <code>value</code> for every pulse received from <code>source</code> (Rx <code>mapTo</code>).
+  
+
+</dd>
+
+        <dt id="mapValue" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapValue.html">mapValue</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapValue-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapValue-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapValue-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Alias of <a href="../cell_flow/Flow/map.html">map</a> using the MapValue name.
+  
+
+</dd>
+
+        <dt id="mapValueIf" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapValueIf.html">mapValueIf</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapValueIf-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapValueIf-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapValueIf-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapValueIf-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  <code>MapWhen</code> under the MapValue name.
+  
+
+</dd>
+
+        <dt id="mapValueOr" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapValueOr.html">mapValueOr</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapValueOr-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapValueOr-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapValueOr-param-orElse"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">orElse</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span></span>), </span><span class="parameter" id="mapValueOr-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Project, or <code>orElse</code> when <code>project</code> throws.
+  
+
+</dd>
+
+        <dt id="mapValues" class="callable">
+  <span class="name"><a href="../cell_flow/Flow/mapValues.html">mapValues</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapValues-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="mapValues-param-project"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapValues-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Payload is a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>; project each value.
   
 
 </dd>
@@ -1109,7 +1237,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Project with a 0-based index.
+  Projects each payload along with its 0-based index.
   
 
 </dd>
@@ -1148,7 +1276,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Concurrent inner flatten (Rx <code>mergeMap</code> / <code>flatMap</code>).
+  Maps each payload to an inner sequence and flattens them <strong>concurrently</strong>
+(Rx <code>mergeMap</code>).
   
 
 </dd>
@@ -1174,7 +1303,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Emit <code>values</code> once when <code>source</code> is first pulsed (Rx <code>of</code>).
+  Emits each value in <code>values</code> sequentially on the first pulse received
+from <code>source</code> (Rx <code>of</code>).
   
 
 </dd>
@@ -1187,7 +1317,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Consecutive pairs <code>(previous, current)</code>.
+  Emits a tuple of the <code>(previous, current)</code> payloads for every pulse
+after the first.
   
 
 </dd>
@@ -1200,7 +1331,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Tag each value with whether <code>test</code> matched.
+  Routes pulses based on whether they satisfy the <code>test</code> predicate.
   
 
 </dd>
@@ -1239,7 +1370,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Pick <code>payload[key]</code> as <code>T</code> (Rx <code>pluck</code>).
+  Extracts the value at <code>key</code> from a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> payload (Rx <code>pluck</code>).
   
 
 </dd>
@@ -1304,7 +1435,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Emit <code>count</code> integers from <code>start</code> (Rx <code>range</code>).
+  Emits a range of <code>count</code> integers starting from <code>start</code> on the first
+pulse received from <code>source</code> (Rx <code>range</code>).
   
 
 </dd>
@@ -1317,7 +1449,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Readable running fold (in-memory, not persistent state).
+  Similar to <a href="../cell_flow/Flow/scan.html">scan</a>, but uses an explicit <code>seed</code> value to initialize
+the accumulator.
   
 
 </dd>
@@ -1330,7 +1463,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Repeat <code>value</code> <code>count</code> times on the first pulse.
+  Emits the same <code>value</code>, <code>count</code> times, on the first pulse received
+from <code>source</code>.
   
 
 </dd>
@@ -1382,7 +1516,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Running accumulate (Rx <code>scan</code>).
+  Applies an <code>accumulate</code> function over the pulses, emitting each
+intermediate result (Rx <code>scan</code>).
   
 
 </dd>
@@ -1395,7 +1530,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Share one subscription (Rx <code>share</code>).
+  Multicasts the same pulses to all observers (Rx <code>share</code>).
   
 
 </dd>
@@ -1421,7 +1556,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Skip the first <code>count</code> values.
+  Suppresses the first <code>count</code> pulses received from <code>source</code>.
   
 
 </dd>
@@ -1434,7 +1569,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Skip consecutive duplicates.
+  Suppresses pulses if their payload is identical to the previous payload.
   
 
 </dd>
@@ -1486,7 +1621,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Prefix values on the first pulse (Rx <code>startWith</code>).
+  Prepends the given <code>value</code> to the sequence before any pulses from
+<code>source</code> are emitted (Rx <code>startWith</code>).
   
 
 </dd>
@@ -1499,7 +1635,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Switch inner flatten (Rx <code>switchMap</code>).
+  Maps each payload to an inner sequence and always switches to the
+<strong>latest</strong> one (Rx <code>switchMap</code>).
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1512,7 +1649,7 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Take the first <code>count</code> values.
+  Only forwards the first <code>count</code> pulses received from <code>source</code>.
   
 
 </dd>
@@ -1551,7 +1688,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Side effect without changing the value (Rx <code>tap</code>).
+  Executes a side effect <code>onValue</code> for every pulse without modifying the
+sequence (Rx <code>tap</code>).
   
 
 </dd>
@@ -1590,7 +1728,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Throttle with leading / trailing flags.
+  Limits the rate of emissions by enforcing a silent window of <code>duration</code>
+after a pulse.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1655,7 +1794,8 @@ governance and restricted authority.
 
 </dt>
 <dd>
-  Source pulses carry latest <code>others</code> (Rx <code>withLatestFrom</code>).
+  Combines the latest value from <code>source</code> with the latest values from
+<code>others</code> only when <code>source</code> emits (Rx <code>withLatestFrom</code>).
   
 
 </dd>

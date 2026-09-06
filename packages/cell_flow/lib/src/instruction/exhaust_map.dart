@@ -130,11 +130,11 @@ Future<void> _drain(
 ///
 /// ### Supported Inner Types
 /// The [mapper] can return any of the following:
-/// - **[Stream\<T\>]**: Each event in the stream is emitted sequentially.
-/// - **[Future\<T\>]**: The single value is emitted when the future completes.
-/// - **[Iterable\<T\>]**: Each element is emitted in order.
-/// - **[T]**: The value itself is emitted directly.
-/// - **`null`**: No emission (the pulse is dropped).
+/// - `Stream<T>`: Each event in the stream is emitted sequentially.
+/// - `Future<T>`: The single value is emitted when the future completes.
+/// - `Iterable<T>`: Each element is emitted in order.
+/// - `T`: The value itself is emitted directly.
+/// - `null`: No emission (the pulse is dropped).
 /// - **Nested combinations**: `Future<Iterable<T>>`, `Stream<Future<T>>`,
 ///   etc., are recursively expanded.
 ///
@@ -391,11 +391,11 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///
 /// ### Supported Payload Types
 /// The payload can be any of the following:
-/// - **[Stream\<T\>]**: Each event in the stream is emitted sequentially.
-/// - **[Future\<T\>]**: The single value is emitted when the future completes.
-/// - **[Iterable\<T\>]**: Each element is emitted in order.
-/// - **[T]**: The value itself is emitted directly.
-/// - **`null`**: No emission (the pulse is dropped).
+/// - `Stream<T>`: Each event in the stream is emitted sequentially.
+/// - `Future<T>`: The single value is emitted when the future completes.
+/// - `Iterable<T>`: Each element is emitted in order.
+/// - `T`: The value itself is emitted directly.
+/// - `null`: No emission (the pulse is dropped).
 ///
 /// ### Non‑obvious
 /// - **Payload as Source**: The payload itself is the source of the emissions.

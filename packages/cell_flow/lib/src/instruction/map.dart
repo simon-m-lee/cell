@@ -16,9 +16,13 @@ import 'package:cell_flow/flow.dart';
 /// | [MapTo] | `mapTo` | the same constant |
 /// | [MapWithIndex] | `map` + index | `project(value, index)` |
 /// | [MapNotNull] | `map` + `whereNotNull` | drop null projections |
-/// | [MapWhen] | `map` + `filter` | project only when [test] is true |
+/// | [MapWhen] / [MapValueIf] | `map` + `filter` | project only when [test] is true |
+/// | [MapValueOr] | `map` + fallback | [orElse] when [project] throws |
+/// | [MapValues] | map on `Map` values | new `Map` with projected values |
+/// | [MapKeys] | map on `Map` keys | new `Map` with projected keys |
 ///
 /// Named [MapValue] so it does not clash with `dart:core` `Map`.
+/// That class **is** Rx `map`. The extras are MapValue-family variants.
 ///
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
@@ -107,15 +111,22 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 ///   drop null results.
 /// - **Use [MapWhen]** for **Conditional Mapping**: When you only
 ///   want to map values that pass a test.
+/// - **Use [MapValueOr]** for **Error Handling**: When you want a
+///   fallback value on error.
+/// - **Use [MapValues]** for **Map Values**: When transforming map values.
+/// - **Use [MapKeys]** for **Map Keys**: When transforming map keys.
 ///
 /// ### Comparison with Other Operators
-/// | Operator | Transformation | Nullable | Index | Filter |
-/// |----------|---------------|----------|-------|--------|
-/// | **MapValue** | `project(value)` | No | No | No |
-/// | **MapTo** | constant | No | No | No |
-/// | **MapWithIndex** | `project(value, index)` | No | Yes | No |
-/// | **MapNotNull** | `project(value)` | Yes | No | Drops null |
-/// | **MapWhen** | `project(value)` | No | No | Test required |
+/// | Operator | Transformation | Nullable | Index | Filter | Error Handling |
+/// |----------|---------------|----------|-------|--------|----------------|
+/// | **MapValue** | `project(value)` | No | No | No | No |
+/// | **MapTo** | constant | No | No | No | No |
+/// | **MapWithIndex** | `project(value, index)` | No | Yes | No | No |
+/// | **MapNotNull** | `project(value)` | Yes | No | Drops null | No |
+/// | **MapWhen** | `project(value)` | No | No | Test required | No |
+/// | **MapValueOr** | `project(value)` | No | No | No | Yes |
+/// | **MapValues** | `project(value)` | No | No | No | No |
+/// | **MapKeys** | `project(key)` | No | No | No | No |
 ///
 /// ### How it works
 /// 1. Each incoming pulse is type-checked.
@@ -182,7 +193,9 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [MapWithIndex]: For indexed mapping.
 /// - [MapNotNull]: For dropping null results.
 /// - [MapWhen]: For conditional mapping.
-/// - [ReduceSelect]: For projecting from accumulated state.
+/// - [MapValueOr]: For error handling with fallback.
+/// - [MapValues]: For transforming map values.
+/// - [MapKeys]: For transforming map keys.
 class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   MapValue(
       T Function(S value) project, {
@@ -588,7 +601,7 @@ class MapNotNull<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapTo]: For constant mapping.
 /// - [MapWithIndex]: For indexed mapping.
 /// - [MapNotNull]: For dropping null results.
-/// - [Valve]: For a separate filtering operator.
+/// - [MapValueIf]: Alias of [MapWhen].
 class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   MapWhen(
       bool Function(S value) test,
@@ -603,6 +616,359 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
       try {
         if (!test(value)) return null;
         return _out<T>(project(value), typed, cell, 'MapWhen');
+      } catch (e, stack) {
+        onError?.call(e, stack);
+        return null;
+      }
+    },
+    user: user,
+  );
+}
+
+/// Alias of [MapWhen] for Rx compatibility.
+///
+/// [MapValueIf] provides the same conditional mapping functionality
+/// as [MapWhen] under a name that better reflects the "if" condition.
+///
+/// ### Example
+/// ```dart
+/// final labeled = MapValueIf<int, String>(
+///   (n) => n.isEven,
+///   (n) => 'even-$n',
+/// ).toHandle(source: input.cell);
+/// // Same as MapWhen
+/// ```
+class MapValueIf<S, T> extends MapWhen<S, T> {
+  MapValueIf(
+      super.test,
+      super.project, {
+        super.onError,
+        super.user,
+      });
+}
+
+// ─────────────────────────────────────────────────────────────
+// MapValueOr - Error Handling with Fallback
+// ─────────────────────────────────────────────────────────────
+
+/// A [FlowInstruction] like [MapValue], but [orElse] is used when
+/// [project] throws.
+///
+/// [MapValueOr] provides graceful error handling by allowing a
+/// fallback value when the mapping function fails.
+///
+/// ### When to use
+/// Use [MapValueOr] when your mapping function may throw and you
+/// want to provide a fallback value.
+///
+/// - **Division by Zero**: Handling division by zero gracefully.
+/// - **Data Parsing**: Parsing data with fallback on parse errors.
+/// - **API Responses**: Handling malformed API responses.
+/// - **Type Casting**: Safe type casting with fallback.
+/// - **Calculations**: Calculations that may fail.
+///
+/// ### Example: Safe Division
+/// ```dart
+/// final input = Cell.ingress<int>();
+///
+/// final safeDiv = MapValueOr<int, int>(
+///   (n) => n == 0 ? throw StateError('zero') : 10 ~/ n,
+///   orElse: (_, __) => 0,
+/// ).toHandle(source: input.cell);
+///
+/// input.emit(0); // -> 0 (fallback)
+/// input.emit(5); // -> 2
+/// ```
+///
+/// ### Example: Safe Parsing
+/// ```dart
+/// final input = Cell.ingress<String>();
+///
+/// final parsed = MapValueOr<String, int>(
+///   (s) => int.parse(s),
+///   orElse: (_, __) => 0,
+/// ).toHandle(source: input.cell);
+///
+/// input.emit('123'); // -> 123
+/// input.emit('invalid'); // -> 0 (fallback)
+/// ```
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked.
+/// 2. If the type matches, [project] is called with the payload.
+/// 3. If [project] succeeds, the result is emitted.
+/// 4. If [project] throws an error, [orElse] is called with the
+///    value and the error.
+/// 5. If [orElse] succeeds, the result is emitted with step
+///    `'MapValueOr.orElse'`.
+/// 6. If [orElse] throws, the pulse is dropped.
+/// 7. If [project] throws and [orElse] succeeds, the emitted pulse
+///    gets the step `'MapValueOr.orElse'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Two-Level Error Handling**: Errors in [project] go to [orElse].
+/// - **Errors in [orElse]**: If [orElse] throws, the pulse is dropped.
+/// - **Provenance Preservation**: Fallback emissions get the step
+///   `'MapValueOr.orElse'` to distinguish them.
+/// - **Synchronous Operations**: Both [project] and [orElse] are synchronous.
+///
+/// ### Parameters:
+/// - [project]: **Transformation Function.** Called with each typed
+///   payload, returns the transformed value.
+/// - [orElse]: **Fallback Function.** Called with the value and error
+///   when [project] throws, returns the fallback value.
+/// - [onError]: **Error Handler.** Optional callback for handling errors.
+/// - [user]: **User Metadata.** Optional metadata.
+///
+/// ### Type Parameters:
+/// - [S]: The type of the input payload.
+/// - [T]: The type of the output payload.
+///
+/// ### Returns:
+/// A [FlowInstruction] that maps with error handling.
+///
+/// ### See Also:
+/// - [MapValue]: For standard mapping.
+/// - [MapNotNull]: For dropping null results.
+/// - [MapWhen]: For conditional mapping.
+class MapValueOr<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  MapValueOr(
+      T Function(S value) project, {
+        required T Function(S value, Object error) orElse,
+        MapErrorHandler? onError,
+        dynamic user,
+      }) : super(
+        (pulse, {cell, user}) {
+      final typed = _typedOrError<S>(pulse, onError: onError);
+      if (typed == null) return null;
+      final value = typed.payload as S;
+      try {
+        return _out<T>(project(value), typed, cell, 'MapValueOr');
+      } catch (e, stack) {
+        onError?.call(e, stack);
+        try {
+          return _out<T>(orElse(value, e), typed, cell, 'MapValueOr.orElse');
+        } catch (e2, stack2) {
+          onError?.call(e2, stack2);
+          return null;
+        }
+      }
+    },
+    user: user,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// MapValues - Transform Map Values
+// ─────────────────────────────────────────────────────────────
+
+/// A [FlowInstruction] where the payload is a [Map]; emit a new map
+/// with [project] applied to each value.
+///
+/// [MapValues] is a specialized operator for transforming the values
+/// of a map payload.
+///
+/// ### When to use
+/// Use [MapValues] when you have a map payload and want to transform
+/// its values.
+///
+/// - **Data Transformation**: Transforming values in a map.
+/// - **Data Enrichment**: Enriching map values.
+/// - **Type Conversion**: Converting map value types.
+/// - **Data Cleaning**: Cleaning map values.
+/// - **Formatting**: Formatting map values.
+///
+/// ### Example: Doubling Map Values
+/// ```dart
+/// final input = Cell.ingress<Map<String, int>>();
+///
+/// final doubled = MapValues<String, int, int>(
+///   (n) => n * 2,
+/// ).toHandle(source: input.cell);
+///
+/// input.emit({'a': 1, 'b': 2}); // -> {'a': 2, 'b': 4}
+/// ```
+///
+/// ### Example: Stringifying Values
+/// ```dart
+/// final input = Cell.ingress<Map<String, int>>();
+///
+/// final stringified = MapValues<String, int, String>(
+///   (n) => 'Value: $n',
+/// ).toHandle(source: input.cell);
+///
+/// input.emit({'x': 10, 'y': 20}); // -> {'x': 'Value: 10', 'y': 'Value: 20'}
+/// ```
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked to ensure it's a `Map`.
+/// 2. For each entry in the map, [project] is called with the value.
+/// 3. A new map is created with the same keys and transformed values.
+/// 4. The new map is emitted.
+/// 5. If [project] throws an error, the pulse is dropped.
+/// 6. The emitted pulse gets the step `'MapValues'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Map Payload Required**: The payload must be a `Map`.
+/// - **Keys Preserved**: The keys remain unchanged.
+/// - **Type Safety**: Generic over key type [K], value type [V],
+///   and result type [R].
+/// - **Error Handling**: If [project] throws, the pulse is dropped.
+/// - **Provenance Preservation**: The emitted pulse preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Transformation**: [project] is synchronous.
+///
+/// ### Parameters:
+/// - [project]: **Value Transformation Function.** Called with each
+///   map value, returns the transformed value.
+/// - [onError]: **Error Handler.** Optional callback for handling errors.
+/// - [user]: **User Metadata.** Optional metadata.
+///
+/// ### Type Parameters:
+/// - [K]: The type of the map keys.
+/// - [V]: The type of the map values.
+/// - [R]: The type of the transformed values.
+///
+/// ### Returns:
+/// A [FlowInstruction] that transforms map values.
+///
+/// ### See Also:
+/// - [MapKeys]: For transforming map keys.
+/// - [MapValue]: For transforming individual values.
+class MapValues<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  MapValues(
+      R Function(V value) project, {
+        MapErrorHandler? onError,
+        dynamic user,
+      }) : super(
+        (pulse, {cell, user}) {
+      final payload = pulse.payload;
+      if (payload is! Map) {
+        onError?.call(
+          FormatException(
+            'Expected Map, got ${payload.runtimeType}',
+          ),
+          StackTrace.current,
+        );
+        return null;
+      }
+      try {
+        final out = <K, R>{
+          for (final e in payload.entries)
+            e.key as K: project(e.value as V),
+        };
+        return _out<Map<K, R>>(out, pulse, cell, 'MapValues');
+      } catch (e, stack) {
+        onError?.call(e, stack);
+        return null;
+      }
+    },
+    user: user,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// MapKeys - Transform Map Keys
+// ─────────────────────────────────────────────────────────────
+
+/// A [FlowInstruction] where the payload is a [Map]; emit a new map
+/// with [project] applied to each key.
+///
+/// [MapKeys] is a specialized operator for transforming the keys
+/// of a map payload.
+///
+/// ### When to use
+/// Use [MapKeys] when you have a map payload and want to transform
+/// its keys.
+///
+/// - **Key Transformation**: Transforming map keys.
+/// - **Key Type Conversion**: Converting map key types.
+/// - **Key Normalization**: Normalizing map keys (e.g., lowercase).
+/// - **Key Filtering**: Filtering map keys.
+/// - **Key Mapping**: Mapping keys to different values.
+///
+/// ### Example: Lowercasing Keys
+/// ```dart
+/// final input = Cell.ingress<Map<String, int>>();
+///
+/// final lowercased = MapKeys<String, int, String>(
+///   (key) => key.toLowerCase(),
+/// ).toHandle(source: input.cell);
+///
+/// input.emit({'A': 1, 'B': 2}); // -> {'a': 1, 'b': 2}
+/// ```
+///
+/// ### Example: Prefixing Keys
+/// ```dart
+/// final input = Cell.ingress<Map<String, int>>();
+///
+/// final prefixed = MapKeys<String, int, String>(
+///   (key) => 'prefix_$key',
+/// ).toHandle(source: input.cell);
+///
+/// input.emit({'x': 10, 'y': 20}); // -> {'prefix_x': 10, 'prefix_y': 20}
+/// ```
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked to ensure it's a `Map`.
+/// 2. For each entry in the map, [project] is called with the key.
+/// 3. A new map is created with transformed keys and the same values.
+/// 4. The new map is emitted.
+/// 5. If [project] throws an error, the pulse is dropped.
+/// 6. The emitted pulse gets the step `'MapKeys'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Map Payload Required**: The payload must be a `Map`.
+/// - **Values Preserved**: The values remain unchanged.
+/// - **Type Safety**: Generic over key type [K], value type [V],
+///   and result key type [R].
+/// - **Error Handling**: If [project] throws, the pulse is dropped.
+/// - **Provenance Preservation**: The emitted pulse preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Transformation**: [project] is synchronous.
+/// - **Key Collisions**: If two keys map to the same value, the last
+///   one wins (standard Map behavior).
+///
+/// ### Parameters:
+/// - [project]: **Key Transformation Function.** Called with each
+///   map key, returns the transformed key.
+/// - [onError]: **Error Handler.** Optional callback for handling errors.
+/// - [user]: **User Metadata.** Optional metadata.
+///
+/// ### Type Parameters:
+/// - [K]: The type of the input map keys.
+/// - [V]: The type of the map values.
+/// - [R]: The type of the transformed keys.
+///
+/// ### Returns:
+/// A [FlowInstruction] that transforms map keys.
+///
+/// ### See Also:
+/// - [MapValues]: For transforming map values.
+/// - [MapValue]: For transforming individual values.
+class MapKeys<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  MapKeys(
+      R Function(K key) project, {
+        MapErrorHandler? onError,
+        dynamic user,
+      }) : super(
+        (pulse, {cell, user}) {
+      final payload = pulse.payload;
+      if (payload is! Map) {
+        onError?.call(
+          FormatException(
+            'Expected Map, got ${payload.runtimeType}',
+          ),
+          StackTrace.current,
+        );
+        return null;
+      }
+      try {
+        final out = <R, V>{
+          for (final e in payload.entries)
+            project(e.key as K): e.value as V,
+        };
+        return _out<Map<R, V>>(out, pulse, cell, 'MapKeys');
       } catch (e, stack) {
         onError?.call(e, stack);
         return null;
@@ -641,6 +1007,12 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 5. MapWhen
 ///    [MapWhen] even-2
 ///
+/// 6. MapValueOr
+///    [MapValueOr] 0
+///
+/// 7. MapValues
+///    [MapValues] {a: 2, b: 4}
+///
 /// ── finished ──────────────────────────────────────────────────
 /// ```
 ///
@@ -667,6 +1039,12 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    in one step. Only even numbers pass the test and are mapped
 ///    to labels.
 ///
+/// 6. **MapValueOr - Error Handling with Fallback**: Shows error
+///    handling with fallback. Division by zero triggers the fallback.
+///
+/// 7. **MapValues - Transform Map Values**: Shows transforming the
+///    values of a map payload. Each value is doubled.
+///
 /// ### Key Takeaways
 /// - Map operators transform payloads.
 /// - MapValue applies a transformation function.
@@ -674,8 +1052,11 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - MapWithIndex includes the index in the transformation.
 /// - MapNotNull drops null results.
 /// - MapWhen combines filtering and mapping.
+/// - MapValueOr provides error handling with fallback.
+/// - MapValues transforms map values.
+/// - MapKeys transforms map keys.
 /// - All operators preserve causal provenance via EvolvedPulse.
-/// - Errors in transformation drop the pulse.
+/// - Errors in transformation drop the pulse (unless using MapValueOr).
 ///
 /// ### Note on Types
 /// Map operators are generic over input type [S] and output type [T].
@@ -792,6 +1173,49 @@ Future<void> main() async {
   await when.emitAsync(2);
 
   wObs.stop();
+  print('');
+
+  // ─────────────────────────────────────────────────────────────────────
+  // 6. MapValueOr - Error Handling with Fallback
+  // ─────────────────────────────────────────────────────────────────────
+  print('6. MapValueOr');
+
+  final risky = Cell.ingress<int>();
+
+  final safe = MapValueOr<int, int>(
+        (n) => n == 0 ? throw StateError('zero') : 10 ~/ n,
+    orElse: (_, __) => 0,
+  ).toHandle(source: risky.cell);
+
+  final oObs = Cell.observe(
+    source: safe.cell,
+    effect: (Pulse p) => print('   [MapValueOr] ${p.payload}'),
+  );
+
+  await risky.emitAsync(0);
+
+  oObs.stop();
+  print('');
+
+  // ─────────────────────────────────────────────────────────────────────
+  // 7. MapValues - Transform Map Values
+  // ─────────────────────────────────────────────────────────────────────
+  print('7. MapValues');
+
+  final dict = Cell.ingress<Map<String, int>>();
+
+  final doubledMap = MapValues<String, int, int>(
+        (n) => n * 2,
+  ).toHandle(source: dict.cell);
+
+  final vObs = Cell.observe(
+    source: doubledMap.cell,
+    effect: (Pulse p) => print('   [MapValues] ${p.payload}'),
+  );
+
+  await dict.emitAsync({'a': 1, 'b': 2});
+
+  vObs.stop();
   print('');
 
   print('\n── finished ──────────────────────────────────────────────────');

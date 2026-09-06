@@ -65,7 +65,67 @@
     </section>
     
 <section class="desc markdown">
-  <p>Prefix values on the first pulse (Rx <code>startWith</code>).</p>
+  <p>Prepends the given <code>value</code> to the sequence before any pulses from
+<code>source</code> are emitted (Rx <code>startWith</code>).</p>
+<p><a href="../../cell_flow/Flow/startWith.html">startWith</a> emits the provided <code>value</code> on the first typed pulse,
+then forwards subsequent pulses from the source.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/startWith.html">startWith</a> when you need to provide an initial value before
+the stream starts emitting.</p>
+<ul>
+<li><strong>Initial State</strong>: Providing an initial value for UI state.</li>
+<li><strong>Placeholder</strong>: Providing a placeholder before data arrives.</li>
+<li><strong>Loading State</strong>: Showing a loading indicator before data loads.</li>
+<li><strong>Default Values</strong>: Providing default values.</li>
+<li><strong>Splash Screens</strong>: Showing a splash screen before content.</li>
+<li><strong>Empty States</strong>: Showing an empty state before data arrives.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse triggers the prefix emission.</li>
+<li>The <code>value</code> is emitted first.</li>
+<li>Then the pulse is forwarded.</li>
+<li>If <code>replaceFirst</code> is <code>true</code>, the original pulse is dropped.</li>
+<li>Each emitted value gets the step <code>'StartWith'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The prefix is emitted only on the first pulse.</li>
+<li><strong>Replace First</strong>: <code>replaceFirst</code> controls whether the original
+pulse is dropped.</li>
+<li><strong>Provenance Preservation</strong>: The emitted value preserves the
+source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>value</code>: <strong>The Value to Prefix.</strong> The value to emit before the stream.</li>
+<li><code>replaceFirst</code>: <strong>Replace First.</strong> If <code>true</code>, the first source pulse
+is replaced by the prefix. If <code>false</code>, the prefix is emitted in
+addition to the first pulse. Defaults to <code>false</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the prefixed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.startWith&lt;int&gt;(
+  input.cell,
+  value: 0,
+);
+
+input.emit(1); // -&gt; 0, 1
+input.emit(2); // -&gt; 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/startWith.html">startWith</a>: For prefixing multiple values.</li>
+<li><a href="../../cell_flow/Flow/startWith.html">startWith</a>: For dynamic prefixing.</li>
+</ul>
 </section>
 
 
@@ -73,10 +133,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle startWith&lt;S&gt;(
-  Cell source, {
-  required S value,
-  bool replaceFirst = false,
-}) {
+    Cell source, {
+      required S value,
+      bool replaceFirst = false,
+    }) {
   return StartWith&lt;S&gt;(value, replaceFirst: replaceFirst)
       .toHandle(source: source);
 }</code></pre>

@@ -66,6 +66,66 @@
     
 <section class="desc markdown">
   <p>Only the latest value after <code>duration</code> (trailing delay).</p>
+<p><a href="../../cell_flow/Flow/delayLatest.html">delayLatest</a> is similar to <a href="../../cell_flow/Flow/delay.html">delay</a> but when a new pulse arrives,
+it cancels the pending delayed pulse. Only the latest pulse is
+delivered.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/delayLatest.html">delayLatest</a> when you only care about the latest value
+after a delay.</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Only the latest search query matters.</li>
+<li><strong>Real-time Updates</strong>: Only the most recent update is relevant.</li>
+<li><strong>User Input</strong>: Only the latest user input matters.</li>
+<li><strong>Selection Changes</strong>: Only the latest selection matters.</li>
+<li><strong>Debouncing with Reset</strong>: Debouncing with cancellation on new input.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>A timer is started for <code>duration</code>.</li>
+<li>If a new pulse arrives before the timer fires, the previous
+timer is cancelled.</li>
+<li>Only the latest pulse is delivered.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Cancellation</strong>: Previous timers are cancelled on new pulses.</li>
+<li><strong>Latest Only</strong>: Only the latest pulse is delivered.</li>
+<li><strong>Trailing</strong>: The delay is trailing (after the last pulse).</li>
+<li><strong>Generation Tracking</strong>: Each pulse gets a generation ID to
+determine if it's still current.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Delay Duration.</strong> The time to wait before
+forwarding the latest pulse.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the delayed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.delayLatest&lt;String&gt;(
+  input.cell,
+  duration: Duration(milliseconds: 300),
+);
+
+input.emit('a'); // Cancelled by 'b'
+input.emit('b'); // Cancelled by 'c'
+input.emit('c'); // Delivered after 300ms
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/delay.html">delay</a>: For fixed delay.</li>
+<li><a href="../../cell_flow/Flow/delayWithSelector.html">delayWithSelector</a>: For payload-dependent delay.</li>
+<li><a href="../../cell_flow/Flow/delayWhen.html">delayWhen</a>: For notifier-based delay.</li>
+</ul>
 </section>
 
 
@@ -73,10 +133,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle delayLatest&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  DelayErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration duration,
+      DelayErrorHandler? onError,
+    }) {
   return DelayLatest&lt;S&gt;(duration, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

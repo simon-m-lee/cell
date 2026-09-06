@@ -64,7 +64,61 @@
     </section>
     
 <section class="desc markdown">
-  <p>Emit each element of <code>iterable</code> on the first pulse (Rx <code>from</code>).</p>
+  <p>Emits each element of <code>iterable</code> on the first pulse received from
+<code>source</code> (Rx <code>from</code>).</p>
+<p><a href="../../cell_flow/Flow/fromIterable.html">fromIterable</a> is similar to <a href="../../cell_flow/Flow/of.html">of</a> but takes an iterable source.
+It emits each element of the iterable in order on the first trigger.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/fromIterable.html">fromIterable</a> when you have an iterable source to emit.</p>
+<ul>
+<li><strong>Iterable Sources</strong>: Emitting from any iterable (List, Set, etc.).</li>
+<li><strong>Dynamic Collections</strong>: Emitting from collections that are
+built dynamically.</li>
+<li><strong>Data Loading</strong>: Emitting loaded data sequences.</li>
+<li><strong>Stream Conversion</strong>: Converting iterables to pulses.</li>
+<li><strong>Batch Processing</strong>: Processing collections as sequences.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Each element of <code>iterable</code> is emitted in iteration order.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'FromIterable'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The sequence only plays on the first pulse.</li>
+<li><strong>Iterable Order</strong>: The iteration order of the iterable is used.</li>
+<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
+<li><code>iterable</code>: <strong>The Iterable Source.</strong> The iterable to emit elements from.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the elements to emit.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.fromIterable&lt;String&gt;(
+  start.cell,
+  iterable: ['a', 'b', 'c'],
+);
+
+start.emit(null);
+// Outputs: a, b, c
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/of.html">of</a>: For emitting fixed values.</li>
+<li><a href="../../cell_flow/Flow/range.html">range</a>: For emitting a numeric range.</li>
+<li><a href="../../cell_flow/Flow/repeat.html">repeat</a>: For emitting a repeated value.</li>
+</ul>
 </section>
 
 
@@ -72,9 +126,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle fromIterable&lt;T&gt;(
-  Cell source, {
-  required Iterable&lt;T&gt; iterable,
-}) {
+    Cell source, {
+      required Iterable&lt;T&gt; iterable,
+    }) {
   return FromIterable&lt;T&gt;(iterable).toHandle(source: source);
 }</code></pre>
 </section>

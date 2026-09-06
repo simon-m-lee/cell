@@ -65,6 +65,63 @@
     
 <section class="desc markdown">
   <p>Take until <code>notifier</code> pulses.</p>
+<p><a href="../../cell_flow/Flow/takeUntil.html">takeUntil</a> acts as an <strong>Event-Based Taker</strong>. It forwards values from
+the source until the <code>notifier</code> cell emits a pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/takeUntil.html">takeUntil</a> when you need to take values until an event occurs.</p>
+<ul>
+<li><strong>Conditional Streaming</strong>: Taking values until an event.</li>
+<li><strong>Stop Trigger</strong>: Stopping on a stop signal.</li>
+<li><strong>Gate Pattern</strong>: Implementing a gate.</li>
+<li><strong>User Action</strong>: Stopping on user action.</li>
+<li><strong>Timeout</strong>: Implementing a timeout with a notifier.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The instruction observes the <code>notifier</code> cell.</li>
+<li>Initially, all values from the source are forwarded.</li>
+<li>When the <code>notifier</code> emits a value, the stream closes.</li>
+<li>After the notifier emits, all subsequent source values are dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>State</strong>: The instruction maintains an <code>open</code> flag.</li>
+<li><strong>Once Closed</strong>: The stream cannot be opened again.</li>
+<li><strong>First Value</strong>: The notifier's value is not passed through.</li>
+<li><strong>Memory Efficiency</strong>: Only a boolean flag is stored.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>notifier</code>: <strong>The Closing Event Source.</strong> The cell that triggers the
+stream closing when it emits a value.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the taken values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = Cell.ingress&lt;int&gt;();
+final stop = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.takeUntil&lt;int&gt;(
+  source.cell,
+  notifier: stop.cell,
+);
+
+source.emit(1); // passes through
+source.emit(2); // passes through
+stop.emit(null); // closes the stream
+source.emit(3); // dropped
+// Result: `[1, 2]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/takeWhile.html">takeWhile</a>: For conditional taking.</li>
+<li><a href="../../cell_flow/Flow/take.html">take</a>: For count-based taking.</li>
+</ul>
 </section>
 
 
@@ -72,9 +129,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle takeUntil&lt;S&gt;(
-  Cell source, {
-  required Cell notifier,
-}) {
+    Cell source, {
+      required Cell notifier,
+    }) {
   return TakeUntil&lt;S&gt;(notifier).toHandle(source: source);
 }</code></pre>
 </section>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mapValues method from the Flow class, for the Dart programming language.">
+  <title>mapValues method - Flow class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">flow.dart</a></li>
+    <li><a href="../../cell_flow/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">mapValues&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">mapValues</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">mapValues&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_flow/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">mapValues</span>&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="mapValues-param-source"><span class="type-annotation"><a href="../../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="mapValues-param-project"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="mapValues-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Payload is a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>; project each value.</p>
+<p><a href="../../cell_flow/Flow/mapValues.html">mapValues</a> is a specialized operator for transforming the values
+of a map payload.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mapValues.html">mapValues</a> when you have a map payload and want to transform
+its values.</p>
+<ul>
+<li><strong>Data Transformation</strong>: Transforming values in a map.</li>
+<li><strong>Data Enrichment</strong>: Enriching map values.</li>
+<li><strong>Type Conversion</strong>: Converting map value types.</li>
+<li><strong>Data Cleaning</strong>: Cleaning map values.</li>
+<li><strong>Formatting</strong>: Formatting map values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked to ensure it's a <code>Map</code>.</li>
+<li>For each entry in the map, <code>project</code> is called with the value.</li>
+<li>A new map is created with the same keys and transformed values.</li>
+<li>The new map is emitted.</li>
+<li>If <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapValues'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Map Payload Required</strong>: The payload must be a <code>Map</code>.</li>
+<li><strong>Keys Preserved</strong>: The keys remain unchanged.</li>
+<li><strong>Type Safety</strong>: Generic over key type <code>K</code>, value type <code>V</code>,
+and result type <code>R</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the map payloads.</li>
+<li><code>project</code>: <strong>Value Transformation Function.</strong> Called with each
+map value, returns the transformed value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>K</code>: The type of the map keys.</li>
+<li><code>V</code>: The type of the map values.</li>
+<li><code>R</code>: The type of the transformed values.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed maps.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;Map&lt;String, int&gt;&gt;();
+
+final handle = Flow.mapValues&lt;String, int, int&gt;(
+  input.cell,
+  project: (n) =&gt; n * 2,
+);
+
+input.emit({'a': 1, 'b': 2}); // -&gt; {'a': 2, 'b': 4}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mapKeys.html">mapKeys</a>: For transforming map keys.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle mapValues&lt;K, V, R&gt;(
+    Cell source, {
+      required R Function(V value) project,
+      MapErrorHandler? onError,
+    }) {
+  return MapValues&lt;K, V, R&gt;(project, onError: onError)
+      .toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">mapValues&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">R</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

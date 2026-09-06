@@ -67,7 +67,67 @@
     </section>
     
 <section class="desc markdown">
-  <p>Project with a 0-based index.</p>
+  <p>Projects each payload along with its 0-based index.</p>
+<p><a href="../../cell_flow/Flow/mapWithIndex.html">mapWithIndex</a> is similar to <a href="../../cell_flow/Flow/map.html">map</a> but the transformation
+function receives the index of each value in the sequence.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mapWithIndex.html">mapWithIndex</a> when your transformation depends on the
+position of the value.</p>
+<ul>
+<li><strong>Position Tracking</strong>: Including position in the output.</li>
+<li><strong>ID Generation</strong>: Generating IDs based on position.</li>
+<li><strong>Progress Tracking</strong>: Tracking progress through a sequence.</li>
+<li><strong>Offset Calculation</strong>: Calculating offsets based on position.</li>
+<li><strong>Enumeration</strong>: Enumerating items in a sequence.</li>
+<li><strong>Pattern Generation</strong>: Generating patterns based on index.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>project</code> is called with the payload and index.</li>
+<li>The index starts at 0 and increments on each typed pulse.</li>
+<li>The result is emitted as a typed pulse.</li>
+<li>If <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapWithIndex'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Index Type</strong>: The index is a 0-based integer.</li>
+<li><strong>Typed Only</strong>: Only typed pulses increment the index.</li>
+<li><strong>Error Handling</strong>: If <code>project</code> throws, the pulse is dropped
+and the index is not incremented.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>Indexed Transformation Function.</strong> Called with each
+typed payload and its index, returns the transformed value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final items = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.mapWithIndex&lt;String, String&gt;(
+  items.cell,
+  project: (item, index) =&gt; 'Item #${index + 1}: $item',
+);
+
+items.emit('Apple');  // -&gt; Item #1: Apple
+items.emit('Banana'); // -&gt; Item #2: Banana
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/map.html">map</a>: For standard mapping.</li>
+<li><a href="../../cell_flow/Flow/mapTo.html">mapTo</a>: For constant mapping.</li>
+<li><a href="../../cell_flow/Flow/mapNotNull.html">mapNotNull</a>: For dropping null results.</li>
+</ul>
 </section>
 
 
@@ -75,10 +135,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapWithIndex&lt;S, T&gt;(
-  Cell source, {
-  required T Function(S value, int index) project,
-  MapErrorHandler? onError,
-}) {
+    Cell source, {
+      required T Function(S value, int index) project,
+      MapErrorHandler? onError,
+    }) {
   return MapWithIndex&lt;S, T&gt;(project, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

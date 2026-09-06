@@ -65,6 +65,64 @@
     
 <section class="desc markdown">
   <p>Share with a replay buffer.</p>
+<p><a href="../../cell_flow/Flow/shareReplay.html">shareReplay</a> maintains a buffer of configurable size containing
+the most recent values.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/shareReplay.html">shareReplay</a> when you need to access a window of recent values
+from a shared flow.</p>
+<ul>
+<li><strong>History</strong>: Showing a history of recent values.</li>
+<li><strong>Audit Trail</strong>: Tracking recent state changes.</li>
+<li><strong>Undo/Redo</strong>: Supporting undo of recent operations.</li>
+<li><strong>Analytics</strong>: Analyzing recent data points.</li>
+<li><strong>Debugging</strong>: Inspecting recent values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The payload is pushed into the buffer.</li>
+<li>The buffer maintains a sliding window of <code>size</code> values.</li>
+<li>The pulse is passed through unchanged.</li>
+<li>The <code>buffer.values</code> getter provides access to buffered values.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Sliding Window</strong>: The buffer maintains exactly <code>size</code> values.</li>
+<li><strong>Size 0</strong>: If size is 0, no values are retained.</li>
+<li><strong>Mutable Buffer</strong>: The buffer is mutable and shared.</li>
+<li><strong>External Access</strong>: The buffer is accessible externally.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>size</code>: <strong>Buffer Size.</strong> The number of values to retain.
+Defaults to 1.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the shared values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.shareReplay&lt;int&gt;(
+  input.cell,
+  size: 3,
+);
+
+input.emit(1);
+input.emit(2);
+input.emit(3);
+input.emit(4);
+// Buffer contains `[2, 3, 4]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/share.html">share</a>: For sharing without buffering.</li>
+<li><a href="../../cell_flow/Flow/share.html">share</a>: For sharing only the latest value.</li>
+</ul>
 </section>
 
 
@@ -72,9 +130,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle shareReplay&lt;S&gt;(
-  Cell source, {
-  int size = 1,
-}) {
+    Cell source, {
+      int size = 1,
+    }) {
   return ShareReplay&lt;S&gt;(size: size).toHandle(source: source);
 }</code></pre>
 </section>

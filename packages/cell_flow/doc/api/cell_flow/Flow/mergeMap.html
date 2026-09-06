@@ -65,7 +65,67 @@
     </section>
     
 <section class="desc markdown">
-  <p>Concurrent inner flatten (Rx <code>mergeMap</code> / <code>flatMap</code>).</p>
+  <p>Maps each payload to an inner sequence and flattens them <strong>concurrently</strong>
+(Rx <code>mergeMap</code>).</p>
+<p><a href="../../cell_flow/Flow/mergeMap.html">mergeMap</a> maps each incoming value to an inner sequence and emits values
+from all inner sequences as they complete, with optional concurrency control.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mergeMap.html">mergeMap</a> when you need to process multiple async operations
+concurrently and don't need to cancel previous operations.</p>
+<ul>
+<li><strong>Parallel HTTP Calls</strong>: Making multiple independent API calls.</li>
+<li><strong>Batch Processing</strong>: Processing multiple items concurrently.</li>
+<li><strong>Background Tasks</strong>: Running multiple background operations.</li>
+<li><strong>Data Enrichment</strong>: Enriching multiple items in parallel.</li>
+<li><strong>File Operations</strong>: Reading/writing multiple files concurrently.</li>
+<li><strong>Image Processing</strong>: Processing images in parallel.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>project</code> function.</li>
+<li>The <code>project</code> returns an inner sequence.</li>
+<li>The inner sequence is drained asynchronously.</li>
+<li>Values are emitted as they complete (unordered).</li>
+<li>All inners run to completion (no cancellation).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Unordered Output</strong>: Results are emitted in completion order.</li>
+<li><strong>Concurrency</strong>: All operations start immediately.</li>
+<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
+<li><strong>Error Isolation</strong>: Errors in one operation don't affect others.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>The Flattening Logic.</strong> Takes an input value and returns
+an inner sequence.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.mergeMap&lt;int, User&gt;(
+  ids.cell,
+  project: (id) async =&gt; await api.getUser(id),
+);
+
+ids.emit(1); // Starts fetching
+ids.emit(2); // Starts fetching (parallel)
+// Results arrive in completion order
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concatMap.html">concatMap</a>: For sequential flattening.</li>
+<li><a href="../../cell_flow/Flow/switchMap.html">switchMap</a>: For latest-only flattening.</li>
+<li><a href="../../cell_flow/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
+</ul>
 </section>
 
 
@@ -73,9 +133,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mergeMap&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) project,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) project,
+    }) {
   return MergeMap&lt;S, T&gt;(project).toHandle(source: source);
 }</code></pre>
 </section>

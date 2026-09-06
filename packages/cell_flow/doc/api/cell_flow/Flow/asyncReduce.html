@@ -68,6 +68,61 @@
     
 <section class="desc markdown">
   <p>First value is the seed; later values accumulate.</p>
+<p><a href="../../cell_flow/Flow/asyncReduce.html">asyncReduce</a> is similar to <a href="../../cell_flow/Flow/asyncFold.html">asyncFold</a> but the seed is the first
+value, not a separate seed parameter.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncReduce.html">asyncReduce</a> when you want the first value to be the seed.</p>
+<ul>
+<li><strong>Running Totals</strong>: Summing values as they arrive (no explicit seed).</li>
+<li><strong>First Value</strong>: Using the first value as the starting point.</li>
+<li><strong>Data Processing</strong>: Processing data with async transformations.</li>
+<li><strong>State Aggregation</strong>: Aggregating state from async operations.</li>
+<li><strong>Reduction</strong>: Reducing a sequence of values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse becomes the seed and is emitted immediately.</li>
+<li>Subsequent pulses are accumulated using the <code>accumulate</code> function.</li>
+<li>Steps are processed sequentially (queue).</li>
+<li>If <code>accumulate</code> throws an error, it's reported and the instruction
+continues with the next input.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Value as Seed</strong>: The first value is emitted as the seed.</li>
+<li><strong>No Seed Parameter</strong>: No explicit seed is required.</li>
+<li><strong>Sequential Processing</strong>: Steps run one after another.</li>
+<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>accumulate</code>: <strong>Accumulation Function.</strong> Called with the current
+accumulator and the payload, returns the new accumulator.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input and output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the accumulated values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncReduce&lt;int&gt;(
+  input.cell,
+  accumulate: (acc, n) async =&gt; acc + n,
+);
+
+input.emit(5);  // -&gt; 5 (seed)
+input.emit(3);  // -&gt; 8
+input.emit(7);  // -&gt; 15
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncFold.html">asyncFold</a>: For seeded accumulation.</li>
+</ul>
 </section>
 
 
@@ -75,10 +130,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncReduce&lt;S&gt;(
-  Cell source, {
-  required FutureOr&lt;S&gt; Function(S acc, S value) accumulate,
-  FoldErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;S&gt; Function(S acc, S value) accumulate,
+      FoldErrorHandler? onError,
+    }) {
   return AsyncReduce&lt;S&gt;(accumulate, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

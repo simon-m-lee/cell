@@ -164,8 +164,10 @@ void main() {
       final errors = <Object>[];
       final stale = Completer<int>();
       final op = AsyncFoldLatest<String, int>(
-        0,
-        (acc, n) => n == 'old' ? stale.future : acc + 2,
+        0, (acc, n) async {
+          if (n == 'old') return stale.future;
+          return acc + 2;
+        },
         onError: (e, _) => errors.add(e),
       );
       final b = bind(op);

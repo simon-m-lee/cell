@@ -69,13 +69,13 @@ transformations, temporal logic, and asynchronous coordination.</p>
 propagation, <strong>Mitosis</strong> (cell_flow) provides the machinery for:</p>
 <ul>
 <li><strong>Transformation</strong>: Reshaping data as it traverses the graph via
-operators like <code>map</code>, <code>scan</code>, and <code>buffer</code>.</li>
+operators like <a href="../cell_flow/Flow/map.html">Flow.map</a>, <a href="../cell_flow/Flow/scan.html">Flow.scan</a>, and <a href="../cell_flow/Flow/bufferCount.html">Flow.bufferCount</a>.</li>
 <li><strong>Temporal Control</strong>: Managing the dimension of time using
-<code>debounce</code>, <code>throttle</code>, <code>delay</code>, and <code>interval</code>.</li>
+<a href="../cell_flow/Flow/debounce.html">Flow.debounce</a>, <a href="../cell_flow/Flow/throttle.html">Flow.throttle</a>, <a href="../cell_flow/Flow/delay.html">Flow.delay</a>, and <a href="../cell_flow/Flow/interval.html">Flow.interval</a>.</li>
 <li><strong>Asynchronous Bridging</strong>: Safely integrating <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> and <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>
-workloads into the synchronous graph via <code>asyncMap</code> and <code>switchMap</code>.</li>
+workloads into the synchronous graph via <a href="../cell_flow/Flow/asyncMap.html">Flow.asyncMap</a> and <a href="../cell_flow/Flow/switchMap.html">Flow.switchMap</a>.</li>
 <li><strong>Topological Routing</strong>: Multiplexing and demultiplexing pulses
-through <code>groupBy</code>, <code>partition</code>, and <a href="https://api.flutter.dev/flutter/dart-html/window.html">window</a>.</li>
+through <a href="../cell_flow/Flow/groupBy.html">Flow.groupBy</a>, <a href="../cell_flow/Flow/partition.html">Flow.partition</a>, and <a href="../cell_flow/Flow/windowCount.html">Flow.windowCount</a>.</li>
 </ul>
 <h3 id="core-mechanics">Core Mechanics</h3>
 <ol>
@@ -1585,6 +1585,8 @@ functions — the standard way to create and interact with a state atom.
 
     <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
     <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Instructions-topic.html">Custom&nbsp;Receptors&nbsp;&&nbsp;Instructions</a></li>
       <li class="section-title">Libraries</li>
       <li><a href="../cell_flow/">flow</a></li>
 </ol>

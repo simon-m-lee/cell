@@ -65,6 +65,61 @@
     
 <section class="desc markdown">
   <p>Payload is an inner to merge (Rx <code>mergeAll</code>).</p>
+<p><a href="../../cell_flow/Flow/mergeAll.html">mergeAll</a> acts as a <strong>Concurrent Flattener</strong>. Each payload is treated
+as an inner sequence, and all sequences are flattened concurrently.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/mergeAll.html">mergeAll</a> when:</p>
+<ul>
+<li>The payload itself is a sequence to flatten</li>
+<li>You want to flatten nested structures concurrently</li>
+<li>You're implementing concurrent batch processing</li>
+<li>You're merging streams from a list</li>
+<li>You're flattening nested lists</li>
+</ul>
+<h3 id="supported-payload-types">Supported Payload Types</h3>
+<p>The payload can be any of the following:</p>
+<ul>
+<li><strong><code>Stream</code></strong>: Each event in the stream is emitted.</li>
+<li><strong><code>Future</code></strong>: The single value is emitted.</li>
+<li><strong><code>Iterable</code></strong>: Each element is emitted.</li>
+<li><strong><code>T</code></strong>: The value itself is emitted directly.</li>
+<li><strong><code>null</code></strong>: No emission.</li>
+<li><strong>Nested combinations</strong>: Recursively expanded.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Concurrent</strong>: Inner sequences are processed concurrently.</li>
+<li><strong>Interleaved</strong>: Emissions from different sequences are interleaved.</li>
+<li><strong>No Order Guarantee</strong>: Results are emitted in completion order.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the merged values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final batches = Cell.ingress&lt;Object&gt;();
+
+final handle = Flow.mergeAll&lt;String&gt;(
+  batches.cell,
+);
+
+batches.emit(['a', 'b']); // emits 'a', 'b'
+batches.emit(['x']);     // emits 'x' (interleaved)
+// Result: `['a', 'x', 'b']` (order may vary)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mergeWith.html">mergeWith</a>: For merging cells.</li>
+<li><a href="../../cell_flow/Flow/concatAll.html">concatAll</a>: For sequential flattening.</li>
+</ul>
 </section>
 
 
@@ -72,9 +127,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mergeAll&lt;T&gt;(
-  Cell source, {
-  MergeErrorHandler? onError,
-}) {
+    Cell source, {
+      MergeErrorHandler? onError,
+    }) {
   return MergeAll&lt;T&gt;(onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

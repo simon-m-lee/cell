@@ -66,6 +66,65 @@
     
 <section class="desc markdown">
   <p>Pack <code>width</code> source values into a list.</p>
+<p><a href="../../cell_flow/Flow/zipAll.html">zipAll</a> is the simplest zip operator. It collects values from a
+single source into batches of <code>width</code> and emits them as a list.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/zipAll.html">zipAll</a> when you want to collect values from a single source
+into batches by count.</p>
+<ul>
+<li><strong>Batching</strong>: Batching values into fixed-size lists.</li>
+<li><strong>Chunking</strong>: Chunking data into chunks of a fixed size.</li>
+<li><strong>Pagination</strong>: Creating pages of data.</li>
+<li><strong>Collection</strong>: Collecting values into groups.</li>
+<li><strong>Aggregation</strong>: Aggregating values into lists.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The payload is added to the current row.</li>
+<li>When the row reaches <code>width</code>, it's emitted as a list.</li>
+<li>The row is cleared.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Batching</strong>: Values are batched by count.</li>
+<li><strong>Single Source</strong>: Only one source is used.</li>
+<li><strong>No Overlap</strong>: Each value appears in exactly one batch.</li>
+<li><strong>Memory Usage</strong>: Only holds up to <code>width</code> values at a time.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>width</code>: <strong>Batch Size.</strong> The number of values in each batch.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the batches.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.zipAll&lt;int&gt;(
+  input.cell,
+  width: 3,
+);
+
+input.emit(1); // no output
+input.emit(2); // no output
+input.emit(3); // -&gt; [1, 2, 3]
+input.emit(4); // no output
+input.emit(5); // no output
+input.emit(6); // -&gt; [4, 5, 6]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/zipWith.html">zipWith</a>: For zipping the source with other cells.</li>
+<li><a href="../../cell_flow/Flow/zip.html">zip</a>: For zipping extra sources with an arm.</li>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For more flexible count-based buffering.</li>
+</ul>
 </section>
 
 
@@ -73,10 +132,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle zipAll&lt;T&gt;(
-  Cell source, {
-  required int width,
-  ZipErrorHandler? onError,
-}) {
+    Cell source, {
+      required int width,
+      ZipErrorHandler? onError,
+    }) {
   return ZipAll&lt;T&gt;(width, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

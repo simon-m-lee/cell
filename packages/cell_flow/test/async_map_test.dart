@@ -164,7 +164,7 @@ void main() {
       final errors = <Object>[];
       final stale = Completer<String>();
       final b = bind(AsyncMapLatest<String, String>(
-        (q) => q == 'old' ? stale.future : 'new',
+        (q) => q == 'old' ? stale.future : Future.value('new'),
         onError: (e, _) => errors.add(e),
       ));
       addTearDown(b.probe.stop);

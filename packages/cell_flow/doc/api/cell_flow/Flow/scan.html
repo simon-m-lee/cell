@@ -66,7 +66,66 @@
     </section>
     
 <section class="desc markdown">
-  <p>Running accumulate (Rx <code>scan</code>).</p>
+  <p>Applies an <code>accumulate</code> function over the pulses, emitting each
+intermediate result (Rx <code>scan</code>).</p>
+<p><a href="../../cell_flow/Flow/scan.html">scan</a> acts as a <strong>Seedless Accumulator</strong>. The first typed value becomes
+the seed and is <strong>not</strong> emitted. Every later value is combined with the
+running total and the new total is emitted.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/scan.html">scan</a> when you need to accumulate values over time:</p>
+<ul>
+<li><strong>Running Totals</strong>: Computing a running sum, average, or count</li>
+<li><strong>Reducers</strong>: When the first sample itself is the starting amount</li>
+<li><strong>State Machines</strong>: Tracking state transitions over time</li>
+<li><strong>Data Aggregation</strong>: Aggregating data from a stream</li>
+<li><strong>Progressive Enrichment</strong>: Building a result incrementally</li>
+<li><strong>Event Sourcing</strong>: Building an aggregate from a stream of events</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse becomes the accumulator and is stored.</li>
+<li>The first pulse is <strong>not</strong> emitted.</li>
+<li>For each subsequent pulse, <code>accumulate</code> is called with the
+current accumulator and the new value.</li>
+<li>The result becomes the new accumulator and is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No Seed</strong>: The first value is used as the seed and not emitted.</li>
+<li><strong>Silent First</strong>: The instruction is silent on the first pulse.</li>
+<li><strong>State Persistence</strong>: The accumulator is maintained across pulses.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>accumulate</code>: <strong>The Accumulation Function.</strong> Takes the current
+accumulator and the new value, returns the new accumulator.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload from the source cell.</li>
+<li><code>A</code>: The type of the accumulator state.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the accumulated values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final nums = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.scan&lt;int, int&gt;(
+  nums.cell,
+  accumulate: (acc, n) =&gt; acc + n,
+);
+
+nums.emit(1); // No output (becomes seed)
+nums.emit(2); // -&gt; 3
+nums.emit(3); // -&gt; 6
+// Result: `[3, 6]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/reduce.html">reduce</a>: For using an explicit seed value.</li>
+<li><a href="../../cell_flow/Flow/pairwise.html">pairwise</a>: For emitting adjacent pairs.</li>
+</ul>
 </section>
 
 
@@ -74,9 +133,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle scan&lt;S, A&gt;(
-  Cell source, {
-  required A Function(A acc, S value) accumulate,
-}) {
+    Cell source, {
+      required A Function(A acc, S value) accumulate,
+    }) {
   return Scan&lt;S, A&gt;(accumulate).toHandle(source: source);
 }</code></pre>
 </section>

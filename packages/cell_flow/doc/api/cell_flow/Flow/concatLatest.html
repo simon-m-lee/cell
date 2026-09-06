@@ -64,6 +64,53 @@
     
 <section class="desc markdown">
   <p>Last item of each inner.</p>
+<p><a href="../../cell_flow/Flow/concatLatest.html">concatLatest</a> processes each inner and only emits its last item.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/concatLatest.html">concatLatest</a> when you only need the last item from each
+sequence.</p>
+<ul>
+<li><strong>Last Value</strong>: Getting the last value from each source.</li>
+<li><strong>Tail Extraction</strong>: Extracting the tail of each sequence.</li>
+<li><strong>Final State</strong>: Getting the final state from each source.</li>
+<li><strong>Completion</strong>: Getting the completion value from each sequence.</li>
+<li><strong>Aggregation</strong>: Getting the last value for aggregation.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse adds its payload to a queue.</li>
+<li>The queue is processed one inner at a time.</li>
+<li>The inner is fully drained and collected.</li>
+<li>The last typed value of type <code>T</code> is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Last Only</strong>: Only the last item of each inner is emitted.</li>
+<li><strong>Full Drain</strong>: The entire inner is drained to find the last.</li>
+<li><strong>Type Filtering</strong>: Only values of type <code>T</code> are considered.</li>
+<li><strong>Memory Usage</strong>: Drains the full inner into memory.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the last values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final lists = Cell.ingress&lt;List&lt;String&gt;&gt;();
+
+final handle = Flow.concatLatest&lt;String&gt;(lists.cell);
+
+lists.emit(['a', 'b', 'c']); // -&gt; c
+lists.emit(['d', 'e']);      // -&gt; e
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/concatAll.html">concatAll</a>: For all items of each inner.</li>
+</ul>
 </section>
 
 

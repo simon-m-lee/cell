@@ -68,6 +68,78 @@
     
 <section class="desc markdown">
   <p>Walk a nested <code>path</code>.</p>
+<p><a href="../../cell_flow/Flow/pluckPath.html">pluckPath</a> navigates nested structures by following a sequence
+of keys. This allows extracting deeply nested fields from complex
+objects.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/pluckPath.html">pluckPath</a> when you need to extract a deeply nested field
+from a complex object.</p>
+<ul>
+<li><strong>Deep Navigation</strong>: Extracting deeply nested values.</li>
+<li><strong>JSON Traversal</strong>: Navigating JSON responses.</li>
+<li><strong>Object Graph</strong>: Traversing object graphs.</li>
+<li><strong>Nested Data</strong>: Extracting data from nested structures.</li>
+<li><strong>Data Unwrapping</strong>: Unwrapping nested data containers.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is used as the starting point.</li>
+<li>For each key in <code>path</code>, the current value is read using that key.</li>
+<li>The value becomes the new current value for the next key.</li>
+<li>After all keys are processed, the final value is emitted.</li>
+<li>If any step fails, <code>onError</code> is called and the pulse is dropped.</li>
+<li>If <code>useOrElse</code> is <code>true</code>, <code>orElse</code> is emitted on failure.</li>
+<li>The pulse gets the step <code>'PluckPath'</code> (or <code>'PluckPath.orElse'</code> for defaults).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Path Traversal</strong>: The path is walked left to right.</li>
+<li><strong>Any Step Failure</strong>: If any step in the path fails, the whole
+extraction fails.</li>
+<li><strong>Type Safety</strong>: The final value must match type <code>T</code>.</li>
+<li><strong>Error Handling</strong>: Missing keys or type mismatches can trigger
+error handlers or fallbacks.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
+<li><code>path</code>: <strong>The Navigation Path.</strong> An iterable of keys to follow.</li>
+<li><code>orElse</code>: <strong>Default Value.</strong> Used when <code>useOrElse</code> is <code>true</code>.</li>
+<li><code>useOrElse</code>: <strong>Use Default.</strong> If <code>true</code>, missing path steps get
+<code>orElse</code>. If <code>false</code>, missing steps trigger <code>onError</code>. Defaults
+to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The expected type of the final extracted value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the extracted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final users = Cell.ingress&lt;Map&lt;String, Object&gt;&gt;();
+
+final handle = Flow.pluckPath&lt;String&gt;(
+  users.cell,
+  path: ['user', 'profile', 'name'],
+);
+
+users.emit({
+  'user': {
+    'profile': {
+      'name': 'Alice',
+      'age': 30
+    }
+  }
+});
+// -&gt; Alice
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/pluck.html">pluck</a>: For single field extraction.</li>
+<li><a href="../../cell_flow/Flow/pluckOr.html">pluckOr</a>: For single field extraction with default.</li>
+<li><a href="../../cell_flow/Flow/pluckAll.html">pluckAll</a>: For extracting multiple fields.</li>
+</ul>
 </section>
 
 
@@ -75,12 +147,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle pluckPath&lt;T&gt;(
-  Cell source, {
-  required Iterable&lt;Object&gt; path,
-  T? orElse,
-  bool useOrElse = false,
-  PluckErrorHandler? onError,
-}) {
+    Cell source, {
+      required Iterable&lt;Object&gt; path,
+      T? orElse,
+      bool useOrElse = false,
+      PluckErrorHandler? onError,
+    }) {
   return PluckPath&lt;T&gt;(
     path,
     orElse: orElse,

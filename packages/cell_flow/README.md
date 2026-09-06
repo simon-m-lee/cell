@@ -1,17 +1,17 @@
 # cell_flow
 
-**Codename: Mitosis** · `1.0.0-rc.1`
+**Codename: Mitosis** · `1.0.0-rc.2`
 
 Rx-shaped operators for the [Cell](https://github.com/simon-m-lee/cell) framework. Debounce, switchMap, zip, retry and the rest of the usual stream vocabulary — as `FlowInstruction`s on the **same graph** as `package:cell`.
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Alpha-orange.svg)](#status)
+[![Status](https://img.shields.io/badge/Status-RC2-green.svg)](#status)
 
 ```yaml
 dependencies:
-  cell: 1.0.0-rc.1
-  cell_flow: 1.0.0-rc.1
+  cell: 1.0.0-rc.2
+  cell_flow: 1.0.0-rc.2
 ```
 
 ```dart
@@ -129,6 +129,7 @@ Application code should import **only** `package:cell_flow/flow.dart`.
 |---|---|
 | [ARCHITECTURE-Flow.md](ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
 | [FEATURES-Flow.md](FEATURES-Flow.md) | Feature catalog |
+| [DEMO_GUIDE.md](DEMO_GUIDE.md) | High-fidelity walkthroughs |
 | [HowTo-Fluent_Operator.md](HowTo-Fluent_Operator.md) | Method chaining |
 | [HowTo-FlowInstruction-Receptor.md](HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
 
@@ -138,8 +139,8 @@ Application code should import **only** `package:cell_flow/flow.dart`.
 
 | Package | Version |
 |---|---|
-| `cell` | `1.0.0-rc.1` |
-| `cell_flow` | `1.0.0-rc.1` |
+| `cell` | `1.0.0-rc.2` |
+| `cell_flow` | `1.0.0-rc.2` |
 
 **Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be `1.0.0`.
 

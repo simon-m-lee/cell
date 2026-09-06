@@ -64,7 +64,64 @@
     </section>
     
 <section class="desc markdown">
-  <p>Emit <code>values</code> once when <code>source</code> is first pulsed (Rx <code>of</code>).</p>
+  <p>Emits each value in <code>values</code> sequentially on the first pulse received
+from <code>source</code> (Rx <code>of</code>).</p>
+<p><a href="../../cell_flow/Flow/of.html">of</a> emits a fixed sequence of values one after another, in order,
+when the source cell first pulses. This is useful for initializing
+a stream with a known set of values before live data arrives.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/of.html">of</a> when you need to emit a fixed sequence of values on the
+first trigger.</p>
+<ul>
+<li><strong>Initial Values</strong>: Emitting initial values on startup.</li>
+<li><strong>Test Data</strong>: Emitting test data sequences.</li>
+<li><strong>Configuration</strong>: Emitting configuration values.</li>
+<li><strong>Static Sequences</strong>: Emitting static sequences.</li>
+<li><strong>One-Time Setup</strong>: Performing one-time setup sequences.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Each value in <code>values</code> is emitted in order.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'Of'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The sequence only plays on the first pulse.</li>
+<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
+<li><strong>No Completion</strong>: Cells don't complete, but the instruction
+stops emitting after all values are sent.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
+<li><code>values</code>: <strong>The Values to Emit.</strong> The sequence of values to
+emit on the first trigger.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the values to emit.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.of&lt;String&gt;(
+  start.cell,
+  values: ['init', 'ready', 'go'],
+);
+
+start.emit(null);
+// Outputs: init, ready, go
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/fromIterable.html">fromIterable</a>: For emitting from an iterable.</li>
+<li><a href="../../cell_flow/Flow/range.html">range</a>: For emitting a numeric range.</li>
+<li><a href="../../cell_flow/Flow/repeat.html">repeat</a>: For emitting a repeated value.</li>
+</ul>
 </section>
 
 
@@ -72,9 +129,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle of&lt;T&gt;(
-  Cell source, {
-  required Iterable&lt;T&gt; values,
-}) {
+    Cell source, {
+      required Iterable&lt;T&gt; values,
+    }) {
   return Of&lt;T&gt;(values).toHandle(source: source);
 }</code></pre>
 </section>

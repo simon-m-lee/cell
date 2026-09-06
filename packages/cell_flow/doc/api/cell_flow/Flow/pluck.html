@@ -65,7 +65,62 @@
     </section>
     
 <section class="desc markdown">
-  <p>Pick <code>payload[key]</code> as <code>T</code> (Rx <code>pluck</code>).</p>
+  <p>Extracts the value at <code>key</code> from a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> payload (Rx <code>pluck</code>).</p>
+<p><a href="../../cell_flow/Flow/pluck.html">pluck</a> extracts a single field from each payload using the
+provided <code>key</code>. The extracted value is emitted as a typed pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/pluck.html">pluck</a> when you need to extract a single field from a
+complex payload.</p>
+<ul>
+<li><strong>Data Extraction</strong>: Extracting fields from API responses.</li>
+<li><strong>Field Access</strong>: Accessing properties of objects.</li>
+<li><strong>Data Transformation</strong>: Extracting values for further processing.</li>
+<li><strong>Filtering</strong>: Extracting fields for filtering logic.</li>
+<li><strong>Mapping</strong>: Mapping complex objects to simple values.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is read using <code>key</code>.</li>
+<li>The extracted value is type-checked to ensure it matches <code>T</code>.</li>
+<li>If successful, the value is emitted as a typed pulse.</li>
+<li>If extraction fails, <code>onError</code> is called and the pulse is dropped.</li>
+<li>The pulse gets the step <code>'Pluck'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Type Safety</strong>: The extracted value must match type <code>T</code>.</li>
+<li><strong>Error Handling</strong>: Missing keys or type mismatches drop the pulse.</li>
+<li><strong>Source Types</strong>: Supports Map, List/Iterable, and objects with <code>[]</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
+<li><code>key</code>: <strong>The Key to Extract.</strong> The field name or index to look up.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The expected type of the extracted value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the extracted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final users = Cell.ingress&lt;Map&lt;String, Object&gt;&gt;();
+
+final handle = Flow.pluck&lt;String&gt;(
+  users.cell,
+  key: 'name',
+);
+
+users.emit({'id': 1, 'name': 'Alice'}); // -&gt; Alice
+users.emit({'id': 2, 'name': 'Bob'});   // -&gt; Bob
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/pluckOr.html">pluckOr</a>: For extraction with default values.</li>
+<li><a href="../../cell_flow/Flow/pluckAll.html">pluckAll</a>: For extracting multiple fields.</li>
+<li><a href="../../cell_flow/Flow/pluckPath.html">pluckPath</a>: For extracting nested fields.</li>
+</ul>
 </section>
 
 
@@ -73,10 +128,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle pluck&lt;T&gt;(
-  Cell source, {
-  required Object key,
-  PluckErrorHandler? onError,
-}) {
+    Cell source, {
+      required Object key,
+      PluckErrorHandler? onError,
+    }) {
   return Pluck&lt;T&gt;(key, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>

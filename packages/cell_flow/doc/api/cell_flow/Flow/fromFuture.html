@@ -67,7 +67,80 @@
     </section>
     
 <section class="desc markdown">
-  <p>Bridge a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> on the first pulse (Rx <code>from(Future)</code>).</p>
+  <p>Bridges a single <code>future</code> into the graph on the first pulse received
+from <code>source</code> (Rx <code>fromFuture</code>).</p>
+<p><a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a> acts as an <strong>Asynchronous One-Shot Loader</strong> that awaits a
+single future and emits its result as a <a href="../../cell_flow/Pulse-class.html">Pulse</a>. It processes the first
+trigger and ignores subsequent triggers.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a> when you need to load a single asynchronous value:</p>
+<ul>
+<li><strong>Initial Configuration</strong>: Loading app configuration or user profile</li>
+<li><strong>One-Shot HTTP Calls</strong>: Bridging a single API call into the graph</li>
+<li><strong>Database Queries</strong>: Loading a single record from the database</li>
+<li><strong>File Loading</strong>: Reading a single file asynchronously</li>
+<li><strong>Initialization</strong>: Loading initial state for a module</li>
+<li><strong>Bridging Legacy APIs</strong>: Converting <code>Future</code>-based APIs to Cell-Flow</li>
+<li><strong>Lazy Loading</strong>: Loading data on demand when first triggered</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>The <code>future</code> is awaited.</li>
+<li>The result is emitted as a pulse.</li>
+<li>If the future fails, an error pulse is emitted.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'FromFuture'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Shot</strong>: The instruction processes only the first trigger.</li>
+<li><strong>Lazy Execution</strong>: The future is not started until the first trigger
+arrives. This prevents unnecessary work.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code> and optionally
+as error pulses with <code>type: 'error'</code>.</li>
+<li><strong>Timeout</strong>: Optional timeout can be applied to the future operation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the future.</li>
+<li><code>future</code>: <strong>The Future to Bridge.</strong> The asynchronous operation to await.</li>
+<li><code>timeout</code>: <strong>Timeout Duration.</strong> Optional. If provided, the operation
+will fail if it exceeds this duration.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code> (default), errors
+emit a pulse with <code>type: 'error'</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the output payload from the future.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted value.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final load = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.fromFuture&lt;String&gt;(
+  load.cell,
+  future: api.fetchUserProfile('123'),
+);
+
+load.emit(null);
+// Outputs: UserProfile(id: 123, name: 'Alice')
+</code></pre>
+<h3 id="example-with-timeout">Example: With Timeout</h3>
+<pre class="language-dart"><code class="language-dart">final handle = Flow.fromFuture&lt;String&gt;(
+  load.cell,
+  future: slowApiCall(),
+  timeout: Duration(seconds: 5),
+  onError: (error, stack) =&gt; print('Timeout: $error'),
+);
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/deferFuture.html">deferFuture</a>: For creating a new future on each trigger.</li>
+<li><a href="../../cell_flow/Flow/fromStream.html">fromStream</a>: For bridging a continuous stream.</li>
+</ul>
 </section>
 
 
@@ -75,12 +148,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle fromFuture&lt;S&gt;(
-  Cell source, {
-  required Future&lt;S&gt; future,
-  Duration? timeout,
-  FutureErrorHandler? onError,
-  bool emitErrorPulse = true,
-}) {
+    Cell source, {
+      required Future&lt;S&gt; future,
+      Duration? timeout,
+      FutureErrorHandler? onError,
+      bool emitErrorPulse = true,
+    }) {
   return FromFuture&lt;S&gt;(
     future,
     timeout: timeout,

@@ -65,6 +65,61 @@
     
 <section class="desc markdown">
   <p>Merge extra <code>sources</code>; <code>source</code> only arms <code>future</code>.</p>
+<p><a href="../../cell_flow/Flow/merge.html">merge</a> acts as a <strong>Multi-Source Merger</strong>. The bound source is only
+used to arm the instruction.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/merge.html">merge</a> when:</p>
+<ul>
+<li>You want to merge multiple cells into one stream</li>
+<li>The arming pulse should not be forwarded</li>
+<li>You're using a dedicated gate to start the merge</li>
+<li>You're combining events from multiple sources</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Observers are started on all <code>sources</code> cells.</li>
+<li>Pulses from all <code>sources</code> are forwarded with step <code>Merge</code>.</li>
+<li>The arming pulse is not forwarded (by default).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Arming Only</strong>: The first source pulse is only used to arm.</li>
+<li><strong>Interleaved</strong>: Pulses from different sources are interleaved.</li>
+<li><strong>No Source Forwarding</strong>: The arming pulse is not forwarded.</li>
+<li><strong>Error Handling</strong>: Type errors are reported via <code>onError</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>sources</code>: <strong>The Cells to Merge.</strong> Cells whose pulses will be forwarded.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the merged values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final gate = Cell.ingress&lt;void&gt;();
+final left = Cell.ingress&lt;int&gt;();
+final right = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.merge&lt;int&gt;(
+  gate.cell,
+  sources: [left.cell, right.cell],
+);
+
+gate.emit(null); // arms only
+left.emit(10); // emitted
+right.emit(20); // emitted
+// Result: `[10, 20]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/mergeWith.html">mergeWith</a>: For merging source with others.</li>
+<li><a href="../../cell_flow/Flow/mergeAll.html">mergeAll</a>: For flattening inner sequences.</li>
+</ul>
 </section>
 
 
@@ -72,9 +127,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle merge&lt;T&gt;(
-  Cell source, {
-  required List&lt;Cell&gt; sources,
-}) {
+    Cell source, {
+      required List&lt;Cell&gt; sources,
+    }) {
   return Merge&lt;T&gt;(sources).toHandle(source: source);
 }</code></pre>
 </section>

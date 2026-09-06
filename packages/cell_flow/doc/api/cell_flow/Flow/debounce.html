@@ -64,7 +64,70 @@
     </section>
     
 <section class="desc markdown">
-  <p>Debounce trailing.</p>
+  <p>Delays the emission of pulses until <code>duration</code> has passed since the
+last pulse (Rx <code>debounce</code>).</p>
+<p><a href="../../cell_flow/Flow/debounce.html">debounce</a> acts as a <strong>Silence-Based Emitter</strong>. It waits for a specified
+period of inactivity before emitting the latest value. Each new value
+resets the timer.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/debounce.html">debounce</a> when you need to wait for stability before emitting:</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Wait for the user to stop typing</li>
+<li><strong>Resize / Scroll End</strong>: Respond after the user finishes resizing</li>
+<li><strong>Form Validation</strong>: Validate after the user stops editing</li>
+<li><strong>Auto-Save</strong>: Save after the user stops making changes</li>
+<li><strong>Window Resize</strong>: Respond after the user stops resizing</li>
+<li><strong>User Input</strong>: Wait for the user to finish an action</li>
+<li><strong>Idle Detection</strong>: Detect periods of inactivity</li>
+<li><strong>Noise Reduction</strong>: Reduce noise from rapid events</li>
+<li><strong>Debouncing API Calls</strong>: Prevent excessive API calls</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The timer is reset to the full <code>duration</code> on each new value.</li>
+<li>When the timer completes without interruption, the latest value is emitted.</li>
+<li>Only the final value in each burst is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Silence Window</strong>: The timer resets on every new pulse.</li>
+<li><strong>Pending Value</strong>: Only the most recent value is emitted.</li>
+<li><strong>State Persistence</strong>: The instruction maintains the pending value and timer.</li>
+<li><strong>Order Preservation</strong>: Only the final value in each burst is emitted.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>The Silence Window.</strong> The period of inactivity required
+before emission.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the debounced values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final search = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.debounce&lt;String&gt;(
+  search.cell,
+  duration: Duration(milliseconds: 300),
+);
+
+search.emit('h');
+search.emit('he');
+search.emit('hel');
+search.emit('hell');
+search.emit('hello');
+// after 300ms, emits 'hello'
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/throttle.html">throttle</a>: For rate limiting.</li>
+<li><a href="../../cell_flow/Flow/sample.html">sample</a>: For sampling on notifier.</li>
+</ul>
 </section>
 
 
@@ -72,9 +135,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle debounce&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-}) {
+    Cell source, {
+      required Duration duration,
+    }) {
   return Debounce&lt;S&gt;(duration).toHandle(source: source);
 }</code></pre>
 </section>

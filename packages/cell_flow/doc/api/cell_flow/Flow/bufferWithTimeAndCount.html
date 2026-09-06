@@ -68,6 +68,65 @@
     
 <section class="desc markdown">
   <p>Flush on count <strong>or</strong> duration.</p>
+<p><a href="../../cell_flow/Flow/bufferWithTimeAndCount.html">bufferWithTimeAndCount</a> combines time-based and count-based
+buffering. The buffer flushes when either condition is met.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/bufferWithTimeAndCount.html">bufferWithTimeAndCount</a> when you need to flush on time
+or count, whichever comes first.</p>
+<ul>
+<li><strong>Maximum Latency</strong>: Ensuring buffers don't get too old.</li>
+<li><strong>Maximum Size</strong>: Ensuring buffers don't get too large.</li>
+<li><strong>Hybrid Batching</strong>: Batching with both time and size constraints.</li>
+<li><strong>Resource Management</strong>: Managing buffer memory and latency.</li>
+<li><strong>Performance</strong>: Balancing throughput and latency.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse starts the timer.</li>
+<li>Each pulse's payload is added to the buffer.</li>
+<li>If the buffer reaches <code>count</code>, it flushes immediately.</li>
+<li>If <code>duration</code> elapses, it flushes (even if count not reached).</li>
+<li>The buffer is cleared after each flush.</li>
+<li>The timer resets after each flush.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Two Triggers</strong>: Either time or count can trigger a flush.</li>
+<li><strong>Timer Reset</strong>: The timer resets after each flush.</li>
+<li><strong>Count Priority</strong>: Count triggers flush immediately.</li>
+<li><strong>Distinct Steps</strong>: Different provenance steps for time and count.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>Time Limit.</strong> The maximum time between flushes.</li>
+<li><code>count</code>: <strong>Size Limit.</strong> The maximum number of items in a buffer.</li>
+<li><code>emitEmpty</code>: <strong>Emit Empty Buffers.</strong> If <code>true</code>, empty buffers are
+emitted as empty lists. Defaults to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the buffered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.bufferWithTimeAndCount&lt;int&gt;(
+  input.cell,
+  duration: Duration(seconds: 1),
+  count: 10,
+);
+
+// Flushes every second OR when 10 items accumulate
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+<li><a href="../../cell_flow/Flow/bufferTime.html">bufferTime</a>: For time-based buffering.</li>
+</ul>
 </section>
 
 
@@ -75,12 +134,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferWithTimeAndCount&lt;S&gt;(
-  Cell source, {
-  required Duration duration,
-  required int count,
-  bool emitEmpty = false,
-  BufferErrorHandler? onError,
-}) {
+    Cell source, {
+      required Duration duration,
+      required int count,
+      bool emitEmpty = false,
+      BufferErrorHandler? onError,
+    }) {
   return BufferWithTimeAndCount&lt;S&gt;(
     duration: duration,
     count: count,

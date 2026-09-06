@@ -67,6 +67,68 @@
     
 <section class="desc markdown">
   <p>Flatten an inner sequence per payload (Dart <code>asyncExpand</code>).</p>
+<p><a href="../../cell_flow/Flow/asyncExpand.html">asyncExpand</a> processes inputs one at a time, waiting for each
+inner sequence to complete before starting the next. This ensures
+strict ordering but may be slower for long-running operations.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_flow/Flow/asyncExpand.html">asyncExpand</a> when you need to preserve order and process
+operations sequentially.</p>
+<ul>
+<li><strong>Order Matters</strong>: When output order must match input order.</li>
+<li><strong>Resource Constraints</strong>: When resources are limited.</li>
+<li><strong>Sequential Processing</strong>: When operations must run one after another.</li>
+<li><strong>Transaction Ordering</strong>: When transactions must be ordered.</li>
+<li><strong>File Processing</strong>: Processing files in order.</li>
+<li><strong>API Calls</strong>: Making sequential API calls.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>expand</code> function.</li>
+<li>The inner sequence is drained completely.</li>
+<li>Only after completion does the next input start.</li>
+<li>Values are emitted in the order of input.</li>
+<li>If <code>expand</code> throws an error, the error is reported and the
+instruction continues with the next input.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Strict Ordering</strong>: Output order matches input order.</li>
+<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
+<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
+<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>expand</code>: <strong>Expansion Function.</strong> Takes an input value and returns
+a <code>FutureOr&lt;Object?&gt;</code> that can be drained (Future, Stream, Iterable,
+or value).</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncExpand&lt;int, User&gt;(
+  ids.cell,
+  expand: (id) async =&gt; await api.getUser(id),
+);
+
+ids.emit(1); // -&gt; User 1
+ids.emit(2); // -&gt; User 2 (after User 1 completes)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_flow/Flow/asyncExpandConcurrent.html">asyncExpandConcurrent</a>: For concurrent flattening.</li>
+<li><a href="../../cell_flow/Flow/asyncExpandLatest.html">asyncExpandLatest</a>: For latest-only flattening.</li>
+<li><a href="../../cell_flow/Flow/asyncExpandExhaust.html">asyncExpandExhaust</a>: For exhaust flattening.</li>
+</ul>
 </section>
 
 
@@ -74,10 +136,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncExpand&lt;S, T&gt;(
-  Cell source, {
-  required FutureOr&lt;Object?&gt; Function(S value) expand,
-  ExpandErrorHandler? onError,
-}) {
+    Cell source, {
+      required FutureOr&lt;Object?&gt; Function(S value) expand,
+      ExpandErrorHandler? onError,
+    }) {
   return AsyncExpand&lt;S, T&gt;(expand, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>
