@@ -1,7 +1,7 @@
 # cell — Known issues
 
 Developer-oriented list for **`packages/cell`** (the core graph). Status is
-**RC** (Mitosis `1.0.0-rc.1`, Release Candidate, not published). Prefer
+**RC** (Mitosis `1.0.0-rc.2`, Release Candidate, not published). Prefer
 **source** over guides when they disagree.
 
 Last reviewed against `lib/`, `test/`, and `pubspec.yaml` on 2026-09-01.
@@ -90,7 +90,7 @@ stability contract.
 | `guide/HowTo-16_Essential_Operators.md` | `Cell.state(..., testRule: isPositive)` | No `testRule` on `state` |
 | `lib/src/cell.dart` dartdoc | `guide/HowTo-17_Essential_Operators.md` | File is `HowTo-16_Essential_Operators.md` |
 | `lib/src/cell.dart` dartdoc | `example/switch_map_demo.dart`, `from_future_demo`, `from_stream_demo`, `stream_bridge_demo` | Not in `example/`; some live under cell_flow |
-| `ARCHITECTURE.md` intro / §7 | may lag README | Valve exists; package is RC `1.0.0-rc.1` |
+| `ARCHITECTURE.md` intro / §7 | may lag README | Valve exists; package is RC `1.0.0-rc.2` |
 
 Regenerate `doc/api/` after fixing comments; HTML may still mention
 HowTo-17.
@@ -110,7 +110,7 @@ receptor/instruction walkthroughs.
 
 ### 9. Repository / version strings
 
-- `pubspec.yaml` `version:` `1.0.0-rc.1`
+- `pubspec.yaml` `version:` `1.0.0-rc.2`
 - `pubspec.yaml` `repository:` `https://github.com/cell/cell-framework`
 - Monorepo README uses `simon-m-lee/Cell-Framework-Mitosis`
 - Unpublished RC — easy to confuse with a stable pub `1.0.0`
@@ -181,8 +181,8 @@ fixture). `dart analyze lib` is clean except unused `_pin` (3 warnings).
 | File | Role |
 |------|------|
 | [README.md](README.md) | Status bullets (subset of this list) |
-| [CHANGELOG.md](CHANGELOG.md) | Mitosis `1.0.0-rc.1` RC notes |
-| [FEATURES.md](FEATURES.md) | Catalog (RC `1.0.0-rc.1`) |
+| [CHANGELOG.md](CHANGELOG.md) | Mitosis `1.0.0-rc.2` RC notes |
+| [FEATURES.md](FEATURES.md) | Catalog (RC `1.0.0-rc.2`) |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Intent; intro/§7 may lag README status |
 | [TEST_VERIFICATION.md](TEST_VERIFICATION.md) | Test inventory, coverage, run commands |
 

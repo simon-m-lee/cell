@@ -1,7 +1,7 @@
 # Cell Framework — Feature Catalog
 
 **Package:** `cell`  
-**Version:** `1.0.0-rc.1` (RC / Mitosis Release Candidate)  
+**Version:** `1.0.0-rc.2` (RC / Mitosis Release Candidate)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))  
@@ -61,7 +61,7 @@ Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule.
 
 ## 2. Status and Boundaries
 
-**RC (Release Candidate).** Package version `1.0.0-rc.1`. Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons are exercised end-to-end. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.
+**RC (Release Candidate).** Package version `1.0.0-rc.2`. Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons are exercised end-to-end. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.
 
 | Claim | Reality |
 |-------|---------|

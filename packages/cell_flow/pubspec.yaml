@@ -2,7 +2,7 @@ name: cell_flow
 description: >
   Cell Flow (codename Mitosis): Rx-shaped operators for the Cell framework.
   Debounce, switchMap, zip, retry and friends as FlowInstructions on package:cell.
-version: 1.0.0-rc.1
+version: 1.0.0-rc.2
 homepage: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 repository: https://github.com/simon-m-lee/cell
 issue_tracker: https://github.com/simon-m-lee/cell/issues
@@ -20,7 +20,7 @@ environment:
 # pub.dev does not allow path / git dependencies in published packages.
 # Keep this version in lockstep with package:cell (Mitosis RC).
 dependencies:
-#  cell: 1.0.0-rc.1
+#  cell: 1.0.0-rc.2
   cell:
     path: ../cell
 

@@ -1,7 +1,7 @@
 # Cell Framework - Test Verification Report
 
 **Generated:** 2026-09-01  
-**Package:** cell (v1.0.0-rc.1)  
+**Package:** cell (v1.0.0-rc.2)  
 **Test Files Analyzed:** 20  
 **Total Tests:** 1115 (0 skipped)
 
