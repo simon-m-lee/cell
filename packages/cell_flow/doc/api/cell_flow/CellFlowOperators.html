@@ -54,22 +54,56 @@
 
     
 <section class="desc markdown">
-  <p>Fluent wrappers around the authoritative <a href="../cell_flow/Flow-class.html">Flow</a> static factories.</p>
-<p>Instead of nesting:</p>
+  <p>Synthesizes a <strong>Fluent Topographical Ingress</strong>—a specialized orchestration
+extension designed to initiate pulse evolution directly from a <a href="../cell_flow/Cell-class.html">Cell</a>.</p>
+<p><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> serves as the primary entry point for constructing
+reactive pipelines. By extending the <a href="../cell_flow/Cell-class.html">Cell</a> primitive, it allows for a
+declarative, chainable syntax that transforms stateful pulses into
+dynamic topographical branches.</p>
+<p>Instead of nesting static factories:</p>
 <pre class="language-dart"><code class="language-dart">Flow.map&lt;int, String&gt;(
   Flow.filter&lt;int&gt;(source, test: (n) =&gt; n &gt; 0).cell,
   project: (n) =&gt; '$n',
 );
 </code></pre>
-<p>chain:</p>
+<p>You can synthesize the topography fluently:</p>
 <pre class="language-dart"><code class="language-dart">source
     .filter&lt;int&gt;(test: (n) =&gt; n &gt; 0)
     .map&lt;int, String&gt;(project: (n) =&gt; '$n');
 </code></pre>
-<p><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> starts a pipeline from a <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>.
-<a href="../cell_flow/FlowOperators.html">FlowOperators</a> continues from a <a href="../cell_flow/FlowHandle.html">FlowHandle</a> using its <code>.cell</code>.
-Each method delegates to the matching <a href="../cell_flow/Flow-class.html">Flow</a> factory — behaviour
-stays in one place.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pipeline Initiation</strong>: Starting a new sequence of instructions
+anchored to a specific stateful stimulus origin.</li>
+<li><strong>Readability</strong>: Reducing the cognitive load of deeply nested
+orchestration logic.</li>
+<li><strong>Topographical Exploration</strong>: Rapidly prototyping evolution paths
+from existing cells.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Anchor Identification</strong>: The extension identifies the <a href="../cell_flow/Cell-class.html">Cell</a>
+as the <strong>Stimulus Origin</strong> for all subsequent evolution.</li>
+<li><strong>Factory Delegation</strong>: Each operator delegates materialization
+to the authoritative <a href="../cell_flow/Flow-class.html">Flow</a> static factories.</li>
+<li><strong>Handle Materialization</strong>: Every method returns a <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
+which provides both the <strong>Anchor Node</strong> (via the <code>cell</code> field) and
+the <strong>Signal Ingress</strong> controls (<code>emit</code>, <code>emitAsync</code>, and <code>ingest</code>).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateless Blueprinting</strong>: The operators themselves do not store
+state; they merely define the blueprint for how pulses should
+traverse the newly created topographical branch.</li>
+<li><strong>Chain Continuation</strong>: Once a <a href="../cell_flow/FlowHandle.html">FlowHandle</a> is returned, further
+evolution is managed by the sibling <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension.</li>
+</ul>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../cell_flow/Flow-class.html">Flow</a>: The authoritative registry of orchestration factories.</li>
+<li><a href="../cell_flow/FlowOperators.html">FlowOperators</a>: Extensions for continuing evolution from a handle.</li>
+<li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The materialized interface for topographical ingress.</li>
+</ul>
 </section>
 
     <section>
@@ -77,7 +111,7 @@ stays in one place.</p>
         <dt>on</dt>
         <dd>
           <ul class="comma-separated clazz-relationships">
-            <li><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></li>
+            <li><a href="../cell_flow/Cell-class.html">Cell</a></li>
           </ul>
         </dd>
       </dl>
@@ -102,10 +136,11 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Predicate Integrity Gate</strong>—a specialized orchestration
+instruction designed to conditionally permit pulse evolution.
   
 
 </dd>
@@ -119,10 +154,10 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes a <strong>Temporal Resource Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.
   
 
 </dd>
@@ -136,10 +171,10 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes an <strong>Iterative Pulse Bridge</strong> from a dynamic iterable.
   
 
 </dd>
@@ -153,10 +188,10 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes a <strong>Continuous Pulse Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.
   
 
 </dd>
@@ -170,10 +205,11 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Projective Evolution Gate</strong>—a fundamental instruction
+designed to transform stimulus payloads as they traverse the topography.
   
 
 </dd>
@@ -187,10 +223,10 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes a <strong>Fixed Sequence Bridge</strong> from a provided collection.
   
 
 </dd>
@@ -204,10 +240,11 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes a <strong>Counted Pulse Generator</strong>—a specialized bridge
+designed to evolve a sequence of arithmetic integers.
   
 
 </dd>
@@ -221,10 +258,11 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Synthesizes a <strong>Recursive Stimulus Bridge</strong>—a specialized generator
+designed to evolve the same payload multiple times.
   
 
 </dd>
@@ -238,10 +276,11 @@ stays in one place.</p>
 </dt>
 <dd>
       <p class="from-extension">
-        <span>Available on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>,
+        <span>Available on <a href="../cell_flow/Cell-class.html">Cell</a>,
         provided by the <a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Passive Observation Gate</strong>—a specialized orchestration
+instruction designed to perform side-effects without altering pulse evolution.
   
 
 </dd>
@@ -276,7 +315,7 @@ stays in one place.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

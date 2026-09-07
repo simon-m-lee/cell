@@ -56,7 +56,7 @@
       const
       <span class="name ">FlowInstructionBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.future</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="future-param-future"><span class="type-annotation">O?</span> <span class="parameter-name">future</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
 <li><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
-<li><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
 <li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
 </ol>})?, </span></li>
 <li><span class="parameter" id="param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
@@ -66,6 +66,33 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Asynchronous Logic Gate Blueprint</strong>—the foundational
+mechanism for establishing deferred pulse evolution.</p>
+<p>This constructor initializes the concrete machinery required to transform
+a multi-stage <code>instruction</code> closure into a composable, stateless unit
+of async logic. It is the primary building block for temporal operators
+(like <code>Delay</code> or <code>Debounce</code>) and external resource bridges.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The orchestrator intercepts an incoming
+pulse and immediately provides a <code>future</code> callback.</li>
+<li><strong>Deferred Materialization</strong>: The logic within the <code>instruction</code>
+triggers a background evolution (e.g., a Timer or API call).</li>
+<li><strong>Pulse Materialization</strong>: Once the background work completes, the
+logic invokes the callback to propagate the <strong>Evolved Pulse</strong>
+into the downstream topography.</li>
+</ol>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The <strong>Async Evolution Orchestrator</strong>—a closure
+defining how an incoming stimulus <code>I</code> is transformed over time.</li>
+<li><code>user</code>: Optional flyweight metadata preserved across the topography
+for <strong>Topographical Auditing</strong> and provenance tracing.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_flow/FlowInstructionBase-class.html">FlowInstructionBase</a> instance representing the asynchronous gate.</p>
+</section>
 
 
     
@@ -100,7 +127,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

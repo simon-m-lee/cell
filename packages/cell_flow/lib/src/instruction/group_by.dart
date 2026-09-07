@@ -4,13 +4,14 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
-
-// ─────────────────────────────────────────────────────────────
-// Core GroupBy Operators
-// ─────────────────────────────────────────────────────────────
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that split a stream by key (Rx `groupBy` family).
+///
+/// These operators categorize values by a key extracted from each payload,
+/// allowing you to group, collect, or batch values based on their category.
+/// They are essential for implementing grouping operations, category-based
+/// aggregation, and batch processing by group.
 ///
 /// There is no inner Cell per group. A group is either a tagged
 /// record [Grouped] or a collected [List] / [Map].
@@ -31,6 +32,15 @@ import 'package:cell_flow/flow.dart';
 /// Called when an error occurs during key extraction or grouping operations.
 /// The error and optional stack trace are provided for logging or recovery.
 ///
+/// ### When to use
+/// Provide this callback to any groupBy operator that may encounter errors
+/// during key extraction. It allows you to log errors or ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the pulse is dropped (the group continues).
+///
 /// ### Example
 /// ```dart
 /// final errorHandler = GroupErrorHandler((error, stack) {
@@ -38,6 +48,13 @@ import 'package:cell_flow/flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during key extraction.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [GroupBy.onError]: The parameter that accepts this callback.
 typedef GroupErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
 /// One item tagged with its group key.
@@ -97,8 +114,10 @@ class Grouped<K, S> {
   String toString() => 'Grouped($key, $value)';
 
   @override
-  bool operator ==(Object other) =>
-      other is Grouped<K, S> && other.key == key && other.value == value;
+  bool operator ==(Object other) {
+    if (other is! Grouped) return false;
+    return other.key == key && other.value == value;
+  }
 
   @override
   int get hashCode => Object.hash(key, value);
@@ -132,6 +151,19 @@ Pulse? _typedOrError<S>(
 }
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -146,8 +178,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 // GroupBy - Tag Each Item with Its Group
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that tags each typed payload with its group key
-/// (Rx `groupBy` flattened).
+/// Tag each typed payload with [keyOf] (Rx `groupBy` flattened).
 ///
 /// [GroupBy] transforms each value into a [Grouped] record containing
 /// both the original value and its group key. This allows downstream
@@ -241,6 +272,21 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [GroupByCount]: For batching values by group.
 /// - [Grouped]: The record type emitted.
 class GroupBy<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [GroupBy] instruction with the specified [keyOf].
+  ///
+  /// ### Parameters
+  /// - [keyOf]: **Key Extraction Function.** Called with each typed
+  ///   payload, returns the group key.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final groupBy = GroupBy<int, String>(
+  ///   (n) => n.isEven ? 'even' : 'odd',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   GroupBy(
       K Function(S value) keyOf, {
         GroupErrorHandler? onError,
@@ -270,8 +316,7 @@ class GroupBy<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // GroupCollect - Accumulate Groups
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that emits a running `Map<K, List<S>>` after
-/// every typed pulse (Rx `groupBy` + buffer).
+/// Running `Map<K, List<S>>` emitted after every typed pulse.
 ///
 /// [GroupCollect] accumulates values into groups and emits the
 /// complete map after every pulse. This provides a running snapshot
@@ -350,6 +395,24 @@ class GroupBy<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [GroupByCount]: For batching values by group.
 /// - [Reduce]: For reducing values without grouping.
 class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [GroupCollect] instruction with the specified [keyOf].
+  ///
+  /// ### Parameters
+  /// - [keyOf]: **Key Extraction Function.** Called with each typed
+  ///   payload, returns the group key.
+  /// - [groups]: **Initial Groups Map.** Optional. Use this to seed
+  ///   the groups or to access the map externally.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final groupCollect = GroupCollect<int, String>(
+  ///   (n) => n.isEven ? 'even' : 'odd',
+  ///   groups: {'even': []},
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   GroupCollect(
       K Function(S value) keyOf, {
         Map<K, List<S>>? groups,
@@ -400,8 +463,7 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // GroupByCount - Batch Groups by Size
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that emits a group's list when it reaches
-/// [size] items (Rx `groupBy` + `take`).
+/// When a key reaches [size] items, emit that list and clear the group.
 ///
 /// [GroupByCount] accumulates values by group and emits the list
 /// when a group reaches the specified size. The group is then cleared.
@@ -480,6 +542,23 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [GroupCollect]: For accumulating values by group.
 /// - [WindowCount]: For batching without grouping.
 class GroupByCount<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [GroupByCount] instruction with the specified [keyOf] and [size].
+  ///
+  /// ### Parameters
+  /// - [keyOf]: **Key Extraction Function.** Called with each typed
+  ///   payload, returns the group key.
+  /// - [size]: **Batch Size.** The number of items required to emit.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final groupByCount = GroupByCount<String, String>(
+  ///   (s) => s[0],
+  ///   3,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   GroupByCount(
       K Function(S value) keyOf,
       int size, {

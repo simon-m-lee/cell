@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Architecture topic docs, for the Dart programming language.">
+  <title>Architecture topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Architecture topic</li>
+  </ol>
+  <div class="self-name">Architecture</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Architecture</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="cell_flow--architecture">cell_flow — Architecture</h1>
+<p><strong>Author:</strong> Lee Man Hoi Simon (see <code>AUTHORS</code>)</p>
+<p>This document explains the design of <strong>cell_flow</strong> (<code>package:cell_flow</code>):
+why operators exist, how they sit on <strong>cell</strong>, and how a pulse becomes a
+downstream <code>FlowHandle</code>. It is the Flow counterpart to cell’s own
+architecture notes.</p>
+<p>For operator catalogues see the instruction files under
+<code>lib/src/instruction/</code>. For chaining syntax see
+<a href="HowTo-Fluent_Operator.md"><code>HowTo-Fluent_Operator.md</code></a>. For one-Receptor
+pipelines see
+<a href="HowTo-FlowInstruction-Receptor.md"><code>HowTo-FlowInstruction-Receptor.md</code></a>.</p>
+<hr>
+<h2 id="1-the-core-idea">1. The core idea</h2>
+<p><strong>cell</strong> is a graph of nodes (<code>Cell</code>), signals (<code>Pulse</code>), integrity
+(<code>TestCell</code>), and gates (<code>Receptor</code>). That is enough to hold state and
+notify observers. Everyday stream work — debounce, switchMap, zip, retry —
+would otherwise be ad-hoc <code>Timer</code>s and custom receptors.</p>
+<p>cell_flow adds an <strong>operator layer</strong>. Each named policy is a
+<code>FlowInstruction</code> that:</p>
+<ol>
+<li>Reads pulses from a bound source <code>Cell</code>.</li>
+<li>Drops, delays, maps, buffers, or fans them according to that policy.</li>
+<li>Materializes as a <code>FlowHandle</code> (<code>{ cell, emit, emitAsync, ingest }</code>)
+whose <code>Receptor</code> <em>is</em> that instruction (or an <code>InstructionChain</code> of
+them).</li>
+</ol>
+<p>The graph, locks, validation, and provenance stay in <strong>cell</strong>. Flow only
+decides <em>which</em> pulses go downstream and <em>when</em>.</p>
+<pre class="language-dart"><code>cell          identity, lock, TestCell, Context, Synapses
+cell_flow     named pulse policies (Rx-shaped operators)
+</code></pre>
+<p>Flow does not invent a second graph. A Flow cell is a cell.</p>
+<hr>
+<h2 id="2-progressive-disclosure">2. Progressive disclosure</h2>
+<p>Cognitive load should match the task. Calling <code>Flow.debounce</code> must not
+require reading <code>Nucleus</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>What you use</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. <code>Flow.*</code> factories</strong></td>
+<td><code>Flow.map</code>, <code>Flow.debounce</code>, <code>Flow.merge</code></td>
+<td>Application code.</td>
+</tr>
+<tr>
+<td><strong>2. Fluent extensions</strong></td>
+<td><code>cell.filter().map()</code> from <code>fluent_operator.dart</code></td>
+<td>Unary pipelines. Same factories.</td>
+</tr>
+<tr>
+<td><strong>3. Instruction classes</strong></td>
+<td><code>Filter</code>, <code>Debounce</code>, <code>SwitchMap</code> + <code>.toHandle(source:)</code></td>
+<td>A custom <code>Receptor</code>, or an operator not on <code>Flow</code>.</td>
+</tr>
+<tr>
+<td><strong>4. InstructionChain</strong></td>
+<td><code>Filter + MapValue + Tap</code></td>
+<td>One Receptor, one lock, many sync stages.</td>
+</tr>
+<tr>
+<td><strong>5. Nucleus / Receptor</strong></td>
+<td><code>Receptor.instruction(op)</code> + <code>Nucleus</code></td>
+<td>Combinators that need a custom gate.</td>
+</tr>
+</tbody>
+</table>
+<p>Moving from 1 toward 5 is a <strong>choice</strong>. If a Tier 1 factory required
+Nucleus knowledge to use correctly, that would be a design smell.</p>
+<hr>
+<h2 id="3-core-primitives">3. Core primitives</h2>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>Flow</code></strong></td>
+<td>Abstract facade (<code>extends CellBase</code>). Static factories return <code>FlowHandle</code>.</td>
+</tr>
+<tr>
+<td><strong><code>FlowInstruction</code></strong></td>
+<td><code>Instruction&lt;C,I,O&gt;</code> with <code>+</code> and <code>toHandle</code>. Every operator class implements this.</td>
+</tr>
+<tr>
+<td><strong><code>FlowInstructionBase</code></strong></td>
+<td>Sync closure or <code>.future</code> closure (async emit sink).</td>
+</tr>
+<tr>
+<td><strong><code>_FlowInstructionChain</code></strong></td>
+<td><code>InstructionChain</code> + <code>FlowInstructionMixin</code>. Result of <code>a + b</code>.</td>
+</tr>
+<tr>
+<td><strong><code>FlowHandle</code></strong></td>
+<td><code>{ Cell cell, emit, emitAsync, ingest }</code> — same idea as <code>IngressHandle</code>.</td>
+</tr>
+<tr>
+<td><strong><code>Cell</code> / <code>Pulse</code> / <code>Receptor</code> / <code>Nucleus</code> / <code>TestCell</code> / <code>Synapses</code></strong></td>
+<td>Unchanged cell primitives. Re-exported from <code>flow.dart</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-an-operator-becomes-a-cell">How an operator becomes a cell</h3>
+<pre class="language-dart"><code>source Cell
+    │
+    ▼
+FlowInstruction  (e.g. Debounce)
+    │  toHandle(source:)
+    ▼
+Receptor.instruction(this)
+    │
+    ▼
+Nucleus(bind: source, receptor: …, testRule, synapses)
+    │
+    ▼
+Cell.fromNucleus  →  FlowHandle.cell
+</code></pre>
+<p>That wiring lives in <code>FlowInstructionMixin.toHandle</code> (<code>flow_core.dart</code>).</p>
+<p>Sync operators (<code>Filter</code>, <code>MapValue</code>, <code>Tap</code>) return a pulse or <code>null</code>
+from the instruction closure. <code>null</code> means “drop this pulse.”</p>
+<p>Async / timed operators (<code>Delay</code>, <code>AsyncMap</code>, <code>Debounce</code>, <code>FromStream</code>)
+are constructed with <code>FlowInstructionBase.future</code>. They return <code>null</code>
+immediately and later call the <code>future:</code> sink with a result pulse. That
+is why they are not a pure map of pulse-in → pulse-out: they suspend,
+buffer, or subscribe, then emit.</p>
+<hr>
+<h2 id="4-two-syntaxes-one-graph">4. Two syntaxes, one graph</h2>
+<h3 id="static-factories">Static factories</h3>
+<pre class="language-dart"><code class="language-dart">Flow.debounce&lt;String&gt;(
+  Flow.distinct&lt;String&gt;(search.cell).cell,
+  duration: const Duration(milliseconds: 300),
+);
+Flow.merge&lt;int&gt;(gate.cell, sources: [a.cell, b.cell]);
+</code></pre>
+<p>Authoritative entry. Best when there is no single primary upstream
+(<code>merge</code>, <code>zip</code>, <code>race</code>, <code>combineLatest</code>) or when a node should be named
+in logs.</p>
+<h3 id="fluent-extensions">Fluent extensions</h3>
+<p><code>fluent_operator.dart</code> is a <strong>part</strong> of <code>library cell_flow</code>. One import:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+
+search.cell
+    .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
+    .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: api.search);
+</code></pre>
+<p><code>CellFlowOperators</code> starts from a <code>Cell</code>. <code>FlowOperators</code> continues from a
+<code>FlowHandle</code> via <code>.cell</code>. Every method delegates to <code>Flow.*</code>. Fluent does
+not add behaviour and does not bypass <code>TestCell</code>.</p>
+<h3 id="instruction--one-receptor">Instruction <code>+</code> (one Receptor)</h3>
+<pre class="language-dart"><code class="language-dart">final gate = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
+    Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
+    Distinct&lt;String&gt;();
+final handle = gate.toHandle(source: ingress.cell);
+</code></pre>
+<p>This is <strong>not</strong> the same as fluent chaining. <code>+</code> builds an
+<code>InstructionChain</code> executed by <strong>one</strong> Receptor under <strong>one</strong> lock.
+Fluent <code>filter().map()</code> builds <strong>two</strong> cells.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>+</code> / <code>Instruction.chain</code></th>
+<th>Fluent / nested <code>Flow.*</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Receptors</td>
+<td>one</td>
+<td>one per operator</td>
+</tr>
+<tr>
+<td>Lock</td>
+<td>shared</td>
+<td>per node</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>sync policy (trim, filter, tap)</td>
+<td>timers, HTTP, flatten</td>
+</tr>
+<tr>
+<td>Test</td>
+<td><code>receptor.call(Pulse(...))</code></td>
+<td>probe the output cell</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-operator-families">5. Operator families</h2>
+<p>Instructions live as one file per family (Rx name in comments, original
+code and license).</p>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>File</th>
+<th>Policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td><code>of.dart</code>, <code>from_future.dart</code>, <code>from_stream.dart</code></td>
+<td>arming pulse plays a sequence / Future / Stream</td>
+</tr>
+<tr>
+<td>Transform</td>
+<td><code>map.dart</code>, <code>pluck.dart</code>, <code>scan.dart</code>, <code>reduce.dart</code>, <code>pairwise.dart</code></td>
+<td>1 → 1 (or running state)</td>
+</tr>
+<tr>
+<td>Filter</td>
+<td><code>filter.dart</code></td>
+<td>1 → 0..1 predicate / type / allow-list</td>
+</tr>
+<tr>
+<td>Take / skip / distinct</td>
+<td><code>take.dart</code>, <code>skip.dart</code>, <code>distinct.dart</code></td>
+<td>count and uniqueness gates</td>
+</tr>
+<tr>
+<td>Flatten</td>
+<td><code>concat_map.dart</code>, <code>merge_map.dart</code>, <code>switch_map.dart</code>, <code>exhaust_map.dart</code>, <code>async_expand.dart</code></td>
+<td>inner sequences</td>
+</tr>
+<tr>
+<td>Combine</td>
+<td><code>merge.dart</code>, <code>zip.dart</code>, <code>combine_latest.dart</code>, <code>race.dart</code></td>
+<td>several sources</td>
+</tr>
+<tr>
+<td>Time</td>
+<td><code>delay.dart</code>, <code>debounce.dart</code>, <code>throttle.dart</code>, <code>sample.dart</code>, <code>interval.dart</code>, <code>timeout.dart</code></td>
+<td><em>when</em> a pulse leaves</td>
+</tr>
+<tr>
+<td>Collect</td>
+<td><code>buffer.dart</code>, <code>window.dart</code>, <code>group_by.dart</code>, <code>partition.dart</code></td>
+<td>lists / groups</td>
+</tr>
+<tr>
+<td>Control</td>
+<td><code>start_with.dart</code>, <code>share.dart</code>, <code>retry.dart</code>, <code>tap.dart</code>, <code>routing.dart</code></td>
+<td>prefix, multicast, errors, <code>iif</code></td>
+</tr>
+<tr>
+<td>Async fold / map</td>
+<td><code>async_map.dart</code>, <code>async_fold.dart</code></td>
+<td>queued / latest / concurrent projection</td>
+</tr>
+</tbody>
+</table>
+<p>Cells <strong>do not complete</strong>. Operators that are terminal in Rx (<code>last</code>,
+<code>reduce</code> as a single value, <code>concat(cellA, cellB)</code>) are adapted:</p>
+<ul>
+<li>running fold (<code>scan</code> / <code>reduce</code> / <code>asyncFold</code>) instead of a terminal reduce</li>
+<li>concat of <strong>inners</strong> (list / Future / Stream payloads), not Cell-then-Cell</li>
+<li><code>take</code> / <code>skip</code> as sticky gates, not completion</li>
+</ul>
+<hr>
+<h2 id="6-relationship-to-cell">6. Relationship to cell</h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Lives in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Holding state, deputies, transactions</td>
+<td><strong>cell</strong> (<code>Cell.state</code>, <code>Cell.transaction</code>)</td>
+</tr>
+<tr>
+<td>Pulse lineage, <code>TestCell</code>, <code>Context</code></td>
+<td><strong>cell</strong></td>
+</tr>
+<tr>
+<td>Debounce / throttle / switchMap / merge / zip</td>
+<td><strong>cell_flow</strong></td>
+</tr>
+<tr>
+<td>Fan-in</td>
+<td>cell: <code>Cell.synthesis</code>; flow: <code>merge</code>, <code>zip</code>, <code>combineLatest</code> (different pairing rules)</td>
+</tr>
+<tr>
+<td>Route by type / predicate</td>
+<td>cell: hub; flow: <code>routing.dart</code>, <code>partition.dart</code>, <code>Iif</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>flow.dart</code> re-exports <code>package:cell/cell.dart</code>, so one import covers both
+layers.</p>
+<p>A Flow output cell can be observed, deputized, put in a transaction, or
+passed into another <code>Flow.*</code> factory. Flow does not invent a second
+identity model.</p>
+<p>If <strong>cell</strong> already has a thin <code>debounce</code> / <code>asyncMap</code>, prefer <strong>one</strong>
+layer in a given pipeline so timing and identity stay obvious. Flow’s
+versions are the richer Rx-shaped set (leading/trailing, latest/exhaust,
+indexed map, error pulses).</p>
+<hr>
+<h2 id="7-error-and-time-contracts">7. Error and time contracts</h2>
+<ul>
+<li>Typed operators call <code>onError</code> and drop the pulse when the payload is
+the wrong type (<code>FormatException</code>).</li>
+<li>Async failures call <code>onError</code>. Some families also take
+<code>emitErrorPulse</code> and emit <code>Pulse.type == 'error'</code>.</li>
+<li>Time operators use real <code>Timer</code>s / <code>Future.delayed</code>. Tests must wait.</li>
+<li>First-pulse <strong>arming</strong>: <code>FromFuture</code>, <code>Of</code>, <code>Interval</code>, <code>Zip</code> extra
+sources, <code>CombineLatest</code> extras — <code>future:</code> is only available after the
+bound handle has pulsed once.</li>
+<li>Inner sequences (<code>ConcatAll</code>, <code>MergeAll</code>, <code>FromStream</code>) treat a <code>String</code>
+as a scalar, not an iterable of characters.</li>
+</ul>
+<hr>
+<h2 id="8-library-surface">8. Library surface</h2>
+<p>Supported public entry:</p>
+<pre class="language-text"><code class="language-text">package:cell_flow/flow.dart
+  part  src/flow.dart              Flow facade
+  part  src/flow_core.dart         FlowInstruction, toHandle, +
+  part  src/fluent_operator.dart   Cell / FlowHandle extensions
+  import src/instruction/*.dart    operator classes
+</code></pre>
+<p>Application code should import <strong>only</strong> <code>package:cell_flow/flow.dart</code>.
+Instruction files stay implementation detail except when you construct
+<code>Filter + MapValue</code> by type.</p>
+<hr>
+<h2 id="9-design-rules">9. Design rules</h2>
+<ol>
+<li><strong>One policy per class.</strong> <code>Filter</code> does not also debounce.</li>
+<li><strong>Factories wrap classes.</strong> <code>Flow.debounce</code> is <code>Debounce(...).toHandle</code>.</li>
+<li><strong>Fluent wraps factories.</strong> No third implementation.</li>
+<li><strong><code>+</code> is for sync gates.</strong> Timers and HTTP belong on the next Cell.</li>
+<li><strong>Names may follow Rx.</strong> Implementations and license are original
+Cell Flow (terminology is not a reason to attach an RxJS copyright
+header).</li>
+<li><strong>Do not complete the Cell.</strong> Adapt terminal Rx operators to running
+or inner-sequence shape.</li>
+<li><strong><code>toHandle</code> is the Receptor hook.</strong> Do not open a second subscribe
+path that bypasses <code>TestCell</code>.</li>
+</ol>
+<hr>
+<h2 id="10-status">10. Status</h2>
+<p>Intended design for the instruction-based Flow layer described above.
+Verify guarantees against current source. Experimental trees
+(<code>instruction2/</code>, unused nucleus blueprints) are out of scope for this
+document unless <code>Flow.*</code> imports them.</p>
+<p>If cell’s architecture document is the foundation, this file is the
+operator storey on top of it: same graph, named policies, three ways in
+(<code>Flow.*</code>, fluent, <code>InstructionChain</code>).</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Architecture topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Architecture topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Architecture-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

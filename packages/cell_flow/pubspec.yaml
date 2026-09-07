@@ -7,6 +7,9 @@ homepage: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 repository: https://github.com/simon-m-lee/cell
 issue_tracker: https://github.com/simon-m-lee/cell/issues
 documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
+resolution: workspace
+
 topics:
   - reactive
   - streams
@@ -15,16 +18,16 @@ topics:
   - cells
 
 environment:
-  sdk: ^3.3.0
+  sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
-  cell: 1.0.0-rc.2
+  cell: ^1.0.0-rc.2
 
-dependency_overrides:
-  cell:
-    path: ../cell
+#dependency_overrides:
+#  cell:
+#    path: ../cell
 
 dev_dependencies:
-  lints: ^5.0.0
+  lints: ^6.0.0
   test: ^1.25.0
 

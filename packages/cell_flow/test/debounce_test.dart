@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/debounce.dart';
 import 'package:test/test.dart';
 
@@ -192,6 +190,121 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 30));
       expect(b.probe.payloads, [2]);
       expect(errors.single, isA<StateError>());
+    });
+  });
+
+
+  group('Debounce extra', () {
+    test('wrong types call onError and do not arm a timer', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Debounce<int>(
+        const Duration(milliseconds: 15),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle(const Duration(milliseconds: 30));
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, isEmpty);
+    });
+
+    test('onError is optional', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Debounce<int>(const Duration(milliseconds: 10))
+          .toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('DebounceLeading extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DebounceLeading<int>(
+        const Duration(milliseconds: 15),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DebounceLeadingOnly extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DebounceLeadingOnly<int>(
+        const Duration(milliseconds: 15),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DebounceWith extra', () {
+    test('durationOf throw drops the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(DebounceWith<int>(
+        (n) => throw StateError('d'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DebounceWith<int>(
+        (_) => Duration.zero,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('Debounce + DebounceLeadingOnly is a chain', () async {
+      final op = Debounce<int>(const Duration(milliseconds: 10)) +
+          DebounceLeadingOnly<int>(const Duration(milliseconds: 10));
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('DebounceLeadingOnly keeps first of a burst', () async {
+      final b = bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 40)));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 50; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads.first, 0);
+      expect(b.probe.payloads.length, lessThan(50));
     });
   });
 }

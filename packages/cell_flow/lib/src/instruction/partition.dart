@@ -4,35 +4,16 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Partition Operators
 // ─────────────────────────────────────────────────────────────
 
-/// Flow instructions that split a stream on a predicate
-/// (Rx `partition` family).
-///
-/// All of them emit on **one** downstream cell. They do not fork the
-/// graph into two Cells; bind two instructions if you need two sinks.
-///
-/// | Operator | Emits |
-/// |---|---|
-/// | [Partition] | [Split] `{matched, value}` |
-/// | [PartitionMap] | `thenMap` / `elseMap` result |
-/// | [PartitionCollect] | running `{matched: [...], other: [...]}` |
-/// | [PartitionOnly] | value only when [test] matches |
-///
-/// [PartitionTag] in `routing.dart` is the same shape as [Partition].
-/// Prefer this file for the partition family.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
-
 /// Error handler callback for partition operators.
 ///
-/// Called when an error occurs during predicate evaluation.
-/// The error and optional stack trace are provided for logging or recovery.
+/// Called when an error occurs during predicate evaluation, type
+/// mismatches, or errors in mapping functions.
 ///
 /// ### Example
 /// ```dart
@@ -42,6 +23,10 @@ import 'package:cell_flow/flow.dart';
 /// });
 /// ```
 typedef PartitionErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+// ─────────────────────────────────────────────────────────────
+// Split Record
+// ─────────────────────────────────────────────────────────────
 
 /// One item tagged with whether it matched the predicate.
 ///
@@ -58,12 +43,15 @@ typedef PartitionErrorHandler = void Function(Object error, StackTrace? stackTra
 /// 1. [matched] is `true` if the value passed the predicate.
 /// 2. [value] is the original payload.
 /// 3. The combination preserves both the result and the original value.
+/// 4. The record is immutable and type-safe.
 ///
 /// ### Non‑obvious
-/// - **Immutable**: [Split] is immutable.
+/// - **Immutable**: [Split] is immutable after creation.
 /// - **Type Safety**: Generic over value type [S].
 /// - **Equality**: Implements `==` and `hashCode` for value equality.
 /// - **String Representation**: Provides a readable `toString()`.
+/// - **Zero Overhead**: Simple record with no hidden costs.
+/// - **Composable**: Can be used in downstream transformations.
 ///
 /// ### Example: Accessing Split Values
 /// ```dart
@@ -91,14 +79,32 @@ typedef PartitionErrorHandler = void Function(Object error, StackTrace? stackTra
 ///
 /// ### See Also:
 /// - [Partition]: The operator that produces Split values.
+/// - [PartitionMap]: For mapping matched/unmatched values differently.
+/// - [PartitionOnly]: For filtering by match status.
 class Split<S> {
   /// Creates a [Split] record with the given [matched] status and [value].
+  ///
+  /// ### Parameters:
+  /// - [matched]: Whether the value matched the predicate.
+  /// - [value]: The original value being tagged.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final split = Split(matched: true, value: 42);
+  /// print(split.matched); // true
+  /// print(split.value);   // 42
+  /// ```
   const Split({required this.matched, required this.value});
 
   /// Whether the value matched the predicate.
+  ///
+  /// Returns `true` if the value passed the predicate test,
+  /// `false` otherwise.
   final bool matched;
 
-  /// The original value.
+  /// The original value being tagged.
+  ///
+  /// This is the original payload that was passed through the predicate.
   final S value;
 
   @override
@@ -111,6 +117,10 @@ class Split<S> {
   @override
   int get hashCode => Object.hash(matched, value);
 }
+
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
 
 /// Helper for type-safe payload extraction.
 ///
@@ -140,6 +150,18 @@ Pulse? _typedOrError<S>(
 }
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -171,6 +193,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - **Conditional Processing**: Processing based on match status.
 /// - **Classification**: Classifying items into two categories.
 /// - **Filtering by Status**: Filtering based on match status.
+/// - **Data Annotation**: Annotating data with classification results.
 ///
 /// ### Choosing Between Partition Variants
 /// - **Use [Partition]** for **Tagging**: When you just need to tag
@@ -197,6 +220,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 4. The [Split] record is emitted.
 /// 5. If [test] throws an error, the pulse is dropped.
 /// 6. The emitted pulse gets the step `'Partition'` for provenance.
+/// 7. Each emitted value preserves the source, type, and priority.
 ///
 /// ### Non‑obvious
 /// - **No State**: No state is maintained between pulses.
@@ -207,6 +231,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - **Provenance Preservation**: The emitted pulse preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Synchronous Predicate**: [test] is synchronous.
+/// - **Predicate Call Count**: Called exactly once per item.
 ///
 /// ### Example: Partitioning by Parity
 /// ```dart
@@ -252,6 +277,45 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [PartitionOnly]: For filtering by match status.
 /// - [Split]: The record type emitted.
 class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Match Status Tagger**—a specialized instruction
+  /// that tags each value with its predicate match status.
+  ///
+  /// [Partition] transforms each value into a [Split] record containing
+  /// both the original value and a boolean indicating whether it passed
+  /// the predicate. This allows downstream operators to process values
+  /// with their match context.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The [test] predicate is called with
+  ///    the payload.
+  /// 3. **Split Creation**: A [Split] record is created with the match
+  ///    status and the original value.
+  /// 4. **Step Evolution**: The [Split] record is wrapped in a new pulse
+  ///    that inherits the original provenance and is tagged with the
+  ///    `'Partition'` step.
+  /// 5. **Error Handling**: If [test] throws, the pulse is dropped
+  ///    and [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [test]: **The Condition.** A synchronous predicate function.
+  /// - [onError]: **Integrity Handler.** Called if [test] throws or a
+  ///   type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Data Classification
+  /// ```dart
+  /// // Classifies each input by a condition
+  /// final classifier = Partition<int>(
+  ///   (n) => n.isEven,
+  ///   user: 'Parity-Classifier'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [PartitionMap]: For mapping matched/unmatched values differently.
+  /// - [PartitionCollect]: For collecting values by match status.
+  /// - [PartitionOnly]: For filtering by match status.
   Partition(
       bool Function(S value) test, {
         PartitionErrorHandler? onError,
@@ -297,6 +361,29 @@ class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Type Conversion**: Converting to different types based on status.
 /// - **Labeling**: Labeling values based on match status.
 /// - **Data Enrichment**: Enriching values differently based on status.
+/// - **Two-Path Processing**: Routing values through different logic.
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked.
+/// 2. If the type matches, [test] is called with the payload.
+/// 3. If [test] returns `true`, [thenMap] is called with the value.
+/// 4. If [test] returns `false`, [elseMap] is called with the value.
+/// 5. The result is emitted.
+/// 6. If [test], [thenMap], or [elseMap] throws, the pulse is dropped.
+/// 7. The emitted pulse gets the step `'PartitionMap.then'` or
+///    `'PartitionMap.else'` for provenance.
+///
+/// ### Non‑obvious
+/// - **No State**: No state is maintained between pulses.
+/// - **Per-Item Emit**: Emits one value for each input.
+/// - **Different Mappers**: Two different mapping functions.
+/// - **Type Safety**: Generic over value type [S] and output type [T].
+/// - **Error Handling**: If any function throws, the pulse is dropped.
+/// - **Provenance Preservation**: The emitted pulse preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Operations**: All functions are synchronous.
+/// - **Step Differentiation**: Different steps distinguish matched
+///   from unmatched outputs.
 ///
 /// ### Example: Conditional Labeling
 /// ```dart
@@ -323,26 +410,6 @@ class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ).toHandle(source: data.cell);
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse is type-checked.
-/// 2. If the type matches, [test] is called with the payload.
-/// 3. If [test] returns `true`, [thenMap] is called with the value.
-/// 4. If [test] returns `false`, [elseMap] is called with the value.
-/// 5. The result is emitted.
-/// 6. If [test], [thenMap], or [elseMap] throws, the pulse is dropped.
-/// 7. The emitted pulse gets the step `'PartitionMap.then'` or
-///    `'PartitionMap.else'` for provenance.
-///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Per-Item Emit**: Emits one value for each input.
-/// - **Different Mappers**: Two different mapping functions.
-/// - **Type Safety**: Generic over value type [S] and output type [T].
-/// - **Error Handling**: If any function throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Operations**: All functions are synchronous.
-///
 /// ### Parameters:
 /// - [test]: **Predicate Function.** Called with each typed payload,
 ///   returns `true` for matched values.
@@ -366,6 +433,50 @@ class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PartitionOnly]: For filtering by match status.
 /// - [MapValue]: For simple mapping without partitioning.
 class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Two-Path Mapper**—a specialized instruction that
+  /// applies different transformations to matched and unmatched values.
+  ///
+  /// [PartitionMap] is similar to [Partition] but instead of emitting
+  /// a [Split] record, it applies different mapping functions to
+  /// matched and unmatched values. This allows you to route values
+  /// through different processing logic based on the predicate.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The [test] predicate is called with
+  ///    the payload.
+  /// 3. **Path Selection**: If [test] returns `true`, [thenMap] is
+  ///    called; otherwise, [elseMap] is called.
+  /// 4. **Result Emission**: The result is wrapped in a new pulse
+  ///    with the step `'PartitionMap.then'` or `'PartitionMap.else'`.
+  /// 5. **Error Handling**: If any function throws, the pulse is
+  ///    dropped and [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [test]: **The Condition.** A synchronous predicate function.
+  /// - [thenMap]: **The Then Transformation.** Called when [test]
+  ///   returns `true`.
+  /// - [elseMap]: **The Else Transformation.** Called when [test]
+  ///   returns `false`.
+  /// - [onError]: **Integrity Handler.** Called if any function throws
+  ///   or a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Conditional Formatter
+  /// ```dart
+  /// // Formats valid/invalid data differently
+  /// final formatter = PartitionMap<Data, String>(
+  ///   (data) => data.isValid,
+  ///   thenMap: (data) => '✅ $data',
+  ///   elseMap: (data) => '❌ $data',
+  ///   user: 'Data-Formatter'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Partition]: For tagging values with match status.
+  /// - [PartitionCollect]: For collecting values by match status.
+  /// - [PartitionOnly]: For filtering by match status.
   PartitionMap(
       bool Function(S value) test, {
         required T Function(S value) thenMap,
@@ -416,19 +527,7 @@ class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Caching**: Maintaining caches of matched/unmatched values.
 /// - **Batch Processing**: Processing batches by match status.
 /// - **Reporting**: Generating reports on partitioned data.
-///
-/// ### Example: Running Partition Snapshot
-/// ```dart
-/// final input = Cell.ingress<int>();
-///
-/// final collected = PartitionCollect<int>(
-///   (n) => n.isEven,
-/// ).toHandle(source: input.cell);
-///
-/// input.emit(1); // -> {matched: [], other: [1]}
-/// input.emit(2); // -> {matched: [2], other: [1]}
-/// input.emit(3); // -> {matched: [2], other: [1, 3]}
-/// ```
+/// - **Audit Trails**: Tracking all values and their statuses.
 ///
 /// ### How it works
 /// 1. Each incoming pulse is type-checked.
@@ -448,6 +547,21 @@ class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Provenance Preservation**: The emitted pulse preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Synchronous Predicate**: [test] is synchronous.
+/// - **Memory Growth**: Lists grow indefinitely; use caution for
+///   long-running streams.
+///
+/// ### Example: Running Partition Snapshot
+/// ```dart
+/// final input = Cell.ingress<int>();
+///
+/// final collected = PartitionCollect<int>(
+///   (n) => n.isEven,
+/// ).toHandle(source: input.cell);
+///
+/// input.emit(1); // -> {matched: [], other: [1]}
+/// input.emit(2); // -> {matched: [2], other: [1]}
+/// input.emit(3); // -> {matched: [2], other: [1, 3]}
+/// ```
 ///
 /// ### Parameters:
 /// - [test]: **Predicate Function.** Called with each typed payload,
@@ -467,6 +581,44 @@ class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PartitionOnly]: For filtering by match status.
 /// - [GroupCollect]: For grouping by arbitrary keys.
 class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Accumulating Partitioner**—a specialized instruction
+  /// that maintains running lists of matched and unmatched values.
+  ///
+  /// [PartitionCollect] accumulates values into two lists: one for
+  /// matched values and one for unmatched values. It emits the complete
+  /// map after every pulse, providing a running snapshot of all
+  /// partitioned values.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The [test] predicate is called with
+  ///    the payload.
+  /// 3. **List Addition**: The value is added to either the [matched]
+  ///    or [other] list.
+  /// 4. **Snapshot Emission**: A map containing copies of both lists
+  ///    is emitted with the step `'PartitionCollect'`.
+  /// 5. **Error Handling**: If [test] throws, the pulse is dropped
+  ///    and [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [test]: **The Condition.** A synchronous predicate function.
+  /// - [onError]: **Integrity Handler.** Called if [test] throws or a
+  ///   type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Real-time Classification Dashboard
+  /// ```dart
+  /// // Maintains running lists of classified items
+  /// final dashboard = PartitionCollect<Event>(
+  ///   (e) => e.isImportant,
+  ///   user: 'Real-time-Classifier'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Partition]: For tagging values with match status.
+  /// - [PartitionMap]: For mapping matched/unmatched values differently.
+  /// - [PartitionOnly]: For filtering by match status.
   PartitionCollect(
       bool Function(S value) test, {
         PartitionErrorHandler? onError,
@@ -512,9 +664,25 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   );
 
   /// The list of matched values.
+  ///
+  /// This list contains all values where the predicate returned `true`.
+  /// It grows monotonically and can be accessed externally.
+  ///
+  /// ### Non‑obvious
+  /// - **Monotonic**: Values are only added, never removed.
+  /// - **Mutable**: The list is mutable and can be modified externally.
+  /// - **Shared**: All observers see the same list.
   final List<S> matched;
 
   /// The list of unmatched values.
+  ///
+  /// This list contains all values where the predicate returned `false`.
+  /// It grows monotonically and can be accessed externally.
+  ///
+  /// ### Non‑obvious
+  /// - **Monotonic**: Values are only added, never removed.
+  /// - **Mutable**: The list is mutable and can be modified externally.
+  /// - **Shared**: All observers see the same list.
   final List<S> other;
 }
 
@@ -538,6 +706,32 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Negative Filtering**: Keeping only non-matching values.
 /// - **Validation**: Passing only valid values.
 /// - **Data Cleaning**: Keeping only clean data.
+/// - **Noise Reduction**: Removing unwanted values.
+///
+/// ### Comparison with Other Operators
+/// | Operator | Output | State | Use Case |
+/// |----------|--------|-------|----------|
+/// | **PartitionOnly** | `S` | No | Filter by match |
+/// | **Valve** | `Pulse` | No | General filter |
+/// | **Filter** | `S` | No | Predicate filter |
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked.
+/// 2. If the type matches, [test] is called with the payload.
+/// 3. If [test] returns [matched] (default `true`), the value is emitted.
+/// 4. If [test] returns the opposite, the value is dropped.
+/// 5. If [test] throws an error, the pulse is dropped.
+/// 6. The emitted pulse gets the step `'PartitionOnly'` for provenance.
+///
+/// ### Non‑obvious
+/// - **No State**: No state is maintained between pulses.
+/// - **Filtering**: Only values matching the condition are emitted.
+/// - **Inverse Filtering**: With [matched] `false`, keeps non-matching values.
+/// - **Type Safety**: Generic over value type [S].
+/// - **Error Handling**: If [test] throws, the pulse is dropped.
+/// - **Provenance Preservation**: The emitted pulse preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Predicate**: [test] is synchronous.
 ///
 /// ### Example: Only Even Numbers
 /// ```dart
@@ -576,24 +770,6 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ).toHandle(source: input.cell);
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse is type-checked.
-/// 2. If the type matches, [test] is called with the payload.
-/// 3. If [test] returns [matched] (default `true`), the value is emitted.
-/// 4. If [test] returns the opposite, the value is dropped.
-/// 5. If [test] throws an error, the pulse is dropped.
-/// 6. The emitted pulse gets the step `'PartitionOnly'` for provenance.
-///
-/// ### Non‑obvious
-/// - **No State**: No state is maintained between pulses.
-/// - **Filtering**: Only values matching the condition are emitted.
-/// - **Inverse Filtering**: With [matched] `false`, keeps non-matching values.
-/// - **Type Safety**: Generic over value type [S].
-/// - **Error Handling**: If [test] throws, the pulse is dropped.
-/// - **Provenance Preservation**: The emitted pulse preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Predicate**: [test] is synchronous.
-///
 /// ### Parameters:
 /// - [test]: **Predicate Function.** Called with each typed payload,
 ///   returns `true` for values to be considered.
@@ -615,6 +791,52 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PartitionCollect]: For collecting values by match status.
 /// - [Valve]: For general-purpose filtering.
 class PartitionOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Match Status Filter**—a specialized instruction
+  /// that only passes values matching (or not matching) a predicate.
+  ///
+  /// [PartitionOnly] is a filtering operator that only passes values
+  /// that match the predicate. It's similar to [Valve] but specialized
+  /// for partition-style filtering with inverse support.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The [test] predicate is called with
+  ///    the payload.
+  /// 3. **Filter Decision**: If [test] returns [matched], the value is
+  ///    emitted; otherwise, it's dropped.
+  /// 4. **Step Evolution**: The original pulse is evolved with the
+  ///    step `'PartitionOnly'` to preserve provenance.
+  /// 5. **Error Handling**: If [test] throws, the pulse is dropped
+  ///    and [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [test]: **The Condition.** A synchronous predicate function.
+  /// - [matched]: **Filter Mode.** `true` keeps matching values,
+  ///   `false` keeps non-matching values. Defaults to `true`.
+  /// - [onError]: **Integrity Handler.** Called if [test] throws or a
+  ///   type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Positive and Negative Filters
+  /// ```dart
+  /// // Keep only valid entries
+  /// final validOnly = PartitionOnly<Data>(
+  ///   (data) => data.isValid,
+  ///   user: 'Valid-Filter'
+  /// );
+  ///
+  /// // Keep only invalid entries (inverse)
+  /// final invalidOnly = PartitionOnly<Data>(
+  ///   (data) => data.isValid,
+  ///   matched: false,
+  ///   user: 'Invalid-Filter'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Partition]: For tagging values with match status.
+  /// - [PartitionMap]: For mapping matched/unmatched values differently.
+  /// - [PartitionCollect]: For collecting values by match status.
   PartitionOnly(
       bool Function(S value) test, {
         bool matched = true,
@@ -696,10 +918,21 @@ class PartitionOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - PartitionOnly filters values by match status.
 /// - All operators preserve causal provenance via EvolvedPulse.
 /// - The [Split] record preserves both status and value.
+/// - Choose the right operator for your use case:
+///   - Tagging → Partition
+///   - Different mapping → PartitionMap
+///   - Accumulation → PartitionCollect
+///   - Filtering → PartitionOnly
 ///
 /// ### Note on State
 /// PartitionCollect maintains state (the lists). Partition,
 /// PartitionMap, and PartitionOnly are stateless.
+///
+/// ### Note on Performance
+/// - PartitionCollect grows memory indefinitely.
+/// - For long-running streams, consider bounded versions.
+/// - All operators are O(1) per item except PartitionCollect (O(n)
+///   for list copies).
 Future<void> main() async {
   print('── Partition Operators Demo ──────────────────────────────────\n');
 

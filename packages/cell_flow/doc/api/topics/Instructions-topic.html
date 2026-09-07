@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="Custom Receptors &amp; Instructions topic docs, for the Dart programming language.">
-  <title>Custom Receptors &amp; Instructions topic - Dart API</title>
+  <meta name="description" content="HowTo-FlowInstructions topic docs, for the Dart programming language.">
+  <title>HowTo-FlowInstructions topic - Dart API</title>
 
 
   
@@ -25,9 +25,9 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_flow</a></li>
-    <li class="self-crumb">Custom Receptors & Instructions topic</li>
+    <li class="self-crumb">HowTo-FlowInstructions topic</li>
   </ol>
-  <div class="self-name">Custom Receptors &amp; Instructions</div>
+  <div class="self-name">HowTo-FlowInstructions</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -42,7 +42,7 @@
 </header>
 <main>
 <div id="dartdoc-main-content" class="main-content">
-  <h1><span class="kind-category">Custom Receptors &amp; Instructions</span> topic</h1>
+  <h1><span class="kind-category">HowTo-FlowInstructions</span> topic</h1>
   
 <section class="desc markdown">
   <h1 id="how-to-build-a-purpose-built-receptor-with-an-instructionchain-of-flowinstructions">How to build a purpose-built Receptor with an InstructionChain of FlowInstructions</h1>
@@ -302,14 +302,31 @@ final shown = doubled.cell
   <section class="summary offset-anchor" id="classes">
     <h2>Classes</h2>
     <dl>
-      <dt id="Instruction">
-  <span class="name "><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-    <span class="category instructions cp-6 linked" title="This is part of the Instructions topic."><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/topics/Instructions-topic.html">Instructions</a></span>
-    <span class="category pipelines-&-receptors cp-7 linked" title="This is part of the Pipelines & Receptors topic."><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
 
 </dt>
 <dd>
-  A reusable unit of logic for processing and transforming <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a> instances.
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+      <dt id="Instruction">
+  <span class="name "><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reusable unit of logic for processing and transforming <a href="../cell_flow/Pulse-class.html">Pulse</a> instances.
 </dd>
 
     </dl>
@@ -332,26 +349,34 @@ final shown = doubled.cell
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell_flow</a></li>
-    <li class="self-crumb">Custom Receptors & Instructions topic</li>
+    <li class="self-crumb">HowTo-FlowInstructions topic</li>
 </ol>
 
   <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
   <ol>
       <li class="section-title">Topics</li>
-        <li><a href="../topics/Features-topic.html">Operator&nbsp;Catalog</a></li>
-        <li><a href="../topics/Instructions-topic.html">Custom&nbsp;Receptors&nbsp;&&nbsp;Instructions</a></li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
-      <li class="section-subtitle">Operator Catalog</li>
-        <li class="section-subitem"><a href="../cell_flow/">flow</a></li>
+      <li><a href="../cell_flow/">flow</a></li>
 </ol>
 
 </div>
 <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
-  <h5>Custom Receptors &amp; Instructions topic</h5>
+  <h5>HowTo-FlowInstructions topic</h5>
   <ol>
 
     <li class="section-title"><a href="../topics/Instructions-topic.html#classes">Classes</a></li>
-      <li><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Instruction-class.html">Instruction</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+      <li><a href="../cell_flow/Instruction-class.html">Instruction</a></li>
 
 
 
@@ -369,7 +394,7 @@ final shown = doubled.cell
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

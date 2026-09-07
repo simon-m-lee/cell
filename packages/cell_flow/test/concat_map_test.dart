@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/concat_map.dart';
 import 'package:test/test.dart';
 
@@ -260,6 +258,118 @@ void main() {
       expect(calls, 2);
       expect(b.probe.payloads, [2]);
       expect(errors.single, isA<StateError>());
+    });
+  });
+
+
+  group('ConcatMap extra', () {
+    test('onError is optional when mapper throws', () async {
+      final b = bind(ConcatMap<int, int>((n) => throw StateError('m')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('null inner is a no-op', () async {
+      final b = bind(ConcatMap<int, int>((n) => null));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ConcatMap<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('ConcatMapTo extra', () {
+    test('inner throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(ConcatMapTo<int, int>(
+        () => throw StateError('to'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('empty list inner emits nothing', () async {
+      final b = bind(ConcatMapTo<int, int>(() => const <int>[]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('ConcatMapLatest extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ConcatMapLatest<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('ConcatMapFirst extra', () {
+    test('wrong types call onError and do not occupy the slot', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ConcatMapFirst<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('ConcatMap + ConcatMapTo is a chain', () async {
+      final op = ConcatMap<int, int>((n) => [n]) +
+          ConcatMapTo<int, int>(() => const [0]);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('ConcatMap flattens 50 singleton lists', () async {
+      final b = bind(ConcatMap<int, int>((n) => [n]));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 50; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

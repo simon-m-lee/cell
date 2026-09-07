@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_map.dart';
 import 'package:test/test.dart';
 
@@ -166,7 +164,7 @@ void main() {
       final errors = <Object>[];
       final stale = Completer<String>();
       final b = bind(AsyncMapLatest<String, String>(
-        (q) => q == 'old' ? stale.future : Future.value('new'),
+        (q) => q == 'old' ? stale.future : 'new',
         onError: (e, _) => errors.add(e),
       ));
       addTearDown(b.probe.stop);
@@ -329,6 +327,162 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(50));
       expect(sw.elapsedMilliseconds, lessThan(800));
+    });
+  });
+
+
+  group('AsyncMap extra', () {
+    test('onError is optional when mapper throws', () async {
+      final b = bind(AsyncMap<int, int>((n) async => throw StateError('x')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('sync mapper still uses the future path', () async {
+      final b = bind(AsyncMap<int, int>((n) => n * 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [6]));
+    });
+
+    test('empty source emits nothing', () async {
+      final b = bind(AsyncMap<int, int>((n) => n));
+      addTearDown(b.probe.stop);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('AsyncMapSequential extra', () {
+    test('is bindable and queues', () async {
+      final b = bind(AsyncMapSequential<int, int>((n) async => n));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('AsyncMapConcurrent extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapConcurrent<int, int>(
+        (n) async => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncMapLatest extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapLatest<int, int>(
+        (n) async => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncMapWithIndex extra', () {
+    test('wrong types call onError and do not advance index', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapWithIndex<int, String>(
+        (n, i) async => '$i:$n',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncMapWithRetry extra', () {
+    test('wrong types do not run the mapper', () async {
+      final errors = <Object>[];
+      var ran = 0;
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapWithRetry<int, int>(
+        (n) async {
+          ran++;
+          return n;
+        },
+        count: 1,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(ran, 0);
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncMapWithTimeout extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapWithTimeout<int, int>(
+        (n) async => n,
+        duration: const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncMapWithFallback extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncMapWithFallback<int, int>(
+        (n) async => n,
+        fallback: 0,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('AsyncMap + AsyncMapSequential is a chain', () async {
+      final op = AsyncMap<int, int>((n) async => n + 1) +
+          AsyncMapSequential<int, int>((n) async => n);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
     });
   });
 }

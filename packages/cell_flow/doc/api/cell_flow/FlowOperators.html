@@ -54,7 +54,41 @@
 
     
 <section class="desc markdown">
-  <p>Pipeline continuation on a bound <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.</p>
+  <p>Synthesizes a <strong>Fluent Topographical Continuation</strong>—a specialized orchestration
+extension designed to chain pulse evolution from an existing <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.</p>
+<p><a href="../cell_flow/FlowOperators.html">FlowOperators</a> allows the topography to grow linearly and declaratively.
+It captures the <a href="../cell_flow/Cell-class.html">Cell</a> anchored to the current handle and uses it as the
+<strong>Stimulus Origin</strong> for the next instruction in the pipeline.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pipeline Composition</strong>: Building complex evolution chains by
+sequentially applying transformations, filters, and async gates.</li>
+<li><strong>Branching Logic</strong>: Continuing the evolution of a materialized pulse
+path into more specific topographical sub-structures.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Anchor Extraction</strong>: The extension accesses the internal <code>cell</code>
+of the <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.</li>
+<li><strong>Instruction Binding</strong>: It binds a new orchestration instruction
+to that cell, creating a new downstream node.</li>
+<li><strong>Handle Materialization</strong>: Returns a new <a href="../cell_flow/FlowHandle.html">FlowHandle</a> representing
+ the next stage of the topography.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateless Continuation</strong>: Chaining operators does not preserve
+transient pulse state; each step defines a new, stateless logic gate
+within the graph.</li>
+<li><strong>Provenance Flow</strong>: Provenance data and priorities automatically
+traverse these chained gates unless an operator explicitly
+intercepts or resets them.</li>
+</ul>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../cell_flow/CellFlowOperators.html">CellFlowOperators</a>: The entry point for starting a pipeline from a Cell.</li>
+<li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The materialized interface for topographical ingress.</li>
+</ul>
 </section>
 
     <section>
@@ -90,7 +124,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Recursive Temporal Gate</strong>—an instruction that
+maps a payload to a sequence of asynchronous materializations.
   
 
 </dd>
@@ -107,7 +142,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Asynchronous Accumulation Gate</strong>—an instruction
+that folds stimuli into state via async logic.
   
 
 </dd>
@@ -124,7 +160,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Sequential Temporal Gate</strong>—an instruction that
+maps payloads through asynchronous evolution one by one.
   
 
 </dd>
@@ -141,7 +178,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Concurrent Temporal Gate</strong>—an instruction that
+maps payloads through async evolution without waiting for completion.
   
 
 </dd>
@@ -158,7 +196,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Preemptive Temporal Gate</strong>—an instruction that
+cancels previous async evolutions when a new stimulus arrives.
   
 
 </dd>
@@ -175,7 +214,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Temporal Audit Gate</strong>—an instruction that evolves
+the <em>most recent</em> stimulus within a sliding temporal window.
   
 
 </dd>
@@ -192,7 +232,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Quantized Collection Flattener</strong>—an instruction that gathers stimulus payloads into a List of a fixed size.
   
 
 </dd>
@@ -209,13 +249,13 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Temporal Collection Flattener</strong>—an instruction that gathers stimuli into a List based on sliding time windows.
   
 
 </dd>
 
         <dt id="combineLatestWith" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/combineLatestWith.html">combineLatestWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="combineLatestWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="combineLatestWith-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="combineLatestWith-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/combineLatestWith.html">combineLatestWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="combineLatestWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="combineLatestWith-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="combineLatestWith-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -226,7 +266,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Stateful Synthesis Bridge</strong>—an instruction
+that combines the current stimulus with the latest state of <code>others</code>.
   
 
 </dd>
@@ -243,7 +284,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Higher-Order Flattener</strong>—an instruction that
+treats incoming payloads as sequences and flattens them sequentially.
   
 
 </dd>
@@ -260,7 +302,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Sequential Evolution Flattener</strong>—an instruction
+that flattens nested sequences while maintaining strict order.
   
 
 </dd>
@@ -277,13 +320,14 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Silence Gate</strong>—an instruction that only permits
+evolution after a period of topographical silence.
   
 
 </dd>
 
         <dt id="delay" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/delay.html">delay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="delay-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="delay-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/delay.html">delay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="delay-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -294,7 +338,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Temporal Displacement Bridge</strong>—an instruction that
+shifts the materialization of pulses by a specific duration.
   
 
 </dd>
@@ -311,7 +356,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Dynamic Temporal Bridge</strong>—an instruction that shifts the
+materialization of pulses based on the resolution of a secondary evolution.
   
 
 </dd>
@@ -328,7 +374,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Uniqueness Gate</strong>—an instruction that ignores
+any payload that has already traversed the gate in the past.
   
 
 </dd>
@@ -345,7 +392,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Exclusive Evolution Flattener</strong>—an instruction
+that ignores new stimuli while an inner sequence is evolving.
   
 
 </dd>
@@ -362,7 +410,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Predicate Integrity Gate</strong>—an instruction that
+conditionally permits pulse evolution based on a <code>test</code>.
   
 
 </dd>
@@ -379,7 +428,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Topographical Demultiplexer</strong>—an instruction that branches the topography based on a calculated <code>keyOf</code>.
   
 
 </dd>
@@ -396,7 +445,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Periodic Pulse Bridge</strong>—an instruction that
+generates a sequential integer stimulus at every <code>period</code>.
   
 
 </dd>
@@ -413,7 +463,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Projective Evolution Gate</strong>—an instruction designed
+to transform stimulus payloads.
   
 
 </dd>
@@ -430,7 +481,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Filtering Projective Gate</strong>—an instruction that
+transforms payloads and aborts evolution if the result is <code>null</code>.
   
 
 </dd>
@@ -447,7 +499,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Static Projective Gate</strong>—an instruction that
+transforms every stimulus into a constant <code>value</code>.
   
 
 </dd>
@@ -464,7 +517,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Guarded Projective Gate</strong>—an instruction that
+only applies transformation to pulses satisfying a <code>test</code>.
   
 
 </dd>
@@ -481,7 +535,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Indexed Projective Gate</strong>—an instruction that
+transforms payloads using their cumulative arrival index.
   
 
 </dd>
@@ -498,7 +553,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Higher-Order Convergence Bridge</strong>—an instruction
+that flattens a sequence of cells into a single merged branch.
   
 
 </dd>
@@ -515,13 +571,14 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Concurrent Evolution Flattener</strong>—an instruction
+that flattens nested sequences as they arrive, without ordering.
   
 
 </dd>
 
         <dt id="mergeWith" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/mergeWith.html">mergeWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mergeWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/mergeWith.html">mergeWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mergeWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -532,7 +589,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Multi-Source Convergence Bridge</strong>—an instruction
+that relays pulses from this handle and all <code>others</code>.
   
 
 </dd>
@@ -549,7 +607,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Binary Temporal Bridge</strong>—an instruction that
+pairs the current stimulus with its immediate predecessor.
   
 
 </dd>
@@ -566,7 +625,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Binary Integrity Demultiplexer</strong>—an instruction that splits the topography into two branches based on a <code>test</code>.
   
 
 </dd>
@@ -583,7 +642,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Keyed Extraction Gate</strong>—an instruction designed
+to extract a specific property <code>key</code> from a Map-like payload.
   
 
 </dd>
@@ -600,7 +660,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Keyed Extraction Gate</strong> with a fallback <code>orElse</code>
+value if the key is missing.
   
 
 </dd>
@@ -617,7 +678,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Deep Extraction Gate</strong>—an instruction designed
+to traverse a <code>path</code> of nested Map-like payloads.
   
 
 </dd>
@@ -634,7 +696,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Accumulative Evolution Gate</strong> seeded with
+an initial <code>seed</code> value.
   
 
 </dd>
@@ -651,13 +714,13 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Fault Tolerance Bridge</strong>—an instruction that attempts to re-initiate a failing evolution task.
   
 
 </dd>
 
         <dt id="sample" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/sample.html">sample</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="sample-param-notifier"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span>, </span><span class="parameter" id="sample-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/sample.html">sample</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="sample-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span>, </span><span class="parameter" id="sample-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -668,7 +731,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Boundary Sampling Gate</strong>—an instruction that evolves
+the latest stimulus from the source only when the <code>notifier</code> cell pulses.
   
 
 </dd>
@@ -685,7 +749,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Periodic Sampling Gate</strong>—an instruction that evolves
+the latest stimulus at fixed temporal intervals.
   
 
 </dd>
@@ -702,7 +767,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Accumulative Evolution Gate</strong>—an instruction
+that folds stimulus history into a stateful result.
   
 
 </dd>
@@ -719,7 +785,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Synaptic Multiplexer</strong>—an instruction that allows multiple downstream branches to share a single evolution cycle.
   
 
 </dd>
@@ -736,7 +802,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Stateful Synaptic Multiplexer</strong>—an instruction that replays the last <code>size</code> pulses to new downstream synapses.
   
 
 </dd>
@@ -753,7 +819,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Displacement Gate</strong>—an instruction that
+ignores the first <code>count</code> stimuli.
   
 
 </dd>
@@ -770,13 +837,14 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Redundancy Suppression Gate</strong>—an instruction
+that ignores a pulse if its payload matches the immediate predecessor.
   
 
 </dd>
 
         <dt id="skipUntil" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/skipUntil.html">skipUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="skipUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/skipUntil.html">skipUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="skipUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -787,7 +855,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Boundary Displacement Gate</strong>—an instruction
+that ignores pulses until the <code>notifier</code> cell emits a signal.
   
 
 </dd>
@@ -804,7 +873,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Conditional Displacement Gate</strong>—an instruction
+that ignores pulses until the <code>test</code> rule is violated.
   
 
 </dd>
@@ -821,7 +891,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Topographical Seeding Gate</strong>—an instruction that evolves an initial <code>value</code> immediately upon materialization.
   
 
 </dd>
@@ -838,7 +908,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Preemptive Evolution Flattener</strong>—an instruction
+where new inner sequences cancel the evolution of existing ones.
   
 
 </dd>
@@ -855,13 +926,14 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Counted Materialization Gate</strong>—an instruction
+that only allows the first <code>count</code> pulses to evolve.
   
 
 </dd>
 
         <dt id="takeUntil" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/takeUntil.html">takeUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="takeUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/takeUntil.html">takeUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="takeUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -872,7 +944,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Boundary Lifecycle Gate</strong>—an instruction that
+terminates evolution once the <code>notifier</code> cell materializes a pulse.
   
 
 </dd>
@@ -889,7 +962,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Conditional Lifecycle Gate</strong>—an instruction that
+evolves pulses as long as the <code>test</code> integrity rule is met.
   
 
 </dd>
@@ -906,13 +980,13 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Passive Observation Gate</strong>—an instruction that performs side-effects without altering pulse evolution.
   
 
 </dd>
 
         <dt id="tapAll" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/tapAll.html">tapAll</a></span><span class="signature">(<wbr>{<span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="tapAll-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/tapAll.html">tapAll</a></span><span class="signature">(<wbr>{<span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="tapAll-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -923,7 +997,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Forensic Observation Gate</strong>—an instruction that exposes the full <a href="../cell_flow/Pulse-class.html">Pulse</a> container for metadata auditing.
   
 
 </dd>
@@ -940,7 +1014,7 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes an <strong>Indexed Observation Gate</strong>—an instruction that performs side-effects using the pulse's sequence index.
   
 
 </dd>
@@ -957,7 +1031,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Frequency Control Gate</strong>—an instruction that
+limits evolution to a specific temporal window.
   
 
 </dd>
@@ -974,7 +1049,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Temporal Integrity Gate</strong>—an instruction that
+aborts evolution if a stimulus does not arrive within a window.
   
 
 </dd>
@@ -991,13 +1067,13 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Topographical Window Flattener</strong>—an instruction that partitions the source into multiple sub-cell sequences.
   
 
 </dd>
 
         <dt id="withLatestFrom" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/withLatestFrom.html">withLatestFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="withLatestFrom-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="withLatestFrom-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="withLatestFrom-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/withLatestFrom.html">withLatestFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="withLatestFrom-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="withLatestFrom-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="withLatestFrom-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -1008,13 +1084,14 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Sampling Synthesis Bridge</strong>—an instruction that
+takes the latest state from <code>others</code> only when this handle emits.
   
 
 </dd>
 
         <dt id="zipWith" class="callable">
-  <span class="name"><a href="../cell_flow/FlowOperators/zipWith.html">zipWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="zipWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="zipWith-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span>)?, </span><span class="parameter" id="zipWith-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+  <span class="name"><a href="../cell_flow/FlowOperators/zipWith.html">zipWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="zipWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="zipWith-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span>)?, </span><span class="parameter" id="zipWith-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
@@ -1025,7 +1102,8 @@
         <span>Available on <a href="../cell_flow/FlowHandle.html">FlowHandle</a>,
         provided by the <a href="../cell_flow/FlowOperators.html">FlowOperators</a> extension</span>
       </p>
-  
+  Materializes a <strong>Synchronized Synthesis Bridge</strong>—an instruction
+that waits for all sources to emit before producing a combined pulse.
   
 
 </dd>
@@ -1060,7 +1138,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

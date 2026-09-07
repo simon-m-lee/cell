@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Delay Operators
@@ -106,11 +106,13 @@ Future<void> _until(Object? notifier) async {
 // Delay - Fixed Delay
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that shifts every typed pulse by [duration]
+/// A [Receptor] instruction that delays every pulse by a fixed [duration]
 /// (Rx `delay`).
 ///
-/// [Delay] is the fundamental delay operator. It delays each pulse
-/// by a fixed duration before forwarding it.
+/// [Delay] intercepts every incoming stimulus and defers its materialization
+/// into the downstream topography for a fixed [duration]. Unlike throttle or
+/// debounce, it is non-filtering; every pulse eventually evolves, preserving
+/// the temporal distance between arrivals.
 ///
 /// ### When to use
 /// Use [Delay] when you need to introduce a fixed time delay
@@ -185,6 +187,13 @@ Future<void> _until(Object? notifier) async {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Creates a fixed delay instruction.
+  ///
+  /// ### Parameters:
+  /// - [duration]: The delay duration for each pulse.
+  /// - [onError]: Optional error handler for type mismatches.
+  /// - [user]: Optional user metadata.
   Delay(
       Duration duration, {
         DelayErrorHandler? onError,
@@ -209,12 +218,13 @@ class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // DelayWithSelector - Payload-Dependent Delay
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] where [durationOf] picks the wait from the
-/// payload.
+/// A [Receptor] instruction where each payload provides its own delay
+/// duration (Rx `delay` with selector).
 ///
-/// [DelayWithSelector] is similar to [Delay] but the delay duration
-/// is computed from the payload value. This allows different delays
-/// for different values.
+/// [DelayWithSelector] allows the topography to vary its temporal
+/// characteristics dynamically. By applying the [durationOf] orchestrator
+/// to each payload, different stimuli can traverse the gate at
+/// different speeds.
 ///
 /// ### When to use
 /// Use [DelayWithSelector] when the delay depends on the payload.
@@ -278,6 +288,13 @@ class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Creates a payload-dependent delay instruction.
+  ///
+  /// ### Parameters:
+  /// - [durationOf]: A function that returns the delay duration for each payload.
+  /// - [onError]: Optional error handler for type mismatches or duration errors.
+  /// - [user]: Optional user metadata.
   DelayWithSelector(
       Duration Function(S value) durationOf, {
         DelayErrorHandler? onError,
@@ -309,12 +326,13 @@ class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // DelayWhen - Notifier-Based Delay
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that waits for [when] to complete
-/// (Future / Duration / Stream.first) before forwarding the pulse
-/// (Rx `delayWhen`).
+/// A [Receptor] instruction that waits for a Future, Duration, or the first
+/// event of a Stream before forwarding (Rx `delayWhen`).
 ///
-/// [DelayWhen] is a flexible delay operator that can wait for a
-/// Duration, a Future, or the first event of a Stream.
+/// [DelayWhen] provides the highest level of temporal flexibility. Instead
+/// of a simple duration, each stimulus triggers the materialization of a
+/// notifier (Future, Stream, or Duration). The pulse is held until that
+/// specific notifier signals completion.
 ///
 /// ### When to use
 /// Use [DelayWhen] when the delay depends on an external notifier.
@@ -397,6 +415,13 @@ class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Creates a notifier-based delay instruction.
+  ///
+  /// ### Parameters:
+  /// - [when]: A function that returns a notifier (Duration, Future, Stream, or null).
+  /// - [onError]: Optional error handler for type mismatches or notifier errors.
+  /// - [user]: Optional user metadata.
   DelayWhen(
       FutureOr<Object?> Function(S value) when, {
         DelayErrorHandler? onError,
@@ -429,12 +454,12 @@ class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // DelayLatest - Trailing Delay
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] that only delivers the latest pulse after
-/// [duration] (`DelayWithTrailing`).
+/// A [Receptor] instruction that delays the latest pulse, cancelling
+/// any pending delay when a new pulse arrives (Rx `delay` + switch).
 ///
-/// [DelayLatest] is similar to [Delay] but when a new pulse arrives,
-/// it cancels the pending delayed pulse. Only the latest pulse is
-/// delivered.
+/// [DelayLatest] functions like a switch-style delay. When a new stimulus
+/// arrives, any pending materialization is suppressed. Only the *latest*
+/// pulse in a burst is evolved after the [duration] has passed.
 ///
 /// ### When to use
 /// Use [DelayLatest] when you only care about the latest value
@@ -494,6 +519,13 @@ class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayWhen]: For notifier-based delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Creates a trailing delay instruction.
+  ///
+  /// ### Parameters:
+  /// - [duration]: The delay duration for the latest pulse.
+  /// - [onError]: Optional error handler for type mismatches.
+  /// - [user]: Optional user metadata.
   DelayLatest(
       Duration duration, {
         DelayErrorHandler? onError,
@@ -519,19 +551,54 @@ class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   );
 }
 
-/// Alias of [DelayLatest] for Rx compatibility.
+/// A semantic alias for [DelayLatest] that emphasizes trailing-edge behavior.
 ///
-/// [DelayWithTrailing] is an alias for [DelayLatest] that emphasizes
-/// the trailing-edge behavior.
+/// [DelayWithTrailing] is provided for topographical clarity and
+/// compatibility with traditional reactive vocabularies. It ensures that
+/// during a burst of activity, only the final pulse—the "trailing" edge—is
+/// materialized into the topography after the [duration] of silence.
+///
+/// ### When to use
+/// - **Rx Compatibility**: When developer teams are more familiar with
+///   `trailing` nomenclature than `latest`.
+/// - **State Finalization**: Explicitly marking a gate that is intended to
+///   capture only the concluding stimulus of an evolution burst.
+///
+/// ### How it works
+/// 1. **Inherited Orchestration**: Utilizes the generation-tracking logic
+///    of [DelayLatest].
+/// 2. **Preemptive Suppression**: New pulses invalidate pending
+///    materializations.
+/// 3. **Materialization**: The bridge evolves the most recent stimulus
+///    only after [duration] has passed without new interruptions.
+///
+/// ### Non‑obvious
+/// - **Functional Identity**: This class is functionally identical to
+///   [DelayLatest]. Choosing between them is a matter of topographical
+///   documentation and intent.
+///
+/// ### Type Parameters
+/// * [S]: **Stimulus Payload Type.** The type of data contained within the
+///   incoming pulses.
 ///
 /// ### Example
 /// ```dart
-/// final delayed = DelayWithTrailing<String>(
-///   Duration(milliseconds: 300),
-/// ).toHandle(source: input.cell);
-/// // Same as DelayLatest
+/// // Semantically identical to DelayLatest
+/// final finalStateGate = DelayWithTrailing<String>(
+///   Duration(milliseconds: 300)
+/// );
 /// ```
+///
+/// ### See Also
+/// * [DelayLatest]: The underlying preemptive orchestrator.
+/// * [Debounce]: For silence-based gating that often shares "trailing" behavior.
 class DelayWithTrailing<S> extends DelayLatest<S> {
+  /// Creates a trailing-edge delay instruction (alias for [DelayLatest]).
+  ///
+  /// ### Parameters:
+  /// - [duration]: The delay duration for the latest pulse.
+  /// - [onError]: Optional error handler for type mismatches.
+  /// - [user]: Optional user metadata.
   DelayWithTrailing(
       super.duration, {
         super.onError,
@@ -543,12 +610,13 @@ class DelayWithTrailing<S> extends DelayLatest<S> {
 // DelayWithTimeout - Delay with Timeout
 // ─────────────────────────────────────────────────────────────
 
-/// A [FlowInstruction] like [Delay], but if the wait exceeds
-/// [timeout] the pulse is dropped and [onError] sees a
-/// [TimeoutException].
+/// A [Receptor] instruction that delays by [duration], but rejects the
+/// pulse if [duration] exceeds [timeout].
 ///
-/// [DelayWithTimeout] adds a timeout to the delay. If the delay
-/// exceeds the timeout, the pulse is dropped.
+/// [DelayWithTimeout] functions like a standard [Delay], but introduces a
+/// **Temporal Constraint**. If the requested [duration] exceeds the
+/// [timeout] limit, the stimulus is rejected, and an error is propagated
+/// through the topography's error channel.
 ///
 /// ### When to use
 /// Use [DelayWithTimeout] when you need to ensure delays don't
@@ -610,6 +678,15 @@ class DelayWithTrailing<S> extends DelayLatest<S> {
 /// - [DelayWhen]: For notifier-based delay.
 /// - [DelayLatest]: For trailing delay.
 class DelayWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Creates a delay with timeout instruction.
+  ///
+  /// ### Parameters:
+  /// - [duration]: The delay duration for each pulse.
+  /// - [timeout]: The maximum allowed delay. If duration > timeout,
+  ///   the pulse is dropped.
+  /// - [onError]: Optional error handler for type mismatches or timeouts.
+  /// - [user]: Optional user metadata.
   DelayWithTimeout(
       Duration duration, {
         required Duration timeout,

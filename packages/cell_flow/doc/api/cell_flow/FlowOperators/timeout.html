@@ -64,6 +64,18 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Temporal Integrity Gate</strong>—an instruction that
+aborts evolution if a stimulus does not arrive within a window.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>duration</code>: The <strong>Maximum Latency</strong> permitted between pulses.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked upon violation.</li>
+<li><code>emitErrorPulse</code>: If true, timeouts are evolved as error pulses.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the timeout-guarded node.</p>
+</section>
 
 
     
@@ -107,7 +119,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

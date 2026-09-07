@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/from_stream.dart';
 import 'package:test/test.dart';
 
@@ -242,6 +240,130 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(200));
       expect(sw.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+
+  group('FromStream extra', () {
+    test('empty stream is silent after arming', () async {
+      final b = bind(FromStream<int>(const Stream.empty()));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('emitErrorPulse false swallows stream errors', () async {
+      final errors = <Object>[];
+      final b = bind(FromStream<int>(
+        Stream<int>.error(StateError('boom')),
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+      expect(b.probe.types.contains('error'), isFalse);
+    });
+
+    test('second arming pulse is ignored', () async {
+      final b = bind(FromStream<int>(Stream.fromIterable([1])));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1]));
+    });
+  });
+
+  group('DeferStream extra', () {
+    test('create exceptions call onError', () async {
+      final errors = <Object>[];
+      final b = bind(DeferStream<int>(
+        () => throw StateError('create'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('ConcatFromStream extra', () {
+    test('non-stream payload is reported', () async {
+      final errors = <Object>[];
+      final b = bind(ConcatFromStream<int>(
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('MergeFromStream extra', () {
+    test('empty inner is a no-op', () async {
+      final b = bind(MergeFromStream<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(const Stream<int>.empty());
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('SwitchFromStream extra', () {
+    test('wrong payload types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SwitchFromStream<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('MapToStream extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MapToStream<int, int>(
+        (n) => Stream.value(n),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+    });
+
+    test('project throw is reported', () async {
+      final errors = <Object>[];
+      final b = bind(MapToStream<int, int>(
+        (n) => throw StateError('proj'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('composition', () {
+    test('FromStream handle is bindable', () async {
+      final b = bind(FromStream<int>(Stream.fromIterable([1, 2])));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

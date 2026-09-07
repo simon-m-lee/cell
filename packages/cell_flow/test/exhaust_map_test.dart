@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/exhaust_map.dart';
 import 'package:test/test.dart';
 
@@ -261,6 +259,110 @@ void main() {
       await probe.settle(const Duration(milliseconds: 90));
       expect(probe.payloads, ['1', '9']);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('ExhaustMap extra', () {
+    test('onError is optional when mapper throws', () async {
+      final b = bind(ExhaustMap<int, int>((n) => throw StateError('x')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError and do not occupy the slot', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ExhaustMap<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('null inner is a no-op', () async {
+      final b = bind(ExhaustMap<int, int>((n) => null));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('ExhaustMapTo extra', () {
+    test('inner throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(ExhaustMapTo<int, int>(
+        () => throw StateError('to'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('ExhaustAll extra', () {
+    test('empty list is a no-op', () async {
+      final b = bind(ExhaustAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(<int>[]);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('ExhaustMapFirst extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ExhaustMapFirst<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('ExhaustMapLatest extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ExhaustMapLatest<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('ExhaustMap + ExhaustMapTo is a chain', () async {
+      final op = ExhaustMap<int, int>((n) => [n]) +
+          ExhaustMapTo<int, int>(() => const [0]);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
     });
   });
 }

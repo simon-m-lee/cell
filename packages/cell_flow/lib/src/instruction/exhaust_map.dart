@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that admit one inner sequence at a time
 /// (Rx `exhaustMap` family).
@@ -29,9 +29,43 @@ import 'package:cell_flow/flow.dart';
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
+/// Error handler callback for exhaust operators.
+///
+/// Called when an error occurs during exhaust operations.
+/// The error and optional stack trace are provided for logging or recovery.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = ExhaustErrorHandler((error, stack) {
+///   print('Exhaust error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef ExhaustErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+/// A functional contract for an **Evolution Factory** used within exclusive
+/// flattening topographies.
+///
+/// [ExhaustMapper] defines the signature for logic that transforms an incoming
+/// stimulus payload of type [S] into an inner evolution candidate. This
+/// candidate—which may be a [Stream], [Future], [Iterable], or raw value—is
+/// then recursively drained by the orchestrator into materialized pulses.
+///
+/// In the context of an "Exhaust" strategy, this factory is only invoked
+/// when the orchestrator is in an **Idle State**. If the topography is
+/// currently processing a prior evolution, new stimuli are dropped before
+/// they reach this mapper.
+///
+/// ### Type Parameters
+/// * [S]: **Stimulus Payload Type.** The type of data extracted from the
+///   incoming pulse that triggers the evolution.
+///
+/// ### Returns
+/// A **Materialization Source** (FutureOr\<Object?>) that the orchestrator
+/// will flatten and emit as new pulses.
 typedef ExhaustMapper<S> = FutureOr<Object?> Function(S value);
 
+/// Helper to create an output pulse with proper provenance.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -42,6 +76,30 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   );
 }
 
+/// Drains any object (Future, Stream, Iterable, or value) into a callback.
+///
+/// This is the internal engine that handles the various types of inner
+/// sequences that exhaust operators can produce.
+///
+/// ### How it works
+/// 1. If [inner] is `null`, returns immediately.
+/// 2. If [inner] is a `Stream`, iterates over it asynchronously.
+/// 3. If [inner] is a `Future`, waits for it and recurses.
+/// 4. If [inner] is an `Iterable` (not `String`), iterates over it.
+/// 5. Otherwise, calls [onData] with the value.
+///
+/// ### Parameters:
+/// - [inner]: The object to drain.
+/// - [onData]: Called for each value drained.
+/// - [stillLive]: Optional callback to check if the operation is still current.
+///
+/// ### Non‑obvious
+/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
+///   values, allowing nested structures to be flattened.
+/// - **Cancellation**: The [stillLive] callback is checked at each step,
+///   allowing cancelled operations to stop early.
+/// - **String Special Case**: Strings are treated as values, not iterables,
+///   to avoid character-by-character iteration.
 Future<void> _drain(
     Object? inner,
     void Function(dynamic value) onData, {
@@ -76,7 +134,7 @@ Future<void> _drain(
 }
 
 // ─────────────────────────────────────────────────────────────
-// ExhaustMap
+// ExhaustMap - Drop While Busy
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that admits one inner sequence at a time,
@@ -194,6 +252,7 @@ Future<void> _drain(
 /// - [ExhaustMapFirst]: For only the first item of each inner.
 /// - [ExhaustMapLatest]: For trailing exhaust with latest remembered.
 class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
   /// Creates an [ExhaustMap] instruction with the specified [mapper].
   ///
   /// ### Parameters:
@@ -254,7 +313,7 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ExhaustMapTo
+// ExhaustMapTo - Same Inner, Drop While Busy
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that flattens the same inner sequence, dropping
@@ -365,7 +424,7 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ExhaustAll
+// ExhaustAll - Payload as Inner
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that treats the payload as the inner sequence,
@@ -428,18 +487,19 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ExhaustMap]: For mapping payloads to sequences.
 /// - [ExhaustMapTo]: For the same sequence every trigger.
 class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates an [ExhaustAll] instruction.
+
+  /// Synthesizes an **Intrinsic Exclusive Flattener** from pulse payloads.
+  ///
+  /// This constructor initializes an orchestrator that drains the
+  /// payload of the incoming pulse as a sequence, ignoring new pulses
+  /// until the current payload is exhausted.
   ///
   /// ### Parameters:
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// - [onError]: Invoked if the payload sequence fails to drain.
+  /// - [user]: Optional metadata preserved across the topography.
   ///
-  /// ### Example
-  /// ```dart
-  /// final exhaustAll = ExhaustAll<String>(
-  ///   onError: (error, stack) => print('Error: $error'),
-  /// );
-  /// ```
+  /// ### Returns:
+  /// A new [ExhaustAll] instruction.
   ExhaustAll({
     ExhaustErrorHandler? onError,
     dynamic user,
@@ -473,7 +533,7 @@ class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ExhaustMapFirst
+// ExhaustMapFirst - First Item Only
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that emits only the first item of each admitted
@@ -602,7 +662,7 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ExhaustMapLatest
+// ExhaustMapLatest - Trailing Exhaust
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that remembers the last skipped trigger and runs
@@ -834,8 +894,7 @@ class _LatestState<S> {
 ///    exhaust behavior. The last skipped trigger is remembered and executed
 ///    after the current sequence completes. `1, 2, 3` becomes `1-a, 1-b, 3-a, 3-b`.
 ///
-/// ### Key Takeaways
-/// - All exhaust operators admit only one inner sequence at a time.
+/// ### Key Takeaways/// - All exhaust operators admit only one inner sequence at a time.
 /// - ExhaustMap drops all triggers while busy.
 /// - ExhaustMapTo ignores the trigger payload.
 /// - ExhaustAll treats the payload as the sequence.

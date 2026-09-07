@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/group_by.dart';
 import 'package:test/test.dart';
 
@@ -262,6 +260,125 @@ void main() {
       await probe.settle();
       expect(probe.payloads, isEmpty);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('GroupBy extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = GroupBy<int, String>(
+        (n) => n.isEven ? 'e' : 'o',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('onError is optional', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = GroupBy<int, String>((n) => 'k').toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('GroupCollect extra', () {
+    test('empty source leaves groups empty', () async {
+      final op = GroupCollect<int, String>((n) => n.isEven ? 'e' : 'o');
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.probe.settle();
+      expect(op.groups, isEmpty);
+    });
+
+    test('wrong types do not mutate groups', () async {
+      final errors = <Object>[];
+      final op = GroupCollect<int, String>(
+        (n) => 'k',
+        onError: (e, _) => errors.add(e),
+      );
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(op.groups, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('shared map is updated in place', () async {
+      final shared = <String, List<int>>{};
+      final op = GroupCollect<int, String>(
+        (n) => n.isEven ? 'e' : 'o',
+        groups: shared,
+      );
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(identical(op.groups, shared), isTrue);
+      expect(shared['o'], [1]);
+    });
+  });
+
+  group('GroupByCount extra', () {
+    test('size 1 emits every value as a singleton window', () async {
+      final b = bind(GroupByCount<int, String>((n) => 'g', 1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(2));
+      expect((b.probe.payloads.first as Grouped).value, [1]);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = GroupByCount<int, String>(
+        (n) => 'g',
+        2,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('GroupBy + GroupCollect is a chain', () async {
+      final op = GroupBy<int, String>((n) => 'g') +
+          GroupCollect<Object, String>((_) => 'x');
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('GroupBy tags 200 ints', () async {
+      final b = bind(GroupBy<int, String>((n) => n.isEven ? 'e' : 'o'));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
     });
   });
 }

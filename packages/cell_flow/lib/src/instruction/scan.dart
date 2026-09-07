@@ -4,25 +4,42 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
-/// Flow instructions that accumulate values over time (Rx `scan` family).
-///
-/// These operators accumulate incoming values over time, producing a running
-/// total or aggregated state. They are essential for computing running sums,
-/// averages, or any state that depends on the entire history of the stream.
-///
-/// | Operator | Rx analogue | First emission |
-/// |---|---|---|
-/// | [Scan] | `scan` without seed | second pulse (first value is the seed) |
-/// | [ScanSeeded] | `scan` with seed | first pulse |
-/// | [ScanIndexed] | `scan` + index | first pulse (seeded) |
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
+// ─────────────────────────────────────────────────────────────
+// Core Scan Operators
+// ─────────────────────────────────────────────────────────────
 
+/// Error handler callback for scan operators.
+///
+/// Called when an error occurs during accumulation, such as errors in
+/// the accumulate function or type mismatches.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = ScanErrorHandler((error, stack) {
+///   print('Scan error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef ScanErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions and State
+// ─────────────────────────────────────────────────────────────
+
+/// Helper for type-safe payload extraction.
+///
+/// [_typedOrError] checks that the pulse payload matches the expected
+/// type [S]. If it does, returns the pulse. If not, calls [onError]
+/// and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The incoming pulse to check.
+/// - [onError]: Optional error handler for type mismatches.
+///
+/// ### Returns:
+/// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       ScanErrorHandler? onError,
@@ -38,6 +55,19 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
   return Pulse<A>(
     value,
@@ -48,11 +78,29 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
   );
 }
 
+/// Internal state for scan operators.
+///
+/// Maintains the current accumulator value and a flag indicating whether
+/// a value has been stored yet.
+///
+/// ### Fields:
+/// - [acc]: The current accumulator value.
+/// - [hasAcc]: Whether the accumulator has been initialized.
+///
+/// ### Non‑obvious
+/// - **Stateful**: The state is maintained across pulses.
+/// - **Type Safety**: Generic over the accumulator type [A].
+/// - **Mutable**: The state is mutable and updated on each pulse.
+class _ScanState<A> {
+  A? acc;
+  bool hasAcc = false;
+}
+
 // ─────────────────────────────────────────────────────────────
-// Scan
+// Scan - Seedless Accumulator
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that accumulates values without an explicit seed
+/// A [FlowInstruction] that accumulates values without an explicit seed
 /// (Rx `scan`).
 ///
 /// [Scan] acts as a **Seedless Accumulator**. The first typed value becomes
@@ -80,13 +128,13 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
 ///   index in addition to the value.
 ///
 /// ### Comparison with Other Operators
-/// | Operator | Seed | First Emission | Emits |
-/// |----------|------|----------------|-------|
-/// | **Scan** | First value | Second pulse | Each step after first |
-/// | **ScanSeeded** | Explicit | First pulse | Each step |
-/// | **ScanIndexed** | Explicit + index | First pulse | Each step |
-/// | **Reduce** | First value | Last pulse | Final only |
-/// | **AsyncFold** | Explicit | First pulse | Each step |
+/// | Operator | Seed | First Emission | Emits | Rx Analogue |
+/// |----------|------|----------------|-------|-------------|
+/// | **Scan** | First value | Second pulse | Each step after first | `scan` |
+/// | **ScanSeeded** | Explicit | First pulse | Each step | `scan(seed)` |
+/// | **ScanIndexed** | Explicit + index | First pulse | Each step | `scan` + index |
+/// | **Reduce** | First value | Last pulse | Final only | `reduce` |
+/// | **AsyncFold** | Explicit | First pulse | Each step | `async` + `scan` |
 ///
 /// ### How it works
 /// 1. The first typed pulse becomes the accumulator and is stored.
@@ -94,7 +142,8 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// 3. For each subsequent pulse, the [accumulate] function is called with
 ///    the current accumulator and the new value.
 /// 4. The result becomes the new accumulator and is emitted.
-/// 5. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'Scan'` for provenance.
+/// 6. The instruction preserves causal provenance.
 ///
 /// ### Non‑obvious
 /// - **No Seed**: The first value is used as the seed and not emitted.
@@ -106,6 +155,7 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// - **Type Safety**: The instruction is generic over [S] (input) and
 ///   [A] (accumulator), ensuring compile-time type safety.
 /// - **Memory Efficiency**: Only the accumulator state is stored.
+/// - **Type Casting**: The first value is cast to [A] when used as seed.
 ///
 /// ### Example: Running Sum (No Seed)
 /// ```dart
@@ -141,28 +191,48 @@ Pulse<A> _acc<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// - [A]: The type of the accumulator state.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that accumulates without an explicit seed.
 ///
 /// ### See Also:
 /// - [ScanSeeded]: For seeded accumulation.
 /// - [ScanIndexed]: For indexed accumulation.
 /// - [Reduce]: For reducing to a single final value.
 class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Scan] instruction with the specified [accumulate] function.
+  /// Synthesizes a **Seedless Accumulator**—a specialized instruction
+  /// that accumulates values without an explicit seed.
   ///
-  /// ### Parameters:
-  /// - [accumulate]: **The Accumulation Function.** Takes the current
-  ///   accumulator and the new value, returns the new accumulator.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [Scan] acts as a **Seedless Accumulator**. The first typed value becomes
+  /// the seed and is not emitted. Every later value is combined with the
+  /// running total and the new total is emitted.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **First Pulse**: The first value is stored as the accumulator
+  ///    and is not emitted.
+  /// 3. **Accumulation**: For each subsequent pulse, [accumulate] is called
+  ///    with the current accumulator and the new value.
+  /// 4. **Emission**: The new accumulator is emitted with the step `'Scan'`.
+  /// 5. **Error Handling**: If [accumulate] throws, [onError] is called
+  ///    and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [accumulate]: **The Accumulation Function.** Combines accumulator
+  ///   and value to produce new accumulator.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Running Sum Calculator
   /// ```dart
-  /// final scan = Scan<int, int>(
+  /// // Computes running sum without an explicit seed
+  /// val runningSum = Scan<int, int>(
   ///   (acc, n) => acc + n,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Running-Sum'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [ScanSeeded]: For seeded accumulation.
+  /// - [ScanIndexed]: For indexed accumulation.
   Scan(
       A Function(A acc, S value) accumulate, {
         ScanErrorHandler? onError,
@@ -193,10 +263,10 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ScanSeeded
+// ScanSeeded - Seeded Accumulator
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that accumulates with an explicit seed
+/// A [FlowInstruction] that accumulates with an explicit seed
 /// (Rx `scan(acc, seed)`).
 ///
 /// [ScanSeeded] acts as a **Seeded Accumulator**. The seed is combined with
@@ -214,19 +284,21 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're implementing a counter starting from a specific value
 /// - You're building a progressive aggregation
 ///
-/// ### How it works
-/// 1. The [seed] is stored as the initial accumulator.
-/// 2. For each pulse, the [accumulate] function is called with the
-///    current accumulator and the new value.
-/// 3. The result becomes the new accumulator and is emitted.
-/// 4. The instruction preserves causal provenance.
-///
 /// ### Comparison with Scan
 /// | Feature | Scan | ScanSeeded |
 /// |---------|------|------------|
 /// | **Seed** | First value | Explicit |
 /// | **First Emission** | Second pulse | First pulse |
 /// | **Use Case** | No known initial state | Known initial state |
+/// | **Seed Type** | Must match [A] | Explicitly typed |
+///
+/// ### How it works
+/// 1. The [seed] is stored as the initial accumulator.
+/// 2. For each pulse, the [accumulate] function is called with the
+///    current accumulator and the new value.
+/// 3. The result becomes the new accumulator and is emitted.
+/// 4. Each emitted value gets the step `'ScanSeeded'` for provenance.
+/// 5. The instruction preserves causal provenance.
 ///
 /// ### Non‑obvious
 /// - **Explicit Seed**: The seed is provided as a parameter.
@@ -238,6 +310,7 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Type Safety**: The instruction is generic over [S] (input) and
 ///   [A] (accumulator), ensuring compile-time type safety.
 /// - **Memory Efficiency**: Only the accumulator state is stored.
+/// - **Seed as Initial State**: The seed is used as the initial state.
 ///
 /// ### Example: Running Sum with Seed
 /// ```dart
@@ -281,30 +354,49 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [A]: The type of the accumulator state.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that accumulates with an explicit seed.
 ///
 /// ### See Also:
 /// - [Scan]: For seedless accumulation.
 /// - [ScanIndexed]: For indexed accumulation.
 class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [ScanSeeded] instruction with the specified [seed] and
-  /// [accumulate] function.
+  /// Synthesizes a **Seeded Accumulator**—a specialized instruction
+  /// that accumulates with an explicit seed.
   ///
-  /// ### Parameters:
-  /// - [seed]: **The Initial State.** The starting value of the accumulator.
-  /// - [accumulate]: **The Accumulation Function.** Takes the current
-  ///   accumulator and the new value, returns the new accumulator.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [ScanSeeded] acts as a **Seeded Accumulator**. The seed is combined with
+  /// the first typed value, so the first pulse already emits an accumulated
+  /// result.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Seed Storage**: The [seed] is stored as the initial accumulator.
+  /// 2. **Type Check**: The pulse payload is validated against type [S].
+  /// 3. **Accumulation**: The [accumulate] function is called with the
+  ///    current accumulator and the new value.
+  /// 4. **Emission**: The new accumulator is emitted with the step
+  ///    `'ScanSeeded'`.
+  /// 5. **Error Handling**: If [accumulate] throws, [onError] is called
+  ///    and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [seed]: **The Initial State.** Starting value of the accumulator.
+  /// - [accumulate]: **The Accumulation Function.** Combines accumulator
+  ///   and value to produce new accumulator.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Counter with Initial Value
   /// ```dart
-  /// final scanSeeded = ScanSeeded<int, int>(
-  ///   0,
+  /// // Starts counting from 100
+  /// val counter = ScanSeeded<int, int>(
+  ///   100,
   ///   (acc, n) => acc + n,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Counter'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Scan]: For seedless accumulation.
+  /// - [ScanIndexed]: For indexed accumulation.
   ScanSeeded(
       A seed,
       A Function(A acc, S value) accumulate, {
@@ -330,10 +422,10 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ScanIndexed
+// ScanIndexed - Indexed Seeded Accumulator
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that accumulates with an explicit seed and
+/// A [FlowInstruction] that accumulates with an explicit seed and
 /// passes the index to the accumulation function.
 ///
 /// [ScanIndexed] acts as an **Indexed Seeded Accumulator**. It is similar to
@@ -359,7 +451,8 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///    current accumulator, the new value, and the current index.
 /// 4. The index is incremented after each accumulation.
 /// 5. The result becomes the new accumulator and is emitted.
-/// 6. The instruction preserves causal provenance.
+/// 6. Each emitted value gets the step `'ScanIndexed'` for provenance.
+/// 7. The instruction preserves causal provenance.
 ///
 /// ### Non‑obvious
 /// - **Index Provided**: The index is passed to the accumulation function.
@@ -370,6 +463,8 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
 /// - **Type Safety**: The instruction is generic over [S] (input) and
 ///   [A] (accumulator), ensuring compile-time type safety.
+/// - **Index Increments**: The index increments after each successful
+///   accumulation.
 ///
 /// ### Example: Building a List with Index
 /// ```dart
@@ -383,10 +478,10 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// items.emit('b'); // Emits ['0: a', '1: b']
 /// ```
 ///
-/// ### Example: Counting with Index
+/// ### Example: Weighted Sum by Index
 /// ```dart
 /// final values = Cell.ingress<int>();
-/// val indexed = ScanIndexed<int, int>(
+/// val weighted = ScanIndexed<int, int>(
 ///   0,
 ///   (acc, value, index) => acc + value * index
 /// ).toHandle(source: values.cell);
@@ -408,30 +503,52 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [A]: The type of the accumulator state.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that accumulates with an explicit seed and index.
 ///
 /// ### See Also:
 /// - [Scan]: For seedless accumulation.
 /// - [ScanSeeded]: For seeded accumulation without index.
 class ScanIndexed<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [ScanIndexed] instruction with the specified [seed] and
-  /// [accumulate] function.
+  /// Synthesizes an **Indexed Seeded Accumulator**—a specialized instruction
+  /// that accumulates with an explicit seed and passes the index to the
+  /// accumulation function.
   ///
-  /// ### Parameters:
-  /// - [seed]: **The Initial State.** The starting value of the accumulator.
-  /// - [accumulate]: **The Indexed Accumulation Function.** Takes the current
-  ///   accumulator, the new value, and the index, returns the new accumulator.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [ScanIndexed] acts as an **Indexed Seeded Accumulator**. It is similar to
+  /// [ScanSeeded] but also passes a zero-based index to the accumulation
+  /// function, allowing the accumulation to depend on the position of the
+  /// element.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Seed Storage**: The [seed] is stored as the initial accumulator.
+  /// 2. **Type Check**: The pulse payload is validated against type [S].
+  /// 3. **Indexed Accumulation**: The [accumulate] function is called with
+  ///    the current accumulator, the new value, and the current index.
+  /// 4. **Index Increment**: The index is incremented after each accumulation.
+  /// 5. **Emission**: The new accumulator is emitted with the step
+  ///    `'ScanIndexed'`.
+  /// 6. **Error Handling**: If [accumulate] throws, [onError] is called
+  ///    and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [seed]: **The Initial State.** Starting value of the accumulator.
+  /// - [accumulate]: **The Indexed Accumulation Function.** Combines
+  ///   accumulator, value, and index.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Position-Aware Accumulator
   /// ```dart
-  /// final scanIndexed = ScanIndexed<int, int>(
+  /// // Accumulates with position weighting
+  /// val positionAware = ScanIndexed<int, int>(
   ///   0,
-  ///   (acc, value, index) => acc + value * index,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   (acc, value, index) => acc + value * (index + 1),
+  ///   user: 'Position-Aware'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Scan]: For seedless accumulation.
+  /// - [ScanSeeded]: For seeded accumulation without index.
   ScanIndexed(
       A seed,
       A Function(A acc, S value, int index) accumulate, {
@@ -459,16 +576,6 @@ class ScanIndexed<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     })(),
     user: user,
   );
-}
-
-// ─────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────
-
-/// Internal state for scan operators.
-class _ScanState<A> {
-  A? acc;
-  bool hasAcc = false;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -517,7 +624,7 @@ class _ScanState<A> {
 ///
 /// 3. **ScanIndexed - running list**: Shows indexed accumulation.
 ///    The seed (empty list) is provided explicitly.
-///    Each value is appended to the list with the index.
+///    Each value is appended to the list.
 ///    `a, b` → `[a], [a, b]`
 ///
 /// ### Key Takeaways
@@ -529,6 +636,14 @@ class _ScanState<A> {
 /// - Use Scan for running totals when the first value is the base.
 /// - Use ScanSeeded when you need a known initial state.
 /// - Use ScanIndexed when position matters in the accumulation.
+/// - Choose the right operator for your use case:
+///   - Seedless accumulation → Scan
+///   - Seeded accumulation → ScanSeeded
+///   - Indexed accumulation → ScanIndexed
+///
+/// ### Note on State
+/// All scan operators maintain state across pulses. The state is volatile
+/// and not persisted. Use [Cell.state] for persistent state storage.
 Future<void> main() async {
   print('── Scan Operators Demo ───────────────────────────────────────\n');
 

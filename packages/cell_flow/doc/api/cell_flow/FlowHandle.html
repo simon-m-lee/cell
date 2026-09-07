@@ -54,42 +54,182 @@
     <section class="multi-line-signature">
         
   
-<span class="name ">FlowHandle</span>&lt;<wbr><span class="type-parameter">I</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)</span>
+<span class="name ">FlowHandle</span>&lt;<wbr><span class="type-parameter">I</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)</span>
 
 
     </section>
 
     
+<section class="desc markdown">
+  <p>A specialized record representing a <strong>Topographical Ingress Handle</strong>.</p>
+<p><a href="../cell_flow/FlowHandle.html">FlowHandle</a> is the materialized manifestation of an instruction. It
+serves as the primary interface for external systems to inject
+stimuli into the reactive graph, providing multiple tiers of
+execution speed and provenance control.</p>
+<h3 id="fields">Fields:</h3>
+<ul>
+<li>
+<p><strong>cell</strong>: The <strong>Anchor Node</strong> within the topography. This cell
+represents the live location of the instruction and can be used
+to observe the evolved output or bind further instructions.</p>
+</li>
+<li>
+<p><strong>emit</strong>: Performs <strong>Native Speed Ingress</strong>. This method wraps a
+raw payload into a pulse and initiates immediate evolution. It is
+the standard entry point for UI events and imperative triggers.</p>
+</li>
+<li>
+<p><strong>emitAsync</strong>: Performs <strong>Serialized Ingress</strong>. It ensures the
+stimulus respects the topography's atomic boundaries by routing
+evolution through the node's <strong>Conactive Lock</strong>, preventing
+race conditions during concurrent updates.</p>
+</li>
+<li>
+<p><strong>ingest</strong>: Performs <strong>Direct Signal Orchestration</strong>. Unlike <code>emit</code>,
+this method accepts a fully-formed <a href="../cell_flow/Pulse-class.html">Pulse</a>, allowing for the
+preservation of complex <strong>Provenance</strong> data, such as trace IDs,
+priorities, and justification metadata.</p>
+</li>
+</ul>
+</section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">typedef FlowHandle&lt;I&gt; = ({
 
-  &#47;&#47;&#47; The source node (&quot;cell&quot;) that anchors this entry point to the graph.
+  &#47;&#47;&#47; The **Anchor Node** within the topography.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; This cell represents the live location of the materialized instruction
+  &#47;&#47;&#47; and serves as the observable point for evolved output. It acts as the
+  &#47;&#47;&#47; bridge between the stateless blueprint and the stateful reactive graph.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### When to use
+  &#47;&#47;&#47; - **Downstream Binding**: Connecting subsequent instructions to the
+  &#47;&#47;&#47;   output of this gate to form a pipeline.
+  &#47;&#47;&#47; - **Pulse Observation**: Monitoring the current result of the evolution
+  &#47;&#47;&#47;   logic through standard cell listeners.
+  &#47;&#47;&#47; - **Topographical Queries**: Accessing the cell&#39;s metadata or
+  &#47;&#47;&#47;   checking its status within the reactive engine.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### How it works
+  &#47;&#47;&#47; 1. **Materialization**: The cell is generated during the [toHandle]
+  &#47;&#47;&#47;    call, encapsulating a new [Nucleus] and [Receptor].
+  &#47;&#47;&#47; 2. **Signal Origin**: Every pulse evolved by the handle&#39;s `emit` or
+  &#47;&#47;&#47;    `ingest` methods originates from this specific node.
+  &#47;&#47;&#47; 3. **Synaptic Connectivity**: Maintains the link to the upstream
+  &#47;&#47;&#47;    source and manages propagation to downstream synapses.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### See Also
+  &#47;&#47;&#47; * [Cell]: The foundational reactive primitive.
+  &#47;&#47;&#47; * [FlowInstructionMixin.toHandle]: The materialization process that
+  &#47;&#47;&#47;   creates this anchor.
   Cell cell,
 
-  &#47;&#47;&#47; Emits a raw stimulus into the reactive graph at **Native Speed**.
+  &#47;&#47;&#47; Performs **Native Speed Ingress**—the primary mechanism for injecting
+  &#47;&#47;&#47; raw stimuli into the reactive topography for immediate evolution.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; This is the most common way to bridge imperative code (like UI events)
-  &#47;&#47;&#47; into the reactive fabric. The handle automatically wraps the [input]
-  &#47;&#47;&#47; in a [Pulse] and initiates the **Ingress Phase**.
+  &#47;&#47;&#47; This method wraps a raw payload [input] into a pulse and initiates
+  &#47;&#47;&#47; synchronous propagation through the anchored gate. It is optimized
+  &#47;&#47;&#47; for high-frequency updates where the overhead of asynchronous
+  &#47;&#47;&#47; serialization is not required.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; Returns `true` if the signal successfully passed the **Integrity Gate**.
+  &#47;&#47;&#47; ### When to use
+  &#47;&#47;&#47; - **UI Interaction**: Injecting stimuli from button clicks, text
+  &#47;&#47;&#47;   input changes, or gesture offsets.
+  &#47;&#47;&#47; - **High-Frequency Ingress**: Scenarios requiring low-latency
+  &#47;&#47;&#47;   propagation where pulses arrive in rapid succession.
+  &#47;&#47;&#47; - **Imperative Bridging**: Connecting standard imperative logic or
+  &#47;&#47;&#47;   third-party callbacks to the reactive graph.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### How it works
+  &#47;&#47;&#47; 1. **Pulse Synthesis**: The raw [input] is automatically encapsulated
+  &#47;&#47;&#47;    into a `Pulse` object, inheriting the source metadata of the
+  &#47;&#47;&#47;    [cell].
+  &#47;&#47;&#47; 2. **Topographical Ingress**: The stimulus is delivered to the
+  &#47;&#47;&#47;    anchored node&#39;s [Receptor] for immediate processing.
+  &#47;&#47;&#47; 3. **Synchronous Evolution**: The evolution logic defined in the
+  &#47;&#47;&#47;    instruction blueprint is executed within the current call stack.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Returns
+  &#47;&#47;&#47; `true` if the stimulus successfully traverses the node&#39;s
+  &#47;&#47;&#47; **Integrity Gate** (e.g., passing access control and type checks).
   bool Function(I input) emit,
 
-  &#47;&#47;&#47; Asynchronously emits a stimulus, ensuring **Serialized Transformation**
-  &#47;&#47;&#47; through the node&#39;s **Conactive Lock**.
+  &#47;&#47;&#47; Performs **Serialized Ingress**—a specialized mechanism for injecting
+  &#47;&#47;&#47; stimuli that require atomic evolution boundaries.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; Use this when you need to ensure that the update respects the system&#39;s
-  &#47;&#47;&#47; atomic boundaries, preventing race conditions in high-concurrency scenes.
+  &#47;&#47;&#47; This method ensures that the stimulus [input] respects the topography&#39;s
+  &#47;&#47;&#47; concurrency constraints by routing its evolution through the node&#39;s
+  &#47;&#47;&#47; **Conactive Lock**. It is designed to prevent race conditions in
+  &#47;&#47;&#47; multi-actor or asynchronous environments.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### When to use
+  &#47;&#47;&#47; - **State Integrity**: When multiple concurrent stimuli might lead to
+  &#47;&#47;&#47;   inconsistent materializations if processed simultaneously.
+  &#47;&#47;&#47; - **Atomic Updates**: Scenarios where a single evolution must complete
+  &#47;&#47;&#47;   before the next stimulus is admitted to the gate.
+  &#47;&#47;&#47; - **External Coordination**: Bridging asynchronous events that are
+  &#47;&#47;&#47;   emitted from background isolates or concurrent logic loops.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### How it works
+  &#47;&#47;&#47; 1. **Lock Acquisition**: The orchestrator attempts to acquire the
+  &#47;&#47;&#47;    **Conactive Lock** associated with the anchored [cell].
+  &#47;&#47;&#47; 2. **Serialized Execution**: Once the lock is secured, the pulse is
+  &#47;&#47;&#47;    materialized and evolved using the [emit] logic.
+  &#47;&#47;&#47; 3. **Future Resolution**: The returned [Future] completes only after
+  &#47;&#47;&#47;     the synchronous evolution has been gated and processed.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Returns
+  &#47;&#47;&#47; A [Future] resolving to `true` if the stimulus successfully traverses
+  &#47;&#47;&#47; the **Integrity Gate** and completes its evolution cycle.
   Future&lt;bool&gt; Function(I input) emitAsync,
 
-  &#47;&#47;&#47; The **Primary Ingress Handle** for direct **Signal Orchestration**.
+  &#47;&#47;&#47; Performs **Forensic Signal Orchestration**—the specialized ingress tier
+  &#47;&#47;&#47; designed for direct pulse injection with full provenance control.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; Unlike [emit], which takes raw data, [ingest] accepts a fully-formed
-  &#47;&#47;&#47; [Pulse]. Use this when you need to provide specific **Provenance**
-  &#47;&#47;&#47; (like a custom `justification` or `traceId`).
+  &#47;&#47;&#47; Unlike the `emit` family, [ingest] accepts a pre-constructed [Pulse]
+  &#47;&#47;&#47; rather than a raw payload. This allows external orchestrators to
+  &#47;&#47;&#47; preserve complex metadata, trace IDs, and priority levels as the
+  &#47;&#47;&#47; stimulus enters the topography.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### When to use
+  &#47;&#47;&#47; - **Topographical Relaying**: Passing pulses from one autonomous
+  &#47;&#47;&#47;   graph to another while maintaining their original **Provenance**.
+  &#47;&#47;&#47; - **Forensic Auditing**: Injecting stimuli with specific trace IDs or
+  &#47;&#47;&#47;   justification metadata for logging and debugging.
+  &#47;&#47;&#47; - **Priority Signaling**: Manually defining the evolution priority
+  &#47;&#47;&#47;   to influence how the reactive engine schedules the pulse.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### How it works
+  &#47;&#47;&#47; 1. **Pulse Validation**: The pre-formed [pulse] is checked against the
+  &#47;&#47;&#47;    anchored node&#39;s type integrity rules [I].
+  &#47;&#47;&#47; 2. **Bypassing Synthesis**: The orchestrator skips internal pulse
+  &#47;&#47;&#47;    creation, delivering the stimulus directly to the [Receptor].
+  &#47;&#47;&#47; 3. **Lifecycle Synchronization**: If [serializedCompletion] is enabled,
+  &#47;&#47;&#47;    the resulting [Future] awaits the resolution of the node&#39;s
+  &#47;&#47;&#47;    **Conactive Lock**.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Non‑obvious
+  &#47;&#47;&#47; - **Source Authority**: While you can define the pulse source, the
+  &#47;&#47;&#47;   topography may append evolution steps to the metadata to track
+  &#47;&#47;&#47;   the signal&#39;s path through the gate.
+  &#47;&#47;&#47; - **Concurrency Control**: Setting [serializedCompletion] to `false`
+  &#47;&#47;&#47;   allows the call to return immediately, even if the evolution is
+  &#47;&#47;&#47;   still queued behind a busy lock.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Parameters:
+  &#47;&#47;&#47; - [pulse]: The **Stimulus Pulse** containing the payload and provenance.
+  &#47;&#47;&#47; - [serializedCompletion]: If `true`, the future resolves only after
+  &#47;&#47;&#47;   the evolution logic has fully settled.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### Returns:
+  &#47;&#47;&#47; A [Future] that completes once the signal has been successfully admitted
+  &#47;&#47;&#47; to the topography.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; ### See Also
+  &#47;&#47;&#47; * [Pulse]: The container for payload and topographical metadata.
+  &#47;&#47;&#47; * [emit]: For standard, low-overhead payload injection.
   Future&lt;void&gt; Function(Pulse&lt;I&gt; pulse, {bool serializedCompletion}) ingest
 
 });</code></pre>
@@ -118,7 +258,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

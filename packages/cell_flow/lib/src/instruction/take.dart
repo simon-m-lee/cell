@@ -6,29 +6,42 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
-/// Flow instructions that forward a prefix of a stream (Rx `take` family).
-///
-/// These operators take a limited number of values from the beginning of a
-/// stream and then stop forwarding. They are essential for limiting the
-/// number of values processed, implementing pagination, or taking samples.
-///
-/// | Operator | Rx analogue | Stops after |
-/// |---|---|---|
-/// | [Take] | `take` | [count] values |
-/// | [TakeWhile] | `takeWhile` | [predicate] becomes false |
-/// | [TakeUntil] | `takeUntil` | [notifier] emits |
-/// | [TakeUntilTime] | `takeUntil` + timer | [duration] elapses |
-///
-/// After the operator is done it stays silent. It does not complete the
-/// source Cell.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
+// ─────────────────────────────────────────────────────────────
+// Core Take Operators
+// ─────────────────────────────────────────────────────────────
 
+/// Error handler callback for take operators.
+///
+/// Called when an error occurs during taking operations, such as
+/// errors in predicates or type mismatches.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = TakeErrorHandler((error, stack) {
+///   print('Take error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef TakeErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions and State
+// ─────────────────────────────────────────────────────────────
+
+/// Helper for type-safe payload extraction.
+///
+/// [_typedOrError] checks that the pulse payload matches the expected
+/// type [S]. If it does, returns the pulse. If not, calls [onError]
+/// and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The incoming pulse to check.
+/// - [onError]: Optional error handler for type mismatches.
+///
+/// ### Returns:
+/// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       TakeErrorHandler? onError,
@@ -44,13 +57,28 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Helper to add a provenance step to a pulse.
 Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 
+/// Internal state for gate-based take operators.
+///
+/// [_OpenState] maintains a boolean flag indicating whether the gate is open.
+///
+/// ### Fields:
+/// - [open]: Whether the gate is open (values can pass through).
+///
+/// ### Non‑obvious
+/// - **Stateful**: The flag persists across pulses.
+/// - **Once Closed**: The flag is typically set once and never reopened.
+class _OpenState {
+  bool open = true;
+}
+
 // ─────────────────────────────────────────────────────────────
-// Take
+// Take - Count-Based Taker
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards the first [count] typed pulses
+/// A [FlowInstruction] that forwards the first [count] typed pulses
 /// (Rx `take`).
 ///
 /// [Take] acts as a **Count-Based Taker**. It forwards the first N values
@@ -68,6 +96,7 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - **Limiting**: Limiting the number of processed items
 /// - **Preview**: Showing a preview of data
 /// - **Batching**: Taking a batch of items
+/// - **Throttling**: Taking a limited number for processing
 ///
 /// ### Choosing Between Take Patterns
 /// - **Use [Take]** for **Count-Based Take**: When you want to take a
@@ -95,7 +124,7 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// 4. If the counter reaches [count], the stream closes and all subsequent
 ///    pulses are dropped.
 /// 5. Results are emitted in input order.
-/// 6. The instruction preserves causal provenance.
+/// 6. Each emitted value gets the step `'Take'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Terminal State**: Once the count is reached, the stream closes.
@@ -105,6 +134,7 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - **Error Handling**: Type errors are reported via [onError].
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
 /// - **Memory Efficiency**: Only an integer counter is stored.
+/// - **Count Zero**: If [count] is 0, no values are emitted.
 ///
 /// ### Example: Take First 3 Values
 /// ```dart
@@ -135,7 +165,7 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that takes the first N values.
 ///
 /// ### See Also:
 /// - [TakeWhile]: For conditional taking.
@@ -143,20 +173,39 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - [TakeUntilTime]: For time-based taking.
 /// - [Skip]: For skipping values.
 class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Take] instruction with the specified [count].
+  /// Synthesizes a **Count-Based Taker**—a specialized instruction that
+  /// forwards the first [count] typed pulses.
   ///
-  /// ### Parameters:
-  /// - [count]: **The Number of Values to Take.** Must be >= 0.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [Take] acts as a **Count-Based Taker**. It forwards the first N values
+  /// from the stream and then stops forwarding, remaining silent for all
+  /// subsequent values.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Counter Management**: A counter tracks how many values are taken.
+  /// 3. **Take Phase**: If the counter is less than [count], the value passes.
+  /// 4. **Close Phase**: Once the counter reaches [count], the stream closes.
+  /// 5. **Step Evolution**: Passed values get the step `'Take'`.
+  /// 6. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [count]: **The Number to Take.** Must be >= 0.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: First N Values
   /// ```dart
-  /// val take = Take<int>(
-  ///   3,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Takes the first 5 values
+  /// val firstFive = Take<Event>(
+  ///   5,
+  ///   user: 'First-Five'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [TakeWhile]: For conditional taking.
+  /// - [TakeUntil]: For event-based taking.
+  /// - [TakeUntilTime]: For time-based taking.
   Take(
       int count, {
         TakeErrorHandler? onError,
@@ -177,10 +226,10 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// TakeWhile
+// TakeWhile - Conditional Prefix Taker
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards values while [predicate] is true
+/// A [FlowInstruction] that forwards values while [predicate] is true
 /// (Rx `takeWhile`).
 ///
 /// [TakeWhile] acts as a **Conditional Prefix Taker**. It forwards values
@@ -199,6 +248,13 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're implementing early termination
 /// - You're taking a prefix based on a condition
 ///
+/// ### Comparison with Filter
+/// | Feature | TakeWhile | Filter |
+/// |---------|-----------|--------|
+/// | **Behavior** | Stops after failure | Continues filtering |
+/// | **Use Case** | Take prefix | Filter all |
+/// | **State** | Maintains open state | Stateless |
+///
 /// ### How it works
 /// 1. Each incoming pulse's payload is extracted and type-checked.
 /// 2. The predicate is evaluated.
@@ -206,14 +262,8 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the predicate returns `false`, the stream closes.
 /// 5. With [inclusive], the failing value is still emitted.
 /// 6. Results are emitted in input order.
-/// 7. The instruction preserves causal provenance.
-///
-/// ### Comparison with Filter
-/// | Feature | TakeWhile | Filter |
-/// |---------|-----------|--------|
-/// | **Behavior** | Stops after failure | Continues filtering |
-/// | **Use Case** | Take prefix | Filter all |
-/// | **State** | Maintains open state | Stateless |
+/// 7. Success emissions get the step `'TakeWhile'`.
+/// 8. Inclusive emissions get the step `'TakeWhile.inclusive'`.
 ///
 /// ### Non‑obvious
 /// - **Terminal State**: Once the predicate returns `false`, the stream
@@ -262,31 +312,51 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that takes values until a condition fails.
 ///
 /// ### See Also:
 /// - [Take]: For count-based taking.
 /// - [TakeUntil]: For event-based taking.
 /// - [Filter]: For filtering all values.
 class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [TakeWhile] instruction with the specified [predicate].
+  /// Synthesizes a **Conditional Prefix Taker**—a specialized instruction
+  /// that takes values until a condition fails.
   ///
-  /// ### Parameters:
-  /// - [predicate]: **The Taking Predicate.** Returns `true` to continue
-  ///   taking values. When it returns `false`, the stream closes.
-  /// - [inclusive]: **Include the Failing Value.** If `true`, the value that
-  ///   causes the predicate to fail is still emitted.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [TakeWhile] acts as a **Conditional Prefix Taker**. It forwards values
+  /// from the beginning of the stream while a condition is true, and stops
+  /// forwarding when the condition fails.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The predicate is called with the payload.
+  /// 3. **Take Phase**: If the predicate returns `true`, the value passes
+  ///    with the step `'TakeWhile'`.
+  /// 4. **Close Phase**: Once the predicate returns `false`, the stream closes.
+  /// 5. **Inclusive Mode**: If [inclusive] is `true`, the failing value
+  ///    is emitted with the step `'TakeWhile.inclusive'`.
+  /// 6. **Error Handling**: If the predicate throws, [onError] is called
+  ///    and the stream closes.
+  ///
+  /// ### Parameters
+  /// - [predicate]: **The Condition.** Returns `true` to take values.
+  /// - [inclusive]: **Include Failing Value.** Emits the value that closes.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Threshold Taker
   /// ```dart
-  /// val takeWhile = TakeWhile<int>(
-  ///   (n) => n < 5,
+  /// // Takes values while they are below a threshold
+  /// val thresholdTaker = TakeWhile<int>(
+  ///   (n) => n < 100,
   ///   inclusive: true,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Threshold-Taker'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Take]: For count-based taking.
+  /// - [TakeUntil]: For event-based taking.
+  /// - [Filter]: For filtering all values.
   TakeWhile(
       bool Function(S value) predicate, {
         bool inclusive = false,
@@ -318,10 +388,10 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// TakeUntil
+// TakeUntil - Event-Based Taker
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards values until [notifier] emits
+/// A [FlowInstruction] that forwards values until [notifier] emits
 /// any pulse (Rx `takeUntil`).
 ///
 /// [TakeUntil] acts as an **Event-Based Taker**. It forwards values from
@@ -344,7 +414,7 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. Initially, all values from the source are forwarded.
 /// 3. When the [notifier] emits a value, the stream closes.
 /// 4. After the notifier emits, all subsequent source values are dropped.
-/// 5. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'TakeUntil'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **State**: The instruction maintains an `open` flag.
@@ -352,6 +422,7 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **First Value**: The notifier's value is not passed through.
 /// - **Memory Efficiency**: Only a boolean flag is stored.
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Notifier Observation**: The notifier is observed once and persists.
 ///
 /// ### Example: Take Until Stop
 /// ```dart
@@ -378,28 +449,46 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that takes values until an event occurs.
 ///
 /// ### See Also:
 /// - [TakeWhile]: For conditional taking.
 /// - [TakeUntilTime]: For time-based taking.
 /// - [Take]: For count-based taking.
 class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [TakeUntil] instruction with the specified [notifier].
+  /// Synthesizes an **Event-Based Taker**—a specialized instruction that
+  /// takes values until a notifier emits.
   ///
-  /// ### Parameters:
-  /// - [notifier]: **The Closing Event Source.** The cell that triggers the
-  ///   stream closing when it emits a value.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [TakeUntil] acts as an **Event-Based Taker**. It forwards values from
+  /// the source until the [notifier] cell emits a pulse.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Notifier Observation**: The instruction observes the notifier cell.
+  /// 2. **Take Phase**: All source values are forwarded while the notifier
+  ///    hasn't emitted.
+  /// 3. **Close Phase**: When the notifier emits, the stream closes.
+  /// 4. **Drop Phase**: After closing, all source values are dropped.
+  /// 5. **Step Evolution**: Passed values get the step `'TakeUntil'`.
+  /// 6. **Error Handling**: Type errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [notifier]: **The Closing Event.** The cell that closes the stream.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Stop Controller
   /// ```dart
-  /// val takeUntil = TakeUntil<int>(
-  ///   stop.cell,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Takes values until the stop signal arrives
+  /// val stopController = TakeUntil<Event>(
+  ///   stopSignal.cell,
+  ///   user: 'Stop-Controller'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [TakeWhile]: For conditional taking.
+  /// - [TakeUntilTime]: For time-based taking.
+  /// - [Take]: For count-based taking.
   TakeUntil(
       Cell notifier, {
         TakeErrorHandler? onError,
@@ -425,10 +514,10 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// TakeUntilTime
+// TakeUntilTime - Time-Based Taker
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards values until a time elapses
+/// A [FlowInstruction] that forwards values until a time elapses
 /// (timer `takeUntil`).
 ///
 /// [TakeUntilTime] acts as a **Time-Based Taker**. It forwards values from
@@ -444,13 +533,14 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're collecting data for a fixed duration
 /// - You're implementing a windowed operation
 /// - You're taking a snapshot within a timeframe
+/// - You're implementing a grace period for data collection
 ///
 /// ### How it works
 /// 1. The first typed pulse starts a timer.
 /// 2. All values are forwarded until the timer expires.
 /// 3. When the timer expires, the stream closes.
 /// 4. All subsequent values are dropped.
-/// 5. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'TakeUntilTime'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Timer**: The timer starts on the first pulse, not at creation.
@@ -458,6 +548,7 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Time Window**: There is a limited time window for values.
 /// - **Memory Efficiency**: Only a timer and flag are stored.
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Timer Cleanup**: The timer is automatically cleaned up.
 ///
 /// ### Example: Take First 40ms of Values
 /// ```dart
@@ -484,28 +575,46 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that takes values until a time elapses.
 ///
 /// ### See Also:
 /// - [TakeUntil]: For event-based taking.
 /// - [TakeWhile]: For conditional taking.
 /// - [Take]: For count-based taking.
 class TakeUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [TakeUntilTime] instruction with the specified [duration].
+  /// Synthesizes a **Time-Based Taker**—a specialized instruction that
+  /// takes values until a timer expires.
   ///
-  /// ### Parameters:
-  /// - [duration]: **The Time Duration.** The time window after the first
-  ///   value before the stream closes.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [TakeUntilTime] acts as a **Time-Based Taker**. It forwards values from
+  /// the source until a specified duration has elapsed after the first value
+  /// arrives, then closes the stream.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **First Pulse**: The first typed pulse starts the timer.
+  /// 2. **Take Phase**: All values are forwarded while the timer is active.
+  /// 3. **Close Phase**: When the timer expires, the stream closes.
+  /// 4. **Drop Phase**: After closing, all source values are dropped.
+  /// 5. **Step Evolution**: Passed values get the step `'TakeUntilTime'`.
+  /// 6. **Error Handling**: Type errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [duration]: **The Time Window.** How long to take values.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Time Window Collector
   /// ```dart
-  /// val takeUntilTime = TakeUntilTime<int>(
-  ///   Duration(milliseconds: 100),
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Collects values for 5 seconds
+  /// val timeWindow = TakeUntilTime<Event>(
+  ///   Duration(seconds: 5),
+  ///   user: 'Time-Window'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [TakeUntil]: For event-based taking.
+  /// - [TakeWhile]: For conditional taking.
+  /// - [Take]: For count-based taking.
   TakeUntilTime(
       Duration duration, {
         TakeErrorHandler? onError,
@@ -529,15 +638,6 @@ class TakeUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     })(),
     user: user,
   );
-}
-
-// ─────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────
-
-/// Internal state for [TakeUntil] and [TakeUntilTime].
-class _OpenState {
-  bool open = true;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -601,6 +701,16 @@ class _OpenState {
 /// - All take operators close the stream after their condition is met.
 /// - The source cell is not completed; it just becomes silent.
 /// - All operators preserve causal provenance via EvolvedPulse.
+/// - Choose the right operator for your use case:
+///   - Fixed number → Take
+///   - Conditional → TakeWhile
+///   - Event-based → TakeUntil
+///   - Time-based → TakeUntilTime
+///
+/// ### Note on Stream Closure
+/// When a take operator closes, it does not complete the source cell.
+/// The source cell continues to emit, but the values are simply dropped
+/// by the take operator.
 Future<void> main() async {
   print('── Take Operators Demo ───────────────────────────────────────\n');
 

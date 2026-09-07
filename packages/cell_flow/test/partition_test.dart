@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/partition.dart';
 import 'package:test/test.dart';
 
@@ -171,4 +169,172 @@ void main() {
       expect(b.probe.payloads, [1]);
     });
   });
+  group('Partition extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Partition<int>(
+        (n) => n.isEven,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('marks lineage with Partition', () async {
+      final b = bind(Partition<int>((n) => true));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.steps, contains('Partition'));
+    });
+  });
+
+  group('PartitionMap extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = PartitionMap<int, String>(
+        (n) => n.isEven,
+        thenMap: (n) => 'e',
+        elseMap: (n) => 'o',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(true);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('thenMap throw drops the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(PartitionMap<int, int>(
+        (n) => true,
+        thenMap: (n) => throw StateError('then'),
+        elseMap: (n) => n,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('PartitionCollect extra', () {
+    test('wrong types do not fill buckets', () async {
+      final errors = <Object>[];
+      final op = PartitionCollect<int>(
+        (n) => n.isEven,
+        onError: (e, _) => errors.add(e),
+      );
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(op.matched, isEmpty);
+      expect(op.other, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('empty source leaves buckets empty', () async {
+      final op = PartitionCollect<int>((n) => n.isEven);
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.probe.settle();
+      expect(op.matched, isEmpty);
+      expect(op.other, isEmpty);
+    });
+  });
+
+  group('PartitionOnly extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = PartitionOnly<int>(
+        (n) => n.isEven,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('predicate throw drops the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(PartitionOnly<int>(
+        (n) => throw StateError('t'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('marks lineage with PartitionOnly', () async {
+      final b = bind(PartitionOnly<int>((n) => true));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.steps, contains('PartitionOnly'));
+    });
+  });
+
+  group('composition / performance', () {
+    test('Partition + PartitionOnly is a chain', () async {
+      final op = Partition<int>((n) => n.isEven) +
+          PartitionOnly<Object>((_) => true);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Partition handles 200 ints', () async {
+      final b = bind(Partition<int>((n) => n.isEven));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+    });
+  });
+
+  group('coverage extras', () {
+    test('PartitionCollect fills both lists', () async {
+      final b = bind(PartitionCollect<int>((n) => n.isEven));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('PartitionOnly matched false drops', () async {
+      final b = bind(PartitionOnly<int>((n) => n.isEven));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

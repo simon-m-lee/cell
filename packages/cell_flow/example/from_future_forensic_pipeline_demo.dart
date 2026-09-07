@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 /// A complete walkthrough demonstrating the use of Flow.fromFuture for
 /// bridging legacy async APIs into forensic pipelines.
 ///
@@ -133,8 +135,12 @@
 ///
 /// ── Finished ──────────────────────────────────────────────────────────────
 /// ```
+library;
+
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 // ─────────────────────────────────────────────────────────────────────
 // Forensic Data Models
@@ -444,8 +450,11 @@ class ForensicMetrics {
 
   void recordRequest(String operation, bool success, Duration duration) {
     totalRequests++;
-    if (success) successfulRequests++;
-    else failedRequests++;
+    if (success) {
+      successfulRequests++;
+    } else {
+      failedRequests++;
+    }
     operationCounts[operation] = (operationCounts[operation] ?? 0) + 1;
     operationTimes[operation] = (operationTimes[operation] ?? Duration.zero) + duration;
     auditTrail.add('${DateTime.now().toIso8601String()}: $operation - ${success ? "SUCCESS" : "FAILURE"}');

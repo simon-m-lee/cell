@@ -92,7 +92,7 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/combine_latest.dart';
 import 'package:cell_flow/src/instruction/map.dart';
 import 'package:cell_flow/src/instruction/scan.dart';

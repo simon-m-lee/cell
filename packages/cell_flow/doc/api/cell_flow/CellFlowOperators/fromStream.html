@@ -64,6 +64,63 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Continuous Pulse Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>.</p>
+<p>This operator establishes a persistent, asynchronous link to an external
+data source, materializing each stream event as a new pulse within
+the topography. It allows the graph to react to live, ongoing evolution
+emitted by external actors.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Event Integration</strong>: Anchoring a topography branch to UI event
+buses, socket streams, or system notifications.</li>
+<li><strong>Reactive Bridging</strong>: Integrating existing <code>dart:async</code> Streams
+into the Mitosis evolution framework.</li>
+<li><strong>Persistent Ingress</strong>: Scenarios where a single trigger should
+open a long-lived gateway for multiple stimuli.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Bridge Subscription</strong>: The operator intercepts a trigger pulse
+from the source cell and subscribes to the provided <code>stream</code>.</li>
+<li><strong>Signal Monitoring</strong>: The bridge remains active, monitoring the
+stream for data, errors, or termination signals.</li>
+<li><strong>Materialization</strong>: Every data event from the stream is emitted
+as a new pulse, inheriting the priority of the original trigger
+and tagged with the <code>'FromStream'</code> step.</li>
+<li><strong>Error Handling</strong>: Stream errors are intercepted. Depending on
+<code>emitErrorPulse</code>, they are either evolved as error-tagged pulses
+or silenced after the <code>onError</code> callback.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lifecycle Synchronization</strong>: The bridge automatically cancels the
+stream subscription if the anchored node is disposed or if a
+new trigger pulse re-activates the gate.</li>
+<li><strong>Backpressure</strong>: This bridge performs immediate materialization;
+downstream nodes should use <code>buffer</code> or <code>throttle</code> if the stream
+frequency exceeds evolution capacity.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of data yielded by
+the continuous stream source.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>stream</code>: The <strong>Continuous Materialization Source</strong> to be bridged.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked upon stream errors.</li>
+<li><code>emitErrorPulse</code>: If true, stream errors are evolved into the
+topography as error-tagged pulses.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> providing the anchor node for the continuous branch.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/fromFuture.html">fromFuture</a>: For anchoring to one-off asynchronous tasks.</li>
+<li><code>AsyncExpand</code>: For mapping pulses into persistent inner streams.</li>
+</ul>
+</section>
 
 
     
@@ -98,7 +155,7 @@
     <li class="self-crumb">fromStream&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -107,7 +164,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

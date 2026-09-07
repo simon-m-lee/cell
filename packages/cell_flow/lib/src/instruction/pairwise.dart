@@ -4,25 +4,37 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
-/// Flow instructions that emit adjacent pairs (Rx `pairwise` family).
-///
-/// These operators emit each consecutive pair of values from the stream.
-/// This is a **sliding window of size 2**, not an accumulator. Keep it
-/// separate from [Scan]: `scan` folds history into one value; `pairwise`
-/// forwards `(previous, current)` and forgets everything older.
-///
-/// | Operator | Rx analogue | Emission |
-/// |---|---|---|
-/// | [Pairwise] | `pairwise` | `(prev, next)` from the second pulse |
-/// | [PairwiseWith] | `pairwise` + map | custom combine of prev and next |
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
+// ─────────────────────────────────────────────────────────────
+// Flow instructions that emit adjacent pairs
+// ─────────────────────────────────────────────────────────────
 
+/// Error handler callback for pairwise operators.
+///
+/// Called when an error occurs during pairwise operations, such as
+/// type mismatches or errors in the combine function.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = PairwiseErrorHandler((error, stack) {
+///   print('Pairwise error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef PairwiseErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper to validate and extract a typed payload from a pulse.
+///
+/// Checks that the pulse payload matches the expected type [S].
+/// If the type check fails, calls the [onError] handler and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The pulse to validate.
+/// - [onError]: Optional error handler for type mismatches.
+///
+/// ### Returns:
+/// The validated pulse if the type matches, or `null` if it doesn't.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       PairwiseErrorHandler? onError,
@@ -38,6 +50,19 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
   return Pulse<A>(
     value,
@@ -52,7 +77,7 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 // Pairwise
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that emits `(previous, current)` starting at the
+/// A [FlowInstruction] that emits `(previous, current)` starting at the
 /// second typed value (Rx `pairwise`).
 ///
 /// [Pairwise] acts as a **Sliding Window of Size 2**. It maintains a sliding
@@ -91,6 +116,7 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 ///    are emitted as a pair `(previous, current)`.
 /// 3. The current value becomes the previous value for the next pair.
 /// 4. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'Pairwise'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Sliding Window**: Only the last two values are kept.
@@ -117,7 +143,7 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// ### Example: Change Detection
 /// ```dart
 /// final readings = Cell.ingress<double>();
-/// val changes = Pairwise<double>().toHandle(source: readings.cell);
+/// final changes = Pairwise<double>().toHandle(source: readings.cell);
 ///
 /// // Derive the difference
 /// final deltas = Cell.derive(
@@ -132,7 +158,7 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// ### Example: Direction Detection
 /// ```dart
 /// final positions = Cell.ingress<int>();
-/// val directions = Pairwise<int>().toHandle(source: positions.cell);
+/// final directions = Pairwise<int>().toHandle(source: positions.cell);
 ///
 /// // Detect direction changes
 /// final dirChanges = Cell.derive(
@@ -153,25 +179,57 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that emits adjacent pairs.
 ///
 /// ### See Also:
 /// - [PairwiseWith]: For custom combination of adjacent pairs.
 /// - [Scan]: For accumulating values over time.
 /// - [DistinctUntilChanged]: For removing consecutive duplicates.
 class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Pairwise] instruction.
+  /// Synthesizes a **Sliding Window of Size 2**—a specialized instruction
+  /// that emits each consecutive pair of values from the stream.
   ///
-  /// ### Parameters:
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [Pairwise] acts as a **Adjacent Pair Emitter**. It maintains a sliding
+  /// window of the last two values and emits them as a pair for each
+  /// consecutive pair in the stream. The first value is always silent
+  /// (used as the seed for the first pair).
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **First Pulse Storage**: The first typed pulse is stored as the
+  ///    previous value and is not emitted.
+  /// 2. **Subsequent Pulse Processing**: For each subsequent pulse, the
+  ///    previous value and the current value are emitted as a pair.
+  /// 3. **State Update**: The current value becomes the previous value for
+  ///    the next pair.
+  /// 4. **Step Evolution**: Each emitted pair is wrapped in a new pulse
+  ///    that inherits the original provenance (source, priority, type) and
+  ///    is tagged with the `'Pairwise'` step.
+  /// 5. **Provenance Preservation**: Every emitted result preserves the
+  ///    forensic history of the triggering pulse.
+  ///
+  /// ### Memory Model
+  /// * **O(1) Memory**: Only the previous value is stored.
+  /// * **Sliding Window**: Only the last two values are kept.
+  /// * **No Accumulation**: Older values are discarded.
+  ///
+  /// ### Parameters
+  /// - [onError]: **Integrity Handler.** A callback invoked if a payload
+  ///   violates type [S] or an error occurs during processing.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Raw Adjacent Pairs
   /// ```dart
+  /// // Emits (1, 2), (2, 3) for input 1, 2, 3
   /// final pairwise = Pairwise<int>(
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Adjacent-Pair-Generator'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [PairwiseWith]: For custom combination of adjacent pairs.
+  /// - [Scan]: For accumulating values over time.
+  /// - [DistinctUntilChanged]: For removing consecutive duplicates.
   Pairwise({
     PairwiseErrorHandler? onError,
     dynamic user,
@@ -205,7 +263,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // PairwiseWith
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that emits a custom combination of adjacent pairs
+/// A [FlowInstruction] that emits a custom combination of adjacent pairs
 /// (Rx `pairwise` + map).
 ///
 /// [PairwiseWith] acts as a **Custom Adjacent Pair Transformer**. It is similar
@@ -233,6 +291,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 3. The result of [combine] is emitted.
 /// 4. The current value becomes the previous value for the next pair.
 /// 5. The instruction preserves causal provenance.
+/// 6. Each emitted value gets the step `'PairwiseWith'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Custom Combination**: The [combine] function defines what to emit.
@@ -247,7 +306,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### Example: Deltas
 /// ```dart
 /// final samples = Cell.ingress<int>();
-/// val deltas = PairwiseWith<int, int>((prev, next) => next - prev)
+/// final deltas = PairwiseWith<int, int>((prev, next) => next - prev)
 ///     .toHandle(source: samples.cell);
 ///
 /// samples.emit(1); // No output (stored)
@@ -259,7 +318,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### Example: Ratios
 /// ```dart
 /// final values = Cell.ingress<double>();
-/// val ratios = PairwiseWith<double, double>((prev, next) => next / prev)
+/// final ratios = PairwiseWith<double, double>((prev, next) => next / prev)
 ///     .toHandle(source: values.cell);
 ///
 /// values.emit(2.0); // No output (stored)
@@ -270,7 +329,7 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### Example: Velocity
 /// ```dart
 /// final positions = Cell.ingress<({double x, double y})>();
-/// val velocity = PairwiseWith<({double x, double y}), double>(
+/// final velocity = PairwiseWith<({double x, double y}), double>(
 ///   (prev, curr) {
 ///     final dx = curr.x - prev.x;
 ///     final dy = curr.y - prev.y;
@@ -290,28 +349,61 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload from the combination.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that emits custom combination of adjacent pairs.
 ///
 /// ### See Also:
 /// - [Pairwise]: For raw adjacent pairs.
 /// - [Scan]: For accumulating values over time.
 /// - [DistinctUntilChanged]: For removing consecutive duplicates.
 class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [PairwiseWith] instruction with the specified [combine] function.
+  /// Synthesizes a **Custom Adjacent Pair Transformer**—a specialized
+  /// instruction that applies a custom function to each consecutive pair
+  /// of values.
   ///
-  /// ### Parameters:
+  /// [PairwiseWith] is similar to [Pairwise] but applies a custom [combine]
+  /// function to each pair, allowing you to compute deltas, ratios, or any
+  /// other derived value from consecutive values.
+  ///
+  /// ### How it works
+  /// 1. **First Pulse Storage**: The first typed pulse is stored as the
+  ///    previous value and is not emitted.
+  /// 2. **Pair Combination**: For each subsequent pulse, the [combine]
+  ///    function is called with the previous and current values.
+  /// 3. **Result Emission**: The result of [combine] is emitted.
+  /// 4. **State Update**: The current value becomes the previous value for
+  ///    the next pair.
+  /// 5. **Step Evolution**: Each emitted result is wrapped in a new pulse
+  ///    that inherits the original provenance (source, priority, type) and
+  ///    is tagged with the `'PairwiseWith'` step.
+  /// 6. **Error Handling**: If [combine] throws an error, it's reported
+  ///    via [onError] and the pulse is dropped.
+  ///
+  /// ### Memory Model
+  /// * **O(1) Memory**: Only the previous value is stored.
+  /// * **Sliding Window**: Only the last two values are kept.
+  /// * **No Accumulation**: Older values are discarded.
+  ///
+  /// ### Parameters
   /// - [combine]: **The Combination Function.** Takes the previous and current
   ///   values, returns a derived value of type [T].
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// - [onError]: **Integrity Handler.** A callback invoked if a payload
+  ///   violates type [S], [combine] throws an error, or a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
   ///
-  /// ### Example
+  /// ### Example: Delta Calculator
   /// ```dart
-  /// final pairwiseWith = PairwiseWith<int, int>(
+  /// // Computes the difference between consecutive values
+  /// final delta = PairwiseWith<int, int>(
   ///   (prev, next) => next - prev,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Delta-Calculator'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Pairwise]: For raw adjacent pairs.
+  /// - [Scan]: For accumulating values over time.
+  /// - [DistinctUntilChanged]: For removing consecutive duplicates.
   PairwiseWith(
       T Function(S previous, S current) combine, {
         PairwiseErrorHandler? onError,
@@ -352,6 +444,19 @@ class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // ─────────────────────────────────────────────────────────────
 
 /// Internal state for pairwise operators.
+///
+/// Maintains the previous value and a flag indicating whether a value
+/// has been stored yet. This state is used by both [Pairwise] and
+/// [PairwiseWith] to track the sliding window.
+///
+/// ### Fields:
+/// - [prev]: The previous value in the stream.
+/// - [hasPrev]: Whether a previous value has been stored.
+///
+/// ### Non‑obvious
+/// - **O(1) Memory**: Only one value is stored at a time.
+/// - **State Reset**: The state is not automatically reset; it persists
+///   for the lifetime of the instruction.
 class _PrevState<S> {
   S? prev;
   bool hasPrev = false;
@@ -400,6 +505,16 @@ class _PrevState<S> {
 /// - PairwiseWith allows custom transformation of adjacent pairs.
 /// - Both operators preserve causal provenance via EvolvedPulse.
 /// - Use Pairwise for raw pairs, PairwiseWith for derived values.
+/// - Both operators handle type mismatches gracefully via [onError].
+///
+/// ### Note on Use Cases
+/// Pairwise operators are ideal for:
+/// - Change detection (deltas, diffs)
+/// - Motion detection (velocity, acceleration)
+/// - Signal processing (derivatives, smoothing)
+/// - Edge detection (direction changes)
+/// - Trend analysis (up/down detection)
+/// - Data validation (change validation)
 Future<void> main() async {
   print('── Pairwise Operators Demo ───────────────────────────────────\n');
 

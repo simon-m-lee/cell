@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_flow/FlowHandle.html">FlowHandle</a></span>
-<span class="name ">tapAll</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+<span class="name ">tapAll</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
 </ol>), </span></li>
 <li><span class="parameter" id="tapAll-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
 </ol>})
@@ -64,6 +64,16 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Forensic Observation Gate</strong>—an instruction that exposes the full <a href="../../cell_flow/Pulse-class.html">Pulse</a> container for metadata auditing.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>onPulse</code>: Logic for auditing <strong>Provenance</strong> and payload metadata.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> for integrity violations.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> for the audited topography branch.</p>
+</section>
 
 
     
@@ -101,7 +111,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

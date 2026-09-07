@@ -10,17 +10,20 @@
 dartdoc:
   categories:
     # ── Foundation ──────────────────────────────────────────────
-    "Architecture":
-      markdown: ARCHITECTURE-Flow.md
-      displayName: Architecture (Mitosis)
+    "Getting Started":
+      markdown: guide/HowTo-Start.md
+      displayName: Getting Started
     "Features":
       markdown: FEATURES-Flow.md
-      displayName: Operator Catalog
+      displayName: Features
+    "Architecture":
+      markdown: ARCHITECTURE-Flow.md
+      displayName: Architecture
 
     # ── Learning & Demos ──────────────────────────────────────────
     "Walkthroughs":
       markdown: DEMO_GUIDE.md
-      displayName: High-Fidelity Walkthroughs
+      displayName: Walkthroughs
     "ICU Alarm Pipeline":
       markdown: example/ICU-alarm-pipeline(enhanced)-WalkThrough.md
       displayName: "Demo · ICU Alarm Pipeline"
@@ -30,6 +33,9 @@ dartdoc:
     "Search Stability":
       markdown: example/stability_search-WalkThrough.md
       displayName: "Demo · Search Stability"
+    "Forensic Pipeline":
+      markdown: example/from_future_forensic_pipeline-WalkThrough.md
+      displayName: "Demo · Forensic Pipeline"
     "Examples":
       markdown: README.md
       displayName: Quick Start & Examples
@@ -37,19 +43,20 @@ dartdoc:
     # ── Advanced Guides ──────────────────────────────────────────
     "Instructions":
       markdown: guide/HowTo-FlowInstruction-Receptor.md
-      displayName: Custom Receptors & Instructions
+      displayName: HowTo-FlowInstructions
     "Fluent API":
       markdown: guide/HowTo-Fluent_Operator.md
       displayName: Method Chaining (Fluent)
 
   categoryOrder:
-    - "Architecture"
+    - "Getting Started"
     - "Features"
-    - "Comparison"
+    - "Architecture"
     - "Walkthroughs"
     - "ICU Alarm Pipeline"
     - "Pharmacy Dispense"
     - "Search Stability"
+    - "Forensic Pipeline"
     - "Examples"
     - "Instructions"
     - "Fluent API"

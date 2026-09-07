@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Concat Operators
@@ -227,6 +227,35 @@ Future<List<dynamic>> _collect(Object? inner) async {
 /// - [ConcatLatest]: For last item only.
 /// - [ConcatMap]: For per-item mapping.
 class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Static Sequential Concatenator**—a specialized
+  /// orchestration instruction designed to play a fixed lineage of
+  /// sequences in strict topographical order.
+  ///
+  /// This constructor initializes an orchestrator that materializes
+  /// only upon the **Initial Pulse** of the bound source. Once armed,
+  /// it drains the provided [inners] one by one, ensuring each
+  /// sequence (List, Future, or Stream) is fully evolved before
+  /// the next begins.
+  ///
+  /// **Parameters:**
+  /// - [inners]: **The Fixed Lineage.** A collection of objects
+  ///   (Streams, Futures, Iterables, or raw values) to be
+  ///   sequentially materialized.
+  /// - [onError]: **Integrity Handler.** Invoked if a specific
+  ///   inner evolution encounters an error; failure in one sequence
+  ///   does not halt the rest of the lineage.
+  /// - [user]: **Flyweight Metadata.** Optional configuration
+  ///   preserved across the topography for auditing.
+  ///
+  /// ### Topographical Behavior:
+  /// * **Single-Lane Evolution**: Only one inner sequence is drained
+  ///   at a time, preserving causal order.
+  /// * **One-Shot Arming**: The instruction reacts to the first
+  ///   stimulus and ignores subsequent pulses from the source cell.
+  /// * **Provenance Preservation**: Every emitted value inherits
+  ///   the priority and source of the original arming pulse,
+  ///   tagged with the `'Concat'` step.
   Concat(
       Iterable<Object?> inners, {
         ConcatErrorHandler? onError,
@@ -326,6 +355,19 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatLatest]: For last item only.
 /// - [AsyncExpand]: For flattening with different strategies.
 class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Sequential Expansion Gate** for dynamic pulse evolution.
+  ///
+  /// This constructor initializes an orchestrator that treats each incoming
+  /// stimulus as a potential **Inner Sequence** (Stream, Future, Iterable, or
+  /// raw value). It ensures these sequences are materialized and fully drained
+  /// in strict arrival order using a **FIFO Queuing** strategy.
+  ///
+  /// **Parameters:**
+  /// - [onError]: **Integrity Handler.** Invoked if an inner evolution fails;
+  ///   the gate proceeds to the next queued sequence after handling.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data preserved
+  ///   across the topography for auditing.
   ConcatAll({
     ConcatErrorHandler? onError,
     dynamic user,
@@ -426,6 +468,29 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatAll]: For dynamic sequence concatenation.
 /// - [ConcatLatest]: For last item only.
 class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Head-Selection Expansion Gate** for ordered pulse evolution.  ///
+  /// This constructor initializes an orchestrator that treats each incoming
+  /// stimulus as a potential **Inner Sequence**. It materializes and evolves
+  /// these sequences in strict **FIFO arrival order**, but emits only the
+  /// *initial* payload of each sequence before immediately advancing to
+  /// the next queued item.
+  ///
+  /// **Parameters:**
+  /// - [onError]: **Integrity Handler.** Invoked if an inner evolution fails
+  ///   while seeking the head; the gate proceeds to the next queued sequence
+  ///   after handling.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data preserved
+  ///   across the topography for auditing.
+  ///
+  /// ### Topographical Behavior:
+  /// * **Head Selection**: Only the first value of type [T] from each inner
+  ///   sequence is materialized; the remainder of the sequence is ignored.
+  /// * **Sequential Gating**: Prevents "leapfrogging"—subsequent stimuli
+  ///   must wait for the current inner's head to be resolved (or the inner
+  ///   to complete) before they can begin evolution.
+  /// * **Provenance Preservation**: The emitted head inherits the source and
+  ///   priority of the triggering stimulus, tagged with the `'ConcatFirst'` step.
   ConcatFirst({
     ConcatErrorHandler? onError,
     dynamic user,
@@ -529,6 +594,29 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatAll]: For dynamic sequence concatenation.
 /// - [ConcatFirst]: For first item only.
 class ConcatLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Tail-Selection Expansion Gate** for ordered pulse evolution.
+  ///
+  /// This constructor initializes an orchestrator that treats each incoming
+  /// stimulus as a potential **Inner Sequence**. It materializes and exhausts
+  /// these sequences in strict **FIFO arrival order**, but emits only the
+  /// *final* payload of each sequence.
+  ///
+  /// **Parameters:**
+  /// - [onError]: **Integrity Handler.** Invoked if an inner evolution fails
+  ///   while seeking the tail; the gate proceeds to the next queued sequence
+  ///   after handling.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data preserved
+  ///   across the topography for auditing.
+  ///
+  /// ### Topographical Behavior:
+  /// * **Tail Selection**: Each inner sequence (Stream, Future, or Iterable)
+  ///   is fully drained; only the last value of type [T] is materialized.
+  /// * **Sequential Gating**: Prevents "leapfrogging"—subsequent stimuli
+  ///   must wait for the current inner to be fully exhausted before they
+  ///   can begin evolution.
+  /// * **Provenance Preservation**: The emitted tail inherits the source and
+  ///   priority of the triggering stimulus, tagged with the `'ConcatLatest'` step.
   ConcatLatest({
     ConcatErrorHandler? onError,
     dynamic user,

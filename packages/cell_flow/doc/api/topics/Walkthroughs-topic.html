@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Walkthroughs topic docs, for the Dart programming language.">
+  <title>Walkthroughs topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+  </ol>
+  <div class="self-name">Walkthroughs</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Walkthroughs</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="demo_guidemd">DEMO_GUIDE.md</h1>
+<h1 id="cell--flow-demo-guide">(Cell + Flow) Demo Guide</h1>
+<h2 id="from-simple-operators-to-real-world-applications">From Simple Operators to Real-World Applications</h2>
+<p>A comprehensive guide to understanding the Cell Framework through practical examples, organized from fundamental concepts to complex real-world applications.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#demo-learning-path">Demo Learning Path</a></li>
+<li><a href="#level-1-foundation-operators">Level 1: Foundation Operators</a></li>
+<li><a href="#level-2-flow-control">Level 2: Flow Control</a></li>
+<li><a href="#level-3-async--composition">Level 3: Async &amp; Composition</a></li>
+<li><a href="#level-4-complex-orchestration">Level 4: Complex Orchestration</a></li>
+<li><a href="#level-5-real-world-applications">Level 5: Real-World Applications</a></li>
+<li><a href="#operator-reference">Operator Reference</a></li>
+<li><a href="#combining-patterns">Combining Patterns</a></li>
+<li><a href="#common-pitfalls">Common Pitfalls</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p>The Cell Framework provides a reactive programming model where <strong>Cells</strong> hold state, <strong>Pulses</strong> carry signals, and <strong>Flow</strong> operators transform data streams. This guide walks you through the demo examples from simple operators to complex real-world applications.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ul>
+<li>How to use each operator correctly</li>
+<li>When to choose one operator over another</li>
+<li>How to combine operators into pipelines</li>
+<li>How to build production-ready applications</li>
+<li>Common patterns and anti-patterns</li>
+</ul>
+<h3 id="the-three-layer-architecture">The Three-Layer Architecture</h3>
+<p>Every demo follows the same architectural pattern:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Responsibility</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cell</strong></td>
+<td>Holds state, carries data</td>
+<td><code>Cell.ingress</code>, <code>Cell.state</code>, <code>Cell.observe</code></td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td>Transforms, filters, controls timing</td>
+<td><code>Flow.map</code>, <code>Flow.filter</code>, <code>Flow.debounce</code></td>
+</tr>
+<tr>
+<td><strong>Observer</strong></td>
+<td>Side effects, UI updates, logging</td>
+<td><code>Cell.observe</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The Golden Rule:</strong> Flow transforms data. Cell holds state. Observer handles side effects. Never mix these responsibilities.</p>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="what-is-a-cell">What is a Cell?</h3>
+<p>A Cell is a reactive node that:</p>
+<ul>
+<li>Holds state (<code>Cell.state</code>)</li>
+<li>Accepts external input (<code>Cell.ingress</code>)</li>
+<li>Broadcasts changes to observers</li>
+<li>Validates incoming data (<code>TestCell</code>)</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">// A simple state cell
+final counter = Cell.state&lt;int&gt;(
+  initial: 0,
+  evolve: (host, pulse) =&gt; Pulse(host.value + 1),
+);
+
+// Read the value
+print(counter.cell.value); // 0
+
+// Update the value
+await counter.updateAsync(5);
+</code></pre>
+<h3 id="what-is-a-pulse">What is a Pulse?</h3>
+<p>A Pulse is an immutable message that carries:</p>
+<ul>
+<li><strong>Payload</strong>: The actual data</li>
+<li><strong>Type</strong>: Semantic category for routing</li>
+<li><strong>Priority</strong>: Execution urgency (0-100)</li>
+<li><strong>Context</strong>: Provenance metadata</li>
+<li><strong>Trace</strong>: Transformation history</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;String&gt;(
+  payload: 'Hello, World!',
+  type: 'message',
+  priority: 60,
+  context: PulseContext.userAction(
+    actor: 'user_123',
+    reason: 'Sending message',
+  ),
+);
+</code></pre>
+<h3 id="what-is-flow">What is Flow?</h3>
+<p>Flow provides operators that transform pulses:</p>
+<ul>
+<li><strong>Map</strong>: Transform each value</li>
+<li><strong>Filter</strong>: Remove unwanted values</li>
+<li><strong>Debounce</strong>: Wait for silence</li>
+<li><strong>Throttle</strong>: Limit frequency</li>
+<li><strong>AsyncMap</strong>: Handle async operations</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">final result = searchInput.cell
+    .debounce(duration: Duration(milliseconds: 300))
+    .asyncMap((query) =&gt; api.search(query))
+    .filter((results) =&gt; results.isNotEmpty);
+</code></pre>
+<hr>
+<h2 id="demo-learning-path">Demo Learning Path</h2>
+<pre class="language-dart"><code>Level 1: Foundation Operators (Start Here)
+├── Cell.state - State Management
+├── Cell.ingress - Input Gateway
+├── Cell.observe - Side Effects
+├── Flow.map - Transformation
+└── Flow.filter - Validation
+
+Level 2: Flow Control
+├── Flow.debounce - Search-as-you-type
+├── Flow.throttle - Rate Limiting
+├── Flow.distinct - Noise Reduction
+└── Flow.tap - Logging &amp; Analytics
+
+Level 3: Async &amp; Composition
+├── Flow.fromFuture - Legacy API Bridge
+├── Flow.fromStream - Real-time Data
+├── Flow.asyncMap - Parallel Processing
+├── Flow.switchMap - Dynamic Sources
+└── Flow.mergeWith - Stream Merging
+
+Level 4: Complex Orchestration
+├── Flow.buffer - Batch Processing
+├── Flow.retry - Fault Tolerance
+├── Flow.timeout - Deadlines
+├── Flow.combineLatest - Real-time Sync
+└── Flow.exhaustMap - Submit Protection
+
+Level 5: Real-World Applications
+├── Pharmacy Dispense - Transactions
+├── ICU Alarm - Medical Monitoring
+├── Forensic Pipeline - Audit &amp; Compliance
+└── Data Quality - Monitoring &amp; Validation
+</code></pre>
+<hr>
+<h2 id="level-1-foundation-operators">Level 1: Foundation Operators</h2>
+<h3 id="1-cellstate--state-management">1. Cell.state — State Management</h3>
+<p><strong>File:</strong> Built into the Cell Framework core</p>
+<p><strong>What it does:</strong> Creates a persistent state atom that can be read and updated.</p>
+<p><strong>When to use:</strong> Any time you need to store and manage mutable state.</p>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(
+  initial: 0,
+  evolve: (host, pulse) =&gt; Pulse(host.value + 1),
+);
+
+// Read
+print(counter.cell.value); // 0
+
+// Update (synchronous)
+counter.update(5);
+
+// Update (asynchronous)
+await counter.updateAsync(10);
+
+// Observe changes
+Cell.observe(
+  source: counter.cell,
+  effect: (pulse) =&gt; print('Counter: ${pulse.payload}'),
+);
+</code></pre>
+<p><strong>Key Insight:</strong> The <code>evolve</code> function defines how the state changes. It receives the current value and the incoming pulse, and returns the new value.</p>
+<hr>
+<h3 id="2-cellingress--input-gateway">2. Cell.ingress — Input Gateway</h3>
+<p><strong>File:</strong> Built into the Cell Framework core</p>
+<p><strong>What it does:</strong> Creates an entry point for external events to enter the reactive graph.</p>
+<p><strong>When to use:</strong> UI events, network callbacks, hardware interrupts.</p>
+<pre class="language-dart"><code class="language-dart">final searchInput = Cell.ingress&lt;String&gt;();
+
+// Emit from UI
+searchInput.emit('dart');
+
+// Or with async safety
+await searchInput.emitAsync('flutter');
+
+// Observe the input
+Cell.observe(
+  source: searchInput.cell,
+  effect: (pulse) =&gt; print('Search: ${pulse.payload}'),
+);
+</code></pre>
+<p><strong>Key Insight:</strong> Ingress cells are stateless — they only relay events. For persistent state, use <code>Cell.state</code>.</p>
+<hr>
+<h3 id="3-cellobserve--side-effects">3. Cell.observe — Side Effects</h3>
+<p><strong>File:</strong> Built into the Cell Framework core</p>
+<p><strong>What it does:</strong> Creates a terminal observer that executes side effects when a pulse arrives.</p>
+<p><strong>When to use:</strong> UI updates, logging, database writes, network requests.</p>
+<pre class="language-dart"><code class="language-dart">final observer = Cell.observe(
+  source: counter.cell,
+  effect: (pulse) {
+    // This runs on every state change
+    print('Counter changed to: ${pulse.payload}');
+    updateUI(pulse.payload);
+  },
+);
+
+// Stop observing
+observer.stop();
+
+// Start again
+observer.start();
+</code></pre>
+<p><strong>Key Insight:</strong> Observers are terminal — they don't propagate pulses. They're for side effects only.</p>
+<hr>
+<h3 id="4-flowmap--transformation">4. Flow.map — Transformation</h3>
+<p><strong>File:</strong> <code>filter_data_quality_demo.dart</code></p>
+<p><strong>What it does:</strong> Transforms each value through a synchronous function.</p>
+<p><strong>When to use:</strong> Data formatting, type conversion, calculations.</p>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final doubled = Flow.map&lt;int, int&gt;(
+  input.cell,
+  project: (n) =&gt; n * 2,
+);
+
+Cell.observe(
+  source: doubled.cell,
+  effect: (pulse) =&gt; print('Doubled: ${pulse.payload}'),
+);
+
+input.emit(5); // Prints: Doubled: 10
+</code></pre>
+<p><strong>Key Insight:</strong> Map is pure — it doesn't modify the original data, it creates new data.</p>
+<hr>
+<h3 id="5-flowfilter--validation">5. Flow.filter — Validation</h3>
+<p><strong>File:</strong> <code>filter_data_quality_demo.dart</code></p>
+<p><strong>What it does:</strong> Removes values that don't satisfy a predicate.</p>
+<p><strong>When to use:</strong> Validation, data cleaning, quality control.</p>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final positiveOnly = Flow.filter&lt;int&gt;(
+  input.cell,
+  test: (n) =&gt; n &gt; 0,
+);
+
+Cell.observe(
+  source: positiveOnly.cell,
+  effect: (pulse) =&gt; print('Positive: ${pulse.payload}'),
+);
+
+input.emit(5);  // Prints: Positive: 5
+input.emit(-3); // Nothing (filtered out)
+input.emit(0);  // Nothing (filtered out)
+</code></pre>
+<p><strong>Key Insight:</strong> Filter returns <code>null</code> to drop values. The observer never sees dropped values.</p>
+<hr>
+<h2 id="level-2-flow-control">Level 2: Flow Control</h2>
+<h3 id="6-flowdebounce--search-as-you-type">6. Flow.debounce — Search-as-you-type</h3>
+<p><strong>File:</strong> <code>stability_search_demo.dart</code></p>
+<p><strong>What it does:</strong> Waits for a period of silence before emitting the latest value.</p>
+<p><strong>When to use:</strong> Search boxes, auto-save, form validation.</p>
+<pre class="language-dart"><code class="language-dart">final searchInput = Cell.ingress&lt;String&gt;();
+
+final debounced = Flow.debounce&lt;String&gt;(
+  searchInput.cell,
+  duration: Duration(milliseconds: 300),
+);
+
+final searchResults = Flow.asyncMapLatest&lt;String, List&lt;String&gt;&gt;(
+  debounced.cell,
+  mapper: (query) async =&gt; await api.search(query),
+);
+
+// User types: 'd', 'da', 'dar', 'dart'
+// Only 'dart' triggers the API call
+</code></pre>
+<p><strong>Why this matters:</strong> Without debounce, every keystroke triggers an API call. With debounce, only the final query is processed.</p>
+<pre class="language-dart"><code class="language-dart">// ❌ Bad: 4 API calls
+searchInput.emit('d');
+searchInput.emit('da');
+searchInput.emit('dar');
+searchInput.emit('dart');
+
+// ✅ Good: 1 API call (after 300ms silence)
+searchInput.emit('d');
+searchInput.emit('da');
+searchInput.emit('dar');
+searchInput.emit('dart');
+// Wait 300ms...
+// Only 'dart' is sent to the API
+</code></pre>
+<hr>
+<h3 id="7-flowthrottle--rate-limiting">7. Flow.throttle — Rate Limiting</h3>
+<p><strong>File:</strong> <code>throttle_rate_limiting_demo.dart</code></p>
+<p><strong>What it does:</strong> Limits the frequency of emissions to a maximum rate.</p>
+<p><strong>When to use:</strong> Scroll events, API rate limiting, click prevention.</p>
+<pre class="language-dart"><code class="language-dart">final clicks = Cell.ingress&lt;void&gt;();
+
+final throttled = Flow.throttle&lt;void&gt;(
+  clicks.cell,
+  duration: Duration(milliseconds: 300),
+  leading: true,   // Emit first click immediately
+  trailing: false, // Don't emit last click
+);
+
+// User clicks 5 times in 100ms
+// Only the first and last clicks are emitted
+</code></pre>
+<p><strong>Throttle Modes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>leading</th>
+<th>trailing</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>true</td>
+<td>false</td>
+<td>First only, then silent</td>
+<td>Click prevention</td>
+</tr>
+<tr>
+<td>false</td>
+<td>true</td>
+<td>Last only, after window</td>
+<td>Final state only</td>
+</tr>
+<tr>
+<td>true</td>
+<td>true</td>
+<td>First + last</td>
+<td>Complete handling</td>
+</tr>
+<tr>
+<td>false</td>
+<td>false</td>
+<td>Nothing</td>
+<td>Testing</td>
+</tr>
+</tbody>
+</table>
+<pre class="language-dart"><code class="language-dart">// Debounce vs Throttle
+// Debounce: waits for silence → only final value
+// Throttle: limits rate → first value, then periodic
+
+// Search: use debounce (only final query matters)
+// Scroll: use throttle (need regular updates)
+</code></pre>
+<hr>
+<h3 id="8-flowdistinct--noise-reduction">8. Flow.distinct — Noise Reduction</h3>
+<p><strong>File:</strong> <code>distinct_noise_reduction_demo.dart</code></p>
+<p><strong>What it does:</strong> Removes consecutive duplicate values.</p>
+<p><strong>When to use:</strong> Sensor noise reduction, stock tickers, user activity.</p>
+<pre class="language-dart"><code class="language-dart">final sensor = Cell.ingress&lt;double&gt;();
+
+final cleanReadings = Flow.distinct&lt;double&gt;(
+  sensor.cell,
+  equals: (prev, next) =&gt; (next - prev).abs() &lt; 0.2, // Custom tolerance
+);
+
+// Raw: [10.0, 10.05, 10.1, 10.15, 10.2, 50.0, 50.05, 50.1]
+// Output: [10.0, 10.2, 50.0, 50.1]
+// (Noise within 0.2 is filtered out)
+</code></pre>
+<p><strong>Distinct vs Other Filters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Removes</th>
+<th>Memory</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distinct</td>
+<td>Consecutive duplicates</td>
+<td>O(1)</td>
+<td>Sensor noise</td>
+</tr>
+<tr>
+<td>DistinctAll</td>
+<td>Any duplicate</td>
+<td>O(n)</td>
+<td>Unique IDs</td>
+</tr>
+<tr>
+<td>Filter</td>
+<td>By predicate</td>
+<td>O(1)</td>
+<td>Validation</td>
+</tr>
+<tr>
+<td>Debounce</td>
+<td>By time</td>
+<td>O(1)</td>
+<td>Search</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="9-flowtap--logging--analytics">9. Flow.tap — Logging &amp; Analytics</h3>
+<p><strong>File:</strong> <code>tap_logging_analytics_demo.dart</code></p>
+<p><strong>What it does:</strong> Injects side effects without modifying the data flow.</p>
+<p><strong>When to use:</strong> Logging, analytics, performance monitoring, debugging.</p>
+<pre class="language-dart"><code class="language-dart">final actions = Cell.ingress&lt;String&gt;();
+
+// Tap for logging
+final logged = Flow.tap&lt;String&gt;(
+  actions.cell,
+  onValue: (value) =&gt; print('[LOG] $value'),
+);
+
+// Tap for analytics
+final tracked = Flow.tap&lt;String&gt;(
+  logged.cell,
+  onValue: (value) =&gt; analytics.track(value),
+);
+
+// Tap for performance
+final timed = Flow.tap&lt;String&gt;(
+  tracked.cell,
+  onValue: (value) =&gt; metrics.record(value),
+);
+
+// The original data flows through unchanged
+// All three side effects run, but the data is identical
+</code></pre>
+<p><strong>Tap Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tap Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tap</td>
+<td>Simple side effect</td>
+<td>Logging</td>
+</tr>
+<tr>
+<td>tapWithIndex</td>
+<td>Position tracking</td>
+<td>Session tracking</td>
+</tr>
+<tr>
+<td>tapState</td>
+<td>State maintenance</td>
+<td>Running totals</td>
+</tr>
+<tr>
+<td>tapAll</td>
+<td>Full pulse access</td>
+<td>Debugging</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="level-3-async--composition">Level 3: Async &amp; Composition</h2>
+<h3 id="10-flowfromfuture--legacy-api-bridge">10. Flow.fromFuture — Legacy API Bridge</h3>
+<p><strong>File:</strong> <code>from_future_forensic_pipeline_demo.dart</code></p>
+<p><strong>What it does:</strong> Bridges a single Future into the reactive graph.</p>
+<p><strong>When to use:</strong> Loading configuration, user profile, initial data.</p>
+<pre class="language-dart"><code class="language-dart">final loadButton = Cell.ingress&lt;void&gt;();
+
+final profile = Flow.fromFuture&lt;UserProfile&gt;(
+  loadButton.cell,
+  future: api.fetchUserProfile('user_123'),
+);
+
+Cell.observe(
+  source: profile.cell,
+  effect: (pulse) =&gt; print('Profile: ${pulse.payload.name}'),
+);
+
+loadButton.emit(null); // Triggers the Future
+</code></pre>
+<p><strong>fromFuture vs deferFuture:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>fromFuture</th>
+<th>deferFuture</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trigger</td>
+<td>First pulse only</td>
+<td>Every pulse</td>
+</tr>
+<tr>
+<td>Reusability</td>
+<td>One-time</td>
+<td>Reusable</td>
+</tr>
+<tr>
+<td>Use Case</td>
+<td>Initialization</td>
+<td>Per-request</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="11-flowfromstream--real-time-data">11. Flow.fromStream — Real-time Data</h3>
+<p><strong>File:</strong> <code>from_stream_realtime_data_demo.dart</code></p>
+<p><strong>What it does:</strong> Bridges a Dart Stream into the reactive graph.</p>
+<p><strong>When to use:</strong> WebSockets, SSE, sensors, file watchers.</p>
+<pre class="language-dart"><code class="language-dart">final connect = Cell.ingress&lt;void&gt;();
+
+final wsData = Flow.fromStream&lt;Map&lt;String, dynamic&gt;&gt;(
+  connect.cell,
+  stream: webSocket.stream,
+);
+
+final processed = Flow.map&lt;Map&lt;String, dynamic&gt;, String&gt;(
+  wsData.cell,
+  project: (data) =&gt; data['message'] as String,
+);
+
+Cell.observe(
+  source: processed.cell,
+  effect: (pulse) =&gt; print('Message: ${pulse.payload}'),
+);
+
+connect.emit(null); // Starts listening
+</code></pre>
+<p><strong>Supported Stream Sources:</strong></p>
+<ul>
+<li>WebSocket</li>
+<li>Server-Sent Events (SSE)</li>
+<li>Hardware sensors</li>
+<li>File watchers</li>
+<li>Database change streams</li>
+<li>Network sockets</li>
+</ul>
+<hr>
+<h3 id="12-flowasyncmap--parallel-processing">12. Flow.asyncMap — Parallel Processing</h3>
+<p><strong>File:</strong> <code>async_map_parallel_search_demo.dart</code></p>
+<p><strong>What it does:</strong> Maps each value through an async function with configurable concurrency.</p>
+<p><strong>When to use:</strong> API calls, database queries, file I/O.</p>
+<p><strong>Three Strategies:</strong></p>
+<pre class="language-dart"><code class="language-dart">// 1. Sequential (asyncMap) - order matters
+final sequential = Flow.asyncMap&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+// Output: [User1, User2, User3] (in order, one at a time)
+
+// 2. Parallel (asyncMapConcurrent) - throughput matters
+final parallel = Flow.asyncMapConcurrent&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+// Output: [User3, User2, User1] (completion order, all start at once)
+
+// 3. Latest (asyncMapLatest) - only latest matters
+final latest = Flow.asyncMapLatest&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+// Output: [User3] only (previous requests cancelled)
+</code></pre>
+<p><strong>Choosing the Right Strategy:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Concurrency</th>
+<th>Cancels</th>
+<th>Order</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>asyncMap</td>
+<td>1 (queue)</td>
+<td>No</td>
+<td>Input</td>
+<td>Ordered tasks</td>
+</tr>
+<tr>
+<td>asyncMapConcurrent</td>
+<td>Unlimited</td>
+<td>No</td>
+<td>Completion</td>
+<td>Parallel fetches</td>
+</tr>
+<tr>
+<td>asyncMapLatest</td>
+<td>1 (latest)</td>
+<td>Yes (stale)</td>
+<td>Latest</td>
+<td>Search-as-you-type</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="13-flowswitchmap--dynamic-sources">13. Flow.switchMap — Dynamic Sources</h3>
+<p><strong>File:</strong> <code>switch_map_dynamic_dependency_demo.dart</code></p>
+<p><strong>What it does:</strong> Switches to a new data source on each pulse, cancelling the previous one.</p>
+<p><strong>When to use:</strong> Feature flags, user selection, A/B testing, multi-tenant.</p>
+<pre class="language-dart"><code class="language-dart">final selector = Cell.ingress&lt;String&gt;();
+
+final data = Flow.switchMap&lt;String, String&gt;(
+  selector.cell,
+  project: (source) {
+    switch (source) {
+      case 'api-v1': return apiV1.stream();
+      case 'api-v2': return apiV2.stream();
+      default: return fallback.stream();
+    }
+  },
+);
+
+// Select v1 → starts streaming from v1
+selector.emit('api-v1');
+
+// Select v2 → v1 is automatically cancelled, v2 starts
+selector.emit('api-v2');
+</code></pre>
+<p><strong>Use Cases:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature flags</td>
+<td>Switch between implementations</td>
+</tr>
+<tr>
+<td>User context</td>
+<td>Switch between user profiles</td>
+</tr>
+<tr>
+<td>A/B testing</td>
+<td>Switch between experiment variants</td>
+</tr>
+<tr>
+<td>Multi-tenant</td>
+<td>Switch between tenant data sources</td>
+</tr>
+<tr>
+<td>Theme switching</td>
+<td>Switch between theme providers</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="14-flowmergewith--stream-merging">14. Flow.mergeWith — Stream Merging</h3>
+<p><strong>File:</strong> <code>merge_stream_aggregation_demo.dart</code></p>
+<p><strong>What it does:</strong> Merges multiple streams into one, interleaving events.</p>
+<p><strong>When to use:</strong> Combining events from multiple sources.</p>
+<p><strong>Two Approaches:</strong></p>
+<pre class="language-dart"><code class="language-dart">// 1. Flow.mergeWith (built-in)
+final merged = Flow.mergeWith&lt;String&gt;(
+  sourceA.cell,
+  others: [sourceB.cell, sourceC.cell],
+);
+
+// 2. Fan-in Pattern (more control)
+final bus = Cell.ingress&lt;String&gt;();
+_fanIn&lt;String&gt;([sourceA.cell, sourceB.cell, sourceC.cell], bus);
+</code></pre>
+<p><strong>Fan-in vs mergeWith:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>mergeWith</th>
+<th>Fan-in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event delivery</td>
+<td>May drop</td>
+<td>Reliable</td>
+</tr>
+<tr>
+<td>Source tracking</td>
+<td>Loses</td>
+<td>Preserves</td>
+</tr>
+<tr>
+<td>Flexibility</td>
+<td>Fixed</td>
+<td>Customizable</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="level-4-complex-orchestration">Level 4: Complex Orchestration</h2>
+<h3 id="15-flowbuffer--batch-processing">15. Flow.buffer — Batch Processing</h3>
+<p><strong>File:</strong> <code>buffer_batch_processing_demo.dart</code></p>
+<p><strong>What it does:</strong> Collects events into batches and emits them as lists.</p>
+<p><strong>When to use:</strong> Log batching, database bulk operations, analytics aggregation.</p>
+<pre class="language-dart"><code class="language-dart">final events = Cell.ingress&lt;LogEntry&gt;();
+
+// 1. Buffer by count
+final countBatch = Flow.bufferCount&lt;LogEntry&gt;(
+  events.cell,
+  size: 100, // Emit when 100 logs collected
+);
+
+// 2. Buffer by time
+final timeBatch = Flow.bufferTime&lt;LogEntry&gt;(
+  events.cell,
+  duration: Duration(seconds: 5), // Emit every 5 seconds
+);
+
+// 3. Buffer by count OR time
+final comboBatch = Flow.bufferWithTimeAndCount&lt;LogEntry&gt;(
+  events.cell,
+  duration: Duration(seconds: 5),
+  count: 100, // Whichever comes first
+);
+
+// 4. Buffer when condition met
+final predBatch = Flow.bufferWithPredicate&lt;LogEntry&gt;(
+  events.cell,
+  test: (log) =&gt; log.level == 'ERROR', // Flush on error
+);
+
+// 5. Buffer on external trigger
+final trigger = Cell.ingress&lt;void&gt;();
+final whenBatch = Flow.bufferWhen&lt;LogEntry&gt;(
+  events.cell,
+  closer: trigger.cell, // Flush when trigger emits
+);
+</code></pre>
+<p><strong>Buffer Strategy Comparison:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Trigger</th>
+<th>Memory</th>
+<th>Latency</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BufferCount</td>
+<td>Size</td>
+<td>Fixed</td>
+<td>Low</td>
+<td>Fixed-size batches</td>
+</tr>
+<tr>
+<td>BufferTime</td>
+<td>Time</td>
+<td>Variable</td>
+<td>High</td>
+<td>Time-based batches</td>
+</tr>
+<tr>
+<td>BufferWithTimeAndCount</td>
+<td>Size OR time</td>
+<td>Fixed</td>
+<td>Low</td>
+<td>Either condition</td>
+</tr>
+<tr>
+<td>BufferWithPredicate</td>
+<td>Condition</td>
+<td>Variable</td>
+<td>Low</td>
+<td>Conditional batching</td>
+</tr>
+<tr>
+<td>BufferWhen</td>
+<td>External</td>
+<td>Variable</td>
+<td>Manual</td>
+<td>Manual batching</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="16-flowretry--fault-tolerance">16. Flow.retry — Fault Tolerance</h3>
+<p><strong>File:</strong> <code>retry_timeout_flaky_network_demo.dart</code></p>
+<p><strong>What it does:</strong> Retries failed operations with bounded attempts.</p>
+<p><strong>When to use:</strong> Network calls, database operations, external APIs.</p>
+<pre class="language-dart"><code class="language-dart">final request = Cell.ingress&lt;String&gt;();
+
+final result = Flow.retry&lt;String, UserProfile&gt;(
+  request.cell,
+  task: (id) async =&gt; await api.getUser(id),
+  count: 3, // Retry up to 3 times
+  onError: (error, stack) =&gt; print('Error: $error'),
+);
+
+// If the first attempt fails, it retries automatically
+// If all 3 attempts fail, an error pulse is emitted
+</code></pre>
+<p><strong>Retry Patterns:</strong></p>
+<pre class="language-dart"><code class="language-dart">// 1. Simple retry
+Retry(task, count: 3)
+
+// 2. Retry with fallback
+AsyncMapWithFallback(mapper, fallback: defaultValue)
+
+// 3. Retry with timeout
+Timeout(duration) + Retry(task, count: 3)
+
+// 4. Exponential backoff (custom)
+Retry(task, count: 3) + custom delay logic
+</code></pre>
+<hr>
+<h3 id="17-flowtimeout--deadlines">17. Flow.timeout — Deadlines</h3>
+<p><strong>File:</strong> <code>retry_timeout_flaky_network_demo.dart</code></p>
+<p><strong>What it does:</strong> Enforces a deadline on async operations.</p>
+<p><strong>When to use:</strong> Time-sensitive operations, user experience, SLA enforcement.</p>
+<pre class="language-dart"><code class="language-dart">final request = Cell.ingress&lt;String&gt;();
+
+// Operation with timeout
+final slowOp = AsyncMap&lt;String, String&gt;(
+  (id) async {
+    await Future.delayed(Duration(seconds: 5));
+    return 'Result';
+  },
+).toHandle(source: request.cell);
+
+// Enforce 2 second deadline
+final timedOut = Timeout&lt;String&gt;(
+  Duration(seconds: 2),
+  onError: (error, stack) =&gt; print('Operation timed out!'),
+  emitErrorPulse: true,
+).toHandle(source: slowOp.cell);
+
+// Users see "Operation timed out" after 2 seconds
+</code></pre>
+<p><strong>Timeout Strategies:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timeout</td>
+<td>Throw on timeout</td>
+<td>Critical operations</td>
+</tr>
+<tr>
+<td>TimeoutWithFallback</td>
+<td>Use fallback on timeout</td>
+<td>Graceful degradation</td>
+</tr>
+<tr>
+<td>Timeout with Retry</td>
+<td>Retry then timeout</td>
+<td>Network calls</td>
+</tr>
+<tr>
+<td>Deadline with Loading</td>
+<td>Show progress then timeout</td>
+<td>User feedback</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="18-flowcombinelatest--real-time-sync">18. Flow.combineLatest — Real-time Sync</h3>
+<p><strong>File:</strong> <code>combine_latest_sync_demo.dart</code></p>
+<p><strong>What it does:</strong> Combines the latest values from multiple sources, emitting on any change.</p>
+<p><strong>When to use:</strong> Dashboards, form validation, portfolio aggregation.</p>
+<pre class="language-dart"><code class="language-dart">final users = Cell.ingress&lt;int&gt;();
+final requests = Cell.ingress&lt;double&gt;();
+final errors = Cell.ingress&lt;double&gt;();
+
+final dashboard = Flow.combineLatestWith&lt;int, Map&lt;String, dynamic&gt;&gt;(
+  users.cell,
+  others: [requests.cell, errors.cell],
+  combine: (userCount, latest) =&gt; {
+    'users': userCount,
+    'requests': latest[0] as double,
+    'errors': latest[1] as double,
+    'timestamp': DateTime.now(),
+  },
+);
+
+// All sources must have at least one value before first emission
+// After that, any source change triggers a new emission
+</code></pre>
+<p><strong>combineLatest vs Other Operators:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Emits When</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>combineLatestWith</td>
+<td>ANY source changes</td>
+<td>Real-time dashboards</td>
+</tr>
+<tr>
+<td>withLatestFrom</td>
+<td>Source changes only</td>
+<td>Commands with state</td>
+</tr>
+<tr>
+<td>zipWith</td>
+<td>ALL sources have next value</td>
+<td>Paired data</td>
+</tr>
+<tr>
+<td>mergeWith</td>
+<td>ANY source emits</td>
+<td>Event interleaving</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="19-flowexhaustmap--submit-protection">19. Flow.exhaustMap — Submit Protection</h3>
+<p><strong>File:</strong> <code>exhaust_map_submit_checkout_demo.dart</code></p>
+<p><strong>What it does:</strong> Ignores new triggers while an operation is in flight.</p>
+<p><strong>When to use:</strong> Submit buttons, checkout, refresh, file uploads.</p>
+<pre class="language-dart"><code class="language-dart">final submit = Cell.ingress&lt;Order&gt;();
+
+final orderResult = Flow.exhaustMap&lt;Order, String&gt;(
+  submit.cell,
+  project: (order) async {
+    await processOrder(order);
+    return 'Order ${order.id} confirmed!';
+  },
+);
+
+// User clicks submit 5 times rapidly
+// Only the first click is processed
+// Clicks 2-5 are ignored while busy
+</code></pre>
+<p><strong>exhaustMap vs Other Operators:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>exhaustMap</td>
+<td>First wins, ignore rest</td>
+<td>Submit, checkout</td>
+</tr>
+<tr>
+<td>debounce</td>
+<td>Last wins after silence</td>
+<td>Search</td>
+</tr>
+<tr>
+<td>throttle</td>
+<td>First wins, then rate-limit</td>
+<td>Scroll</td>
+</tr>
+<tr>
+<td>switchMap</td>
+<td>Latest wins, cancel previous</td>
+<td>Search-as-you-type</td>
+</tr>
+<tr>
+<td>concatMap</td>
+<td>Queue all, process sequentially</td>
+<td>Ordered processing</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="level-5-real-world-applications">Level 5: Real-World Applications</h2>
+<h3 id="20-pharmacy-dispense--transactions">20. Pharmacy Dispense — Transactions</h3>
+<p><strong>File:</strong> <code>domain-cells-txApply(enhanced)-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> How Cell, Flow, and Transactions combine for a real pharmacy system.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Ingress Layer</strong> - TestCell validation on NDC codes</li>
+<li><strong>Flow Layer</strong> - MapValue + Filter + Take(1) gate</li>
+<li><strong>Transaction Layer</strong> - Repeatable-read isolation on stock</li>
+<li><strong>Compensation</strong> - Restore pack on hardware failure</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>Technician Scan
+      │
+      ▼
+[Cell] gun.ingress + TestCell(ndcLike)
+      │
+      ▼
+[Flow] MapValue(trim/upper) + Filter(NDC) + Take(1)
+      │
+      ▼
+[Cell] rx.cell
+      │  Cell.observe
+      ▼
+fullDispense()
+      │
+      ├─ [Tx] confirmPatient → patient cell
+      ├─ [Tx] dispenseMemory → stock + label (repeatable-read)
+      ├─ [Hardware] openDrawer → drawer cell
+      ├─ [Hardware] printLabel → I/O
+      └─ [Tx] restorePack → compensation on failure
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>Flow stops pulses. Transaction moves state.</li>
+<li>One Receptor per gun. Reset Take; do not stack <code>toHandle</code>.</li>
+<li>Repeatable-read on shelf Cells, not on gun.</li>
+<li>Hardware after commit → new Tx to compensate.</li>
+<li>TestCell on every ingress that a human or device can emit.</li>
+<li>Do not put <code>tx.begin</code> in <code>MapValue + Filter</code>.</li>
+</ol>
+<hr>
+<h3 id="21-icu-alarm--medical-monitoring">21. ICU Alarm — Medical Monitoring</h3>
+<p><strong>File:</strong> <code>ICU-alarm-pipeline(enhanced)-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> Real-time medical monitoring with alarm fatigue prevention.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Sensors</strong> - HR, SpO2, Motion with TestCell ranges</li>
+<li><strong>Clinical Logic</strong> - Severity mapping (page/warn/none)</li>
+<li><strong>Duplicate Prevention</strong> - Distinct with ACK reset</li>
+<li><strong>Paging</strong> - AsyncMapWithRetry for nurse notification</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>hrIn (TestCell 20-250) ─┐
+spo2In (TestCell 0-100) ─┼─ publishVitals → Reading
+motionIn ─────────────────┘
+                              │
+                              ▼
+                         vitalsIn
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              page gate            warn gate
+         MapValue + Distinct     MapValue + Distinct
+         + Filter(page)          + Filter(warn)
+                    │                   │
+                    ▼                   ▼
+              pageHandle            warnHandle
+                    │
+                    ├─ observe → ledger PAGE
+                    └─ AsyncMapWithRetry → pager
+ackIn ─────────────────────────────────► resetDistinct()
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>TestCell on sensor ingress, not on state</li>
+<li>Distinct before Filter (otherwise <code>none</code> never arrives)</li>
+<li>ACK resets Distinct on the same Receptor (not a new handle)</li>
+<li>AsyncMapWithRetry for I/O (not inside the policy chain)</li>
+<li>Motion → none (artifact wins)</li>
+</ol>
+<hr>
+<h3 id="22-forensic-pipeline--audit--compliance">22. Forensic Pipeline — Audit &amp; Compliance</h3>
+<p><strong>File:</strong> <code>from_future_forensic_pipeline_demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> Bridging legacy async APIs with full provenance tracking.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Legacy API Bridge</strong> - deferFuture for per-request async</li>
+<li><strong>Chain of Custody</strong> - Sequential Future steps</li>
+<li><strong>Provenance</strong> - pulse.withStep() for forensic trace</li>
+<li><strong>Error Handling</strong> - Forensic error tracking</li>
+<li><strong>Audit Trail</strong> - Complete chain of custody</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>Legacy API (Future-based)
+      │
+      ▼
+deferFuture → fetchEvidence()
+      │
+      ▼
+deferFuture → fetchImages()
+      │
+      ▼
+deferFuture → fetchAuditLog()
+      │
+      ▼
+synthesis → Combined Report
+      │
+      ▼
+Observer → Audit Trail
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>Use deferFuture for per-input async operations.</li>
+<li>Use fromFuture for one-shot async operations.</li>
+<li>Use asyncMapConcurrent for parallel operations.</li>
+<li>Chain deferFuture for sequential operations.</li>
+<li>Use synthesis to combine multiple sources.</li>
+<li>Handle errors in onError callback with forensic context.</li>
+<li>Preserve provenance with pulse.withStep().</li>
+</ol>
+<hr>
+<h3 id="23-data-quality--monitoring--validation">23. Data Quality — Monitoring &amp; Validation</h3>
+<p><strong>File:</strong> <code>filter_data_quality_demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> Real-time data quality monitoring and filtering.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Numeric Filtering</strong> - Range validation</li>
+<li><strong>String Validation</strong> - Non-empty, pattern matching</li>
+<li><strong>Complex Objects</strong> - User validation, business rules</li>
+<li><strong>Sensor Data</strong> - Quality control, anomaly detection</li>
+<li><strong>Multi-Condition</strong> - Pipeline filtering</li>
+<li><strong>Log Filtering</strong> - Level-based filtering</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>Data Sources
+      │
+      ▼
+Flow.filter (Basic Validation)
+      │
+      ▼
+Flow.filter (Business Rules)
+      │
+      ▼
+Flow.map (Transformation)
+      │
+      ▼
+Flow.filter (Post-Validation)
+      │
+      ▼
+Observer → Results
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>Use filter to remove invalid data from streams.</li>
+<li>Chain multiple filters for complex validation.</li>
+<li>Combine with map for filter-transform pipelines.</li>
+<li>Real-time filtering with fromStream.</li>
+<li>Great for: Data quality, monitoring, validation.</li>
+</ol>
+<hr>
+<h2 id="operator-reference">Operator Reference</h2>
+<h3 id="creation-operators">Creation Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.state</code></td>
+<td>Create state cell</td>
+<td>Persistent state</td>
+</tr>
+<tr>
+<td><code>Cell.ingress</code></td>
+<td>Create input gateway</td>
+<td>External events</td>
+</tr>
+<tr>
+<td><code>Flow.of</code></td>
+<td>Emit fixed sequence</td>
+<td>Initial values</td>
+</tr>
+<tr>
+<td><code>Flow.fromIterable</code></td>
+<td>Emit from iterable</td>
+<td>Static sequences</td>
+</tr>
+<tr>
+<td><code>Flow.range</code></td>
+<td>Emit numeric range</td>
+<td>Counters, IDs</td>
+</tr>
+<tr>
+<td><code>Flow.repeat</code></td>
+<td>Emit repeated value</td>
+<td>Heartbeats, signals</td>
+</tr>
+<tr>
+<td><code>Flow.fromFuture</code></td>
+<td>Bridge single Future</td>
+<td>One-time loads</td>
+</tr>
+<tr>
+<td><code>Flow.deferFuture</code></td>
+<td>Bridge Future per input</td>
+<td>Per-request loads</td>
+</tr>
+<tr>
+<td><code>Flow.fromStream</code></td>
+<td>Bridge Stream</td>
+<td>Real-time data</td>
+</tr>
+<tr>
+<td><code>Flow.deferStream</code></td>
+<td>Bridge Stream per input</td>
+<td>Dynamic streams</td>
+</tr>
+</tbody>
+</table>
+<h3 id="transformation-operators">Transformation Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.map</code></td>
+<td>Transform each value</td>
+<td>Data formatting</td>
+</tr>
+<tr>
+<td><code>Flow.mapTo</code></td>
+<td>Map to constant value</td>
+<td>Signal conversion</td>
+</tr>
+<tr>
+<td><code>Flow.mapWithIndex</code></td>
+<td>Indexed transformation</td>
+<td>Position tracking</td>
+</tr>
+<tr>
+<td><code>Flow.mapNotNull</code></td>
+<td>Drop null results</td>
+<td>Optional values</td>
+</tr>
+<tr>
+<td><code>Flow.mapWhen</code></td>
+<td>Conditional mapping</td>
+<td>Filter + transform</td>
+</tr>
+<tr>
+<td><code>Flow.mapValues</code></td>
+<td>Transform map values</td>
+<td>Map transformation</td>
+</tr>
+<tr>
+<td><code>Flow.mapKeys</code></td>
+<td>Transform map keys</td>
+<td>Key transformation</td>
+</tr>
+<tr>
+<td><code>Flow.pluck</code></td>
+<td>Extract field</td>
+<td>Data extraction</td>
+</tr>
+<tr>
+<td><code>Flow.pluckOr</code></td>
+<td>Extract with default</td>
+<td>Optional fields</td>
+</tr>
+<tr>
+<td><code>Flow.pluckAll</code></td>
+<td>Extract multiple fields</td>
+<td>Data projection</td>
+</tr>
+<tr>
+<td><code>Flow.pluckPath</code></td>
+<td>Extract nested field</td>
+<td>Deep navigation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="async-operators">Async Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.asyncMap</code></td>
+<td>Sequential async</td>
+<td>Ordered tasks</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapConcurrent</code></td>
+<td>Parallel async</td>
+<td>Throughput</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapLatest</code></td>
+<td>Latest only</td>
+<td>Search-as-you-type</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapWithIndex</code></td>
+<td>Indexed async</td>
+<td>Position tracking</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapWithRetry</code></td>
+<td>Retry on failure</td>
+<td>Transient failures</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapWithTimeout</code></td>
+<td>Time-bound async</td>
+<td>Deadlines</td>
+</tr>
+<tr>
+<td><code>Flow.asyncMapWithFallback</code></td>
+<td>Fallback on error</td>
+<td>Graceful degradation</td>
+</tr>
+<tr>
+<td><code>Flow.asyncExpand</code></td>
+<td>Sequential flatten</td>
+<td>Ordered sequences</td>
+</tr>
+<tr>
+<td><code>Flow.asyncExpandConcurrent</code></td>
+<td>Parallel flatten</td>
+<td>Throughput</td>
+</tr>
+<tr>
+<td><code>Flow.asyncExpandLatest</code></td>
+<td>Latest flatten</td>
+<td>Search</td>
+</tr>
+<tr>
+<td><code>Flow.asyncExpandExhaust</code></td>
+<td>Exhaust flatten</td>
+<td>Submit protection</td>
+</tr>
+<tr>
+<td><code>Flow.asyncFold</code></td>
+<td>Seeded accumulation</td>
+<td>Running totals</td>
+</tr>
+<tr>
+<td><code>Flow.asyncReduce</code></td>
+<td>Seedless accumulation</td>
+<td>First value as seed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="filter-operators">Filter Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.filter</code></td>
+<td>Remove by predicate</td>
+<td>Validation</td>
+</tr>
+<tr>
+<td><code>Flow.take</code></td>
+<td>Take first N values</td>
+<td>Sampling</td>
+</tr>
+<tr>
+<td><code>Flow.takeWhile</code></td>
+<td>Take while condition true</td>
+<td>Conditional sampling</td>
+</tr>
+<tr>
+<td><code>Flow.takeUntil</code></td>
+<td>Take until event</td>
+<td>Event-based stopping</td>
+</tr>
+<tr>
+<td><code>Flow.skip</code></td>
+<td>Skip first N values</td>
+<td>Headers, warm-up</td>
+</tr>
+<tr>
+<td><code>Flow.skipWhile</code></td>
+<td>Skip while condition true</td>
+<td>Conditional skipping</td>
+</tr>
+<tr>
+<td><code>Flow.skipUntil</code></td>
+<td>Skip until event</td>
+<td>Event-based starting</td>
+</tr>
+<tr>
+<td><code>Flow.skipRepeated</code></td>
+<td>Skip consecutive duplicates</td>
+<td>Noise reduction</td>
+</tr>
+<tr>
+<td><code>Flow.distinct</code></td>
+<td>Global deduplication</td>
+<td>Unique items</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flatten-operators">Flatten Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.concatMap</code></td>
+<td>Sequential flatten</td>
+<td>Ordered sequences</td>
+</tr>
+<tr>
+<td><code>Flow.concat</code></td>
+<td>Concatenate fixed inners</td>
+<td>Static sequences</td>
+</tr>
+<tr>
+<td><code>Flow.concatAll</code></td>
+<td>Concatenate dynamic inners</td>
+<td>Stream of streams</td>
+</tr>
+<tr>
+<td><code>Flow.mergeMap</code></td>
+<td>Concurrent flatten</td>
+<td>Parallel processing</td>
+</tr>
+<tr>
+<td><code>Flow.switchMap</code></td>
+<td>Latest flatten</td>
+<td>Dynamic sources</td>
+</tr>
+<tr>
+<td><code>Flow.exhaustMap</code></td>
+<td>Exhaust flatten</td>
+<td>Submit protection</td>
+</tr>
+</tbody>
+</table>
+<h3 id="combine-operators">Combine Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.mergeWith</code></td>
+<td>Merge multiple sources</td>
+<td>Event interleaving</td>
+</tr>
+<tr>
+<td><code>Flow.merge</code></td>
+<td>Merge with arming</td>
+<td>Triggered merging</td>
+</tr>
+<tr>
+<td><code>Flow.mergeAll</code></td>
+<td>Flatten inner sequences</td>
+<td>Stream of streams</td>
+</tr>
+<tr>
+<td><code>Flow.zipWith</code></td>
+<td>Pair by index</td>
+<td>Synchronization</td>
+</tr>
+<tr>
+<td><code>Flow.zip</code></td>
+<td>Zip with arming</td>
+<td>Triggered zipping</td>
+</tr>
+<tr>
+<td><code>Flow.zipAll</code></td>
+<td>Batch by count</td>
+<td>Chunking</td>
+</tr>
+<tr>
+<td><code>Flow.combineLatestWith</code></td>
+<td>Latest from all sources</td>
+<td>Real-time dashboards</td>
+</tr>
+<tr>
+<td><code>Flow.withLatestFrom</code></td>
+<td>Source-driven combination</td>
+<td>Commands with state</td>
+</tr>
+<tr>
+<td><code>Flow.race</code></td>
+<td>First wins</td>
+<td>Fastest response</td>
+</tr>
+</tbody>
+</table>
+<h3 id="time-operators">Time Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Purpose</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Flow.delay</code></td>
+<td>Fixed delay</td>
+<td>Timing control</td>
+</tr>
+<tr>
+<td><code>Flow.delayWithSelector</code></td>
+<td>Payload-dependent delay</td>
+<td>Adaptive timing</td>
+</tr>
+<tr>
+<td><code>Flow.delayWhen</code></td>
+<td>Notifier-based delay</td>
+<td>External timing</td>
+</tr>
+<tr>
+<td><code>Flow.delayLatest</code></td>
+<td>Trailing delay</td>
+<td>Latest after silence</td>
+</tr>
+<tr>
+<td><code>Flow.debounce</code></td>
+<td>Silence-based emission</td>
+<td>Search, auto-save</td>
+</tr>
+<tr>
+<td><code>Flow.throttle</code></td>
+<td>Rate limiting</td>
+<td>Scroll, clicks</td>
+</tr>
+<tr>
+<td><code>Flow.sample</code></td>
+<td>Sample on notifier</td>
+<td>Event sampling</td>
+</tr>
+<tr>
+<td><code>Flow.sampleTime</code></td>
+<td>Time-based sampling</td>
+<td>Periodic sampling</td>
+</tr>
+<tr>
+<td><code>Flow.audit</code></td>
+<td>Audit on notifier</td>
+<td>Confirmation</td>
+</tr>
+<tr>
+<td><code>Flow.auditTime</code></td>
+<td>Time-based audit</td>
+<td>Stabilization</td>
+</tr>
+<tr>
+<td><code>Flow.timeout</code></td>
+<td>Idle timeout</td>
+<td>Inactivity detection</td>
+</tr>
+<tr>
+<td><code>Flow.timeoutWithFallback</code></td>
+<td>Timeout with</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Walkthroughs topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Walkthroughs-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

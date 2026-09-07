@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Pharmacy Transactions topic docs, for the Dart programming language.">
+  <title>Demo · Pharmacy Transactions topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Pharmacy Transactions topic</li>
+  </ol>
+  <div class="self-name">Demo · Pharmacy Transactions</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Pharmacy Transactions</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough--pharmacy-dispense-enhanced">Walkthrough — pharmacy dispense (enhanced)</h1>
+<p><strong>Demo:</strong> <code>example\domain-cells-txApply(enhanced)-Demo.dart</code></p>
+<p>One till. Three libraries in one job:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Package idea</th>
+<th>Job on this station</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cell</strong></td>
+<td>value + pulse + TestCell + transaction</td>
+<td>What is on the shelf; who may write</td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td>Instruction <code>+</code> Receptor <code>toHandle</code></td>
+<td>Is this scan a pack we may start?</td>
+</tr>
+<tr>
+<td><strong>Transaction</strong></td>
+<td><code>Cell.transaction</code> + repeatable-read</td>
+<td>Stock, label, wristband all-or-nothing; last pack once</td>
+</tr>
+</tbody>
+</table>
+<p>Flow never decrements stock. Transaction never parses an NDC. The
+observer is the only glue.</p>
+<hr>
+<h2 id="1-why-they-have-to-combine">1. Why they have to combine</h2>
+<p>A scan is a <strong>pulse</strong>. A shelf count is <strong>state</strong>. A printer is <strong>I/O</strong>.</p>
+<p>If you put <code>tx.begin</code> inside <code>Filter + MapValue</code>, the gate holds a
+transaction while the nurse types. If you decrement stock in
+<code>observe</code> with two raw <code>update</code>s, the last pack goes out twice. If you
+open the drawer inside the Instruction, a dropped pulse still moved
+hardware.</p>
+<p>The demo’s rule:</p>
+<pre class="language-dart"><code>Flow answers: may this pulse become a job?
+Transaction answers: may this job move the shelf?
+Hardware + restorePack answers: the motor failed after commit.
+</code></pre>
+<hr>
+<h2 id="2-design-tagged">2. Design (tagged)</h2>
+<p><strong><code>Cell</code></strong> holds or carries. <strong><code>Instruction</code></strong> is <code>(pulse)→pulse|null</code>.
+<strong><code>Receptor</code></strong> runs the chain under one lock. <strong><code>Tx</code></strong> is
+<code>Cell.transaction</code> on state Cells only.</p>
+<pre class="language-dart"><code> technician
+     │
+     ▼
+[Cell] gun  ingress + TestCell(ndcLike)          FLOW intake
+     │  emit
+     ▼
+[Receptor] toHandle(source: gun.cell)            FLOW policy
+     │   [Instruction] MapValue trim/upper
+     │        + [Instruction] Filter NDC
+     │        + [Instruction] Take(1)  (_armed)
+     │   null = stop; no Future; no tx.begin
+     ▼
+[Cell] rx.cell                                   FLOW output
+     │  Cell.observe
+     ▼
+ fullDispense()                                  glue (Dart)
+
+     [Tx] confirmPatient     → [Cell] patient
+     [Tx] dispenseMemory     → [Cell] stock + label + patient
+            isolation: repeatableRead
+            commit = lock; conflict = second last pack
+     hardware _robot         → not a Cell
+     [Tx] drawer open/close  → [Cell] drawer
+     [Tx] restorePack        → stock + label again if print jammed
+
+ armNextPack()  resets Take on the SAME [Receptor]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>You need</th>
+<th>You use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty / garbage scan</td>
+<td><strong>Cell</strong> TestCell + <strong>Flow</strong> Filter</td>
+</tr>
+<tr>
+<td>One job per pack at the gun</td>
+<td><strong>Flow</strong> Take(1)</td>
+</tr>
+<tr>
+<td>Shelf and label agree</td>
+<td><strong>Tx</strong> on two <strong>Cell</strong>s</td>
+</tr>
+<tr>
+<td>Two tills, one pack</td>
+<td><strong>Tx</strong> repeatable-read</td>
+</tr>
+<tr>
+<td>Jam after commit</td>
+<td><strong>Tx</strong> again (<code>restorePack</code>), not rollback</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-step-by-step--one-successful-pack-scenario-1">3. Step by step — one successful pack (scenario 1)</h2>
+<p>Read this as Cell then Flow then Transaction then I/O.</p>
+<p><strong>0. Graph (once)</strong><br>
+<code>installGate()</code>: <strong>Flow</strong> <code>toHandle</code> on <strong>Cell</strong> <code>gun</code>.<br>
+<code>Cell.observe</code> on <code>rx.cell</code> → <code>fullDispense</code>.<br>
+State <strong>Cell</strong>s already exist (<code>stock=5</code>, …).</p>
+<p><strong>1. Pulse (Cell)</strong><br>
+<code>scan('  ndc-12345 ')</code> → <code>gun.emit</code>. TestCell: non-empty → pass.</p>
+<p><strong>2. Policy (Flow)</strong><br>
+Receptor runs Instructions:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>In</th>
+<th>Out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MapValue</td>
+<td><code>'  ndc-12345 '</code></td>
+<td><code>'NDC-12345'</code></td>
+</tr>
+<tr>
+<td>Filter</td>
+<td>that</td>
+<td>pass (<code>NDC</code>)</td>
+</tr>
+<tr>
+<td>Take(1)</td>
+<td>that</td>
+<td>pass; <code>_armed</code> 1→0</td>
+</tr>
+</tbody>
+</table>
+<p><code>rx.cell</code> emits. Invalid codes die here. Stock is still 5.</p>
+<p><strong>3. Job (glue)</strong><br>
+Observer calls <code>fullDispense('NDC-12345')</code>.</p>
+<p><strong>4. Wristband (Tx + Cell)</strong><br>
+<code>confirmPatient</code>: <code>begin([patient])</code> <code>update</code> <code>commit</code>.</p>
+<p><strong>5. Shelf (Tx + Cell)</strong><br>
+<code>dispenseMemory</code> with <code>IsolationLevel.repeatableRead</code>:</p>
+<ul>
+<li><code>begin([stock, label, patient])</code> — snapshot</li>
+<li><code>read</code> stock 5, patient set</li>
+<li><code>update</code> 4 / label true — buffered</li>
+<li><code>commit</code> — <strong>lock only here</strong> → stock 4</li>
+</ul>
+<p><code>onEvent</code>: Begun → Updated → Committed.</p>
+<p><strong>6. Hardware (not Cell)</strong><br>
+Open drawer, print, close. Each drawer change is a small <strong>Tx</strong>.</p>
+<p><strong>7. Rearm (Flow)</strong><br>
+<code>finally</code> → <code>armNextPack()</code>. Same Receptor, Take is 1 again.</p>
+<p>Nothing in steps 4–6 parsed the barcode. Nothing in step 2 touched
+stock.</p>
+<hr>
+<h2 id="4-step-by-step--last-pack-scenarios-7-and-8">4. Step by step — last pack (scenarios 7 and 8)</h2>
+<p><strong>Flow</strong> will admit two NDCs if you <code>armNextPack()</code> twice (scenario 7).
+That is deliberate: the gun is not the shelf lock.</p>
+<p>Both jobs reach <code>dispenseMemory</code>. <strong>Transaction</strong> is the lock:</p>
+<pre class="language-dart"><code>time →
+A.begin snapshot stock=1
+B.begin snapshot stock=1     (scenario 8 forces this)
+A.update 0; A.commit         lock; stock=0
+B.commit                     CONFLICT / RolledBack
+</code></pre>
+<p>B never opens the drawer. <strong>Flow</strong> already did its job (two valid
+NDCs). <strong>Cell</strong> stock ends at 0. <strong>Tx</strong> isolation is what stopped the
+second decrement.</p>
+<p>If B <code>begin</code>s <em>after</em> A commits, B reads 0 and throws <code>out of stock</code>
+instead of CONFLICT. Same shelf result; weaker proof. Scenario 8 is
+the proof.</p>
+<hr>
+<h2 id="5-step-by-step--jam-scenario-4">5. Step by step — jam (scenario 4)</h2>
+<p><strong>Flow</strong> admits <code>NDC-JAM</code>.<br>
+<strong>Tx</strong> commits stock 4→3. That commit <strong>stands</strong>.<br>
+Printer throws.<br>
+<code>restorePack</code> is a <strong>new Tx</strong> (3→4, label false).</p>
+<p>Cell + Flow + Transaction together: the gate is done, the first
+transaction is history, compensation is another transaction. Do not
+call this rollback of the Receptor.</p>
+<hr>
+<h2 id="6-parts-checklist">6. Parts checklist</h2>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Instances</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cell</td>
+<td><code>gun</code>, <code>stockIn</code>, <code>rx.cell</code>, <code>patient</code>, <code>stock</code>, <code>label</code>, <code>drawer</code></td>
+</tr>
+<tr>
+<td>Instruction</td>
+<td>MapValue, Filter, Take(1)</td>
+</tr>
+<tr>
+<td>Receptor</td>
+<td>one <code>toHandle</code></td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>patient, shelf, drawer, compensate, scenario 8 pair</td>
+</tr>
+<tr>
+<td>Not Cell</td>
+<td><code>_robot</code>, <code>ledger</code> list, <code>fullDispense</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-scenarios-what-each-layer-did">7. Scenarios (what each layer did)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Flow</th>
+<th>Transaction</th>
+<th>Cell state</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Happy</td>
+<td>pass + Take</td>
+<td>commit 5→4</td>
+<td>stock 4, label true</td>
+</tr>
+<tr>
+<td>2 Bad NDC</td>
+<td>Filter <code>null</code></td>
+<td>never</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>3 Empty</td>
+<td>TestCell / no rx</td>
+<td>never</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>4 Jam</td>
+<td>pass</td>
+<td>commit then compensate</td>
+<td>stock restored</td>
+</tr>
+<tr>
+<td>5 Empty shelf</td>
+<td>pass twice</td>
+<td>second throws before commit</td>
+<td>stock 0</td>
+</tr>
+<tr>
+<td>6 <code>stockIn(-1)</code></td>
+<td>n/a</td>
+<td>n/a</td>
+<td>TestCell on intake</td>
+</tr>
+<tr>
+<td>7 Two scans</td>
+<td>two pulses</td>
+<td>one commit, one CONFLICT</td>
+<td>stock 0</td>
+</tr>
+<tr>
+<td>8 Same snapshot</td>
+<td>none</td>
+<td>A commit, B CONFLICT</td>
+<td>stock 0</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-rules-for-combining-them">8. Rules for combining them</h2>
+<ol>
+<li><strong>Flow stops pulses. Transaction moves state.</strong></li>
+<li><strong>One Receptor per gun.</strong> Reset Take; do not stack <code>toHandle</code>.</li>
+<li><strong>Repeatable-read on the shelf Cells</strong>, not on <code>gun</code>.</li>
+<li><strong>Hardware after commit</strong> → new Tx to compensate.</li>
+<li><strong>TestCell on every ingress</strong> that a human or device can emit.</li>
+<li>Do not put <code>tx.begin</code> in <code>MapValue + Filter</code>.</li>
+</ol>
+<hr>
+<h2 id="still-demo-only">Still demo-only</h2>
+<p><code>tx.update</code> skips <code>stockIn</code>. Harness <code>stock.update(1)</code>. Take is
+<code>_armed</code>. Ledger is a <code>List</code>. Scenario 8 is not a scan.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+      <dt id="FlowInstruction">
+  <span class="name "><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+
+</dt>
+<dd>
+  Synthesizes a <strong>Composite Logic Blueprint</strong>—a specialized instruction
+wrapper designed for fluent orchestration and pipeline assembly.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Pharmacy Transactions topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Pharmacy Transactions topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Pharmacy Dispense-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+      <li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/race.dart';
 import 'package:test/test.dart';
 
@@ -254,6 +252,96 @@ void main() {
       await b.probe.settle(const Duration(milliseconds: 30));
       expect(errors.whereType<TimeoutException>(), isNotEmpty);
       expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+
+  group('Race extra', () {
+    test('empty competitors are silent', () async {
+      final b = bind<void>(Race<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('second arming pulse is ignored', () async {
+      final b = bind<void>(Race<int>([Future.value(1)]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('RaceFirst extra', () {
+    test('empty competitors are silent', () async {
+      final b = bind<void>(RaceFirst<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('RaceMap extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RaceMap<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('RaceWith extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RaceWith<int, int>(
+        (n) => n,
+        other: () => 0,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('RaceUntil extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RaceUntil<int, int>(
+        (n) => n,
+        timeout: const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('Race handle is bindable', () async {
+      final b = bind<void>(Race<int>([1]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

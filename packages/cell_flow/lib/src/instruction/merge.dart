@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that interleave several sources (Rx `merge` family).
 ///
@@ -28,8 +28,51 @@ import 'package:cell_flow/flow.dart';
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
+/// Error handler callback for merge operators.
+///
+/// Called when an error occurs during merge operations.
+/// The error and optional stack trace are provided for logging or recovery.
+///
+/// ### When to use
+/// Provide this callback to any merge operator that may encounter errors
+/// during type checking or flattening. It allows you to log errors or
+/// ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the pulse is dropped (the merge continues).
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = MergeErrorHandler((error, stack) {
+///   print('Merge error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during merge operations.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [MergeWith.onError]: The parameter that accepts this callback.
 typedef MergeErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -40,8 +83,33 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   );
 }
 
+/// Helper to add a step to a pulse's trace.
 Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 
+/// Drains any object (Future, Stream, Iterable, or value) into a callback.
+///
+/// This is the internal engine that handles the various types of inner
+/// sequences that mergeAll can produce.
+///
+/// ### How it works
+/// 1. If [inner] is `null`, returns immediately.
+/// 2. If [inner] is a `Stream`, iterates over it asynchronously.
+/// 3. If [inner] is a `Future`, waits for it and recurses.
+/// 4. If [inner] is an `Iterable` (not `String`), iterates over it.
+/// 5. Otherwise, calls [onData] with the value.
+///
+/// ### Parameters:
+/// - [inner]: The object to drain.
+/// - [onData]: Called for each value drained.
+/// - [stillLive]: Optional callback to check if the operation is still current.
+///
+/// ### Non‑obvious
+/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
+///   values, allowing nested structures to be flattened.
+/// - **Cancellation**: The [stillLive] callback is checked at each step,
+///   allowing cancelled operations to stop early.
+/// - **String Special Case**: Strings are treated as values, not iterables,
+///   to avoid character-by-character iteration.
 Future<void> _drain(
     Object? inner,
     void Function(dynamic value) onData, {
@@ -76,7 +144,7 @@ Future<void> _drain(
 }
 
 // ─────────────────────────────────────────────────────────────
-// MergeWith
+// MergeWith - Source + Others
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that forwards the bound source and every pulse
@@ -252,7 +320,7 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Merge
+// Merge - Others Only
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that merges extra [Cell]s (Rx `merge`).
@@ -350,7 +418,7 @@ class Merge<S> extends MergeWith<S> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// MergeAll
+// MergeAll - Concurrent Flattening
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that concurrently flattens inner sequences
@@ -479,9 +547,32 @@ class MergeAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 // ─────────────────────────────────────────────────────────────
 
 /// Internal state for [MergeWith] and [Merge].
+///
+/// Stores the continuation callback, token, and cell context for async
+/// emission. This allows the instruction to forward pulses from multiple
+/// sources through a single async pipeline.
+///
+/// ### When to use
+/// This is an internal implementation detail. You don't need to use it
+/// directly in application code.
+///
+/// ### How it works
+/// 1. The [future] stores the continuation callback for the async pipeline.
+/// 2. The [token] identifies the current emission in the pipeline.
+/// 3. The [cell] is the host cell for the instruction.
+///
+/// ### Non‑obvious
+/// - **Shared State**: The state is shared across all sources in the merge.
+/// - **Async Pipeline**: The state enables async emission through a single
+///   pipeline for all merged sources.
 class _EmitState {
+  /// The continuation callback for the async pipeline.
   void Function({required Pulse? result, required dynamic token})? future;
+
+  /// The continuation token for the async pipeline.
   dynamic token;
+
+  /// The host cell for the instruction.
   Cell? cell;
 }
 
@@ -537,6 +628,11 @@ class _EmitState {
 /// - MergeAll flattens inner sequences concurrently.
 /// - Merge operators interleave emissions from different sources.
 /// - All operators preserve causal provenance via EvolvedPulse.
+///
+/// ### Note on Order
+/// - MergeWith preserves order within each source but interleaves sources.
+/// - MergeAll emits in completion order, not input order.
+/// - The interleaving order in MergeAll may vary between runs.
 Future<void> main() async {
   print('── Merge Operators Demo ──────────────────────────────────────\n');
 

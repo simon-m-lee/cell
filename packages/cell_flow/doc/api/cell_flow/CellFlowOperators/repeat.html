@@ -63,6 +63,53 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Recursive Stimulus Bridge</strong>—a specialized generator
+designed to evolve the same payload multiple times.</p>
+<p><a href="../../cell_flow/CellFlowOperators/repeat.html">repeat</a> transforms a single trigger from the source cell into a
+burst of identical pulses. It is typically used for seeding
+parallel topography branches or generating redundant signals for
+coordination logic.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Redundant Materialization</strong>: Evolving the same state multiple
+times to trigger independent downstream branches.</li>
+<li><strong>Synthetic Burst Generation</strong>: Simulating high-frequency ingress
+by repeating a single test payload.</li>
+<li><strong>State Echoing</strong>: Re-materializing a pulse after a specific interval
+or event in the topography.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The bridge awaits a trigger pulse from
+the source cell.</li>
+<li><strong>Recursive Generation</strong>: Upon ingress, the orchestrator ignores
+the trigger payload and prepares <code>count</code> instances of <code>value</code>.</li>
+<li><strong>Pulse Evolution</strong>: Each instance is materialized as a new pulse,
+inheriting the provenance and priority of the trigger, tagged
+with the <code>'Repeat'</code> step.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Payload Override</strong>: Unlike <a href="../../cell_flow/CellFlowOperators/range.html">range</a>, which derives its values from
+a start point, <a href="../../cell_flow/CellFlowOperators/repeat.html">repeat</a> completely ignores the trigger stimulus
+payload in favor of the provided <code>value</code>.</li>
+<li><strong>Synchronous Emission</strong>: All <code>count</code> pulses are evolved
+synchronously within the same execution frame.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>value</code>: The <strong>Fixed Payload</strong> to be materialized.</li>
+<li><code>count</code>: The total number of <strong>Evolution Cycles</strong>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the anchored recursive node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/range.html">range</a>: For evolving a sequence of unique integer stimuli.</li>
+<li><a href="../../cell_flow/CellFlowOperators/of.html">of</a>: For evolving a static collection of different payloads.</li>
+</ul>
+</section>
 
 
     
@@ -88,7 +135,7 @@
     <li class="self-crumb">repeat&lt;<wbr><span class="type-parameter">T</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -97,7 +144,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

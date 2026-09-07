@@ -5,7 +5,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 /// A complete walkthrough demonstrating user-input stabilization and
 /// debounced API calls using the Cell Framework's Flow.debounce operator.

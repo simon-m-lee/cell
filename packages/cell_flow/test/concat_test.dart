@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/concat.dart';
 import 'package:test/test.dart';
 
@@ -205,4 +203,83 @@ void main() {
       expect(sw.elapsedMilliseconds, lessThan(2000));
     });
   });
+
+
+  group('Concat extra', () {
+    test('empty inners are silent', () async {
+      final b = bind(Concat<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('second arming pulse is ignored', () async {
+      final b = bind(Concat<int>([
+        [1],
+      ]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1]));
+    });
+  });
+
+  group('ConcatAll extra', () {
+    test('empty list payload is a no-op', () async {
+      final b = bind(ConcatAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(<int>[]);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('inner throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(ConcatAll<int>(onError: (e, _) => errors.add(e)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(_ThrowingInner());
+      await b.probe.settle();
+      expect(errors.whereType<StateError>(), isNotEmpty);
+    });
+  });
+
+  group('ConcatFirst extra', () {
+    test('takes only the first item of a list', () async {
+      final b = bind(ConcatFirst<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync([1, 2, 3]);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1]));
+    });
+  });
+
+  group('ConcatLatest extra', () {
+    test('empty list is a no-op', () async {
+      final b = bind(ConcatLatest<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(<int>[]);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('composition', () {
+    test('ConcatAll + ConcatFirst is a chain', () async {
+      final op = ConcatAll<int>() + ConcatFirst<int>();
+      final gate = Cell.ingress<Object>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync([1, 2]);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+}
+
+class _ThrowingInner extends Iterable<int> {
+  @override
+  Iterator<int> get iterator => throw StateError('c');
 }

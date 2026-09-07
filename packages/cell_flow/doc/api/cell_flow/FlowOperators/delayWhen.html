@@ -64,6 +64,19 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Dynamic Temporal Bridge</strong>—an instruction that shifts the
+materialization of pulses based on the resolution of a secondary evolution.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>when</code>: The <strong>Temporal Selector</strong>—a closure returning the resource
+that signals the end of the delay.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked if the selector or
+boundary violates integrity.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the dynamically delayed evolution node.</p>
+</section>
 
 
     
@@ -101,7 +114,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

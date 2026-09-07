@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_flow/FlowHandle.html">FlowHandle</a></span>
-<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromFuture-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<span class="name ">fromFuture</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromFuture-param-source"><span class="type-annotation"><a href="../../cell_flow/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
 <li><span class="parameter" id="fromFuture-param-future"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">future</span>, </span></li>
 <li><span class="parameter" id="fromFuture-param-timeout"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">timeout</span>, </span></li>
 <li><span class="parameter" id="fromFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
@@ -70,7 +70,7 @@
   <p>Bridges a single <code>future</code> into the graph on the first pulse received
 from <code>source</code> (Rx <code>fromFuture</code>).</p>
 <p><a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a> acts as an <strong>Asynchronous One-Shot Loader</strong> that awaits a
-single future and emits its result as a <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a>. It processes the first
+single future and emits its result as a <a href="../../cell_flow/Pulse-class.html">Pulse</a>. It processes the first
 trigger and ignores subsequent triggers.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use <a href="../../cell_flow/Flow/fromFuture.html">fromFuture</a> when you need to load a single asynchronous value:</p>
@@ -188,7 +188,7 @@ load.emit(null);
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

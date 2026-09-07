@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/window.dart';
 import 'package:test/test.dart';
 
@@ -193,6 +191,106 @@ void main() {
         ['a'],
       ]);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('WindowCount extra', () {
+    test('size 1 emits singleton windows', () async {
+      final b = bind(WindowCount<int>(1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, [
+        [1],
+        [2],
+      ]);
+    });
+
+    test('wrong types call onError and do not fill the buffer', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = WindowCount<int>(
+        2,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [
+        [1, 2],
+      ]);
+    });
+  });
+
+  group('WindowTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = WindowTime<int>(
+        const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('WindowWhen extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final closer = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = WindowWhen<int>(
+        closer.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('closer with empty buffer is silent unless emitEmpty', () async {
+      final closer = Cell.ingress<void>();
+      final b = bind(WindowWhen<int>(closer.cell));
+      addTearDown(b.probe.stop);
+      await closer.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('composition / performance', () {
+    test('WindowCount + WindowSize is a chain', () async {
+      final op = WindowCount<int>(2) + WindowSize<Object>(1);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('WindowCount(1) emits 200 windows', () async {
+      final b = bind(WindowCount<int>(1));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
     });
   });
 }

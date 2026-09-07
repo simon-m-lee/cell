@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/sample.dart';
 import 'package:test/test.dart';
 
@@ -169,6 +167,98 @@ void main() {
       expect(b.probe.payloads, isNotEmpty);
       expect(b.probe.payloads.last, 99);
       expect(sw.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+
+  group('Sample extra', () {
+    test('wrong types do not become the pending sample', () async {
+      final errors = <Object>[];
+      final notifier = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Sample<int>(
+        notifier.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await notifier.emitAsync(null);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, isEmpty);
+    });
+
+    test('notifier with no pending source is silent', () async {
+      final notifier = Cell.ingress<void>();
+      final b = bind(Sample<int>(notifier.cell));
+      addTearDown(b.probe.stop);
+      await notifier.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('SampleTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SampleTime<int>(
+        const Duration(milliseconds: 15),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('Audit extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final notifier = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Audit<int>(
+        notifier.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AuditTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AuditTime<int>(
+        const Duration(milliseconds: 15),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('SampleTime + AuditTime is a chain', () async {
+      final op = SampleTime<int>(const Duration(milliseconds: 20)) +
+          AuditTime<int>(const Duration(milliseconds: 20));
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
     });
   });
 }

@@ -63,10 +63,45 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a synchronous <a href="../../cell_flow/FlowInstruction-class.html">FlowInstruction</a>.</p>
-<p>The <code>instruction</code> closure is called for every incoming pulse. It should return
-an evolved pulse <code>O</code> to propagate, or <code>null</code> to drop the pulse (filtering).</p>
-<p><code>user</code> is an optional metadata object for debugging or auditing.</p>
+  <p>Synthesizes a synchronous <strong>Logic Gate</strong>—the primary mechanism for
+defining pulse evolution within the reactive topography.</p>
+<p>This factory creates a stateless blueprint that describes how an
+incoming stimulus <code>I</code> should be transformed or filtered before
+reaching the next node in the graph.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Reception</strong>: The <code>instruction</code> closure is invoked every
+time a pulse enters this gate.</li>
+<li><strong>Evolution</strong>: The closure receives the current <code>pulse</code>, the
+anchor <code>cell</code>, and any associated <code>user</code> metadata.</li>
+<li><strong>Propagation</strong>:
+<ul>
+<li>If the closure returns an evolved pulse <code>O</code>, it is propagated
+downstream.</li>
+<li>If the closure returns <code>null</code>, the pulse is dropped, effectively
+performing a <strong>Filter</strong> operation.</li>
+</ul>
+</li>
+</ol>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>instruction</code>: The synchronous transformation logic. It defines the
+behavior of the pulse as it traverses the gate.</li>
+<li><code>user</code>: Optional flyweight metadata for debugging, tracing, or
+auditing. This object is preserved across composition boundaries.</li>
+</ul>
+<h3 id="example-a-simple-filter-map-gate">Example: A Simple Filter-Map Gate</h3>
+<pre class="language-dart"><code class="language-dart">final upperCaseValid = FlowInstruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;String&gt;&gt;(
+  (pulse, {cell, user}) {
+    // Filter: Drop empty strings
+    if (pulse.payload.isEmpty) return null;
+
+    // Map: Transform to uppercase
+    return pulse.copy(payload: pulse.payload.toUpperCase());
+  },
+  user: 'Uppercase-Validator'
+);
+</code></pre>
 </section>
 
 
@@ -102,7 +137,7 @@ an evolved pulse <code>O</code> to propagate, or <code>null</code> to drop the p
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

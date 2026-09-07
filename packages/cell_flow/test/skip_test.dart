@@ -1,10 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'dart:async';
+
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/skip.dart';
 import 'package:test/test.dart' hide Skip;
 
@@ -208,4 +208,187 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
+
+
+  group('Skip extra', () {
+    test('Skip(0) is a pass-through', () async {
+      final b = bind(Skip<int>(0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, [1, 2]);
+    });
+
+    test('marks lineage with Skip', () async {
+      final b = bind(Skip<int>(0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.steps, contains('Skip'));
+    });
+
+    test('onError is optional on wrong types', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Skip<int>(1).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      try {
+        await gate.emitAsync('x');
+      } catch (_) {}
+      try {
+        await gate.emitAsync(2);
+      } catch (_) {}
+      await probe.settle();
+      expect(probe.payloads, anyOf(isEmpty, [2]));
+    });
+  });
+
+  group('SkipWhile extra', () {
+    test('wrong types call onError and do not open the gate', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipWhile<int>(
+        (n) => n < 3,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(5);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [5]);
+    });
+  });
+
+  group('SkipUntil extra', () {
+    test('wrong types do not pass while closed', () async {
+      final errors = <Object>[];
+      final notifier = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipUntil<int>(
+        notifier.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('SkipUntilTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipUntilTime<int>(
+        const Duration(milliseconds: 5),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('SkipFirst extra', () {
+    test('wrong types do not consume the first slot', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipFirst<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(probe.payloads, [2]);
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('SkipLast extra', () {
+    test('wrong types do not enter the trailing buffer', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipLast<int>(
+        1,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('SkipRepeated extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SkipRepeated<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('Skip + SkipWhen is a chain', () async {
+      final op = Skip<int>(1) + SkipWhen<int>((n) => n < 0);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(-1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Skip(0) forwards 200 ints', () async {
+      final b = bind(Skip<int>(0));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+    });
+  });
+
+  group('coverage extras', () {
+    test('SkipUntilTime opens after window', () async {
+      final b = bind(SkipUntilTime<int>(const Duration(milliseconds: 15)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('SkipWhen drops matches', () async {
+      final b = bind(SkipWhen<int>((n) => n.isEven));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

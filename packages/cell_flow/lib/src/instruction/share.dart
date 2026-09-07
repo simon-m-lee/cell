@@ -4,28 +4,11 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Share Operators
 // ─────────────────────────────────────────────────────────────
-
-/// Flow instructions that multicast / replay (Rx `share` family).
-///
-/// Several [Cell.observe] calls on the **same** [FlowHandle.cell]
-/// already share one subscription. These operators add a **readable
-/// replay buffer** so a late reader (or a later instruction) can see
-/// what already flowed.
-///
-/// | Operator | Rx analogue | Buffer |
-/// |---|---|---|
-/// | [Share] | `share` | none (pass-through + count) |
-/// | [ShareLatest] | `shareReplay(1)` | last typed value |
-/// | [ShareReplay] | `shareReplay(n)` | last [size] values |
-/// | [ShareReplayStart] | late subscriber | prefix the buffer, then live |
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
 /// Error handler callback for share operators.
 ///
@@ -40,6 +23,10 @@ import 'package:cell_flow/flow.dart';
 /// });
 /// ```
 typedef ShareErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
 
 /// Helper for type-safe payload extraction.
 ///
@@ -69,6 +56,18 @@ Pulse? _typedOrError<S>(
 }
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<S> _out<S>(S value, Pulse trigger, Cell? cell, String step) {
   return Pulse<S>(
     value,
@@ -78,6 +77,10 @@ Pulse<S> _out<S>(S value, Pulse trigger, Cell? cell, String step) {
     step: step,
   );
 }
+
+// ─────────────────────────────────────────────────────────────
+// ShareBuffer - Replay Buffer
+// ─────────────────────────────────────────────────────────────
 
 /// Live replay window. Not durable storage.
 ///
@@ -105,6 +108,8 @@ Pulse<S> _out<S>(S value, Pulse trigger, Cell? cell, String step) {
 /// - **Volatile**: The buffer is in-memory only, not persisted.
 /// - **Shared Access**: Multiple observers can read the same buffer.
 /// - **Not a Store**: This is not a database or cache.
+/// - **Mutable**: The buffer contents can be modified externally.
+/// - **Thread Safety**: Not thread-safe by default.
 ///
 /// ### Example: Accessing the Buffer
 /// ```dart
@@ -142,16 +147,27 @@ class ShareBuffer<S> {
   final int size;
 
   /// The buffered values in insertion order.
+  ///
+  /// The oldest values are at the beginning of the list.
+  /// The most recent values are at the end of the list.
   final List<S> values = <S>[];
 
   /// The total number of values pushed to this buffer.
   ///
   /// This counter increments on every [push] call, regardless of
   /// whether the value is retained in the buffer.
+  ///
+  /// ### Example
+  /// ```dart
+  /// buffer.push('a');
+  /// buffer.push('b');
+  /// print(buffer.seen); // 2
+  /// ```
   int seen = 0;
 
   /// Pushes a value into the buffer.
   ///
+  /// ### How it works
   /// 1. Increments the [seen] counter.
   /// 2. Adds the value to the buffer.
   /// 3. Trims the buffer to the [size] limit.
@@ -181,13 +197,17 @@ class ShareBuffer<S> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Share - Pass-through Multicast
+// Internal State
 // ─────────────────────────────────────────────────────────────
 
 /// Internal counter for [Share] to track how many pulses passed through.
 class _Seen {
   int value = 0;
 }
+
+// ─────────────────────────────────────────────────────────────
+// Share - Pass-through Multicast
+// ─────────────────────────────────────────────────────────────
 
 /// A [FlowInstruction] that marks a flow as shared/multicast without
 /// buffering (Rx `share`).
@@ -206,6 +226,7 @@ class _Seen {
 /// - **Monitoring**: Counting pulses for dashboards.
 /// - **Auditing**: Tracking how many values passed through.
 /// - **Validation**: Ensuring a source is not re-executed.
+/// - **Performance**: Measuring how many pulses are processed.
 ///
 /// ### Comparison with Other Share Operators
 /// | Operator | Buffer | Replay | Count |
@@ -228,6 +249,7 @@ class _Seen {
 /// - **Provenance Preservation**: The pulse gets the `'Share'` step.
 /// - **Multiple Observers**: Multiple observers share one subscription.
 /// - **No Replay**: Late subscribers do not receive past values.
+/// - **Count Available**: The count is accessible via the [seen] getter.
 ///
 /// ### Example: Testing Shared Source
 /// ```dart
@@ -258,6 +280,35 @@ class _Seen {
 /// - [ShareReplay]: For buffering multiple values.
 /// - [ShareReplayStart]: For replaying the buffer on first pulse.
 class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Pass-through Sharer**—a specialized instruction
+  /// that forwards pulses unchanged while counting them.
+  ///
+  /// [Share] is a pass-through operator that doesn't change values but
+  /// tracks how many typed pulses have flowed through.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Pass-through**: The pulse is forwarded unchanged.
+  /// 3. **Counting**: The internal counter is incremented.
+  /// 4. **Step Evolution**: The pulse gets the step `'Share'`.
+  /// 5. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Pulse Counter
+  /// ```dart
+  /// // Counts how many pulses pass through
+  /// val counter = Share<int>(
+  ///   user: 'Pulse-Counter'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [ShareLatest]: For buffering the latest value.
+  /// - [ShareReplay]: For buffering multiple values.
+  /// - [ShareReplayStart]: For replaying the buffer on first pulse.
   Share({
     ShareErrorHandler? onError,
     dynamic user,
@@ -286,6 +337,13 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// This counter is incremented on every typed pulse, regardless of
   /// how many observers are attached.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final share = Share<int>();
+  /// // ... after some pulses
+  /// print('Pulses seen: ${share.seen}');
+  /// ```
   int get seen => _seen.value;
 }
 
@@ -309,20 +367,7 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Real-time Updates**: Showing the latest real-time data.
 /// - **Initialization**: Getting the current value on subscription.
 /// - **Debugging**: Inspecting the latest value.
-///
-/// ### Example: Latest Value Access
-/// ```dart
-/// final input = Cell.ingress<String>();
-/// final latestOp = ShareLatest<String>();
-/// final shared = latestOp.toHandle(source: input.cell);
-///
-/// // Late subscriber can access the latest value
-/// await input.emitAsync('Hello');
-/// print(latestOp.buffer.latest); // 'Hello'
-///
-/// await input.emitAsync('World');
-/// print(latestOp.buffer.latest); // 'World'
-/// ```
+/// - **State Restoration**: Restoring the latest state.
 ///
 /// ### How it works
 /// 1. Each incoming pulse is type-checked.
@@ -337,6 +382,21 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **No Replay**: The operator itself doesn't replay; it just stores.
 /// - **External Access**: The buffer is accessible externally.
 /// - **Provenance Preservation**: The pulse gets the `'ShareLatest'` step.
+/// - **Always Overwrites**: Each new value overwrites the previous one.
+///
+/// ### Example: Latest Value Access
+/// ```dart
+/// final input = Cell.ingress<String>();
+/// final latestOp = ShareLatest<String>();
+/// final shared = latestOp.toHandle(source: input.cell);
+///
+/// // Late subscriber can access the latest value
+/// await input.emitAsync('Hello');
+/// print(latestOp.buffer.latest); // 'Hello'
+///
+/// await input.emitAsync('World');
+/// print(latestOp.buffer.latest); // 'World'
+/// ```
 ///
 /// ### Parameters:
 /// - [buffer]: **Shared Buffer.** Optional. Creates a new one if not provided.
@@ -354,6 +414,37 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ShareReplay]: For buffering multiple values.
 /// - [ShareReplayStart]: For replaying the buffer on first pulse.
 class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Latest Value Buffer**—a specialized instruction
+  /// that stores only the most recent value.
+  ///
+  /// [ShareLatest] maintains a buffer of size 1 containing the most
+  /// recent value. Late subscribers can access the latest value via
+  /// the [buffer.latest] getter.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Buffer Update**: The payload is stored in the buffer.
+  /// 3. **Pass-through**: The pulse is forwarded unchanged.
+  /// 4. **Step Evolution**: The pulse gets the step `'ShareLatest'`.
+  /// 5. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [buffer]: **Shared Buffer.** External access to the latest value.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Latest State Buffer
+  /// ```dart
+  /// // Stores the latest state value
+  /// val stateBuffer = ShareLatest<AppState>(
+  ///   user: 'State-Buffer'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Share]: For pass-through with counting.
+  /// - [ShareReplay]: For buffering multiple values.
+  /// - [ShareReplayStart]: For replaying the buffer on first pulse.
   ShareLatest({
     ShareBuffer<S>? buffer,
     ShareErrorHandler? onError,
@@ -381,6 +472,11 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// Use [buffer.latest] to access the most recent value.
   /// Use [buffer.values] to access the buffer contents.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final latest = shareLatest.buffer.latest;
+  /// ```
   final ShareBuffer<S> buffer;
 }
 
@@ -404,20 +500,7 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Undo/Redo**: Supporting undo of recent operations.
 /// - **Analytics**: Analyzing recent data points.
 /// - **Debugging**: Inspecting recent values.
-///
-/// ### Example: Recent Values Access
-/// ```dart
-/// final input = Cell.ingress<int>();
-/// final replayOp = ShareReplay<int>(size: 3);
-/// final shared = replayOp.toHandle(source: input.cell);
-///
-/// await input.emitAsync(1);
-/// await input.emitAsync(2);
-/// await input.emitAsync(3);
-/// await input.emitAsync(4);
-///
-/// print(replayOp.buffer.values); // [2, 3, 4]
-/// ```
+/// - **Sliding Window**: Implementing sliding window algorithms.
 ///
 /// ### How it works
 /// 1. Each incoming pulse is type-checked.
@@ -434,6 +517,21 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **No Replay**: The operator itself doesn't replay; it just stores.
 /// - **External Access**: The buffer is accessible externally.
 /// - **Provenance Preservation**: The pulse gets the `'ShareReplay'` step.
+/// - **Min Size**: Size defaults to 16, minimum is 1.
+///
+/// ### Example: Recent Values Access
+/// ```dart
+/// final input = Cell.ingress<int>();
+/// final replayOp = ShareReplay<int>(size: 3);
+/// final shared = replayOp.toHandle(source: input.cell);
+///
+/// await input.emitAsync(1);
+/// await input.emitAsync(2);
+/// await input.emitAsync(3);
+/// await input.emitAsync(4);
+///
+/// print(replayOp.buffer.values); // [2, 3, 4]
+/// ```
 ///
 /// ### Parameters:
 /// - [size]: **Buffer Size.** The number of values to retain.
@@ -453,6 +551,40 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ShareLatest]: For storing only the latest value.
 /// - [ShareReplayStart]: For replaying the buffer on first pulse.
 class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Multi-Value Buffer**—a specialized instruction
+  /// that stores a sliding window of recent values.
+  ///
+  /// [ShareReplay] maintains a buffer of configurable size containing
+  /// the most recent values. Late subscribers can access the buffered
+  /// values via the [buffer.values] getter.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Buffer Update**: The payload is pushed into the buffer.
+  /// 3. **Window Maintenance**: The buffer is trimmed to [size].
+  /// 4. **Pass-through**: The pulse is forwarded unchanged.
+  /// 5. **Step Evolution**: The pulse gets the step `'ShareReplay'`.
+  /// 6. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [size]: **Buffer Size.** Number of values to retain.
+  /// - [buffer]: **Shared Buffer.** External access to values.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: History Buffer
+  /// ```dart
+  /// // Stores the last 10 values
+  /// val history = ShareReplay<int>(
+  ///   size: 10,
+  ///   user: 'History-Buffer'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Share]: For pass-through with counting.
+  /// - [ShareLatest]: For storing only the latest value.
+  /// - [ShareReplayStart]: For replaying the buffer on first pulse.
   ShareReplay({
     int size = 16,
     ShareBuffer<S>? buffer,
@@ -485,6 +617,12 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// Use [buffer.values] to access the buffered values.
   /// Use [buffer.latest] to access the most recent value.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final values = shareReplay.buffer.values;
+  /// final latest = shareReplay.buffer.latest;
+  /// ```
   final ShareBuffer<S> buffer;
 }
 
@@ -508,6 +646,30 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **State Restoration**: Restoring state from a buffer.
 /// - **Testing**: Setting up test state from a buffer.
 /// - **Migration**: Migrating state from one flow to another.
+/// - **Warm-up**: Pre-populating a flow with existing data.
+///
+/// ### How it works
+/// 1. On the first typed pulse:
+///    a. The buffer is replayed (all buffered values are emitted).
+///    b. The payload is pushed to the buffer.
+///    c. If [includeCurrent] is `true`, the payload is also forwarded.
+/// 2. On subsequent pulses:
+///    a. The payload is pushed to the buffer.
+///    b. The payload is forwarded.
+/// 3. The buffer is shared and accessible externally.
+/// 4. Replayed values get the step `'ShareReplayStart.replay'`.
+/// 5. Live values get the step `'ShareReplayStart'`.
+///
+/// ### Non‑obvious
+/// - **Replay Once**: The buffer is replayed only on the first pulse.
+/// - **Buffer Update**: The first pulse's value is added to the buffer.
+/// - **Include Current**: [includeCurrent] controls whether the first
+///   pulse's value is also forwarded.
+/// - **Shared Buffer**: The buffer is shared and can be accessed externally.
+/// - **Provenance Preservation**: Replayed values get the step
+///   `'ShareReplayStart.replay'`, live values get `'ShareReplayStart'`.
+/// - **Late Subscriber Simulation**: This approximates Rx's late
+///   subscriber behavior where new subscribers get the history.
 ///
 /// ### Example: Late Subscriber Simulation
 /// ```dart
@@ -524,27 +686,6 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// await input.emitAsync('d');
 /// // Outputs: a, b, c, d
 /// ```
-///
-/// ### How it works
-/// 1. On the first typed pulse:
-///    a. The buffer is replayed (all buffered values are emitted).
-///    b. The payload is pushed to the buffer.
-///    c. If [includeCurrent] is `true`, the payload is also forwarded.
-/// 2. On subsequent pulses:
-///    a. The payload is pushed to the buffer.
-///    b. The payload is forwarded.
-/// 3. The buffer is shared and accessible externally.
-///
-/// ### Non‑obvious
-/// - **Replay Once**: The buffer is replayed only on the first pulse.
-/// - **Buffer Update**: The first pulse's value is added to the buffer.
-/// - **Include Current**: [includeCurrent] controls whether the first
-///   pulse's value is also forwarded.
-/// - **Shared Buffer**: The buffer is shared and can be accessed externally.
-/// - **Provenance Preservation**: Replayed values get the step
-///   `'ShareReplayStart.replay'`, live values get `'ShareReplayStart'`.
-/// - **Late Subscriber Simulation**: This approximates Rx's late
-///   subscriber behavior where new subscribers get the history.
 ///
 /// ### Parameters:
 /// - [buffer]: **The Buffer to Replay.** Required. The buffer containing
@@ -565,6 +706,43 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ShareLatest]: For storing only the latest value.
 /// - [ShareReplay]: For storing recent values.
 class ShareReplayStart<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Buffer Replayer**—a specialized instruction that
+  /// replays a buffer on the first pulse.
+  ///
+  /// [ShareReplayStart] is useful for simulating a "late subscriber"
+  /// scenario where a new subscriber should receive the existing buffer
+  /// before seeing live values.
+  ///
+  /// ### How it works
+  /// 1. **First Pulse**: On the first typed pulse:
+  ///    a. All buffered values are emitted with `'ShareReplayStart.replay'`.
+  ///    b. The payload is pushed to the buffer.
+  ///    c. If [includeCurrent] is `true`, the payload is forwarded.
+  /// 2. **Subsequent Pulses**: Each pulse is forwarded unchanged.
+  /// 3. **Buffer Update**: The buffer is updated on every pulse.
+  /// 4. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [buffer]: **The Buffer.** Contains the values to replay.
+  /// - [includeCurrent]: **Include Current.** Controls forwarding of
+  ///   the first pulse's value.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Late Subscriber Simulator
+  /// ```dart
+  /// // Simulates a late subscriber getting the history
+  /// val lateSimulator = ShareReplayStart<int>(
+  ///   buffer,
+  ///   includeCurrent: true,
+  ///   user: 'Late-Simulator'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Share]: For pass-through with counting.
+  /// - [ShareLatest]: For storing only the latest value.
+  /// - [ShareReplay]: For storing recent values.
   ShareReplayStart(
       ShareBuffer<S> buffer, {
         bool includeCurrent = true,
@@ -659,6 +837,11 @@ class ShareReplayStart<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - ShareReplayStart replays the buffer on the first pulse.
 /// - All operators preserve causal provenance via EvolvedPulse.
 /// - Buffers are accessible externally for inspection.
+/// - Choose the right operator for your use case:
+///   - Counting → Share
+///   - Latest value → ShareLatest
+///   - History → ShareReplay
+///   - Late subscriber → ShareReplayStart
 ///
 /// ### Note on Multicast
 /// In the Cell framework, multiple [Cell.observe] calls on the same

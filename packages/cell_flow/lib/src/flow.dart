@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-part of '../flow.dart';
+part of '../cell_flow.dart';
 
 /// The Transcription Orchestrator for the Cell framework, responsible for
 /// converting (transcribing) external stimuli, persistent state, and logic
@@ -46,6 +46,15 @@ part of '../flow.dart';
 /// * [FlowInstruction]: The stateless blueprint for reactive logic.
 /// * [FlowHandle]: The live instance of a flow pipeline.
 /// * [Cell]: The underlying stateful node in the reactive graph.
+/// {@category Features}
+/// {@category ICU Alarm Pipeline}
+/// {@category Pharmacy Dispense}
+/// {@category Search Stability}
+/// {@category Forensic Pipeline}
+/// {@category Instructions}
+/// {@category Fluent API}
+/// {@category Architecture}
+/// {@category Walkthroughs}
 abstract class Flow extends CellBase {
   // ─────────────────────────────────────────────────────────────
   // Create

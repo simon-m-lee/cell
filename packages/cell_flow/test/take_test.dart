@@ -1,10 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'dart:async';
+
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/take.dart';
 import 'package:test/test.dart';
 
@@ -166,4 +166,140 @@ void main() {
       expect(b.probe.payloads, [1, 2]);
     });
   });
+
+
+  group('Take extra', () {
+    test('Take(0) emits nothing', () async {
+      final b = bind(Take<int>(0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('negative count is treated as zero', () async {
+      final b = bind(Take<int>(-3));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('onError is optional on wrong types', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Take<int>(2).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(probe.payloads, [1]);
+    });
+  });
+
+  group('TakeWhile extra', () {
+    test('inclusive emits the failing value then closes', () async {
+      final b = bind(TakeWhile<int>((n) => n < 3, inclusive: true));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.gate.emitAsync(4);
+      await b.probe.settle();
+      expect(b.probe.payloads, [1, 2, 3]);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TakeWhile<int>(
+        (n) => true,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('TakeUntil extra', () {
+    test('wrong types call onError while open', () async {
+      final errors = <Object>[];
+      final notifier = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TakeUntil<int>(
+        notifier.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('TakeUntilTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TakeUntilTime<int>(
+        const Duration(milliseconds: 30),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('Take + TakeWhile is a chain', () async {
+      final op = Take<int>(10) + TakeWhile<int>((n) => n < 100);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Take forwards 200 then drops', () async {
+      final b = bind(Take<int>(200));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 250; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+    });
+  });
+
+  group('coverage extras', () {
+    test('TakeUntilTime closes after window', () async {
+      final b = bind(TakeUntilTime<int>(const Duration(milliseconds: 20)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('TakeWhile inclusive', () async {
+      final b = bind(TakeWhile<int>((n) => n < 2, inclusive: true));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(0);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

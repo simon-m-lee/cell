@@ -63,6 +63,64 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Predicate Integrity Gate</strong>—a specialized orchestration
+instruction designed to conditionally permit pulse evolution.</p>
+<p><a href="../../cell_flow/CellFlowOperators/filter.html">filter</a> (analogous to Rx <code>filter</code>) evaluates every incoming pulse
+from the source cell against a synchronous <code>test</code>. If the integrity
+rule is satisfied, the pulse is materialized downstream; otherwise,
+the evolution path for that specific stimulus is aborted.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Noise Suppression</strong>: Blocking redundant, invalid, or "zero-value"
+stimuli from congesting the topography.</li>
+<li><strong>Conditional Branching</strong>: Ensuring only specific payloads (e.g.,
+authenticated user events or positive integers) traverse a
+particular topographical branch.</li>
+<li><strong>State-Based Gating</strong>: Preventing evolution when the payload
+does not meet current business requirements.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Evaluation</strong>: The gate intercepts a pulse originating
+from the source cell and extracts its payload.</li>
+<li><strong>Integrity Check</strong>: The <code>test</code> orchestrator is invoked
+synchronously to determine if the payload satisfies the rule.</li>
+<li><strong>Conditional Materialization</strong>:
+<ul>
+<li>If <code>true</code>: The original pulse is propagated to downstream synapses.</li>
+<li>If <code>false</code>: The pulse is discarded, and no evolution occurs
+for this stimulus.</li>
+</ul>
+</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Provenance Preservation</strong>: Unlike <code>map</code>, which creates a new
+evolved pulse, <a href="../../cell_flow/CellFlowOperators/filter.html">filter</a> passes the <em>exact</em> original stimulus forward.
+This preserves the original source, priority, and trace history
+without modification.</li>
+<li><strong>Synchronous Efficiency</strong>: The check occurs in the ingress frame.
+Logic within <code>test</code> should be high-performance to avoid stalling
+the reactive engine.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of the payload arriving
+at the gate for evaluation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>test</code>: The <strong>Integrity Rule</strong>—a predicate determining if a pulse
+may proceed through the gate.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the anchored filtering node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/map.html">map</a>: For transforming payloads without discarding them.</li>
+</ul>
+</section>
 
 
     
@@ -88,7 +146,7 @@
     <li class="self-crumb">filter&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -97,7 +155,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

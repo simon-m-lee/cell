@@ -6,32 +6,16 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Sample/Audit Operators
 // ─────────────────────────────────────────────────────────────
 
-/// Flow instructions that emit a **held** value on a sampler
-/// (Rx `sample` / `audit` family).
-///
-/// | Operator | When it emits | Which value |
-/// |---|---|---|
-/// | [Sample] | [notifier] pulses | latest source since last emit |
-/// | [SampleTime] | every [period] | latest source in that window |
-/// | [Audit] | after [notifier] following a source | that source value |
-/// | [AuditTime] | [duration] after a source pulse | last source in that silence |
-///
-/// [Sample] ignores notifier ticks while nothing new has arrived.
-/// [AuditTime] is "debounce of the latest value after it moved".
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
-
 /// Error handler callback for sample/audit operators.
 ///
-/// Called when an error occurs during sampling or auditing operations.
-/// The error and optional stack trace are provided for logging or recovery.
+/// Called when an error occurs during sampling or auditing operations,
+/// such as type mismatches or errors in notifier handling.
 ///
 /// ### Example
 /// ```dart
@@ -41,6 +25,10 @@ import 'package:cell_flow/flow.dart';
 /// });
 /// ```
 typedef SampleErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+// ─────────────────────────────────────────────────────────────
+// Helper Functions and Types
+// ─────────────────────────────────────────────────────────────
 
 /// Helper for type-safe payload extraction.
 ///
@@ -72,14 +60,25 @@ Pulse? _typedOrError<S>(
 /// Internal state for async emission.
 ///
 /// [_Emit] stores the continuation callback and token for operators
-/// that emit asynchronously.
+/// that emit asynchronously. This is used by sample/audit operators
+/// to hold the pending value and the callback for delayed emission.
+///
+/// ### Fields:
+/// - [future]: The continuation callback for the async instruction.
+/// - [token]: The token for the async instruction.
+///
+/// ### Non‑obvious
+/// - **Async Emission**: This state is used for operators that emit
+///   asynchronously (e.g., after a timer or notifier pulse).
+/// - **Shared State**: The same [future] and [token] are used across
+///   multiple source pulses until emission occurs.
 class _Emit {
   void Function({required Pulse? result, required dynamic token})? future;
   dynamic token;
 }
 
 // ─────────────────────────────────────────────────────────────
-// Sample - Emit Latest on Notifier Pulse
+// Sample - Notifier-Based Sampling
 // ─────────────────────────────────────────────────────────────
 
 /// A [FlowInstruction] that emits the latest source value whenever
@@ -98,6 +97,7 @@ class _Emit {
 /// - **Event Sampling**: Sampling events on a separate signal.
 /// - **Real-time Dashboards**: Updating dashboards at a fixed rate.
 /// - **Sensor Data**: Sampling sensor data at a fixed rate.
+/// - **Frame-Based Updates**: Emitting on animation frames.
 ///
 /// ### Choosing Between Sample/Audit Variants
 /// - **Use [Sample]** for **Notifier-Based Sampling**: When the
@@ -124,6 +124,7 @@ class _Emit {
 ///    b. The pending value is cleared.
 ///    c. If no pending value, nothing is emitted.
 /// 3. Each emitted value gets the step `'Sample'` for provenance.
+/// 4. The emitted value preserves the source, type, and priority.
 ///
 /// ### Non‑obvious
 /// - **Pending Only**: Values are only emitted if they arrived since
@@ -133,6 +134,9 @@ class _Emit {
 ///   overwritten.
 /// - **Provenance Preservation**: Each emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
+/// - **One-Shot Observation**: The notifier is observed once and
+///   continues to trigger emissions.
+/// - **Memory Efficient**: Only the latest value is stored.
 ///
 /// ### Example: Sampling on Notifier
 /// ```dart
@@ -146,6 +150,17 @@ class _Emit {
 /// tick.emit(null); // -> 2
 /// source.emit(3);
 /// // tick.emit(null); // -> 3
+/// ```
+///
+/// ### Example: Animation Frame Sampling
+/// ```dart
+/// final position = Cell.ingress<Offset>();
+/// final frame = Cell.ingress<void>();
+///
+/// final sampledPos = Sample<Offset>(frame.cell)
+///     .toHandle(source: position.cell);
+///
+/// // Emits the latest position on each animation frame
 /// ```
 ///
 /// ### Parameters:
@@ -163,7 +178,41 @@ class _Emit {
 /// - [SampleTime]: For time-based sampling.
 /// - [Audit]: For audit on notifier.
 /// - [AuditTime]: For time-based audit.
+/// - [Throttle]: For rate limiting with leading/trailing emission.
 class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Notifier-Based Sampler**—a specialized instruction
+  /// that emits the latest source value on each notifier pulse.
+  ///
+  /// [Sample] holds the latest source value and only emits it when the
+  /// notifier pulses. If no new values have arrived since the last
+  /// emission, the notifier pulse is ignored.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The source pulse payload is validated against type [S].
+  /// 2. **Pending Storage**: The pulse is stored as the pending value.
+  /// 3. **Notifier Observation**: The notifier cell is observed once.
+  /// 4. **Sampling**: On each notifier pulse, if there's a pending value,
+  ///    it's emitted with the step `'Sample'`.
+  /// 5. **Clear Pending**: After emission, the pending value is cleared.
+  ///
+  /// ### Parameters
+  /// - [notifier]: **The Sampler.** The cell that triggers sampling.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches or errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: UI State Sampler
+  /// ```dart
+  /// // Samples the latest UI state on each tick
+  /// val uiSampler = Sample<UIState>(
+  ///   ticker.cell,
+  ///   user: 'UI-Sampler'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [SampleTime]: For time-based sampling.
+  /// - [Audit]: For audit on notifier.
+  /// - [AuditTime]: For time-based audit.
   Sample(
       Cell notifier, {
         SampleErrorHandler? onError,
@@ -220,21 +269,7 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Heartbeat**: Emitting the latest state on a heartbeat.
 /// - **Real-time Dashboards**: Updating dashboards at a fixed rate.
 /// - **Performance**: Reducing update frequency for performance.
-///
-/// ### Example: Periodic Sampling
-/// ```dart
-/// final source = Cell.ingress<int>();
-///
-/// final sampled = SampleTime<int>(
-///   Duration(milliseconds: 100),
-/// ).toHandle(source: source.cell);
-///
-/// source.emit(1);
-/// source.emit(2);
-/// // After 100ms: -> 2
-/// source.emit(3);
-/// // After 100ms: -> 3
-/// ```
+/// - **Telemetry**: Emitting telemetry at a fixed rate.
 ///
 /// ### How it works
 /// 1. The first source pulse starts the timer.
@@ -252,6 +287,34 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   the last emission.
 /// - **Provenance Preservation**: Each emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
+/// - **Memory Efficient**: Only the latest value is stored.
+/// - **Timer Cleanup**: The timer is automatically cleaned up.
+///
+/// ### Example: Periodic Sampling
+/// ```dart
+/// final source = Cell.ingress<int>();
+///
+/// final sampled = SampleTime<int>(
+///   Duration(milliseconds: 100),
+/// ).toHandle(source: source.cell);
+///
+/// source.emit(1);
+/// source.emit(2);
+/// // After 100ms: -> 2
+/// source.emit(3);
+/// // After 100ms: -> 3
+/// ```
+///
+/// ### Example: Sensor Data Sampling
+/// ```dart
+/// final sensor = Cell.ingress<double>();
+///
+/// val sampledSensor = SampleTime<double>(
+///   Duration(milliseconds: 50),
+/// ).toHandle(source: sensor.cell);
+///
+/// // Emits the latest sensor reading every 50ms
+/// ```
 ///
 /// ### Parameters:
 /// - [period]: **Sampling Period.** The interval between samples.
@@ -270,6 +333,38 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AuditTime]: For time-based audit.
 /// - [Interval]: For emitting values at a fixed interval.
 class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Time-Based Sampler**—a specialized instruction
+  /// that emits the latest source value at a fixed interval.
+  ///
+  /// [SampleTime] samples the source at a fixed interval, emitting the
+  /// latest value if one has arrived since the last emission.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The source pulse payload is validated against type [S].
+  /// 2. **Pending Storage**: The pulse is stored as the pending value.
+  /// 3. **Timer Start**: The first pulse starts the periodic timer.
+  /// 4. **Sampling**: On each timer tick, if there's a pending value,
+  ///    it's emitted with the step `'SampleTime'`.
+  /// 5. **Clear Pending**: After emission, the pending value is cleared.
+  ///
+  /// ### Parameters
+  /// - [period]: **The Sampling Period.** Interval between samples.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches or errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Telemetry Sampler
+  /// ```dart
+  /// // Samples telemetry every 5 seconds
+  /// val telemetrySampler = SampleTime<Telemetry>(
+  ///   Duration(seconds: 5),
+  ///   user: 'Telemetry-Sampler'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Sample]: For notifier-based sampling.
+  /// - [Audit]: For audit on notifier.
+  /// - [AuditTime]: For time-based audit.
   SampleTime(
       Duration period, {
         SampleErrorHandler? onError,
@@ -323,19 +418,7 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Synchronization**: Synchronizing emission with a notifier.
 /// - **Validation**: Validating values before emission.
 /// - **Conditional Emission**: Emitting only under certain conditions.
-///
-/// ### Example: Audit on Gate
-/// ```dart
-/// final source = Cell.ingress<int>();
-/// final gate = Cell.ingress<void>();
-///
-/// final audited = Audit<int>(gate.cell).toHandle(source: source.cell);
-///
-/// source.emit(1);
-/// source.emit(2);
-/// gate.emit(null); // -> 2
-/// // gate.emit(null); // ignored (no pending)
-/// ```
+/// - **Request-Response**: Emitting on response after a request.
 ///
 /// ### How it works
 /// 1. Each source pulse is type-checked and stored as the pending value.
@@ -355,6 +438,20 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Ignored Ticks**: Notifier ticks with no waiting are ignored.
 /// - **Provenance Preservation**: Each emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
+/// - **Pending Clear**: The pending value is cleared after emission.
+///
+/// ### Example: Audit on Gate
+/// ```dart
+/// final source = Cell.ingress<int>();
+/// final gate = Cell.ingress<void>();
+///
+/// final audited = Audit<int>(gate.cell).toHandle(source: source.cell);
+///
+/// source.emit(1);
+/// source.emit(2);
+/// gate.emit(null); // -> 2
+/// // gate.emit(null); // ignored (no pending)
+/// ```
 ///
 /// ### Parameters:
 /// - [notifier]: **Notifier Cell.** The cell that triggers the audit.
@@ -372,6 +469,40 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [SampleTime]: For time-based sampling.
 /// - [AuditTime]: For time-based audit.
 class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Notifier-Based Auditor**—a specialized instruction
+  /// that audits the latest source value on the next notifier pulse.
+  ///
+  /// [Audit] waits for a notifier pulse after a source pulse has arrived,
+  /// then emits the latest source value.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The source pulse payload is validated against type [S].
+  /// 2. **Pending Storage**: The pulse is stored as the pending value.
+  /// 3. **Waiting Flag**: The waiting flag is set to true.
+  /// 4. **Notifier Observation**: The notifier cell is observed once.
+  /// 5. **Audit**: On the next notifier pulse, if waiting is true,
+  ///    the pending value is emitted with the step `'Audit'`.
+  /// 6. **Clear State**: After emission, pending is cleared and
+  ///    waiting is set to false.
+  ///
+  /// ### Parameters
+  /// - [notifier]: **The Auditor.** The cell that triggers the audit.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches or errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Gate-Controlled Auditor
+  /// ```dart
+  /// // Audits the latest value when the gate opens
+  /// val gateAuditor = Audit<Data>(
+  ///   gate.cell,
+  ///   user: 'Gate-Auditor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Sample]: For sampling on notifier.
+  /// - [SampleTime]: For time-based sampling.
+  /// - [AuditTime]: For time-based audit.
   Audit(
       Cell notifier, {
         SampleErrorHandler? onError,
@@ -435,19 +566,14 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Rate Limiting**: Limiting the rate of emissions.
 /// - **Idle Detection**: Detecting idle periods.
 /// - **User Input**: Waiting for user to stop typing.
+/// - **Sensor Stabilization**: Waiting for sensor readings to stabilize.
 ///
-/// ### Example: Audit Time
-/// ```dart
-/// final source = Cell.ingress<int>();
-///
-/// final audited = AuditTime<int>(
-///   Duration(milliseconds: 100),
-/// ).toHandle(source: source.cell);
-///
-/// source.emit(1);
-/// source.emit(2);
-/// // After 100ms: -> 2 (latest in window)
-/// ```
+/// ### Comparison with Debounce
+/// | Feature | AuditTime | Debounce |
+/// |----------|-----------|----------|
+/// | Timer Reset | No (one-shot) | Yes (resets on each pulse) |
+/// | Emitted Value | Latest in window | Latest after silence |
+/// | Use Case | One-time audit | Continuous debouncing |
 ///
 /// ### How it works
 /// 1. Each source pulse is type-checked and stored as the pending value.
@@ -463,6 +589,31 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Provenance Preservation**: Each emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Scheduled Flag**: Prevents multiple timers from running.
+/// - **Pending Clear**: The pending value is cleared after emission.
+///
+/// ### Example: Audit Time
+/// ```dart
+/// final source = Cell.ingress<int>();
+///
+/// final audited = AuditTime<int>(
+///   Duration(milliseconds: 100),
+/// ).toHandle(source: source.cell);
+///
+/// source.emit(1);
+/// source.emit(2);
+/// // After 100ms: -> 2 (latest in window)
+/// ```
+///
+/// ### Example: Input Stabilization
+/// ```dart
+/// final input = Cell.ingress<String>();
+///
+/// val stabilized = AuditTime<String>(
+///   Duration(milliseconds: 500),
+/// ).toHandle(source: input.cell);
+///
+/// // Emits the latest value after 500ms of no new input
+/// ```
 ///
 /// ### Parameters:
 /// - [duration]: **Audit Duration.** The time to wait after a source
@@ -482,6 +633,44 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Audit]: For audit on notifier.
 /// - [Debounce]: For resetting the timer on each pulse.
 class AuditTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Time-Based Auditor**—a specialized instruction
+  /// that audits the latest source value after a fixed duration.
+  ///
+  /// [AuditTime] waits for a duration after a source pulse arrives,
+  /// then emits the latest value seen in that window. Unlike debounce,
+  /// the timer is not reset on new pulses.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The source pulse payload is validated against type [S].
+  /// 2. **Pending Storage**: The pulse is stored as the pending value.
+  /// 3. **Timer Check**: If a timer is already scheduled, the new pulse
+  ///    replaces the pending value but does not reset the timer.
+  /// 4. **Timer Start**: If no timer is scheduled, a one-shot timer
+  ///    is started for the [duration].
+  /// 5. **Audit**: When the timer fires, the latest pending value
+  ///    is emitted with the step `'AuditTime'`.
+  /// 6. **Clear State**: After emission, pending is cleared and the
+  ///    scheduled flag is reset.
+  ///
+  /// ### Parameters
+  /// - [duration]: **The Audit Duration.** Time to wait before emitting.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches or errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Input Stabilizer
+  /// ```dart
+  /// // Emits the latest input after 500ms of stability
+  /// val stabilizer = AuditTime<String>(
+  ///   Duration(milliseconds: 500),
+  ///   user: 'Stabilizer'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Sample]: For sampling on notifier.
+  /// - [SampleTime]: For time-based sampling.
+  /// - [Audit]: For audit on notifier.
+  /// - [Debounce]: For resetting the timer on each pulse.
   AuditTime(
       Duration duration, {
         SampleErrorHandler? onError,
@@ -572,6 +761,11 @@ class AuditTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - All operators preserve causal provenance via EvolvedPulse.
 /// - Sample ignores ticks with no pending value.
 /// - AuditTime is a "debounce of the latest value after it moved".
+/// - Choose the right operator for your use case:
+///   - Notifier-based → Sample
+///   - Time-based → SampleTime
+///   - Notifier audit → Audit
+///   - Time audit → AuditTime
 ///
 /// ### Note on Timing
 /// The demo uses short delays (30-60ms) for quick execution. In

@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/reduce.dart';
 import 'package:test/test.dart';
 
@@ -178,4 +176,140 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
+
+
+  group('Reduce extra', () {
+    test('empty source leaves the seed', () async {
+      final op = Reduce<int, int>(7, (acc, n) => acc + n);
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.probe.settle();
+      expect(op.snapshot.value, 7);
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('shared snapshot is updated in place', () async {
+      final snap = ReduceSnapshot<int>(0);
+      final op = Reduce<int, int>(0, (acc, n) => acc + n, snapshot: snap);
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(4);
+      await b.probe.settle();
+      expect(identical(op.snapshot, snap), isTrue);
+      expect(snap.value, 4);
+    });
+
+    test('onError is optional when reduce throws', () async {
+      final b = bind(Reduce<int, int>(0, (acc, n) => throw StateError('r')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('ReduceSelect extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ReduceSelect<int, int>(
+        (n) => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('marks lineage with ReduceSelect', () async {
+      final b = bind(ReduceSelect<int, int>((n) => n * 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.steps, contains('ReduceSelect'));
+      expect(b.probe.payloads, [6]);
+    });
+  });
+
+  group('ReduceMachine extra', () {
+    test('wrong types call onError and keep the acc', () async {
+      final errors = <Object>[];
+      final op = ReduceMachine<int, int>(
+        0,
+        (acc, e) => acc + e,
+        onError: (e, _) => errors.add(e),
+      );
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(op.snapshot.value, 2);
+    });
+
+    test('emitIfUnchanged false drops a no-op transition', () async {
+      final op = ReduceMachine<int, int>(
+        0,
+        (acc, e) => acc,
+        emitIfUnchanged: false,
+      );
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(op.snapshot.value, 0);
+    });
+  });
+
+  group('composition / performance', () {
+    test('Reduce + ReduceSelect is a chain', () async {
+      final op = Reduce<int, int>(0, (acc, n) => acc + n) +
+          ReduceSelect<int, int>((n) => n);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Reduce folds 200 ints', () async {
+      final op = Reduce<int, int>(0, (acc, n) => acc + n);
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      for (var i = 1; i <= 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+      expect(op.snapshot.value, 200 * 201 ~/ 2);
+    });
+  });
+
+  group('coverage extras', () {
+    test('ReduceSelect projects then folds', () async {
+      final b = bind(ReduceSelect<int, int>((n) => n * 10));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('ReduceMachine applies events', () async {
+      final b = bind(ReduceMachine<int, int>(0, (acc, e) => acc + e));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(4);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

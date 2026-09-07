@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Forensic Pipeline topic docs, for the Dart programming language.">
+  <title>Demo · Forensic Pipeline topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Forensic Pipeline topic</li>
+  </ol>
+  <div class="self-name">Demo · Forensic Pipeline</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Forensic Pipeline</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough--forensic-pipeline-flowfromfuture--deferfuture">Walkthrough — Forensic Pipeline (Flow.fromFuture / deferFuture)</h1>
+<p><strong>Demo:</strong> <code>example\from_future_forensic_pipeline_demo.dart</code></p>
+<p>One pipeline. Three layers in one job:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Package idea</th>
+<th>Job on this station</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cell</strong></td>
+<td>value + pulse + observe</td>
+<td>What data is flowing; who may see it</td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td>deferFuture + asyncMap + synthesis</td>
+<td>Bridge legacy APIs; preserve chain of custody</td>
+</tr>
+<tr>
+<td><strong>Observer</strong></td>
+<td><code>Cell.observe</code></td>
+<td>Log results and collect metrics</td>
+</tr>
+</tbody>
+</table>
+<p>Flow never modifies the source data. Cell never knows about legacy APIs. The observer is the only glue.</p>
+<hr>
+<h2 id="1-why-they-have-to-combine">1. Why they have to combine</h2>
+<p>A legacy API call is a <strong>Future</strong>. Forensic metadata is <strong>provenance</strong>. Audit trails are <strong>I/O</strong>.</p>
+<p>If you put API calls inside the observer, the observer becomes coupled to network latency. If you put audit logic inside the Future, the Future becomes impure. If you put forensic metadata in the Cell, the Cell becomes specific to one use case.</p>
+<p>The demo's rule:</p>
+<pre class="language-dart"><code>Flow answers: may this Future be bridged into the graph?
+Cell answers: what is the current state of the evidence?
+Observer answers: what should we record about the result?
+</code></pre>
+<hr>
+<h2 id="2-design-tagged">2. Design (tagged)</h2>
+<p><strong><code>Cell</code></strong> holds or carries. <strong><code>FlowInstruction</code></strong> is <code>(pulse)→pulse|null</code>.
+<strong><code>Receptor</code></strong> runs the chain under one lock. <strong><code>Cell.observe</code></strong> is
+<code>(pulse)→side effect</code>.</p>
+<pre class="language-dart"><code> legacy API (Future-based)
+     │
+     ▼
+[Cell] ingress + TestCell         FLOW intake
+     │  emit
+     ▼
+[Receptor] toHandle(source: cell)  FLOW policy
+     │   [Instruction] deferFuture  (await Future, emit result)
+     │   [Instruction] map          (transform if needed)
+     │   null = stop; no side effects
+     ▼
+[Cell] rx.cell                     FLOW output
+     │  Cell.observe
+     ▼
+ side effect (logging/collecting)  glue (Dart)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>You need</th>
+<th>You use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One-shot Future bridge</td>
+<td><strong>Flow</strong> fromFuture</td>
+</tr>
+<tr>
+<td>Per-input Future bridge</td>
+<td><strong>Flow</strong> deferFuture</td>
+</tr>
+<tr>
+<td>Multiple parallel Futures</td>
+<td><strong>Flow</strong> asyncMapConcurrent</td>
+</tr>
+<tr>
+<td>Ordered Future steps</td>
+<td><strong>Flow</strong> deferFuture chain</td>
+</tr>
+<tr>
+<td>Combine multiple sources</td>
+<td><strong>Flow</strong> synthesis</td>
+</tr>
+<tr>
+<td>Error tracking</td>
+<td><strong>Flow</strong> onError callback</td>
+</tr>
+<tr>
+<td>Provenance preservation</td>
+<td><code>pulse.withStep()</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-step-by-step--basic-future-bridge-scenario-1">3. Step by step — Basic Future Bridge (scenario 1)</h2>
+<p>Read this as Cell then Flow then Observer.</p>
+<p><strong>0. Graph (once)</strong>
+<code>Flow.deferFuture</code> with <code>toHandle</code> on <strong>Cell</strong> <code>evidenceInput</code>.
+<code>Cell.observe</code> on <code>evidenceHandle.cell</code> → print results.</p>
+<p><strong>1. Pulse (Cell)</strong>
+<code>evidenceInput.emit('EV-12345')</code> → Cell ingress.</p>
+<p><strong>2. Policy (Flow)</strong>
+deferFuture creates a new Future for each pulse:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>In</th>
+<th>Out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deferFuture</td>
+<td><code>'EV-12345'</code></td>
+<td><code>Future&lt;ForensicEvidence&gt;</code></td>
+</tr>
+<tr>
+<td>Future completes</td>
+<td>—</td>
+<td><code>ForensicEvidence</code> emitted</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. Observer (glue)</strong>
+Observer prints evidence details and trace.</p>
+<hr>
+<h2 id="4-step-by-step--chain-of-custody-scenario-2">4. Step by step — Chain of Custody (scenario 2)</h2>
+<p>Three sequential Future steps, then synthesis:</p>
+<pre class="language-dart"><code>Input: 'EV-12345'
+  → deferFuture (fetchEvidence) → ForensicEvidence
+    → deferFuture (fetchImages) → List&lt;ForensicImage&gt;
+    → deferFuture (fetchAuditLog) → List&lt;ForensicAuditEntry&gt;
+      → synthesis → Map {evidence, images, audit}
+</code></pre>
+<p>Each step preserves provenance via <code>withStep</code>. Synthesis combines all three into one report.</p>
+<p><strong>Why this matters</strong>: The chain of custody is automatically preserved. Each API call adds a step to the pulse trace.</p>
+<hr>
+<h2 id="5-step-by-step--error-handling-scenario-3">5. Step by step — Error Handling (scenario 3)</h2>
+<p>deferFuture with <code>onError</code> callback:</p>
+<pre class="language-dart"><code>Input: 'EV-99999'
+  → deferFuture (fetchEvidence)
+    → EvidenceNotFoundException thrown
+      → onError callback: prints error details
+      → No output to observer
+</code></pre>
+<p>The error is captured with forensic context. The pipeline continues (no crash).</p>
+<hr>
+<h2 id="6-step-by-step--parallel-collection-scenario-4">6. Step by step — Parallel Collection (scenario 4)</h2>
+<p>asyncMapConcurrent starts all three Futures at once:</p>
+<pre class="language-dart"><code>Input: 1, 2, 3
+  → asyncMapConcurrent
+    → Source 1: fetchEvidence (500ms)
+    → Source 2: fetchImages (350ms)
+    → Source 3: fetchAuditLog (150ms)
+  → Results emitted as they complete
+</code></pre>
+<p>Total time: ~350ms (not 500+350+150 = 1000ms).</p>
+<p><strong>Flow</strong> handles concurrency. <strong>Cell</strong> just carries the results.</p>
+<hr>
+<h2 id="7-step-by-step--sequential-processing-scenario-5">7. Step by step — Sequential Processing (scenario 5)</h2>
+<p>Four deferFuture steps in sequence:</p>
+<pre class="language-dart"><code>Input: 'forensic_user'
+  → deferFuture (authenticate) → bool (200ms)
+    → deferFuture (extract) → String (300ms)
+      → deferFuture (analyze) → Map (200ms)
+        → deferFuture (report) → String (150ms)
+</code></pre>
+<p>Total time: ~850ms. Each step waits for the previous to complete.</p>
+<p><strong>Flow</strong> handles ordering. Each step preserves provenance.</p>
+<hr>
+<h2 id="8-step-by-step--metadata-preservation-scenario-6">8. Step by step — Metadata Preservation (scenario 6)</h2>
+<p>deferFuture fetches multiple pieces of evidence:</p>
+<pre class="language-dart"><code>Input: 'EV-12345'
+  → fetchEvidence → ForensicEvidence
+  → computeEvidenceHash → String
+  → checkEvidenceStatus → String
+  → Return: {evidence, hash, status, processingTime, sha256}
+</code></pre>
+<p>All metadata is preserved in the output. The pulse trace shows all steps.</p>
+<hr>
+<h2 id="9-step-by-step--legacy-integration-scenario-7">9. Step by step — Legacy Integration (scenario 7)</h2>
+<p>deferFuture bridges a legacy system:</p>
+<pre class="language-dart"><code>Input: 'LegacyDB'
+  → fetchLegacyData → {system, records, version, lastSync}
+  → Add forensic metadata
+  → Return: {..., forensicTimestamp, forensicSource, forensicVersion}
+</code></pre>
+<p>Legacy data enters the reactive graph with full provenance.</p>
+<hr>
+<h2 id="10-step-by-step--audit-trail-scenario-8">10. Step by step — Audit Trail (scenario 8)</h2>
+<p>Complex pipeline with audit trail:</p>
+<pre class="language-dart"><code>Input: {evidenceId: 'EV-12345', userId: 'forensic_user'}
+  → createAuditEntry → ForensicAuditEntry
+  → fetchEvidence → ForensicEvidence
+  → computeEvidenceHash → String
+  → Return: {
+      auditEntry, evidence, integrity, verified,
+      chainOfCustody: [
+        {step: 'AUTHENTICATION', status: 'PASSED'},
+        {step: 'EVIDENCE_RETRIEVAL', status: 'PASSED'},
+        {step: 'INTEGRITY_CHECK', status: 'PASSED'},
+        {step: 'AUDIT_CREATED', status: 'PASSED'},
+      ]
+    }
+</code></pre>
+<p>Full audit trail with integrity verification. Chain of custody is explicit.</p>
+<hr>
+<h2 id="11-flowfromfuture-vs-flowdeferfuture">11. Flow.fromFuture vs Flow.deferFuture</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>fromFuture</th>
+<th>deferFuture</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>When to use</strong></td>
+<td>Single, one-shot Future</td>
+<td>New Future per input</td>
+</tr>
+<tr>
+<td><strong>Trigger</strong></td>
+<td>First pulse only</td>
+<td>Every pulse</td>
+</tr>
+<tr>
+<td><strong>Reusability</strong></td>
+<td>One-time</td>
+<td>Reusable</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Initialization, one-time load</td>
+<td>Per-request, per-item</td>
+</tr>
+</tbody>
+</table>
+<p><strong>fromFuture</strong>: Good for loading app config, user profile, initial data.
+<strong>deferFuture</strong>: Good for search queries, per-item loading, request-response.</p>
+<hr>
+<h2 id="12-parts-checklist">12. Parts checklist</h2>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Instances</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cell</td>
+<td><code>evidenceInput</code>, <code>custodyInput</code>, <code>errorInput</code>, <code>parallelInput</code>, <code>processInput</code>, <code>metadataInput</code>, <code>legacyInput</code>, <code>auditInput</code></td>
+</tr>
+<tr>
+<td>FlowInstruction</td>
+<td>deferFuture, asyncMapConcurrent, synthesis</td>
+</tr>
+<tr>
+<td>FlowHandle</td>
+<td>one per pipeline</td>
+</tr>
+<tr>
+<td>Observer</td>
+<td>one per output cell</td>
+</tr>
+<tr>
+<td>Not Cell</td>
+<td>ForensicApi (legacy simulator), ForensicMetrics</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="13-rules-for-combining-them">13. Rules for combining them</h2>
+<ol>
+<li><strong>Flow bridges Futures. Cell carries state. Observer logs.</strong></li>
+<li><strong>Use deferFuture for per-input async operations.</strong></li>
+<li><strong>Use fromFuture for one-shot async operations.</strong></li>
+<li><strong>Use asyncMapConcurrent for parallel operations.</strong></li>
+<li><strong>Chain deferFuture for sequential operations.</strong></li>
+<li><strong>Use synthesis to combine multiple sources.</strong></li>
+<li><strong>Handle errors in onError callback with forensic context.</strong></li>
+<li><strong>Preserve provenance with pulse.withStep().</strong></li>
+</ol>
+<hr>
+<h2 id="still-demo-only">Still demo-only</h2>
+<p>All APIs are simulated. Real-world APIs may have network latency, retries, and authentication. Forensic integrity checks are simplified.</p>
+<hr>
+<h2 id="summary-table">Summary table</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Flow does</th>
+<th>Cell does</th>
+<th>Observer does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Basic</td>
+<td>Bridges Future</td>
+<td>Carries evidence</td>
+<td>Prints result</td>
+</tr>
+<tr>
+<td>2 Chain</td>
+<td>Chains 3 Futures + synthesis</td>
+<td>Carries combined report</td>
+<td>Prints chain length</td>
+</tr>
+<tr>
+<td>3 Error</td>
+<td>Catches exception</td>
+<td>No output</td>
+<td>Prints error</td>
+</tr>
+<tr>
+<td>4 Parallel</td>
+<td>Concurrent Futures</td>
+<td>Carries results</td>
+<td>Prints completion order</td>
+</tr>
+<tr>
+<td>5 Sequential</td>
+<td>Sequential Futures</td>
+<td>Carries report</td>
+<td>Prints final report</td>
+</tr>
+<tr>
+<td>6 Metadata</td>
+<td>Fetches multiple sources</td>
+<td>Carries metadata</td>
+<td>Prints integrity</td>
+</tr>
+<tr>
+<td>7 Legacy</td>
+<td>Bridges legacy system</td>
+<td>Carries migrated data</td>
+<td>Prints provenance</td>
+</tr>
+<tr>
+<td>8 Audit</td>
+<td>Full audit pipeline</td>
+<td>Carries audit result</td>
+<td>Prints chain of custody</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Forensic Pipeline topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Forensic Pipeline topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Forensic Pipeline-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

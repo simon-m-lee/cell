@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Of/From/Range Operators
@@ -12,6 +12,10 @@ import 'package:cell_flow/flow.dart';
 
 /// Flow instructions that create a sequence on the first trigger
 /// (Rx `of` / `from` / `range`).
+///
+/// These operators create sequences of values that are emitted once when
+/// the bound source first pulses. They are essential for initialization,
+/// test data, and one-time setup sequences.
 ///
 /// | Operator | Rx analogue | Emits |
 /// |---|---|---|
@@ -32,6 +36,15 @@ import 'package:cell_flow/flow.dart';
 /// Called when an error occurs during sequence emission.
 /// The error and optional stack trace are provided for logging or recovery.
 ///
+/// ### When to use
+/// Provide this callback to any sequence creation operator that may encounter
+/// errors during emission. It allows you to log errors or ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the sequence stops (the error is handled).
+///
 /// ### Example
 /// ```dart
 /// final errorHandler = OfErrorHandler((error, stack) {
@@ -39,9 +52,29 @@ import 'package:cell_flow/flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during sequence emission.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [Of.onError]: The parameter that accepts this callback.
 typedef OfErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -144,6 +177,20 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [Range]: For emitting a numeric range.
 /// - [Repeat]: For emitting a repeated value.
 class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a fixed value sequence instruction.
+  ///
+  /// ### Parameters
+  /// - [values]: **The Values to Emit.** The sequence of values to
+  ///   emit on the first trigger.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final of = Of<String>(['a', 'b', 'c'],
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   Of(
       Iterable<T> values, {
         OfErrorHandler? onError,
@@ -243,6 +290,19 @@ class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Range]: For emitting a numeric range.
 /// - [Repeat]: For emitting a repeated value.
 class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates an iterable emission instruction.
+  ///
+  /// ### Parameters
+  /// - [source]: **The Iterable Source.** The iterable to emit elements from.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final fromIterable = FromIterable<int>([1, 2, 3],
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   FromIterable(
       Iterable<T> source, {
         OfErrorHandler? onError,
@@ -346,6 +406,21 @@ class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [FromIterable]: For emitting from an iterable.
 /// - [Repeat]: For emitting a repeated value.
 class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a numeric range instruction.
+  ///
+  /// ### Parameters
+  /// - [start]: **Starting Value.** The first integer in the range.
+  /// - [count]: **Number of Values.** How many integers to emit.
+  /// - [step]: **Step Size.** The increment between values. Defaults to 1.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final range = Range(0, 5, step: 2,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   Range(
       int start,
       int count, {
@@ -451,6 +526,21 @@ class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [FromIterable]: For emitting from an iterable.
 /// - [Range]: For emitting a numeric range.
 class Repeat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a repeated value instruction.
+  ///
+  /// ### Parameters
+  /// - [value]: **The Value to Repeat.** The value to emit multiple times.
+  /// - [count]: **Number of Repetitions.** How many times to emit the value.
+  ///   Defaults to 1.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final repeat = Repeat<String>('ping', count: 3,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   Repeat(
       T value, {
         int count = 1,

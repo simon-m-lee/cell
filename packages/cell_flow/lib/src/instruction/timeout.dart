@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Timeout Operators
@@ -281,6 +281,31 @@ void _arm<S>({
 /// - [TimeoutFirst]: For first-gap only timeout.
 /// - [TimeoutLast]: Alias of [Timeout].
 class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Idle-Gap Timeout Gate**—a specialized orchestration
+  /// instruction that watches the silence between typed pulses.
+  ///
+  /// [Timeout] (analogous to `timeout` in Rx) starts a clock on the first
+  /// typed stimulus and **resets that clock on every later pulse**. If the
+  /// gap exceeds [duration], the gate closes and emits a [TimeoutException]
+  /// as an error pulse (`type: 'error'`) tagged `'Timeout'`.
+  ///
+  /// ### Concurrency Model
+  /// * **Single Shot**: After the first timeout the clock is closed and
+  ///   will not fire again.
+  /// * **Resetting Window**: Every typed pulse restarts the timer when
+  ///   [resetOnPulse] is `true`.
+  /// * **Pass-Through**: Live pulses continue downstream with step
+  ///   `'Timeout'` until the gate fires.
+  ///
+  /// ### Parameters
+  /// - [duration]: Maximum allowed gap between typed pulses.
+  /// - [onError]: Integrity handler for type mismatches and the timeout
+  ///   itself.
+  /// - [emitErrorPulse]: When `true` (default), emit the error pulse
+  ///   downstream; when `false`, only invoke [onError].
+  /// - [resetOnPulse]: When `true` (default), restart the timer on every
+  ///   pulse. Set `false` for an overall deadline ([TimeoutFirst]).
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   Timeout(
       Duration duration, {
         TimeoutErrorHandler? onError,
@@ -404,6 +429,23 @@ class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TimeoutWithFallback]: For fallback on timeout.
 /// - [TimeoutFirst]: For first-gap only timeout.
 class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Custom-Error Timeout Gate**—idle-gap detection that
+  /// emits a caller-chosen error payload instead of a stock
+  /// [TimeoutException].
+  ///
+  /// [errorOf] wins over [error]; if neither is supplied the gate falls
+  /// back to [TimeoutException]. Failures inside [errorOf] are reported
+  /// via [onError] and suppress the downstream pulse.
+  ///
+  /// ### Parameters
+  /// - [duration]: Maximum allowed gap between typed pulses.
+  /// - [error]: Fixed error payload emitted on timeout.
+  /// - [errorOf]: Factory invoked at fire time; takes precedence over
+  ///   [error].
+  /// - [onError]: Integrity handler for type mismatches, factory throws,
+  ///   and the timeout payload itself.
+  /// - [emitErrorPulse]: When `true` (default), emit the error pulse.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   TimeoutWithError(
       Duration duration, {
         Object? error,
@@ -536,6 +578,20 @@ class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TimeoutFirst]: For first-gap only timeout.
 /// - [TimeoutLast]: Alias of [Timeout].
 class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Fallback Timeout Gate**—idle-gap detection that
+  /// substitutes a typed [fallback] value for an error pulse.
+  ///
+  /// On timeout the gate emits `_ok(fallback)` tagged
+  /// `'TimeoutWithFallback'`. When [once] is `true` (default) the clock
+  /// closes after the first fallback; when `false` the window may fire
+  /// again after subsequent idle gaps.
+  ///
+  /// ### Parameters
+  /// - [duration]: Maximum allowed gap between typed pulses.
+  /// - [fallback]: Value of type [S] emitted instead of an error.
+  /// - [once]: Emit fallback only once (`true`) or on every idle gap.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   TimeoutWithFallback(
       Duration duration, {
         required S fallback,
@@ -645,6 +701,15 @@ class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TimeoutWithFallback]: For fallback on timeout.
 /// - [TimeoutLast]: Alias of [Timeout].
 class TimeoutFirst<S> extends Timeout<S> {
+  /// Synthesizes a **First-Gap Deadline Gate**—a [Timeout] whose timer
+  /// starts on the first typed pulse and **never resets**.
+  ///
+  /// Implemented as `Timeout(..., resetOnPulse: false)`. Later pulses
+  /// still pass through with step `'Timeout'`; the deadline is measured
+  /// from the opening stimulus only.
+  ///
+  /// ### Parameters
+  /// Same as [Timeout] except [resetOnPulse] is forced to `false`.
   TimeoutFirst(
       super.duration, {
         super.onError,
@@ -710,6 +775,14 @@ class TimeoutFirst<S> extends Timeout<S> {
 /// - [Timeout]: The primary implementation.
 /// - [TimeoutFirst]: For overall deadline from first pulse.
 class TimeoutLast<S> extends Timeout<S> {
+  /// Synthesizes an **Idle-After-Last Gate**—semantic alias of [Timeout]
+  /// that emphasizes “timeout after the latest pulse”.
+  ///
+  /// Implemented as `Timeout(..., resetOnPulse: true)`. Behavior is
+  /// identical to [Timeout]; the name exists for pipeline readability.
+  ///
+  /// ### Parameters
+  /// Same as [Timeout] except [resetOnPulse] is forced to `true`.
   TimeoutLast(
       super.duration, {
         super.onError,

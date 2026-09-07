@@ -45,125 +45,399 @@
 <section class="desc markdown">
   <h1 id="cell_flow">cell_flow</h1>
 <p><strong>Codename: Mitosis</strong> · <code>1.0.0-rc.2</code></p>
-<p>Rx-shaped operators for the <a href="https://github.com/simon-m-lee/cell">Cell</a> framework. Debounce, switchMap, zip, retry and the rest of the usual stream vocabulary — as <code>FlowInstruction</code>s on the <strong>same graph</strong> as <code>package:cell</code>.</p>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
 <a href="#status"><img src="https://img.shields.io/badge/Status-RC2-green.svg" alt="Status"></a></p>
+<p><strong>Rx-shaped operators for the <a href="https://github.com/simon-m-lee/cell">Cell</a> framework.</strong> Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as <code>FlowInstruction</code>s on the <strong>same graph</strong> as <code>package:cell</code>.</p>
+<hr>
+<h2 id="-quick-start">🚀 Quick Start</h2>
+<h3 id="installation">Installation</h3>
+<p>Add both packages to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
   cell: 1.0.0-rc.2
   cell_flow: 1.0.0-rc.2
 </code></pre>
+<p>Import once in your Dart file:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart'; // re-exports package:cell
 </code></pre>
-<p>Status: <strong>release candidate</strong>. Not a completeness claim. Verify behaviour against source.</p>
+<h3 id="your-first-pipeline-30-seconds">Your First Pipeline (30 seconds)</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+
+final query = Cell.ingress&lt;String&gt;();
+
+// Build a reactive search pipeline
+final results = query.cell
+    .map&lt;String, String&gt;(project: (q) =&gt; q.trim().toLowerCase())
+    .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
+    .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: (q) =&gt; api.search(q));
+
+// Observe results
+Cell.observe(source: results.cell, effect: (p) {
+  print('Found ${p.payload.length} hits');
+});
+
+// Emit user input
+await query.emitAsync('Dart packages');
+</code></pre>
+<blockquote>
+<p>💡 <strong>New to cell_flow?</strong> Read the <strong><a href="guide/HowTo-Start.md">How to Start Guide</a></strong> for a complete 15-minute tutorial with 5 copy-paste examples.</p>
+</blockquote>
 <hr>
-<h2 id="why-flow-exists">Why Flow exists</h2>
-<p><strong>cell</strong> already gives you nodes (<code>Cell</code>), signals (<code>Pulse</code>), integrity (<code>TestCell</code>), and gates (<code>Receptor</code>). Everyday stream work would otherwise be custom <code>Timer</code>s and one-off receptors.</p>
+<h2 id="-what-problem-does-flow-solve">🎯 What Problem Does Flow Solve?</h2>
+<p><strong>cell</strong> already gives you nodes (<code>Cell</code>), signals (<code>Pulse</code>), integrity (<code>TestCell</code>), and gates (<code>Receptor</code>). But everyday stream work — debouncing input, cancelling stale requests, batching events — would otherwise require custom <code>Timer</code>s and one-off receptors.</p>
 <p><strong>cell_flow</strong> names those policies:</p>
 <table>
 <thead>
 <tr>
-<th>You write</th>
-<th>Flow runs</th>
+<th>You want to…</th>
+<th>cell_flow provides</th>
+<th>Performance</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>Flow.debounce</code></td>
-<td>last value after silence</td>
+<td>Debounce user input</td>
+<td><code>Flow.debounce</code> or <code>.debounce()</code></td>
+<td>Last value after silence</td>
 </tr>
 <tr>
-<td><code>Flow.switchMap</code></td>
-<td>drop the previous inner</td>
+<td>Cancel stale HTTP requests</td>
+<td><code>Flow.switchMap</code> or <code>.switchMap()</code></td>
+<td>Drop previous inner</td>
 </tr>
 <tr>
-<td><code>Flow.zip</code></td>
-<td>pair by index, not by latest</td>
+<td>Pair values by index</td>
+<td><code>Flow.zip</code> or <code>.zipWith()</code></td>
+<td>Index-based pairing</td>
 </tr>
 <tr>
-<td><code>Filter + MapValue + Tap</code></td>
-<td>one Receptor, one lock</td>
+<td>Retry failed operations</td>
+<td><code>Flow.retry</code> or <code>.retry()</code></td>
+<td>Configurable retry count</td>
+</tr>
+<tr>
+<td>Batch events</td>
+<td><code>Flow.bufferCount</code> or <code>.bufferCount()</code></td>
+<td>Collect N values</td>
+</tr>
+<tr>
+<td>Prevent double-taps</td>
+<td><code>Flow.exhaustMap</code> or <code>.exhaustMap()</code></td>
+<td>Ignore while busy</td>
+</tr>
+<tr>
+<td>Combine multiple streams</td>
+<td><code>Flow.combineLatest</code></td>
+<td>Latest from all sources</td>
 </tr>
 </tbody>
 </table>
-<p>The graph, locks, and provenance stay in <strong>cell</strong>. Flow only decides <em>which</em> pulses leave and <em>when</em>.</p>
+<p><strong>Key insight:</strong> The graph, locks, validation, and provenance stay in <strong>cell</strong>. Flow only decides <em>which</em> pulses leave and <em>when</em>.</p>
 <hr>
-<h2 id="three-ways-in">Three ways in</h2>
+<h2 id="-three-ways-to-build-pipelines">🔧 Three Ways to Build Pipelines</h2>
+<h3 id="way-1-static-factories-recommended-for-beginners">Way 1: Static Factories (Recommended for beginners)</h3>
 <pre class="language-dart"><code class="language-dart">final box = Cell.ingress&lt;String&gt;();
 
-// 1. Static factory
-final a = Flow.filter&lt;String&gt;(box.cell, test: (q) =&gt; q.length &gt;= 2);
+final filtered = Flow.filter&lt;String&gt;(
+  box.cell, 
+  test: (q) =&gt; q.length &gt;= 2,
+);
 
-// 2. Fluent (same factories)
-final b = box.cell
+final debounced = Flow.debounce&lt;String&gt;(
+  filtered.cell,
+  duration: const Duration(milliseconds: 300),
+);
+</code></pre>
+<p><strong>Best for:</strong> Multi-source operators (<code>merge</code>, <code>zip</code>, <code>combineLatest</code>), naming nodes for logs.</p>
+<hr>
+<h3 id="way-2-fluent-chaining-most-readable">Way 2: Fluent Chaining (Most readable)</h3>
+<pre class="language-dart"><code class="language-dart">final box = Cell.ingress&lt;String&gt;();
+
+final results = box.cell
     .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
     .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
     .asyncMapLatest&lt;String, List&lt;String&gt;&gt;(mapper: api.search);
+</code></pre>
+<p><strong>Best for:</strong> Linear pipelines, readability, quick prototyping.</p>
+<blockquote>
+<p>⚠️ <strong>Note:</strong> Each fluent step creates a <strong>new Cell/Receptor</strong>. <code>filter().map()</code> = 2 cells.</p>
+</blockquote>
+<hr>
+<h3 id="way-3-instructionchain-one-receptor-many-ops">Way 3: InstructionChain (One Receptor, many ops)</h3>
+<pre class="language-dart"><code class="language-dart">final box = Cell.ingress&lt;String&gt;();
 
-// 3. Instruction chain → one purpose-built Receptor
+// Build a reusable policy - runs in ONE Receptor under ONE lock
 final gate = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
     Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
     Distinct&lt;String&gt;();
-final c = gate.toHandle(source: box.cell);
+
+final handle = gate.toHandle(source: box.cell);
 </code></pre>
-<p>Drive ingress with <code>emitAsync</code>, observe the handle’s cell:</p>
-<pre class="language-dart"><code class="language-dart">Cell.observe(source: c.cell, effect: (Pulse p) =&gt; print(p.payload));
-await box.emitAsync('  Ada  ');
-</code></pre>
-<p>Fluent <code>filter().map()</code> is <strong>two cells</strong>. <code>Filter + MapValue</code> is <strong>one</strong> Receptor. Use <code>+</code> for sync policy; keep timers and HTTP on the next node.</p>
+<p><strong>Best for:</strong> Sync policies (trim, filter, tap), shared locks, unit testing gates.</p>
+<blockquote>
+<p>💡 <strong>Key difference:</strong> <code>+</code> chains run in <strong>one Receptor</strong> under <strong>one lock</strong>. Fluent chains create multiple cells.</p>
+</blockquote>
 <hr>
-<h2 id="operator-map">Operator map</h2>
+<h2 id="-complete-operator-catalog-79-operators">📊 Complete Operator Catalog (79+ Operators)</h2>
+<h3 id="create-operators">Create Operators</h3>
 <table>
 <thead>
 <tr>
-<th>Family</th>
-<th>Examples</th>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Create</td>
-<td><code>of</code>, <code>fromIterable</code>, <code>range</code>, <code>fromFuture</code>, <code>fromStream</code></td>
+<td><code>of</code></td>
+<td>Play values on first pulse</td>
+<td><code>Flow.of(values: [1, 2, 3])</code></td>
 </tr>
 <tr>
-<td>Transform</td>
-<td><code>map</code>, <code>mapTo</code>, <code>pluck</code>, <code>scan</code>, <code>reduce</code>, <code>pairwise</code></td>
+<td><code>fromIterable</code></td>
+<td>Same, from iterable</td>
+<td><code>cell.fromIterable(iterable: list)</code></td>
 </tr>
 <tr>
-<td>Async</td>
-<td><code>asyncMap</code> / <code>Latest</code> / <code>Concurrent</code>, <code>asyncExpand</code>, <code>asyncFold</code></td>
+<td><code>fromFuture</code></td>
+<td>One Future, first pulse</td>
+<td><code>cell.fromFuture(future: api.me())</code></td>
 </tr>
 <tr>
-<td>Filter</td>
-<td><code>filter</code>, <code>take</code> / <code>skip</code>, <code>distinct</code></td>
+<td><code>fromStream</code></td>
+<td>One subscription, first pulse</td>
+<td><code>cell.fromStream(stream: ticker)</code></td>
 </tr>
 <tr>
-<td>Flatten</td>
-<td><code>concatMap</code>, <code>mergeMap</code>, <code>switchMap</code>, <code>exhaustMap</code></td>
-</tr>
-<tr>
-<td>Combine</td>
-<td><code>merge</code>, <code>zip</code>, <code>combineLatest</code>, <code>withLatestFrom</code>, <code>race</code></td>
-</tr>
-<tr>
-<td>Time</td>
-<td><code>delay</code>, <code>debounce</code>, <code>throttle</code>, <code>sample</code>, <code>auditTime</code>, <code>timeout</code>, <code>interval</code></td>
-</tr>
-<tr>
-<td>Collect</td>
-<td><code>bufferCount</code>, <code>bufferTime</code>, <code>window</code>, <code>groupBy</code>, <code>partition</code></td>
-</tr>
-<tr>
-<td>Control</td>
-<td><code>startWith</code>, <code>share</code>, <code>retry</code>, <code>tap</code>, <code>iif</code></td>
+<td><code>range</code></td>
+<td>start + count + step</td>
+<td><code>cell.range(start: 1, count: 5)</code></td>
 </tr>
 </tbody>
 </table>
-<p>Full tables: <a href="FEATURES-Flow.md"><code>FEATURES-Flow.md</code></a>.<br>
-Design: <a href="ARCHITECTURE-Flow.md"><code>ARCHITECTURE-Flow.md</code></a>.</p>
-<p>Cells <strong>do not complete</strong>. Concatenate <strong>inners</strong> (list / <code>Future</code> / <code>Stream</code>), not “Cell A then Cell B”. <code>reduce</code> / <code>scan</code> are running folds, not a terminal value.</p>
+<h3 id="transform-operators">Transform Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map</code></td>
+<td>Project value</td>
+<td><code>cell.map(project: (x) =&gt; x * 2)</code></td>
+</tr>
+<tr>
+<td><code>mapTo</code></td>
+<td>Map to constant</td>
+<td><code>cell.mapTo(value: 'done')</code></td>
+</tr>
+<tr>
+<td><code>pluck</code></td>
+<td>Extract field</td>
+<td><code>cell.pluck(field: 'name')</code></td>
+</tr>
+<tr>
+<td><code>scan</code></td>
+<td>Running fold</td>
+<td><code>cell.scan(seed: 0, accumulate: (a, b) =&gt; a + b)</code></td>
+</tr>
+<tr>
+<td><code>pairwise</code></td>
+<td>Emit pairs</td>
+<td><code>cell.pairwise()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="filter--take--skip">Filter / Take / Skip</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filter</code></td>
+<td>Predicate gate</td>
+<td><code>cell.filter(test: (x) =&gt; x &gt; 0)</code></td>
+</tr>
+<tr>
+<td><code>distinct</code></td>
+<td>Consecutive unique</td>
+<td><code>cell.distinct()</code></td>
+</tr>
+<tr>
+<td><code>take</code></td>
+<td>First N values</td>
+<td><code>cell.take(count: 3)</code></td>
+</tr>
+<tr>
+<td><code>skip</code></td>
+<td>Skip first N</td>
+<td><code>cell.skip(count: 2)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="flatten-operators-inner-sequences">Flatten Operators (Inner Sequences)</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Policy</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concatMap</code></td>
+<td>Queue inners</td>
+<td>Order matters</td>
+</tr>
+<tr>
+<td><code>mergeMap</code></td>
+<td>Overlap inners</td>
+<td>Parallel OK</td>
+</tr>
+<tr>
+<td><code>switchMap</code></td>
+<td>Latest only</td>
+<td>Cancel stale</td>
+</tr>
+<tr>
+<td><code>exhaustMap</code></td>
+<td>Ignore while busy</td>
+<td>Prevent double-taps</td>
+</tr>
+</tbody>
+</table>
+<h3 id="combine-operators">Combine Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Pairing Rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mergeWith</code></td>
+<td>Interleave</td>
+<td><code>cell.mergeWith(sources: [a, b])</code></td>
+</tr>
+<tr>
+<td><code>zipWith</code></td>
+<td>Same index</td>
+<td><code>cell.zipWith(others: [a, b])</code></td>
+</tr>
+<tr>
+<td><code>combineLatestWith</code></td>
+<td>Latest of all</td>
+<td><code>cell.combineLatestWith(others: [a])</code></td>
+</tr>
+<tr>
+<td><code>withLatestFrom</code></td>
+<td>Source + latest others</td>
+<td><code>cell.withLatestFrom(others: [a], combine: ...)</code></td>
+</tr>
+<tr>
+<td><code>race</code></td>
+<td>First to emit</td>
+<td><code>Flow.race(cell, competitors: [a, b])</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="time-operators">Time Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>When It Emits</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>delay</code></td>
+<td>After fixed duration</td>
+<td><code>cell.delay(duration: 1s)</code></td>
+</tr>
+<tr>
+<td><code>debounce</code></td>
+<td>Last after silence</td>
+<td><code>cell.debounce(duration: 300ms)</code></td>
+</tr>
+<tr>
+<td><code>throttle</code></td>
+<td>Leading/trailing window</td>
+<td><code>cell.throttle(duration: 1s, leading: true)</code></td>
+</tr>
+<tr>
+<td><code>sample</code></td>
+<td>Notifier or period</td>
+<td><code>cell.sampleTime(period: 1s)</code></td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>Idle too long</td>
+<td><code>cell.timeout(duration: 5s)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="collect--control-operators">Collect / Control Operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Payload</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bufferCount</code></td>
+<td>List</td>
+<td><code>cell.bufferCount(count: 10)</code></td>
+</tr>
+<tr>
+<td><code>bufferTime</code></td>
+<td>List</td>
+<td><code>cell.bufferTime(duration: 5s)</code></td>
+</tr>
+<tr>
+<td><code>groupBy</code></td>
+<td>Grouped</td>
+<td><code>cell.groupBy(keyOf: (x) =&gt; x.type)</code></td>
+</tr>
+<tr>
+<td><code>startWith</code></td>
+<td>Prefix</td>
+<td><code>cell.startWith(value: 0)</code></td>
+</tr>
+<tr>
+<td><code>retry</code></td>
+<td>Retry count</td>
+<td><code>cell.retry(count: 3)</code></td>
+</tr>
+<tr>
+<td><code>tap</code></td>
+<td>Side effect</td>
+<td><code>cell.tap(onValue: print)</code></td>
+</tr>
+</tbody>
+</table>
+<p>📖 <strong>Full documentation:</strong> <a href="FEATURES-Flow.md"><code>FEATURES-Flow.md</code></a></p>
 <hr>
-<h2 id="example-search-box">Example: search box</h2>
+<h2 id="-common-patterns">🎓 Common Patterns</h2>
+<h3 id="pattern-1-search-as-you-type">Pattern 1: Search-as-You-Type</h3>
 <pre class="language-dart"><code class="language-dart">final query = Cell.ingress&lt;String&gt;();
 
 final results = query.cell
@@ -171,95 +445,263 @@ final results = query.cell
     .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
     .distinct&lt;String&gt;()
     .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
-    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: (q) =&gt; api.search(q));
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: api.search);
 </code></pre>
-<p>Runnable gates in this package: <code>example_sanitize_text.dart</code>, <code>example_search_query_gate.dart</code>, <code>example_checkout_quote.dart</code>, and the other <code>example_*.dart</code> files.</p>
+<p><strong>Why it works:</strong> <code>asyncMapLatest</code> cancels stale requests when the user types again.</p>
 <hr>
-<h2 id="package-layout">Package layout</h2>
+<h3 id="pattern-2-form-validation">Pattern 2: Form Validation</h3>
+<pre class="language-dart"><code class="language-dart">final raw = Cell.ingress&lt;String&gt;();
+
+final email = raw.cell
+    .map&lt;String, String&gt;(project: (s) =&gt; s.trim().toLowerCase())
+    .filter&lt;String&gt;(test: (s) =&gt; s.contains('@'))
+    .distinct&lt;String&gt;()
+    .asyncMap&lt;String, User&gt;(
+      mapper: api.lookup,
+      onError: (e, _) =&gt; log.warn(e),
+    );
+</code></pre>
+<hr>
+<h3 id="pattern-3-prevent-double-checkout">Pattern 3: Prevent Double-Checkout</h3>
+<pre class="language-dart"><code class="language-dart">final taps = Cell.ingress&lt;void&gt;();
+
+final receipts = taps.cell.exhaustMap&lt;void, Receipt&gt;(
+  project: (_) =&gt; api.checkout(cart),
+);
+
+// While checkout runs, additional taps are ignored
+await taps.emitAsync(null);  // Starts checkout
+await taps.emitAsync(null);  // Ignored
+</code></pre>
+<hr>
+<h3 id="pattern-4-batch-telemetry">Pattern 4: Batch Telemetry</h3>
+<pre class="language-dart"><code class="language-dart">final events = Cell.ingress&lt;Metric&gt;();
+
+final batches = events.cell
+    .bufferWithTimeAndCount&lt;Metric&gt;(
+      duration: const Duration(seconds: 5),
+      count: 50,
+    )
+    .asyncMap&lt;List&lt;Metric&gt;, void&gt;(mapper: (batch) =&gt; api.flush(batch));
+
+// Flushes when either 50 events arrive OR 5 seconds pass
+</code></pre>
+<hr>
+<h3 id="pattern-5-combine-multiple-sources">Pattern 5: Combine Multiple Sources</h3>
+<pre class="language-dart"><code class="language-dart">final price = Cell.ingress&lt;int&gt;();
+final currency = Cell.ingress&lt;String&gt;();
+
+final display = price.cell.withLatestFrom&lt;int, String&gt;(
+  others: [currency.cell],
+  combine: (p, latest) =&gt; '${latest.single} $p',
+);
+
+await price.emitAsync(20);       // Waits for currency
+await currency.emitAsync('EUR'); // Now both have values
+await price.emitAsync(25);       // → 'EUR 25'
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>Gotcha:</strong> <code>withLatestFrom</code> waits until <strong>every</strong> other Cell has at least one value.</p>
+</blockquote>
+<hr>
+<h2 id="-testing-your-pipelines">🧪 Testing Your Pipelines</h2>
+<h3 id="test-a-sync-chain-no-timer">Test a Sync Chain (No Timer)</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+import 'package:test/test.dart';
+
+void main() {
+  test('sanitize drops blanks', () {
+    final gate = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
+        Filter&lt;String&gt;((s) =&gt; s.isNotEmpty);
+    
+    final receptor = Receptor.instruction(gate);
+    
+    expect(receptor.call(Pulse('  x  '))?.payload, equals('x'));
+    expect(receptor.call(Pulse('   ')), isNull);
+  });
+}
+</code></pre>
+<h3 id="test-an-async-pipeline-with-timer">Test an Async Pipeline (With Timer)</h3>
+<pre class="language-dart"><code class="language-dart">void main() {
+  test('debounce emits last after silence', () async {
+    final ingress = Cell.ingress&lt;String&gt;();
+    
+    final debounced = ingress.cell
+        .debounce&lt;String&gt;(duration: const Duration(milliseconds: 100));
+    
+    final results = &lt;String&gt;[];
+    Cell.observe(source: debounced.cell, effect: (p) {
+      results.add(p.payload);
+    });
+    
+    await ingress.emitAsync('a');
+    await ingress.emitAsync('b');
+    await ingress.emitAsync('c');
+    
+    // Wait past debounce duration
+    await Future.delayed(const Duration(milliseconds: 150));
+    
+    expect(results, equals(['c']));
+  });
+}
+</code></pre>
+<hr>
+<h2 id="-package-layout">📦 Package Layout</h2>
 <pre class="language-text"><code class="language-text">package:cell_flow/flow.dart
   part  src/flow.dart               Flow.* facade
   part  src/flow_core.dart          FlowInstruction, toHandle, operator +
   part  src/fluent_operator.dart    Cell / FlowHandle extensions
   import src/instruction/*.dart     operator classes
 </code></pre>
-<p>Application code should import <strong>only</strong> <code>package:cell_flow/flow.dart</code>.</p>
+<blockquote>
+<p>✅ <strong>Best practice:</strong> Application code should import <strong>only</strong> <code>package:cell_flow/flow.dart</code>.</p>
+</blockquote>
 <hr>
-<h2 id="docs">Docs</h2>
+<h2 id="-documentation">📚 Documentation</h2>
 <table>
 <thead>
 <tr>
-<th>Doc</th>
+<th>Document</th>
 <th>Contents</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="ARCHITECTURE-Flow.md">ARCHITECTURE-Flow.md</a></td>
+<td>📘 <strong><a href="guide/HowTo-Start.md">How to Start</a></strong></td>
+<td><strong>Quick-start tutorial (15 min)</strong> with 5 examples</td>
+</tr>
+<tr>
+<td>🏗️ <a href="ARCHITECTURE-Flow.md">ARCHITECTURE-Flow.md</a></td>
 <td>Why Flow is shaped this way</td>
 </tr>
 <tr>
-<td><a href="FEATURES-Flow.md">FEATURES-Flow.md</a></td>
-<td>Feature catalog</td>
+<td>📋 <a href="FEATURES-Flow.md">FEATURES-Flow.md</a></td>
+<td>Complete operator catalog (79+ operators)</td>
 </tr>
 <tr>
-<td><a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a></td>
+<td>🎬 <a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a></td>
 <td>High-fidelity walkthroughs</td>
 </tr>
 <tr>
-<td><a href="HowTo-Fluent_Operator.md">HowTo-Fluent_Operator.md</a></td>
-<td>Method chaining</td>
+<td>🔗 <a href="guide/HowTo-Fluent_Operator.md">HowTo-Fluent_Operator.md</a></td>
+<td>Method chaining deep dive</td>
 </tr>
 <tr>
-<td><a href="HowTo-FlowInstruction-Receptor.md">HowTo-FlowInstruction-Receptor.md</a></td>
+<td>🎯 <a href="guide/HowTo-FlowInstruction-Receptor.md">HowTo-FlowInstruction-Receptor.md</a></td>
 <td>Purpose-built Receptors</td>
 </tr>
 </tbody>
 </table>
 <hr>
-<h2 id="versioning">Versioning</h2>
+<h2 id="-runnable-examples">🛠️ Runnable Examples</h2>
+<p>Explore the <code>example/</code> directory for complete, runnable demos:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Scenario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>filter_data_quality_demo.dart</code></td>
+<td>Data quality gates</td>
+</tr>
+<tr>
+<td><code>stability_search_demo.dart</code></td>
+<td>Search box with debounce</td>
+</tr>
+<tr>
+<td><code>exhaust_map_submit_checkout_demo.dart</code></td>
+<td>Prevent double-checkout</td>
+</tr>
+<tr>
+<td><code>combine_latest_sync_demo.dart</code></td>
+<td>Sync multiple sources</td>
+</tr>
+<tr>
+<td><code>buffer_batch_processing_demo.dart</code></td>
+<td>Batch telemetry</td>
+</tr>
+<tr>
+<td><code>retry_timeout_flaky_network_demo.dart</code></td>
+<td>Resilient HTTP</td>
+</tr>
+<tr>
+<td><code>ICU-alarm-pipeline-Demo.dart</code></td>
+<td>Complex event processing</td>
+</tr>
+<tr>
+<td><code>switch_map_dynamic_dependency_demo.dart</code></td>
+<td>Dynamic dependencies</td>
+</tr>
+</tbody>
+</table>
+<p>Run any example:</p>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_flow
+dart run example/filter_data_quality_demo.dart
+</code></pre>
+<hr>
+<h2 id="-important-rules">⚙️ Important Rules</h2>
+<ol>
+<li><strong>A Cell does not complete.</strong> Use <code>concat</code> on <strong>inners</strong> (lists/futures/streams), not Cell-then-Cell.</li>
+<li><strong><code>reduce</code> / <code>scan</code> are running folds</strong>, not terminal values.</li>
+<li><strong>Fluent <code>filter().map()</code> = 2 cells.</strong> Use <code>Filter + MapValue</code> for <strong>one Receptor</strong>.</li>
+<li><strong>Use <code>+</code> for sync policies.</strong> Keep timers and HTTP on the next node.</li>
+<li><strong>Keep <code>cell</code> and <code>cell_flow</code> on the same version line.</strong></li>
+</ol>
+<hr>
+<h2 id="-versioning">📌 Versioning</h2>
 <table>
 <thead>
 <tr>
 <th>Package</th>
 <th>Version</th>
+<th>Status</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>cell</code></td>
 <td><code>1.0.0-rc.2</code></td>
+<td>Release Candidate</td>
 </tr>
 <tr>
 <td><code>cell_flow</code></td>
 <td><code>1.0.0-rc.2</code></td>
+<td>Release Candidate</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Mitosis</strong> is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be <code>1.0.0</code>.</p>
-<p>Keep the two packages on the same numeric line.</p>
+<blockquote>
+<p>⚠️ <strong>Status:</strong> Release Candidate (RC2). APIs may change. Not yet on pub.dev — use path or git dependencies. Verify behaviour against source.</p>
+</blockquote>
 <hr>
-<h2 id="license">License</h2>
-<p>MIT or Apache-2.0 — see <code>LICENSE</code> and the file headers.</p>
-<p>Copyright (c) 2025-Present Lee Man Hoi Simon. See <code>AUTHORS</code>.</p>
-<p>Operator <em>names</em> follow ReactiveX vocabulary. Implementations are original Cell Flow; using <code>switchMap</code> as a name does not require an RxJS copyright header.</p>
+<h2 id="-license">📄 License</h2>
+<p><strong>Dual-licensed:</strong> MIT or Apache-2.0 — see <a href="LICENSE"><code>LICENSE</code></a> and file headers.</p>
+<p>Copyright (c) 2025-Present Lee Man Hoi Simon. See <a href="AUTHORS"><code>AUTHORS</code></a>.</p>
+<blockquote>
+<p>ℹ️ Operator <em>names</em> follow ReactiveX vocabulary. Implementations are original Cell Flow; using <code>switchMap</code> as a name does not require an RxJS copyright header.</p>
+</blockquote>
 <hr>
-<h2 id="links">Links</h2>
+<h2 id="-links">🔗 Links</h2>
 <ul>
-<li>Repo: <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
-<li>This package: <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">packages/cell_flow</a></li>
-<li>Issues: <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
+<li>🏠 <strong>Repo:</strong> <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
+<li>📦 <strong>This package:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">packages/cell_flow</a></li>
+<li>🐛 <strong>Issues:</strong> <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
+<li>📖 <strong>Cell framework:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell">packages/cell</a></li>
 </ul>
+<hr>
+<p><strong>Ready to build reactive pipelines?</strong> Start with the <strong><a href="guide/HowTo-Start.md">How to Start Guide</a></strong> →</p>
 </section>
 
 
       <section class="summary">
           <h2>Libraries</h2>
         <dl>
-          <h3>Operator Catalog</h3>
-          <p>cell_flow — Feature catalog</p>
-            <dt id="cell_flow">
+          <dt id="cell_flow">
   <span class="name"><a href="cell_flow/">flow</a></span> 
-    <span class="category operator-catalog cp-0 linked" title="This is part of the Operator Catalog topic."><a href="topics/Features-topic.html">Operator&nbsp;Catalog</a></span>
 
 </dt>
 <dd>A high-performance reactive orchestration layer for the Cell framework (codename <strong>Mitosis</strong>).
@@ -282,11 +724,18 @@ final results = query.cell
     <h5 class="hidden-xs"><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
     <ol>
       <li class="section-title">Topics</li>
-        <li><a href="topics/Features-topic.html">Operator&nbsp;Catalog</a></li>
-        <li><a href="topics/Instructions-topic.html">Custom&nbsp;Receptors&nbsp;&&nbsp;Instructions</a></li>
+        <li><a href="topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="topics/Features-topic.html">Features</a></li>
+        <li><a href="topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
-      <li class="section-subtitle">Operator Catalog</li>
-        <li class="section-subitem"><a href="cell_flow/">flow</a></li>
+      <li><a href="cell_flow/">flow</a></li>
 </ol>
 
   </div>
@@ -296,7 +745,7 @@ final results = query.cell
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

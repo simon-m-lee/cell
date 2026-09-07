@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/distinct.dart';
 import 'package:test/test.dart';
 
@@ -223,6 +221,136 @@ void main() {
       await b.probe.settle();
       expect(b.probe.payloads, [1]);
       expect(errors.single, isA<StateError>());
+    });
+  });
+
+
+  group('DistinctUntilChanged extra', () {
+    test('wrong types call onError and do not set previous', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DistinctUntilChanged<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [1]);
+    });
+
+    test('onError is optional', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DistinctUntilChanged<int>().toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('DistinctUntilKeyChanged extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DistinctUntilKeyChanged<int, int>(
+        (n) => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('keyOf throw drops that pulse', () async {
+      final errors = <Object>[];
+      final b = bind(DistinctUntilKeyChanged<int, int>(
+        (n) {
+          if (n == 2) throw StateError('k');
+          return n;
+        },
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.payloads, [1, 3]);
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('Distinct extra', () {
+    test('custom equals treats case as the same', () async {
+      final b = bind(Distinct<String>(
+        equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync('A');
+      await b.gate.emitAsync('a');
+      await b.gate.emitAsync('B');
+      await b.probe.settle();
+      expect(b.probe.payloads, ['A', 'B']);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Distinct<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DistinctKey extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DistinctKey<int, int>(
+        (n) => n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('DistinctUntilChanged + Distinct is a chain', () async {
+      final op = DistinctUntilChanged<int>() + Distinct<int>();
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('DistinctUntilChanged handles 200 ints', () async {
+      final b = bind(DistinctUntilChanged<int>());
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
     });
   });
 }

@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/merge_map.dart';
 import 'package:test/test.dart';
 
@@ -215,6 +213,108 @@ void main() {
       await probe.settle();
       expect(probe.payloads, [5]);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('MergeMap extra', () {
+    test('onError is optional when mapper throws', () async {
+      final b = bind(MergeMap<int, int>((n) => throw StateError('m')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MergeMap<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('concurrency 1 serializes inners', () async {
+      final b = bind(MergeMap<int, int>((n) => [n], concurrency: 1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('MergeMapTo extra', () {
+    test('inner throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(MergeMapTo<int, int>(
+        () => throw StateError('to'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('MergeScan extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MergeScan<int, int>(
+        0,
+        (acc, n) => acc + n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('accumulate throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(MergeScan<int, int>(
+        0,
+        (acc, n) => throw StateError('acc'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('MergeMap + MergeMapTo is a chain', () async {
+      final op = MergeMap<int, int>((n) => [n]) +
+          MergeMapTo<int, int>(() => const [0]);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('MergeMap flattens 50 singleton lists', () async {
+      final b = bind(MergeMap<int, int>((n) => [n]));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 50; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

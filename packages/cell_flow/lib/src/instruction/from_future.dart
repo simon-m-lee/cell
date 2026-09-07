@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that bridge [Future]s into the Cell graph
 /// (Rx `from(Future)` / `fromPromise` and variants).
@@ -33,8 +33,22 @@ import 'package:cell_flow/flow.dart';
 /// [IngressHandle.emitAsync] / [FlowHandle.emitAsync].
 ///
 /// See the `main` demo at the bottom of this file for console output.
+
+/// Error handler callback for future operations.
+///
+/// Called when an error occurs during future loading operations.
+/// The error and optional stack trace are provided for logging or recovery.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = FutureErrorHandler((error, stack) {
+///   print('Future error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef FutureErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper to create a success pulse with proper provenance.
 Pulse<S> _ok<S>(S value, Cell? cell, String step, {Pulse? trigger}) {
   return Pulse<S>(
     value,
@@ -45,6 +59,7 @@ Pulse<S> _ok<S>(S value, Cell? cell, String step, {Pulse? trigger}) {
   );
 }
 
+/// Helper to create an error pulse with proper provenance.
 Pulse _err(Object error, Cell? cell, String step, {Pulse? trigger}) {
   return Pulse(
     error,
@@ -55,11 +70,13 @@ Pulse _err(Object error, Cell? cell, String step, {Pulse? trigger}) {
   );
 }
 
+/// Helper to apply a timeout to a future.
 Future<S> _withTimeout<S>(Future<S> future, Duration? timeout) {
   if (timeout == null) return future;
   return future.timeout(timeout);
 }
 
+/// Helper to retry a future with exponential backoff.
 Future<S> _withRetry<S>(
     Future<S> Function() start, {
       required int maxAttempts,
@@ -82,6 +99,7 @@ Future<S> _withRetry<S>(
   Error.throwWithStackTrace(lastError!, lastStack ?? StackTrace.current);
 }
 
+/// Helper to emit an error pulse.
 void _emitError({
   required Object error,
   StackTrace? stack,

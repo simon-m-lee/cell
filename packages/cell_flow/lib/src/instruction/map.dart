@@ -4,13 +4,17 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Map Operators
 // ─────────────────────────────────────────────────────────────
 
 /// Flow instructions that transform each payload (Rx `map` family).
+///
+/// These operators transform the payload of each pulse, either by applying
+/// a function, extracting a value, or converting types. They are the
+/// fundamental building blocks for data transformation in reactive pipelines.
 ///
 /// | Operator | Rx analogue | Result |
 /// |---|---|---|
@@ -34,6 +38,17 @@ import 'package:cell_flow/flow.dart';
 /// Called when an error occurs during mapping operations.
 /// The error and optional stack trace are provided for logging or recovery.
 ///
+/// ### When to use
+/// Provide this callback to any map operator that may encounter errors
+/// during transformation. It allows you to log errors, perform recovery,
+/// or ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the pulse is dropped (unless using
+///    [MapValueOr] which has its own fallback mechanism).
+///
 /// ### Example
 /// ```dart
 /// final errorHandler = MapErrorHandler((error, stack) {
@@ -41,6 +56,13 @@ import 'package:cell_flow/flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during mapping.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [MapValue.onError]: The parameter that accepts this callback.
 typedef MapErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
@@ -71,6 +93,19 @@ Pulse? _typedOrError<S>(
 }
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -199,6 +234,21 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [MapValues]: For transforming map values.
 /// - [MapKeys]: For transforming map keys.
 class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a standard mapping instruction.
+  ///
+  /// ### Parameters
+  /// - [project]: **Transformation Function.** Called with each typed
+  ///   payload, returns the transformed value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapValue = MapValue<int, String>(
+  ///   (n) => 'Value: $n',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapValue(
       T Function(S value) project, {
         MapErrorHandler? onError,
@@ -300,6 +350,20 @@ class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapNotNull]: For dropping null results.
 /// - [MapWhen]: For conditional mapping.
 class MapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a constant mapping instruction.
+  ///
+  /// ### Parameters
+  /// - [value]: **Constant Value.** The value to emit for every input.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapTo = MapTo<void, String>(
+  ///   'ping',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapTo(
       T value, {
         MapErrorHandler? onError,
@@ -392,6 +456,21 @@ class MapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapNotNull]: For dropping null results.
 /// - [MapWhen]: For conditional mapping.
 class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates an indexed mapping instruction.
+  ///
+  /// ### Parameters
+  /// - [project]: **Indexed Transformation Function.** Called with each
+  ///   typed payload and its index, returns the transformed value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapWithIndex = MapWithIndex<String, String>(
+  ///   (s, i) => '$i:$s',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapWithIndex(
       T Function(S value, int index) project, {
         MapErrorHandler? onError,
@@ -497,6 +576,21 @@ class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapWithIndex]: For indexed mapping.
 /// - [MapWhen]: For conditional mapping.
 class MapNotNull<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a nullable mapping instruction.
+  ///
+  /// ### Parameters
+  /// - [project]: **Optional Transformation Function.** Called with each
+  ///   typed payload, returns `T?` or `null` to drop.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapNotNull = MapNotNull<int, int>(
+  ///   (n) => n.isEven ? n : null,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapNotNull(
       T? Function(S value) project, {
         MapErrorHandler? onError,
@@ -605,6 +699,24 @@ class MapNotNull<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapNotNull]: For dropping null results.
 /// - [MapValueIf]: Alias of [MapWhen].
 class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a conditional mapping instruction.
+  ///
+  /// ### Parameters
+  /// - [test]: **Predicate Function.** Called with each typed payload,
+  ///   returns `true` to map, `false` to drop.
+  /// - [project]: **Transformation Function.** Called with each typed
+  ///   payload that passes [test], returns the transformed value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapWhen = MapWhen<int, String>(
+  ///   (n) => n.isEven,
+  ///   (n) => 'even-$n',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapWhen(
       bool Function(S value) test,
       T Function(S value) project, {
@@ -641,6 +753,15 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// // Same as MapWhen
 /// ```
 class MapValueIf<S, T> extends MapWhen<S, T> {
+  /// Creates a conditional mapping instruction (alias of [MapWhen]).
+  ///
+  /// ### Parameters
+  /// - [test]: **Predicate Function.** Called with each typed payload,
+  ///   returns `true` to map, `false` to drop.
+  /// - [project]: **Transformation Function.** Called with each typed
+  ///   payload that passes [test], returns the transformed value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
   MapValueIf(
       super.test,
       super.project, {
@@ -734,6 +855,24 @@ class MapValueIf<S, T> extends MapWhen<S, T> {
 /// - [MapNotNull]: For dropping null results.
 /// - [MapWhen]: For conditional mapping.
 class MapValueOr<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a mapping instruction with error handling.
+  ///
+  /// ### Parameters
+  /// - [project]: **Transformation Function.** Called with each typed
+  ///   payload, returns the transformed value.
+  /// - [orElse]: **Fallback Function.** Called with the value and error
+  ///   when [project] throws, returns the fallback value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapValueOr = MapValueOr<int, int>(
+  ///   (n) => 10 ~/ n,
+  ///   orElse: (_, __) => 0,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapValueOr(
       T Function(S value) project, {
         required T Function(S value, Object error) orElse,
@@ -838,6 +977,21 @@ class MapValueOr<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapKeys]: For transforming map keys.
 /// - [MapValue]: For transforming individual values.
 class MapValues<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a map values transformation instruction.
+  ///
+  /// ### Parameters
+  /// - [project]: **Value Transformation Function.** Called with each
+  ///   map value, returns the transformed value.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapValues = MapValues<String, int, int>(
+  ///   (n) => n * 2,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapValues(
       R Function(V value) project, {
         MapErrorHandler? onError,
@@ -949,6 +1103,21 @@ class MapValues<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MapValues]: For transforming map values.
 /// - [MapValue]: For transforming individual values.
 class MapKeys<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a map keys transformation instruction.
+  ///
+  /// ### Parameters
+  /// - [project]: **Key Transformation Function.** Called with each
+  ///   map key, returns the transformed key.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapKeys = MapKeys<String, int, String>(
+  ///   (key) => key.toLowerCase(),
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapKeys(
       R Function(K key) project, {
         MapErrorHandler? onError,

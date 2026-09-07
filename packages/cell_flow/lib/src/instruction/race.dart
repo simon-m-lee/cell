@@ -6,31 +6,43 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
-/// Flow instructions that forward the first inner to emit (Rx `race` family).
-///
-/// These operators implement the **race** strategy: multiple competitors
-/// are started concurrently, and the first one to produce a value wins.
-/// All other competitors are cancelled or ignored.
-///
-/// | Operator | Rx analogue | Winner |
-/// |---|---|---|
-/// | [Race] | `race` / `amb` | first competitor to produce a value |
-/// | [RaceFirst] | `race` + `take(1)` | first value only; later winners ignored |
-/// | [RaceMap] | map + `race` | payload → competitors; first inner wins |
-/// | [RaceWith] | `raceWith` | source inner vs a side competitor |
-/// | [RaceUntil] | `race` vs timer | value or timeout error |
-///
-/// A competitor may be a [Stream], [Future], [Iterable], raw value, or
-/// `null`. After a winner is chosen, remaining competitors are ignored
-/// (streams are cancelled when we hold a subscription).
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
+// ─────────────────────────────────────────────────────────────
+// Core Race Operators
+// ─────────────────────────────────────────────────────────────
 
+/// Error handler callback for race operators.
+///
+/// Called when an error occurs during racing operations, such as
+/// errors in competitors, type mismatches, or timeout errors.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = RaceErrorHandler((error, stack) {
+///   print('Race error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef RaceErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
+
+/// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [cell]: Optional cell to use as the source.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -41,6 +53,20 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   );
 }
 
+/// Helper to create an error pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [error] as payload, with
+/// `type: 'error'`, preserving the source and priority from the
+/// trigger pulse.
+///
+/// ### Parameters:
+/// - [error]: The error object to use as the payload.
+/// - [cell]: Optional cell to use as the source.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with error type and preserved provenance.
 Pulse _err(Object error, Cell? cell, Pulse trigger, String step) {
   return Pulse(
     error,
@@ -51,7 +77,39 @@ Pulse _err(Object error, Cell? cell, Pulse trigger, String step) {
   );
 }
 
-/// Drain [inner] until the first matching [T], then stop.
+// ─────────────────────────────────────────────────────────────
+// Core Race Helpers
+// ─────────────────────────────────────────────────────────────
+
+/// Drains an inner sequence until the first value of type [T] is found.
+///
+/// This is the internal engine that handles the various types of inner
+/// sequences that race operators can produce. It recursively drills
+/// into Futures, Streams, and Iterables to find the first value of
+/// type [T].
+///
+/// ### How it works
+/// 1. If [inner] is `null`, returns `null`.
+/// 2. If [inner] is a `Stream`, iterates over it asynchronously.
+/// 3. If [inner] is a `Future`, waits for it and recurses.
+/// 4. If [inner] is an `Iterable` (not `String`), iterates over it.
+/// 5. If [inner] matches type [T], returns it.
+/// 6. Otherwise, returns `null`.
+///
+/// ### Parameters:
+/// - [inner]: The object to drain.
+/// - [stillLive]: Optional callback to check if the operation is still current.
+///
+/// ### Returns:
+/// The first value of type [T], or `null` if none found.
+///
+/// ### Non‑obvious
+/// - **Recursive Draining**: The function recurses on `Future` and `Iterable`
+///   values, allowing nested structures to be flattened.
+/// - **Cancellation**: The [stillLive] callback is checked at each step,
+///   allowing cancelled operations to stop early.
+/// - **String Special Case**: Strings are treated as values, not iterables.
+/// - **First Match**: Only the first value of type [T] is returned.
 Future<T?> _firstOf<T>(
     Object? inner, {
       bool Function()? stillLive,
@@ -86,6 +144,25 @@ Future<T?> _firstOf<T>(
   return null;
 }
 
+/// Races a list of competitors and calls [onWin] with the first value.
+///
+/// This is the core racing engine that starts all competitors concurrently
+/// and invokes [onWin] when the first value of type [T] is produced.
+///
+/// ### Parameters:
+/// - [competitors]: The competitors to race.
+/// - [onWin]: Called with the winning value.
+/// - [onError]: Optional error handler.
+/// - [stillLive]: Callback to check if the race is still current.
+/// - [markWon]: Callback to mark that a winner has been found.
+///
+/// ### Non‑obvious
+/// - **Concurrent Start**: All competitors are started concurrently using
+///   `Future.any`.
+/// - **First Value Wins**: Only the first value from any competitor is
+///   passed to [onWin].
+/// - **Cancellation**: The [stillLive] callback is checked before handling
+///   any result.
 Future<void> _raceList<T>({
   required Iterable<Object?> competitors,
   required void Function(T value) onWin,
@@ -110,10 +187,34 @@ Future<void> _raceList<T>({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Race
+// State Classes
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards the first competitor to produce
+/// Internal state for one-shot operators.
+///
+/// Tracks whether the operator has already been triggered.
+///
+/// ### Fields:
+/// - [done]: Whether the operator has already been triggered.
+class _OnceState {
+  bool done = false;
+}
+
+/// Internal state for generation-based operators.
+///
+/// Tracks the current generation ID for latest-race-wins semantics.
+///
+/// ### Fields:
+/// - [generation]: The current generation ID.
+class _GenerationState {
+  int generation = 0;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Race - Fastest Competitor Wins
+// ─────────────────────────────────────────────────────────────
+
+/// A [FlowInstruction] that forwards the first competitor to produce
 /// a value (Rx `race` / `amb`).
 ///
 /// [Race] acts as a **Competitive Selector**. Multiple competitors are
@@ -183,6 +284,8 @@ Future<void> _raceList<T>({
 /// - **Causal Provenance**: Every emitted result is wrapped as an
 ///   [EvolvedPulse], preserving the forensic history.
 /// - **Type Safety**: The instruction is generic over [T] (output type).
+/// - **Null Values**: If a competitor produces `null`, it's not considered
+///   a valid win (unless T is nullable and the value is `null` as T).
 ///
 /// ### Example: Fastest API Response
 /// ```dart
@@ -198,10 +301,20 @@ Future<void> _raceList<T>({
 /// ### Example: Cache vs Network
 /// ```dart
 /// final request = Cell.ingress<String>();
-/// val data = Race<String>([
+/// final data = Race<String>([
 ///   cache.get(request.payload), // Fast, may miss
 ///   network.fetch(request.payload), // Slow, always available
 /// ]).toHandle(source: request.cell);
+/// ```
+///
+/// ### Example: Multiple Fallback Sources
+/// ```dart
+/// final start = Cell.ingress<void>();
+/// final result = Race<String>([
+///   primaryApi.fetch(),
+///   secondaryApi.fetch(),
+///   fallbackApi.fetch(),
+/// ]).toHandle(source: start.cell);
 /// ```
 ///
 /// ### Parameters:
@@ -213,7 +326,7 @@ Future<void> _raceList<T>({
 /// - [T]: The type of the output payload from the winner.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that races multiple competitors.
 ///
 /// ### See Also:
 /// - [RaceFirst]: For only the first value.
@@ -221,20 +334,48 @@ Future<void> _raceList<T>({
 /// - [RaceWith]: For side competition.
 /// - [RaceUntil]: For timeout-based racing.
 class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Race] instruction with the specified [competitors].
+  /// Synthesizes a **Competitive Selector**—a specialized instruction
+  /// that races multiple competitors and forwards the first value.
   ///
-  /// ### Parameters:
+  /// [Race] starts all competitors concurrently and emits the first
+  /// value of type [T] produced by any competitor. This is the
+  /// foundational racing operator.
+  ///
+  /// ### How it works
+  /// 1. **One-Shot Trigger**: The race is started on the first trigger
+  ///    only. Later triggers are ignored.
+  /// 2. **Concurrent Start**: All competitors are started concurrently
+  ///    using `Future.any`.
+  /// 3. **First Value Extraction**: Each competitor is drained until it
+  ///    produces a value of type [T].
+  /// 4. **Winner Emission**: The first value produced is emitted with
+  ///    the step `'Race'`.
+  /// 5. **Cancellation**: Streams that lose are cancelled. Futures that
+  ///    lose are ignored.
+  /// 6. **Error Handling**: Errors from competitors are reported via
+  ///    [onError].
+  ///
+  /// ### Parameters
   /// - [competitors]: **The Competitors.** An iterable of sources to race.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// - [onError]: **Integrity Handler.** Called if a competitor fails or
+  ///   a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
   ///
-  /// ### Example
+  /// ### Example: Fastest Source Selector
   /// ```dart
-  /// final race = Race<String>([
-  ///   Future.value('fast'),
-  ///   Future.delayed(Duration(seconds: 1), () => 'slow'),
-  /// ]).toHandle();
+  /// // Races three sources and picks the fastest
+  /// final selector = Race<String>([
+  ///   primarySource,
+  ///   secondarySource,
+  ///   fallbackSource,
+  /// ], user: 'Fastest-Source-Selector');
   /// ```
+  ///
+  /// ### See Also
+  /// - [RaceFirst]: For only the first value.
+  /// - [RaceMap]: For dynamic competitors.
+  /// - [RaceWith]: For side competition.
+  /// - [RaceUntil]: For timeout-based racing.
   Race(
       Iterable<Object?> competitors, {
         RaceErrorHandler? onError,
@@ -270,10 +411,10 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RaceFirst
+// RaceFirst - First Value Only
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that forwards only the first winning value
+/// A [FlowInstruction] that forwards only the first winning value
 /// (Rx `race` + `take(1)`).
 ///
 /// [RaceFirst] acts as a **First-Value Race**. It is similar to [Race] but
@@ -288,6 +429,7 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're tracking the initial response
 /// - You're implementing a timeout with only the first response
 /// - You're reducing multiple sources to a single initial value
+/// - You're implementing a "take first" pattern
 ///
 /// ### How it works
 /// 1. The first trigger starts all competitors concurrently.
@@ -306,16 +448,28 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   winner is emitted; subsequent values are ignored.
 /// - **One-Shot**: The race is started on the first trigger only.
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Memory Efficient**: Only the first value is stored.
 ///
 /// ### Example: First Response Only
 /// ```dart
-/// val first = RaceFirst<String>([
+/// final start = Cell.ingress<void>();
+/// final first = RaceFirst<String>([
 ///   Stream.fromIterable(['a', 'b', 'c']),
 ///   Future.delayed(Duration(milliseconds: 20), () => 'd'),
-/// ]).toHandle();
+/// ]).toHandle(source: start.cell);
 ///
 /// await start.emitAsync(null); // Emits 'a' only
 /// // 'b' and 'c' are ignored
+/// ```
+///
+/// ### Example: First Success Pattern
+/// ```dart
+/// final trigger = Cell.ingress<void>();
+/// val firstSuccess = RaceFirst<String>([
+///   api.primary(),
+///   api.secondary(),
+///   api.fallback(),
+/// ]).toHandle(source: trigger.cell);
 /// ```
 ///
 /// ### Parameters:
@@ -327,26 +481,48 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload from the winner.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that emits only the first winning value.
 ///
 /// ### See Also:
 /// - [Race]: For all values from the winner.
 /// - [RaceMap]: For dynamic competitors.
 class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [RaceFirst] instruction with the specified [competitors].
+  /// Synthesizes a **First-Value Selector**—a specialized instruction
+  /// that emits only the very first winning value from any competitor.
   ///
-  /// ### Parameters:
+  /// [RaceFirst] is similar to [Race] but only the very first winning
+  /// value is forwarded. Extra emissions from a winning stream are ignored.
+  ///
+  /// ### How it works
+  /// 1. **One-Shot Trigger**: The race is started on the first trigger only.
+  /// 2. **Concurrent Start**: All competitors are started concurrently.
+  /// 3. **First Value Extraction**: Each competitor is drained until it
+  ///    produces a value of type [T].
+  /// 4. **Single Emission**: Only the very first winning value is emitted
+  ///    with the step `'RaceFirst'`.
+  /// 5. **Winner Ignored**: Subsequent emissions from the winner are
+  ///    ignored.
+  /// 6. **Cancellation**: All streams are cancelled after the first value.
+  ///
+  /// ### Parameters
   /// - [competitors]: **The Competitors.** An iterable of sources to race.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// - [onError]: **Integrity Handler.** Called if a competitor fails or
+  ///   a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
   ///
-  /// ### Example
+  /// ### Example: First Success Pattern
   /// ```dart
-  /// final raceFirst = RaceFirst<String>([
-  ///   Stream.fromIterable(['first', 'second']),
-  ///   Future.value('fast'),
-  /// ]).toHandle();
+  /// // Takes the first successful response
+  /// val firstSuccess = RaceFirst<String>([
+  ///   primaryApi.fetch(),
+  ///   secondaryApi.fetch(),
+  ///   fallbackApi.fetch(),
+  /// ], user: 'First-Success');
   /// ```
+  ///
+  /// ### See Also
+  /// - [Race]: For all values from the winner.
+  /// - [RaceMap]: For dynamic competitors.
   RaceFirst(
       Iterable<Object?> competitors, {
         RaceErrorHandler? onError,
@@ -380,10 +556,10 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RaceMap
+// RaceMap - Dynamic Competitors
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that maps a trigger payload to a set of
+/// A [FlowInstruction] that maps a trigger payload to a set of
 /// competitors and races them.
 ///
 /// [RaceMap] acts as a **Dynamic Race**. Each trigger starts a new race
@@ -398,6 +574,7 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're racing based on user input
 /// - You're implementing a cache with key-based fallbacks
 /// - You're selecting the fastest source for each query
+/// - You're implementing A/B testing with different sources
 ///
 /// ### How it works
 /// 1. Each trigger payload is extracted and type-checked.
@@ -413,6 +590,7 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Type Safety**: The instruction is generic over [S] (input) and [T] (output).
 /// - **Error Handling**: Errors are reported via [onError].
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Async Mapper**: [mapper] can return a `Future` of competitors.
 ///
 /// ### Example: Key-Based Racing
 /// ```dart
@@ -426,6 +604,15 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ids.emit(2); // Invalidates previous race, starts new
 /// ```
 ///
+/// ### Example: A/B Testing
+/// ```dart
+/// final user = Cell.ingress<User>();
+/// val result = RaceMap<User, Result>((user) => [
+///   experimentalApi.fetch(user),
+///   controlApi.fetch(user),
+/// ]).toHandle(source: user.cell);
+/// ```
+///
 /// ### Parameters:
 /// - [mapper]: **The Competitor Factory.** Takes the input value and returns
 ///   an iterable of competitors.
@@ -437,26 +624,53 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload from the winner.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that races dynamic competitors.
 ///
 /// ### See Also:
 /// - [Race]: For static competitors.
 /// - [RaceWith]: For side competition.
 class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [RaceMap] instruction with the specified [mapper].
+  /// Synthesizes a **Dynamic Race Selector**—a specialized instruction
+  /// that generates competitors from the trigger payload and races them.
   ///
-  /// ### Parameters:
-  /// - [mapper]: **The Competitor Factory.** Takes the input value and returns
-  ///   an iterable of competitors.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [RaceMap] is the dynamic version of [Race]. Each trigger starts a
+  /// new race with competitors generated from the payload.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Payload Extraction**: The trigger payload is extracted and
+  ///    type-checked against [S].
+  /// 2. **Competitor Generation**: The [mapper] function generates
+  ///    competitors from the payload.
+  /// 3. **Race Start**: Competitors are started concurrently.
+  /// 4. **Latest Race Wins**: In-flight races are invalidated when a new
+  ///    trigger arrives.
+  /// 5. **Winner Emission**: The first value from any competitor is
+  ///    emitted with the step `'RaceMap'`.
+  /// 6. **Error Handling**: Errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The Competitor Factory.** Generates competitors from
+  ///   the input value.
+  /// - [onError]: **Integrity Handler.** Called if a competitor fails,
+  ///   the mapper fails, or a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Dynamic Source Selector
   /// ```dart
-  /// final raceMap = RaceMap<int, String>(
-  ///   (id) => [fetchFromCache(id), fetchFromNetwork(id)],
-  /// ).toHandle();
+  /// // Races sources based on the input
+  /// val dynamicRace = RaceMap<String, Data>(
+  ///   (query) => [
+  ///     primaryDb.query(query),
+  ///     secondaryDb.query(query),
+  ///     cacheDb.query(query),
+  ///   ],
+  ///   user: 'Dynamic-Selector'
+  /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Race]: For static competitors.
+  /// - [RaceWith]: For side competition.
   RaceMap(
       FutureOr<Iterable<Object?>> Function(S value) mapper, {
         RaceErrorHandler? onError,
@@ -507,10 +721,10 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RaceWith
+// RaceWith - Side Competition
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that races the mapped source inner against a
+/// A [FlowInstruction] that races the mapped source inner against a
 /// side competitor (Rx `raceWith`).
 ///
 /// [RaceWith] acts as a **Side-by-Side Race**. It races the source inner
@@ -524,6 +738,7 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're implementing a cache with a fixed fallback
 /// - You're racing a network request against a local cache
 /// - You're implementing a primary-secondary pattern
+/// - You're implementing a circuit breaker with a fallback
 ///
 /// ### How it works
 /// 1. Each trigger payload is extracted and type-checked.
@@ -539,16 +754,26 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Fixed Other**: The side competitor is fixed (same for all triggers).
 /// - **Error Handling**: Errors are reported via [onError].
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Latest Race Wins**: In-flight races are invalidated on new triggers.
 ///
 /// ### Example: Cache vs Network
 /// ```dart
 /// final requests = Cell.ingress<String>();
-/// val raced = RaceWith<String, String>(
+/// final raced = RaceWith<String, String>(
 ///   (query) => network.fetch(query),
 ///   other: () => cache.get('default'),
 /// ).toHandle(source: requests.cell);
 ///
 /// requests.emit('hello'); // Races network vs cache
+/// ```
+///
+/// ### Example: Primary vs Fallback
+/// ```dart
+/// final data = Cell.ingress<Query>();
+/// val result = RaceWith<Query, Result>(
+///   (q) => primaryApi.fetch(q),
+///   other: () => fallbackApi.fetch(Query.default_),
+/// ).toHandle(source: data.cell);
 /// ```
 ///
 /// ### Parameters:
@@ -563,28 +788,49 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload from the winner.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that races against a side competitor.
 ///
 /// ### See Also:
 /// - [Race]: For static competitors.
 /// - [RaceMap]: For dynamic competitors.
 class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [RaceWith] instruction with the specified [mapper] and [other].
+  /// Synthesizes a **Side-by-Side Racer**—a specialized instruction
+  /// that races the source inner against a fixed side competitor.
   ///
-  /// ### Parameters:
-  /// - [mapper]: **The Source Inner Factory.** Takes the input value and
-  ///   returns the source competitor.
-  /// - [other]: **The Side Competitor Factory.** Returns the fixed side competitor.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [RaceWith] is ideal for scenarios where you want to race a
+  /// dynamic source against a fixed fallback or alternative.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Payload Extraction**: The trigger payload is extracted and
+  ///    type-checked against [S].
+  /// 2. **Source Generation**: The [mapper] generates the source competitor.
+  /// 3. **Side Generation**: The [other] function generates the side competitor.
+  /// 4. **Race Start**: Both competitors are started concurrently.
+  /// 5. **Winner Emission**: The first value from either competitor is
+  ///    emitted with the step `'RaceWith'`.
+  /// 6. **Latest Race Wins**: In-flight races are invalidated on new
+  ///    triggers.
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The Source Factory.** Generates the source competitor.
+  /// - [other]: **The Side Factory.** Generates the fixed side competitor.
+  /// - [onError]: **Integrity Handler.** Called if a competitor fails,
+  ///   the mapper fails, or a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Primary-Secondary Racer
   /// ```dart
-  /// final raceWith = RaceWith<int, String>(
-  ///   (id) => fetchFromNetwork(id),
-  ///   other: () => Future.value('fallback'),
-  /// ).toHandle();
+  /// // Races primary against a fixed secondary
+  /// val primarySecondary = RaceWith<Request, Result>(
+  ///   (req) => primaryApi.fetch(req),
+  ///   other: () => secondaryApi.fetch(Request.fallback),
+  ///   user: 'Primary-Secondary'
+  /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Race]: For static competitors.
+  /// - [RaceMap]: For dynamic competitors.
   RaceWith(
       FutureOr<Object?> Function(S value) mapper, {
         required FutureOr<Object?> Function() other,
@@ -607,7 +853,6 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         final id = ++gen.generation;
         Future<void>(() async {
           try {
-            // Do not await here — _raceList/_firstOf await in parallel.
             final left = mapper(payload);
             final right = other();
             if (id != gen.generation) return;
@@ -638,10 +883,10 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RaceUntil
+// RaceUntil - Timeout Racing
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that races [mapper] against a timeout
+/// A [FlowInstruction] that races [mapper] against a timeout
 /// (Rx `race` vs timer).
 ///
 /// [RaceUntil] acts as a **Timeout Race**. If the timer wins, an error pulse
@@ -657,6 +902,7 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're preventing hanging operations
 /// - You're implementing a circuit breaker
 /// - You're protecting resources from long-running operations
+/// - You're implementing request cancellation
 ///
 /// ### How it works
 /// 1. Each trigger payload is extracted and type-checked.
@@ -672,11 +918,12 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Silent Timeout**: If [emitErrorPulse] is false, the error is not emitted.
 /// - **Error Handling**: Errors are reported via [onError].
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Latest Race Wins**: In-flight races are invalidated on new triggers.
 ///
 /// ### Example: API Call with Timeout
 /// ```dart
 /// final requests = Cell.ingress<String>();
-/// val timed = RaceUntil<String, String>(
+/// final timed = RaceUntil<String, String>(
 ///   (query) => api.fetch(query),
 ///   timeout: Duration(seconds: 5),
 /// ).toHandle(source: requests.cell);
@@ -687,7 +934,7 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### Example: Database Query with Timeout
 /// ```dart
 /// final queries = Cell.ingress<String>();
-/// val dbQuery = RaceUntil<String, List<Result>>(
+/// final dbQuery = RaceUntil<String, List<Result>>(
 ///   (sql) => database.query(sql),
 ///   timeout: Duration(seconds: 10),
 ///   onError: (e, stack) => print('Query timed out: $e'),
@@ -709,32 +956,56 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload from the winner.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that races against a timeout.
 ///
 /// ### See Also:
 /// - [Race]: For racing multiple competitors.
 /// - [RaceWith]: For side competition.
-/// - [FromFutureWithTimeout]: For a simpler timeout pattern.
+/// - [Timeout]: For a simpler timeout pattern.
 class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [RaceUntil] instruction with the specified [mapper] and [timeout].
+  /// Synthesizes a **Timeout Racer**—a specialized instruction that
+  /// races the source inner against a timeout.
   ///
-  /// ### Parameters:
-  /// - [mapper]: **The Source Inner Factory.** Takes the input value and
-  ///   returns the source competitor.
-  /// - [timeout]: **The Timeout Duration.** The maximum time to wait.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [emitErrorPulse]: **Emit Error Pulse.** If `true` (default), a timeout
-  ///   emits a pulse with `type: 'error'`.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [RaceUntil] is ideal for implementing timeouts on asynchronous
+  /// operations. If the timeout expires before the operation completes,
+  /// a [TimeoutException] error pulse is emitted.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Payload Extraction**: The trigger payload is extracted and
+  ///    type-checked against [S].
+  /// 2. **Source Generation**: The [mapper] generates the source competitor.
+  /// 3. **Race Setup**: The source competitor races against a timer.
+  /// 4. **Normal Completion**: If the source completes first, the value
+  ///    is emitted with the step `'RaceUntil'`.
+  /// 5. **Timeout**: If the timer fires first, a [TimeoutException] error
+  ///    pulse is emitted with the step `'RaceUntil.error'`.
+  /// 6. **Latest Race Wins**: In-flight races are invalidated on new
+  ///    triggers.
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The Source Factory.** Generates the source competitor.
+  /// - [timeout]: **The Timeout Duration.** Maximum time to wait.
+  /// - [onError]: **Integrity Handler.** Called if the source fails or
+  ///   the timeout expires.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** If `true`, timeout emits
+  ///   an error pulse. Defaults to `true`.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Timeout-Protected API Call
   /// ```dart
-  /// val raceUntil = RaceUntil<String, String>(
+  /// // API call with 5-second timeout
+  /// val apiWithTimeout = RaceUntil<String, Result>(
   ///   (query) => api.fetch(query),
   ///   timeout: Duration(seconds: 5),
-  ///   onError: (e, stack) => print('Timeout: $e'),
+  ///   emitErrorPulse: true,
+  ///   user: 'API-With-Timeout'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Race]: For racing multiple competitors.
+  /// - [RaceWith]: For side competition.
+  /// - [Timeout]: For a simpler timeout pattern.
   RaceUntil(
       FutureOr<Object?> Function(S value) mapper, {
         required Duration timeout,
@@ -795,20 +1066,6 @@ class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     })(),
     user: user,
   );
-}
-
-// ─────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────
-
-/// Internal state for one-shot operators.
-class _OnceState {
-  bool done = false;
-}
-
-/// Internal state for generation-based operators.
-class _GenerationState {
-  int generation = 0;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -875,6 +1132,26 @@ class _GenerationState {
 /// - RaceWith races against a fixed side competitor.
 /// - RaceUntil implements timeout-based racing.
 /// - All operators preserve causal provenance via EvolvedPulse.
+/// - Choose the right operator for your use case:
+///   - Multiple static sources → Race
+///   - First value only → RaceFirst
+///   - Dynamic sources → RaceMap
+///   - Side competition → RaceWith
+///   - Timeout → RaceUntil
+///
+/// ### Note on Competitor Types
+/// Competitors can be:
+/// - `Stream<T>`: First event wins
+/// - `Future<T>`: First resolution wins
+/// - `Iterable<T>`: First element wins
+/// - `T`: Immediate win
+/// - `null`: Ignored
+/// - Nested combinations: Recursively expanded
+///
+/// ### Note on Error Handling
+/// - Errors from competitors are reported via [onError].
+/// - Errors do not affect other competitors.
+/// - Timeouts from RaceUntil are reported as TimeoutException.
 Future<void> main() async {
   print('── Race Operators Demo ───────────────────────────────────────\n');
 

@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Window Operators
@@ -220,6 +220,48 @@ class _EmitState {
 /// - [WindowTime]: For time-based windows.
 /// - [WindowWhen]: For trigger-based windows.
 class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Count-Based Logic Gate** designed to batch pulses
+  /// into discrete topographical windows based on stimulus frequency.
+  ///
+  /// [WindowCount] (also known as `bufferCount`) monitors the pulse stream
+  /// and accumulates payloads until the specified [size] is reached. Once the
+  /// threshold is met, the gate evolves the accumulated stimuli into a single
+  /// [Pulse<List<S>>].
+  ///
+  /// ### How it works
+  /// 1. **Accumulation**: Incoming pulses are validated against type [S]
+  ///    and added to an internal buffer.
+  /// 2. **Threshold Trigger**: When the buffer length equals [size], a
+  ///    window pulse is materialized.
+  /// 3. **Pulse Evolution**: The materialized pulse inherits provenance
+  ///    (source, priority, type) from the pulse that completed the window.
+  /// 4. **Topographical Shift**: After emission, the internal buffer is
+  ///    advanced by the [skip] count.
+  ///
+  /// ### Skip & Overlap Mechanics
+  /// - **Tumbling** ([skip] == `null` or `size`): Windows are contiguous
+  ///   with no overlap (e.g., `[1,2], [3,4]`).
+  /// - **Overlapping** ([skip] < `size`): Windows share payloads, creating
+  ///   a sliding effect (e.g., `[1,2], [2,3]`).
+  /// - **Gapped** ([skip] > `size`): Certain stimuli are dropped between
+  ///   windows (e.g., `[1,2], [4,5]` where `3` is lost).
+  ///
+  /// ### Parameters
+  /// - [size]: **Window Capacity.** The number of stimuli required to
+  ///   materialize a window.
+  /// - [skip]: **Advance Offset.** Determines how many pulses to advance
+  ///   the starting point of the next window. Defaults to [size].
+  /// - [onError]: **Integrity Handler.** A specialized callback invoked if
+  ///   a pulse payload fails to match the expected type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the instruction chain.
+  ///
+  /// ### Example: Overlapping Window
+  /// ```dart
+  /// // Creates a sliding window of 3 items, advancing 1 at a time
+  /// final slidingWindow = WindowCount<int>(3, skip: 1);
+  /// ```
   WindowCount(
       int size, {
         int? skip,
@@ -229,6 +271,7 @@ class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     (() {
       final step = skip == null || skip == size ? size : skip;
       final buf = <S>[];
+      // ignore: unused_local_variable
       var seen = 0;
       return (pulse, {cell, user}) {
         final typed = _typedOrError<S>(pulse, onError: onError);
@@ -270,6 +313,11 @@ class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### See Also:
 /// - [WindowCount]: The primary implementation.
 class WindowSize<S> extends WindowCount<S> {
+  /// Synthesizes a **Size-Named Count Window Gate**—semantic alias of
+  /// [WindowCount] for Rx `window` / `buffer` naming.
+  ///
+  /// Behavior is identical to [WindowCount]; use this name when the
+  /// pipeline reads more naturally as “window of size N”.
   WindowSize(
       super.size, {
         super.skip,
@@ -349,6 +397,20 @@ class WindowSize<S> extends WindowCount<S> {
 /// - [WindowWhen]: For trigger-based windows.
 /// - [Interval]: For periodic emissions without batching.
 class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Periodic Time-Window Gate**—accumulates typed
+  /// payloads and flushes the buffer every [duration]
+  /// (Rx `bufferTime` / `windowTime`).
+  ///
+  /// The clock is **lazy**: [Timer.periodic] arms on the first typed
+  /// pulse, not at construction. Each flush emits a copied
+  /// `List<S>` tagged `'WindowTime'`. Empty flushes are suppressed
+  /// unless [emitEmpty] is `true`.
+  ///
+  /// ### Parameters
+  /// - [duration]: Flush interval after the clock is armed.
+  /// - [emitEmpty]: Emit `[]` when a tick finds an empty buffer.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   WindowTime(
       Duration duration, {
         bool emitEmpty = false,
@@ -460,6 +522,19 @@ class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [WindowTime]: For time-based windows.
 /// - [Hub]: For routing pulses to different handlers.
 class WindowWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Boundary-Notifier Window Gate**—accumulates typed
+  /// payloads until [closer] pulses, then emits the buffer
+  /// (Rx `buffer` / `window` with a notifier).
+  ///
+  /// The closer is observed once (first source pulse arms it). Each
+  /// close emits a copied `List<S>` tagged `'WindowWhen'` and clears
+  /// the buffer so the next epoch can start.
+  ///
+  /// ### Parameters
+  /// - [closer]: Cell whose pulses close the current window.
+  /// - [emitEmpty]: Emit `[]` when a close finds an empty buffer.
+  /// - [onError]: Integrity handler for type mismatches on the source.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   WindowWhen(
       Cell closer, {
         bool emitEmpty = false,

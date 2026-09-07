@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · ICU Alarm Pipeline topic docs, for the Dart programming language.">
+  <title>Demo · ICU Alarm Pipeline topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · ICU Alarm Pipeline topic</li>
+  </ol>
+  <div class="self-name">Demo · ICU Alarm Pipeline</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · ICU Alarm Pipeline</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough--icu-alarm-pipeline-enhanced">Walkthrough — ICU alarm pipeline (enhanced)</h1>
+<p><strong>Demo:</strong> <code>example\ICU-alarm-pipeline(enhanced)-Demo.dart</code><br>
+<strong>Sibling:</strong> <code>ICU-alarm-pipeline-Demo.dart</code> (bus + one gate only)</p>
+<p>Adds TestCell on sensor ingress, a WARN Receptor, a ledger, ACK that
+<strong>resets Distinct on the same Receptor</strong>, and <code>AsyncMapWithRetry</code>.</p>
+<hr>
+<h2 id="design">Design</h2>
+<pre class="language-dart"><code>hrIn    TestCell 20–250  ─┐
+spo2In  TestCell 0–100   ─┼─ set* → publishVitals → Reading(bed, hr, spo2, moving)
+motionIn                 ─┘
+                              │
+                              ▼
+                         vitalsIn
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              page gate            warn gate
+         MapValue + Distinct     MapValue + Distinct
+              + Filter(page)          + Filter(warn)
+                    │                   │
+                    ▼                   ▼
+              pageHandle            warnHandle
+                    │
+                    ├─ observe → ledger PAGE + console pager
+                    └─ AsyncMapWithRetry → pagerHandle
+ackIn ─────────────────────────────────► resetDistinct()
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Impossible HR / SpO2</td>
+<td><code>TestCell</code> on <strong>ingress</strong>, not on state</td>
+</tr>
+<tr>
+<td>One Reading per tick</td>
+<td><code>publishVitals</code> bus</td>
+</tr>
+<tr>
+<td>PAGE vs WARN</td>
+<td>two Receptors, same <code>severityOf</code></td>
+</tr>
+<tr>
+<td>No duplicate PAGE</td>
+<td>Distinct <strong>before</strong> Filter; ACK clears <code>_pageLast</code></td>
+</tr>
+<tr>
+<td>Nurse text</td>
+<td><code>AsyncMapWithRetry</code> + observer print</td>
+</tr>
+<tr>
+<td>Audit</td>
+<td><code>ledger</code> list (in-process)</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> call <code>toHandle</code> again on ACK. A second handle stays subscribed
+to <code>vitalsIn</code> and doubles every later PAGE (<code>Concurrent modification</code> if
+you mutate synapses in the same effect).</p>
+<hr>
+<h2 id="parts">Parts</h2>
+<h3 id="cell">Cell</h3>
+<table>
+<thead>
+<tr>
+<th>Cell</th>
+<th>Kind</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hrIn</code> / <code>spo2In</code></td>
+<td>ingress + TestCell</td>
+<td>reject 9 / 140</td>
+</tr>
+<tr>
+<td><code>motionIn</code></td>
+<td>ingress</td>
+<td>bool</td>
+</tr>
+<tr>
+<td><code>vitalsIn</code></td>
+<td>ingress <code>&lt;Reading&gt;</code></td>
+<td>snapshot bus</td>
+</tr>
+<tr>
+<td><code>ackIn</code></td>
+<td>ingress <code>&lt;String&gt;</code></td>
+<td>who acknowledged</td>
+</tr>
+<tr>
+<td><code>pageHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>PAGE only</td>
+</tr>
+<tr>
+<td><code>warnHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>WARN only</td>
+</tr>
+<tr>
+<td><code>pagerHandle.cell</code></td>
+<td><code>AsyncMapWithRetry</code></td>
+<td>I/O with <code>count: 2</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>_hr</code> / <code>_spo2</code> / <code>_moving</code> are a Dart cache. <code>setHr</code> returns false and
+does <strong>not</strong> call <code>publishVitals</code> when TestCell rejects.</p>
+<h3 id="instruction">Instruction</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapValue&lt;Reading, Severity&gt;</code></td>
+<td><code>severityOf</code></td>
+</tr>
+<tr>
+<td><code>_distinctPage</code> / <code>_distinctWarn</code></td>
+<td>closured last-value; ACK zeroes it</td>
+</tr>
+<tr>
+<td><code>Filter&lt;Severity&gt;(page)</code> / <code>warn</code></td>
+<td>drop the other severities</td>
+</tr>
+</tbody>
+</table>
+<p>Library <code>DistinctUntilChanged</code> is not used: it cannot be reset without a
+new handle.</p>
+<h3 id="receptor">Receptor</h3>
+<p><code>buildPageGate().toHandle(source: vitalsIn.cell)</code> once at
+<code>installGates()</code>. Same for WARN. One lock per gate.</p>
+<h3 id="flow-operators">Flow operators</h3>
+<p><code>MapValue</code>, <code>Filter</code>, <code>FlowInstruction</code> (custom Distinct),
+<code>AsyncMapWithRetry</code> (<code>count</code>, not <code>retries</code>), <code>Cell.observe</code>,
+<code>Cell.ingress(testRule:)</code>.</p>
+<hr>
+<h2 id="implementation-map">Implementation map</h2>
+<table>
+<thead>
+<tr>
+<th>Block in the dart file</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture / expected output comments</td>
+<td>talk track</td>
+</tr>
+<tr>
+<td><code>Reading</code> / <code>Severity</code> / <code>LedgerEntry</code></td>
+<td>domain</td>
+</tr>
+<tr>
+<td><code>hrRange</code> / <code>spo2Range</code></td>
+<td>TestCell</td>
+</tr>
+<tr>
+<td><code>publishVitals</code> / <code>set*</code></td>
+<td>bus</td>
+</tr>
+<tr>
+<td><code>severityOf</code></td>
+<td>clinical map</td>
+</tr>
+<tr>
+<td><code>_distinctPage</code> + <code>resetDistinct</code></td>
+<td>ACK</td>
+</tr>
+<tr>
+<td><code>installGates</code></td>
+<td>two Receptors + pager + observes</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>seed + scenarios 1–9</td>
+</tr>
+</tbody>
+</table>
+<p><code>installGates</code> runs <strong>once</strong>. ACK only touches Distinct fields.</p>
+<hr>
+<h2 id="scenarios-what-the-last-good-run-showed">Scenarios (what the last good run showed)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Drive</th>
+<th>Result</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed</td>
+<td>still, 96, 72</td>
+<td>three vitals, no PAGE</td>
+<td>bus + Filter</td>
+</tr>
+<tr>
+<td>1</td>
+<td>repeat 72/96</td>
+<td>no PAGE</td>
+<td>Distinct on <code>none</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>SpO2 86</td>
+<td><strong>PAGE</strong> + ledger + pager</td>
+<td>first critical</td>
+</tr>
+<tr>
+<td>3</td>
+<td>moving then still</td>
+<td>no page while moving; <strong>PAGE</strong> when still</td>
+<td>artifact then Distinct <code>none</code>→<code>page</code></td>
+</tr>
+<tr>
+<td>4–5</td>
+<td>SpO2 85, HR 35</td>
+<td><strong>no</strong> PAGE</td>
+<td>Distinct holds <code>page</code> (header text that says PAGE here is wrong)</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>HR 55, SpO2 90</td>
+<td><strong>WARN</strong></td>
+<td>second Receptor</td>
+</tr>
+<tr>
+<td>6</td>
+<td>96 / 74 then ACK</td>
+<td>recover; Distinct cleared</td>
+<td>ACK ≠ new <code>toHandle</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>SpO2 87</td>
+<td><strong>one</strong> PAGE</td>
+<td>reset Distinct</td>
+</tr>
+<tr>
+<td>8</td>
+<td>HR 9, SpO2 140</td>
+<td>TestCell lines; <strong>no</strong> vitals</td>
+<td>ingress boundary</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ACK, recover, SpO2 80, fail-once</td>
+<td><strong>one</strong> PAGE; pagerAttempts includes retry</td>
+<td><code>AsyncMapWithRetry</code></td>
+</tr>
+</tbody>
+</table>
+<p>Good-run counts: vitals 18, pages 4, warns 1, ledger 7 (4 PAGE + 1 WARN</p>
+<ul>
+<li>2 ACK). <code>pagerAttempts</code> can be 5 if the first nurse-app call throws.</li>
+</ul>
+<hr>
+<h2 id="pulse-path-scenario-2">Pulse path (scenario 2)</h2>
+<pre class="language-dart"><code>setSpo2(86)
+  spo2In.emit — TestCell pass
+  _spo2 = 86
+  publishVitals → vitalsIn
+    page Receptor: MapValue page → Distinct emit → Filter pass
+    warn Receptor: Filter drop
+    observe PAGE → ledger
+    AsyncMapWithRetry → pager cell
+</code></pre>
+<p>Scenario 8 stops at <code>hrIn.emit</code> / <code>spo2In.emit</code>.</p>
+<hr>
+<h2 id="real-bay-vs-this-file">Real bay vs this file</h2>
+<table>
+<thead>
+<tr>
+<th>Still missing</th>
+<th>Suggested next Cell/Flow piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot is a Dart cache</td>
+<td>bed <code>Nucleus</code> / trusted <code>Cell.synthesis</code></td>
+</tr>
+<tr>
+<td>No 10–15 s hold</td>
+<td><code>Debounce</code> / <code>BufferTime</code> <strong>in front of</strong> the gate</td>
+</tr>
+<tr>
+<td>Ledger is a <code>List</code></td>
+<td>append-only ledger Cell</td>
+</tr>
+<tr>
+<td>Two pager printers</td>
+<td>keep <code>pagerHandle</code> <strong>or</strong> the observer Future, not both</td>
+</tr>
+<tr>
+<td>ACK does not dispose I/O</td>
+<td>fine; do not stack <code>toHandle</code></td>
+</tr>
+<tr>
+<td>No <code>Context</code></td>
+<td>bed/ward on Pulse</td>
+</tr>
+<tr>
+<td>WARN unused by pager</td>
+<td>charge-nurse Cell from <code>warnHandle</code></td>
+</tr>
+</tbody>
+</table>
+<p>Flow stays on “is this PAGE / WARN?”<br>
+TestCell stays on the <strong>sensor ingress</strong>.<br>
+ACK stays a flag on Distinct, not a second graph.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+      <dt id="FlowInstruction">
+  <span class="name "><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+
+</dt>
+<dd>
+  Synthesizes a <strong>Composite Logic Blueprint</strong>—a specialized instruction
+wrapper designed for fluent orchestration and pipeline assembly.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · ICU Alarm Pipeline topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · ICU Alarm Pipeline topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/ICU Alarm Pipeline-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+      <li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

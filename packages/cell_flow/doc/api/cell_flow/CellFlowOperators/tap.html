@@ -64,6 +64,60 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Passive Observation Gate</strong>—a specialized orchestration
+instruction designed to perform side-effects without altering pulse evolution.</p>
+<p><a href="../../cell_flow/CellFlowOperators/tap.html">tap</a> (analogous to Rx <code>tap</code> or <code>do</code>) intercepts every incoming pulse from
+the source cell and executes the provided <code>onValue</code> logic. Unlike <code>map</code>,
+it does not transform the payload; the original stimulus is propagated
+downstream exactly as it arrived.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Forensic Logging</strong>: Auditing pulse data as it traverses a specific
+topographical branch without interfering with downstream logic.</li>
+<li><strong>External Synchronization</strong>: Triggering side-effects in non-reactive
+systems, such as tracking analytics or updating global state.</li>
+<li><strong>Evolution Debugging</strong>: Inserting observation points to inspect the
+state of pulses at various stages of a pipeline.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The gate intercepts a pulse originating
+from the source cell.</li>
+<li><strong>Observation Logic</strong>: The <code>onValue</code> orchestrator is invoked
+synchronously with the pulse payload.</li>
+<li><strong>Provenance Preservation</strong>: The original pulse—maintaining its
+full trace history, source, and priority—is propagated to
+downstream synapses.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Synchronous Blocking</strong>: The side-effect occurs within the same
+execution frame as the ingress. Heavy logic here will block the
+reactive engine's evolution cycle.</li>
+<li><strong>Integrity Safeguard</strong>: If the observation logic throws an error,
+the evolution is aborted, and the error is routed to the <code>onError</code>
+orchestrator.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of the payload arriving
+at the gate for observation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>onValue</code>: The <strong>Observation Logic</strong> defining the side-effect.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked if the side-effect
+violates topographical integrity.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the anchored observation node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/map.html">map</a>: For transforming payloads during evolution.</li>
+<li><a href="../../cell_flow/CellFlowOperators/filter.html">filter</a>: For conditionally permitting pulse evolution.</li>
+</ul>
+</section>
 
 
     
@@ -92,7 +146,7 @@
     <li class="self-crumb">tap&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -101,7 +155,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

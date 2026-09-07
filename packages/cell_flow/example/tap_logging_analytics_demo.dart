@@ -107,11 +107,10 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/map.dart';
 import 'package:cell_flow/src/instruction/tap.dart';
 import 'package:cell_flow/src/instruction/filter.dart';
-import 'package:cell_flow/src/instruction/scan.dart';
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models
@@ -491,7 +490,7 @@ Future<void> main() async {
         (variant) {
       final key = variant.contains('variant_a') ? 'A' : 'B';
       abMetrics[key] = (abMetrics[key] ?? 0) + 1;
-      print('   [AB TEST] variant_${key.toLowerCase()}: ${variant.split(':')[1] ?? 'checkout_start'}');
+      print('   [AB TEST] variant_${key.toLowerCase()}: ${variant.split(':')[1]}');
     },
   ).toHandle(source: abInput.cell);
 
@@ -521,7 +520,7 @@ Future<void> main() async {
     final conversions = abConversions[entry.key] ?? 0;
     final rate = entry.value > 0 ? conversions / entry.value : 0;
     print('   [AB TEST] variant_${entry.key.toLowerCase()}: ${entry.value} events, '
-        '${conversions} conversions (${(rate * 100).toInt()}% rate)');
+        '$conversions conversions (${(rate * 100).toInt()}% rate)');
   }
 
   abObserver.stop();

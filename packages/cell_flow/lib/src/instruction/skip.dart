@@ -6,30 +6,42 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
-/// Flow instructions that drop a prefix of a stream (Rx `skip` family).
-///
-/// These operators skip or drop certain values from the beginning of a stream
-/// based on various criteria. They are essential for ignoring initial values,
-/// waiting for conditions, or removing unwanted data from the stream.
-///
-/// | Operator | Rx analogue | Drops |
-/// |---|---|---|
-/// | [Skip] | `skip` | the first [count] values |
-/// | [SkipWhile] | `skipWhile` | while [predicate] is true |
-/// | [SkipUntil] | `skipUntil` | until [notifier] emits |
-/// | [SkipUntilTime] | `skipUntil` + timer | until [duration] elapses |
-/// | [SkipFirst] | `skip(1)` | the first typed value |
-/// | [SkipLast] | `skipLast` | the last [count] values (delayed by [count]) |
-/// | [SkipRepeated] | `distinctUntilChanged` | consecutive duplicates |
-/// | [SkipWhen] | `filter(!pred)` | any value for which [predicate] is true |
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
+// ─────────────────────────────────────────────────────────────
+// Core Skip Operators
+// ─────────────────────────────────────────────────────────────
 
+/// Error handler callback for skip operators.
+///
+/// Called when an error occurs during skipping operations, such as
+/// errors in predicates or type mismatches.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = SkipErrorHandler((error, stack) {
+///   print('Skip error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef SkipErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions and Types
+// ─────────────────────────────────────────────────────────────
+
+/// Helper for type-safe payload extraction.
+///
+/// [_typedOrError] checks that the pulse payload matches the expected
+/// type [S]. If it does, returns the pulse. If not, calls [onError]
+/// and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The incoming pulse to check.
+/// - [onError]: Optional error handler for type mismatches.
+///
+/// ### Returns:
+/// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       SkipErrorHandler? onError,
@@ -45,13 +57,28 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Helper to add a provenance step to a pulse.
 Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 
+/// Internal state for gate-based skip operators.
+///
+/// [_GateState] maintains a boolean flag indicating whether the gate is open.
+///
+/// ### Fields:
+/// - [open]: Whether the gate is open (values can pass through).
+///
+/// ### Non‑obvious
+/// - **Stateful**: The flag persists across pulses.
+/// - **Once Open**: The flag is typically set once and never closed.
+class _GateState {
+  bool open = false;
+}
+
 // ─────────────────────────────────────────────────────────────
-// Skip
+// Skip - Count-Based Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops the first [count] typed pulses,
+/// A [FlowInstruction] that drops the first [count] typed pulses,
 /// then forwards the rest (Rx `skip`).
 ///
 /// [Skip] acts as a **Count-Based Skipper**. It drops the first N values
@@ -105,7 +132,7 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// 3. If the counter is less than [count], the pulse is skipped.
 /// 4. If the counter reaches [count], all subsequent values pass through.
 /// 5. Results are emitted in input order.
-/// 6. The instruction preserves causal provenance.
+/// 6. Each emitted value gets the step `'Skip'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Opening State**: Once the count is reached, the stream opens.
@@ -143,27 +170,46 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips the first N values.
 ///
 /// ### See Also:
 /// - [SkipWhile]: For conditional skipping.
 /// - [SkipFirst]: For skipping only the first value.
 /// - [SkipLast]: For skipping the last N values.
 class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Skip] instruction with the specified [count].
+  /// Synthesizes a **Count-Based Skipper**—a specialized instruction that
+  /// drops the first [count] typed pulses.
   ///
-  /// ### Parameters:
-  /// - [count]: **The Number of Values to Skip.** Must be >= 0.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [Skip] acts as a **Count-Based Skipper**. It drops the first N values
+  /// from the stream and forwards all subsequent values.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Counter Management**: A counter tracks how many values are skipped.
+  /// 3. **Skip Phase**: If the counter is less than [count], the pulse is dropped.
+  /// 4. **Open Phase**: Once the counter reaches [count], all subsequent
+  ///    values pass through.
+  /// 5. **Step Evolution**: Passed values get the step `'Skip'`.
+  /// 6. **Error Handling**: If the type doesn't match, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [count]: **The Number to Skip.** Must be >= 0.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Header Skipper
   /// ```dart
-  /// final skip = Skip<int>(
+  /// // Skips the first 2 headers
+  /// val headerSkipper = Skip<Data>(
   ///   2,
-  ///   onError: (error, stack) => print('Error: $error'),
+  ///   user: 'Header-Skipper'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [SkipWhile]: For conditional skipping.
+  /// - [SkipFirst]: For skipping only the first value.
+  /// - [SkipLast]: For skipping the last N values.
   Skip(
       int count, {
         SkipErrorHandler? onError,
@@ -186,10 +232,10 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipWhile
+// SkipWhile - Conditional Prefix Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops values while [predicate] is true,
+/// A [FlowInstruction] that drops values while [predicate] is true,
 /// and forwards from the first failure (Rx `skipWhile`).
 ///
 /// [SkipWhile] acts as a **Conditional Prefix Skipper**. It skips values
@@ -207,6 +253,14 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - You're starting after a condition passes
 /// - You're implementing warm-up period detection
 ///
+/// ### Comparison with SkipWhen
+/// | Feature | SkipWhile | SkipWhen |
+/// |---------|-----------|----------|
+/// | **Evaluation** | Once (until false) | Every value |
+/// | **State** | Maintains open state | Stateless |
+/// | **Use Case** | Skip prefix | Skip arbitrary values |
+/// | **Similar To** | `skipWhile` | `filter(!pred)` |
+///
 /// ### How it works
 /// 1. Each incoming pulse's payload is extracted and type-checked.
 /// 2. The predicate is evaluated.
@@ -214,14 +268,7 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. If the predicate returns `false`, the stream is opened and all
 ///    subsequent values pass through.
 /// 5. Results are emitted in input order.
-/// 6. The instruction preserves causal provenance.
-///
-/// ### Comparison with SkipWhen
-/// | Feature | SkipWhile | SkipWhen |
-/// |---------|-----------|----------|
-/// | **Evaluation** | Once (until false) | Every value |
-/// | **State** | Maintains open state | Stateless |
-/// | **Use Case** | Skip prefix | Skip arbitrary values |
+/// 6. Each emitted value gets the step `'SkipWhile'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Opening State**: Once the predicate returns `false`, the stream is
@@ -265,28 +312,47 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips values until a condition fails.
 ///
 /// ### See Also:
 /// - [Skip]: For count-based skipping.
 /// - [SkipWhen]: For per-value conditional skipping.
 /// - [SkipUntil]: For event-based skipping.
 class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipWhile] instruction with the specified [predicate].
+  /// Synthesizes a **Conditional Prefix Skipper**—a specialized instruction
+  /// that skips values until a condition fails.
   ///
-  /// ### Parameters:
-  /// - [predicate]: **The Skipping Predicate.** Returns `true` to continue
-  ///   skipping values. When it returns `false`, the stream opens.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipWhile] acts as a **Conditional Prefix Skipper**. It skips values
+  /// from the beginning of the stream while a condition is true, and once
+  /// the condition fails, it forwards all subsequent values.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The predicate is called with the payload.
+  /// 3. **Skip Phase**: If the predicate returns `true`, the pulse is dropped.
+  /// 4. **Open Phase**: Once the predicate returns `false`, the stream opens.
+  /// 5. **Forward Phase**: All subsequent values pass through.
+  /// 6. **Step Evolution**: Passed values get the step `'SkipWhile'`.
+  /// 7. **Error Handling**: If the predicate throws, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [predicate]: **The Condition.** Returns `true` to skip values.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Warm-up Skipper
   /// ```dart
-  /// val skipWhile = SkipWhile<int>(
-  ///   (n) => n < 5,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips values until the system is ready
+  /// val warmupSkipper = SkipWhile<Status>(
+  ///   (s) => s != Status.ready,
+  ///   user: 'Warmup-Skipper'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Skip]: For count-based skipping.
+  /// - [SkipWhen]: For per-value conditional skipping.
+  /// - [SkipUntil]: For event-based skipping.
   SkipWhile(
       bool Function(S value) predicate, {
         SkipErrorHandler? onError,
@@ -315,10 +381,10 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipUntil
+// SkipUntil - Event-Based Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops values until [notifier] emits any
+/// A [FlowInstruction] that drops values until [notifier] emits any
 /// pulse, then forwards (Rx `skipUntil`).
 ///
 /// [SkipUntil] acts as an **Event-Based Skipper**. It skips all values
@@ -341,7 +407,7 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. Initially, all values from the source are skipped.
 /// 3. When the [notifier] emits a value, the stream opens.
 /// 4. After the notifier emits, all subsequent source values pass through.
-/// 5. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'SkipUntil'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **State**: The instruction maintains an `open` flag.
@@ -374,28 +440,45 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips values until an event occurs.
 ///
 /// ### See Also:
 /// - [SkipWhile]: For conditional skipping.
 /// - [SkipUntilTime]: For time-based skipping.
 /// - [Skip]: For count-based skipping.
 class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipUntil] instruction with the specified [notifier].
+  /// Synthesizes an **Event-Based Skipper**—a specialized instruction that
+  /// skips values until a notifier emits.
   ///
-  /// ### Parameters:
-  /// - [notifier]: **The Opening Event Source.** The cell that triggers the
-  ///   stream opening when it emits a value.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipUntil] acts as an **Event-Based Skipper**. It skips all values
+  /// from the source until the [notifier] cell emits a pulse.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Notifier Observation**: The instruction observes the notifier cell.
+  /// 2. **Skip Phase**: All source values are skipped until the notifier emits.
+  /// 3. **Open Phase**: When the notifier emits, the stream opens.
+  /// 4. **Forward Phase**: All subsequent source values pass through.
+  /// 5. **Step Evolution**: Passed values get the step `'SkipUntil'`.
+  /// 6. **Error Handling**: Type errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [notifier]: **The Opening Event.** The cell that opens the stream.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Gate Controller
   /// ```dart
-  /// val skipUntil = SkipUntil<int>(
-  ///   ready.cell,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips values until the gate opens
+  /// val gateController = SkipUntil<Request>(
+  ///   gate.cell,
+  ///   user: 'Gate-Controller'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [SkipWhile]: For conditional skipping.
+  /// - [SkipUntilTime]: For time-based skipping.
+  /// - [Skip]: For count-based skipping.
   SkipUntil(
       Cell notifier, {
         SkipErrorHandler? onError,
@@ -421,10 +504,10 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipUntilTime
+// SkipUntilTime - Time-Based Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops values until [duration] after the
+/// A [FlowInstruction] that drops values until [duration] after the
 /// first typed pulse, then forwards.
 ///
 /// [SkipUntilTime] acts as a **Time-Based Skipper**. It skips all values
@@ -446,7 +529,7 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 2. All values are skipped until the timer expires.
 /// 3. When the timer expires, the stream opens.
 /// 4. All subsequent values pass through.
-/// 5. The instruction preserves causal provenance.
+/// 5. Each emitted value gets the step `'SkipUntilTime'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Timer**: The timer starts on the first pulse, not at creation.
@@ -478,27 +561,46 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips values until a time elapses.
 ///
 /// ### See Also:
 /// - [SkipUntil]: For event-based skipping.
 /// - [SkipWhile]: For conditional skipping.
 /// - [Debounce]: For waiting for silence.
 class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipUntilTime] instruction with the specified [duration].
+  /// Synthesizes a **Time-Based Skipper**—a specialized instruction that
+  /// skips values until a duration elapses.
   ///
-  /// ### Parameters:
-  /// - [duration]: **The Timeout Duration.** The time to wait before opening.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipUntilTime] acts as a **Time-Based Skipper**. It skips all values
+  /// from the source until a specified duration has elapsed after the first
+  /// value arrives.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **First Pulse**: The first typed pulse starts the timer.
+  /// 2. **Skip Phase**: All values are skipped until the timer expires.
+  /// 3. **Open Phase**: When the timer expires, the stream opens.
+  /// 4. **Forward Phase**: All subsequent values pass through.
+  /// 5. **Step Evolution**: Passed values get the step `'SkipUntilTime'`.
+  /// 6. **Error Handling**: Type errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [duration]: **The Timeout.** The time to wait before opening.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Startup Delay
   /// ```dart
-  /// val skipUntilTime = SkipUntilTime<int>(
-  ///   Duration(seconds: 5),
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips values during startup
+  /// val startupSkipper = SkipUntilTime<Event>(
+  ///   Duration(seconds: 2),
+  ///   user: 'Startup-Skipper'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [SkipUntil]: For event-based skipping.
+  /// - [SkipWhile]: For conditional skipping.
+  /// - [Debounce]: For waiting for silence.
   SkipUntilTime(
       Duration duration, {
         SkipErrorHandler? onError,
@@ -525,10 +627,10 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipFirst
+// SkipFirst - Single-Value Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops only the first typed pulse
+/// A [FlowInstruction] that drops only the first typed pulse
 /// (Rx `skip(1)`).
 ///
 /// [SkipFirst] acts as a **First-Value Skipper**. It is a convenience alias
@@ -540,6 +642,11 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - Skipping a header row
 /// - Avoiding the first loading state
 /// - Starting from the second value
+///
+/// ### How it works
+/// 1. The first typed pulse is dropped.
+/// 2. All subsequent pulses pass through.
+/// 3. Each emitted value gets the step `'SkipFirst'` for provenance.
 ///
 /// ### Example
 /// ```dart
@@ -560,21 +667,22 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips only the first value.
 ///
 /// ### See Also:
 /// - [Skip]: For skipping multiple values.
 class SkipFirst<S> extends Skip<S> {
-  /// Creates a [SkipFirst] instruction.
+  /// Synthesizes a **First-Value Skipper**—a specialized instruction that
+  /// drops only the first typed pulse.
   ///
-  /// ### Parameters:
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipFirst] acts as a **First-Value Skipper**. It is a convenience alias
+  /// for [Skip] with `count: 1`.
   ///
-  /// ### Example
+  /// ### Example: Header Skipper
   /// ```dart
-  /// val skipFirst = SkipFirst<int>(
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips only the header row
+  /// val headerSkipper = SkipFirst<DataRow>(
+  ///   user: 'Header-Skipper'
   /// );
   /// ```
   SkipFirst({
@@ -584,10 +692,10 @@ class SkipFirst<S> extends Skip<S> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipLast
+// SkipLast - End-Based Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that holds the last [count] values and emits
+/// A [FlowInstruction] that holds the last [count] values and emits
 /// the one that just left the buffer (Rx `skipLast`).
 ///
 /// [SkipLast] acts as an **End-Based Skipper**. It buffers the last N values
@@ -610,7 +718,7 @@ class SkipFirst<S> extends Skip<S> {
 /// 2. When a new value arrives, the oldest value in the buffer is emitted
 ///    (unless it's within the last [count] values).
 /// 3. The last [count] values are never emitted.
-/// 4. The instruction preserves causal provenance.
+/// 4. Each emitted value gets the step `'SkipLast'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Buffering**: The instruction maintains a buffer of size [count] + 1.
@@ -644,26 +752,43 @@ class SkipFirst<S> extends Skip<S> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips the last N values.
 ///
 /// ### See Also:
 /// - [Skip]: For skipping the first N values.
 /// - [SkipWhile]: For conditional skipping.
 class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipLast] instruction with the specified [count].
+  /// Synthesizes an **End-Based Skipper**—a specialized instruction that
+  /// skips the last N values.
   ///
-  /// ### Parameters:
-  /// - [count]: **The Number of Values to Skip at the End.** Must be >= 0.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipLast] acts as an **End-Based Skipper**. It buffers the last N values
+  /// and only emits values that leave the buffer.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Buffer Management**: Values are buffered in a sliding window.
+  /// 3. **Emission**: When the buffer exceeds [count], the oldest value is emitted.
+  /// 4. **Step Evolution**: Emitted values get the step `'SkipLast'`.
+  /// 5. **No Flush**: The trailing [count] values are never emitted.
+  /// 6. **Error Handling**: Type errors are reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [count]: **The Number to Skip at the End.** Must be >= 0.
+  /// - [onError]: **Integrity Handler.** Called on type mismatches.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Trailing Data Skipper
   /// ```dart
-  /// val skipLast = SkipLast<int>(
-  ///   2,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips the last 3 values
+  /// val trailingSkipper = SkipLast<Data>(
+  ///   3,
+  ///   user: 'Trailing-Skipper'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [Skip]: For skipping the first N values.
+  /// - [SkipWhile]: For conditional skipping.
   SkipLast(
       int count, {
         SkipErrorHandler? onError,
@@ -687,10 +812,10 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipRepeated
+// SkipRepeated - Consecutive Duplicate Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops a value when it equals the previous
+/// A [FlowInstruction] that drops a value when it equals the previous
 /// emission (consecutive duplicates only).
 ///
 /// [SkipRepeated] acts as a **Consecutive Duplicate Skipper**. It skips
@@ -712,12 +837,21 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **Subsequent** | Skipped if equal | Skipped if equal |
 /// | **Different Value** | Passed | Passed |
 ///
+/// ### How it works
+/// 1. Each incoming pulse's payload is extracted and type-checked.
+/// 2. The predicate is evaluated.
+/// 3. If the predicate returns `true`, the value is skipped.
+/// 4. If the predicate returns `false`, the stream is opened and all
+///    subsequent values pass through.
+/// 5. Each emitted value gets the step `'SkipRepeated'` for provenance.
+///
 /// ### Non‑obvious
 /// - **Consecutive Only**: Only back-to-back duplicates are skipped.
 /// - **No Initial Emission**: The first value is always skipped.
 /// - **State Persistence**: The instruction maintains the previous value.
 /// - **Order Preservation**: Results are emitted in the same order as inputs.
 /// - **Causal Provenance**: Every emitted result preserves forensic history.
+/// - **Custom Comparator**: The [equals] function allows custom comparison.
 ///
 /// ### Example: Skip Consecutive Duplicates
 /// ```dart
@@ -743,27 +877,44 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips consecutive duplicates.
 ///
 /// ### See Also:
 /// - [DistinctUntilChanged]: For passing the first value.
 /// - [SkipWhen]: For conditional skipping.
 class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipRepeated] instruction.
+  /// Synthesizes a **Consecutive Duplicate Skipper**—a specialized instruction
+  /// that skips values that are equal to the previous value.
   ///
-  /// ### Parameters:
-  /// - [equals]: **Custom Equality Comparator.** Optional function that
-  ///   defines what constitutes a duplicate. Defaults to `==`.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipRepeated] acts as a **Consecutive Duplicate Skipper**. It skips
+  /// any value that is equal to the previous value.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **State Management**: The instruction maintains the previous value.
+  /// 3. **Comparison**: The [equals] function compares the current and previous values.
+  /// 4. **Skip Phase**: If equal, the pulse is dropped.
+  /// 5. **Forward Phase**: If different, the pulse passes through.
+  /// 6. **Step Evolution**: Passed values get the step `'SkipRepeated'`.
+  /// 7. **Error Handling**: If the comparison fails, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [equals]: **Equality Comparator.** Custom comparison logic.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Case-Insensitive Skipper
   /// ```dart
-  /// val skipRepeated = SkipRepeated<String>(
-  ///   comparator: (a, b) => a.toLowerCase() == b.toLowerCase(),
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips case-insensitive duplicates
+  /// val caseInsensitiveSkipper = SkipRepeated<String>(
+  ///   equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
+  ///   user: 'Case-Insensitive'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [DistinctUntilChanged]: For passing the first value.
+  /// - [SkipWhen]: For conditional skipping.
   SkipRepeated({
     bool Function(S previous, S next)? equals,
     SkipErrorHandler? onError,
@@ -795,10 +946,10 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SkipWhen
+// SkipWhen - Per-Value Conditional Skipper
 // ─────────────────────────────────────────────────────────────
 
-/// A [Receptor] instruction that drops any value for which [predicate] is true.
+/// A [FlowInstruction] that drops any value for which [predicate] is true.
 ///
 /// [SkipWhen] acts as a **Per-Value Skipper**. Unlike [SkipWhile], this
 /// evaluates the predicate independently on every pulse.
@@ -818,6 +969,13 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// | **State** | Stateless | Maintains open state |
 /// | **Use Case** | Skip arbitrary values | Skip prefix |
 /// | **Similar To** | `filter(!pred)` | `skipWhile` |
+///
+/// ### How it works
+/// 1. Each incoming pulse's payload is extracted and type-checked.
+/// 2. The predicate is evaluated.
+/// 3. If the predicate returns `true`, the value is skipped.
+/// 4. If the predicate returns `false`, the value passes through.
+/// 5. Each emitted value gets the step `'SkipWhen'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Per-Value**: The predicate is evaluated for each value independently.
@@ -849,27 +1007,45 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [S]: The type of the input payload from the source cell.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline.
+/// A [FlowInstruction] that skips values based on a condition.
 ///
 /// ### See Also:
 /// - [SkipWhile]: For conditional prefix skipping.
 /// - [Filter]: For passing when a condition is true.
 /// - [Skip]: For count-based skipping.
 class SkipWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [SkipWhen] instruction with the specified [predicate].
+  /// Synthesizes a **Per-Value Skipper**—a specialized instruction that
+  /// skips values based on a condition.
   ///
-  /// ### Parameters:
-  /// - [predicate]: **The Skipping Predicate.** Returns `true` to skip the value.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// [SkipWhen] acts as a **Per-Value Skipper**. Unlike [SkipWhile], this
+  /// evaluates the predicate independently on every pulse.
   ///
-  /// ### Example
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Predicate Evaluation**: The predicate is called with the payload.
+  /// 3. **Skip Phase**: If the predicate returns `true`, the pulse is dropped.
+  /// 4. **Forward Phase**: If the predicate returns `false`, the pulse passes through.
+  /// 5. **Step Evolution**: Passed values get the step `'SkipWhen'`.
+  /// 6. **Error Handling**: If the predicate throws, [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [predicate]: **The Condition.** Returns `true` to skip values.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Even Number Skipper
   /// ```dart
-  /// val skipWhen = SkipWhen<int>(
-  ///   (n) => n % 2 == 0,
-  ///   onError: (error, stack) => print('Error: $error'),
+  /// // Skips even numbers
+  /// val evenSkipper = SkipWhen<int>(
+  ///   (n) => n.isEven,
+  ///   user: 'Even-Skipper'
   /// );
   /// ```
+  ///
+  /// ### See Also
+  /// - [SkipWhile]: For conditional prefix skipping.
+  /// - [Filter]: For passing when a condition is true.
+  /// - [Skip]: For count-based skipping.
   SkipWhen(
       bool Function(S value) predicate, {
         SkipErrorHandler? onError,
@@ -888,15 +1064,6 @@ class SkipWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     },
     user: user,
   );
-}
-
-// ─────────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────────
-
-/// Internal state for [SkipUntil] and [SkipUntilTime].
-class _GateState {
-  bool open = false;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -974,6 +1141,15 @@ class _GateState {
 /// - SkipRepeated skips consecutive duplicates.
 /// - SkipWhen skips values based on a condition (per value).
 /// - All operators preserve causal provenance via EvolvedPulse.
+/// - Choose the right operator for your use case:
+///   - First N → Skip
+///   - Conditional prefix → SkipWhile
+///   - Event-based → SkipUntil
+///   - Time-based → SkipUntilTime
+///   - First only → SkipFirst
+///   - Last N → SkipLast
+///   - Duplicates → SkipRepeated
+///   - Per-value condition → SkipWhen
 Future<void> main() async {
   print('── Skip Operators Demo ───────────────────────────────────────\n');
 

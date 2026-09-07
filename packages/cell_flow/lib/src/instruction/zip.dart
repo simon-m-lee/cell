@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Zip Operators
@@ -214,6 +214,19 @@ void _tryZip({
 /// - [ZipAll]: For zipping values from a single source by count.
 /// - [CombineLatestWith]: For combining the latest values.
 class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Index-Pairing Zip Gate**—pairs the bound source
+  /// (queue 0) with [others] by ordinal, not by wall-clock latest
+  /// (Rx `zipWith`).
+  ///
+  /// A row is released only when every lane has at least one queued
+  /// value. [project] maps that row to [R]; omitted, the row itself
+  /// is emitted (cast to [R]). Step tag: `'ZipWith'`.
+  ///
+  /// ### Parameters
+  /// - [others]: Extra cells zipped with the bound source.
+  /// - [project]: Optional row → [R] transform.
+  /// - [onError]: Integrity handler for project throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   ZipWith(
       List<Cell> others, {
         R Function(List<Object?> row)? project,
@@ -342,6 +355,19 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ZipWith]: For zipping the source with other cells.
 /// - [ZipAll]: For zipping values from a single source by count.
 class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Armed Multi-Source Zip Gate**—the bound handle
+  /// only arms observers; its payload is **not** a zip lane
+  /// (Rx `zip` of extra cells).
+  ///
+  /// First `emitAsync` on the bound source captures `future`/`token`
+  /// and starts observing [sources]. Subsequent bound pulses are
+  /// ignored. Step tag: `'Zip'`.
+  ///
+  /// ### Parameters
+  /// - [sources]: Cells whose payloads form the zip row.
+  /// - [project]: Optional row → [R] transform.
+  /// - [onError]: Integrity handler for project throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   Zip(
       List<Cell> sources, {
         R Function(List<Object?> row)? project,
@@ -451,6 +477,17 @@ class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Zip]: For zipping extra sources with an arm.
 /// - [BufferCount]: For more flexible count-based buffering.
 class ZipAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Single-Lane Batch Zip Gate**—collects typed
+  /// payloads from one source into tumbling rows of [width]
+  /// (list-shaped `zip` / `bufferCount` with skip = width).
+  ///
+  /// Emits `List<T>` tagged `'ZipAll'` and clears the row. No overlap,
+  /// no leftover emit on idle.
+  ///
+  /// ### Parameters
+  /// - [width]: Items required before a row is released.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   ZipAll(
       int width, {
         ZipErrorHandler? onError,

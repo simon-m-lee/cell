@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Search Stability topic docs, for the Dart programming language.">
+  <title>Demo · Search Stability topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Search Stability topic</li>
+  </ol>
+  <div class="self-name">Demo · Search Stability</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Search Stability</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough--search-with-debounce-flowdebounce">Walkthrough — Search with Debounce (Flow.debounce)</h1>
+<p><strong>Demo:</strong> <code>example\stability_search_demo.dart</code></p>
+<p>One pipeline. Three layers in one job:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Package idea</th>
+<th>Job on this station</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cell</strong></td>
+<td>ingress + state + observe</td>
+<td>What the user types; what results arrive</td>
+</tr>
+<tr>
+<td><strong>Flow</strong></td>
+<td>debounce + asyncMapLatest + filter + tap + throttle</td>
+<td>Stabilize input; cancel stale requests; validate</td>
+</tr>
+<tr>
+<td><strong>Observer</strong></td>
+<td><code>Cell.observe</code></td>
+<td>Display results and loading states</td>
+</tr>
+</tbody>
+</table>
+<p>Flow handles the timing and request management. Cell carries the input and results. The observer displays the outcome.</p>
+<hr>
+<h2 id="1-why-they-have-to-combine">1. Why they have to combine</h2>
+<p>A user types <strong>quickly</strong>. An API call is <strong>expensive</strong>. A previous request should be <strong>cancelled</strong>.</p>
+<p>If you put debounce logic inside the observer, the observer becomes coupled to timing. If you put request cancellation in the API call, the API becomes complex. If you put validation in the Cell, the Cell becomes specific to one use case.</p>
+<p>The demo's rule:</p>
+<pre class="language-dart"><code>Flow answers: when should we search? Which request is current?
+Cell answers: what did the user type? What did the API return?
+Observer answers: what should the user see?
+</code></pre>
+<hr>
+<h2 id="2-design-tagged">2. Design (tagged)</h2>
+<p><strong><code>Cell</code></strong> holds or carries. <strong><code>FlowInstruction</code></strong> is <code>(pulse)→pulse|null</code>.
+<strong><code>Receptor</code></strong> runs the chain under one lock. <strong><code>Cell.observe</code></strong> is
+<code>(pulse)→side effect</code>.</p>
+<pre class="language-dart"><code> user typing
+     │
+     ▼
+[Cell] ingress + TestCell         FLOW intake
+     │  emit
+     ▼
+[Receptor] toHandle(source: cell)  FLOW policy
+     │   [Instruction] debounce    (wait for silence)
+     │   [Instruction] filter      (minimum length)
+     │   [Instruction] tap         (log/loading state)
+     │   [Instruction] asyncMapLatest (cancel stale)
+     │   [Instruction] map         (transform result)
+     │   null = stop; no side effects
+     ▼
+[Cell] rx.cell                     FLOW output
+     │  Cell.observe
+     ▼
+ side effect (display)             glue (Dart)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>You need</th>
+<th>You use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wait for typing pause</td>
+<td><strong>Flow</strong> debounce</td>
+</tr>
+<tr>
+<td>Cancel stale requests</td>
+<td><strong>Flow</strong> asyncMapLatest</td>
+</tr>
+<tr>
+<td>Minimum query length</td>
+<td><strong>Flow</strong> filter</td>
+</tr>
+<tr>
+<td>Loading state</td>
+<td><strong>Flow</strong> tap + Cell.state</td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td><strong>Flow</strong> asyncMapWithFallback</td>
+</tr>
+<tr>
+<td>Rate limiting</td>
+<td><strong>Flow</strong> throttle</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-step-by-step--basic-search-scenario-1">3. Step by step — Basic Search (scenario 1)</h2>
+<p>Read this as Cell then Flow then Observer.</p>
+<p><strong>0. Graph (once)</strong>
+<code>Flow.debounce</code> + <code>Flow.asyncMapLatest</code> with <code>toHandle</code> on <strong>Cell</strong> <code>searchInput</code>.
+<code>Cell.observe</code> on <code>apiHandle.cell</code> → display results.</p>
+<p><strong>1. Pulse (Cell)</strong>
+User types 'd' → <code>searchInput.emit('d')</code>.</p>
+<p><strong>2. Policy (Flow)</strong>
+Debounce waits 300ms. Each new character resets the timer:</p>
+<pre class="language-dart"><code>'d' → timer starts (300ms)
+'da' → timer resets
+'dar' → timer resets
+'dart' → timer resets
+→ 300ms passes → 'dart' emitted to next stage
+</code></pre>
+<p><strong>3. API Call (Flow)</strong>
+asyncMapLatest executes the API call. If a new query arrives, the previous request is cancelled.</p>
+<pre class="language-dart"><code>'dart' → API call (200ms) → 'Found: dart programming language'
+</code></pre>
+<p><strong>4. Observer (glue)</strong>
+Observer displays the result. The user sees only the final search result.</p>
+<p><strong>Why this matters</strong>: The user typed 4 characters but only 1 API call was made.</p>
+<hr>
+<h2 id="4-step-by-step--rapid-typing-scenario-2">4. Step by step — Rapid Typing (scenario 2)</h2>
+<p>Rapid typing with short delays (50ms between keystrokes):</p>
+<pre class="language-dart"><code>f → timer reset
+fl → timer reset
+flu → timer reset
+flut → timer reset
+flutt → timer reset
+flutter → timer reset
+→ 300ms passes → 'flutter' emitted
+→ API call (500ms) → 'Found: Flutter framework'
+</code></pre>
+<p>All intermediate queries are dropped. Only the final query is processed.</p>
+<hr>
+<h2 id="5-step-by-step--cancellation-scenario-3">5. Step by step — Cancellation (scenario 3)</h2>
+<p>asyncMapLatest with different API delays:</p>
+<pre class="language-dart"><code>a → API starts (800ms)
+ab → API starts (400ms) → 'a' request cancelled
+abc → API starts (200ms) → 'ab' request cancelled
+→ 'abc' completes → 'ABC' emitted
+</code></pre>
+<p><strong>Flow</strong> handles cancellation automatically. Only the latest request emits a result.</p>
+<hr>
+<h2 id="6-step-by-step--error-handling-scenario-4">6. Step by step — Error Handling (scenario 4)</h2>
+<p>asyncMapWithFallback provides graceful error handling:</p>
+<pre class="language-dart"><code>'error' → debounce (200ms) → API call (300ms) → throws Exception
+→ fallback: 'Error occurred during search' emitted
+</code></pre>
+<p>The user sees a friendly error message instead of a crash.</p>
+<hr>
+<h2 id="7-step-by-step--loading-state-scenario-5">7. Step by step — Loading State (scenario 5)</h2>
+<p>Tap sets loading state before API call:</p>
+<pre class="language-dart"><code>'loading demo' → debounce (200ms) → tap → loadingState.update(true)
+→ asyncMapLatest (400ms) → result → tap → loadingState.update(false)
+</code></pre>
+<p>The observer displays "Loading..." while the API is in flight.</p>
+<hr>
+<h2 id="8-step-by-step--validation-scenario-6">8. Step by step — Validation (scenario 6)</h2>
+<p>Filter enforces minimum query length:</p>
+<pre class="language-dart"><code>'a' → debounce (150ms) → filter (length &gt;= 3) → false → dropped
+'ab' → debounce (150ms) → filter (length &gt;= 3) → false → dropped
+'abc' → debounce (150ms) → filter (length &gt;= 3) → true → API call
+</code></pre>
+<p>Short queries are dropped silently. Only valid queries reach the API.</p>
+<hr>
+<h2 id="9-step-by-step--enhanced-loading-scenario-7">9. Step by step — Enhanced Loading (scenario 7)</h2>
+<p>Debounce with request counting and error handling:</p>
+<pre class="language-dart"><code>'hello' → debounce (250ms) → tap (requestCount=1) → API (300ms) → result
+'hello world' → debounce (250ms) → tap (requestCount=2) → API (300ms) → result
+'fail test' → debounce (250ms) → tap (requestCount=3) → API (300ms) → throws
+→ fallback: '⚠️ Search failed, please try again'
+</code></pre>
+<p>Each request is tracked. Errors are handled gracefully with clear user feedback.</p>
+<hr>
+<h2 id="10-step-by-step--debounce-vs-throttle-scenario-8">10. Step by step — Debounce vs Throttle (scenario 8)</h2>
+<p>Comparison of two timing strategies:</p>
+<pre class="language-dart"><code>Rapid emissions: A, B, C, D, E (20ms apart)
+
+Debounce: waits 100ms of silence → only 'E' emitted
+Throttle: emits first immediately → 'A' then waits 100ms → 'E' emitted
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Debounce</th>
+<th>Throttle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavior</strong></td>
+<td>Waits for silence</td>
+<td>Emits at fixed rate</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>Only final value</td>
+<td>First value, then periodic</td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Search, auto-save</td>
+<td>Scroll, mouse events</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="11-search-pipeline-stages">11. Search Pipeline Stages</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Operator</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>debounce</td>
+<td>Wait for user to stop typing</td>
+</tr>
+<tr>
+<td>2</td>
+<td>filter</td>
+<td>Minimum query length</td>
+</tr>
+<tr>
+<td>3</td>
+<td>tap</td>
+<td>Set loading state</td>
+</tr>
+<tr>
+<td>4</td>
+<td>asyncMapLatest</td>
+<td>API call with cancellation</td>
+</tr>
+<tr>
+<td>5</td>
+<td>tap</td>
+<td>Clear loading state</td>
+</tr>
+<tr>
+<td>6</td>
+<td>map</td>
+<td>Transform result</td>
+</tr>
+<tr>
+<td>7</td>
+<td>asyncMapWithFallback</td>
+<td>Error handling</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="12-parts-checklist">12. Parts checklist</h2>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Instances</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cell</td>
+<td><code>searchInput</code>, <code>rapidInput</code>, <code>cancelInput</code>, <code>errorInput</code>, <code>loadingInput</code>, <code>loadingState</code>, <code>validInput</code>, <code>enhancedInput</code>, <code>compareInput</code></td>
+</tr>
+<tr>
+<td>FlowInstruction</td>
+<td>debounce, asyncMapLatest, asyncMapWithFallback, tap, filter, map, throttle</td>
+</tr>
+<tr>
+<td>FlowHandle</td>
+<td>one per pipeline</td>
+</tr>
+<tr>
+<td>Observer</td>
+<td>one per output cell</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="13-rules-for-combining-them">13. Rules for combining them</h2>
+<ol>
+<li><strong>Flow handles timing. Cell carries input. Observer displays results.</strong></li>
+<li><strong>Use debounce for search-as-you-type.</strong></li>
+<li><strong>Use asyncMapLatest to cancel stale requests.</strong></li>
+<li><strong>Use filter for validation before API calls.</strong></li>
+<li><strong>Use tap for loading state management.</strong></li>
+<li><strong>Use asyncMapWithFallback for error handling.</strong></li>
+<li><strong>Always provide user feedback (loading states, errors).</strong></li>
+<li><strong>Debounce waits for silence; throttle limits rate.</strong></li>
+</ol>
+<hr>
+<h2 id="14-debounce-vs-throttle-decision-guide">14. Debounce vs Throttle Decision Guide</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Use</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Search box</td>
+<td>debounce</td>
+<td>Only final query matters</td>
+</tr>
+<tr>
+<td>Auto-save</td>
+<td>debounce</td>
+<td>Save after user stops editing</td>
+</tr>
+<tr>
+<td>Scroll events</td>
+<td>throttle</td>
+<td>Need regular updates</td>
+</tr>
+<tr>
+<td>Mouse move</td>
+<td>throttle</td>
+<td>Need smooth tracking</td>
+</tr>
+<tr>
+<td>Form validation</td>
+<td>debounce</td>
+<td>Validate after user stops typing</td>
+</tr>
+<tr>
+<td>API polling</td>
+<td>throttle</td>
+<td>Regular intervals</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="still-demo-only">Still demo-only</h2>
+<p>All APIs are simulated. Real-world search may have pagination, caching, and more complex error handling. Performance considerations apply to high-frequency typing.</p>
+<hr>
+<h2 id="summary-table">Summary table</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Flow does</th>
+<th>Cell does</th>
+<th>Observer does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Basic</td>
+<td>Debounce + asyncMapLatest</td>
+<td>Carries queries/results</td>
+<td>Displays result</td>
+</tr>
+<tr>
+<td>2 Rapid</td>
+<td>Debounce drops intermediate</td>
+<td>Carries final query</td>
+<td>Displays result</td>
+</tr>
+<tr>
+<td>3 Cancellation</td>
+<td>asyncMapLatest cancels</td>
+<td>Carries latest query</td>
+<td>Displays only latest</td>
+</tr>
+<tr>
+<td>4 Error</td>
+<td>Fallback on error</td>
+<td>Carries error message</td>
+<td>Displays fallback</td>
+</tr>
+<tr>
+<td>5 Loading</td>
+<td>Tap sets/clears loading</td>
+<td>Carries loading state</td>
+<td>Displays loading</td>
+</tr>
+<tr>
+<td>6 Validation</td>
+<td>Filter drops short queries</td>
+<td>Carries valid queries</td>
+<td>Displays valid results</td>
+</tr>
+<tr>
+<td>7 Enhanced</td>
+<td>Tap + asyncMapWithFallback</td>
+<td>Carries results/errors</td>
+<td>Displays with icons</td>
+</tr>
+<tr>
+<td>8 Comparison</td>
+<td>Debounce vs throttle</td>
+<td>Carries input</td>
+<td>Shows both strategies</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Demo · Search Stability topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Search Stability topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Search Stability-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

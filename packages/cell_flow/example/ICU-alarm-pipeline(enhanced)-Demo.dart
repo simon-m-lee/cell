@@ -1,12 +1,17 @@
-// ignore_for_file: unused_local_variable, avoid_print
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_map.dart';
 import 'package:cell_flow/src/instruction/map.dart';
 import 'package:cell_flow/src/instruction/filter.dart';
-import 'package:cell_flow/src/instruction/distinct.dart';
+
+// ignore_for_file: unused_local_variable, avoid_print, unused_element, file_names
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENHANCED ICU BEDSIDE ALARM PIPELINE
@@ -440,11 +445,11 @@ void printSeparator() {
 /// [expected] - The expected outcome description
 void printScenarioHeader(String number, String title, String expected) {
   print('');
-  print('╔' + '═' * 70 + '╗');
-  print('║  📋 SCENARIO $number: $title'.padRight(71) + '║');
-  print('║  ' + '─' * 68 + '║');
-  print('║  Expected: $expected'.padRight(71) + '║');
-  print('╚' + '═' * 70 + '╝');
+  print('╔${'═' * 70}╗');
+  print('${'║  📋 SCENARIO $number: $title'.padRight(71)}║');
+  print('║  ${'─' * 68}║');
+  print('${'║  Expected: $expected'.padRight(71)}║');
+  print('╚${'═' * 70}╝');
 }
 
 /// Prints a scenario completion marker.
@@ -889,9 +894,9 @@ Future<void> ack(String who) async {
 /// 2. Wait for observers to attach (50ms)
 /// 3. Run the simulation scenarios
 Future<void> main() async {
-  print('╔' + '═' * 70 + '╗');
-  print('║  ICU-12 enhanced — TestCell + gates + ledger + ACK'.padRight(71) + '║');
-  print('╚' + '═' * 70 + '╝');
+  print('╔${'═' * 70}╗');
+  print('${'║  ICU-12 enhanced — TestCell + gates + ledger + ACK'.padRight(71)}║');
+  print('╚${'═' * 70}╝');
 
   // STEP 1: Install gates and observers BEFORE any data flows
   installGates();
@@ -901,9 +906,9 @@ Future<void> main() async {
 
   // ── SEED ──────────────────────────────────────────────────────
   print('');
-  print('┌' + '─' * 70 + '┐');
-  print('│ 📍 SEEDING SYSTEM'.padRight(71) + '│');
-  print('└' + '─' * 70 + '┘');
+  print('┌${'─' * 70}┐');
+  print('${'│ 📍 SEEDING SYSTEM'.padRight(71)}│');
+  print('└${'─' * 70}┘');
   await setMoving(false);
   await setSpo2(96);
   await setHr(72);
@@ -988,18 +993,18 @@ Future<void> main() async {
 
   // ── SUMMARY ──────────────────────────────────────────────────
   print('');
-  print('╔' + '═' * 70 + '╗');
-  print('║  📊 SUMMARY'.padRight(71) + '║');
-  print('║  ' + '─' * 68 + '║');
-  print('║  vitals: ${vitalsLog.length}  pages: ${pageLog.length}  warns: ${warnLog.length}  ledger: ${ledger.length}  pagerAttempts: $pagerAttempts'.padRight(71) + '║');
-  print('╚' + '═' * 70 + '╝');
+  print('╔${'═' * 70}╗');
+  print('${'║  📊 SUMMARY'.padRight(71)}║');
+  print('║  ${'─' * 68}║');
+  print('${'║  vitals: ${vitalsLog.length}  pages: ${pageLog.length}  warns: ${warnLog.length}  ledger: ${ledger.length}  pagerAttempts: $pagerAttempts'.padRight(71)}║');
+  print('╚${'═' * 70}╝');
 
   print('');
-  print('┌' + '─' * 70 + '┐');
-  print('│ 📒 LEDGER'.padRight(71) + '│');
-  print('├' + '─' * 70 + '┤');
+  print('┌${'─' * 70}┐');
+  print('${'│ 📒 LEDGER'.padRight(71)}│');
+  print('├${'─' * 70}┤');
   for (final e in ledger) {
-    print('│ $e'.padRight(71) + '│');
+    print('${'│ $e'.padRight(71)}│');
   }
-  print('└' + '─' * 70 + '┘');
+  print('└${'─' * 70}┘');
 }

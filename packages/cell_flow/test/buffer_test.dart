@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/buffer.dart';
 import 'package:test/test.dart';
 
@@ -290,6 +288,111 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(100));
       expect(sw.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+
+  group('BufferCount extra', () {
+    test('size 1 emits singleton buffers', () async {
+      final b = bind(BufferCount<int>(1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, [
+        [1],
+        [2],
+      ]);
+    });
+
+    test('wrong types call onError and do not fill the buffer', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = BufferCount<int>(
+        2,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [
+        [1, 2],
+      ]);
+    });
+  });
+
+  group('BufferTime extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = BufferTime<int>(
+        const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('BufferWhen extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final closer = Cell.ingress<void>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = BufferWhen<int>(
+        closer.cell,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('BufferWithPredicate extra', () {
+    test('predicate throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(BufferWithPredicate<int>(
+        (n) => throw StateError('p'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('BufferCount + BufferWithCount is a chain', () async {
+      final op = BufferCount<int>(2) + BufferWithCount<Object>(1);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('BufferCount(1) emits 200 buffers', () async {
+      final b = bind(BufferCount<int>(1));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
     });
   });
 }

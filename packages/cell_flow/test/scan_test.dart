@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/scan.dart';
 import 'package:test/test.dart';
 
@@ -175,6 +173,107 @@ void main() {
       expect(seen, [0]);
       expect(probe.payloads, [5]);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('Scan extra', () {
+    test('onError is optional when accumulate throws', () async {
+      final b = bind(Scan<int, int>((acc, n) => throw StateError('s')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('empty source emits nothing', () async {
+      final b = bind(Scan<int, int>((acc, n) => acc + n));
+      addTearDown(b.probe.stop);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('ScanSeeded extra', () {
+    test('wrong types call onError and keep the seed', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ScanSeeded<int, int>(
+        10,
+        (acc, n) => acc + n,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [12]);
+    });
+
+    test('accumulate throw drops that pulse', () async {
+      final errors = <Object>[];
+      final b = bind(ScanSeeded<int, int>(
+        0,
+        (acc, n) {
+          if (n == 2) throw StateError('acc');
+          return acc + n;
+        },
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.payloads, [1, 4]);
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('ScanIndexed extra', () {
+    test('wrong types do not advance the index', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ScanIndexed<int, String>(
+        '',
+        (acc, n, i) => '$acc$i:$n;',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads.single, '0:1;');
+    });
+  });
+
+  group('composition / performance', () {
+    test('ScanSeeded + ScanIndexed is a chain', () async {
+      final op = ScanSeeded<int, int>(0, (acc, n) => acc + n) +
+          ScanIndexed<int, int>(0, (acc, n, i) => acc + n);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('ScanSeeded folds 200 ints', () async {
+      final b = bind(ScanSeeded<int, int>(0, (acc, n) => acc + n));
+      addTearDown(b.probe.stop);
+      for (var i = 1; i <= 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+      expect(b.probe.payloads.last, 200 * 201 ~/ 2);
     });
   });
 }

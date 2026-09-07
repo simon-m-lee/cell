@@ -65,6 +65,18 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Fault Tolerance Bridge</strong>—an instruction that attempts to re-initiate a failing evolution task.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>task</code>: The <strong>Async Evolution Task</strong> to be executed.</li>
+<li><code>count</code>: The maximum number of <strong>Recovery Attempts</strong>.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked when all retries are exhausted.</li>
+<li><code>emitErrorPulse</code>: If true, terminal failures are evolved as error pulses.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the resilient evolution branch.</p>
+</section>
 
 
     
@@ -110,7 +122,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

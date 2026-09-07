@@ -118,11 +118,12 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/buffer.dart';
 import 'package:cell_flow/src/instruction/map.dart';
 import 'package:cell_flow/src/instruction/tap.dart';
-import 'package:cell_flow/src/instruction/scan.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models
@@ -189,7 +190,7 @@ class Batch<T> {
         timestamp = timestamp ?? DateTime.now();
 
   @override
-  String toString() => '$items (${size} items)';
+  String toString() => '$items ($size items)';
 }
 
 /// Represents batch metrics.

@@ -56,23 +56,29 @@
       
 <span class="returntype"><a href="../../cell_flow/FlowHandle.html">FlowHandle</a></span>
 <span class="name ">delay</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="delay-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span></li>
-<li><span class="parameter" id="delay-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
 </ol>})
 
       
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Temporal Displacement Bridge</strong>—an instruction that
+shifts the materialization of pulses by a specific duration.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>duration</code>: The <strong>Temporal Offset</strong> for pulse evolution.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the delayed evolution node.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FlowHandle delay&lt;S&gt;({
-  required Duration duration,
-  DelayErrorHandler? onError,
-}) =&gt;
-    Flow.delay&lt;S&gt;(_src, duration: duration, onError: onError);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FlowHandle delay&lt;S&gt;({required Duration duration}) =&gt;
+    Flow.delay&lt;S&gt;(_src, duration: duration);</code></pre>
 </section>
 
 
@@ -100,7 +106,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

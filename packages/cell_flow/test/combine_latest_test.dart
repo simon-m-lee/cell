@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/combine_latest.dart';
 import 'package:test/test.dart';
 
@@ -161,6 +159,115 @@ void main() {
       await b.emitAsync('ok');
       await probe.settle();
       expect(probe.payloads, ['3:ok']);
+    });
+  });
+
+
+  group('CombineLatestWith extra', () {
+    test('wrong source type calls onError', () async {
+      final errors = <Object>[];
+      final src = Cell.ingress<Object>();
+      final other = Cell.ingress<int>();
+      final out = CombineLatestWith<int, int>(
+        [other.cell],
+        (s, latest) => s + (latest.first as int),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: src.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await other.emitAsync(1);
+      await src.emitAsync('x');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+    });
+
+    test('empty others never combines', () async {
+      final src = Cell.ingress<int>();
+      final out = CombineLatestWith<int, int>(
+        const [],
+        (s, latest) => s,
+      ).toHandle(source: src.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await src.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('CombineLatest extra', () {
+    test('combine throw calls onError', () async {
+      final errors = <Object>[];
+      final gate = Cell.ingress<void>();
+      final a = Cell.ingress<int>();
+      final b = Cell.ingress<int>();
+      final out = CombineLatest<int>(
+        [a.cell, b.cell],
+        (row) => throw StateError('c'),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(null);
+      await a.emitAsync(1);
+      await b.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('WithLatestFrom extra', () {
+    test('wrong source type calls onError', () async {
+      final errors = <Object>[];
+      final src = Cell.ingress<Object>();
+      final other = Cell.ingress<int>();
+      final out = WithLatestFrom<int, int>(
+        [other.cell],
+        (s, latest) => s,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: src.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await other.emitAsync(1);
+      await src.emitAsync('no');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('CombineLatest2 extra', () {
+    test('combine throw calls onError', () async {
+      final errors = <Object>[];
+      final a = Cell.ingress<int>();
+      final b = Cell.ingress<int>();
+      final out = CombineLatest2<int, int, int>(
+        b.cell,
+        (x, y) => throw StateError('2'),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: a.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await a.emitAsync(1);
+      await b.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('composition', () {
+    test('handles stay bindable when chained conceptually', () async {
+      final a = Cell.ingress<int>();
+      final b = Cell.ingress<int>();
+      final left = CombineLatest2<int, int, int>(
+        b.cell,
+        (x, y) => x + y,
+      ).toHandle(source: a.cell);
+      final probe = _Probe(left.cell);
+      addTearDown(probe.stop);
+      await a.emitAsync(1);
+      await b.emitAsync(2);
+      await probe.settle();
+      expect(left.cell, isNotNull);
     });
   });
 }

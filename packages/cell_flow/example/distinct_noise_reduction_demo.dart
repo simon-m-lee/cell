@@ -77,10 +77,12 @@
 library;
 
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/debounce.dart';
 import 'package:cell_flow/src/instruction/distinct.dart';
-import 'package:cell_flow/src/instruction/filter.dart' hide Debounce, Distinct;
+import 'package:cell_flow/src/instruction/filter.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 /// The main demonstration function.
 Future<void> main() async {
@@ -276,7 +278,9 @@ Future<void> main() async {
     effect: (Pulse p) => distinctResults.add(p.payload),
   );
 
-  for (final v in testData) await distinctInput.emitAsync(v);
+  for (final v in testData) {
+    await distinctInput.emitAsync(v);
+  }
   await Future.delayed(const Duration(milliseconds: 20));
 
   // B) Unique - all duplicates removed (using filter with state)
@@ -295,7 +299,9 @@ Future<void> main() async {
     effect: (Pulse p) => uniqueResults.add(p.payload),
   );
 
-  for (final v in testData) await uniqueInput.emitAsync(v);
+  for (final v in testData) {
+    await uniqueInput.emitAsync(v);
+  }
   await Future.delayed(const Duration(milliseconds: 20));
 
   // C) Filter - custom predicate
@@ -309,7 +315,9 @@ Future<void> main() async {
     effect: (Pulse p) => filterResults.add(p.payload),
   );
 
-  for (final v in testData) await filterInput.emitAsync(v);
+  for (final v in testData) {
+    await filterInput.emitAsync(v);
+  }
   await Future.delayed(const Duration(milliseconds: 20));
 
   print('   Distinct (consecutive): $distinctResults');

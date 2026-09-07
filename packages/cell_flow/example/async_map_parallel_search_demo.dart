@@ -97,9 +97,11 @@
 library;
 
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_map.dart';
 import 'package:cell_flow/src/instruction/debounce.dart';
+
+// ignore_for_file: unused_element, unused_field
 
 /// A helper class to simulate API calls with controlled delays.
 class ApiSimulator {

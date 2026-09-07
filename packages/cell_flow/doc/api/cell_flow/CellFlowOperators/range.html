@@ -64,6 +64,53 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Counted Pulse Generator</strong>—a specialized bridge
+designed to evolve a sequence of arithmetic integers.</p>
+<p><a href="../../cell_flow/CellFlowOperators/range.html">range</a> transforms a single trigger stimulus from the source cell into
+a deterministic sequence of pulses. It is commonly used to initiate
+loops or coordinate indexed materializations within the topography.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Indexed Iteration</strong>: Triggering a set number of operations in
+response to a state change.</li>
+<li><strong>Synthetic Burst Generation</strong>: Seeding a topography branch with
+a specific sequence of numeric payloads.</li>
+<li><strong>Pagination Logic</strong>: Generating offsets or page numbers for
+downstream evolution gates.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The bridge awaits a trigger pulse from
+the source cell.</li>
+<li><strong>Arithmetic Generation</strong>: Upon ingress, the orchestrator
+calculates a sequence starting at <code>start</code>, iterating <code>count</code> times,
+incrementing by <code>step</code>.</li>
+<li><strong>Pulse Evolution</strong>: Each integer is materialized as a new pulse,
+inheriting the provenance and priority of the trigger.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Immediate Exhaustion</strong>: The entire range is evolved synchronously.
+For extremely large counts, this will occupy the execution frame
+until completion.</li>
+<li><strong>Directional Step</strong>: The <code>step</code> can be negative to evolve a
+descending sequence.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>start</code>: The <strong>Initial Payload</strong> of the sequence.</li>
+<li><code>count</code>: The total <strong>Materialization Count</strong>.</li>
+<li><code>step</code>: The <strong>Arithmetic Increment</strong> between pulses.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the anchored generator node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/repeat.html">repeat</a>: For evolving the same payload multiple times.</li>
+<li><a href="../../cell_flow/CellFlowOperators/fromIterable.html">fromIterable</a>: For evolving pulses from a dynamic collection.</li>
+</ul>
+</section>
 
 
     
@@ -89,7 +136,7 @@
     <li class="self-crumb">range method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -98,7 +145,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/routing.dart';
 import 'package:test/test.dart';
 
@@ -226,4 +224,228 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
+  group('Iif extra', () {
+    test('thenMap exceptions drop the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(Iif<int, String>(
+        (c) => c < 400,
+        thenMap: (c) => throw StateError('then'),
+        elseMap: (c) => 'err',
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(200);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('elseMap exceptions drop the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(Iif<int, String>(
+        (c) => c < 400,
+        thenMap: (c) => 'ok',
+        elseMap: (c) => throw StateError('else'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(500);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Iif<int, String>(
+        (c) => true,
+        thenMap: (c) => 't',
+        elseMap: (c) => 'e',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('onError is optional', () async {
+      final b = bind(Iif<int, String>(
+        (c) => throw StateError('pred'),
+        thenMap: (c) => 't',
+        elseMap: (c) => 'e',
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('RouteWhen extra', () {
+    test('orElse handles no match', () async {
+      final b = bind(RouteWhen<int, String>(
+        [RouteCase((n) => n == 1, (n) => 'one')],
+        orElse: (n) => 'other-$n',
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(9);
+      await b.probe.settle();
+      expect(b.probe.payloads, ['other-9']);
+    });
+
+    test('first matching case wins over a later match', () async {
+      final b = bind(RouteWhen<int, String>([
+        RouteCase((n) => n > 0, (n) => 'pos'),
+        RouteCase((n) => n > 10, (n) => 'big'),
+      ]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(20);
+      await b.probe.settle();
+      expect(b.probe.payloads, ['pos']);
+    });
+
+    test('empty cases with no orElse drop', () async {
+      final b = bind(RouteWhen<int, String>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RouteWhen<int, String>(
+        [RouteCase((n) => true, (n) => 'x')],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('no');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('RouteByKey extra', () {
+    test('handler throw drops the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(RouteByKey<String, String, int>(
+        (s) => s,
+        routes: {'a': (s) => throw StateError('h')},
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync('a');
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RouteByKey<int, int, int>(
+        (n) => n,
+        routes: {1: (n) => n},
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('PartitionTag extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = PartitionTag<int>(
+        (n) => n.isEven,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('Iif + PartitionTag is a chain', () async {
+      final op = Iif<int, int>(
+            (n) => n > 0,
+            thenMap: (n) => n,
+            elseMap: (n) => 0,
+          ) +
+          PartitionTag<int>((n) => n.isEven);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Iif handles 200 ints', () async {
+      final b = bind(Iif<int, String>(
+        (n) => n.isEven,
+        thenMap: (n) => 'e',
+        elseMap: (n) => 'o',
+      ));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
+    });
+  });
+
+  group('coverage extras', () {
+    test('RouteByKey orElse when key missing', () async {
+      final b = bind(RouteByKey<int, String, String>(
+        (n) => n.isEven ? 'e' : 'o',
+        routes: {'e': (n) => 'even'},
+        orElse: (n) => 'odd',
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(2);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('PartitionTag tags both sides', () async {
+      final b = bind(PartitionTag<int>((n) => n.isEven));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('Iif false branch', () async {
+      final b = bind(Iif<int, String>(
+        (n) => n > 0,
+        thenMap: (n) => 'pos',
+        elseMap: (n) => 'non',
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(-1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

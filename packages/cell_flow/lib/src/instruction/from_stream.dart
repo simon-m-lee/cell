@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core FromStream Operators
@@ -202,6 +202,23 @@ void _fail({
 /// - [SwitchFromStream]: For switching to the latest stream.
 /// - [MapToStream]: For mapping payloads to streams.
 class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [FromStream] instruction with the specified [source].
+  ///
+  /// ### Parameters:
+  /// - [source]: **The Stream Source.** The stream to bridge into the
+  ///   reactive graph.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** If `true`, emits an error
+  ///   pulse on stream error. Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final fromStream = FromStream<int>(
+  ///   Stream.fromIterable([1, 2, 3]),
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   FromStream(
       Stream<S> source, {
         StreamErrorHandler? onError,
@@ -309,6 +326,22 @@ class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MergeFromStream]: For listening to streams in parallel.
 /// - [SwitchFromStream]: For switching to the latest stream.
 class DeferStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [DeferStream] instruction with the specified [create].
+  ///
+  /// ### Parameters:
+  /// - [create]: **Stream Factory.** Called on each trigger to create
+  ///   a new stream.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final deferStream = DeferStream<String>(
+  ///   () => Stream.fromIterable(['a', 'b']),
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   DeferStream(
       Stream<S> Function() create, {
         StreamErrorHandler? onError,
@@ -409,6 +442,19 @@ class DeferStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MergeFromStream]: For listening to streams in parallel.
 /// - [SwitchFromStream]: For switching to the latest stream.
 class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [ConcatFromStream] instruction.
+  ///
+  /// ### Parameters:
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final concatFromStream = ConcatFromStream<int>(
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   ConcatFromStream({
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
@@ -534,6 +580,19 @@ class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatFromStream]: For playing streams in order.
 /// - [SwitchFromStream]: For switching to the latest stream.
 class MergeFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [MergeFromStream] instruction.
+  ///
+  /// ### Parameters:
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mergeFromStream = MergeFromStream<int>(
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MergeFromStream({
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
@@ -649,6 +708,19 @@ class MergeFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatFromStream]: For playing streams in order.
 /// - [MergeFromStream]: For listening to streams in parallel.
 class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [SwitchFromStream] instruction.
+  ///
+  /// ### Parameters:
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final switchFromStream = SwitchFromStream<String>(
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   SwitchFromStream({
     StreamErrorHandler? onError,
     bool emitErrorPulse = true,
@@ -775,6 +847,22 @@ class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [MergeFromStream]: For listening to streams in parallel.
 /// - [SwitchFromStream]: For switching to the latest stream.
 class MapToStream<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a [MapToStream] instruction with the specified [project].
+  ///
+  /// ### Parameters:
+  /// - [project]: **Stream Projection.** Called with each typed payload,
+  ///   returns a `Stream<T>`.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Defaults to `true`.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mapToStream = MapToStream<int, String>(
+  ///   (id) => Stream.fromIterable(['$id-1', '$id-2']),
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MapToStream(
       Stream<T> Function(S value) project, {
         StreamErrorHandler? onError,

@@ -1,8 +1,14 @@
-// ignore_for_file: unused_local_variable, avoid_print
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+// ignore_for_file: no_leading_underscores_for_local_identifiers, file_names, unused_local_variable, avoid_print
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_map.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────

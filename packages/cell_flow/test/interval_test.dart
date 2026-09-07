@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/interval.dart';
 import 'package:test/test.dart';
 
@@ -216,6 +214,96 @@ void main() {
       await b.probe.settle(const Duration(milliseconds: 40));
       expect(b.probe.payloads, isEmpty);
       expect(errors.single, isA<StateError>());
+    });
+  });
+
+
+  group('Interval extra', () {
+    test('maxTicks 0 never ticks', () async {
+      final b = bind(Interval(const Duration(milliseconds: 10), maxTicks: 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('second pulse is ignored unless resetOnSource', () async {
+      final b = bind(Interval(
+        const Duration(milliseconds: 15),
+        maxTicks: 1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('IntervalWithValue extra', () {
+    test('maxTicks 1 emits a single value', () async {
+      final b = bind(IntervalWithValue<String>(
+        const Duration(milliseconds: 10),
+        value: 'tick',
+        maxTicks: 1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.probe.payloads, anyOf(isEmpty, ['tick']));
+    });
+  });
+
+  group('IntervalWithState extra', () {
+    test('next throw stops the clock', () async {
+      final errors = <Object>[];
+      final b = bind(IntervalWithState<int>(
+        const Duration(milliseconds: 10),
+        0,
+        (acc, tick) => throw StateError('n'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(errors.whereType<StateError>(), isNotEmpty);
+    });
+  });
+
+  group('TimerPulse extra', () {
+    test('valueOf throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(TimerPulse<int>(
+        const Duration(milliseconds: 10),
+        valueOf: () => throw StateError('v'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('second pulse is ignored', () async {
+      final b = bind(TimerPulse<int>(
+        const Duration(milliseconds: 10),
+        value: 1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.probe.payloads, anyOf(isEmpty, [1]));
+    });
+  });
+
+  group('composition', () {
+    test('Interval handle is bindable', () async {
+      final b = bind(Interval(const Duration(milliseconds: 20), maxTicks: 1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

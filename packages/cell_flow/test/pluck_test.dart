@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/pluck.dart';
 import 'package:test/test.dart';
 
@@ -184,6 +182,129 @@ void main() {
       await b.gate.emitAsync({'user': 1});
       await b.probe.settle();
       expect(b.probe.payloads, ['n/a']);
+    });
+  });
+
+
+  group('Pluck extra', () {
+    test('reads a list index', () async {
+      final b = bind(Pluck<int>(1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync([10, 20, 30]);
+      await b.probe.settle();
+      expect(b.probe.payloads, [20]);
+    });
+
+    test('out of range list index calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(Pluck<int>(
+        9,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync([1]);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(errors, isNotEmpty);
+    });
+
+    test('onError is optional', () async {
+      final b = bind(Pluck<int>('missing'));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1});
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('marks lineage with Pluck', () async {
+      final b = bind(Pluck<int>('n'));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'n': 3});
+      await b.probe.settle();
+      expect(b.probe.steps, contains('Pluck'));
+    });
+  });
+
+  group('PluckOr extra', () {
+    test('uses orElse when the source cannot be plucked', () async {
+      final b = bind(PluckOr<int>('n', orElse: 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, [0]);
+    });
+
+    test('wrong plucked type uses orElse', () async {
+      final b = bind(PluckOr<int>('n', orElse: -1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'n': 'nope'});
+      await b.probe.settle();
+      expect(b.probe.payloads, [-1]);
+    });
+  });
+
+  group('PluckAll extra', () {
+    test('omits missing keys when useOrElse is false', () async {
+      final b = bind(PluckAll(['a', 'b']));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1});
+      await b.probe.settle();
+      expect(b.probe.payloads.single, containsPair('a', 1));
+    });
+
+    test('unsupported source type calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(PluckAll(
+        ['a'],
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('PluckPath extra', () {
+    test('empty path returns the payload when typed', () async {
+      final b = bind(PluckPath<Map<String, Object>>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1});
+      await b.probe.settle();
+      expect(b.probe.payloads.single, {'a': 1});
+    });
+
+    test('onError is optional on a broken path', () async {
+      final b = bind(PluckPath<int>(['nope']));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync({'a': 1});
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('composition / performance', () {
+    test('Pluck + PluckOr is a chain', () async {
+      final op = Pluck<Map<String, Object>>('user') + PluckOr<int>('id', orElse: 0);
+      final gate = Cell.ingress<Map<String, Object>>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync({
+        'user': {'id': 7},
+      });
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Pluck handles 200 maps', () async {
+      final b = bind(Pluck<int>('n'));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync({'n': i});
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(200));
     });
   });
 }

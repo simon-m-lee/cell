@@ -64,6 +64,18 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes a <strong>Frequency Control Gate</strong>—an instruction that
+limits evolution to a specific temporal window.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>duration</code>: The <strong>Sampling Window</strong> duration.</li>
+<li><code>leading</code>: If true, evolves the first pulse in the window.</li>
+<li><code>trailing</code>: If true, evolves the last pulse in the window.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> representing the throttled evolution node.</p>
+</section>
 
 
     
@@ -74,12 +86,7 @@
   bool leading = true,
   bool trailing = false,
 }) =&gt;
-    Flow.throttle&lt;S&gt;(
-      _src,
-      duration: duration,
-      leading: leading,
-      trailing: trailing,
-    );</code></pre>
+    Flow.throttle&lt;S&gt;(_src, duration: duration, leading: leading, trailing: trailing);</code></pre>
 </section>
 
 
@@ -107,7 +114,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

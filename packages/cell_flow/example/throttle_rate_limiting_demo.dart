@@ -90,11 +90,13 @@
 library;
 
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/debounce.dart';
 import 'package:cell_flow/src/instruction/filter.dart';
 import 'package:cell_flow/src/instruction/map.dart';
 import 'package:cell_flow/src/instruction/throttle.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 /// The main demonstration function.
 Future<void> main() async {

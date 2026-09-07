@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 /// A real-life practical executable walkthrough demonstrating the use of
 /// Flow.retry and Flow.timeout for handling flaky network connections
 /// with bounded retries and deadlines.
@@ -123,14 +125,13 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
-import 'package:cell_flow/src/instruction/map.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_map.dart';
-import 'package:cell_flow/src/instruction/filter.dart';
-import 'package:cell_flow/src/instruction/tap.dart';
 import 'package:cell_flow/src/instruction/timeout.dart';
 import 'package:cell_flow/src/instruction/retry.dart';
 import 'package:cell_flow/src/instruction/merge.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models
@@ -626,7 +627,7 @@ Future<void> main() async {
           errorProbability: 0.8,
         );
         print('   [Success] ✅ Sync complete! ${(result as List<String>).length} records synced');
-        return result as List<String>;
+        return result;
       } catch (e) {
         print('   [Retry] Attempt $syncAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;

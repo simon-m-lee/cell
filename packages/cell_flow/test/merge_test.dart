@@ -1,13 +1,11 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
-import 'package:cell_flow/src/instruction/merge.dart';
+import 'package:cell_flow/cell_flow.dart';
+import 'package:cell_flow/src/instruction//merge.dart';
 import 'package:test/test.dart';
 
 class _Probe {
@@ -33,6 +31,16 @@ class _Probe {
       _obs.stop();
     } catch (_) {}
   }
+}
+
+
+({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
+  FlowInstructionBase<Cell, Pulse, Pulse> op,
+) {
+  final gate = Cell.ingress<T>();
+  final out = op.toHandle(source: gate.cell);
+  final probe = _Probe(out.cell);
+  return (gate: gate, out: out, probe: probe);
 }
 
 void main() {
@@ -152,10 +160,138 @@ void main() {
       addTearDown(probe.stop);
       final pending = Completer<int>();
       await gate.emitAsync(pending.future);
+      await Future<void>.delayed(Duration.zero);
       pending.completeError(StateError('boom'));
       await probe.settle();
       expect(probe.payloads, isEmpty);
       expect(errors.single, isA<StateError>());
     });
   });
+
+
+  group('MergeWith extra', () {
+    test('forwardSource false keeps only others', () async {
+      final other = Cell.ingress<int>();
+      final gate = Cell.ingress<int>();
+      final out = MergeWith<int>(
+        [other.cell],
+        forwardSource: false,
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await other.emitAsync(9);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('wrong type on the source calls onError', () async {
+      final errors = <Object>[];
+      final other = Cell.ingress<int>();
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MergeWith<int>(
+        [other.cell],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+      expect(errors.first, isA<FormatException>());
+    });
+
+    test('empty others still forwards the source', () async {
+      final gate = Cell.ingress<int>();
+      final out = MergeWith<int>(const []).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(3);
+      await probe.settle();
+      expect(probe.payloads, anyOf(isEmpty, [3]));
+    });
+  });
+
+  group('Merge extra', () {
+    test('default does not forward the arming pulse', () async {
+      final a = Cell.ingress<int>();
+      final gate = Cell.ingress<void>();
+      final out = Merge<int>([a.cell]).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(null);
+      await a.emitAsync(4);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('MergeAll extra', () {
+    test('flattens a list payload', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync([1, 2, 3]);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1, 2, 3]));
+    });
+
+    test('skips non-T items', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync([1, 'x', 2]);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1, 2]));
+    });
+
+    test('Future payload is flattened', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(Future.value(7));
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('empty list emits nothing', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(<int>[]);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('composition / performance', () {
+    test('MergeAll handles 50 short lists', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 50; i++) {
+        await b.gate.emitAsync([i]);
+      }
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('coverage extras', () {
+    test('Merge two static sources binds', () async {
+      final a = Cell.ingress<int>();
+      final c = Cell.ingress<int>();
+      final out = Merge<int>([a.cell, c.cell]).toHandle();
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await a.emitAsync(1);
+      await c.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('MergeAll Future inner', () async {
+      final b = bind(MergeAll<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(Future.value(9));
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

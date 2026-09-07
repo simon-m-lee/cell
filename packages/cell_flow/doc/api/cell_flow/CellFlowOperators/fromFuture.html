@@ -65,6 +65,65 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Temporal Resource Bridge</strong> from a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</p>
+<p>This operator anchors the topography to the eventual resolution
+of an asynchronous operation, materializing a pulse when the
+future completes. It bridges the boundary between one-off
+asynchronous tasks and the persistent reactive evolution of the graph.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Async Seeding</strong>: Materializing state from a database query or
+network request to seed a topography branch.</li>
+<li><strong>Boundary Crossing</strong>: Integrating standard <code>async/await</code> logic
+into a fluent evolution pipeline.</li>
+<li><strong>Deferred Evolution</strong>: Triggering a pulse that only materializes
+after a specific asynchronous prerequisite is satisfied.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Bridge Activation</strong>: The operator intercepts a trigger pulse
+from the source cell.</li>
+<li><strong>Asynchronous Attachment</strong>: The orchestrator attaches to the
+provided <code>future</code> and monitors its resolution state.</li>
+<li><strong>Temporal Monitoring</strong>: If a <code>timeout</code> is defined, the bridge
+starts a safety timer to bound the evolution window.</li>
+<li><strong>Materialization</strong>: Upon successful completion, the result is
+emitted as a new pulse, tagged with the <code>'FromFuture'</code> step.</li>
+<li><strong>Error Propagation</strong>: If the future fails or times out, the
+<code>onError</code> handler is invoked and the error is optionally
+materialized as an error pulse.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Single Pulse Lifecycle</strong>: This bridge materializes exactly
+one pulse per trigger. It does not stay active for subsequent
+results unless re-triggered by the source.</li>
+<li><strong>Timeout Preemption</strong>: Providing a <code>timeout</code> ensures the
+topography does not hang indefinitely on a stalled resource.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of data yielded by
+the successful resolution of the future.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>future</code>: The <strong>Materialization Source</strong>—the asynchronous
+task to be bridged.</li>
+<li><code>timeout</code>: The <strong>Safety Boundary</strong> for the evolution window.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked upon rejection.</li>
+<li><code>emitErrorPulse</code>: If true, failures are evolved into the
+topography as error-tagged pulses.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> providing the anchor node for the asynchronous branch.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/fromStream.html">fromStream</a>: For anchoring to continuous asynchronous sources.</li>
+<li><code>AsyncMap</code>: For mapping existing pulses through async operations.</li>
+</ul>
+</section>
 
 
     
@@ -101,7 +160,7 @@
     <li class="self-crumb">fromFuture&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -110,7 +169,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

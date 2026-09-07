@@ -1,7 +1,15 @@
-// ignore_for_file: avoid_print, unused_local_variable
+// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
+// for details. Use of this source code is governed by a MIT or
+// Apache-2.0 license that can be found in the LICENSE file.
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+// ignore_for_file: camel_case_types, file_names, avoid_print, unused_local_variable
 
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
+
+// ignore_for_file: unused_element, unused_field
 
 /// ─────────────────────────────────────────────────────────────────────────────
 /// PHARMACY DISPENSE DEMO — Cell.transaction + TestCell + Compensation

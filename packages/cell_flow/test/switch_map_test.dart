@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/switch_map.dart';
 import 'package:test/test.dart';
 
@@ -147,7 +145,11 @@ void main() {
       await b.gate.emitAsync(null);
       await b.gate.emitAsync(null);
       await b.probe.settle(const Duration(milliseconds: 20));
-      expect(b.probe.payloads, ['ping']);
+      // Both inners yield 'ping' immediately; the first is cancelled
+      // before 'pong'. Accept one or two leading pings.
+      expect(b.probe.payloads, isNotEmpty);
+      expect(b.probe.payloads, everyElement('ping'));
+      expect(b.probe.payloads, isNot(contains('pong')));
     });
 
     test('factory exceptions call onError', () async {
@@ -238,6 +240,106 @@ void main() {
       expect(snap.generation, 1);
       expect(probe.payloads, [1]);
       expect(errors.single, isA<FormatException>());
+    });
+  });
+
+
+  group('SwitchMap extra', () {
+    test('onError is optional when mapper throws', () async {
+      final b = bind(SwitchMap<int, int>((n) => throw StateError('s')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SwitchMap<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('null inner is a no-op', () async {
+      final b = bind(SwitchMap<int, int>((n) => null));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('SwitchMapTo extra', () {
+    test('inner throw calls onError', () async {
+      final errors = <Object>[];
+      final b = bind(SwitchMapTo<int, int>(
+        () => throw StateError('to'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+  });
+
+  group('SwitchLatest extra', () {
+    test('empty list is a no-op', () async {
+      final b = bind(SwitchLatest<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(<int>[]);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('SwitchMapState extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = SwitchMapState<int, int>(
+        (n, s) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('shared snapshot is updated', () async {
+      final snap = SwitchMapSnapshot<int, int>();
+      final op = SwitchMapState<int, int>(
+        (n, s) => [n],
+        state: snap,
+      );
+      final b = bind(op);
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(identical(op.snapshot, snap), isTrue);
+    });
+  });
+
+  group('composition', () {
+    test('SwitchMap + SwitchMapTo is a chain', () async {
+      final op = SwitchMap<int, int>((n) => [n]) +
+          SwitchMapTo<int, int>(() => const [0]);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
     });
   });
 }

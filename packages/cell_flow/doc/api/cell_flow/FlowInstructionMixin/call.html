@@ -57,7 +57,7 @@
 <span class="returntype">O?</span>
 <span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
 <li><span class="parameter" id="call-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
-<li><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
 <li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
 </ol>})?, </span></li>
 <li><span class="parameter" id="call-param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
@@ -71,18 +71,18 @@
   <p>Executes the transformation logic of this instruction synchronously.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Typically, you do not call this method directly. The framework invokes it
-automatically when a pulse arrives at a <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Receptor-class.html">Receptor</a>. Manual invocation is
+automatically when a pulse arrives at a <a href="../../cell_flow/Receptor-class.html">Receptor</a>. Manual invocation is
 recommended primarily for:</p>
 <ul>
 <li><strong>Testing</strong>: Verifying instruction logic in isolation.</li>
 <li><strong>Orchestration</strong>: Building custom execution flows within an
-<a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Instruction/Instruction.chain.html">Instruction.chain</a> strategy.</li>
+<a href="../../cell_flow/Instruction/Instruction.chain.html">Instruction.chain</a> strategy.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
 <ol>
 <li>The instruction takes the incoming <code>pulse</code> and the host <code>cell</code> context.</li>
 <li>It applies the internal transformation function or composite chain logic.</li>
-<li>It returns the resulting <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a> (transformed or original), or <code>null</code>
+<li>It returns the resulting <a href="../../cell_flow/Pulse-class.html">Pulse</a> (transformed or original), or <code>null</code>
 to terminate the signal.</li>
 <li>The <code>future</code> callback, if provided, enables asynchronous continuation
 of the pipeline.</li>
@@ -96,7 +96,7 @@ deadlocks or total pipeline failure.</li>
 <li><strong>Synchronous Execution</strong>: This method executes synchronously and
 returns the result immediately. It does not return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
 <li><strong>Future Propagation</strong>: If the instruction was created with
-<a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Instruction/Instruction.future.html">Instruction.future</a>, the <code>future</code> callback is provided to enable
+<a href="../../cell_flow/Instruction/Instruction.future.html">Instruction.future</a>, the <code>future</code> callback is provided to enable
 asynchronous continuation of the pipeline.</li>
 <li><strong>Side Effects</strong>: While instructions should ideally be pure, manual
 calls can be used to trigger side effects while preserving the
@@ -154,7 +154,7 @@ print((result as Pulse).payload); // 20
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

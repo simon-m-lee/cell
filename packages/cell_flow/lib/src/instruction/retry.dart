@@ -7,27 +7,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Retry Operators
 // ─────────────────────────────────────────────────────────────
-
-/// Flow instructions that re-run a failing task (Rx `retry` family).
-///
-/// | Operator | Rx analogue | Policy |
-/// |---|---|---|
-/// | [Retry] | `retry` | up to [count] extra attempts |
-/// | [RetryWhen] | `retryWhen` | [shouldRetry] decides each failure |
-/// | [RetryWithDelay] | `retry` + `delay` | fixed pause between attempts |
-/// | [RetryWithBackoff] | exponential backoff | `initial * factor^n`, capped |
-/// | [RetryUntil] | retry while | keep going while [until] is false |
-///
-/// [task] runs for every source pulse. Failures are swallowed into
-/// [onError] / an optional error pulse; they do not complete the Cell.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
 /// Error handler callback for retry operators.
 ///
@@ -43,6 +27,10 @@ import 'package:cell_flow/flow.dart';
 /// ```
 typedef RetryErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Type Definitions and Helpers
+// ─────────────────────────────────────────────────────────────
+
 /// A function that executes a task that may fail and be retried.
 ///
 /// The task takes an input value of type [S] and returns a `FutureOr<T>`.
@@ -55,9 +43,25 @@ typedef RetryErrorHandler = void Function(Object error, StackTrace? stackTrace);
 ///   return response.body;
 /// });
 /// ```
+///
+/// ### Type Parameters:
+/// - [S]: The type of the input value.
+/// - [T]: The type of the return value.
 typedef RetryTask<S, T> = FutureOr<T> Function(S value);
 
 /// Helper to create a success pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<T> _ok<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -69,6 +73,19 @@ Pulse<T> _ok<T>(T value, Pulse trigger, Cell? cell, String step) {
 }
 
 /// Helper to create an error pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [error] as payload, with
+/// `type: 'error'`, preserving the source and priority from the
+/// trigger pulse.
+///
+/// ### Parameters:
+/// - [error]: The error object to use as the payload.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with error type and preserved provenance.
 Pulse _err(Object error, Pulse trigger, Cell? cell, String step) {
   return Pulse(
     error,
@@ -79,19 +96,38 @@ Pulse _err(Object error, Pulse trigger, Cell? cell, String step) {
   );
 }
 
-/// Executes a task and handles retry logic.
+/// Executes a task and ensures it returns a `Future`.
 ///
 /// [_runTask] is a helper that ensures the task is executed as a `Future`,
 /// even if it returns a synchronous value.
+///
+/// ### Parameters:
+/// - [task]: The task to execute.
+/// - [value]: The input value for the task.
+///
+/// ### Returns:
+/// A `Future<T>` that resolves to the task result.
 Future<T> _runTask<S, T>(RetryTask<S, T> task, S value) async {
   return await Future<T>.sync(() => task(value));
 }
+
+// ─────────────────────────────────────────────────────────────
+// Core Retry Helpers
+// ─────────────────────────────────────────────────────────────
 
 /// Core retry attempt loop.
 ///
 /// [_attempt] is the internal engine that manages the retry cycle. It
 /// executes the task, catches errors, and decides whether to retry
 /// based on the [again] predicate.
+///
+/// ### How it works
+/// 1. Attempt count starts at 0.
+/// 2. Execute the task.
+/// 3. If successful, emit the result and return.
+/// 4. If failed, call [onError] and [again].
+/// 5. If [again] returns true, increment attempt and loop.
+/// 6. If [again] returns false, emit error pulse (if enabled) and return.
 ///
 /// ### Parameters:
 /// - [task]: The task to execute.
@@ -105,19 +141,12 @@ Future<T> _runTask<S, T>(RetryTask<S, T> task, S value) async {
 /// - [emitErrorPulse]: Whether to emit an error pulse on final failure.
 /// - [again]: Predicate that decides whether to retry.
 ///
-/// ### How it works
-/// 1. Attempt count starts at 0.
-/// 2. Execute the task.
-/// 3. If successful, emit the result and return.
-/// 4. If failed, call [onError] and [again].
-/// 5. If [again] returns true, increment attempt and loop.
-/// 6. If [again] returns false, emit error pulse (if enabled) and return.
-///
 /// ### Non‑obvious
 /// - **Infinite Loop Protection**: The [again] predicate controls retries.
 /// - **Error Swallowing**: Errors are caught and handled without crashing.
 /// - **Provenance Preservation**: Success and error pulses preserve metadata.
 /// - **Type Safety**: Generic over [S] (input) and [T] (output).
+/// - **Async Predicate**: [again] can return a `Future<bool>`.
 Future<void> _attempt<S, T>({
   required RetryTask<S, T> task,
   required S value,
@@ -211,6 +240,8 @@ Future<void> _attempt<S, T>({
 ///    when all retries fail.
 /// 7. Errors are reported via [onError] if provided.
 /// 8. Each retry attempt preserves causal provenance.
+/// 9. Each emitted success value gets the step `'Retry'` for provenance.
+/// 10. Error emissions get the step `'Retry.error'`.
 ///
 /// ### Non‑obvious
 /// - **Total Attempts**: The task runs up to `count + 1` times.
@@ -221,6 +252,7 @@ Future<void> _attempt<S, T>({
 ///   the source cell, type, and priority from the trigger pulse.
 /// - **Type Safety**: The instruction is generic over [S] (input type)
 ///   and [T] (output type), ensuring compile-time type safety.
+/// - **Synchronous Count**: [count] is a fixed integer.
 ///
 /// ### Example: Simple API Retry
 /// ```dart
@@ -274,6 +306,45 @@ Future<void> _attempt<S, T>({
 /// - [RetryWithBackoff]: For retries with exponential backoff.
 /// - [RetryUntil]: For retrying until a condition is met.
 class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Simple Retry Gate**—a specialized instruction that
+  /// retries a failing task a fixed number of times.
+  ///
+  /// [Retry] is the simplest retry operator. It executes the task and
+  /// retries it up to [count] times if it fails. The task may run
+  /// `count + 1` times total.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Task Execution**: The [task] is executed with the payload.
+  /// 3. **Success Path**: If the task succeeds, the result is emitted
+  ///    with the step `'Retry'`.
+  /// 4. **Failure Path**: If the task fails, [onError] is called.
+  /// 5. **Retry Decision**: If the attempt count is less than [count],
+  ///    the task is retried immediately.
+  /// 6. **Final Failure**: If all retries fail and [emitErrorPulse] is
+  ///    `true`, an error pulse is emitted with the step `'Retry.error'`.
+  ///
+  /// ### Parameters
+  /// - [task]: **The Task.** The operation to execute and retry.
+  /// - [count]: **Retry Attempts.** Maximum number of retries.
+  /// - [onError]: **Integrity Handler.** Called on each failure.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Controls error emission.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Simple Retry Gate
+  /// ```dart
+  /// // Retries up to 3 times on failure
+  /// val retryGate = Retry<int, Result>(
+  ///   (id) => api.fetch(id),
+  ///   count: 3,
+  ///   user: 'Retry-Gate'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [RetryWhen]: For conditional retry logic.
+  /// - [RetryWithDelay]: For retries with a fixed delay.
+  /// - [RetryWithBackoff]: For retries with exponential backoff.
   Retry(
       RetryTask<S, T> task, {
         int count = 3,
@@ -335,6 +406,34 @@ class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Delayed Retry**: The [shouldRetry] function can return a
 ///   `Future` to delay the retry.
 ///
+/// ### How it works
+/// 1. Each incoming pulse triggers the [task].
+/// 2. If the task succeeds, the result is emitted.
+/// 3. If the task fails, [shouldRetry] is called with the error
+///    and attempt number.
+/// 4. If [shouldRetry] returns `true`, the task is retried.
+/// 5. If [shouldRetry] returns `false`, retries stop.
+/// 6. If [emitErrorPulse] is `true`, an error pulse is emitted
+///    when all retries fail.
+/// 7. [shouldRetry] may return a `Future<bool>` for async decisions.
+/// 8. Success emissions get the step `'RetryWhen'`.
+/// 9. Error emissions get the step `'RetryWhen.error'`.
+///
+/// ### Non‑obvious
+/// - **Async Predicate**: [shouldRetry] can return a `Future<bool>`,
+///   allowing async decisions (e.g., checking external state).
+/// - **Error Inspection**: The predicate receives the error, allowing
+///   type-based decisions.
+/// - **Attempt Number**: The predicate receives the attempt number,
+///   allowing attempt-based decisions.
+/// - **No Built-in Limit**: Implement your own limit in [shouldRetry].
+/// - **Error Swallowing**: Errors in [shouldRetry] are caught and
+///   treated as `false` (stop retrying).
+/// - **Provenance Preservation**: Success and error pulses preserve
+///   the source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Predicate**: [shouldRetry] can be synchronous or
+///   asynchronous.
+///
 /// ### Example: Retry Only on Network Errors
 /// ```dart
 /// final requests = Cell.ingress<String>();
@@ -367,30 +466,6 @@ class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ).toHandle(source: tasks.cell);
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse triggers the [task].
-/// 2. If the task succeeds, the result is emitted.
-/// 3. If the task fails, [shouldRetry] is called with the error
-///    and attempt number.
-/// 4. If [shouldRetry] returns `true`, the task is retried.
-/// 5. If [shouldRetry] returns `false`, retries stop.
-/// 6. If [emitErrorPulse] is `true`, an error pulse is emitted
-///    when all retries fail.
-/// 7. [shouldRetry] may return a `Future<bool>` for async decisions.
-///
-/// ### Non‑obvious
-/// - **Async Predicate**: [shouldRetry] can return a `Future<bool>`,
-///   allowing async decisions (e.g., checking external state).
-/// - **Error Inspection**: The predicate receives the error, allowing
-///   type-based decisions.
-/// - **Attempt Number**: The predicate receives the attempt number,
-///   allowing attempt-based decisions.
-/// - **No Built-in Limit**: Implement your own limit in [shouldRetry].
-/// - **Error Swallowing**: Errors in [shouldRetry] are caught and
-///   treated as `false` (stop retrying).
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [task]: **The Task to Execute.** Takes an input value and returns
 ///   a `FutureOr<T>` that may fail.
@@ -414,6 +489,46 @@ class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithBackoff]: For retries with exponential backoff.
 /// - [RetryUntil]: For retrying until a condition is met.
 class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Conditional Retry Gate**—a specialized instruction
+  /// that retries a task based on a custom predicate.
+  ///
+  /// [RetryWhen] is similar to [Retry] but the retry decision is made by
+  /// a custom [shouldRetry] function that sees the error and attempt number.
+  /// This allows for conditional retry logic based on error type or other
+  /// factors.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Task Execution**: The [task] is executed with the payload.
+  /// 3. **Success Path**: If the task succeeds, the result is emitted
+  ///    with the step `'RetryWhen'`.
+  /// 4. **Failure Path**: If the task fails, [onError] is called.
+  /// 5. **Retry Decision**: [shouldRetry] is called with the error and
+  ///    attempt number. If it returns `true`, retry; otherwise stop.
+  /// 6. **Final Failure**: If all retries fail and [emitErrorPulse] is
+  ///    `true`, an error pulse is emitted with `'RetryWhen.error'`.
+  ///
+  /// ### Parameters
+  /// - [task]: **The Task.** The operation to execute and retry.
+  /// - [shouldRetry]: **The Retry Predicate.** Decides whether to retry.
+  /// - [onError]: **Integrity Handler.** Called on each failure.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Controls error emission.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Error-Type Based Retry
+  /// ```dart
+  /// // Retries only on network errors
+  /// val conditionalRetry = RetryWhen<Request, Result>(
+  ///   (req) => api.fetch(req),
+  ///   shouldRetry: (e, attempt) => e is NetworkException && attempt < 5,
+  ///   user: 'Conditional-Retry'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Retry]: For simple fixed-count retry.
+  /// - [RetryWithDelay]: For retries with a fixed delay.
+  /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryWhen(
       RetryTask<S, T> task, {
         required FutureOr<bool> Function(Object error, int attempt) shouldRetry,
@@ -477,6 +592,25 @@ class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **User Experience**: Providing feedback between attempts.
 /// - **Cooldown Periods**: Allowing cooldown periods between retries.
 ///
+/// ### How it works
+/// 1. Each incoming pulse triggers the [task].
+/// 2. If the task succeeds, the result is emitted.
+/// 3. If the task fails, the [delay] is awaited.
+/// 4. The task is retried up to [count] times.
+/// 5. If [emitErrorPulse] is `true`, an error pulse is emitted
+///    when all retries fail.
+/// 6. Success emissions get the step `'RetryWithDelay'`.
+/// 7. Error emissions get the step `'RetryWithDelay.error'`.
+///
+/// ### Non‑obvious
+/// - **Fixed Delay**: The delay is the same for every retry.
+/// - **Total Time**: Total retry time is `count * delay`.
+/// - **No Jitter**: No random variation (use [RetryWithBackoff] for that).
+/// - **Error Swallowing**: Errors are caught and don't crash the flow.
+/// - **Provenance Preservation**: Success and error pulses preserve
+///   the source cell, type, and priority from the trigger pulse.
+/// - **Type Safety**: Generic over [S] (input) and [T] (output).
+///
 /// ### Example: API Retry with Delay
 /// ```dart
 /// final requests = Cell.ingress<String>();
@@ -489,22 +623,6 @@ class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   delay: Duration(seconds: 1),
 /// ).toHandle(source: requests.cell);
 /// ```
-///
-/// ### How it works
-/// 1. Each incoming pulse triggers the [task].
-/// 2. If the task succeeds, the result is emitted.
-/// 3. If the task fails, the [delay] is awaited.
-/// 4. The task is retried up to [count] times.
-/// 5. If [emitErrorPulse] is `true`, an error pulse is emitted
-///    when all retries fail.
-///
-/// ### Non‑obvious
-/// - **Fixed Delay**: The delay is the same for every retry.
-/// - **Total Time**: Total retry time is `count * delay`.
-/// - **No Jitter**: No random variation (use [RetryWithBackoff] for that).
-/// - **Error Swallowing**: Errors are caught and don't crash the flow.
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
 ///
 /// ### Parameters:
 /// - [task]: **The Task to Execute.** Takes an input value and returns
@@ -529,6 +647,47 @@ class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithBackoff]: For retries with exponential backoff.
 /// - [RetryUntil]: For retrying until a condition is met.
 class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Fixed-Delay Retry Gate**—a specialized instruction
+  /// that retries a task with a fixed delay between attempts.
+  ///
+  /// [RetryWithDelay] is similar to [Retry] but adds a fixed [delay]
+  /// between retry attempts. This is useful for giving external systems
+  /// time to recover.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Task Execution**: The [task] is executed with the payload.
+  /// 3. **Success Path**: If the task succeeds, the result is emitted
+  ///    with the step `'RetryWithDelay'`.
+  /// 4. **Failure Path**: If the task fails, [onError] is called.
+  /// 5. **Delay**: The [delay] is awaited before retrying.
+  /// 6. **Retry Loop**: The task is retried up to [count] times.
+  /// 7. **Final Failure**: If all retries fail and [emitErrorPulse] is
+  ///    `true`, an error pulse is emitted with `'RetryWithDelay.error'`.
+  ///
+  /// ### Parameters
+  /// - [task]: **The Task.** The operation to execute and retry.
+  /// - [count]: **Retry Attempts.** Maximum number of retries.
+  /// - [delay]: **Delay Duration.** Time to wait between retries.
+  /// - [onError]: **Integrity Handler.** Called on each failure.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Controls error emission.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Rate-Limited Retry
+  /// ```dart
+  /// // Retries with a 1-second delay
+  /// val delayedRetry = RetryWithDelay<Request, Result>(
+  ///   (req) => api.fetch(req),
+  ///   count: 3,
+  ///   delay: Duration(seconds: 1),
+  ///   user: 'Delayed-Retry'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Retry]: For simple fixed-count retry.
+  /// - [RetryWhen]: For conditional retry logic.
+  /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryWithDelay(
       RetryTask<S, T> task, {
         int count = 3,
@@ -591,6 +750,37 @@ class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Load Shedding**: Reducing load during failure cascades.
 /// - **Circuit Breakers**: Integration with circuit breaker patterns.
 ///
+/// ### Delay Calculation Examples
+/// | Attempt | initial=10ms, factor=2 | initial=100ms, factor=1.5 |
+/// |---------|------------------------|---------------------------|
+/// | 0 | 10ms | 100ms |
+/// | 1 | 20ms | 150ms |
+/// | 2 | 40ms | 225ms |
+/// | 3 | 80ms | 337ms |
+/// | 4 | 160ms | 506ms |
+///
+/// ### How it works
+/// 1. Each incoming pulse triggers the [task].
+/// 2. If the task succeeds, the result is emitted.
+/// 3. If the task fails, the delay is calculated as:
+///    `initial * factor^attempt`, capped at [maxDelay].
+/// 4. The delay is awaited.
+/// 5. The task is retried up to [count] times.
+/// 6. If [emitErrorPulse] is `true`, an error pulse is emitted
+///    when all retries fail.
+/// 7. Success emissions get the step `'RetryWithBackoff'`.
+/// 8. Error emissions get the step `'RetryWithBackoff.error'`.
+///
+/// ### Non‑obvious
+/// - **Exponential Growth**: Delay grows exponentially with each attempt.
+/// - **Capping**: [maxDelay] prevents unbounded delay growth.
+/// - **No Jitter**: No random variation (add your own if needed).
+/// - **Total Time**: Total retry time is the sum of all delays.
+/// - **Error Swallowing**: Errors are caught and don't crash the flow.
+/// - **Provenance Preservation**: Success and error pulses preserve
+///   the source cell, type, and priority from the trigger pulse.
+/// - **Type Safety**: Generic over [S] (input) and [T] (output).
+///
 /// ### Example: API Retry with Backoff
 /// ```dart
 /// final requests = Cell.ingress<String>();
@@ -605,34 +795,6 @@ class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   maxDelay: Duration(seconds: 10),
 /// ).toHandle(source: requests.cell);
 /// ```
-///
-/// ### How it works
-/// 1. Each incoming pulse triggers the [task].
-/// 2. If the task succeeds, the result is emitted.
-/// 3. If the task fails, the delay is calculated as:
-///    `initial * factor^attempt`, capped at [maxDelay].
-/// 4. The delay is awaited.
-/// 5. The task is retried up to [count] times.
-/// 6. If [emitErrorPulse] is `true`, an error pulse is emitted
-///    when all retries fail.
-///
-/// ### Non‑obvious
-/// - **Exponential Growth**: Delay grows exponentially with each attempt.
-/// - **Capping**: [maxDelay] prevents unbounded delay growth.
-/// - **Jitter**: No random jitter (add your own if needed).
-/// - **Total Time**: Total retry time is the sum of all delays.
-/// - **Error Swallowing**: Errors are caught and don't crash the flow.
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-///
-/// ### Delay Calculation Examples
-/// | Attempt | initial=10ms, factor=2 | initial=100ms, factor=1.5 |
-/// |---------|------------------------|---------------------------|
-/// | 0 | 10ms | 100ms |
-/// | 1 | 20ms | 150ms |
-/// | 2 | 40ms | 225ms |
-/// | 3 | 80ms | 337ms |
-/// | 4 | 160ms | 506ms |
 ///
 /// ### Parameters:
 /// - [task]: **The Task to Execute.** Takes an input value and returns
@@ -659,6 +821,52 @@ class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithDelay]: For retries with a fixed delay.
 /// - [RetryUntil]: For retrying until a condition is met.
 class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Backoff Retry Gate**—a specialized instruction
+  /// that retries a task with exponential backoff.
+  ///
+  /// [RetryWithBackoff] retries a task with increasing delays between
+  /// attempts. The delay starts at [initial] and multiplies by [factor]
+  /// each attempt, optionally capped at [maxDelay].
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Task Execution**: The [task] is executed with the payload.
+  /// 3. **Success Path**: If the task succeeds, the result is emitted
+  ///    with the step `'RetryWithBackoff'`.
+  /// 4. **Failure Path**: If the task fails, [onError] is called.
+  /// 5. **Delay Calculation**: The delay is calculated as
+  ///    `initial * factor^attempt`, capped at [maxDelay].
+  /// 6. **Retry Loop**: The task is retried up to [count] times.
+  /// 7. **Final Failure**: If all retries fail and [emitErrorPulse] is
+  ///    `true`, an error pulse is emitted with `'RetryWithBackoff.error'`.
+  ///
+  /// ### Parameters
+  /// - [task]: **The Task.** The operation to execute and retry.
+  /// - [count]: **Retry Attempts.** Maximum number of retries.
+  /// - [initial]: **Initial Delay.** Starting delay duration.
+  /// - [factor]: **Backoff Factor.** Multiplier for each retry.
+  /// - [maxDelay]: **Maximum Delay.** Optional cap on delay growth.
+  /// - [onError]: **Integrity Handler.** Called on each failure.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Controls error emission.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Exponential Backoff Retry
+  /// ```dart
+  /// // Retries with exponential backoff
+  /// val backoffRetry = RetryWithBackoff<Request, Result>(
+  ///   (req) => api.fetch(req),
+  ///   count: 5,
+  ///   initial: Duration(milliseconds: 100),
+  ///   factor: 2.0,
+  ///   maxDelay: Duration(seconds: 10),
+  ///   user: 'Backoff-Retry'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Retry]: For simple fixed-count retry.
+  /// - [RetryWhen]: For conditional retry logic.
+  /// - [RetryWithDelay]: For retries with a fixed delay.
   RetryWithBackoff(
       RetryTask<S, T> task, {
         int count = 3,
@@ -729,6 +937,29 @@ class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Permanent Failures**: Stop retrying on permanent failures.
 /// - **Custom Conditions**: Implement custom stop conditions.
 ///
+/// ### How it works
+/// 1. Each incoming pulse triggers the [task].
+/// 2. If the task succeeds, the result is emitted.
+/// 3. If the task fails, [until] is called with the error and attempt.
+/// 4. If [until] returns `true`, stop retrying (emit error if enabled).
+/// 5. If [until] returns `false` and attempts < [maxAttempts], retry.
+/// 6. If [maxAttempts] is reached, stop retrying.
+/// 7. If [emitErrorPulse] is `true`, an error pulse is emitted
+///    when all retries fail.
+/// 8. Success emissions get the step `'RetryUntil'`.
+/// 9. Error emissions get the step `'RetryUntil.error'`.
+///
+/// ### Non‑obvious
+/// - **Stop Condition**: [until] returns `true` to *stop* retrying.
+/// - **Error Inspection**: The predicate receives the error for inspection.
+/// - **Attempt Number**: The predicate receives the attempt number.
+/// - **Max Attempts**: [maxAttempts] is the total attempts limit.
+/// - **Error Swallowing**: Errors in [until] are caught and treated
+///   as `false` (continue retrying).
+/// - **Provenance Preservation**: Success and error pulses preserve
+///   the source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Predicate**: [until] is synchronous.
+///
 /// ### Example: Stop on Validation Error
 /// ```dart
 /// final requests = Cell.ingress<Request>();
@@ -761,26 +992,6 @@ class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ).toHandle(source: tasks.cell);
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse triggers the [task].
-/// 2. If the task succeeds, the result is emitted.
-/// 3. If the task fails, [until] is called with the error and attempt.
-/// 4. If [until] returns `true`, stop retrying (emit error if enabled).
-/// 5. If [until] returns `false` and attempts < [maxAttempts], retry.
-/// 6. If [maxAttempts] is reached, stop retrying.
-/// 7. If [emitErrorPulse] is `true`, an error pulse is emitted
-///    when all retries fail.
-///
-/// ### Non‑obvious
-/// - **Stop Condition**: [until] returns `true` to *stop* retrying.
-/// - **Error Inspection**: The predicate receives the error for inspection.
-/// - **Attempt Number**: The predicate receives the attempt number.
-/// - **Max Attempts**: [maxAttempts] is the total attempts limit.
-/// - **Error Swallowing**: Errors in [until] are caught and treated
-///   as `false` (continue retrying).
-/// - **Provenance Preservation**: Success and error pulses preserve
-///   the source cell, type, and priority from the trigger pulse.
-///
 /// ### Parameters:
 /// - [task]: **The Task to Execute.** Takes an input value and returns
 ///   a `FutureOr<T>` that may fail.
@@ -805,6 +1016,49 @@ class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithDelay]: For retries with a fixed delay.
 /// - [RetryWithBackoff]: For retries with exponential backoff.
 class RetryUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Stop-Condition Retry Gate**—a specialized instruction
+  /// that retries a task until a condition is met.
+  ///
+  /// [RetryUntil] retries a task until the [until] predicate returns `true`
+  /// or [maxAttempts] is exhausted. The [until] predicate sees the error
+  /// and attempt number after a failure.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Task Execution**: The [task] is executed with the payload.
+  /// 3. **Success Path**: If the task succeeds, the result is emitted
+  ///    with the step `'RetryUntil'`.
+  /// 4. **Failure Path**: If the task fails, [onError] is called.
+  /// 5. **Stop Check**: [until] is called with the error and attempt.
+  /// 6. **Retry Decision**: If [until] returns `false` and attempts <
+  ///    [maxAttempts], retry; otherwise stop.
+  /// 7. **Final Failure**: If all retries fail and [emitErrorPulse] is
+  ///    `true`, an error pulse is emitted with `'RetryUntil.error'`.
+  ///
+  /// ### Parameters
+  /// - [task]: **The Task.** The operation to execute and retry.
+  /// - [until]: **Stop Condition.** Returns `true` to stop retrying.
+  /// - [maxAttempts]: **Maximum Attempts.** Total attempts limit.
+  /// - [onError]: **Integrity Handler.** Called on each failure.
+  /// - [emitErrorPulse]: **Emit Error Pulse.** Controls error emission.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Permanent Failure Detection
+  /// ```dart
+  /// // Stops retrying on permanent failures
+  /// val permanentStop = RetryUntil<Request, Result>(
+  ///   (req) => api.fetch(req),
+  ///   until: (e, attempt) => e is PermanentFailureException,
+  ///   maxAttempts: 5,
+  ///   user: 'Permanent-Stop'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Retry]: For simple fixed-count retry.
+  /// - [RetryWhen]: For conditional retry logic.
+  /// - [RetryWithDelay]: For retries with a fixed delay.
+  /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryUntil(
       RetryTask<S, T> task, {
         required bool Function(Object error, int attempt) until,
@@ -915,6 +1169,12 @@ class RetryUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryUntil] retries until a condition is met.
 /// - Error pulses are optional via [emitErrorPulse].
 /// - All operators preserve causal provenance via EvolvedPulse.
+/// - Choose the right operator for your use case:
+///   - Fixed attempts → Retry
+///   - Conditional retry → RetryWhen
+///   - Fixed delay → RetryWithDelay
+///   - Exponential backoff → RetryWithBackoff
+///   - Stop condition → RetryUntil
 ///
 /// ### Note on Timing
 /// The demo uses short delays for quick execution. In production,

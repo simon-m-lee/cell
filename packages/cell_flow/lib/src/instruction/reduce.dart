@@ -4,35 +4,17 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Reduce Operators
 // ─────────────────────────────────────────────────────────────
 
-/// Flow instructions that keep a **volatile in-memory accumulator**
-/// (Rx `scan` / `startWith` / reducer family).
-///
-/// Named `reduce`, not `state`: nothing here is persisted, hydrated,
-/// or shared across process restarts. It is the current fold of this
-/// flow only.
-///
-/// | Operator | Rx analogue | Holds |
-/// |---|---|---|
-/// | [Reduce] | `scan` + seed | reducer output |
-/// | [ReduceSelect] | `map` | projected slice |
-/// | [ReduceMachine] | `scan` of events | transition table |
-///
-/// [Reduce.snapshot] and [ReduceMachine.snapshot] can be read between
-/// pulses. They are not a store.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
-
 /// Error handler callback for reduce operators.
 ///
-/// Called when an error occurs during reduction or projection.
-/// The error and optional stack trace are provided for logging or recovery.
+/// Called when an error occurs during reduction, projection, or
+/// state transitions. The error and optional stack trace are provided
+/// for logging or recovery.
 ///
 /// ### Example
 /// ```dart
@@ -43,7 +25,23 @@ import 'package:cell_flow/flow.dart';
 /// ```
 typedef ReduceErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
+
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
   return Pulse<A>(
     value,
@@ -54,7 +52,7 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
   );
 }
 
-/// Type-safe payload extraction with error handling.
+/// Helper for type-safe payload extraction.
 ///
 /// [_typedOrError] checks that the pulse payload matches the expected
 /// type [S]. If it does, returns the pulse. If not, calls [onError]
@@ -81,6 +79,10 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+// ─────────────────────────────────────────────────────────────
+// ReduceSnapshot - Volatile State Container
+// ─────────────────────────────────────────────────────────────
+
 /// Volatile snapshot of a running fold. Not durable storage.
 ///
 /// [ReduceSnapshot] holds the current value and generation count of a
@@ -105,6 +107,10 @@ Pulse? _typedOrError<S>(
 /// - **Generation Tracking**: The [generation] helps detect updates.
 /// - **Not a Store**: This is not a database or cache. Use [Cell.state] for
 ///   persistent state.
+/// - **Mutable**: The snapshot is mutable, allowing external updates.
+///   Be careful not to mutate it unexpectedly.
+/// - **Thread Safety**: Not thread-safe by default. Use synchronization
+///   if accessing from multiple isolates.
 ///
 /// ### Example: Inspecting State
 /// ```dart
@@ -128,12 +134,25 @@ Pulse? _typedOrError<S>(
 /// - [ReduceMachine]: For event-driven reduction with a snapshot.
 class ReduceSnapshot<A> {
   /// Creates a snapshot with an initial [value].
+  ///
+  /// ### Parameters:
+  /// - [value]: The initial value of the snapshot.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final snapshot = ReduceSnapshot<int>(0);
+  /// ```
   ReduceSnapshot(this.value);
 
   /// The current accumulated value.
+  ///
+  /// This is updated on each pulse processed by the reduce operator.
   A value;
 
   /// The number of times the value has been updated.
+  ///
+  /// This counter increments on each successful update, allowing
+  /// external code to detect when the state has changed.
   int generation = 0;
 }
 
@@ -161,6 +180,8 @@ class ReduceSnapshot<A> {
 /// - **Data Transformation**: Accumulating transformed data.
 /// - **Caching**: Maintaining a cache of recent values.
 /// - **Batching**: Collecting items into batches.
+/// - **Progressive Enrichment**: Building a result incrementally.
+/// - **Event Sourcing**: Building an aggregate from a stream of events.
 ///
 /// ### Choosing Between Reduce Variants
 /// - **Use [Reduce]** for **Full Accumulation**: When you need the
@@ -171,12 +192,12 @@ class ReduceSnapshot<A> {
 ///   state transitions depend on event types.
 ///
 /// ### Comparison with Other Operators
-/// | Operator | Holds State | Emits | Persisted |
-/// |----------|-------------|-------|-----------|
-/// | **Reduce** | Yes | Each update | No (volatile) |
-/// | **Cell.state** | Yes | Each update | Optional |
-/// | **ReduceSelect** | No (projects) | Each update | No |
-/// | **ReduceMachine** | Yes | Each update | No |
+/// | Operator | Holds State | Emits | Persisted | Rx Analogue |
+/// |----------|-------------|-------|-----------|-------------|
+/// | **Reduce** | Yes | Each update | No (volatile) | `scan` + seed |
+/// | **Cell.state** | Yes | Each update | Optional | N/A |
+/// | **ReduceSelect** | No | Each update | No | `map` |
+/// | **ReduceMachine** | Yes | Each update | No | `scan` of events |
 ///
 /// ### How it works
 /// 1. Each incoming pulse is type-checked to ensure it matches [S].
@@ -186,6 +207,7 @@ class ReduceSnapshot<A> {
 /// 4. The [generation] counter is incremented.
 /// 5. The new value is emitted as a pulse.
 /// 6. The [snapshot] can be read at any time to inspect the state.
+/// 7. Each emitted value gets the step `'Reduce'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Volatile State**: The state is in-memory only. It is not
@@ -201,7 +223,9 @@ class ReduceSnapshot<A> {
 /// - **Provenance Preservation**: Every emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Synchronous Reduction**: The [reduce] function is synchronous.
-///   For asynchronous accumulation, use [MergeScan].
+///   For asynchronous accumulation, use [AsyncFold].
+/// - **First Emission**: The seed is not emitted automatically. Only
+///   updates from pulses are emitted.
 ///
 /// ### Example: Running Sum
 /// ```dart
@@ -269,9 +293,50 @@ class ReduceSnapshot<A> {
 /// ### See Also:
 /// - [ReduceSelect]: For projecting a slice of the state.
 /// - [ReduceMachine]: For event-driven state transitions.
-/// - [MergeScan]: For asynchronous accumulation with concurrency.
+/// - [AsyncFold]: For asynchronous accumulation with concurrency.
 /// - [Cell.state]: For persistent state storage.
 class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Seeded Reducer**—a specialized instruction that
+  /// maintains a running accumulator with a seed value.
+  ///
+  /// [Reduce] is the foundational reduction operator. It takes a [seed]
+  /// value and a [reduce] function that combines the current accumulator
+  /// with each incoming payload to produce a new accumulator value.
+  ///
+  /// ### How it works
+  /// 1. **Seed Storage**: The [seed] is stored as the initial accumulator.
+  /// 2. **Type Check**: The pulse payload is validated against type [S].
+  /// 3. **Reduction**: The [reduce] function is called with the current
+  ///    accumulator and the payload.
+  /// 4. **State Update**: The new accumulator is stored in the [snapshot].
+  /// 5. **Generation Increment**: The [generation] counter is incremented.
+  /// 6. **Emission**: The new value is emitted with the step `'Reduce'`.
+  /// 7. **Error Handling**: If [reduce] throws, [onError] is called and
+  ///    the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [seed]: **The Initial State.** Starting accumulator value.
+  /// - [reduce]: **The Reduction Function.** Combines accumulator
+  ///   and payload to produce new accumulator.
+  /// - [snapshot]: **Shared Snapshot.** External access to state.
+  /// - [onError]: **Integrity Handler.** Called if [reduce] throws or
+  ///   a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Running Total Calculator
+  /// ```dart
+  /// // Maintains a running total of numbers
+  /// val runningTotal = Reduce<int, int>(
+  ///   0,
+  ///   (acc, n) => acc + n,
+  ///   user: 'Running-Total'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [ReduceSelect]: For projecting a slice of the state.
+  /// - [ReduceMachine]: For event-driven state transitions.
+  /// - [AsyncFold]: For asynchronous accumulation.
   Reduce(
       A seed,
       A Function(A acc, S value) reduce, {
@@ -308,6 +373,15 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// Use this to access the [value] and [generation] from outside
   /// the instruction.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final reduce = Reduce<int, int>(0, (acc, n) => acc + n);
+  /// final handle = reduce.toHandle(source: input.cell);
+  /// // Later...
+  /// print('Current state: ${reduce.snapshot.value}');
+  /// print('Updates: ${reduce.snapshot.generation}');
+  /// ```
   final ReduceSnapshot<A> snapshot;
 }
 
@@ -333,6 +407,27 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Formatting**: Formatting values for display.
 /// - **Filtering by Projection**: Selecting a subset of data.
 /// - **Data Mapping**: Mapping between domain models.
+/// - **View Model Creation**: Creating view models from data.
+/// - **Normalization**: Normalizing data values.
+///
+/// ### How it works
+/// 1. Each incoming pulse is type-checked to ensure it matches [S].
+/// 2. The [select] function is called with the payload.
+/// 3. The result is emitted as a pulse.
+/// 4. No state is maintained (unlike [Reduce]).
+/// 5. Each emitted value gets the step `'ReduceSelect'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Stateless**: Unlike [Reduce], no state is maintained.
+/// - **Type Safety**: The instruction is generic over [S] (input type)
+///   and [T] (output type), ensuring compile-time type safety.
+/// - **Error Handling**: Errors in [select] are caught and reported
+///   via [onError], and the pulse is dropped.
+/// - **Provenance Preservation**: Every emitted value preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Performance**: This is a lightweight operation with minimal overhead.
+/// - **Synchronous Projection**: The [select] function is synchronous.
+/// - **No State**: This is a pure transformation operator.
 ///
 /// ### Example: Field Extraction
 /// ```dart
@@ -359,23 +454,6 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// strings.emit('!');      // -> 1
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse is type-checked to ensure it matches [S].
-/// 2. The [select] function is called with the payload.
-/// 3. The result is emitted as a pulse.
-/// 4. No state is maintained (unlike [Reduce]).
-///
-/// ### Non‑obvious
-/// - **Stateless**: Unlike [Reduce], no state is maintained.
-/// - **Type Safety**: The instruction is generic over [S] (input type)
-///   and [T] (output type), ensuring compile-time type safety.
-/// - **Error Handling**: Errors in [select] are caught and reported
-///   via [onError], and the pulse is dropped.
-/// - **Provenance Preservation**: Every emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Performance**: This is a lightweight operation with minimal overhead.
-/// - **Synchronous Projection**: The [select] function is synchronous.
-///
 /// ### Parameters:
 /// - [select]: **Projection Function.** Takes the payload and returns
 ///   the projected value.
@@ -394,6 +472,39 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ReduceMachine]: For event-driven state.
 /// - [Map]: For simple mapping (not yet implemented).
 class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Projection Operator**—a specialized instruction
+  /// that transforms each incoming payload without maintaining state.
+  ///
+  /// [ReduceSelect] is a lightweight projection operator that transforms
+  /// each incoming payload without maintaining state. It's useful for
+  /// extracting a field from a complex object or applying a simple
+  /// transformation.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Projection**: The [select] function is called with the payload.
+  /// 3. **Emission**: The result is emitted with the step `'ReduceSelect'`.
+  /// 4. **Error Handling**: If [select] throws, [onError] is called and
+  ///    the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [select]: **The Projection Function.** Transforms the input value.
+  /// - [onError]: **Integrity Handler.** Called if [select] throws or
+  ///   a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Field Extractor
+  /// ```dart
+  /// // Extracts the 'name' field from a map
+  /// val nameExtractor = ReduceSelect<Map<String, Object>, Object>(
+  ///   (m) => m['name']!,
+  ///   user: 'Name-Extractor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Reduce]: For maintaining state.
+  /// - [ReduceMachine]: For event-driven state.
   ReduceSelect(
       T Function(S value) select, {
         ReduceErrorHandler? onError,
@@ -441,6 +552,8 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Feature Flags**: Toggling features based on events.
 /// - **Form State**: Managing form state from user input.
 /// - **Navigation State**: Managing navigation from route events.
+/// - **Modal State**: Managing modal dialogs and overlays.
+/// - **Loading State**: Managing loading states from async operations.
 ///
 /// ### Example: Counter with Events
 /// ```dart
@@ -510,6 +623,7 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// 4. The [generation] counter is incremented.
 /// 5. The new state is emitted (unless [emitIfUnchanged] is `false`
 ///    and the state hasn't changed).
+/// 6. Each emitted value gets the step `'ReduceMachine'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Event-First Design**: The instruction is designed for event-driven
@@ -525,7 +639,9 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Provenance Preservation**: Every emitted value preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Synchronous Transition**: The [transition] function is synchronous.
-///   For asynchronous transitions, use [MergeScan].
+///   For asynchronous transitions, use [AsyncFold].
+/// - **No Emission on No Change**: When [emitIfUnchanged] is `false`,
+///   unchanged states don't emit, reducing noise.
 ///
 /// ### Parameters:
 /// - [seed]: **Initial State.** The starting state value.
@@ -548,9 +664,60 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### See Also:
 /// - [Reduce]: For basic reduction.
 /// - [ReduceSelect]: For projecting a slice.
-/// - [MergeScan]: For asynchronous accumulation with concurrency.
+/// - [AsyncFold]: For asynchronous accumulation with concurrency.
 /// - [Cell.state]: For persistent state storage.
 class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Event-Driven State Machine**—a specialized
+  /// instruction that maintains state via event-driven transitions.
+  ///
+  /// [ReduceMachine] is a state machine reducer where each incoming
+  /// event triggers a transition function that updates the state. It's
+  /// like [Reduce] but specialized for event-driven state management.
+  ///
+  /// ### How it works
+  /// 1. **Seed Storage**: The [seed] is stored as the initial state.
+  /// 2. **Type Check**: The pulse payload is validated against type [E].
+  /// 3. **Transition**: The [transition] function is called with the
+  ///    current state and the event.
+  /// 4. **State Update**: The new state is stored in the [snapshot].
+  /// 5. **Generation Increment**: The [generation] counter is incremented.
+  /// 6. **Emission**: The new state is emitted with the step `'ReduceMachine'`,
+  ///    unless [emitIfUnchanged] is `false` and the state didn't change.
+  /// 7. **Error Handling**: If [transition] throws, [onError] is called
+  ///    and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [seed]: **The Initial State.** Starting state value.
+  /// - [transition]: **The Transition Function.** Defines state
+  ///   transitions based on events.
+  /// - [snapshot]: **Shared Snapshot.** External access to state.
+  /// - [emitIfUnchanged]: **Emit on No Change.** Controls emission
+  ///   when state doesn't change. Defaults to `true`.
+  /// - [onError]: **Integrity Handler.** Called if [transition] throws
+  ///   or a type mismatch occurs.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Counter State Machine
+  /// ```dart
+  /// // Counter with inc/dec/reset events
+  /// val counter = ReduceMachine<String, int>(
+  ///   0,
+  ///   (acc, event) {
+  ///     switch (event) {
+  ///       case 'inc': return acc + 1;
+  ///       case 'dec': return acc - 1;
+  ///       case 'reset': return 0;
+  ///       default: return acc;
+  ///     }
+  ///   },
+  ///   user: 'Counter-Machine'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Reduce]: For basic reduction.
+  /// - [ReduceSelect]: For projecting a slice.
+  /// - [AsyncFold]: For asynchronous accumulation.
   ReduceMachine(
       A seed,
       A Function(A acc, E event) transition, {
@@ -597,6 +764,15 @@ class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// Use this to access the [value] and [generation] from outside
   /// the instruction.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final machine = ReduceMachine<String, int>(0, (state, e) => state + 1);
+  /// final handle = machine.toHandle(source: events.cell);
+  /// // Later...
+  /// print('Current state: ${machine.snapshot.value}');
+  /// print('Updates: ${machine.snapshot.generation}');
+  /// ```
   final ReduceSnapshot<A> snapshot;
 }
 
@@ -652,11 +828,19 @@ class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - Snapshots provide external access to the current state.
 /// - Generation counters help detect state changes.
 /// - [emitIfUnchanged] controls emission on no-change transitions.
+/// - Choose the right operator for your use case:
+///   - Running totals → Reduce
+///   - Field extraction → ReduceSelect
+///   - Event-driven state → ReduceMachine
 ///
 /// ### Note on Volatility
 /// Reduce operators maintain **volatile in-memory state** only. This
 /// state is not persisted, hydrated, or shared across process restarts.
 /// Use [Cell.state] for persistent state storage.
+///
+/// ### Note on Performance
+/// All reduce operators are O(1) per pulse with minimal memory overhead.
+/// The snapshot stores only the current state and a generation counter.
 Future<void> main() async {
   print('── Reduce Operators Demo ─────────────────────────────────────\n');
 

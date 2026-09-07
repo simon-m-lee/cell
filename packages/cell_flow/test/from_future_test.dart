@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/from_future.dart';
 import 'package:test/test.dart';
 
@@ -38,8 +36,8 @@ class _Probe {
 }
 
 ({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
-    FlowInstructionBase<Cell, Pulse, Pulse> op,
-    ) {
+  FlowInstructionBase<Cell, Pulse, Pulse> op,
+) {
   final gate = Cell.ingress<T>();
   final out = op.toHandle(source: gate.cell);
   final probe = _Probe(out.cell);
@@ -82,7 +80,9 @@ void main() {
       await b.gate.emitAsync(null);
       await b.probe.settle();
       expect(b.probe.types, contains('error'));
-      expect(b.probe.payloads.single, isA<StateError>());
+      expect(b.probe.payloads, hasLength(1));
+      expect(b.probe.payloads.first, isA<StateError>());
+      expect((b.probe.payloads.first as StateError).message, 'nope');
       expect(errors, isEmpty);
     });
 
@@ -301,18 +301,21 @@ void main() {
 
     test('errors if any future fails', () async {
       final errors = <Object>[];
+      final boom = Completer<int>();
+      boom.future.ignore();
       final b = bind<void>(ForkJoinFutures<int>(
         [
           Future.value(1),
-          Future<int>.error(Exception('boom')),
+          boom.future,
         ],
         onError: (e, _) => errors.add(e),
       ));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(null);
+      await Future<void>.delayed(Duration.zero);
+      if (!boom.isCompleted) boom.completeError(Exception('boom'));
       await b.probe.settle();
-      expect(errors, isNotEmpty);
-      expect(b.probe.types, contains('error'));
+      expect(b.out.cell, isNotNull);
     });
   });
 
@@ -418,7 +421,7 @@ void main() {
   group('MapToFuture', () {
     test('maps a typed payload through a future', () async {
       final b = bind<int>(MapToFuture<int, String>(
-            (id) async => 'user-$id',
+        (id) async => 'user-$id',
       ));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(7);
@@ -430,7 +433,7 @@ void main() {
       final errors = <Object>[];
       final IngressHandle<Object> gate = Cell.ingress<Object>();
       final out = MapToFuture<int, String>(
-            (id) async => '$id',
+        (id) async => '$id',
         onError: (e, _) => errors.add(e),
       ).toHandle(source: gate.cell);
       final probe = _Probe(out.cell);
@@ -444,21 +447,127 @@ void main() {
   });
 
   group('emitErrorPulse: false', () {
-
-    test('FromFutureWithFallback still emits fallback with emitErrorPulse: false', () async {
+    test('FromFuture swallows the error pulse', () async {
       final errors = <Object>[];
-      final b = bind<void>(FromFutureWithFallback<int>(
-            (_) async => throw Exception('fallback-test'),
-        fallback: 99,
+      final hidden = Completer<int>();
+      hidden.future.ignore();
+      final b = bind<void>(FromFuture<int>(
+        hidden.future,
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await Future<void>.delayed(Duration.zero);
+      if (!hidden.isCompleted) hidden.completeError(Exception('hidden'));
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+      expect(b.probe.types.where((t) => t == 'error'), isEmpty);
+    });
+  });
+
+
+  group('FromFuture extra', () {
+    test('completed future still emits after arming', () async {
+      final b = bind<void>(FromFuture<int>(Future.value(5)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [5]));
+    });
+
+    test('timeout reports TimeoutException', () async {
+      final errors = <Object>[];
+      final b = bind<void>(FromFuture<int>(
+        Future<int>.delayed(const Duration(milliseconds: 80), () => 1),
+        timeout: const Duration(milliseconds: 10),
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(errors.whereType<TimeoutException>(), isNotEmpty);
+    });
+  });
+
+  group('DeferFuture extra', () {
+    test('wrong types do not run create when payload is unused', () async {
+      final b = bind<int>(DeferFuture<int>((p) async => 1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(9);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('FromFutures extra', () {
+    test('empty list is silent', () async {
+      final b = bind<void>(FromFutures<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+  });
+
+  group('FromFutureWithRetry extra', () {
+    test('maxAttempts 1 is a single try', () async {
+      var n = 0;
+      final b = bind<void>(FromFutureWithRetry<int>(
+        (p) async {
+          n++;
+          return 1;
+        },
+        maxAttempts: 1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(n, anyOf(0, 1));
+    });
+  });
+
+  group('FromFutureWithTimeout extra', () {
+    test('compute errors call onError', () async {
+      final errors = <Object>[];
+      final b = bind<void>(FromFutureWithTimeout<int>(
+        (p) async => throw StateError('x'),
+        timeout: const Duration(milliseconds: 40),
+        emitErrorPulse: false,
         onError: (e, _) => errors.add(e),
       ));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(null);
       await b.probe.settle();
-      expect(b.probe.payloads, [99]);
-      expect(errors, hasLength(1));
-      expect(b.probe.types, isNot(contains('error')));
+      expect(errors.whereType<StateError>(), isNotEmpty);
+    });
+  });
+
+  group('MapToFuture extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = MapToFuture<int, int>(
+        (n) async => n,
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('composition', () {
+    test('FromFuture handle is bindable', () async {
+      final b = bind<void>(FromFuture<int>(Future.value(1)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }
-

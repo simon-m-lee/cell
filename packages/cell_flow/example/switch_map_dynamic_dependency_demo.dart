@@ -164,8 +164,12 @@
 ///
 /// ── Finished ──────────────────────────────────────────────────────────────
 /// ```
+library;
+
 import 'dart:async';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models
@@ -525,10 +529,6 @@ Future<void> main() async {
   final featureHandle = Flow.switchMap<String, String>(
     featureSelector.cell,
     project: (version) async {
-      if (!featureEnabled) {
-        return 'Feature $version is disabled';
-      }
-
       if (version == 'v1') {
         print('   [Feature] Toggle: feature-v1 (enabled)');
         await Future.delayed(const Duration(milliseconds: 200));
@@ -635,12 +635,12 @@ Future<void> main() async {
       if (data.contains('Starting')) {
         final parts = data.split('Starting');
         final source = parts[0].trim();
-        final state = parts[1].split(':')[1]?.trim() ?? 'unknown';
+        final state = parts[1].split(':')[1].trim();
         print('   [State] $source: Starting with state: $state');
       } else if (data.contains('Complete')) {
-        print('   [State] ${data}');
+        print('   [State] $data');
       } else {
-        print('   [State] ${data}');
+        print('   [State] $data');
       }
     },
   );

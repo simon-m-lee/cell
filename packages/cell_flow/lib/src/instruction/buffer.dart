@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Buffer Operators
@@ -218,6 +218,56 @@ class _Emit {
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Count-Based Logic Gate** designed to batch pulses
+  /// into discrete topographical windows based on stimulus frequency.
+  ///
+  /// [BufferCount] (analogous to `bufferCount` in Rx) monitors the pulse
+  /// stream and accumulates payloads into an internal buffer until a
+  /// specified [size] is reached. Once the threshold is met, the gate
+  /// evolves the accumulated stimuli into a single [Pulse<List<S>>].
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Each incoming pulse is evaluated for
+  ///    type integrity [S].
+  /// 2. **Accumulation**: Validated payloads are added to the internal
+  ///    logic buffer.
+  /// 3. **Materialization**: When the buffer length equals [size], a
+  ///    window pulse is materialized.
+  /// 4. **Provenance Preservation**: The materialized pulse inherits
+  ///    provenance (source, priority, type) from the pulse that
+  ///    triggered the flush, tagged with the `'BufferCount'` step.
+  /// 5. **Topographical Advance**: After emission, the internal buffer
+  ///    is advanced by the [skip] count.
+  ///
+  /// ### Skip & Overlap Mechanics
+  /// - **Tumbling** ([skip] == `null` or `size`): Windows are contiguous
+  ///   with no overlap (e.g., `[1,2], [3,4]`).
+  /// - **Overlapping** ([skip] < `size`): Windows share payloads,
+  ///   creating a sliding effect (e.g., `[1,2], [2,3]`).
+  /// - **Gapped** ([skip] > `size`): Certain stimuli are dropped between
+  ///   windows (e.g., `[1,2], [4,5]` where `3` is lost).
+  ///
+  /// ### Parameters
+  /// - [size]: **Window Capacity.** The number of stimuli required to
+  ///   materialize a window.
+  /// - [skip]: **Advance Offset.** Determines how many pulses to advance
+  ///   the starting point of the next window. Defaults to [size].
+  /// - [onError]: **Integrity Handler.** A specialized callback invoked if
+  ///   a pulse payload fails to match the expected type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the instruction chain.
+  ///
+  /// ### Example: Tumbling Window
+  /// ```dart
+  /// // Batches integers into lists of 3
+  /// final batchGate = BufferCount<int>(3);
+  /// ```
+  ///
+  /// ### See Also
+  /// - [BufferTime]: For batching based on temporal intervals.
+  /// - [BufferWithPredicate]: For batching based on logic conditions.
+  /// - [WindowCount]: A related operator that yields multiple output pulses.
   BufferCount(
       int size, {
         int? skip,
@@ -246,18 +296,83 @@ class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   );
 }
 
-/// Alias of [BufferCount] for Rx compatibility.
+/// Synthesizes a **Count-Based Topographical Alias**—a specialized
+/// instruction wrapper designed for Rx-compatible pulse orchestration.
 ///
-/// [BufferWithCount] is an alias for [BufferCount] that provides the
-/// same count-based buffering functionality.
+/// [BufferWithCount] is a semantic alias for [BufferCount]. It provides a
+/// familiar entry point for developers transitioning from traditional
+/// ReactiveX implementations, allowing them to batch pulses into discrete
+/// topographical windows based on stimulus frequency.
 ///
-/// ### Example
-/// ```dart
-/// final buffers = BufferWithCount<int>(3)
-///     .toHandle(source: input.cell);
-/// // Same as BufferCount<int>(3)
-/// ```
+/// Unlike a raw [Cell], this instruction represents a stateless **Logic Gate**
+/// that evolves individual stimuli into collection-based pulses.
+///
+/// ### When to use
+/// - **Batch Processing**: Grouping individual data pulses into chunks for
+///   database writes or network payloads.
+/// - **Sliding Windows**: Creating overlapping sequences of data to perform
+///   rolling averages or trend analysis.
+/// - **Topographical Throttling**: Naturally slowing down downstream
+///   propagation by requiring multiple input pulses to produce one output.
+///
+/// ### How it works
+/// 1. **Stimulus Reception**: Every incoming pulse is evaluated for
+///    type integrity [S].
+/// 2. **Logic Batching**: It inherits the tumbling or overlapping
+///    mechanics of [BufferCount], accumulating stimuli until the
+///    [size] threshold is reached.
+/// 3. **Materialization**: Once the count is met, the gate evolves
+///    the accumulated stimuli into a single windowed [Pulse<List<S>>].
+/// 4. **Provenance Preservation**: The evolved pulse inherits the source,
+///    priority, and metadata from the trigger pulse, tagged with
+///    the `'BufferCount'` step.
+///
+/// ### Skip & Overlap Mechanics
+/// - **Tumbling** ([skip] == `size`): Contiguous windows with no overlap.
+/// - **Overlapping** ([skip] < `size`): Windows share payloads, creating
+///   a sliding effect.
+/// - **Gapped** ([skip] > `size`): Certain stimuli are dropped between
+///   materialization cycles.
+///
+/// ### Type Parameters
+/// * [S]: **Stimulus Payload Type.** The type of data contained within
+///   the incoming pulses.
+///
+/// ### See Also
+/// * [BufferCount]: The primary implementation for count-based logic batching.
+/// * [FlowInstruction]: The base interface for logic blueprints.
 class BufferWithCount<S> extends BufferCount<S> {
+
+  /// Synthesizes a **Count-Based Topographical Alias**—a specialized
+  /// constructor designed for Rx-compatible pulse orchestration.
+  ///
+  /// [BufferWithCount] is a semantic alias for [BufferCount]. It enables
+  /// developers to batch pulses into discrete topographical windows
+  /// based on stimulus frequency, providing a familiar entry point for
+  /// those transitioning from traditional ReactiveX implementations.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Every incoming pulse is evaluated for
+  ///    type integrity [S].
+  /// 2. **Logic Batching**: It inherits the tumbling or overlapping
+  ///    mechanics of [BufferCount], accumulating stimuli until the
+  ///    [size] threshold is reached.
+  /// 3. **Materialization**: Once the count is met, the gate evolves
+  ///    the accumulated stimuli into a single windowed pulse tagged
+  ///    with the `'BufferCount'` step.
+  ///
+  /// ### Parameters
+  /// - [size]: **Window Capacity.** The number of stimuli required to
+  ///   materialize a window.
+  /// - [skip]: **Advance Offset.** Determines how many pulses to advance
+  ///   the starting point of the next window. Defaults to [size].
+  /// - [onError]: **Integrity Handler.** A specialized callback invoked if
+  ///   a pulse payload fails to match the expected type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the instruction chain for auditing and tracing.
+  ///
+  /// ### See Also
+  /// - [BufferCount]: The primary implementation for count-based logic batching.
   BufferWithCount(
       super.size, {
         super.skip,
@@ -338,6 +453,56 @@ class BufferWithCount<S> extends BufferCount<S> {
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Temporal Logic Gate** designed to batch pulses
+  /// into discrete topographical windows based on elapsed time.
+  ///
+  /// [BufferTime] (analogous to `bufferTime` in Rx) monitors the stimulus
+  /// stream and accumulates payloads into an internal buffer. It utilizes
+  /// a periodic materialization strategy, flushing the accumulated stimuli
+  /// as a single [Pulse<List<S>>] every [duration].
+  ///
+  /// ### How it works
+  /// 1. **Lazy Synchronization**: The internal temporal orchestrator is
+  ///    materialized only upon the arrival of the first valid stimulus.
+  /// 2. **Stimulus Accumulation**: Incoming pulses are evaluated for
+  ///    type integrity [S] and stored within the gate's logic buffer.
+  /// 3. **Periodic Materialization**: Every [duration], the accumulated
+  ///    stimuli are evolved into a windowed pulse.
+  /// 4. **Provenance Preservation**: The materialized pulse inherits the
+  ///    source, priority, and metadata from the most recent stimulus in the
+  ///    buffer, tagged with the `'BufferTime'` step.
+  /// 5. **Topographical Reset**: The buffer is cleared immediately
+  ///    following each materialization cycle.
+  ///
+  /// ### Non‑obvious
+  /// - **Timer Materialization**: The timer is not active until the first
+  ///   stimulus enters the topography, preventing unnecessary resource
+  ///   consumption in idle branches.
+  /// - **Vacuum Emission**: If [emitEmpty] is `false`, the gate suppresses
+  ///   materialization if no pulses arrived during the interval.
+  ///
+  /// ### Parameters
+  /// - [duration]: **Temporal Interval.** The time window between
+  ///   materialization cycles.
+  /// - [emitEmpty]: **Vacuum Emission.** If `true`, the gate will emit
+  ///   empty pulses even when no stimuli have arrived during the interval.
+  ///   Defaults to `false`.
+  /// - [onError]: **Integrity Handler.** A specialized callback invoked if
+  ///   a pulse payload fails to match the expected type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the instruction chain for auditing and tracing.
+  ///
+  /// ### Example: Temporal Batching
+  /// ```dart
+  /// // Batches events every 500ms
+  /// final batchGate = BufferTime<Event>(Duration(milliseconds: 500));
+  /// ```
+  ///
+  /// ### See Also
+  /// - [BufferCount]: For batching based on stimulus frequency.
+  /// - [BufferWithTimeAndCount]: For hybrid temporal and frequency constraints.
+  /// - [BufferWhen]: For trigger-based topographical flushes.
   BufferTime(
       Duration duration, {
         bool emitEmpty = false,
@@ -380,8 +545,70 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   );
 }
 
-/// Alias of [BufferTime] for Rx compatibility.
+/// Synthesizes a **Temporal Topographical Alias**—a specialized
+/// instruction wrapper designed for Rx-compatible pulse orchestration.
+///
+/// [BufferWithTime] is a semantic alias for [BufferTime]. It provides a
+/// familiar entry point for developers transitioning from traditional
+/// ReactiveX implementations, allowing them to batch pulses into discrete
+/// topographical windows based on elapsed time.
+///
+/// Unlike a live node, this instruction represents a stateless **Logic Gate**
+/// that evolves individual stimuli into collection-based pulses periodically.
+///
+/// ### When to use
+/// - **Time-Based Batching**: Grouping items by a fixed temporal interval
+///   for logging or metrics.
+/// - **Temporal Throttling**: Controlling the rate of downstream propagation
+///   by emitting results only at specific time intervals.
+/// - **Resource Coordination**: Reducing the frequency of expensive operations
+///   by processing stimuli in temporal chunks.
+///
+/// ### How it works
+/// 1. **Lazy Synchronization**: The internal temporal orchestrator is
+///    materialized only upon the arrival of the first valid stimulus.
+/// 2. **Stimulus Accumulation**: Incoming pulses are evaluated for
+///    type integrity [S] and stored within the gate's logic buffer.
+/// 3. **Periodic Materialization**: Every [duration], the accumulated
+///    stimuli are evolved into a windowed [Pulse<List<S>>].
+/// 4. **Provenance Preservation**: The evolved pulse inherits the source,
+///    priority, and metadata from the trigger pulse, tagged with the
+///    `'BufferTime'` step.
+/// 5. **Topographical Reset**: The buffer is cleared immediately
+///    following each materialization cycle.
+///
+/// ### Non‑obvious
+/// - **Resource Efficiency**: The timer is not active until the first
+///   stimulus enters the topography, preventing waste in idle branches.
+/// - **Vacuum Emission**: If [emitEmpty] is `false`, the gate suppresses
+///   materialization if no pulses arrived during the interval.
+///
+/// ### Type Parameters
+/// * [S]: **Stimulus Payload Type.** The type of data contained within
+///   the incoming pulses.
+///
+/// ### See Also
+/// * [BufferTime]: The primary implementation for temporal logic batching.
+/// * [BufferCount]: For batching based on stimulus frequency.
 class BufferWithTime<S> extends BufferTime<S> {
+
+  /// Synthesizes a **Temporal Topographical Alias**—a specialized
+  /// constructor designed for Rx-compatible pulse orchestration.
+  ///
+  /// [BufferWithTime] is a semantic alias for [BufferTime]. It enables
+  /// developers to batch pulses into discrete topographical windows
+  /// based on elapsed time.
+  ///
+  /// ### Parameters
+  /// - [duration]: **Temporal Interval.** The time window between
+  ///   materialization cycles.
+  /// - [emitEmpty]: **Vacuum Emission.** If `true`, the gate will emit
+  ///   empty pulses even when no stimuli have arrived during the interval.
+  ///   Defaults to `false`.
+  /// - [onError]: **Integrity Handler.** A specialized callback invoked if
+  ///   a pulse payload fails to match the expected type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the instruction chain for auditing and tracing.
   BufferWithTime(
       super.duration, {
         super.emitEmpty,
@@ -460,6 +687,20 @@ class BufferWithTime<S> extends BufferTime<S> {
 /// - [BufferWhen]: For trigger-based buffering.
 /// - [BufferWithPredicate]: For predicate-based buffering.
 class BufferWithTimeAndCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Dual-Threshold Logic Gate** for hybrid pulse batching.
+  ///
+  /// This constructor initializes an orchestrator that materializes a window
+  /// pulse as soon as either the specified [duration] elapses or the
+  /// stimulus [count] is met.
+  ///
+  /// **Parameters:**
+  /// - [duration]: The maximum **Temporal Limit** between flushes.
+  /// - [count]: The maximum **Window Capacity** before an immediate flush.
+  /// - [emitEmpty]: If `true`, materializes a pulse even if no stimuli
+  ///   arrived during the interval.
+  /// - [onError]: Invoked if a stimulus violates type integrity [S].
+  /// - [user]: Optional metadata preserved across the topography.
   BufferWithTimeAndCount({
     required Duration duration,
     required int count,
@@ -580,6 +821,18 @@ class BufferWithTimeAndCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Boundary-Driven Logic Gate** for manual pulse batching.
+  ///
+  /// This constructor initializes an orchestrator that materializes a window
+  /// whenever the provided [closer] cell emits a pulse.
+  ///
+  /// **Parameters:**
+  /// - [closer]: The **Boundary Stimulus.** A cell that triggers a flush.
+  /// - [emitEmpty]: If `true`, materializes a pulse even if the buffer is
+  ///   empty when the trigger arrives.
+  /// - [onError]: Invoked if a stimulus violates type integrity [S].
+  /// - [user]: Optional metadata preserved across the topography.
   BufferWhen(
       Cell closer, {
         bool emitEmpty = false,
@@ -711,6 +964,23 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [BufferWhen]: For trigger-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferWithPredicate<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Conditional Logic Gate** designed for predicate-driven
+  /// pulse batching.
+  ///
+  /// This constructor initializes an orchestrator that accumulates stimuli
+  /// into a logic buffer until the [test] predicate returns `true`, triggering
+  /// the materialization of a windowed pulse.
+  ///
+  /// **Parameters:**
+  /// - [test]: **The Predicate Orchestrator.** A closure evaluated against
+  ///   each payload to determine the topographical boundary.
+  /// - [includeTrigger]: If `true`, the stimulus that satisfied the predicate
+  ///   is included in the buffer before materialization.
+  /// - [onError]: Invoked if the predicate throws or a stimulus violates
+  ///   type integrity [S].
+  /// - [user]: Optional flyweight metadata preserved across the topography
+  ///   for auditing.
   BufferWithPredicate(
       bool Function(S value) test, {
         bool includeTrigger = true,

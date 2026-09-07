@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 /// A real-life practical executable walkthrough demonstrating the use of
 /// Flow.filter for data quality and real-time filtering.
 ///
@@ -153,10 +155,12 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/filter.dart';
 import 'package:cell_flow/src/instruction/from_stream.dart';
 import 'package:cell_flow/src/instruction/map.dart';
+
+// ignore_for_file: unused_element, unused_field, unused_local_variable
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models

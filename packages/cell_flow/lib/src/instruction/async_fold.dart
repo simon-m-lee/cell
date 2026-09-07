@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core AsyncFold Operators
@@ -226,6 +226,70 @@ class FoldSnapshot<A> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [Reduce]: For synchronous accumulation.
 class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Sequential Asynchronous Accumulator**—a stateful logic
+  /// gate designed for ordered, multi-step pulse evolution.
+  ///
+  /// [AsyncFold] (the asynchronous counterpart to `scan`) maintains a
+  /// persistent internal state that evolves with every incoming stimulus.
+  /// It ensures that each asynchronous accumulation step is processed to
+  /// completion before the next begins, preserving the topological integrity
+  /// of the state transitions.
+  ///
+  /// ### When to use:
+  /// * **Running Totals**: Calculating sums or averages where each step
+  ///   requires an async lookup (e.g., currency conversion).
+  /// * **State Aggregation**: Building a complex object from a stream of
+  ///   individual update pulses.
+  /// * **Sequential History**: Maintaining a buffer or log where the order
+  ///   of async writes is critical.
+  ///
+  /// ### How it works:
+  /// 1. **Seed Initialization**: The gate starts with an initial [seed] value
+  ///    stored in a [FoldSnapshot].
+  /// 2. **Stimulus Queuing**: Incoming pulses [S] are placed into a FIFO
+  ///    queue to ensure sequential processing.
+  /// 3. **Async Accumulation**: The [accumulate] orchestrator is invoked
+  ///    with the current state [A] and the new payload [S].
+  /// 4. **State Materialization**: The resulting [FutureOr<A>] is awaited.
+  ///    Upon completion, the [FoldSnapshot] is updated and the generation
+  ///    counter increments.
+  /// 5. **Provenance Preservation**: The evolved value [A] is emitted in a
+  ///    new pulse inheriting the trigger's source and priority, tagged
+  ///    with the `'AsyncFold'` step.
+  ///
+  /// ### Concurrency Model:
+  /// * **Strictly Sequential**: Only one accumulation closure is active at
+  ///   a time. Subsequent inputs wait in a FIFO queue.
+  /// * **State Persistence**: The accumulator persists across the lifetime
+  ///   of the materialized [FlowHandle].
+  ///
+  /// ### Parameters:
+  /// - [seed]: **Initial State.** The starting value for the accumulation.
+  /// - [accumulate]: **The State Orchestrator.** An async closure that
+  ///   merges the current state with the new stimulus.
+  /// - [snapshot]: **External Observer.** An optional [FoldSnapshot] for
+  ///   inspecting the state from outside the reactive topography.
+  /// - [onError]: **Integrity Handler.** A callback invoked if an accumulation
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Asynchronous Running Sum
+  /// ```dart
+  /// final input = Cell.ingress<int>();
+  ///
+  /// final runningSum = AsyncFold<int, int>(
+  ///   0,
+  ///   (acc, value) async => acc + value,
+  ///   user: 'Summation-Gate'
+  /// ).toHandle(source: input.cell);
+  /// ```
+  ///
+  /// ### See Also:
+  /// - [AsyncReduce]: For accumulation that uses the first pulse as the seed.
+  /// - [AsyncFoldLatest]: For switch-style behavior (cancelling pending steps).
+  /// - [AsyncFoldExhaust]: For ignoring inputs while an accumulation is busy.
   AsyncFold(
       A seed,
       AsyncAccumulator<A, S> accumulate, {
@@ -234,6 +298,7 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         dynamic user,
       }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
+  /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFold._(
       AsyncAccumulator<A, S> accumulate,
       this.snapshot,
@@ -359,6 +424,67 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [Reduce]: For synchronous accumulation.
 class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Seedless Asynchronous Accumulator**—a stateful logic gate
+  /// that uses the first available stimulus as its initial topographic seed.
+  ///
+  /// [AsyncReduce] is a specialized variant of [AsyncFold] designed for
+  /// scenarios where the starting state is derived directly from the data
+  /// stream rather than an external parameter. It ensures that each
+  /// asynchronous reduction step is processed to completion before the next
+  /// begins, preserving the topological integrity of the state transitions.
+  ///
+  /// ### How it works
+  /// 1. **Seed Materialization**: The first incoming pulse [S] is treated as
+  ///    the initial state. It is emitted immediately, tagged with the
+  ///    `'AsyncReduce.seed'` step.
+  /// 2. **FIFO Queuing**: Subsequent pulses [S] are placed into a internal
+  ///    queue to maintain strict topological order.
+  /// 3. **Sequential Reduction**: The [accumulate] orchestrator is invoked
+  ///    using the current state and the next queued payload.
+  /// 4. **State Evolution**: The resulting [FutureOr<S>] is awaited. Upon
+  ///    completion, the evolved value becomes the new internal state.
+  /// 5. **Provenance Preservation**: Each emitted result inherits the
+  ///    trigger's source and priority, tagged with the `'AsyncReduce'` step.
+  ///
+  /// ### When to use
+  /// - **Dynamic Initialization**: When the starting state is unknown until
+  ///   the first stimulus arrives.
+  /// - **Ordered Aggregation**: Reducing a sequence where asynchronous
+  ///   processing time must not disrupt emission order.
+  /// - **Running Totals**: Calculating sums or aggregates where the first
+  ///   item is the baseline.
+  ///
+  /// ### Concurrency Model
+  /// * **Strictly Sequential**: Only one accumulation closure is active at
+  ///   a time. Inputs are queued to prevent race conditions in state evolution.
+  /// * **Lane Strategy**: Single-lane FIFO (First-In-First-Out).
+  ///
+  /// ### Parameters
+  /// - [accumulate]: **The State Orchestrator.** An async closure that
+  ///   merges the current state [S] with the new stimulus [S].
+  /// - [onError]: **Integrity Handler.** A callback invoked if a reduction
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Asynchronous Running Sum (No Seed)
+  /// ```dart
+  /// final input = Cell.ingress<int>();
+  ///
+  /// final sum = AsyncReduce<int>(
+  ///   (acc, value) async => acc + value,
+  ///   user: 'Ordered-Sum-Gate'
+  /// ).toHandle(source: input.cell);
+  ///
+  /// input.emit(5);  // Emits 5 (AsyncReduce.seed)
+  /// input.emit(10); // Emits 15 (AsyncReduce)
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncFold]: For accumulation requiring an explicit initial seed.
+  /// - [Reduce]: For synchronous seedless accumulation.
+  /// - [AsyncFoldLatest]: For switch-style behavior (cancelling pending steps).
   AsyncReduce(
       FutureOr<S> Function(S acc, S value) accumulate, {
         FoldErrorHandler? onError,
@@ -496,6 +622,72 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [AsyncFoldLatest]: The latest-only variant.
 class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Preemptive Asynchronous Accumulator**—a stateful logic
+  /// gate designed for latest-only, switch-style pulse evolution.
+  ///
+  /// [AsyncFoldLatest] (the asynchronous counterpart to a switchable `scan`)
+  /// maintains a persistent internal state that evolves with incoming
+  /// stimuli, but prioritizes the most recent request. If a new pulse enters
+  /// the gate while a previous accumulation step is still in flight, the
+  /// older operation is effectively superseded; its result will be ignored
+  /// to ensure the topography reflects only the most current state transition.
+  ///
+  /// ### When to use:
+  /// * **Fast-Changing UI State**: When only the accumulation of the latest
+  ///   user interaction matters (e.g., a multi-step search filter).
+  /// * **Real-time Dashboards**: Where processing older updates is obsolete
+  ///   once a newer update arrives.
+  /// * **High-Frequency Stimuli**: Reducing backpressure by discarding stale
+  ///   accumulation results.
+  ///
+  /// ### How it works:
+  /// 1. **Seed Initialization**: Starts with an initial [seed] value
+  ///    encapsulated in a [FoldSnapshot].
+  /// 2. **Generation Tracking**: Every incoming pulse [S] triggers a new
+  ///    internal generation ID.
+  /// 3. **Implicit Cancellation**: If a newer pulse arrives before the
+  ///    current [accumulate] task completes, the generation increments.
+  ///    The gate will silently ignore the completion of the older task.
+  /// 4. **State Materialization**: Only the result [A] of the *latest*
+  ///    generation is written to the [FoldSnapshot] and emitted.
+  /// 5. **Provenance Preservation**: The emitted value [A] inherits
+  ///    provenance from the triggering pulse and is tagged with the
+  ///    `'AsyncFoldLatest'` step.
+  ///
+  /// ### Concurrency Model:
+  /// * **Preemptive (Switch)**: Multiple async tasks may technically be in
+  ///   flight, but only the one matching the current generation ID can
+  ///   impact the graph.
+  /// * **Non-Blocking**: New inputs immediately trigger new accumulation
+  ///   attempts without waiting for previous ones to finish.
+  ///
+  /// ### Parameters:
+  /// - [seed]: **Initial State.** The starting value for the accumulation.
+  /// - [accumulate]: **The Switch Orchestrator.** An async closure that
+  ///   merges the latest stable state with the new stimulus.
+  /// - [snapshot]: **External Observer.** An optional [FoldSnapshot] for
+  ///   inspecting the current state from outside the reactive topography.
+  /// - [onError]: **Integrity Handler.** A callback invoked only if the
+  ///   *latest* generation fails.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Latest-Only Search State
+  /// ```dart
+  /// final input = Cell.ingress<String>();
+  ///
+  /// final searchState = AsyncFoldLatest<String, List<Result>>(
+  ///   [],
+  ///   (currentResults, query) async => api.performSearch(query),
+  ///   user: 'Search-Accumulator'
+  /// ).toHandle(source: input.cell);
+  /// ```
+  ///
+  /// ### See Also:
+  /// - [AsyncFold]: For strictly sequential, queued accumulation.
+  /// - [AsyncFoldExhaust]: For ignoring new inputs while an accumulation is busy.
+  /// - [AsyncReduce]: For seedless asynchronous accumulation.
   AsyncFoldLatest(
       A seed,
       AsyncAccumulator<A, S> accumulate, {
@@ -504,6 +696,7 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         dynamic user,
       }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
+  /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFoldLatest._(
       AsyncAccumulator<A, S> accumulate,
       this.snapshot,
@@ -634,6 +827,71 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldLatest]: For latest-only accumulation.
 /// - [AsyncFoldExhaust]: The exhaust variant.
 class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes an **Exclusive Asynchronous Accumulator**—a stateful logic
+  /// gate designed for prioritized, first-come-first-served pulse evolution.
+  ///
+  /// [AsyncFoldExhaust] (the asynchronous counterpart to an exhaustive `scan`)
+  /// maintains a persistent internal state but protects the accumulation
+  /// process from overlapping updates. If a new pulse enters the gate while
+  /// a previous accumulation step is still in flight, the incoming stimulus
+  /// is ignored and silently dropped from the topography.
+  ///
+  /// ### When to use:
+  /// * **Atomic State Transitions**: When overlapping updates would cause
+  ///   stale-read errors or race conditions in the state logic.
+  /// * **Resource Protection**: Preventing redundant async workloads (e.g.,
+  ///   database writes) triggered by rapid input bursts.
+  /// * **Rate-Limited UI State**: Accumulating only the pulses that arrive
+  ///   while the system is idle.
+  ///
+  /// ### How it works:
+  /// 1. **Seed Initialization**: The gate starts with an initial [seed] value
+  ///    stored in a [FoldSnapshot].
+  /// 2. **Exclusive Locking**: When a pulse [S] enters the gate, it evaluates
+  ///    the internal occupancy status.
+  /// 3. **Topographical Drop**: If the gate is "busy," the incoming pulse is
+  ///    discarded, effectively throttling the topography.
+  /// 4. **Async Materialization**: If idle, the gate locks itself and invokes
+  ///    the [accumulate] orchestrator with the latest stable state [A].
+  /// 5. **State Evolution**: The resulting [FutureOr<A>] is awaited. Upon
+  ///    completion, the [FoldSnapshot] is updated and the gate is unlocked.
+  /// 6. **Provenance Preservation**: The evolved value [A] is emitted in a
+  ///    new pulse inheriting the trigger's source and priority, tagged
+  ///    with the `'AsyncFoldExhaust'` step.
+  ///
+  /// ### Concurrency Model:
+  /// * **Exhaustive (Locking)**: Only one accumulation closure can be active
+  ///   at a time. New inputs are rejected rather than queued.
+  /// * **State Persistence**: The internal state is preserved across the
+  ///   lifetime of the materialized [FlowHandle].
+  ///
+  /// ### Parameters:
+  /// - [seed]: **Initial State.** The starting value for the accumulation.
+  /// - [accumulate]: **The Exclusive Orchestrator.** An async closure that
+  ///   merges the current stable state with the new stimulus.
+  /// - [snapshot]: **External Observer.** An optional [FoldSnapshot] for
+  ///   inspecting the state from outside the reactive topography.
+  /// - [onError]: **Integrity Handler.** A callback invoked if the active
+  ///   accumulation fails. The gate is always unlocked after an error.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Rate-Limited Balance Updates
+  /// ```dart
+  /// final transactions = Cell.ingress<double>();
+  ///
+  /// final balance = AsyncFoldExhaust<double, double>(
+  ///   0.0,
+  ///   (current, amount) async => await api.postTransaction(current + amount),
+  ///   user: 'Secure-Balance-Gate'
+  /// ).toHandle(source: transactions.cell);
+  /// ```
+  ///
+  /// ### See Also:
+  /// - [AsyncFold]: For strictly sequential, queued accumulation.
+  /// - [AsyncFoldLatest]: For switch-style behavior (superseding old work).
+  /// - [AsyncReduce]: For seedless asynchronous accumulation.
   AsyncFoldExhaust(
       A seed,
       AsyncAccumulator<A, S> accumulate, {
@@ -642,6 +900,7 @@ class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         dynamic user,
       }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
+  /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFoldExhaust._(
       AsyncAccumulator<A, S> accumulate,
       this.snapshot,

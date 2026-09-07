@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_flow</a></li>
     <li><a href="../cell_flow/">flow.dart</a></li>
-    <li class="self-crumb">FlowInstructionMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>&gt;</span> mixin</li>
+    <li class="self-crumb">FlowInstructionMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span> mixin</li>
   </ol>
   <div class="self-name">FlowInstructionMixin</div>
   <form class="search navbar-right" role="search">
@@ -53,13 +53,50 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Materialization Engine</strong>—a specialized mixin designed to
+bridge stateless instructions with live reactive topographies.</p>
+<p><a href="../cell_flow/FlowInstructionMixin-mixin.html">FlowInstructionMixin</a> provides the essential machinery required to
+transform a <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> blueprint into a functional <a href="../cell_flow/FlowHandle.html">FlowHandle</a>.
+It orchestrates the creation of the underlying <a href="../cell_flow/Nucleus-class.html">Nucleus</a> and <a href="../cell_flow/Receptor-class.html">Receptor</a>,
+anchoring the instruction's logic to a concrete <a href="../cell_flow/Cell-class.html">Cell</a> within the graph.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Custom Orchestrators</strong>: When defining new instruction subtypes that
+must support fluent composition via the <code>+</code> operator.</li>
+<li><strong>Materialization Logic</strong>: When the standard behavior for binding an
+instruction to a source cell needs to be inherited by a specialized gate.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Receptor Synthesis</strong>: The mixin wraps the instruction logic in a
+high-efficiency <a href="../cell_flow/Receptor-class.html">Receptor</a>.</li>
+<li><strong>Nucleus Anchoring</strong>: It initializes a <a href="../cell_flow/Nucleus-class.html">Nucleus</a> to manage the
+lifecycle, synapses, and integrity rules of the new node.</li>
+<li><strong>Handle Generation</strong>: It produces a <a href="../cell_flow/FlowHandle.html">FlowHandle</a> record, exposing
+methods for both synchronous and asynchronous stimulus ingress.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Composition Logic</strong>: This mixin provides the concrete implementation
+for the <code>+</code> operator, enabling the serial chaining of instructions
+into a single evolution pipeline.</li>
+<li><strong>Lock Integration</strong>: It automatically detects if the underlying
+nucleus requires a <strong>Conactive Lock</strong> for serialized execution.</li>
+</ul>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a>: The abstract blueprint for reactive logic.</li>
+<li><a href="../cell_flow/FlowHandle.html">FlowHandle</a>: The materialized interface for topographical ingress.</li>
+</ul>
+</section>
 
 
       <section>
         <dl class="dl-horizontal">
             <dt>Superclass constraints</dt>
             <dd><ul class="comma-separated dark mixin-relationships">
-                <li><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></li>
+                <li><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></li>
             </ul></dd>
 
           
@@ -118,7 +155,7 @@
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="call" class="callable inherited">
-  <span class="name"><a href="../cell_flow/FlowInstructionMixin/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="call-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})?, </span><span class="parameter" id="call-param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})
+  <span class="name"><a href="../cell_flow/FlowInstructionMixin/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="call-param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="call-param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})?, </span><span class="parameter" id="call-param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span></span>})
     <span class="returntype parameter">&#8594; O?</span>
   </span>
   
@@ -144,14 +181,14 @@
 </dd>
 
         <dt id="toHandle" class="callable">
-  <span class="name"><a href="../cell_flow/FlowInstructionMixin/toHandle.html">toHandle</a></span><span class="signature">(<wbr>{<span class="parameter" id="toHandle-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="toHandle-param-testRule"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="toHandle-param-synapses"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+  <span class="name"><a href="../cell_flow/FlowInstructionMixin/toHandle.html">toHandle</a></span><span class="signature">(<wbr>{<span class="parameter" id="toHandle-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="toHandle-param-testRule"><span class="type-annotation"><a href="../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="toHandle-param-synapses"><span class="type-annotation"><a href="../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowHandle.html">FlowHandle</a></span>
   </span>
   
 
 </dt>
 <dd>
-  
+  Materializes the blueprint into a live <strong>Topographical Gateway</strong>.
   
 
 </dd>
@@ -178,14 +215,14 @@
     <h2>Operators</h2>
     <dl class="callables">
         <dt id="operator +" class="callable">
-  <span class="name"><a href="../cell_flow/FlowInstructionMixin/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="../cell_flow/FlowInstructionMixin/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Combines this instruction with another to create an <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/InstructionChain-class.html">InstructionChain</a>.
+  Combines this instruction with another to create an <a href="../cell_flow/InstructionChain-class.html">InstructionChain</a>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -220,7 +257,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell_flow</a></li>
     <li><a href="../cell_flow/">cell_flow</a></li>
-    <li class="self-crumb">FlowInstructionMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>&gt;</span> mixin</li>
+    <li class="self-crumb">FlowInstructionMixin<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span> mixin</li>
 </ol>
 
   <h5>cell_flow library</h5>
@@ -232,7 +269,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

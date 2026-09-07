@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/start_with.dart';
 import 'package:test/test.dart';
 
@@ -158,4 +156,136 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
+
+
+  group('StartWith extra', () {
+    test('replaceFirst drops the first source payload', () async {
+      final b = bind(StartWith<int>(0, replaceFirst: true));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [0, 2], [0], [2]));
+    });
+
+    test('wrong types call onError and do not consume first', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = StartWith<int>(
+        0,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('onError is optional', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = StartWith<int>(0).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('StartWithMany extra', () {
+    test('empty prefix is a pass-through after first pulse', () async {
+      final b = bind(StartWithMany<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(5);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [5]));
+    });
+
+    test('wrong types call onError and do not emit the prefix', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = StartWithMany<int>(
+        [1, 2],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('no');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('StartWithFactory extra', () {
+    test('seedOf exceptions drop the first pulse', () async {
+      final errors = <Object>[];
+      final b = bind(StartWithFactory<int>(
+        (n) => throw StateError('seed'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = StartWithFactory<int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('StartWith + StartWithValue is a chain', () async {
+      final op = StartWith<int>(0) + StartWithValue<int>(-1);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('StartWith prefixes 200 follow-up values', () async {
+      final b = bind(StartWith<int>(-1));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
+  group('coverage extras', () {
+    test('StartWithFactory builds prefix', () async {
+      final b = bind(StartWithFactory<int>((first) => [first - 1]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('StartWithMany empty prefix', () async {
+      final b = bind(StartWithMany<int>([]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

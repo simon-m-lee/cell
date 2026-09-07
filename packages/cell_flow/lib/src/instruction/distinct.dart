@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that suppress repeated values (Rx `distinct` family).
 ///
@@ -25,8 +25,33 @@ import 'package:cell_flow/flow.dart';
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
+/// Error handler callback for distinct operators.
+///
+/// Called when an error occurs during deduplication operations.
+/// The error and optional stack trace are provided for logging or recovery.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = DistinctErrorHandler((error, stack) {
+///   print('Distinct error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef DistinctErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper for type-safe payload extraction.
+///
+/// [_typedOrError] checks that the pulse payload matches the expected
+/// type [S]. If it does, returns the pulse. If not, calls [onError]
+/// and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The incoming pulse to check.
+/// - [onError]: Optional error handler for type mismatches.
+/// - [allowNull]: If true, allows null payloads when `null is S`.
+///
+/// ### Returns:
+/// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       DistinctErrorHandler? onError,
@@ -47,12 +72,14 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Helper to add a step to a pulse's trace.
 Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 
+/// Default equality comparator using `==`.
 bool _defaultEquals(Object? a, Object? b) => a == b;
 
 // ─────────────────────────────────────────────────────────────
-// Consecutive
+// Consecutive Deduplication
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that keeps a pulse only when it differs from the
@@ -342,7 +369,7 @@ class DistinctUntilKeyChanged<S, K> extends FlowInstructionBase<Cell, Pulse, Pul
 }
 
 // ─────────────────────────────────────────────────────────────
-// Global (seen-set)
+// Global Deduplication
 // ─────────────────────────────────────────────────────────────
 
 /// A [Receptor] instruction that drops a value if it has ever been emitted

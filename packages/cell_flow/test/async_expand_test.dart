@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/async_expand.dart';
 import 'package:test/test.dart';
 
@@ -272,6 +270,96 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(50));
       expect(sw.elapsedMilliseconds, lessThan(800));
+    });
+  });
+
+
+  group('AsyncExpand extra', () {
+    test('onError is optional when expand throws', () async {
+      final b = bind(AsyncExpand<int, int>((n) => throw StateError('x')));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('null expand is a no-op', () async {
+      final b = bind(AsyncExpand<int, int>((n) => null));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('Future inner is flattened', () async {
+      final b = bind(AsyncExpand<int, int>((n) async => n * 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [6]));
+    });
+  });
+
+  group('AsyncExpandConcurrent extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncExpandConcurrent<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncExpandLatest extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncExpandLatest<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('AsyncExpandExhaust extra', () {
+    test('wrong types call onError and do not occupy the slot', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = AsyncExpandExhaust<int, int>(
+        (n) => [n],
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('AsyncExpand + AsyncExpandExhaust is a chain', () async {
+      final op = AsyncExpand<int, int>((n) => [n]) +
+          AsyncExpandExhaust<int, int>((n) => [n]);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
     });
   });
 }

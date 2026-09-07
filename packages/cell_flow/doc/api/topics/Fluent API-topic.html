@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Method Chaining (Fluent) topic docs, for the Dart programming language.">
+  <title>Method Chaining (Fluent) topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Method Chaining (Fluent) topic</li>
+  </ol>
+  <div class="self-name">Method Chaining (Fluent)</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Method Chaining (Fluent)</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-use-fluent-operators">How to use Fluent Operators</h1>
+<p><code>fluent_operator.dart</code> is a <strong>part</strong> of <code>package:cell_flow/flow.dart</code>. One import is enough:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+</code></pre>
+<p>You do <strong>not</strong> import the extension file yourself.</p>
+<p>The extensions wrap the same <code>Flow.*</code> static factories. Behaviour does not live in two places.</p>
+<table>
+<thead>
+<tr>
+<th>Extension</th>
+<th>On</th>
+<th>Use it to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CellFlowOperators</code></td>
+<td><code>Cell</code></td>
+<td>start a pipeline</td>
+</tr>
+<tr>
+<td><code>FlowOperators</code></td>
+<td><code>FlowHandle</code></td>
+<td>keep chaining via <code>.cell</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="nested-vs-fluent">Nested vs fluent</h2>
+<pre class="language-dart"><code class="language-dart">// Nested factories
+final out = Flow.map&lt;int, String&gt;(
+  Flow.filter&lt;int&gt;(clicks.cell, test: (n) =&gt; n &gt; 0).cell,
+  project: (n) =&gt; '$n',
+);
+
+// Same pipeline, chained
+final out = clicks.cell
+    .filter&lt;int&gt;(test: (n) =&gt; n &gt; 0)
+    .map&lt;int, String&gt;(project: (n) =&gt; '$n');
+</code></pre>
+<p>Observe the last handle’s cell:</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(
+  source: out.cell,
+  effect: (Pulse p) =&gt; print(p.payload),
+);
+await clicks.emitAsync(3);
+</code></pre>
+<hr>
+<h2 id="start-from-a-cell">Start from a Cell</h2>
+<p><code>CellFlowOperators</code> is the on-ramp. Typical sources:</p>
+<pre class="language-dart"><code class="language-dart">final ingress = Cell.ingress&lt;int&gt;();
+
+ingress.cell.filter&lt;int&gt;(test: (n) =&gt; n.isEven);
+ingress.cell.map&lt;int, String&gt;(project: (n) =&gt; '#$n');
+ingress.cell.tap&lt;int&gt;(onValue: print);
+
+// One-shot sequences (first pulse on this cell arms them)
+arm.cell.of&lt;String&gt;(values: ['a', 'b']);
+arm.cell.fromIterable&lt;int&gt;(iterable: [1, 2, 3]);
+arm.cell.range(start: 1, count: 5);
+arm.cell.fromFuture&lt;User&gt;(future: api.me());
+arm.cell.fromStream&lt;int&gt;(stream: ticker);
+</code></pre>
+<p>Anything not on <code>Cell</code> can start with a factory, then chain:</p>
+<pre class="language-dart"><code class="language-dart">Flow.debounce&lt;String&gt;(query.cell, duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: api.search);
+</code></pre>
+<hr>
+<h2 id="practical-pipelines">Practical pipelines</h2>
+<h3 id="search-as-you-type">Search-as-you-type</h3>
+<pre class="language-dart"><code class="language-dart">final query = Cell.ingress&lt;String&gt;();
+
+final results = query.cell
+    .map&lt;String, String&gt;(project: (q) =&gt; q.trim())
+    .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
+    .debounce&lt;String&gt;(duration: const Duration(milliseconds: 300))
+    .asyncMapLatest&lt;String, List&lt;Hit&gt;&gt;(mapper: (q) =&gt; api.search(q))
+    .tap&lt;List&lt;Hit&gt;&gt;(onValue: (hits) =&gt; analytics.track('search', hits.length));
+</code></pre>
+<p><code>asyncMapLatest</code> drops a stale in-flight request when the user types again.</p>
+<h3 id="form-field--validated-model">Form field → validated model</h3>
+<pre class="language-dart"><code class="language-dart">final raw = Cell.ingress&lt;String&gt;();
+
+final email = raw.cell
+    .map&lt;String, String&gt;(project: (s) =&gt; s.trim().toLowerCase())
+    .filter&lt;String&gt;(test: (s) =&gt; s.contains('@'))
+    .distinct&lt;String&gt;()
+    .asyncMap&lt;String, User&gt;(
+      mapper: (e) =&gt; api.lookup(e),
+      onError: (e, _) =&gt; log.warn(e),
+    );
+</code></pre>
+<h3 id="scroll--pointer-rate-limit">Scroll / pointer rate limit</h3>
+<pre class="language-dart"><code class="language-dart">final offsets = Cell.ingress&lt;double&gt;();
+
+final sampled = offsets.cell
+    .throttle&lt;double&gt;(
+      duration: const Duration(milliseconds: 16),
+      leading: true,
+      trailing: true,
+    )
+    .map&lt;double, int&gt;(project: (y) =&gt; y.round());
+</code></pre>
+<h3 id="button--http-ignore-double-taps">Button → HTTP, ignore double-taps</h3>
+<pre class="language-dart"><code class="language-dart">final taps = Cell.ingress&lt;void&gt;();
+
+final saved = taps.cell.exhaustMap&lt;void, Receipt&gt;(
+  project: (_) =&gt; api.checkout(cart),
+);
+</code></pre>
+<p>While checkout is running, extra taps are ignored.</p>
+<h3 id="latest-of-two-cells-when-the-source-moves">Latest of two Cells when the source moves</h3>
+<pre class="language-dart"><code class="language-dart">final price = Cell.ingress&lt;int&gt;();
+final currency = Cell.ingress&lt;String&gt;();
+
+final line = price.cell.withLatestFrom&lt;int, String&gt;(
+  others: [currency.cell],
+  combine: (p, latest) =&gt; '${latest.single} $p',
+);
+</code></pre>
+<p><code>1</code> then <code>'EUR'</code> then <code>2</code> → <code>"EUR 2"</code> (currency must already have a value).</p>
+<h3 id="pair-by-index-not-latest">Pair by index (not latest)</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+final names = Cell.ingress&lt;String&gt;();
+
+final rows = ids.cell.zipWith&lt;List&lt;Object?&gt;&gt;(
+  others: [names.cell],
+);
+// 1, then 'Ada', then 2, then 'Bob' → [1, Ada], [2, Bob]
+</code></pre>
+<h3 id="batch-telemetry">Batch telemetry</h3>
+<pre class="language-dart"><code class="language-dart">final events = Cell.ingress&lt;Metric&gt;();
+
+final batches = events.cell
+    .bufferWithTimeAndCount&lt;Metric&gt;(
+      duration: const Duration(seconds: 5),
+      count: 50,
+    )
+    .asyncMap&lt;List&lt;Metric&gt;, void&gt;(mapper: (batch) =&gt; api.flush(batch));
+</code></pre>
+<p>Flush when 50 events arrive <strong>or</strong> 5 seconds pass, whichever first.</p>
+<h3 id="paginated-list-from-a-stream-of-pages">Paginated list from a stream of pages</h3>
+<pre class="language-dart"><code class="language-dart">final pages = Cell.ingress&lt;List&lt;Row&gt;&gt;();
+
+final rows = pages.cell.concatAll&lt;Row&gt;();
+// [a, b] then [c] → a, b, c in that order
+</code></pre>
+<h3 id="group-a-live-feed">Group a live feed</h3>
+<pre class="language-dart"><code class="language-dart">final orders = Cell.ingress&lt;Order&gt;();
+
+final byStatus = orders.cell.groupBy&lt;Order, String&gt;(
+  keyOf: (o) =&gt; o.status,
+);
+// payload is Grouped('paid', order)
+</code></pre>
+<hr>
+<h2 id="method-catalogue">Method catalogue</h2>
+<p>Payload type parameters (<code>S</code>, <code>T</code>, …) are the same as on <code>Flow.*</code>.</p>
+<h3 id="start-cell">Start (<code>Cell</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Rx analogue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>of</code> / <code>fromIterable</code> / <code>range</code> / <code>repeat</code></td>
+<td><code>of</code> / <code>from</code> / <code>range</code></td>
+</tr>
+<tr>
+<td><code>fromFuture</code> / <code>fromStream</code></td>
+<td><code>from(Future)</code> / <code>from(Stream)</code></td>
+</tr>
+<tr>
+<td><code>map</code> / <code>filter</code> / <code>tap</code></td>
+<td>start a transform</td>
+</tr>
+</tbody>
+</table>
+<h3 id="transform-flowhandle">Transform (<code>FlowHandle</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>map</code> / <code>mapTo</code> / <code>mapWithIndex</code> / <code>mapNotNull</code> / <code>mapWhen</code></td>
+<td>project</td>
+</tr>
+<tr>
+<td><code>pluck</code> / <code>pluckOr</code> / <code>pluckPath</code></td>
+<td>field access</td>
+</tr>
+<tr>
+<td><code>scan</code> / <code>reduce</code> / <code>pairwise</code></td>
+<td>running state</td>
+</tr>
+</tbody>
+</table>
+<h3 id="async">Async</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Concurrency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>asyncMap</code></td>
+<td>queue (one result each)</td>
+</tr>
+<tr>
+<td><code>asyncMapConcurrent</code></td>
+<td>overlap</td>
+</tr>
+<tr>
+<td><code>asyncMapLatest</code></td>
+<td>drop in-flight</td>
+</tr>
+<tr>
+<td><code>asyncExpand</code></td>
+<td>flatten inners, queued</td>
+</tr>
+<tr>
+<td><code>asyncFold</code></td>
+<td>async running fold</td>
+</tr>
+</tbody>
+</table>
+<h3 id="filter--take--skip">Filter / take / skip</h3>
+<p><code>filter</code>, <code>take</code> / <code>takeWhile</code> / <code>takeUntil</code>, <code>skip</code> / <code>skipWhile</code> / <code>skipUntil</code> / <code>skipRepeated</code>, <code>distinct</code>.</p>
+<h3 id="flatten">Flatten</h3>
+<p><code>concatMap</code>, <code>concatAll</code>, <code>mergeMap</code>, <code>switchMap</code>, <code>exhaustMap</code>.</p>
+<h3 id="combine">Combine</h3>
+<p><code>mergeWith</code>, <code>mergeAll</code>, <code>zipWith</code>, <code>combineLatestWith</code>, <code>withLatestFrom</code>.</p>
+<h3 id="time">Time</h3>
+<p><code>delay</code> / <code>delayWhen</code>, <code>debounce</code>, <code>throttle</code>, <code>sample</code> / <code>sampleTime</code>, <code>auditTime</code>, <code>timeout</code>, <code>interval</code>.</p>
+<h3 id="collect--route--control">Collect / route / control</h3>
+<p><code>bufferCount</code> / <code>bufferTime</code>, <code>windowCount</code>, <code>groupBy</code>, <code>partition</code>, <code>startWith</code>, <code>share</code> / <code>shareReplay</code>, <code>retry</code>, <code>tap</code> / <code>tapAll</code> / <code>tapWithIndex</code>.</p>
+<p>Factories that exist on <code>Flow</code> but not on the handle (for example <code>Flow.race</code>, <code>Flow.audit</code>, <code>Flow.windowTime</code>) can still be inserted mid-pipeline:</p>
+<pre class="language-dart"><code class="language-dart">Flow.race&lt;int&gt;(gate.cell, competitors: [a.future, b.future])
+    .tap&lt;int&gt;(onValue: print);
+</code></pre>
+<hr>
+<h2 id="rules-that-bite-in-real-apps">Rules that bite in real apps</h2>
+<ol>
+<li><strong>Inject with <code>IngressHandle.emitAsync</code></strong>, not a raw <code>Cell.emitAsync</code>.</li>
+<li><strong>A Cell does not complete.</strong> <code>concat</code> of two Cells is not “A then B”. Concatenate <strong>inners</strong> (lists / futures / streams) instead.</li>
+<li><strong><code>combineLatest</code> / <code>withLatestFrom</code> wait until every other Cell has a value.</strong> Zip waits for the same <em>index</em> on every lane.</li>
+<li><strong>Time operators use real <code>Timer</code>s.</strong> Tests must <code>await</code> past the duration.</li>
+<li><strong>Type arguments are required</strong> on most methods (<code>filter&lt;int&gt;</code>, <code>map&lt;int, String&gt;</code>). The handle itself is not generic in the facade.</li>
+<li><strong>Errors</strong> go to the <code>onError:</code> you pass through. They are not rethrown into the chain unless that instruction emits an error pulse.</li>
+</ol>
+<hr>
+<h2 id="when-to-stay-with-flow">When to stay with <code>Flow.*</code></h2>
+<p>Use the static factory when:</p>
+<ul>
+<li>you are arming a one-shot (<code>Flow.of</code>, <code>Flow.range</code>) from a dedicated gate Cell</li>
+<li>the operator is not on the extension yet</li>
+<li>you want the call site to name the operator for logs / codegen</li>
+</ul>
+<p>Fluent and static can mix in the same pipeline. Both call the same instruction classes.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../cell_flow/Flow-class.html">Flow</a></span> 
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-icu-alarm-pipeline cp-4 linked" title="This is part of the Demo · ICU Alarm Pipeline topic."><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></span>
+    <span class="category demo-·-pharmacy-transactions cp-5 linked" title="This is part of the Demo · Pharmacy Transactions topic."><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></span>
+    <span class="category demo-·-search-stability cp-6 linked" title="This is part of the Demo · Search Stability topic."><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></span>
+    <span class="category demo-·-forensic-pipeline cp-7 linked" title="This is part of the Demo · Forensic Pipeline topic."><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></span>
+    <span class="category howto-flowinstructions cp-8 linked" title="This is part of the HowTo-FlowInstructions topic."><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></span>
+    <span class="category method-chaining-(fluent) cp-9 linked" title="This is part of the Method Chaining (Fluent) topic."><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></span>
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li class="self-crumb">Method Chaining (Fluent) topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_flow</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/ICU Alarm Pipeline-topic.html">Demo&nbsp;·&nbsp;ICU&nbsp;Alarm&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Pharmacy Dispense-topic.html">Demo&nbsp;·&nbsp;Pharmacy&nbsp;Transactions</a></li>
+        <li><a href="../topics/Search Stability-topic.html">Demo&nbsp;·&nbsp;Search&nbsp;Stability</a></li>
+        <li><a href="../topics/Forensic Pipeline-topic.html">Demo&nbsp;·&nbsp;Forensic&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
+        <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
+      <li class="section-title">Libraries</li>
+      <li><a href="../cell_flow/">flow</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Method Chaining (Fluent) topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Fluent API-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_flow/Flow-class.html">Flow</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.2.0.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

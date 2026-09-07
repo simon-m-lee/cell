@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that cap emission rate (Rx `throttle` family).
 ///
@@ -24,8 +24,33 @@ import 'package:cell_flow/flow.dart';
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
+/// Error handler callback for throttle operators.
+///
+/// Called when a payload fails the expected type check (or when a
+/// downstream integrity hook wants a single sink). The error and
+/// optional stack trace are provided for logging or recovery.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = ThrottleErrorHandler((error, stack) {
+///   print('Throttle error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef ThrottleErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper for type-safe payload extraction.
+///
+/// [_typedOrError] checks that the pulse payload matches the expected
+/// type [S]. If it does, returns the pulse. If not, calls [onError]
+/// and returns `null`.
+///
+/// ### Parameters:
+/// - [pulse]: The incoming pulse to check.
+/// - [onError]: Optional error handler for type mismatches.
+///
+/// ### Returns:
+/// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
     Pulse pulse, {
       ThrottleErrorHandler? onError,
@@ -41,8 +66,13 @@ Pulse? _typedOrError<S>(
   return pulse;
 }
 
+/// Stamps [pulse] with a lineage [step] without changing payload.
 Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 
+/// Helper to create an output pulse with proper provenance.
+///
+/// The payload is [value]; source / type / priority are inherited from
+/// [sourcePulse] (or [cell] when present).
 Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
   return Pulse<S>(
     value,
@@ -164,25 +194,27 @@ Pulse<S> _fromPayload<S>(S value, Pulse sourcePulse, Cell? cell, String step) {
 /// - [Debounce]: For silence-based emission.
 /// - [FilterByTime]: For time-based filtering.
 class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-  /// Creates a [Throttle] instruction with the specified [duration].
+  /// Synthesizes a **Fixed-Window Rate-Limit Gate**—leading and/or trailing
+  /// emission inside a window that **does not reset** on later pulses
+  /// (Rx `throttleTime`).
   ///
-  /// ### Parameters:
-  /// - [duration]: **The Time Window.** The minimum time between emissions.
-  /// - [leading]: **Leading Emission.** If `true`, emit the first value immediately.
-  /// - [trailing]: **Trailing Emission.** If `true`, emit the last value after
-  ///   the window.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  /// Unlike debounce, the first typed pulse *opens* the window. A leading
+  /// emission fires immediately; a trailing emission fires when the
+  /// remaining duration elapses, carrying the latest pending payload.
   ///
-  /// ### Example
-  /// ```dart
-  /// val throttle = Throttle<int>(
-  ///   Duration(milliseconds: 100),
-  ///   leading: true,
-  ///   trailing: true,
-  ///   onError: (error, stack) => print('Error: $error'),
-  /// );
-  /// ```
+  /// ### Concurrency Model
+  /// * **Single Window**: At most one timer is armed.
+  /// * **Pending Slot**: Only the most recent in-window pulse is retained
+  ///   for the trailing edge.
+  /// * **Provenance**: Leading uses `_mark(..., 'Throttle.leading')`;
+  ///   trailing uses `_fromPayload(..., 'Throttle.trailing')`.
+  ///
+  /// ### Parameters
+  /// - [duration]: Length of the fixed window.
+  /// - [leading]: Emit the first pulse of a fresh window immediately.
+  /// - [trailing]: Emit the last pending pulse when the window closes.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   Throttle(
       Duration duration, {
         bool leading = true,
@@ -317,20 +349,13 @@ class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ThrottleTrailing]: For trailing-only throttling.
 /// - [DebounceLeadingOnly]: For leading-only debounce.
 class ThrottleLeading<S> extends Throttle<S> {
-  /// Creates a [ThrottleLeading] instruction with the specified [duration].
+  /// Synthesizes a **Leading-Only Rate-Limit Gate**—first pulse of each
+  /// window, remainder dropped (`leading: true, trailing: false`).
   ///
-  /// ### Parameters:
-  /// - [duration]: **The Time Window.** The cooldown period after each emission.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
-  ///
-  /// ### Example
-  /// ```dart
-  /// val throttleLeading = ThrottleLeading<void>(
-  ///   Duration(seconds: 1),
-  ///   onError: (error, stack) => print('Error: $error'),
-  /// );
-  /// ```
+  /// ### Parameters
+  /// - [duration]: Cooldown after each leading emission.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   ThrottleLeading(
       super.duration, {
         super.onError,
@@ -412,20 +437,13 @@ class ThrottleLeading<S> extends Throttle<S> {
 /// - [ThrottleLeading]: For leading-only throttling.
 /// - [AuditTime]: For window-based sampling.
 class ThrottleTrailing<S> extends Throttle<S> {
-  /// Creates a [ThrottleTrailing] instruction with the specified [duration].
+  /// Synthesizes a **Trailing-Only Rate-Limit Gate**—last pulse of each
+  /// window, first pulse silent (`leading: false, trailing: true`).
   ///
-  /// ### Parameters:
-  /// - [duration]: **The Time Window.** The interval between emissions.
-  /// - [onError]: **Error Handler.** Optional callback for handling errors.
-  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
-  ///
-  /// ### Example
-  /// ```dart
-  /// val throttleTrailing = ThrottleTrailing<int>(
-  ///   Duration(milliseconds: 100),
-  ///   onError: (error, stack) => print('Error: $error'),
-  /// );
-  /// ```
+  /// ### Parameters
+  /// - [duration]: Interval from window open to trailing emission.
+  /// - [onError]: Integrity handler for type mismatches.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   ThrottleTrailing(
       super.duration, {
         super.onError,
@@ -440,7 +458,15 @@ class ThrottleTrailing<S> extends Throttle<S> {
 // State
 // ─────────────────────────────────────────────────────────────
 
-/// Internal state for throttle operators.
+/// Internal clock + pending slot for throttle operators.
+///
+/// [_WindowState] holds the open-window timestamp, the trailing
+/// candidate, and the armed [Timer]. This is an implementation detail
+/// and is not part of the public API.
+///
+/// ### Non‑obvious
+/// - **Single Pending**: Only the latest in-window value is kept.
+/// - [clearPending] cancels the timer and drops the candidate.
 class _WindowState<S> {
   S? pending;
   Pulse? pendingPulse;

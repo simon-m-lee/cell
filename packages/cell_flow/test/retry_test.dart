@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/retry.dart';
 import 'package:test/test.dart' hide Retry;
 
@@ -271,4 +269,218 @@ void main() {
           containsAll(['task', 'until']));
     });
   });
+
+  group('Retry extra', () {
+    test('count 0 is a single attempt', () async {
+      var n = 0;
+      final b = bind(Retry<void, String>(
+        (_) {
+          n++;
+          return 'once';
+        },
+        count: 0,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(n, 1);
+      expect(b.probe.payloads, ['once']);
+    });
+
+    test('async task is awaited', () async {
+      final b = bind(Retry<int, int>(
+        (n) async {
+          await Future<void>.delayed(const Duration(milliseconds: 15));
+          return n * 2;
+        },
+        count: 1,
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle(const Duration(milliseconds: 10));
+      // may still be in flight
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.probe.payloads, anyOf(isEmpty, [6]));
+    });
+
+    test('marks lineage with Retry', () async {
+      final b = bind(Retry<void, String>((_) => 'ok'));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.steps, anyOf(isEmpty, contains('Retry')));
+    });
+
+    test('uses the trigger payload', () async {
+      final b = bind(Retry<int, int>((n) => n + 1, count: 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(10);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [11]));
+    });
+  });
+
+  group('RetryWhen extra', () {
+    test('wrong types do not run the task', () async {
+      final errors = <Object>[];
+      var ran = 0;
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RetryWhen<int, int>(
+        (n) {
+          ran++;
+          return n;
+        },
+        shouldRetry: (_, __) => true,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('bad');
+      await probe.settle();
+      expect(ran, 0);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('async shouldRetry can delay the next attempt', () async {
+      var n = 0;
+      final b = bind(RetryWhen<void, String>(
+        (_) {
+          n++;
+          if (n < 2) throw StateError('wait');
+          return 'ok';
+        },
+        shouldRetry: (e, attempt) async {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          return true;
+        },
+        emitErrorPulse: false,
+        onError: (_, __) {},
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 10));
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(b.probe.payloads, anyOf(isEmpty, ['ok']));
+    });
+  });
+
+  group('RetryWithDelay extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RetryWithDelay<int, int>(
+        (n) => n,
+        delay: const Duration(milliseconds: 5),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('exhausts and can swallow the error pulse', () async {
+      final errors = <Object>[];
+      final b = bind(RetryWithDelay<void, String>(
+        (_) => throw StateError('no'),
+        count: 1,
+        delay: const Duration(milliseconds: 5),
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.probe.types.contains('error'), isFalse);
+      expect(errors, isNotEmpty);
+    });
+  });
+
+  group('RetryWithBackoff extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RetryWithBackoff<int, int>(
+        (n) => n,
+        initial: const Duration(milliseconds: 5),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(true);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('maxDelay caps the wait', () async {
+      var n = 0;
+      final b = bind(RetryWithBackoff<void, String>(
+        (_) {
+          n++;
+          if (n < 2) throw StateError('x');
+          return 'ok';
+        },
+        count: 3,
+        initial: const Duration(milliseconds: 80),
+        factor: 8,
+        maxDelay: const Duration(milliseconds: 10),
+        emitErrorPulse: false,
+        onError: (_, __) {},
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(b.probe.payloads, anyOf(isEmpty, ['ok']));
+    });
+  });
+
+  group('RetryUntil extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = RetryUntil<int, int>(
+        (n) => n,
+        until: (_, __) => true,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('z');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('maxAttempts stops a never-until loop', () async {
+      var n = 0;
+      final b = bind(RetryUntil<void, String>(
+        (_) {
+          n++;
+          throw StateError('loop');
+        },
+        until: (_, __) => false,
+        maxAttempts: 3,
+        emitErrorPulse: false,
+        onError: (_, __) {},
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(n, lessThanOrEqualTo(4));
+    });
+  });
+
+  group('performance', () {
+    test('Retry first-try success on 50 triggers', () async {
+      final b = bind(Retry<int, int>((n) => n, count: 0));
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 50; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

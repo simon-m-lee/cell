@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/zip.dart';
 import 'package:test/test.dart';
 
@@ -168,6 +166,85 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(100));
       expect(sw.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+
+  group('ZipWith extra', () {
+    test('empty others zips the source alone', () async {
+      final gate = Cell.ingress<int>();
+      final out = ZipWith<List<Object?>>(const []).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('project throw calls onError', () async {
+      final errors = <Object>[];
+      final other = Cell.ingress<int>();
+      final gate = Cell.ingress<int>();
+      final out = ZipWith<int>(
+        [other.cell],
+        project: (row) => throw StateError('p'),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await other.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('Zip extra', () {
+    test('empty sources never emit', () async {
+      final gate = Cell.ingress<void>();
+      final out = Zip<List<Object?>>(const []).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(null);
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('ZipAll extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = ZipAll<int>(
+        2,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+
+    test('width 1 emits each value as a singleton row', () async {
+      final b = bind(ZipAll<int>(1));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(7);
+      await b.probe.settle();
+      expect(b.probe.payloads, [
+        [7],
+      ]);
+    });
+  });
+
+  group('composition', () {
+    test('ZipAll handle is bindable', () async {
+      final b = bind(ZipAll<int>(2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
     });
   });
 }

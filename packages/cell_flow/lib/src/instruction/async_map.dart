@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core AsyncMap Operators
@@ -189,6 +189,58 @@ Future<T> _call<S, T>(AsyncMapper<S, T> map, S value) {
 /// - [AsyncMapWithTimeout]: For timeout handling.
 /// - [AsyncMapWithFallback]: For fallback values.
 class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Sequential Asynchronous Bridge**—a specialized
+  /// orchestration instruction designed for ordered, one-by-one pulse evolution.
+  ///
+  /// [AsyncMap] acts as a stable gateway between the synchronous reactive
+  /// topography and asynchronous logic. It ensures that every incoming
+  /// stimulus is transformed to completion before the next begins, maintaining
+  /// a strict topological order of results regardless of varying async
+  /// latencies.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Each incoming pulse [S] is evaluated for
+  ///    type integrity and placed into a internal FIFO queue.
+  /// 2. **Sequential Materialization**: The [map] orchestrator is invoked for
+  ///    the payload at the head of the queue only when the gate is idle.
+  /// 3. **Async Awaiting**: The resulting `FutureOr<T>` is awaited until
+  ///    resolution.
+  /// 4. **Provenance Preservation**: The evolved value [T] is emitted in a
+  ///    new pulse inheriting the original source, priority, and type,
+  ///    tagged with the `'AsyncMap'` step.
+  /// 5. **Queue Advancement**: The gate advances to the next stimulus only
+  ///    after the current mapping has successfully completed or failed.
+  ///
+  /// ### Concurrency Model
+  /// * **Single-Lane Traffic**: Only one async operation is active at any time.
+  /// * **FIFO Integrity**: Output pulses are guaranteed to be emitted in the
+  ///   exact order their triggering stimuli entered the topography.
+  /// * **Backpressure Protection**: Downstream consumers are protected from
+  ///   burst-induced race conditions through internal buffering.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Orchestrator.** A closure that transforms an input
+  ///   payload [S] into a `FutureOr` of [T].
+  /// - [onError]: **Integrity Handler.** A callback invoked if a mapping
+  ///   fails or if a payload violates type [S]. The gate continues
+  ///   processing the queue after reporting the error.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Sequential API Enrichment
+  /// ```dart
+  /// // Fetches user data one-by-one, ensuring Result 1 emits before Result 2
+  /// final userGate = AsyncMap<int, User>(
+  ///   (id) => api.fetchUser(id),
+  ///   user: 'Sequential-User-Mapper'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMapConcurrent]: For parallel execution where order is secondary.
+  /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
+  /// - [AsyncExpand]: For mapping that yields multiple pulses per stimulus.
   AsyncMap(
       AsyncMapper<S, T> map, {
         AsyncMapErrorHandler? onError,
@@ -248,6 +300,41 @@ class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// // Same as AsyncMap
 /// ```
 class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
+
+  /// Synthesizes a **Sequential Topographical Alias**—a specialized constructor
+  /// that explicitly enforces ordered pulse evolution.
+  ///
+  /// [AsyncMapSequential] is a semantic alias for [AsyncMap]. It is used to
+  /// improve code readability by clearly distinguishing ordered, one-by-one
+  /// processing from concurrent or switch-style asynchronous operations.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Queuing**: Each incoming pulse is placed into a internal
+  ///    FIFO (First-In-First-Out) queue.
+  /// 2. **Ordered Bridge**: A mapping is only initiated after the previous
+  ///    asynchronous workload has resolved.
+  /// 3. **Provenance Preservation**: The result inherits the original pulse
+  ///    provenance, tagged with the `'AsyncMap'` topographic step.
+  ///
+  /// ### When to use
+  /// * **API Sequence Integrity**: When calls must hit a backend in the
+  ///   exact order they were triggered.
+  /// * **State Consistency**: When a downstream cell depends on an
+  ///   ordered history of asynchronous state changes.
+  /// * **Backpressure Control**: To naturally throttle the topography by
+  ///   awaiting completion before accepting new work.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Orchestrator.** A closure that transforms the input
+  ///   payload into a `FutureOr`.
+  /// - [onError]: **Integrity Handler.** A callback invoked if a mapping
+  ///   fails. The gate continues to the next item in the queue after handling.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: The primary implementation of this logic.
+  /// - [AsyncMapConcurrent]: For unordered, parallel asynchronous lanes.
   AsyncMapSequential(
       super.map, {
         super.onError,
@@ -326,6 +413,57 @@ class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
 /// - [AsyncMapLatest]: For latest-only mapping.
 /// - [AsyncMapWithIndex]: For indexed mapping.
 class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Parallel Asynchronous Bridge**—a specialized orchestration
+  /// instruction designed for concurrent pulse evolution and high-throughput
+  /// topography.
+  ///
+  /// [AsyncMapConcurrent] (analogous to `mergeMap` in Rx) acts as a multi-lane
+  /// gateway between the synchronous reactive graph and concurrent asynchronous
+  /// logic. Unlike the sequential [AsyncMap], it does not enforce a queue;
+  /// every incoming stimulus is immediately materialized into a separate
+  /// async lane, allowing pulses to evolve at their own relative latencies.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Every incoming pulse [S] is evaluated for
+  ///    type integrity.
+  /// 2. **Concurrent Materialization**: The [map] orchestrator is triggered
+  ///    immediately for each pulse, bypassing any central queue.
+  /// 3. **Non-Deterministic Propagation**: Results are emitted to the graph
+  ///    as soon as their respective async lanes resolve. The output order is
+  ///    determined by completion time, not stimulus arrival order.
+  /// 4. **Provenance Preservation**: Each evolved value [T] is wrapped in a
+  ///    new pulse inheriting the specific trigger's source and priority,
+  ///    tagged with the `'AsyncMapConcurrent'` topographic step.
+  ///
+  /// ### Concurrency Model
+  /// * **Multi-Lane Traffic**: Unlimited parallel operations by default.
+  /// * **Throughput Optimized**: Ideal for independent tasks where the
+  ///   temporal order of inputs is secondary to execution speed.
+  /// * **Error Isolation**: Failure in one async lane does not terminate
+  ///   or stall other active lanes.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Parallel Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a `FutureOr` of [T].
+  /// - [onError]: **Integrity Handler.** A callback invoked if an async lane
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Parallel Data Fetching
+  /// ```dart
+  /// // Fetches multiple resources simultaneously; order of emission depends on API latency
+  /// final parallelGate = AsyncMapConcurrent<int, Resource>(
+  ///   (id) => api.fetchResource(id),
+  ///   user: 'Parallel-Resource-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: For strictly ordered, sequential asynchronous bridges.
+  /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
+  /// - [AsyncExpandConcurrent]: For parallel mapping that yields multiple pulses.
   AsyncMapConcurrent(
       AsyncMapper<S, T> map, {
         AsyncMapErrorHandler? onError,
@@ -433,6 +571,66 @@ class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncMapConcurrent]: For concurrent mapping.
 /// - [AsyncMapWithIndex]: For indexed mapping.
 class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Preemptive Asynchronous Bridge**—a specialized
+  /// orchestration instruction designed for latest-only, switch-style
+  /// pulse evolution.
+  ///
+  /// [AsyncMapLatest] (analogous to `switchMap` in Rx) ensures that only
+  /// the most recent stimulus is evolved to completion. If a new pulse
+  /// enters the gate while a previous asynchronous workload is still
+  /// in flight, the older operation is effectively suppressed; its
+  /// result will be ignored to ensure the topography reflects only the
+  /// most current state transition.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Every incoming pulse [S] is evaluated
+  ///    for type integrity.
+  /// 2. **Generation Tracking**: A unique internal generation ID is
+  ///    assigned to each materialization lane.
+  /// 3. **Preemptive Suppression**: If a new pulse arrives, the
+  ///    generation ID increments. The gate will silently ignore the
+  ///    completion of any previous lane that does not match the
+  ///    current ID.
+  /// 4. **Deferred Materialization**: The [map] orchestrator is triggered
+  ///    immediately, and the resulting `FutureOr<T>` is awaited.
+  /// 5. **Provenance Preservation**: Only the evolved value [T] from
+  ///    the *latest* generation is emitted in a new pulse, inheriting
+  ///    provenance from the triggering pulse and tagged with the
+  ///    `'AsyncMapLatest'` step.
+  ///
+  /// ### Concurrency Model
+  /// * **Latest-Wins Strategy**: Multiple async tasks may technically
+  ///   be in flight, but only the one matching the current generation
+  ///   ID can impact the graph.
+  /// * **Topological Freshness**: Ideal for scenarios like search-as-you-type
+  ///   or real-time updates where older results become obsolete as
+  ///   soon as a new input is available.
+  /// * **Implicit Cancellation**: While underlying Futures are not
+  ///   aborted, the bridge ensures graph consistency by discarding
+  ///   stale resolution events.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Switch Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a `FutureOr` of [T].
+  /// - [onError]: **Integrity Handler.** A callback invoked only if
+  ///    the *latest* active generation fails.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Search-as-you-Type Logic
+  /// ```dart
+  /// // Only the results for the most recently typed query are emitted
+  /// final searchGate = AsyncMapLatest<String, List<Result>>(
+  ///   (query) => api.fetchResults(query),
+  ///   user: 'Search-Switch-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: For strictly ordered, sequential asynchronous bridges.
+  /// - [AsyncMapConcurrent]: For parallel execution where all results matter.
+  /// - [AsyncExpandLatest]: For switch-style behavior yielding multiple pulses.
   AsyncMapLatest(
       AsyncMapper<S, T> map, {
         AsyncMapErrorHandler? onError,
@@ -540,6 +738,62 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncMapConcurrent]: For concurrent mapping.
 /// - [AsyncMapLatest]: For latest-only mapping.
 class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes an **Indexed Asynchronous Bridge**—a specialized orchestration
+  /// instruction designed for position-aware pulse evolution and sequential
+  /// mapping.
+  ///
+  /// [AsyncMapWithIndex] extends the standard asynchronous bridge by maintaining
+  /// a persistent, 0-based topological index. It ensures that each stimulus is
+  /// transformed to completion before the next begins, providing the
+  /// orchestrator with the exact sequence position of the pulse as it traverses
+  /// the topography.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Each incoming pulse [S] is evaluated for
+  ///    type integrity and placed into a internal FIFO queue.
+  /// 2. **Sequential Materialization**: The [map] orchestrator is invoked
+  ///    for the payload at the head of the queue, provided with the current
+  ///    topological [index].
+  /// 3. **Async Awaiting**: The resulting `FutureOr<T>` is awaited until
+  ///    resolution.
+  /// 4. **Provenance Preservation**: The evolved value [T] is emitted in a
+  ///    new pulse inheriting the original source, priority, and type,
+  ///    tagged with the `'AsyncMapWithIndex'` step.
+  /// 5. **Index Advancement**: The internal counter increments immediately
+  ///    before the next mapping starts, ensuring a strict monotonic sequence
+  ///    regardless of async latency.
+  ///
+  /// ### Concurrency Model
+  /// * **Single-Lane Traffic**: Only one async operation is active at any time.
+  /// * **Ordered Indexing**: The index is guaranteed to match the arrival
+  ///   order of the triggering stimuli.
+  /// * **Backpressure Protection**: Downstream consumers are shielded from
+  ///   burst-induced race conditions through sequential execution.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Indexed Orchestrator.** A closure that transforms an input
+  ///   payload [S] and its topological [index] into a `FutureOr` of [T].
+  /// - [onError]: **Integrity Handler.** A callback invoked if a mapping
+  ///   fails or if a payload violates type [S]. The gate continues processing
+  ///   the queue after reporting.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Position-Aware Labeling
+  /// ```dart
+  /// // Labels pulses with their topological position
+  /// final labeledGate = AsyncMapWithIndex<String, String>(
+  ///   (item, index) async => 'Pulse #$index: $item',
+  ///   user: 'Indexed-Label-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: For standard sequential mapping without index tracking.
+  /// - [AsyncMapConcurrent]: For parallel execution where order and index
+  ///   continuity are secondary.
+  /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
   AsyncMapWithIndex(
       FutureOr<T> Function(S value, int index) map, {
         AsyncMapErrorHandler? onError,
@@ -651,6 +905,64 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithDelay]: For retries with delay.
 /// - [RetryWithBackoff]: For retries with backoff.
 class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Resilient Asynchronous Bridge**—a specialized orchestration
+  /// instruction designed for fault-tolerant, sequential pulse evolution.
+  ///
+  /// [AsyncMapWithRetry] acts as a durable gateway between the synchronous
+  /// reactive topography and potentially unstable asynchronous logic. It ensures
+  /// topological integrity by attempting to recover from transient failures,
+  /// re-triggering the evolution process up to a specified threshold before
+  /// reporting a terminal error.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Each incoming pulse [S] is evaluated for
+  ///    type integrity and placed into an internal FIFO queue.
+  /// 2. **Sequential Materialization**: The [map] orchestrator is invoked
+  ///    for the payload at the head of the queue only when the gate is idle.
+  /// 3. **Iterative Evolution**: If the asynchronous workload fails, the
+  ///    gate automatically re-attempts the mapping up to [count] additional
+  ///    times.
+  /// 4. **Provenance Preservation**: Upon successful resolution, the evolved
+  ///    value [T] is emitted in a new pulse inheriting the original source,
+  ///    priority, and type, tagged with the `'AsyncMapWithRetry'` step.
+  /// 5. **Queue Advancement**: The gate advances to the next stimulus only
+  ///    after a successful evolution or after the retry threshold has been
+  ///    exhausted.
+  ///
+  /// ### Concurrency Model
+  /// * **Single-Lane Traffic**: Only one async operation (including its
+  ///   retry attempts) is active at any time.
+  /// * **FIFO Integrity**: Stimuli are processed in their topological arrival
+  ///   order; retries do not allow subsequent pulses to "leapfrog" the
+  ///   current operation.
+  /// * **Error Reporting**: Only the final failure (after all retries are
+  ///   exhausted) is considered a terminal break in the pulse evolution.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Resilient Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a `FutureOr` of [T].
+  /// - [count]: **Retry Threshold.** The maximum number of additional
+  ///   attempts to perform if the initial mapping fails. Defaults to 3.
+  /// - [onError]: **Integrity Handler.** A callback invoked for each
+  ///   failure encountered during the retry cycle.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Resilient API Fetching
+  /// ```dart
+  /// // Attempts to fetch data, retrying up to 3 times on network failure
+  /// final resilientGate = AsyncMapWithRetry<String, Data>(
+  ///   (url) => api.fetch(url),
+  ///   count: 3,
+  ///   user: 'Retry-API-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: For standard sequential mapping without retry logic.
+  /// - [AsyncMapWithTimeout]: For enforcing temporal constraints on evolution.
+  /// - [AsyncMapWithFallback]: For providing default values upon evolution failure.
   AsyncMapWithRetry(
       AsyncMapper<S, T> map, {
         int count = 3,
@@ -766,6 +1078,66 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Timeout]: For timeout on idle streams.
 /// - [TimeoutWithFallback]: For fallback on timeout.
 class AsyncMapWithTimeout<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Time-Constrained Asynchronous Bridge**—a specialized
+  /// orchestration instruction designed to enforce temporal boundaries on
+  /// pulse evolution.
+  ///
+  /// [AsyncMapWithTimeout] ensures that each asynchronous mapping completes
+  /// within a specified [duration]. If the evolution of a stimulus exceeds
+  /// this temporal limit, the bridge effectively "breaks" for that specific
+  /// pulse, discarding the result to prevent stale data or hanging processes
+  /// from congesting the topography.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: Each incoming pulse [S] is evaluated for
+  ///    type integrity and placed into an internal FIFO queue.
+  /// 2. **Sequential Materialization**: The [map] orchestrator is invoked
+  ///    for the payload at the head of the queue only when the gate is idle.
+  /// 3. **Temporal Monitoring**: The resulting `FutureOr<T>` is wrapped in
+  ///    a timeout supervisor set to [duration].
+  /// 4. **Evolution vs. Timeout**:
+  ///    - If the workload completes within the limit, the evolved value [T]
+  ///      is propagated downstream.
+  ///    - If the deadline is exceeded, a [TimeoutException] is raised, and
+  ///      the pulse is dropped from the active topography.
+  /// 5. **Provenance Preservation**: Successful results inherit the original
+  ///    source and priority, tagged with the `'AsyncMapWithTimeout'` step.
+  ///
+  /// ### Concurrency Model
+  /// * **Single-Lane Traffic**: Only one async operation is monitored at a
+  ///   time. The timeout applies to the individual mapping task, not the
+  ///   queue duration.
+  /// * **FIFO Integrity**: Stimuli are processed in arrival order; a timeout
+  ///   in one lane allows the gate to advance to the next queued stimulus.
+  /// * **Backpressure Protection**: Naturally limits the graph's wait time
+  ///   on external services or heavy computations.
+  ///
+  /// ### Parameters
+  /// - [map]: **The Orchestrator.** A closure that transforms an input
+  ///   payload [S] into a `FutureOr` of [T].
+  /// - [duration]: **Temporal Limit.** The maximum time allowed for a single
+  ///   pulse to evolve before a timeout is triggered.
+  /// - [onError]: **Integrity Handler.** A callback invoked if a mapping
+  ///   fails or times out.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: API Fetch with Deadline
+  /// ```dart
+  /// // Ensures the topography remains responsive even if the API is slow
+  /// final boundedGate = AsyncMapWithTimeout<int, Data>(
+  ///   (id) => api.fetchData(id),
+  ///   duration: const Duration(seconds: 2),
+  ///   user: 'Deadline-API-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncMap]: For standard sequential mapping without temporal limits.
+  /// - [AsyncMapWithFallback]: For providing a default value when a timeout
+  ///   or error occurs.
+  /// - [AsyncMapWithRetry]: For re-attempting failed (or timed-out) evolutions.
   AsyncMapWithTimeout(
       AsyncMapper<S, T> map, {
         required Duration duration,
@@ -878,6 +1250,70 @@ class AsyncMapWithTimeout<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> 
 /// - [AsyncMapWithRetry]: For retry logic.
 /// - [TimeoutWithFallback]: For fallback on timeout.
 class AsyncMapWithFallback<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Resilient Asynchronous Bridge**—a specialized orchestration
+  /// instruction designed to provide a safety net for pulse evolution.
+  ///
+  /// [AsyncMapWithFallback] acts as a fault-tolerant gateway between the
+  /// synchronous reactive topography and potentially unstable asynchronous
+  /// logic. It ensures topological continuity by guaranteeing that a result
+  /// is always emitted; if the primary evolution fails, the gate evolves the
+  /// stimulus into a predefined [fallback] value rather than allowing the
+  /// pulse to be dropped.
+  ///
+  /// ### When to use:
+  /// * **Graceful Degradation**: Ensuring a downstream cell receives a default
+  ///   value when an external service is unavailable.
+  /// * **Caching Strategy**: Emitting a stale or baseline result to keep the
+  ///   topography active during a processing failure.
+  /// * **Topological Resilience**: Preventing an error in one branch from
+  ///   halting the propagation of data to the rest of the graph.
+  ///
+  /// ### How it works:
+  /// 1. **Stimulus Reception**: Each incoming pulse [S] is evaluated for
+  ///    type integrity and placed into an internal FIFO queue.
+  /// 2. **Sequential Materialization**: The [map] orchestrator is invoked
+  ///    for the payload at the head of the queue only when the gate is idle.
+  /// 3. **Recovery Strategy**:
+  ///    - On **Success**: The evolved value [T] is emitted, inheriting the
+  ///      original provenance and tagged with `'AsyncMapWithFallback'`.
+  ///    - On **Failure**: The [onError] handler is invoked, and the gate
+  ///      materializes the [fallback] value. This result is emitted in a
+  ///      pulse tagged with `'AsyncMapWithFallback.fallback'`.
+  /// 4. **Queue Advancement**: The gate advances to the next stimulus
+  ///    immediately after the current evolution (or fallback) completes.
+  ///
+  /// ### Concurrency Model:
+  /// * **Single-Lane Traffic**: Only one async operation is active at a time.
+  /// * **Guaranteed Emission**: Unlike [AsyncMap], this gate is non-filtering
+  ///   on error; it always yields a result to the downstream topography.
+  /// * **Causal Integrity**: Both successful and fallback pulses preserve
+  ///   the original stimulus source and priority.
+  ///
+  /// ### Parameters:
+  /// - [map]: **The Orchestrator.** A closure that transforms an input
+  ///   payload [S] into a `FutureOr` of [T].
+  /// - [fallback]: **The Safety Value.** A constant or precomputed value of
+  ///   type [T] to be emitted if the mapping fails.
+  /// - [onError]: **Integrity Handler.** A callback invoked when the primary
+  ///   evolution encounters an exception.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: API Fetch with Default
+  /// ```dart
+  /// // Always emits a result, even if the network is down
+  /// final resilientGate = AsyncMapWithFallback<int, String>(
+  ///   (id) => api.fetchStatus(id),
+  ///   fallback: 'Unknown',
+  ///   user: 'Resilient-Status-Bridge'
+  /// );
+  /// ```
+  ///
+  /// ### See Also:
+  /// - [AsyncMap]: For standard sequential mapping where errors drop the pulse.
+  /// - [AsyncMapWithRetry]: For attempting recovery through repetition.
+  /// - [AsyncMapWithTimeout]: For enforcing temporal limits on evolution.
   AsyncMapWithFallback(
       AsyncMapper<S, T> map, {
         required T fallback,

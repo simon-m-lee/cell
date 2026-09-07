@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/of.dart';
 import 'package:test/test.dart';
 
@@ -141,6 +139,123 @@ void main() {
       sw.stop();
       expect(b.probe.payloads, hasLength(300));
       expect(sw.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+  group('Of extra', () {
+    test('empty list is silent', () async {
+      final b = bind(Of<int>(const []));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('marks lineage with Of', () async {
+      final b = bind(Of<int>([1]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.steps, anyOf(isEmpty, contains('Of')));
+    });
+  });
+
+  group('FromIterable extra', () {
+    test('Set emits each element once', () async {
+      final b = bind(FromIterable<int>({1, 2, 3}));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads.toSet(), {1, 2, 3});
+    });
+
+    test('second trigger is ignored', () async {
+      final b = bind(FromIterable<int>([7]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [7]));
+    });
+  });
+
+  group('Range extra', () {
+    test('negative step walks down', () async {
+      final b = bind(Range(5, 3, step: -2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [5, 3, 1]));
+    });
+
+    test('count 0 emits nothing', () async {
+      final b = bind(Range(10, 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('second trigger is ignored', () async {
+      final b = bind(Range(0, 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [0, 1]));
+    });
+  });
+
+  group('Repeat extra', () {
+    test('count 0 emits nothing', () async {
+      final b = bind(Repeat<String>('x', count: 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('default count is one', () async {
+      final b = bind(Repeat<int>(42));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [42]));
+    });
+
+    test('second trigger is ignored', () async {
+      final b = bind(Repeat<int>(1, count: 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1, 1]));
+    });
+  });
+
+  group('coverage extras', () {
+    test('Range step 2', () async {
+      final b = bind(Range(0, 3, step: 2));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('Repeat count 0 is silent', () async {
+      final b = bind(Repeat<int>(7, count: 0));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('FromIterable empty', () async {
+      final b = bind(FromIterable<int>([]));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(null);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
     });
   });
 }

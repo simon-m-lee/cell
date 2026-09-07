@@ -62,6 +62,51 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Iterative Pulse Bridge</strong> from a dynamic iterable.</p>
+<p>This operator treats the provided <code>iterable</code> as a sequence of potential
+stimuli to be materialized into the topography. Every time the source
+cell ingress occurs, the bridge iterates through the collection and
+evolves each element as a distinct pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Dynamic Sequencing</strong>: Transforming a collection that may change
+between materializations into a reactive pulse stream.</li>
+<li><strong>Generator Integration</strong>: Bridging a lazy <code>Iterable</code> or generator
+function into the reactive graph.</li>
+<li><strong>Batch Evolution</strong>: Processing multiple items as a single burst
+triggered by a specific cell state change.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The bridge awaits a trigger pulse from
+ the source cell.</li>
+<li><strong>Iterative Materialization</strong>: Upon ingress, the <code>iterable</code> is
+traversed, converting each payload into a new stimulus.</li>
+<li><strong>Pulse Evolution</strong>: Each payload is emitted sequentially,
+inheriting the priority and provenance of the trigger pulse,
+tagged with the <code>'FromIterable'</code> step.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Synchronous Blocking</strong>: The iteration occurs synchronously. If the
+<code>iterable</code> is extremely large or infinite, it will block the
+reactive engine's evolution cycle.</li>
+<li><strong>Pulse Distinction</strong>: Every item in the iterable results in a unique
+pulse; they are not batched into a single downstream materialization.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>iterable</code>: The <strong>Dynamic Sequence</strong> of payloads to be evolved.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> providing the anchor node for the iterative branch.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../cell_flow/CellFlowOperators/of.html">of</a>: For materializing fixed, static collections.</li>
+<li><a href="../../cell_flow/CellFlowOperators/range.html">range</a>: For generating a sequence of integer stimuli.</li>
+</ul>
+</section>
 
 
     
@@ -87,7 +132,7 @@
     <li class="self-crumb">fromIterable&lt;<wbr><span class="type-parameter">T</span>&gt; method</li>
 </ol>
 
-    <h5>CellFlowOperators extension on <a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></h5>
+    <h5>CellFlowOperators extension on <a href="../../cell_flow/Cell-class.html">Cell</a></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
@@ -96,7 +141,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 /// Flow instructions that combine the latest values of several Cells
 /// (Rx `combineLatest` family).
@@ -28,8 +28,21 @@ import 'package:cell_flow/flow.dart';
 /// Wire with `.toHandle(source:)` and inject via
 /// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
 
+/// Error handler callback for combine operators.
+///
+/// Called when an error occurs during combination operations.
+/// The error and optional stack trace are provided for logging or recovery.
+///
+/// ### Example
+/// ```dart
+/// final errorHandler = CombineErrorHandler((error, stack) {
+///   print('Combine error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef CombineErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
+/// Helper to create an output pulse with proper provenance.
 Pulse<R> _out<R>(R value, Pulse trigger, Cell? cell, String step) {
   return Pulse<R>(
     value,
@@ -40,14 +53,33 @@ Pulse<R> _out<R>(R value, Pulse trigger, Cell? cell, String step) {
   );
 }
 
+/// Internal state for async emission.
+///
+/// Stores the continuation callback, token, and cell context for operators
+/// that emit asynchronously, such as [CombineLatestWith] and [CombineLatest].
+///
+/// ### When to use
+/// This is an internal implementation detail. You don't need to use it
+/// directly in application code.
 class _EmitState {
+  /// The continuation callback for async emission.
   void Function({required Pulse? result, required dynamic token})? future;
+
+  /// The token for the current emission.
   dynamic token;
+
+  /// The host cell for the instruction.
   Cell? cell;
 }
 
+/// Internal state for tracking latest values.
+///
+/// Stores the latest value and whether a value has been received yet.
 class _LatestSlot {
+  /// The latest value.
   Object? value;
+
+  /// Whether a value has been received.
   bool has = false;
 }
 

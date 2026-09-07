@@ -148,7 +148,7 @@ library;
 
 import 'dart:async';
 import 'dart:math';
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────────────
 // Data Models
@@ -262,7 +262,7 @@ class ApiSimulator {
 
     _orderCounter++;
     return Order(
-      id: 'ORD-${_orderCounter}',
+      id: 'ORD-$_orderCounter',
       amount: order.amount,
       customerId: order.customerId ?? 'CUST-${_random.nextInt(100)}',
     );
@@ -279,7 +279,7 @@ class ApiSimulator {
 
     _cartCounter++;
     return {
-      'transactionId': 'TXN-${_cartCounter}',
+      'transactionId': 'TXN-$_cartCounter',
       'items': cart.items.length,
       'total': cart.total,
       'status': 'completed',
@@ -323,7 +323,7 @@ class ApiSimulator {
     return UserProfile(
       id: userId,
       name: ['Alice', 'Bob', 'Charlie', 'Diana'][_random.nextInt(4)],
-      email: '${userId}@example.com',
+      email: '$userId@example.com',
     );
   }
 }
@@ -687,7 +687,7 @@ Future<void> main() async {
         throw Exception('Conflict: Document was modified elsewhere');
       }
 
-      return '✅ Save successful: Document v${saveAttempts}';
+      return '✅ Save successful: Document v$saveAttempts';
     },
   );
 

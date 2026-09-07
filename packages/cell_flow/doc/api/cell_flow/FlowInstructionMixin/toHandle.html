@@ -55,15 +55,28 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_flow/FlowHandle.html">FlowHandle</a></span>
-<span class="name ">toHandle</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="toHandle-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
-<li><span class="parameter" id="toHandle-param-testRule"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
-<li><span class="parameter" id="toHandle-param-synapses"><span class="type-annotation"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/cell/1.0.0-rc.2/cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<span class="name ">toHandle</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="toHandle-param-source"><span class="type-annotation"><a href="../../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="toHandle-param-testRule"><span class="type-annotation"><a href="../../cell_flow/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="toHandle-param-synapses"><span class="type-annotation"><a href="../../cell_flow/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_flow/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
 </ol>})
 
       
 
     </section>
     
+<section class="desc markdown">
+  <p>Materializes the blueprint into a live <strong>Topographical Gateway</strong>.</p>
+<p>This method performs the transition from a stateless instruction to
+a live graph node, returning a handle for stimulus ingress.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: The <strong>Upstream Anchor</strong> cell providing pulses to this gate.</li>
+<li><code>testRule</code>: An <strong>Integrity Gate</strong> defining read/write permissions.</li>
+<li><code>synapses</code>: The <strong>Propagation Strategy</strong> for downstream evolution.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_flow/FlowHandle.html">FlowHandle</a> providing entry points into the reactive topography.</p>
+</section>
 
 
     
@@ -89,11 +102,10 @@
   }
 
   Future&lt;void&gt; ingest(Pulse pulse, {bool serializedCompletion = true}) async {
-    return await receptor.async.call(pulse as PulseBase&lt;I&gt;, serializedCompletion: serializedCompletion);
+    return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
 
   return (cell: cell, emit: emit, emitAsync: emitAsync, ingest: ingest);
-
 }</code></pre>
 </section>
 
@@ -122,7 +134,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2
+      1.0.0-rc.2.0.1
   </span>
   
 </footer>

@@ -6,29 +6,30 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core SwitchMap Operators
 // ─────────────────────────────────────────────────────────────
 
-/// Flow instructions that cancel the previous inner sequence
-/// (Rx `switchMap` family).
+/// Error handler callback for switchMap operators.
 ///
-/// | Operator | Rx analogue | Inner comes from |
-/// |---|---|---|
-/// | [SwitchMap] | `switchMap` | [mapper] of the payload |
-/// | [SwitchMapTo] | `switchMapTo` | the same factory every time |
-/// | [SwitchLatest] | `switchAll` / `switchLatest` | the payload itself |
-/// | [SwitchMapState] | `switchMap` + snapshot | [mapper] plus [SwitchMapSnapshot] |
+/// Called when an error occurs during switching operations, such as
+/// errors in the mapper function, type mismatches, or errors in the
+/// inner sequence.
 ///
-/// A new trigger increments a generation. In-flight inners whose
-/// generation no longer matches are dropped.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
-
+/// ### Example
+/// ```dart
+/// final errorHandler = SwitchErrorHandler((error, stack) {
+///   print('SwitchMap error: $error');
+///   if (stack != null) print(stack);
+/// });
+/// ```
 typedef SwitchErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+// ─────────────────────────────────────────────────────────────
+// Type Definitions and Helpers
+// ─────────────────────────────────────────────────────────────
 
 /// A function that maps a value to an inner sequence (Future, Stream, or Iterable).
 ///
@@ -44,7 +45,14 @@ typedef SwitchErrorHandler = void Function(Object error, StackTrace? stackTrace)
 ///   return await api.search(query);
 /// });
 /// ```
+///
+/// ### Type Parameters:
+/// - [S]: The type of the input value.
 typedef SwitchMapper<S> = FutureOr<Object?> Function(S value);
+
+// ─────────────────────────────────────────────────────────────
+// SwitchMapSnapshot - Shared State for Stateful Switching
+// ─────────────────────────────────────────────────────────────
 
 /// Live snapshot shared by [SwitchMapState].
 ///
@@ -58,7 +66,21 @@ typedef SwitchMapper<S> = FutureOr<Object?> Function(S value);
 /// Use this when you need to coordinate work across multiple operations
 /// or when you want to cancel work based on the current generation.
 ///
-/// ### Example
+/// ### How it works
+/// 1. The [generation] is incremented on every new trigger.
+/// 2. [lastTrigger] is updated with the most recent input.
+/// 3. [lastValue] is updated with the most recent output.
+/// 4. The snapshot is shared between the instruction and external code.
+///
+/// ### Non‑obvious
+/// - **Shared Mutable State**: The snapshot is mutable and shared.
+/// - **Generation Tracking**: The [generation] helps detect updates.
+/// - **External Access**: The snapshot can be accessed externally.
+/// - **Thread Safety**: Not thread-safe; operations are serialized
+///   through the cell's lock.
+/// - **Type Safety**: Generic over [S] (input) and [T] (output).
+///
+/// ### Example: Coordinated Cancellation
 /// ```dart
 /// final snapshot = SwitchMapSnapshot<String, String>();
 ///
@@ -75,28 +97,55 @@ typedef SwitchMapper<S> = FutureOr<Object?> Function(S value);
 /// print('Last trigger: ${snapshot.lastTrigger}');
 /// print('Last value: ${snapshot.lastValue}');
 /// ```
+///
+/// ### Type Parameters:
+/// - [S]: The type of the input payload.
+/// - [T]: The type of the output payload.
+///
+/// ### See Also:
+/// - [SwitchMapState]: The operator that uses this snapshot.
 class SwitchMapSnapshot<S, T> {
   /// The current generation counter.
   ///
   /// Incremented every time a new trigger arrives. Operations can check
   /// this value to determine if they should continue or cancel.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final currentGen = snapshot.generation;
+  /// // Later, check if still current
+  /// if (snapshot.generation != currentGen) return;
+  /// ```
   int generation = 0;
 
   /// The most recent input value that triggered a switch.
+  ///
+  /// This is updated with the payload of every trigger pulse.
   S? lastTrigger;
 
   /// The most recent output value emitted.
-  T? lastValue;
-
-  /// Returns `true` if this snapshot is still valid.
   ///
-  /// A snapshot is considered current if its generation matches the
-  /// latest generation. This is a convenience getter for checking
-  /// `state.generation == currentGeneration`.
-  bool get isCurrent => true;
+  /// This is updated with every successfully emitted value.
+  T? lastValue;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
+
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [cell]: Optional cell to use as the source.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -131,6 +180,7 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 ///   allowing cancelled operations to stop early.
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
+/// - **Efficiency**: Only processes values from the current generation.
 Future<void> _drain(
     Object? inner,
     void Function(dynamic value) onData, {
@@ -165,6 +215,16 @@ Future<void> _drain(
 }
 
 /// Internal state for generation tracking.
+///
+/// Maintains a generation counter that increments on each new trigger.
+/// This is used to cancel previous operations when a new trigger arrives.
+///
+/// ### Fields:
+/// - [generation]: The current generation ID.
+///
+/// ### Non‑obvious
+/// - **Monotonic**: The generation counter only increases.
+/// - **Stateful**: The state persists across pulses.
 class _GenerationState {
   int generation = 0;
 }
@@ -219,22 +279,20 @@ class _GenerationState {
 /// 3. A new **generation ID** is assigned to this trigger.
 /// 4. Any previous in-flight inner sequence is effectively cancelled.
 /// 5. Only values from the most recent generation are emitted.
-/// 6. Each emitted value is wrapped as an [EvolvedPulse] with the step
-///    `'SwitchMap'` to preserve causal provenance.
+/// 6. Each emitted value gets the step `'SwitchMap'` for provenance.
 ///
 /// ### Non‑obvious
 /// - **Generation Tracking**: Each trigger gets a unique generation ID.
 ///   Values from older generations are silently dropped.
 /// - **Silent Cancellation**: Cancelled operations do not throw exceptions.
 ///   They simply stop emitting values.
-/// - **Drain Recursion**: The `_drain` function handles nested structures
-///   (Future of Stream, Iterable of Future, etc.).
-/// - **Type Safety**: The instruction is generic over [S] (input type) and
-///   [T] (output type), ensuring compile-time type safety.
+/// - **Drain Recursion**: The `_drain` function handles nested structures.
+/// - **Type Safety**: The instruction is generic over [S] (input) and
+///   [T] (output), ensuring compile-time type safety.
 /// - **Provenance Preservation**: Every emitted value preserves the source
 ///   cell, type, and priority from the trigger pulse.
-/// - **Error Isolation**: Errors in cancelled operations are ignored.
-///   Only errors from the current generation are reported.
+/// - **Error Isolation**: Only errors from the current generation are
+///   reported. Errors from cancelled operations are ignored.
 /// - **Memory Efficiency**: Only the latest generation's values are kept.
 ///
 /// ### Example: Search-as-you-Type
@@ -271,9 +329,8 @@ class _GenerationState {
 /// ```
 ///
 /// ### Parameters:
-/// - [mapper]: **The Inner Sequence Factory.** A function that takes an
-///   input value of type [S] and returns a `FutureOr<Object?>` that can be
-///   drained (Future, Stream, Iterable, or value).
+/// - [mapper]: **The Inner Sequence Factory.** Takes an input value of
+///   type [S] and returns a `FutureOr<Object?>` that can be drained.
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
 ///
@@ -282,8 +339,7 @@ class _GenerationState {
 /// - [T]: The type of the output payload emitted by the inner sequence.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that can be used in a [Receptor] pipeline or
-/// materialized with `.toHandle()`.
+/// A [FlowInstruction] that switches to the latest inner sequence.
 ///
 /// ### See Also:
 /// - [SwitchMapTo]: For switching to a fixed inner sequence.
@@ -292,6 +348,43 @@ class _GenerationState {
 /// - [AsyncMap]: For one-to-one async mapping without cancellation.
 /// - [ConcatMap]: For queuing inner sequences in order.
 class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Dynamic Source Switcher**—a specialized instruction
+  /// that cancels previous inners and switches to the latest one.
+  ///
+  /// [SwitchMap] is the primary operator for dynamic source switching.
+  /// It maps each incoming value to an inner sequence and emits values
+  /// from the most recent sequence, cancelling any previous ones.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Inner Generation**: The [mapper] is called with the payload.
+  /// 3. **Generation ID**: A new ID is assigned to this trigger.
+  /// 4. **Cancellation Check**: Values from older generations are dropped.
+  /// 5. **Draining**: The inner sequence is drained asynchronously.
+  /// 6. **Emission**: Only values from the current generation are emitted
+  ///    with the step `'SwitchMap'`.
+  /// 7. **Error Handling**: Only errors from the current generation are
+  ///    reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The Inner Factory.** Generates sequences from payloads.
+  /// - [onError]: **Integrity Handler.** Called on errors from the
+  ///   current generation.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Dynamic Data Loader
+  /// ```dart
+  /// // Loads data for the most recent selection
+  /// val dynamicLoader = SwitchMap<String, Data>(
+  ///   (id) => api.fetch(id),
+  ///   user: 'Dynamic-Loader'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [SwitchMapTo]: For switching to a fixed inner sequence.
+  /// - [SwitchLatest]: For when the payload is the inner sequence.
+  /// - [SwitchMapState]: For stateful switching with snapshot access.
   SwitchMap(
       SwitchMapper<S> mapper, {
         SwitchErrorHandler? onError,
@@ -361,6 +454,24 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Retry Logic**: Retrying a failed operation on a retry signal.
 /// - **Reset**: Resetting a sequence to its initial state.
 /// - **Timer Restart**: Restarting a timer or countdown.
+/// - **Replay**: Replaying the same sequence on demand.
+///
+/// ### How it works
+/// 1. Each incoming pulse (regardless of payload) triggers the [inner] factory.
+/// 2. The [inner] factory returns the same sequence every time.
+/// 3. A new generation ID is assigned to each trigger.
+/// 4. Any previous in-flight sequence is cancelled.
+/// 5. Only values from the most recent generation are emitted.
+/// 6. Each emitted value gets the step `'SwitchMapTo'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Payload Ignored**: The payload is ignored; only the arrival matters.
+/// - **Reusable Factory**: The same [inner] factory is called for every trigger.
+/// - **Cancellation Works**: Previous sequences are cancelled as expected.
+/// - **Type Safety**: The input type [S] is effectively ignored but kept
+///   for compatibility with the FlowInstruction interface.
+/// - **Provenance Preservation**: Every emitted value preserves the
+///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Retry on Demand
 /// ```dart
@@ -395,20 +506,6 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// refreshSignal.emit(null);
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse (regardless of payload) triggers the [inner] factory.
-/// 2. The [inner] factory returns the same sequence every time.
-/// 3. A new generation ID is assigned to each trigger.
-/// 4. Any previous in-flight sequence is cancelled.
-/// 5. Only values from the most recent generation are emitted.
-///
-/// ### Non‑obvious
-/// - **Payload Ignored**: The payload is ignored; only the arrival matters.
-/// - **Reusable Factory**: The same [inner] factory is called for every trigger.
-/// - **Cancellation Works**: Previous sequences are cancelled as expected.
-/// - **Type Safety**: The input type [S] is effectively ignored but kept
-///   for compatibility with the FlowInstruction interface.
-///
 /// ### Parameters:
 /// - [inner]: **The Fixed Inner Sequence Factory.** A function that returns
 ///   a `FutureOr<Object?>` that can be drained (Future, Stream, or Iterable).
@@ -420,13 +517,48 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [T]: The type of the output payload emitted by the inner sequence.
 ///
 /// ### Returns:
-/// A [FlowInstruction] that switches to a fixed inner sequence on every trigger.
+/// A [FlowInstruction] that switches to a fixed inner sequence.
 ///
 /// ### See Also:
 /// - [SwitchMap]: For payload-dependent switching.
 /// - [SwitchLatest]: For when the payload is the inner sequence.
 /// - [SwitchMapState]: For stateful switching with snapshot access.
 class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Fixed Sequence Switcher**—a specialized instruction
+  /// that switches to the same inner sequence on every trigger.
+  ///
+  /// [SwitchMapTo] is similar to [SwitchMap] but the inner sequence is fixed
+  /// and does not depend on the payload. This is useful when you want to
+  /// restart the same sequence on every trigger.
+  ///
+  /// ### How it works
+  /// 1. **Generation ID**: A new ID is assigned to each trigger.
+  /// 2. **Inner Generation**: The [inner] factory is called.
+  /// 3. **Cancellation**: Previous sequences are cancelled.
+  /// 4. **Draining**: The inner sequence is drained asynchronously.
+  /// 5. **Emission**: Only values from the current generation are emitted
+  ///    with the step `'SwitchMapTo'`.
+  /// 6. **Error Handling**: Only errors from the current generation are
+  ///    reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [inner]: **The Fixed Sequence Factory.** Returns the sequence to switch to.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Refreshable Poller
+  /// ```dart
+  /// // Restarts polling on each refresh signal
+  /// val refreshablePoller = SwitchMapTo<void, Status>(
+  ///   () => pollStatus(),
+  ///   user: 'Refreshable-Poller'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [SwitchMap]: For payload-dependent switching.
+  /// - [SwitchLatest]: For when the payload is the inner sequence.
+  /// - [SwitchMapState]: For stateful switching with snapshot access.
   SwitchMapTo(
       FutureOr<Object?> Function() inner, {
         SwitchErrorHandler? onError,
@@ -486,6 +618,24 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Dynamic Data Sources**: Switching between different data sources.
 /// - **Feature Flags**: Switching between different feature implementations.
 /// - **Hot Swapping**: Replacing one sequence with another at runtime.
+/// - **Protocol Switching**: Switching between different communication protocols.
+///
+/// ### How it works
+/// 1. Each incoming pulse carries a sequence (Future, Stream, or Iterable).
+/// 2. A new generation ID is assigned to each trigger.
+/// 3. Any previous in-flight sequence is cancelled.
+/// 4. Only values from the most recent payload are emitted.
+/// 5. The payload itself is the sequence to drain.
+/// 6. Each emitted value gets the step `'SwitchLatest'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Payload as Source**: The payload *is* the inner sequence.
+/// - **No Mapping**: There's no mapper function – the payload is used directly.
+/// - **Type Safety**: The instruction is generic over [T] – the output type
+///   must match the payload's element type.
+/// - **Flexibility**: The payload can be any drainable object.
+/// - **Provenance Preservation**: Every emitted value preserves the
+///   source cell, type, and priority from the trigger pulse.
 ///
 /// ### Example: Switching Between Data Sources
 /// ```dart
@@ -509,21 +659,6 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// taskSelector.emit(fetchUser2()); // Cancels fetchUser1, emits fetchUser2
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse carries a sequence (Future, Stream, or Iterable).
-/// 2. A new generation ID is assigned to each trigger.
-/// 3. Any previous in-flight sequence is cancelled.
-/// 4. Only values from the most recent payload are emitted.
-/// 5. The payload itself is the sequence to drain.
-///
-/// ### Non‑obvious
-/// - **Payload as Source**: The payload *is* the inner sequence.
-/// - **No Mapping**: There's no mapper function – the payload is used directly.
-/// - **Type Safety**: The instruction is generic over [T] – the output type
-///   must match the payload's element type.
-/// - **Flexibility**: The payload can be any drainable object (Future,
-///   Stream, Iterable, or value).
-///
 /// ### Parameters:
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata.
@@ -539,6 +674,39 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [SwitchMapTo]: For switching to a fixed inner sequence.
 /// - [SwitchMapState]: For stateful switching with snapshot access.
 class SwitchLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Payload Switcher**—a specialized instruction that
+  /// treats the payload itself as the inner sequence.
+  ///
+  /// [SwitchLatest] is a specialized variant where the incoming payload
+  /// *is* the inner sequence. This is useful when you're emitting streams,
+  /// futures, or iterables as values and want to switch between them.
+  ///
+  /// ### How it works
+  /// 1. **Generation ID**: A new ID is assigned to each trigger.
+  /// 2. **Payload as Inner**: The payload is treated as the inner sequence.
+  /// 3. **Cancellation**: Previous sequences are cancelled.
+  /// 4. **Draining**: The payload is drained asynchronously.
+  /// 5. **Emission**: Only values from the current generation are emitted
+  ///    with the step `'SwitchLatest'`.
+  /// 6. **Error Handling**: Only errors from the current generation are
+  ///    reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Dynamic Sequence Switcher
+  /// ```dart
+  /// // Switches between sequences passed as payloads
+  /// val switcher = SwitchLatest<String>(
+  ///   user: 'Sequence-Switcher'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [SwitchMap]: For mapping payloads to sequences.
+  /// - [SwitchMapTo]: For switching to a fixed inner sequence.
+  /// - [SwitchMapState]: For stateful switching with snapshot access.
   SwitchLatest({
     SwitchErrorHandler? onError,
     dynamic user,
@@ -576,6 +744,12 @@ class SwitchLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 }
 
 /// Alias of [SwitchLatest] for Rx `switchAll` compatibility.
+///
+/// [SwitchAll] is a convenience alias for [SwitchLatest] that provides
+/// naming consistency with Rx `switchAll`.
+///
+/// ### See Also:
+/// - [SwitchLatest]: The primary implementation.
 typedef SwitchAll<T> = SwitchLatest<T>;
 
 // ─────────────────────────────────────────────────────────────
@@ -599,6 +773,26 @@ typedef SwitchAll<T> = SwitchLatest<T>;
 ///   the current generation.
 /// - **Conditional Work**: Skip work if the generation has advanced.
 /// - **Testing**: Inspect the state for verification.
+/// - **Debugging**: Log the current generation for debugging.
+///
+/// ### How it works
+/// 1. Each incoming pulse triggers the [mapper] with the payload and snapshot.
+/// 2. The [mapper] can access the snapshot's [generation] for cancellation.
+/// 3. The [snapshot.lastTrigger] is updated with each new payload.
+/// 4. The [snapshot.lastValue] is updated with each emitted value.
+/// 5. Only values from the most recent generation are emitted.
+/// 6. Each emitted value gets the step `'SwitchMapState'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Shared State**: The snapshot is shared and mutable, allowing
+///   coordination between the mapper and external code.
+/// - **Generation Tracking**: The [generation] is automatically incremented.
+/// - **Last Trigger/Value**: These are automatically updated.
+/// - **Thread Safety**: The snapshot is not thread-safe; operations are
+///   serialized through the cell's lock.
+/// - **Type Safety**: The snapshot is generic over [S] and [T].
+/// - **External Access**: The snapshot can be accessed from outside the
+///   instruction for inspection or coordination.
 ///
 /// ### Example: Coordinated Cancellation
 /// ```dart
@@ -638,22 +832,6 @@ typedef SwitchAll<T> = SwitchLatest<T>;
 /// print('Current generation: ${snapshot.generation}');
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse triggers the [mapper] with the payload and snapshot.
-/// 2. The [mapper] can access the snapshot's [generation] for cancellation.
-/// 3. The [snapshot.lastTrigger] is updated with each new payload.
-/// 4. The [snapshot.lastValue] is updated with each emitted value.
-/// 5. Only values from the most recent generation are emitted.
-///
-/// ### Non‑obvious
-/// - **Shared State**: The snapshot is shared and mutable, allowing
-///   coordination between the mapper and external code.
-/// - **Generation Tracking**: The [generation] is automatically incremented.
-/// - **Last Trigger/Value**: These are automatically updated.
-/// - **Thread Safety**: The snapshot is not thread-safe; operations are
-///   serialized through the cell's lock.
-/// - **Type Safety**: The snapshot is generic over [S] and [T].
-///
 /// ### Parameters:
 /// - [mapper]: **The State-Aware Mapper.** A function that takes the payload
 ///   and snapshot, returns a `FutureOr<Object?>` to drain.
@@ -675,6 +853,46 @@ typedef SwitchAll<T> = SwitchLatest<T>;
 /// - [SwitchLatest]: For when the payload is the inner sequence.
 /// - [SwitchMapSnapshot]: The shared state object.
 class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Stateful Switcher**—a specialized instruction that
+  /// switches between inner sequences with shared state access.
+  ///
+  /// [SwitchMapState] is a stateful variant of [SwitchMap] that exposes a
+  /// shared snapshot containing the current generation, last trigger, and
+  /// last value. This allows for coordination between multiple operations.
+  ///
+  /// ### How it works
+  /// 1. **Type Check**: The pulse payload is validated against type [S].
+  /// 2. **Generation Update**: The snapshot's generation is incremented.
+  /// 3. **Last Trigger Update**: The snapshot's lastTrigger is updated.
+  /// 4. **Mapper Call**: The [mapper] is called with the payload and snapshot.
+  /// 5. **Draining**: The inner sequence is drained asynchronously.
+  /// 6. **Emission**: Only values from the current generation are emitted
+  ///    with the step `'SwitchMapState'`.
+  /// 7. **Last Value Update**: The snapshot's lastValue is updated.
+  /// 8. **Error Handling**: Only errors from the current generation are
+  ///    reported via [onError].
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The State-Aware Mapper.** Generates sequences with state access.
+  /// - [state]: **The Shared Snapshot.** External access to state.
+  /// - [onError]: **Integrity Handler.** Called on errors.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Coordinated Workflow
+  /// ```dart
+  /// // Coordinates multiple operations with generation checks
+  /// val coordinated = SwitchMapState<Request, Result>(
+  ///   (req, state) => processWithCancellation(req, state.generation),
+  ///   state: snapshot,
+  ///   user: 'Coordinated-Workflow'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [SwitchMap]: For payload-dependent switching without state.
+  /// - [SwitchMapTo]: For switching to a fixed inner sequence.
+  /// - [SwitchLatest]: For when the payload is the inner sequence.
+  /// - [SwitchMapSnapshot]: The shared state object.
   SwitchMapState(
       FutureOr<Object?> Function(S value, SwitchMapSnapshot<S, T> state) mapper, {
         SwitchMapSnapshot<S, T>? state,
@@ -737,6 +955,14 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///
   /// Use this to access the [generation], [lastTrigger], and [lastValue]
   /// from outside the instruction.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final snapshot = switchMapState.snapshot;
+  /// print('Current generation: ${snapshot.generation}');
+  /// print('Last trigger: ${snapshot.lastTrigger}');
+  /// print('Last value: ${snapshot.lastValue}');
+  /// ```
   final SwitchMapSnapshot<S, T> snapshot;
 }
 
@@ -794,6 +1020,17 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - SwitchMapState provides access to the current generation state.
 /// - All operators preserve causal provenance via EvolvedPulse.
 /// - Only the most recent generation's values are emitted.
+/// - Generation tracking prevents stale values from being emitted.
+/// - Choose the right operator for your use case:
+///   - Payload-dependent → SwitchMap
+///   - Fixed sequence → SwitchMapTo
+///   - Payload as inner → SwitchLatest
+///   - State access needed → SwitchMapState
+///
+/// ### Note on Cancellation
+/// Cancellation in switchMap operators is "silent" – cancelled operations
+/// do not throw exceptions. They simply stop emitting values. This is
+/// intentional to prevent error spam from cancelled operations.
 Future<void> main() async {
   print('── SwitchMap Operators Demo ──────────────────────────────────\n');
 

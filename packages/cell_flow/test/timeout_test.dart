@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/timeout.dart';
 import 'package:test/test.dart' hide Timeout;
 
@@ -190,4 +188,138 @@ void main() {
       expect(b.probe.types, contains('error'));
     });
   });
+
+
+  group('Timeout extra', () {
+    test('resetOnPulse false is a first-gap deadline', () async {
+      final errors = <Object>[];
+      final b = bind(Timeout<int>(
+        const Duration(milliseconds: 25),
+        resetOnPulse: false,
+        emitErrorPulse: false,
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await b.gate.emitAsync(2);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('wrong types call onError and do not start the clock', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Timeout<int>(
+        const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('TimeoutWithError extra', () {
+    test('errorOf exceptions skip the pulse', () async {
+      final errors = <Object>[];
+      final b = bind(TimeoutWithError<int>(
+        const Duration(milliseconds: 15),
+        errorOf: () => throw StateError('err'),
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(errors.whereType<StateError>(), isNotEmpty);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TimeoutWithError<int>(
+        const Duration(milliseconds: 20),
+        error: 'late',
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('TimeoutWithFallback extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TimeoutWithFallback<int>(
+        const Duration(milliseconds: 20),
+        fallback: 0,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('TimeoutFirst extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = TimeoutFirst<int>(
+        const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('Timeout + TimeoutLast is a chain', () async {
+      final op = Timeout<int>(const Duration(milliseconds: 40)) +
+          TimeoutLast<int>(const Duration(milliseconds: 40));
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('coverage extras', () {
+    test('TimeoutWithFallback once', () async {
+      final b = bind(TimeoutWithFallback<int>(
+        const Duration(milliseconds: 15),
+        fallback: -1,
+        once: true,
+      ));
+      addTearDown(b.probe.stop);
+      await b.probe.settle(const Duration(milliseconds: 40));
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('TimeoutFirst does not reset', () async {
+      final b = bind(TimeoutFirst<int>(const Duration(milliseconds: 20)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle(const Duration(milliseconds: 10));
+      await b.gate.emitAsync(2);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Tap Operators
@@ -215,6 +215,19 @@ class TapSnapshot<A> {
 /// - [TapWithIndex]: For indexed side effects.
 /// - [TapState]: For stateful side effects.
 class Tap<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Typed Side-Effect Gate**—a pass-through instruction
+  /// that runs [onValue] on every payload of type [S] without rewriting
+  /// the pulse (Rx `tap` / `doOnData`).
+  ///
+  /// A throw in [onValue] is reported via [onError] and **drops** the
+  /// pulse. A successful tap stamps the pulse with step `'Tap'` and
+  /// forwards it unchanged.
+  ///
+  /// ### Parameters
+  /// - [onValue]: Synchronous side effect over the typed payload.
+  /// - [onError]: Integrity handler for type mismatches and callback
+  ///   throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   Tap(
       void Function(S value) onValue, {
         TapErrorHandler? onError,
@@ -301,6 +314,17 @@ class Tap<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TapWithIndex]: For indexed side effects.
 /// - [TapState]: For stateful side effects.
 class TapAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Unfiltered Side-Effect Gate**—runs [onPulse] on
+  /// every pulse, typed or not (Rx `doOnEach`).
+  ///
+  /// No payload type check is performed. A throw drops the pulse; a
+  /// successful tap stamps step `'TapAll'` and forwards the original
+  /// pulse.
+  ///
+  /// ### Parameters
+  /// - [onPulse]: Synchronous side effect over the full [Pulse].
+  /// - [onError]: Integrity handler for callback throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   TapAll(
       void Function(Pulse pulse) onPulse, {
         TapErrorHandler? onError,
@@ -396,6 +420,16 @@ class TapAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TapAll]: For side effects on all pulses.
 /// - [TapState]: For stateful side effects.
 class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes an **Indexed Side-Effect Gate**—[Tap] plus a 0-based
+  /// index that increments only after a successful typed callback.
+  ///
+  /// Type mismatches and throws do **not** advance the index. Successful
+  /// taps stamp step `'TapWithIndex'` and pass the pulse through.
+  ///
+  /// ### Parameters
+  /// - [onValue]: Synchronous side effect `(value, index)`.
+  /// - [onError]: Integrity handler for type mismatches and throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   TapWithIndex(
       void Function(S value, int index) onValue, {
         TapErrorHandler? onError,
@@ -535,6 +569,21 @@ class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [TapWithIndex]: For indexed side effects.
 /// - [Reduce]: For stateful transformations that emit the state.
 class TapState<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Stateful Side-Effect Gate**—[Tap] plus an in-memory
+  /// fold that updates [snapshot] without changing the pulse stream
+  /// (Rx `tap` + fold).
+  ///
+  /// [next] is applied as `(state, value) → state`. Throws drop the pulse
+  /// and leave [snapshot] unchanged. Successful updates increment
+  /// [TapSnapshot.seen] and stamp step `'TapState'`.
+  ///
+  /// ### Parameters
+  /// - [seed]: Initial accumulator stored in [snapshot].
+  /// - [next]: Pure-ish fold; result is written back to [snapshot.value].
+  /// - [snapshot]: Optional shared [TapSnapshot]; created from [seed]
+  ///   when omitted so callers can inspect state later.
+  /// - [onError]: Integrity handler for type mismatches and fold throws.
+  /// - [user]: Flyweight metadata preserved across the composition chain.
   TapState(
       A seed,
       A Function(A state, S value) next, {
@@ -543,6 +592,7 @@ class TapState<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
         dynamic user,
       }) : this._(next, snapshot ?? TapSnapshot<A>(seed), onError, user);
 
+  /// Internal constructor that binds the already-resolved [snapshot].
   TapState._(
       A Function(A state, S value) next,
       this.snapshot,

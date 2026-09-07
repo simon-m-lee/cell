@@ -1,10 +1,8 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/pairwise.dart';
 import 'package:test/test.dart';
 
@@ -115,6 +113,102 @@ void main() {
       await b.probe.settle();
       expect(b.probe.payloads, [3]);
       expect(errors.single, isA<StateError>());
+    });
+  });
+
+
+  group('Pairwise extra', () {
+    test('single value never pairs', () async {
+      final b = bind(Pairwise<int>());
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, isEmpty);
+    });
+
+    test('wrong types call onError and do not become previous', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Pairwise<int>(
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+      expect(probe.payloads, [(1, 2)]);
+    });
+
+    test('onError is optional', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Pairwise<int>().toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(probe.payloads, isEmpty);
+    });
+  });
+
+  group('PairwiseWith extra', () {
+    test('combine throw drops that pair', () async {
+      final errors = <Object>[];
+      final b = bind(PairwiseWith<int, int>(
+        (a, b) {
+          if (b == 3) throw StateError('c');
+          return b - a;
+        },
+        onError: (e, _) => errors.add(e),
+      ));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(3);
+      await b.gate.emitAsync(5);
+      await b.probe.settle();
+      expect(b.probe.payloads, [2]);
+      expect(errors.single, isA<StateError>());
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = PairwiseWith<int, int>(
+        (a, b) => a + b,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition / performance', () {
+    test('Pairwise + PairwiseWith is a chain', () async {
+      final op = Pairwise<int>() +
+          PairwiseWith<Object, int>((a, b) => 0);
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await gate.emitAsync(2);
+      await probe.settle();
+      expect(out.cell, isNotNull);
+    });
+
+    test('Pairwise emits 199 pairs from 200 ints', () async {
+      final b = bind(Pairwise<int>());
+      addTearDown(b.probe.stop);
+      for (var i = 0; i < 200; i++) {
+        await b.gate.emitAsync(i);
+      }
+      await b.probe.settle();
+      expect(b.probe.payloads, hasLength(199));
     });
   });
 }

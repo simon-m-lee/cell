@@ -6,13 +6,17 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Interval Operators
 // ─────────────────────────────────────────────────────────────
 
 /// Flow instructions that emit on a clock (Rx `interval` / `timer` family).
+///
+/// These operators provide time-based emission capabilities, allowing you to
+/// emit values at regular intervals or after a delay. They are essential for
+/// polling, heartbeats, scheduled tasks, and time-based state management.
 ///
 /// | Operator | Rx analogue | Payload |
 /// |---|---|---|
@@ -32,6 +36,17 @@ import 'package:cell_flow/flow.dart';
 /// Called when an error occurs during interval emissions. The error and
 /// optional stack trace are provided for logging or recovery.
 ///
+/// ### When to use
+/// Provide this callback to any interval operator that may encounter errors
+/// during value computation or emission. It allows you to log errors,
+/// perform recovery, or silently ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the interval continues (unless the
+///    error was unrecoverable).
+///
 /// ### Example
 /// ```dart
 /// final errorHandler = IntervalErrorHandler((error, stack) {
@@ -39,9 +54,29 @@ import 'package:cell_flow/flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during interval emission.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [Interval.onError]: The parameter that accepts this callback.
 typedef IntervalErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -77,12 +112,25 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **Armed Guard**: The [armed] flag prevents multiple timers from
 ///   being started.
 class _ClockState {
+  /// The active timer for periodic emissions.
   Timer? timer;
+
+  /// The current tick counter, incremented on each emission.
   int tick = 0;
+
+  /// Whether the clock has been armed by the first source pulse.
   bool armed = false;
+
+  /// The continuation callback for the instruction's async pipeline.
   void Function({required Pulse? result, required dynamic token})? future;
+
+  /// The continuation token for the async pipeline.
   dynamic token;
+
+  /// The host cell for the instruction.
   Cell? cell;
+
+  /// The trigger pulse that armed the clock.
   Pulse? trigger;
 
   /// Cancels the active timer and resets the tick counter.
@@ -219,8 +267,27 @@ class _ClockState {
 /// - [IntervalWithValue]: For emitting custom values per tick.
 /// - [IntervalWithState]: For stateful interval emissions.
 /// - [TimerPulse]: For a single delayed emission.
-/// - [PeriodicTimer]: For a timer that doesn't require a trigger (not yet implemented).
 class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a basic interval instruction.
+  ///
+  /// ### Parameters
+  /// - [period]: **The Tick Interval.** The duration between each emission.
+  ///   Must be positive.
+  /// - [maxTicks]: **Maximum Emissions.** Optional. Stops after this many
+  ///   ticks. If `null`, runs forever.
+  /// - [resetOnSource]: **Reset on Trigger.** If `true`, a later source
+  ///   pulse resets the counter to 0. Defaults to `false`.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final interval = Interval(
+  ///   Duration(seconds: 1),
+  ///   maxTicks: 5,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   Interval(
       Duration period, {
         int? maxTicks,
@@ -373,6 +440,28 @@ class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [IntervalWithState]: For stateful interval emissions.
 /// - [TimerPulse]: For a single delayed emission.
 class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a custom value interval instruction.
+  ///
+  /// ### Parameters
+  /// - [period]: **The Tick Interval.** The duration between each emission.
+  /// - [value]: **Fixed Value.** Optional. Emitted on every tick if provided.
+  /// - [valueOf]: **Value Function.** Optional. Computes the value from the
+  ///   tick index. Must be provided if [value] is not.
+  /// - [maxTicks]: **Maximum Emissions.** Optional. Stops after this many ticks.
+  /// - [resetOnSource]: **Reset on Trigger.** If `true`, a later source pulse
+  ///   resets the counter to 0. Defaults to `false`.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final intervalWithValue = IntervalWithValue<String>(
+  ///   Duration(seconds: 1),
+  ///   valueOf: (tick) => 'Tick #$tick',
+  ///   maxTicks: 5,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   IntervalWithValue(
       Duration period, {
         T? value,
@@ -551,8 +640,30 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Interval]: For simple integer emission.
 /// - [IntervalWithValue]: For custom value emission.
 /// - [TimerPulse]: For a single delayed emission.
-/// - [Scan]: For stateful accumulation (not yet implemented).
 class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a stateful interval instruction.
+  ///
+  /// ### Parameters
+  /// - [period]: **The Tick Interval.** The duration between each emission.
+  /// - [seed]: **Initial State.** The starting accumulator value.
+  /// - [next]: **State Transition Function.** Takes the current state and
+  ///   tick index, returns the new state.
+  /// - [maxTicks]: **Maximum Emissions.** Optional. Stops after this many ticks.
+  /// - [resetOnSource]: **Reset on Trigger.** If `true`, a later source pulse
+  ///   resets the counter and state to the initial [seed].
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final intervalWithState = IntervalWithState<int>(
+  ///   Duration(seconds: 1),
+  ///   0,
+  ///   (state, tick) => state + 1,
+  ///   maxTicks: 10,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   IntervalWithState(
       Duration period,
       A seed,
@@ -696,8 +807,25 @@ class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Interval]: For periodic emissions.
 /// - [IntervalWithValue]: For periodic custom values.
 /// - [IntervalWithState]: For stateful periodic emissions.
-/// - [Delay]: For a delay operator that forwards the pulse (not yet implemented).
 class TimerPulse<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a one-shot timer instruction.
+  ///
+  /// ### Parameters
+  /// - [delay]: **The Delay Duration.** The time to wait before emission.
+  /// - [value]: **Fixed Value.** Optional. Emitted when the timer fires.
+  /// - [valueOf]: **Value Function.** Optional. Computes the value when
+  ///   the timer fires. Must be provided if [value] is not.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final timerPulse = TimerPulse<String>(
+  ///   Duration(seconds: 1),
+  ///   value: 'Ready',
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   TimerPulse(
       Duration delay, {
         T? value,

@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core MergeMap Operators
@@ -14,6 +14,11 @@ import 'package:cell_flow/flow.dart';
 
 /// Flow instructions that flatten inner sequences concurrently
 /// (Rx `mergeMap` / `flatMap` family).
+///
+/// These operators map each incoming value to an inner sequence and flatten
+/// them concurrently, emitting values as they complete. They are essential
+/// for parallel processing, concurrent data fetching, and batch operations
+/// where order doesn't matter and throughput is prioritized.
 ///
 /// | Operator | Rx analogue | Overlap |
 /// |---|---|---|
@@ -32,6 +37,16 @@ import 'package:cell_flow/flow.dart';
 /// Called when an error occurs during mapping or draining of an inner sequence.
 /// The error and optional stack trace are provided for logging or recovery.
 ///
+/// ### When to use
+/// Provide this callback to any mergeMap operator that may encounter errors
+/// during mapping or draining. It allows you to log errors or ignore failures.
+///
+/// ### How it works
+/// 1. The callback is invoked synchronously when an error occurs.
+/// 2. The error object and stack trace are provided for debugging.
+/// 3. After the callback returns, the current inner sequence is dropped
+///    (the merge continues with other inners).
+///
 /// ### Example
 /// ```dart
 /// final errorHandler = MergeMapErrorHandler((error, stack) {
@@ -39,6 +54,13 @@ import 'package:cell_flow/flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
+///
+/// ### Parameters
+/// - [error]: The error that occurred during mapping or draining.
+/// - [stackTrace]: The stack trace at the point of failure.
+///
+/// ### See Also
+/// - [MergeMap.onError]: The parameter that accepts this callback.
 typedef MergeMapErrorHandler = void Function(Object error, StackTrace? stackTrace);
 
 /// A function that maps a value to an inner sequence for concurrent flattening.
@@ -58,6 +80,19 @@ typedef MergeMapErrorHandler = void Function(Object error, StackTrace? stackTrac
 typedef MergeMapMapper<S> = FutureOr<Object?> Function(S value);
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new pulse with the given [value], preserving the source cell,
+/// type, and priority from the [trigger] pulse. The [step] is added to the
+/// pulse's trace for provenance tracking.
+///
+/// ### Parameters
+/// - [value]: The payload value for the new pulse.
+/// - [cell]: The source cell (optional, defaults to trigger.source).
+/// - [trigger]: The trigger pulse providing metadata.
+/// - [step]: The step name to add to the trace.
+///
+/// ### Returns
+/// A new [Pulse] with the given value and metadata.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
   return Pulse<T>(
     value,
@@ -308,6 +343,25 @@ class _MergeQueue<S> {
 /// - [MergeMapTo]: For switching to a fixed inner sequence.
 /// - [MergeScan]: For stateful accumulation with concurrency.
 class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a concurrent flattening instruction.
+  ///
+  /// ### Parameters
+  /// - [mapper]: **The Inner Sequence Factory.** A function that takes an
+  ///   input value of type [S] and returns a `FutureOr<Object?>` that can be
+  ///   drained (Future, Stream, Iterable, or value).
+  /// - [concurrency]: **Maximum Concurrent Operations.** Defaults to 0
+  ///   (unlimited). Set to a positive number to cap concurrent inners.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata passed to the instruction.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mergeMap = MergeMap<int, UserProfile>(
+  ///   (id) async => await api.getUser(id),
+  ///   concurrency: 10,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MergeMap(
       MergeMapMapper<S> mapper, {
         int concurrency = 0,
@@ -441,6 +495,24 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [SwitchMapTo]: For switching to a fixed inner sequence (cancels previous).
 /// - [MergeScan]: For stateful accumulation with concurrency.
 class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a fixed inner sequence instruction.
+  ///
+  /// ### Parameters
+  /// - [inner]: **The Fixed Inner Sequence Factory.** A function that returns
+  ///   a `FutureOr<Object?>` that can be drained (Future, Stream, or Iterable).
+  /// - [concurrency]: **Maximum Concurrent Operations.** Defaults to 0
+  ///   (unlimited). Set to a positive number to cap concurrent inners.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mergeMapTo = MergeMapTo<void, String>(
+  ///   () async => 'ping',
+  ///   concurrency: 5,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MergeMapTo(
       FutureOr<Object?> Function() inner, {
         int concurrency = 0,
@@ -579,6 +651,24 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [Scan]: For synchronous accumulation (not yet implemented).
 /// - [fold]: For reducing a sequence to a single value (not yet implemented).
 class MergeScan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Creates a stateful concurrent accumulation instruction.
+  ///
+  /// ### Parameters
+  /// - [seed]: **Initial Accumulator Value.** The starting state before any
+  ///   operations complete.
+  /// - [accumulate]: **The Accumulation Function.** Takes the current
+  ///   accumulator and the payload, returns a `FutureOr<Object?>` to drain.
+  /// - [onError]: **Error Handler.** Optional callback for handling errors.
+  /// - [user]: **User Metadata.** Optional metadata.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final mergeScan = MergeScan<int, int>(
+  ///   0,
+  ///   (acc, n) async => acc + n,
+  ///   onError: (error, stack) => print('Error: $error'),
+  /// );
+  /// ```
   MergeScan(
       A seed,
       FutureOr<Object?> Function(A acc, S value) accumulate, {

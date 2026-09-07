@@ -4,33 +4,17 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core Pluck Operators
 // ─────────────────────────────────────────────────────────────
 
-/// Flow instructions that pick fields out of a payload (Rx `pluck`).
-///
-/// | Operator | Rx analogue | Result |
-/// |---|---|---|
-/// | [Pluck] | `pluck(key)` | one field |
-/// | [PluckOr] | `pluck` + default | field or [orElse] |
-/// | [PluckAll] | several `pluck`s | [Map] of requested keys |
-/// | [PluckPath] | `pluck('a', 'b')` | nested walk |
-///
-/// Source payloads may be a [Map], an [Iterable] (integer keys), or
-/// any object with `[]`. Missing keys go to [onError] unless a default
-/// is provided.
-///
-/// Wire with `.toHandle(source:)` and inject via
-/// [IngressHandle.emitAsync]. See `main` at the bottom of this file.
-
 /// Error handler callback for pluck operators.
 ///
 /// Called when an error occurs during field extraction, such as
-/// missing keys, type mismatches, or path navigation errors.
-/// The error and optional stack trace are provided for logging or recovery.
+/// missing keys, type mismatches, path navigation errors, or
+/// unsupported source types.
 ///
 /// ### Example
 /// ```dart
@@ -40,6 +24,10 @@ import 'package:cell_flow/flow.dart';
 /// });
 /// ```
 typedef PluckErrorHandler = void Function(Object error, StackTrace? stackTrace);
+
+// ─────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────
 
 /// Internal helper to read a value from a source object.
 ///
@@ -63,6 +51,7 @@ typedef PluckErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// - **Iterable Support**: For iterables, the key must be an integer.
 /// - **List Conversion**: Non-list iterables are converted to lists.
 /// - **Index Operator**: Any object with `[]` can be used.
+/// - **Null Handling**: Returns `null` if the key exists with a null value.
 Object? _read(Object? source, Object key) {
   if (source is Map) return source[key];
   if (source is Iterable && key is int) {
@@ -79,6 +68,18 @@ Object? _read(Object? source, Object key) {
 }
 
 /// Helper to create an output pulse with proper provenance.
+///
+/// Creates a new [Pulse] with the given [value], preserving the source,
+/// type, and priority from the trigger pulse.
+///
+/// ### Parameters:
+/// - [value]: The payload value for the new pulse.
+/// - [trigger]: The source pulse providing provenance metadata.
+/// - [cell]: Optional cell to use as the source.
+/// - [step]: The trace step to add for provenance.
+///
+/// ### Returns:
+/// A new [Pulse] with preserved provenance.
 Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   return Pulse<T>(
     value,
@@ -108,6 +109,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - **Data Transformation**: Extracting values for further processing.
 /// - **Filtering**: Extracting fields for filtering logic.
 /// - **Mapping**: Mapping complex objects to simple values.
+/// - **Data Normalization**: Extracting normalized values.
 ///
 /// ### Choosing Between Pluck Variants
 /// - **Use [Pluck]** for **Simple Field Extraction**: When you know
@@ -133,6 +135,7 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// 3. If successful, the value is emitted as a typed pulse.
 /// 4. If extraction fails, [onError] is called and the pulse is dropped.
 /// 5. The pulse gets the step `'Pluck'` for provenance.
+/// 6. The emitted value preserves the source, type, and priority.
 ///
 /// ### Non‑obvious
 /// - **Type Safety**: The extracted value must match type [T].
@@ -141,6 +144,8 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - **Provenance Preservation**: The emitted pulse preserves the
 ///   source cell, type, and priority from the trigger pulse.
 /// - **Synchronous Extraction**: All extraction is synchronous.
+/// - **Null Values**: If the field exists with a null value, it's
+///   emitted as null (if T is nullable).
 ///
 /// ### Example: Extracting Name
 /// ```dart
@@ -162,6 +167,21 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// arrays.emit(['x', 'y', 'z']); // -> x
 /// ```
 ///
+/// ### Example: With Error Handling
+/// ```dart
+/// final data = Cell.ingress<Map<String, Object>>();
+///
+/// final extracted = Pluck<int>(
+///   'age',
+///   onError: (error, stack) {
+///     print('Extraction failed: $error');
+///   },
+/// ).toHandle(source: data.cell);
+///
+/// data.emit({'id': 1});  // Drops the pulse (age missing)
+/// data.emit({'age': 25}); // -> 25
+/// ```
+///
 /// ### Parameters:
 /// - [key]: **The Key to Extract.** The field name or index to look up.
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
@@ -178,6 +198,40 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// - [PluckAll]: For extracting multiple fields.
 /// - [PluckPath]: For extracting nested fields.
 class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Single Field Extractor**—a specialized instruction
+  /// that extracts and emits a single field from each payload.
+  ///
+  /// [Pluck] is the fundamental field extraction operator. It reads a
+  /// value from each payload using the provided key, type-checks it,
+  /// and emits it as a typed pulse.
+  ///
+  /// ### How it works
+  /// 1. **Field Read**: The [_read] helper extracts the value at [key].
+  /// 2. **Type Check**: The extracted value must match type [T].
+  /// 3. **Step Evolution**: The value is wrapped in a new pulse with
+  ///    the step `'Pluck'`.
+  /// 4. **Error Handling**: If reading or type-checking fails, [onError]
+  ///    is called and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [key]: **The Key.** The field name or index to extract.
+  /// - [onError]: **Integrity Handler.** Called if extraction fails or
+  ///   the value type doesn't match.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Simple Field Extractor
+  /// ```dart
+  /// // Extracts 'name' field as String
+  /// final nameExtractor = Pluck<String>(
+  ///   'name',
+  ///   user: 'Name-Extractor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [PluckOr]: For extraction with default values.
+  /// - [PluckAll]: For extracting multiple fields.
+  /// - [PluckPath]: For extracting nested fields.
   Pluck(
       Object key, {
         PluckErrorHandler? onError,
@@ -221,6 +275,23 @@ class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Fallback Values**: Using fallback values on errors.
 /// - **Data Cleaning**: Cleaning missing data with defaults.
 /// - **Default Configuration**: Using default configuration values.
+/// - **Safe Extraction**: Ensuring a value is always emitted.
+///
+/// ### How it works
+/// 1. Each incoming pulse's payload is read using [key].
+/// 2. If the value exists and matches type [T], it's emitted.
+/// 3. If the value is missing or has the wrong type, [orElse] is emitted.
+/// 4. The default value always matches type [T].
+/// 5. The pulse gets the step `'PluckOr'` (or `'PluckOr.orElse'` for defaults).
+///
+/// ### Non‑obvious
+/// - **Always Emits**: A value is always emitted (success or default).
+/// - **Type Safety**: The default must match type [T].
+/// - **Error Handling**: Errors are caught and the default is used.
+/// - **Provenance Preservation**: Default emissions get the step
+///   `'PluckOr.orElse'` to distinguish them.
+/// - **Synchronous Extraction**: All extraction is synchronous.
+/// - **Null Defaults**: If T is nullable, [orElse] can be null.
 ///
 /// ### Example: Optional Field
 /// ```dart
@@ -248,21 +319,6 @@ class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// data.emit({'id': 2, 'age': 'old'});  // -> 0 (type mismatch)
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse's payload is read using [key].
-/// 2. If the value exists and matches type [T], it's emitted.
-/// 3. If the value is missing or has the wrong type, [orElse] is emitted.
-/// 4. The default value always matches type [T].
-/// 5. The pulse gets the step `'PluckOr'` (or `'PluckOr.orElse'` for defaults).
-///
-/// ### Non‑obvious
-/// - **Always Emits**: A value is always emitted (success or default).
-/// - **Type Safety**: The default must match type [T].
-/// - **Error Handling**: Errors are caught and the default is used.
-/// - **Provenance Preservation**: Default emissions get the step
-///   `'PluckOr.orElse'` to distinguish them.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-///
 /// ### Parameters:
 /// - [key]: **The Key to Extract.** The field name or index to look up.
 /// - [orElse]: **Default Value.** The value to emit on failure.
@@ -280,6 +336,43 @@ class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PluckAll]: For extracting multiple fields.
 /// - [PluckPath]: For extracting nested fields.
 class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Safe Field Extractor**—a specialized instruction
+  /// that extracts a field with a fallback default value.
+  ///
+  /// [PluckOr] is similar to [Pluck] but provides a default value when
+  /// the field is missing or has the wrong type. This ensures that a
+  /// value is always emitted, making it ideal for optional fields.
+  ///
+  /// ### How it works
+  /// 1. **Field Read**: The [_read] helper attempts to extract the value.
+  /// 2. **Type Check**: If the value exists and matches type [T], it's emitted.
+  /// 3. **Default Fallback**: If the value is missing or the type doesn't
+  ///    match, [orElse] is emitted.
+  /// 4. **Step Evolution**: Success emissions get `'PluckOr'`,
+  ///    default emissions get `'PluckOr.orElse'`.
+  /// 5. **Error Handling**: Any error is caught and [onError] is called.
+  ///
+  /// ### Parameters
+  /// - [key]: **The Key.** The field name or index to extract.
+  /// - [orElse]: **The Default Value.** Emitted on extraction failure.
+  /// - [onError]: **Integrity Handler.** Called if extraction fails or
+  ///   the value type doesn't match.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: Optional Field Extractor
+  /// ```dart
+  /// // Extracts 'city' field or uses 'Unknown' if missing
+  /// final cityExtractor = PluckOr<String>(
+  ///   'city',
+  ///   orElse: 'Unknown',
+  ///   user: 'City-Extractor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Pluck]: For simple field extraction.
+  /// - [PluckAll]: For extracting multiple fields.
+  /// - [PluckPath]: For extracting nested fields.
   PluckOr(
       Object key, {
         required T orElse,
@@ -321,6 +414,26 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **API Responses**: Extracting specific fields from API responses.
 /// - **Data Aggregation**: Aggregating multiple fields.
 /// - **View Models**: Creating view models from data.
+/// - **Data Normalization**: Normalizing multiple fields at once.
+///
+/// ### How it works
+/// 1. Each incoming pulse's payload is read for each key in [keys].
+/// 2. For each key, the value is extracted.
+/// 3. If [useOrElse] is `true`, missing keys get [orElse].
+/// 4. If [useOrElse] is `false`, missing keys trigger [onError].
+/// 5. The collected key-value pairs are emitted as a map.
+/// 6. The pulse gets the step `'PluckAll'` for provenance.
+///
+/// ### Non‑obvious
+/// - **Map Output**: The output is always a `Map<Object, Object?>`.
+/// - **Partial Success**: Even if some keys fail, successful ones are
+///   included in the output.
+/// - **Error Handling**: Missing keys can either use defaults or trigger
+///   error handlers.
+/// - **Provenance Preservation**: The emitted map preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Extraction**: All extraction is synchronous.
+/// - **Key Order**: The output map preserves the order of [keys].
 ///
 /// ### Example: Projecting Multiple Fields
 /// ```dart
@@ -353,24 +466,6 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// // -> {id: 1, name: Bob, age: unknown}
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse's payload is read for each key in [keys].
-/// 2. For each key, the value is extracted.
-/// 3. If [useOrElse] is `true`, missing keys get [orElse].
-/// 4. If [useOrElse] is `false`, missing keys trigger [onError].
-/// 5. The collected key-value pairs are emitted as a map.
-/// 6. The pulse gets the step `'PluckAll'` for provenance.
-///
-/// ### Non‑obvious
-/// - **Map Output**: The output is always a `Map<Object, Object?>`.
-/// - **Partial Success**: Even if some keys fail, successful ones are
-///   included in the output.
-/// - **Error Handling**: Missing keys can either use defaults or trigger
-///   error handlers.
-/// - **Provenance Preservation**: The emitted map preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-///
 /// ### Parameters:
 /// - [keys]: **The Keys to Extract.** An iterable of field names or indices.
 /// - [orElse]: **Default Value.** Used when [useOrElse] is `true`.
@@ -378,9 +473,6 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///   If `false`, missing keys trigger [onError]. Defaults to `false`.
 /// - [onError]: **Error Handler.** Optional callback for handling errors.
 /// - [user]: **User Metadata.** Optional metadata.
-///
-/// ### Type Parameters:
-/// - [S]: The type of the payload (inferred from context).
 ///
 /// ### Returns:
 /// A [FlowInstruction] that extracts multiple fields.
@@ -390,6 +482,44 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PluckOr]: For single field extraction with default.
 /// - [PluckPath]: For nested field extraction.
 class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Multi-Field Extractor**—a specialized instruction
+  /// that extracts multiple fields from each payload.
+  ///
+  /// [PluckAll] extracts multiple fields from each payload and returns
+  /// them as a map. This is useful when you need several fields at once.
+  ///
+  /// ### How it works
+  /// 1. **Field Iteration**: Each key in [keys] is processed in order.
+  /// 2. **Field Extraction**: The [_read] helper extracts the value.
+  /// 3. **Error Handling**: If a key fails and [useOrElse] is `true`,
+  ///    [orElse] is used. If [useOrElse] is `false`, [onError] is called.
+  /// 4. **Map Assembly**: All successful extractions are collected into a map.
+  /// 5. **Step Evolution**: The map is emitted with the step `'PluckAll'`.
+  ///
+  /// ### Parameters
+  /// - [keys]: **The Keys.** The field names or indices to extract.
+  /// - [orElse]: **The Default Value.** Used when a key is missing.
+  /// - [useOrElse]: **Use Default.** If `true`, missing keys use [orElse].
+  ///   If `false`, missing keys trigger [onError]. Defaults to `false`.
+  /// - [onError]: **Integrity Handler.** Called if a key fails and
+  ///   [useOrElse] is `false`.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: View Model Extractor
+  /// ```dart
+  /// // Extracts fields for a view model
+  /// final viewModel = PluckAll(
+  ///   ['id', 'name', 'role'],
+  ///   orElse: 'unknown',
+  ///   useOrElse: true,
+  ///   user: 'ViewModel-Extractor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Pluck]: For single field extraction.
+  /// - [PluckOr]: For single field extraction with default.
+  /// - [PluckPath]: For nested field extraction.
   PluckAll(
       Iterable<Object> keys, {
         Object? orElse,
@@ -441,6 +571,28 @@ class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - **Object Graph**: Traversing object graphs.
 /// - **Nested Data**: Extracting data from nested structures.
 /// - **Data Unwrapping**: Unwrapping nested data containers.
+/// - **API Response Parsing**: Extracting fields from nested API responses.
+///
+/// ### How it works
+/// 1. Each incoming pulse's payload is used as the starting point.
+/// 2. For each key in [path], the current value is read using that key.
+/// 3. The value becomes the new current value for the next key.
+/// 4. After all keys are processed, the final value is emitted.
+/// 5. If any step fails, [onError] is called and the pulse is dropped.
+/// 6. If [useOrElse] is `true`, [orElse] is emitted on failure.
+/// 7. The pulse gets the step `'PluckPath'` (or `'PluckPath.orElse'` for defaults).
+///
+/// ### Non‑obvious
+/// - **Path Traversal**: The path is walked left to right.
+/// - **Any Step Failure**: If any step in the path fails, the whole
+///   extraction fails.
+/// - **Type Safety**: The final value must match type [T].
+/// - **Error Handling**: Missing keys or type mismatches can trigger
+///   error handlers or fallbacks.
+/// - **Provenance Preservation**: The emitted value preserves the
+///   source cell, type, and priority from the trigger pulse.
+/// - **Synchronous Extraction**: All extraction is synchronous.
+/// - **Default Path Step**: The default value can be used at any step.
 ///
 /// ### Example: Nested Field
 /// ```dart
@@ -475,27 +627,6 @@ class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// // -> Unknown
 /// ```
 ///
-/// ### How it works
-/// 1. Each incoming pulse's payload is used as the starting point.
-/// 2. For each key in [path], the current value is read using that key.
-/// 3. The value becomes the new current value for the next key.
-/// 4. After all keys are processed, the final value is emitted.
-/// 5. If any step fails, [onError] is called and the pulse is dropped.
-/// 6. If [useOrElse] is `true`, [orElse] is emitted on failure.
-/// 7. The pulse gets the step `'PluckPath'` (or `'PluckPath.orElse'` for defaults).
-///
-/// ### Non‑obvious
-/// - **Path Traversal**: The path is walked left to right.
-/// - **Any Step Failure**: If any step in the path fails, the whole
-///   extraction fails.
-/// - **Type Safety**: The final value must match type [T].
-/// - **Error Handling**: Missing keys or type mismatches can trigger
-///   error handlers or fallbacks.
-/// - **Provenance Preservation**: The emitted value preserves the
-///   source cell, type, and priority from the trigger pulse.
-/// - **Synchronous Extraction**: All extraction is synchronous.
-/// - **Default Path Step**: The default value can be used at any step.
-///
 /// ### Example: Deep Navigation
 /// ```dart
 /// final response = Cell.ingress<Map<String, Object>>();
@@ -529,6 +660,50 @@ class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [PluckOr]: For single field extraction with default.
 /// - [PluckAll]: For extracting multiple fields.
 class PluckPath<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+  /// Synthesizes a **Nested Field Extractor**—a specialized instruction
+  /// that navigates nested structures to extract a deeply nested field.
+  ///
+  /// [PluckPath] navigates nested structures by following a sequence
+  /// of keys. This allows extracting deeply nested fields from complex
+  /// objects like JSON responses.
+  ///
+  /// ### How it works
+  /// 1. **Path Navigation**: Starting from the payload, each key in
+  ///    [path] is applied in sequence.
+  /// 2. **Step Validation**: If any step fails (key not found, wrong
+  ///    type), the operation stops.
+  /// 3. **Final Extraction**: The value at the end of the path is extracted.
+  /// 4. **Type Check**: The final value must match type [T].
+  /// 5. **Step Evolution**: Success emissions get `'PluckPath'`,
+  ///    default emissions get `'PluckPath.orElse'`.
+  /// 6. **Error Handling**: If any step fails and [useOrElse] is `false`,
+  ///    [onError] is called and the pulse is dropped.
+  ///
+  /// ### Parameters
+  /// - [path]: **The Navigation Path.** The sequence of keys to follow.
+  /// - [orElse]: **The Default Value.** Emitted on navigation failure
+  ///   when [useOrElse] is `true`.
+  /// - [useOrElse]: **Use Default.** If `true`, navigation failures use
+  ///   [orElse]. If `false`, failures trigger [onError]. Defaults to `false`.
+  /// - [onError]: **Integrity Handler.** Called if navigation fails and
+  ///   [useOrElse] is `false`.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data.
+  ///
+  /// ### Example: JSON Path Extractor
+  /// ```dart
+  /// // Extracts a deeply nested field from JSON
+  /// final pathExtractor = PluckPath<String>(
+  ///   ['data', 'attributes', 'name'],
+  ///   orElse: 'Not Found',
+  ///   useOrElse: true,
+  ///   user: 'JSON-Extractor'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [Pluck]: For single field extraction.
+  /// - [PluckOr]: For single field extraction with default.
+  /// - [PluckAll]: For extracting multiple fields.
   PluckPath(
       Iterable<Object> path, {
         T? orElse,
@@ -619,6 +794,11 @@ class PluckPath<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - Source payloads can be Maps, Lists, or objects with `[]`.
 /// - Missing keys can trigger errors or use defaults.
 /// - All operators preserve causal provenance via EvolvedPulse.
+/// - Choose the right operator for your use case:
+///   - Single field → Pluck
+///   - Single with default → PluckOr
+///   - Multiple fields → PluckAll
+///   - Nested field → PluckPath
 ///
 /// ### Note on Source Types
 /// Pluck operators support:
@@ -626,6 +806,12 @@ class PluckPath<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - `List` with integer keys
 /// - `Iterable` with integer keys (converted to List)
 /// - Any object with `[]` operator
+///
+/// ### Note on Type Safety
+/// - Pluck requires the extracted value to match type [T].
+/// - PluckOr will use the default if the type doesn't match.
+/// - PluckPath checks the final value type against [T].
+/// - Type mismatches are reported via [onError].
 Future<void> main() async {
   print('── Pluck Operators Demo ──────────────────────────────────────\n');
 

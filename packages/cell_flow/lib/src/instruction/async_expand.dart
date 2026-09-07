@@ -6,7 +6,7 @@
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // Core AsyncExpand Operators
@@ -230,8 +230,57 @@ Future<void> _drain(
 /// - [AsyncExpandConcurrent]: For concurrent flattening.
 /// - [AsyncExpandLatest]: For latest-only flattening.
 /// - [AsyncExpandExhaust]: For exhaust flattening.
-/// - [ConcatMap]: The Rx analogue (not yet implemented).
+/// - [ConcatMap]: The Rx analogue.
 class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Sequential Expansion Gate**—a specialized orchestration
+  /// instruction designed for ordered, non-concurrent pulse evolution.
+  ///
+  /// [AsyncExpand] (analogous to `concatMap` in Rx) ensures that every
+  /// incoming stimulus is processed to completion before the next begins.
+  /// It acts as a **Strict FIFO Queue**, maintaining the topological order
+  /// of pulses regardless of the time required for their asynchronous
+  /// workloads to complete.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Queuing**: Each incoming pulse [S] is placed into a
+  ///    first-in-first-out (FIFO) queue upon reception.
+  /// 2. **Serial Execution**: The [expand] orchestrator is invoked for the
+  ///    first item in the queue only when the gate is not "busy".
+  /// 3. **Recursive Draining**: The resulting inner sequence (Future, Stream,
+  ///    or Iterable) is drained completely.
+  /// 4. **Step Evolution**: Each evolved value [T] is wrapped in a new pulse
+  ///    that inherits the original provenance (source, priority, type) and
+  ///    is tagged with the `'AsyncExpand'` step.
+  /// 5. **Queue Advancement**: The gate advances to the next stimulus only
+  ///    after the current expansion has finished draining.
+  ///
+  /// ### Concurrency Model
+  /// * **Single-Lane Traffic**: Only one async operation is active at any time.
+  /// * **Order Preservation**: Output pulses are guaranteed to be emitted in
+  ///   the same order as their triggering input pulses.
+  ///
+  /// ### Parameters
+  /// - [expand]: **The Orchestrator.** A closure that transforms an input
+  ///   payload [S] into a drainable sequence (FutureOr, Stream, or Iterable).
+  /// - [onError]: **Integrity Handler.** A callback invoked if an expansion
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing and tracing.
+  ///
+  /// ### Example: Ordered API Enrichment
+  /// ```dart
+  /// // Fetches data sequentially, ensuring Result A is emitted before Result B
+  /// final orderedResults = AsyncExpand<int, Data>(
+  ///   (id) => api.fetch(id),
+  ///   user: 'Sequential-Enricher'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncExpandConcurrent]: For parallel execution where order is secondary.
+  /// - [AsyncExpandLatest]: For switch-style behavior (cancellation of older
+  ///   pending work).
   AsyncExpand(
       Expander<S> expand, {
         ExpandErrorHandler? onError,
@@ -367,6 +416,56 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 /// - [MergeMap]: The Rx analogue.
 class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Parallel Expansion Gate**—a specialized orchestration
+  /// instruction designed for maximum throughput and concurrent pulse evolution.
+  ///
+  /// [AsyncExpandConcurrent] (analogous to `mergeMap` in Rx) allows multiple
+  /// asynchronous workloads to execute simultaneously. Unlike [AsyncExpand],
+  /// it does not queue inputs; instead, it immediately materializes each
+  /// stimulus into a separate async lane, emitting results in the order
+  /// they complete.
+  ///
+  /// ### How it works
+  /// 1. **Immediate Execution**: Every incoming pulse [S] immediately triggers
+  ///     the [expand] orchestrator without waiting for previous tasks.
+  /// 2. **Concurrent Draining**: Multiple inner sequences (Future, Stream,
+  ///    or Iterable) are awaited and drained in parallel.
+  /// 3. **Non-Deterministic Emission**: Evolved values [T] are propagated
+  ///    downstream as soon as they are ready. The output order is determined
+  ///    by completion time, not input order.
+  /// 4. **Step Evolution**: Each emitted result is wrapped in a new pulse
+  ///    inheriting provenance from its specific trigger and tagged with
+  ///    the `'AsyncExpandConcurrent'` step.
+  ///
+  /// ### Concurrency Model
+  /// * **Multi-Lane Traffic**: Unlimited parallel operations by default.
+  /// * **Throughput Optimized**: Ideal for independent tasks where the
+  ///   temporal relationship between inputs is secondary to performance.
+  /// * **Error Isolation**: Failure in one async lane does not terminate
+  ///   other active lanes.
+  ///
+  /// ### Parameters
+  /// - [expand]: **The Parallel Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a drainable concurrent sequence.
+  /// - [onError]: **Integrity Handler.** A callback invoked if an expansion
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Parallel API Fetching
+  /// ```dart
+  /// // Fetches multiple user profiles simultaneously
+  /// final parallelFetch = AsyncExpandConcurrent<int, User>(
+  ///   (id) => api.fetchUser(id),
+  ///   user: 'Parallel-User-Enricher'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncExpand]: For strictly ordered, sequential expansion.
+  /// - [AsyncExpandLatest]: For switch-style behavior (cancels previous work).
+  /// - [AsyncExpandExhaust]: For ignoring new inputs while busy.
   AsyncExpandConcurrent(
       Expander<S> expand, {
         ExpandErrorHandler? onError,
@@ -444,13 +543,27 @@ class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse
 /// ```
 ///
 /// ### How it works
-/// 1. Each incoming pulse triggers the [expand] function.
-/// 2. A new generation ID is assigned to each trigger.
-/// 3. Any previous inner sequence is cancelled (dropped).
-/// 4. Only values from the most recent generation are emitted.
-/// 5. If [expand] throws an error, it's reported only for the current
-///    generation.
-/// 6. Each emitted value gets the step `'AsyncExpandLatest'` for provenance.
+/// 1. **Stimulus Reception**: Every incoming pulse [S] triggers the [expand]
+///    orchestrator immediately.
+/// 2. **Generation Tracking**: A unique internal generation ID is assigned
+///    to each expansion lane.
+/// 3. **Preemptive Cancellation**: If a new pulse arrives, the generation ID
+///    increments. Any results currently draining from a previous ID are
+///    silently discarded.
+/// 4. **Deferred Draining**: The resulting inner sequence (Future, Stream,
+///    or Iterable) is awaited and drained.
+/// 5. **Step Evolution**: Evolved values [T] are wrapped in new pulses
+///    inheriting provenance from the triggering pulse and tagged with
+///    the `'AsyncExpandLatest'` step.
+///
+/// ### Concurrency Model
+/// * **Latest-Wins Strategy**: Only results from the most recent input pulse
+///   are propagated downstream.
+/// * **Resource Efficiency**: Ideal for scenarios where older results become
+///   obsolete as soon as a new input is available.
+/// * **Implicit Cancellation**: While Dart Futures cannot be killed
+///   arbitrarily, the gate ensures topological consistency by ignoring stale
+///   completion events.
 ///
 /// ### Non‑obvious
 /// - **Generation Tracking**: Each operation gets a unique ID.
@@ -471,15 +584,32 @@ class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse
 /// - [S]: The type of the input payload.
 /// - [T]: The type of the output payload.
 ///
-/// ### Returns:
-/// A [FlowInstruction] that flattens latest-only sequences.
-///
 /// ### See Also:
 /// - [AsyncExpand]: For sequential flattening.
 /// - [AsyncExpandConcurrent]: For concurrent flattening.
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 /// - [SwitchMap]: The Rx analogue.
 class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **Switch-Style Expansion Gate**—a specialized orchestration
+  /// instruction designed for preemptive, latest-only pulse evolution.
+  ///
+  /// [AsyncExpandLatest] (analogous to `switchMap` in Rx) ensures that only the
+  /// most recent stimulus is processed to completion. If a new pulse enters
+  /// the gate while a previous asynchronous workload is still draining, the
+  /// earlier operation is effectively "cancelled" (its remaining results are
+  /// dropped) to make way for the newer stimulus.
+  ///
+  /// ### Parameters
+  /// - [expand]: **The Switch Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a drainable sequence.
+  /// - [onError]: **Integrity Handler.** A callback invoked if an expansion
+  ///   fails or if a payload violates type [S].
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Returns:
+  /// A [FlowInstruction] that flattens latest-only sequences.
   AsyncExpandLatest(
       Expander<S> expand, {
         ExpandErrorHandler? onError,
@@ -602,6 +732,61 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncExpandLatest]: For latest-only flattening.
 /// - [ExhaustMap]: The Rx analogue.
 class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+
+  /// Synthesizes a **First-Come-First-Served Logic Gate**—a specialized
+  /// orchestration instruction designed for prioritized, exclusive pulse evolution.
+  ///
+  /// [AsyncExpandExhaust] (analogous to `exhaustMap` in Rx) ensures that a
+  /// new asynchronous workload is only initiated if the gate is currently idle.
+  /// If a new pulse enters while a previous expansion is still draining, the
+  /// incoming stimulus is ignored and silently dropped from the topography.
+  ///
+  /// ### How it works
+  /// 1. **Stimulus Reception**: When a pulse [S] enters the gate, it evaluates
+  ///    the internal occupancy status.
+  /// 2. **Exclusive Locking**: If the gate is idle, it immediately switches
+  ///    to a "busy" state and triggers the [expand] orchestrator.
+  /// 3. **Topographical Drop**: If a pulse arrives while the gate is busy,
+  ///    it is discarded, preventing graph congestion or redundant processing.
+  /// 4. **Deferred Draining**: The resulting inner sequence (Future, Stream,
+  ///    or Iterable) is awaited and drained to completion.
+  /// 5. **Provenance Evolution**: Each evolved value [T] is wrapped in a new
+  ///    pulse inheriting provenance from the triggering pulse and tagged
+  ///    with the `'AsyncExpandExhaust'` step.
+  /// 6. **Gate Release**: Upon completion (successful or otherwise), the gate
+  ///    is unlocked, allowing the next available stimulus to be processed.
+  ///
+  /// ### Concurrency Model
+  /// * **Exhaustive Strategy**: Only the first stimulus in a burst is
+  ///   processed; subsequent stimuli are ignored until the current operation finishes.
+  /// * **Resource Protection**: Ideal for scenarios where overlapping
+  ///   operations would cause race conditions, duplicate writes, or
+  ///   unnecessary network overhead.
+  /// * **Implicit Rate-Limiting**: Naturally throttles the reactive topography
+  ///   based on the processing duration of the async workload.
+  ///
+  /// ### Parameters
+  /// - [expand]: **The Exclusive Orchestrator.** A closure that transforms an
+  ///   input payload [S] into a drainable sequence.
+  /// - [onError]: **Integrity Handler.** A callback invoked if an expansion
+  ///   fails or if a payload violates type [S]. The gate is always released
+  ///   after the error is handled.
+  /// - [user]: **Flyweight Metadata.** Optional configuration data
+  ///   preserved across the composition chain for auditing.
+  ///
+  /// ### Example: Login Request Protection
+  /// ```dart
+  /// // Ignores extra clicks until the first login attempt finishes
+  /// final loginGate = AsyncExpandExhaust<Credentials, User>(
+  ///   (creds) => authService.login(creds),
+  ///   user: 'Login-Exhaust-Gate'
+  /// );
+  /// ```
+  ///
+  /// ### See Also
+  /// - [AsyncExpand]: For sequential queuing of all pulses.
+  /// - [AsyncExpandConcurrent]: For parallel processing of all pulses.
+  /// - [AsyncExpandLatest]: For switch-style behavior (cancelling old work).
   AsyncExpandExhaust(
       Expander<S> expand, {
         ExpandErrorHandler? onError,

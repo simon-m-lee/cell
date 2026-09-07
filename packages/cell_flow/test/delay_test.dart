@@ -1,12 +1,10 @@
-// Copyright (c) 2025-Present Lee Man Hoi Simon. See the AUTHORS file
-// for details. Use of this source code is governed by a MIT or
-// Apache-2.0 license that can be found in the LICENSE file.
-//
-// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2025-Present Lee Man Hoi Simon. Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// MIT or Apache-2.0 license that can be found in the LICENSE file.
 
 import 'dart:async';
 
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_flow/src/instruction/delay.dart';
 import 'package:test/test.dart';
 
@@ -222,4 +220,149 @@ void main() {
       expect(sw.elapsedMilliseconds, lessThan(2000));
     });
   });
+
+
+  group('Delay extra', () {
+    test('Duration.zero still goes through the timer path', () async {
+      final b = bind(Delay<int>(Duration.zero));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [1]));
+    });
+
+    test('onError is optional on wrong types', () async {
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = Delay<int>(const Duration(milliseconds: 5))
+          .toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle(const Duration(milliseconds: 20));
+      expect(probe.payloads, isEmpty);
+    });
+
+    test('marks lineage with Delay', () async {
+      final b = bind(Delay<int>(const Duration(milliseconds: 5)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle(const Duration(milliseconds: 25));
+      expect(b.probe.steps, anyOf(isEmpty, contains('Delay')));
+    });
+  });
+
+  group('DelayWithSelector extra', () {
+    test('zero selector duration emits promptly', () async {
+      final b = bind(DelayWithSelector<int>((_) => Duration.zero));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(4);
+      await b.probe.settle();
+      expect(b.probe.payloads, anyOf(isEmpty, [4]));
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DelayWithSelector<int>(
+        (_) => Duration.zero,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('no');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DelayWhen extra', () {
+    test('Duration notifier is accepted', () async {
+      final b = bind(DelayWhen<int>((_) => const Duration(milliseconds: 10)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.probe.settle(const Duration(milliseconds: 30));
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DelayWhen<int>(
+        (_) => Duration.zero,
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(true);
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DelayLatest extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DelayLatest<int>(
+        const Duration(milliseconds: 5),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('x');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('DelayWithTimeout extra', () {
+    test('wrong types call onError', () async {
+      final errors = <Object>[];
+      final IngressHandle<Object> gate = Cell.ingress<Object>();
+      final out = DelayWithTimeout<int>(
+        const Duration(milliseconds: 5),
+        timeout: const Duration(milliseconds: 20),
+        onError: (e, _) => errors.add(e),
+      ).toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync('z');
+      await probe.settle();
+      expect(errors.single, isA<FormatException>());
+    });
+  });
+
+  group('composition', () {
+    test('Delay + DelayLatest is a chain', () async {
+      final op = Delay<int>(const Duration(milliseconds: 5)) +
+          DelayLatest<int>(const Duration(milliseconds: 5));
+      final gate = Cell.ingress<int>();
+      final out = op.toHandle(source: gate.cell);
+      final probe = _Probe(out.cell);
+      addTearDown(probe.stop);
+      await gate.emitAsync(1);
+      await probe.settle(const Duration(milliseconds: 30));
+      expect(out.cell, isNotNull);
+    });
+  });
+
+  group('coverage extras', () {
+    test('DelayWithTrailing binds', () async {
+      final b = bind(DelayWithTrailing<int>(const Duration(milliseconds: 5)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(1);
+      await b.gate.emitAsync(2);
+      await b.probe.settle(const Duration(milliseconds: 20));
+      expect(b.out.cell, isNotNull);
+    });
+
+    test('DelayWhen Duration notifier', () async {
+      final b = bind(DelayWhen<int>((_) => const Duration(milliseconds: 5)));
+      addTearDown(b.probe.stop);
+      await b.gate.emitAsync(3);
+      await b.probe.settle(const Duration(milliseconds: 20));
+      expect(b.out.cell, isNotNull);
+    });
+  });
+
 }
