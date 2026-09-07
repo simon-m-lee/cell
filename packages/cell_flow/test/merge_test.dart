@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
-import 'package:cell_flow/src/instruction//merge.dart';
+import 'package:cell_flow/src/instruction/merge.dart';
 import 'package:test/test.dart';
 
 class _Probe {
