@@ -29,7 +29,7 @@ Fluent `source.filter().map()` is different: **each** step is its own Receptor/C
 Sanitize a string in one gate: trim → drop empty → tag.
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final sanitize = MapValue<String, String>((s) => s.trim()) +
     Filter<String>((s) => s.isNotEmpty) +

@@ -49,7 +49,7 @@ dependencies:
 Import once in your Dart file:
 
 ```dart
-import 'package:cell_flow/flow.dart'; // re-exports package:cell
+import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
 ```
 
 > ⚠️ **Status:** Release Candidate (RC2). APIs may change. Not yet on pub.dev — use path or git dependencies.
@@ -96,7 +96,7 @@ await handle.emit('test');  // Or emit directly
 ### Way 1: Static Factories (Recommended for beginners)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final query = Cell.ingress<String>();
 
@@ -116,7 +116,7 @@ await query.emitAsync('Dart');
 ### Way 2: Fluent Chaining (Most readable)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final query = Cell.ingress<String>();
 
@@ -138,7 +138,7 @@ await query.emitAsync('Flutter');
 ### Way 3: InstructionChain (One Receptor, many ops)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 // Build a reusable policy
 final sanitize = MapValue<String, String>((s) => s.trim()) +
@@ -164,7 +164,7 @@ await query.emitAsync('   ');       // → dropped
 ### Example 1: Search Box (Debounce + Async)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final query = Cell.ingress<String>();
 
@@ -191,7 +191,7 @@ await query.emitAsync('Dart packages');
 ### Example 2: Form Validation (Sync Chain)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final raw = Cell.ingress<String>();
 
@@ -217,7 +217,7 @@ await raw.emitAsync('invalid');               // → dropped
 ### Example 3: Button Double-Tap Prevention (Exhaust Map)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final taps = Cell.ingress<void>();
 
@@ -242,7 +242,7 @@ await taps.emitAsync(null);  // Ignored while checkout runs
 ### Example 4: Combine Two Streams (CombineLatest)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final price = Cell.ingress<int>();
 final currency = Cell.ingress<String>();
@@ -270,7 +270,7 @@ await price.emitAsync(25);       // → 'EUR 25'
 ### Example 5: Batch Telemetry (Buffer + Time)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final events = Cell.ingress<Metric>();
 
@@ -449,7 +449,7 @@ final byStatus = orders.cell.groupBy<Order, String>(
 ### Test a Sync Chain (No Timer)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -470,7 +470,7 @@ void main() {
 ### Test an Async Pipeline (With Timer)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -25,13 +25,13 @@ dependencies:
 Import once in your Dart file:
 
 ```dart
-import 'package:cell_flow/flow.dart'; // re-exports package:cell
+import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
 ```
 
 ### Your First Pipeline (30 seconds)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 final query = Cell.ingress<String>();
 
@@ -302,7 +302,7 @@ await price.emitAsync(25);       // → 'EUR 25'
 ### Test a Sync Chain (No Timer)
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -350,14 +350,14 @@ void main() {
 ## 📦 Package Layout
 
 ```text
-package:cell_flow/flow.dart
+package:cell_flow/cell_flow.dart
   part  src/flow.dart               Flow.* facade
   part  src/flow_core.dart          FlowInstruction, toHandle, operator +
   part  src/fluent_operator.dart    Cell / FlowHandle extensions
   import src/instruction/*.dart     operator classes
 ```
 
-> ✅ **Best practice:** Application code should import **only** `package:cell_flow/flow.dart`.
+> ✅ **Best practice:** Application code should import **only** `package:cell_flow/cell_flow.dart`.
 
 ---
 

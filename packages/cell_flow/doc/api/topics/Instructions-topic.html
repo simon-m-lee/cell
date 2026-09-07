@@ -66,7 +66,7 @@ Nucleus(bind: source, receptor: …)  →  Cell.fromNucleus
 <hr>
 <h2 id="1-smallest-purpose-built-receptor">1. Smallest purpose-built Receptor</h2>
 <p>Sanitize a string in one gate: trim → drop empty → tag.</p>
-<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart';
 
 final sanitize = MapValue&lt;String, String&gt;((s) =&gt; s.trim()) +
     Filter&lt;String&gt;((s) =&gt; s.isNotEmpty) +
@@ -366,7 +366,7 @@ into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
         <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
         <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
-      <li><a href="../cell_flow/">flow</a></li>
+      <li><a href="../cell_flow/">cell_flow</a></li>
 </ol>
 
 </div>

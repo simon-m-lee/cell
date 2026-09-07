@@ -10,7 +10,7 @@ pipelines: [`HowTo-FlowInstruction-Receptor.md`](HowTo-FlowInstruction-Receptor.
 Import once:
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 ```
 
 Every `Flow.*` factory is `SomeInstruction(...).toHandle(source: source)`.

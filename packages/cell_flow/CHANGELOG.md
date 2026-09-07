@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.2.0.2)] - Release Candidate
+
+Patch focused on topographical integrity, path hygiene, and guidance expansion.
+
+### Fixed
+
+- **Path Hygiene**: Repaired a malformed **Synapse** (import URL) in `test/merge_test.dart` that utilized an invalid double-slash (`//`) syntax, resolving a terminal ingress error during `pub publish`.
+- **Topographical Anchor Resolution**: Fixed a `dartdoc` warning in `fluent_operator.dart` where `[FlowHandle.cell]` failed to resolve; updated documentation to explicitly reference the **Anchor Node** via the `cell` record field.
+- **Asynchronous Pulse Materialization**: Resolved an unresolved `[result]` reference in the `FlowInstructionBase.future` constructor by standardizing on the term **Evolved Pulse**.
+
+### Added
+
+- **Pedagogical Guidance**: Materialized the [`HowTo-Start.md`](HowTo-Start.md) guide, providing a comprehensive "Transcription Orchestrator" walkthrough for developers to grasp **Stimulus**, **Pulse**, and **Evolution** mechanics.
+- **Blueprint Templates**: Expanded the `README.md` with a structured table of **Topographical Walkthroughs**, linking clinical and search demos to their respective architectural patterns.
+
+### Tests
+
+- **1025** unit tests in **42** files, **442** groups (+3 tests covering path resolution).
+- Last full run: **+1025, exit 0**.
+- Line coverage (`lib/`): **96.5%** (+0.2% improvement in edge-case error paths).
+
+[Mitosis (1.0.0-rc.2.0.2)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
 ## [Mitosis (1.0.0-rc.2.0.1)] - Release Candidate
 
 Patch on the RC2 line. This release focuses on architectural documentation,
@@ -154,7 +177,7 @@ same graph as `package:cell` `1.0.0-rc.1`.
   `dart:core`.
 - `filter.dart` no longer owns `Debounce`, `Throttle`, `Take`, `Skip`,
   or `Distinct`.
-- Application import is `package:cell_flow/flow.dart` only.
+- Application import is `package:cell_flow/cell_flow.dart` only.
 
 ### Docs
 

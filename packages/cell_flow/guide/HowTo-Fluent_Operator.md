@@ -1,9 +1,9 @@
 # How to use Fluent Operators
 
-`fluent_operator.dart` is a **part** of `package:cell_flow/flow.dart`. One import is enough:
+`fluent_operator.dart` is a **part** of `package:cell_flow/cell_flow.dart`. One import is enough:
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 ```
 
 You do **not** import the extension file yourself.

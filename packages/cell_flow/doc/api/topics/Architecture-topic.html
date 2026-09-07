@@ -192,7 +192,7 @@ Flow.merge&lt;int&gt;(gate.cell, sources: [a.cell, b.cell]);
 in logs.</p>
 <h3 id="fluent-extensions">Fluent extensions</h3>
 <p><code>fluent_operator.dart</code> is a <strong>part</strong> of <code>library cell_flow</code>. One import:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/flow.dart';
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart';
 
 search.cell
     .filter&lt;String&gt;(test: (q) =&gt; q.length &gt;= 2)
@@ -372,13 +372,13 @@ as a scalar, not an iterable of characters.</li>
 <hr>
 <h2 id="8-library-surface">8. Library surface</h2>
 <p>Supported public entry:</p>
-<pre class="language-text"><code class="language-text">package:cell_flow/flow.dart
+<pre class="language-text"><code class="language-text">package:cell_flow/cell_flow.dart
   part  src/flow.dart              Flow facade
   part  src/flow_core.dart         FlowInstruction, toHandle, +
   part  src/fluent_operator.dart   Cell / FlowHandle extensions
   import src/instruction/*.dart    operator classes
 </code></pre>
-<p>Application code should import <strong>only</strong> <code>package:cell_flow/flow.dart</code>.
+<p>Application code should import <strong>only</strong> <code>package:cell_flow/cell_flow.dart</code>.
 Instruction files stay implementation detail except when you construct
 <code>Filter + MapValue</code> by type.</p>
 <hr>
@@ -468,7 +468,7 @@ into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
         <li><a href="../topics/Instructions-topic.html">HowTo-FlowInstructions</a></li>
         <li><a href="../topics/Fluent API-topic.html">Method&nbsp;Chaining&nbsp;(Fluent)</a></li>
       <li class="section-title">Libraries</li>
-      <li><a href="../cell_flow/">flow</a></li>
+      <li><a href="../cell_flow/">cell_flow</a></li>
 </ol>
 
 </div>

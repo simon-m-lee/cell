@@ -124,7 +124,7 @@ in logs.
 `fluent_operator.dart` is a **part** of `library cell_flow`. One import:
 
 ```dart
-import 'package:cell_flow/flow.dart';
+import 'package:cell_flow/cell_flow.dart';
 
 search.cell
     .filter<String>(test: (q) => q.length >= 2)
@@ -229,14 +229,14 @@ indexed map, error pulses).
 Supported public entry:
 
 ```text
-package:cell_flow/flow.dart
+package:cell_flow/cell_flow.dart
   part  src/flow.dart              Flow facade
   part  src/flow_core.dart         FlowInstruction, toHandle, +
   part  src/fluent_operator.dart   Cell / FlowHandle extensions
   import src/instruction/*.dart    operator classes
 ```
 
-Application code should import **only** `package:cell_flow/flow.dart`.
+Application code should import **only** `package:cell_flow/cell_flow.dart`.
 Instruction files stay implementation detail except when you construct
 `Filter + MapValue` by type.
 
