@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the TissueReceptorBase class, for the Dart programming language.">
+  <title>call method - TissueReceptorBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueReceptorBase-class.html">TissueReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueReceptorBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a>?</span>&gt;</span></span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The logic gatekeeper and pulse processing engine for the associated <a href="../../cell_tissue/Tissue-class.html">Tissue</a>.</p>
+<p>This method is the entry point for every pulse arriving at the tissue.
+It first performs <strong>implicit synchronisation</strong> if the pulse originates
+from a bound principal, then passes the (possibly modified) pulse to the
+standard receptor pipeline (<code>preProcess</code> → <code>rule</code> → <code>postProcess</code>).</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You never call this directly – the framework invokes it when a pulse
+arrives at a tissue. Use it for testing or manual invocation if needed.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Testing a custom receptor.</li>
+<li>Manually injecting a pulse for debugging.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Activation Check</strong>: If the receptor is not activated (bound to a
+tissue), it returns <code>null</code> – no processing occurs.</li>
+<li><strong>Tissue‑Aware Processing</strong>: If the pulse is a <a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a> (a
+structural event like addition or removal), it passes the event to
+the internal <code>_tissueStack</code> method.</li>
+<li><strong>Implicit Synchronisation</strong>: <code>_tissueStack</code> checks if the pulse
+originates from the tissue's <code>bind</code> (principal). If so, it applies
+the structural deltas to the local <a href="../../cell_tissue/TissueContainer-class.html">TissueContainer</a> – this is the
+mirroring that keeps deputies in sync.</li>
+<li><strong>User Pipeline</strong>: The result (or the original pulse) is then passed
+to <code>super.call()</code>, which executes the <code>preProcess</code> → <code>rule</code> →
+<code>postProcess</code> pipeline.</li>
+<li><strong>Return</strong>: The final pulse is returned (or <code>null</code> if filtered).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The implicit synchronisation only happens for pulses from the <code>bind</code>
+source. Pulses from other sources are not mirrored.</li>
+<li>If the synchronisation is partial (e.g., some elements failed
+validation), the resulting pulse reflects only the committed changes.</li>
+<li>The pipeline is wrapped in error boundaries; exceptions are caught
+and reported via the pulse's <code>onError</code> callback.</li>
+<li>The method returns <code>FutureOr</code> – it can be synchronous or asynchronous
+depending on the rules.</li>
+</ul>
+<h3 id="example-manual-invocation">Example (Manual invocation)</h3>
+<pre class="language-dart"><code class="language-dart">final receptor = TissueReceptor.passThrough;
+final result = await receptor.call(Pulse('test'));
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to process.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the pulse was filtered or rejected.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;PulseBase?&gt; call(covariant PulseBase pulse) {
+  if (isActivated) {
+    PulseBase? out = pulse;
+
+    if (pulse is TissueEventBase) {
+      out = _tissueStack&lt;E&gt;(tissue: cell, event: pulse) ?? pulse;
+    }
+
+    return super.call(out) as FutureOr&lt;PulseBase?&gt;;
+  }
+  return null;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueReceptorBase-class.html">TissueReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+</ol>
+
+    <h5>TissueReceptorBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

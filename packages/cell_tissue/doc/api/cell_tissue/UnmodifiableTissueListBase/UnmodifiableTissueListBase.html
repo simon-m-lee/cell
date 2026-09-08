@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the UnmodifiableTissueListBase.new constructor from Class UnmodifiableTissueListBase from the cell_tissue library, for the Dart programming language.">
+  <title>UnmodifiableTissueListBase.new constructor - UnmodifiableTissueListBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/UnmodifiableTissueListBase-class.html">UnmodifiableTissueListBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueListBase.new constructor</li>
+  </ol>
+  <div class="self-name">UnmodifiableTissueListBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;UnmodifiableTissueListBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">UnmodifiableTissueListBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">UnmodifiableTissueListBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-properties"><span class="type-annotation"><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">properties</span>, {</span></li>
+<li><span class="parameter" id="-param-unmodifiableElement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">unmodifiableElement</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">elements</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes a new <a href="../../cell_tissue/UnmodifiableTissueListBase-class.html">UnmodifiableTissueListBase</a> instance, anchoring
+a read-only reactive list to its behavioral and structural blueprint.</p>
+<p>This constructor is the internal structural initializer for the
+unmodifiable list hierarchy. It bridges the gap between the
+<a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a> configuration and the live reactive <a href="../../cell_tissue/Cell-class.html">Cell</a>
+infrastructure, ensuring that the list enters the graph with an
+established "Read-Only" barrier.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The provided <code>properties</code> (a <a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a>) define the
+list's structural strategy (growable/fixed), synchronisation domain,
+and reactive blueprint.</li>
+<li>The <code>unmodifiableElement</code> flag controls deep immutability – when
+<code>true</code>, any element that is a <a href="../../cell_tissue/Cell-class.html">Cell</a> is automatically projected as
+its <code>.unmodifiable</code> deputy when accessed.</li>
+<li>If <code>elements</code> are provided, they are used to seed a dedicated
+high‑performance storage container for this instance. This is an
+optimisation used by the <code>.view</code> factory to avoid lazy projection
+overhead.</li>
+<li>The resulting instance enters the reactive graph with a read‑only
+barrier – all mutation methods are disabled.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>unmodifiableElement</code> flag is <strong>not</strong> stored in the nucleus – it
+is a behaviour of the view itself. The view applies it during
+iteration and element access.</li>
+<li>The <code>elements</code> parameter is only used when the underlying container
+is not already populated (e.g., when creating a fresh unmodifiable
+list from scratch). For deputies (views), the storage is shared with
+the source, so <code>elements</code> should be <code>null</code> to avoid overwriting.</li>
+<li>The view's <code>modifiable</code> getter returns an empty set, so the
+<a href="../../cell_tissue/TissueListMixin-mixin.html">TissueListMixin</a> will never execute mutations – they are rejected
+at the <code>apply</code> gate.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>properties</code>: <strong>Required</strong>. The <a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a> defining
+the list's structural strategy and reactive blueprint.</li>
+<li><code>unmodifiableElement</code>: If <code>true</code>, any <a href="../../cell_tissue/Cell-class.html">Cell</a> element accessed
+through this list is projected as its <code>.unmodifiable</code> deputy.</li>
+<li><code>elements</code>: Optional. Pre‑computed elements to populate the
+storage container. Used for optimisation when the list is created
+with a known immutable set.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueListBase(
+    TissueListNucleusBase&lt;E,C&gt; super.properties, {
+      super.unmodifiableElement, Iterable&lt;E&gt;? elements}) : super(elements: elements) {
+  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
+  if (container != null &amp;&amp; elements != null) {
+    _nucleus.container.store.addAll(elements);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/UnmodifiableTissueListBase-class.html">UnmodifiableTissueListBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueListBase.new constructor</li>
+</ol>
+
+    <h5>UnmodifiableTissueListBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

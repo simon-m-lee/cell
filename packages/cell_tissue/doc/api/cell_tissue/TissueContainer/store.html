@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the store property from the TissueContainer class, for the Dart programming language.">
+  <title>store property - TissueContainer class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueContainer-class.html">TissueContainer<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">store property</li>
+  </ol>
+  <div class="self-name">store</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueContainer-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">store</span> property 
+</h1></div>
+
+    
+      <section class="multi-line-signature">
+        
+        I
+        <span class="name ">store</span>
+        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+      </section>
+      
+<section class="desc markdown">
+  <p>The physical, late-initialized storage instance for the tissue's data.</p>
+<p>This field represents the <strong>Source of Truth</strong> for the reactive collection.
+It is typed as <code>I</code>, which is the concrete Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> implementation
+(e.g., <code>List&lt;E&gt;</code>, <code>Set&lt;E&gt;</code>, or <code>ValueContainer&lt;E&gt;</code>) that holds the actual
+elements.</p>
+<h3 id="initialization-strategy-lazy--explicit">Initialization Strategy (Lazy &amp; Explicit):</h3>
+<p>To optimize memory and performance, the <a href="../../cell_tissue/TissueContainer/store.html">store</a> is marked as <code>late final</code>.
+It is not allocated upon the container's creation, but rather through one
+of two pathways:</p>
+<ol>
+<li><strong>Explicit Initialization</strong>: Via the <a href="../../cell_tissue/TissueContainer/init.html">init</a> method, which is typically
+called by the <a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> when a collection is first populated
+or hydrated from a persistent state.</li>
+<li><strong>Lazy Consumption</strong>: If the <a href="../../cell_tissue/TissueContainer/iterator.html">iterator</a> is accessed before an explicit
+<a href="../../cell_tissue/TissueContainer/init.html">init</a> call, the <code>late</code> mechanism triggers the initialization logic
+to ensure the container is never in an invalid null state during
+iteration.</li>
+</ol>
+<h3 id="architectural-role-in-the-conactive-model">Architectural Role in the Conactive Model:</h3>
+<p>Within the framework's split-architecture (Logic vs. Storage):</p>
+<ul>
+<li><strong>Isolation</strong>: The <a href="../../cell_tissue/TissueContainer/store.html">store</a> remains isolated from the reactive propagation
+logic. It only handles raw data storage.</li>
+<li><strong>Atomic Boundary</strong>: Access to and mutation of the <a href="../../cell_tissue/TissueContainer/store.html">store</a> should
+ideally be performed within the synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> of the owning
+<a href="../../cell_tissue/Cell-class.html">Cell</a>'s nucleus to prevent partial-state reads during a propagation wave.</li>
+<li><strong>Finality</strong>: Once initialized, the identity of the <a href="../../cell_tissue/TissueContainer/store.html">store</a> is immutable
+(<code>final</code>). While the <em>contents</em> of the store may change (if the
+collection is growable), the storage vessel itself remains constant for
+the lifetime of the <a href="../../cell_tissue/TissueContainer-class.html">TissueContainer</a>.</li>
+</ul>
+<h3 id="type-constraints">Type Constraints:</h3>
+<p>The type <code>I</code> must be a subtype of <code>Iterable&lt;E&gt;</code>. This ensures that regardless
+of whether the underlying storage is a specialized Map-view, a singleton
+value, or a standard list, it can always be traversed and projected through
+the <a href="../../cell_tissue/Tissue-class.html">Tissue</a> interface.</p>
+</section>
+
+      
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">late final I store;</code></pre>
+</section>
+
+
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueContainer-class.html">TissueContainer<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">store property</li>
+</ol>
+
+  <h5>TissueContainer class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the transform method from the Receptor class, for the Dart programming language.">
+  <title>transform method - Receptor class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">transform&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">transform</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;Receptor-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">transform&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span>
+<span class="name ">transform</span>&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="transform-param-rule"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span> <span class="parameter-name">rule</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>A static convenience factory that creates a type-safe <a href="../../cell_tissue/Receptor-class.html">Receptor</a> specialized
+for transforming signals from one specific type to another.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you have a strongly‑typed transformation that maps one
+pulse type to another (e.g., <code>Pulse&lt;String&gt;</code> to <code>Pulse&lt;int&gt;</code>). It's
+more explicit and type‑safe than the generic constructor.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>You provide a <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> that is typed with the exact input and output
+types. The receptor will only accept pulses of type <code>I</code> and will produce
+pulses of type <code>O</code>.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is just a convenience wrapper around the primary constructor.</li>
+<li>It provides better static analysis and code completion.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final lengthReceptor = Receptor.transform&lt;MyCell, Pulse&lt;String&gt;, Pulse&lt;int&gt;&gt;(
+  PulseRule((cell, pulse, {user}) {
+    final text = pulse.payload;
+    return text != null ? Pulse(text.length) : null;
+  })
+);
+</code></pre>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>C</code>: The concrete <a href="../../cell_tissue/Cell-class.html">Cell</a> type that will host this receptor.</li>
+<li><code>I</code>: The expected type of the incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+<li><code>O</code>: The type of the <a href="../../cell_tissue/Pulse-class.html">Pulse</a> resulting from the transformation.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Receptor&lt;C&gt; transform&lt;C extends Cell, I extends Pulse, O extends Pulse&gt;(PulseRule&lt;C,I,O&gt; rule) {
+  return _Receptor&lt;C&gt;(rule: rule);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">transform&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt; static method</li>
+</ol>
+
+    <h5>Receptor class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

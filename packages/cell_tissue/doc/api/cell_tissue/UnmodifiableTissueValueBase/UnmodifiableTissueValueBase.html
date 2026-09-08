@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the UnmodifiableTissueValueBase.new constructor from Class UnmodifiableTissueValueBase from the cell_tissue library, for the Dart programming language.">
+  <title>UnmodifiableTissueValueBase.new constructor - UnmodifiableTissueValueBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/UnmodifiableTissueValueBase-class.html">UnmodifiableTissueValueBase<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueValueBase.new constructor</li>
+  </ol>
+  <div class="self-name">UnmodifiableTissueValueBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;UnmodifiableTissueValueBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">UnmodifiableTissueValueBase&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">UnmodifiableTissueValueBase&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-properties"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../cell_tissue/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">properties</span>, {</span></li>
+<li><span class="parameter" id="-param-unmodifiableElement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">unmodifiableElement</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>The internal constructor that materialises a read‑only, live view of a
+reactive single value.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You never call this constructor directly. It is invoked by the framework
+when you write <code>myValue.unmodifiable</code>, or when you use one of the
+specialised factories (<code>UnmodifiableTissueValue</code>, <code>UnmodifiableTissueValue.view</code>,
+or <code>UnmodifiableTissueValue.fromNucleus</code>).</p>
+<h3 id="when-to-use-as-a-developer">When to use (as a developer)</h3>
+<p>You don't. This is an internal constructor. But understanding it helps
+you trust that <code>.unmodifiable</code> is cheap (zero‑copy), live, and deeply
+safe.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Logic activation</strong>: It receives a <a href="../../cell_tissue/TissueValueNucleusBase-class.html">TissueValueNucleusBase</a> (the
+immutable blueprint) and binds it to the new view instance. The
+nucleus holds the value’s structural strategy (<code>finalValue</code>), its
+synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, and its governance rules.</li>
+<li><strong>State seeding</strong>: If a <code>value</code> is provided, it writes it directly
+into the underlying <a href="../../cell_tissue/ValueContainer-class.html">ValueContainer</a> (the physical storage) atomically.
+This is an optimisation – it seeds the container immediately without
+waiting for the first read.</li>
+<li><strong>Deep immutability (<code>unmodifiableElement</code>)</strong>: If this flag is <code>true</code>
+and the <code>value</code> is itself a <a href="../../cell_tissue/Cell-class.html">Cell</a>, it calls <code>_nucleus.synapses.link</code>
+to establish a reactive dependency. This ensures that when the inner
+cell changes, this view (and its observers) receive a <code>ValueChangedEvent</code>.</li>
+<li><strong>Lazy container resolution</strong>: The container is resolved via a helper
+(<code>get</code>) that walks up the principal chain if needed. This means the
+view shares the same physical storage as its source – <strong>zero‑copy</strong>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>The value is not validated</strong>: Because this is a read‑only projection,
+ the constructor assumes the value is already valid (it was validated
+ when it was written to the source). No <code>testRule</code> check is performed here.</li>
+<li><strong>Linking the inner cell</strong>: If the value is a <a href="../../cell_tissue/Cell-class.html">Cell</a> and <code>unmodifiableElement</code>
+ is <code>true</code>, the view links itself to that cell. This means changes to
+ the inner cell will bubble up to <em>this</em> view's observers, which is
+ the correct behaviour for a live projection.</li>
+<li><strong>No pulse emission</strong>: This constructor does <strong>not</strong> emit a pulse.
+ The view is initialized silently. Observers will only see changes
+ that happen <em>after</em> the view is created.</li>
+<li><strong>The <code>value</code> is stored directly</strong>: It is not projected into an
+ unmodifiable deputy at the storage layer. The projection happens
+ lazily when the <code>value</code> getter is accessed (via the mixin logic).</li>
+<li><strong>The <code>bind</code> check</strong>: The constructor checks if the nucleus has a
+ <code>bind</code> (a principal). If so, and the value is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, it links
+ to ensure the view stays in sync with the principal’s child cell.</li>
+</ul>
+<h3 id="example-internal-usage--how-the-framework-creates-a-view">Example (internal usage – how the framework creates a view)</h3>
+<pre class="language-dart"><code class="language-dart">// When you write source.unmodifiable, the framework does something like:
+final source = TissueValue&lt;int&gt;(42);
+final readOnly = UnmodifiableTissueValueBase&lt;int, TissueValue&lt;int&gt;&gt;(
+  source._nucleus,            // shares the same blueprint
+  unmodifiableElement: true,  // deep immutability on
+  value: source.value,        // seeds the container with the initial state
+);
+// Now readOnly shares the same storage, blocks mutations, and is live.
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>properties</code>: <strong>Required</strong>. The immutable blueprint that defines the
+value’s behaviour, storage strategy (<code>finalValue</code>), and governance.</li>
+<li><code>unmodifiableElement</code>: If <code>true</code>, and the value is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, it is
+projected as its <code>.unmodifiable</code> deputy when accessed. Defaults to
+<code>true</code> in most factories.</li>
+<li><code>value</code>: Optional initial value to seed the physical container.
+This is typically the source’s current value.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueValueBase(super.properties, {super.unmodifiableElement, V? value})
+    : super() {
+  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
+  if (container != null) {
+    _nucleus.container.store.value = value;
+  }
+  if (unmodifiableElement) {
+    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.mask.bind, orElse: null);
+    if (bind != null &amp;&amp; value != null) {
+      if (value is Cell) {
+        _nucleus.synapses.link(value, downstreamCell: this);
+      }
+    }
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/UnmodifiableTissueValueBase-class.html">UnmodifiableTissueValueBase<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueValueBase.new constructor</li>
+</ol>
+
+    <h5>UnmodifiableTissueValueBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

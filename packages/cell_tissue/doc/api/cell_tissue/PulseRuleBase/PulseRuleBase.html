@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PulseRuleBase.new constructor from Class PulseRuleBase from the cell_tissue library, for the Dart programming language.">
+  <title>PulseRuleBase.new constructor - PulseRuleBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/PulseRuleBase-class.html">PulseRuleBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">PulseRuleBase.new const constructor</li>
+  </ol>
+  <div class="self-name">PulseRuleBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;PulseRuleBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">PulseRuleBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">PulseRuleBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">O?</span>&gt;</span></span> <span class="parameter-name">rule</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-cell"><span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>}), {</span></li>
+<li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a base rule with a single transformation and rule logic.</p>
+<p>This constructor initializes the rule by packing the <code>rule</code> function
+and optional <code>user</code> context into an internal memory-optimized record.</p>
+<h3 id="1-architectural-role-the-logic-anchor">1. Architectural Role: The Logic Anchor</h3>
+<p>This constructor establishes the <strong>Causal Contract</strong> for the rule. It
+defines exactly how a stimulus should be processed relative to its
+host environment.</p>
+<h3 id="2-hybrid-convergence-multi-tiered-execution">2. Hybrid Convergence: Multi-Tiered Execution</h3>
+<p>The <code>rule</code> function supports <strong>Hybrid Convergence</strong> by returning
+<a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>. This allows the framework to execute zero-cost synchronous
+logic while retaining the ability to suspend the pulse for
+asynchronous <strong>Deputy Mandate</strong> audits.</p>
+<ul>
+<li><code>rule</code>: The core functional logic that maps an input <a href="../../cell_tissue/Pulse-class.html">Pulse</a>
+to an output <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+<li><code>user</code>: Optional context-specific metadata or <strong>Mandate</strong> data
+passed to the rule during execution.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const PulseRuleBase(FutureOr&lt;O?&gt; Function(C cell, I pulse, {dynamic user}) rule, {dynamic user})
+    : _record = user != null ? (rule: rule, user: user) : (rule: rule);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/PulseRuleBase-class.html">PulseRuleBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">PulseRuleBase.new const constructor</li>
+</ol>
+
+    <h5>PulseRuleBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the principal property from the TissueListNucleusBase class, for the Dart programming language.">
+  <title>principal property - TissueListNucleusBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">principal property</li>
+  </ol>
+  <div class="self-name">principal</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueListNucleusBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">principal</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span>
+      get
+      <span class="name ">principal</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Retrieves the hierarchical principal configuration of this list's properties.</p>
+<p>This getter is a specialized, type‑safe override of the core <a href="../../cell_tissue/Nucleus/principal.html">Nucleus.principal</a>
+link. It facilitates the "Property Cascading" mechanism that allows
+<a href="../../cell_tissue/TissueList-class.html">TissueList</a> instances to participate in an inheritance‑based
+configuration model.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You rarely need to read this directly. The framework uses it internally
+when you create a deputy via <code>deputy()</code>. It's what makes a deputy "share"
+the same logic and storage as its principal.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Only if you are building a custom list implementation and need to
+traverse the inheritance chain to resolve a property value. For most
+application code, you never call this – the framework handles it for you.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>When you call <code>deputy()</code> on a list, the new nucleus's <code>principal</code> is
+set to the original list's nucleus.</li>
+<li>When a property (like <code>testRule</code> or <code>receptor</code>) is accessed on the
+deputy, the framework first checks the deputy's local record. If not
+found, it "walks up" to the <code>principal</code> and asks for the property there.</li>
+<li>This chain continues until a root nucleus (with no <code>principal</code>) is reached.</li>
+<li>This is the engine behind zero‑copy deputies: they reuse the principal's
+logic and storage without duplicating anything.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The type is overridden to <code>TissueListNucleusBase&lt;E, C&gt;?</code> instead of the
+generic <code>Nucleus?</code>. This is a covariant override that ensures you get a
+properly typed principal when you need to access list‑specific methods.</li>
+<li>The chain ends when this getter returns <code>null</code> – that's the "root" nucleus.</li>
+<li>Even though the getter is <code>public</code>, it's intended for internal framework
+use. Mutating or replacing the principal after construction is not
+supported – the nucleus is immutable.</li>
+</ul>
+<h3 id="example-internal">Example (Internal)</h3>
+<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;();
+final deputy = list.deputy(testRule: TestTissue.readOnly);
+// deputy._nucleus.principal points back to list._nucleus
+// So when deputy needs the growable flag, it delegates to list._nucleus.
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>The parent nucleus that this configuration extends, or <code>null</code> if this is
+a root nucleus with no ancestors.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+TissueListNucleusBase&lt;E,C&gt;? get principal =&gt; super.principal as TissueListNucleusBase&lt;E,C&gt;?;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">principal property</li>
+</ol>
+
+  <h5>TissueListNucleusBase class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

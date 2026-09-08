@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="cell_tissue API docs, for the Dart programming language.">
+  <title>cell_tissue - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">cell_tissue package</li>
+  </ol>
+  <div class="self-name">cell_tissue</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="cell_tissue-reactive-tissues-for-the-cell-framework">cell_tissue: Reactive Tissues for the Cell Framework</h1>
+<p><strong>The High-Performance Collection Layer for Digital Organisms</strong></p>
+<p><strong>Author:</strong> Lee Man Hoi Simon<br>
+<strong>License:</strong> Dual-licensed under <a href="https://opensource.org/licenses/MIT">MIT</a> and <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a></p>
+<hr>
+<h2 id="the-vision-specialized-tissues">The Vision: Specialized Tissues</h2>
+<p>In the biological world, complex life is made possible by <strong>tissues</strong>—collections of specialized cells working in concert to perform a unified function. <strong><code>cell_tissue</code></strong> brings this evolutionary leap to the Cell Framework.</p>
+<p>While <code>cell.core</code> manages individual "unicellular" logic, <code>cell_tissue</code> provides the infrastructure for <strong>multicellular coordination</strong>. It transforms standard Dart collections (<code>List</code>, <code>Set</code>, <code>Map</code>, <code>Queue</code>) into reactive, self-governing "tissues" where every element is a participant in the system's nervous system.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#philosophy-granular-reactivity">Philosophy: Granular Reactivity</a></li>
+<li><a href="#key-features">Key Features</a></li>
+<li><a href="#core-concepts">Core Concepts</a>
+<ul>
+<li><a href="#tissue-the-reactive-tissue">Tissue: The Reactive Tissue</a></li>
+<li><a href="#tissuenucleus-tissue-dna">TissueNucleus: Tissue DNA</a></li>
+<li><a href="#tissuereceptor-pulse-coordination">TissueReceptor: Pulse Coordination</a></li>
+<li><a href="#testtissue-the-tissue-immune-system">TestTissue: The Tissue Immune System</a></li>
+</ul>
+</li>
+<li><a href="#the-deputy-pattern-in-collections">The Deputy Pattern in Collections</a></li>
+<li><a href="#ai-native-the-semantic-collection-tier">AI-Native: The Semantic Collection Tier</a></li>
+<li><a href="#architecture-deep-dive">Architecture Deep Dive</a>
+<ul>
+<li><a href="#conactive-atomic-execution">Conactive Atomic Execution</a></li>
+<li><a href="#flyweight-sparse-records">Flyweight Sparse Records</a></li>
+</ul>
+</li>
+<li><a href="#collection-species">Collection Species</a></li>
+<li><a href="#usage-examples">Usage Examples</a></li>
+<li><a href="#performance--scalability">Performance &amp; Scalability</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<hr>
+<h2 id="philosophy-granular-reactivity">Philosophy: Granular Reactivity</h2>
+<p>Traditional reactive collections often suffer from "all-or-nothing" invalidation. If one item in a list of 10,000 changes, the entire list is often marked as dirty.</p>
+<p><strong><code>cell_tissue</code></strong> implements <strong>Granular Reactivity</strong>:</p>
+<ul>
+<li><strong>Per-Element Pulsing</strong>: Pulses only fire for the specific elements that were added, removed, or modified.</li>
+<li><strong>Zero-Copy Views</strong>: Using the <strong>Deputy Pattern</strong>, you can create filtered or read-only "projections" of a collection that share the same physical memory.</li>
+<li><strong>Recursive Linking</strong>: Collections automatically propagate signals from their member Cells, allowing a change in a deep object to ripple through the tissue without global rebuilding.</li>
+</ul>
+<hr>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>Full Reactive Suite</strong>: Specialized support for <code>List</code>, <code>Set</code>, <code>Map</code>, <code>Queue</code>, and single <code>Value</code> nodes.</li>
+<li><strong>Conactive Consistency</strong>: Every mutation is atomic and synchronized via internal Locks, preventing race conditions in complex reactive graphs.</li>
+<li><strong>Digital DNA (Nucleus)</strong>: Shared, immutable blueprints for collection behavior, using Flyweight Records to minimize memory footprint.</li>
+<li><strong>Composable Immune System</strong>: Use the <code>+</code> operator to stack <code>TestTissue</code> rules across multiple deputies.</li>
+<li><strong>Semantic Metadata</strong>: Full integration with <code>Context</code> for domain-aware and AI-ready collections.</li>
+<li><strong>Recursive Unmodifiability</strong>: Deeply protect entire collection hierarchies with a single <code>.unmodifiable</code> call.</li>
+</ul>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="tissue-the-reactive-tissue">Tissue: The Reactive Tissue</h3>
+<p>A <code>Tissue&lt;E&gt;</code> is a specialized <code>Cell</code> that also functions as an <code>Iterable&lt;E&gt;</code>. It acts as the "organ" managing a group of signals. It handles the lifecycle of its members and ensures structural integrity.</p>
+<h3 id="tissuenucleus-tissue-dna">TissueNucleus: Tissue DNA</h3>
+<p>The <code>TissueNucleus</code> is the blueprint. It defines the storage strategy (e.g., <code>list</code>, <code>set</code>), the validation rules, and the pulse processing logic. Because it uses <strong>Flyweight Sparse Records</strong>, you can instantiate thousands of collections with virtually no memory overhead.</p>
+<h3 id="tissuereceptor-pulse-coordination">TissueReceptor: Pulse Coordination</h3>
+<p>The "brain" of the collection. It intercepts incoming signals (<code>TissuePost</code>) and manages how state is updated. It can prune redundant events and ensure that only meaningful changes propagate downstream.</p>
+<h3 id="testtissue-the-tissue-immune-system">TestTissue: The Tissue Immune System</h3>
+<p>The validation layer for collections. It allows you to define:</p>
+<ul>
+<li><strong>Element Rules</strong>: Constraints on what types of data can enter the collection.</li>
+<li><strong>Action Rules</strong>: Permission-based restrictions on methods like <code>add</code>, <code>remove</code>, or <code>clear</code>.</li>
+<li><strong>Structural Rules</strong>: Constraints on size, uniqueness, or ordering.</li>
+</ul>
+<hr>
+<h2 id="the-deputy-pattern-in-collections">The Deputy Pattern in Collections</h2>
+<p>The Deputy Pattern is a first-class citizen in <code>cell_tissue</code>. It allows you to project a collection into different "roles":</p>
+<ol>
+<li><strong>Read-Only Projections</strong>: <code>.unmodifiable</code> creates a view that prevents all structural changes.</li>
+<li><strong>Role-Based Security</strong>: Create a <code>deputy</code> that adds an <code>adminOnly</code> rule on top of a public collection.</li>
+<li><strong>Filtered Perspectives</strong>: View a subset of a collection without creating a new physical list.</li>
+</ol>
+<hr>
+<h2 id="ai-native-the-semantic-collection-tier">AI-Native: The Semantic Collection Tier</h2>
+<p><code>cell_tissue</code> is built for <strong>Agentic AI</strong>. Every collection carries a <code>Context</code> containing semantic metadata (domains, stakeholders, compliance tags).</p>
+<p><strong>How AI interacts with Tissues:</strong></p>
+<ul>
+<li><strong>Semantic Discovery</strong>: An AI agent can scan the reactive graph for any collection tagged with <code>Context.compliance.contains('GDPR')</code>.</li>
+<li><strong>Natural Language Mutators</strong>: AI can safely interact with a collection through a <code>Deputy</code> that enforces strict <code>TestRules</code>, ensuring the agent cannot break business invariants.</li>
+<li><strong>Automated Auditing</strong>: AI auditors can verify that sensitive data in a <code>TissueMap</code> is correctly redacted via <code>FilterRules</code> before it reaches public UI synapses.</li>
+</ul>
+<hr>
+<h2 id="architecture-deep-dive">Architecture Deep Dive</h2>
+<h3 id="conactive-atomic-execution">Conactive Atomic Execution</h3>
+<p>Mutations in a <code>Tissue</code> are "Conactive"—merging concurrent safety with reactive propagation. Every operation (<code>add</code>, <code>remove</code>, etc.) is wrapped in a dedicated synchronization lock. This ensures that the collection remains in a consistent state even when multiple reactive branches attempt to update it simultaneously.</p>
+<h3 id="flyweight-sparse-records">Flyweight Sparse Records</h3>
+<p>To support massive-scale applications, we utilize <strong>Sparse Records</strong> for the <code>Nucleus</code>. This pattern avoids the overhead of nullable fields by using bitmask-driven property resolution. Property lookups (<code>receptor</code>, <code>testRule</code>) traverse a prototype chain, allowing deputies to override specific behaviors while inheriting the rest from the principal.</p>
+<hr>
+<h2 id="collection-species">Collection Species</h2>
+<ul>
+<li><strong><code>TissueList</code></strong>: The reactive backbone for ordered data. Supports growable and fixed-length variants.</li>
+<li><strong><code>TissueSet</code></strong>: Ensures uniqueness through reactive identity or equality checks.</li>
+<li><strong><code>TissueMap</code></strong>: Reactive key-value pairs where both keys and values can participate in the reactive graph.</li>
+<li><strong><code>TissueQueue</code></strong>: Optimized for FIFO/LIFO reactive pulse processing.</li>
+<li><strong><code>TissueValue</code></strong>: A "single-cell" tissue for managing a single reactive pointer or configuration.</li>
+</ul>
+<hr>
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="basic-reactive-tissue">Basic Reactive Tissue</h3>
+<pre class="language-dart"><code class="language-dart">// A self-validating reactive list of IDs
+final userIds = TissueList&lt;int&gt;(
+  [101, 102],
+  testRule: TestTissue.create(
+    elementAllow: (id, _) =&gt; id &gt; 0,
+    maxLength: 100,
+  ),
+);
+
+// Listen to structural changes
+Cell.listen(
+  bind: userIds,
+  listen: (pulse) =&gt; print("Tissue update: ${pulse.soma}"),
+);
+
+userIds.add(103); // Emits a granular 'elementAdded' pulse
+</code></pre>
+<h3 id="composing-security-layers">Composing Security Layers</h3>
+<pre class="language-dart"><code class="language-dart">// Base collection
+final sensitiveData = TissueMap&lt;String, String&gt;({});
+
+// Secure deputy for non-admin users
+final publicView = sensitiveData.deputy(
+  testRule: TestTissue.readOnly(),
+  context: Context.user,
+);
+</code></pre>
+<hr>
+<h2 id="performance--scalability">Performance &amp; Scalability</h2>
+<ul>
+<li><strong>O(1) Identity</strong>: <code>deputy == principal</code> is always true, enabling fast lookups in hash-based structures.</li>
+<li><strong>Lazy Resolution</strong>: Validation and pulse processing are only computed when needed.</li>
+<li><strong>Shared Storage</strong>: Deputies pointing to the same principal share the underlying <code>Box</code>, minimizing GC pressure.</li>
+</ul>
+<hr>
+<h2 id="installation">Installation</h2>
+<p>Add <code>cell_tissue</code> and <code>cell.core</code> to your <code>pubspec.yaml</code>:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell.core: ^latest
+  cell_tissue: ^latest
+</code></pre>
+<hr>
+<h2 id="license">License</h2>
+<p>The Cell Framework is dual-licensed under the <strong>MIT License</strong> and the <strong>Apache License 2.0</strong>.</p>
+<p>Copyright (c) 2025-Present Lee Man Hoi Simon.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <h3>Core</h3>
+            <dt id="cell_tissue">
+  <span class="name"><a href="cell_tissue/">tissue</a></span> 
+
+</dt>
+<dd>cell_tissue – Reactive Collections for the Cell Framework
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li class="self-crumb">cell_tissue package</li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="cell_tissue/">tissue</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

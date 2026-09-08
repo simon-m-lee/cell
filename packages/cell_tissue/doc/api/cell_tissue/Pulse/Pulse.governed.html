@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Pulse.governed constructor from Class Pulse from the cell_tissue library, for the Dart programming language.">
+  <title>Pulse.governed constructor - Pulse - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">Pulse.governed factory constructor</li>
+  </ol>
+  <div class="self-name">Pulse.governed</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;Pulse-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;.governed</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;.governed</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="governed-param-policy"><span class="type-annotation"><a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="governed-param-context"><span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="governed-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span></li>
+<li><span class="parameter" id="governed-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="governed-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="governed-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
+<li><span class="parameter" id="governed-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
+<li><span class="parameter" id="governed-param-onComplete"><span class="type-annotation">void</span> <span class="parameter-name">onComplete</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="governed-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, {</span></li>
+<li><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="governed-param-onProgress"><span class="type-annotation">void</span> <span class="parameter-name">onProgress</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">message</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a managed <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance with an exhaustive set of configuration
+options for complex system integration and <strong>Policy-Based Governance</strong>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Only when you need explicit provenance – e.g., audit trails, security
+rules, or when the pulse must carry actor/reason/sensitivity metadata.
+For most signals, the plain <a href="../../cell_tissue/Pulse-class.html">Pulse</a> constructor is sufficient.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>You provide optional metadata like <code>context</code> (authority, actor, reason),
+<code>priority</code> (scheduling urgency), and <code>policy</code> (TTL/hop limits). The
+framework attaches all of this to the pulse for traceability.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>onComplete</code> callback fires only after the pulse has been fully
+propagated through the graph – useful for coordinating side effects.</li>
+<li>The <code>policy</code> can neutralise a pulse if it exceeds its TTL or hop limit,
+preventing infinite loops.</li>
+</ul>
+<h3 id="example-highintegrity-update">Example: High‑Integrity Update</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;.governed(
+  payload: 42,
+  type: 'system_command',
+  context: PulseContext.instruction(
+    baseContext: currentContext,
+    actor: 'admin_service',
+    directive: 'RESOURCE_OPTIMIZATION',
+  ),
+  priority: 10,
+  step: 'initial_ingress',
+);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>policy</code>: <strong>Lifecycle Governance.</strong> Defines termination constraints (TTL/Hops).</li>
+<li><code>context</code>: <strong>Authorization &amp; Provenance.</strong> The authority and audit metadata.</li>
+<li><code>payload</code>: <strong>The Message Content.</strong> The primary data or instruction.</li>
+<li><code>type</code>: <strong>The Message Signature.</strong> A tag used for logic routing.</li>
+<li><code>source</code>: <strong>The Originating Node.</strong> The <a href="../../cell_tissue/Cell-class.html">Cell</a> that generated this signal.</li>
+<li><code>step</code>: <strong>The Audit Step.</strong> A description of the initial processing stage.</li>
+<li><code>priority</code>: <strong>Scheduling Priority.</strong> Used for urgent execution in
+high-contention cycles.</li>
+<li><code>onComplete</code>: Success callback triggered after graph-wide stabilization.</li>
+<li><code>onError</code>: Failure callback for validation errors or transformation exceptions.</li>
+<li><code>onProgress</code>: Telemetry callback for graph traversal milestones.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A fully configured <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance ready for governed propagation through
+the reactive fabric.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory Pulse.governed({
+  PulseEphemeralPolicy? policy,
+  PulseContext? context,
+
+  P? payload,
+  String? type,
+
+  Cell? source,
+  String? step,
+
+  int? priority,
+
+  void Function(Pulse pulse)? onComplete,
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+  void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
+}) = _Pulse&lt;P&gt;;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">Pulse.governed factory constructor</li>
+</ol>
+
+    <h5>Pulse class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

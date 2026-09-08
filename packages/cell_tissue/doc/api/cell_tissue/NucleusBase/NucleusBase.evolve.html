@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the NucleusBase.evolve constructor from Class NucleusBase from the cell_tissue library, for the Dart programming language.">
+  <title>NucleusBase.evolve constructor - NucleusBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.evolve constructor</li>
+  </ol>
+  <div class="self-name">NucleusBase.evolve</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;NucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">NucleusBase.evolve</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">NucleusBase.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
+<li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span></li>
+<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">principal</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> to
+support hierarchical property inheritance and contextual overrides.</p>
+<p>This constructor is the core implementation of the <strong>Prototype Inheritance
+Pattern</strong> (specifically the <strong>Proxy/Deputy Pattern</strong>) within the property
+system. It allows a derived nucleus to inherit its structural identity and
+core behavioral logic from a <code>principal</code> while layering on localized
+configuration overrides.</p>
+<h3 id="1-purpose--architectural-role-contextual-specialization">1. Purpose &amp; Architectural Role: Contextual Specialization</h3>
+<p>The fundamental purpose of <code>.evolve</code> is to facilitate <strong>Behavioral
+Specialization</strong> with minimal memory overhead. In a complex reactive
+graph, many nodes may share the majority of their logic (e.g., security tiers,
+validation rules, or physical storage strategies) but differ in a single
+specific aspect.</p>
+<p>Instead of re-allocating a full property set for every variation, this
+constructor creates a "Linker Record" that points back to the principal
+for any property not explicitly defined in the local scope. This is
+critical for:</p>
+<ul>
+<li><strong>Creating Proxies</strong>: Generating restricted-access or read-only views
+(Deputies) of a cell that share the same data but use different
+validation <code>testRule</code>s.</li>
+<li><strong>Contextual Projections</strong>: Running the same logic under a different
+<code>context</code> (e.g., projecting a system-level state into a user-level view).</li>
+<li><strong>Behavioral Shadowing</strong>: Overriding a <code>receptor</code> to add transformation
+logic without altering the principal blueprint's original behavior.</li>
+</ul>
+<h3 id="2-functional-behavior-the-resolution-chain">2. Functional Behavior: The Resolution Chain</h3>
+<p>This constructor establishes a vertical link in the configuration tree. When
+a property is accessed, the system employs a recursive "walk-up" strategy:</p>
+<ol>
+<li><strong>Local Override</strong>: It first checks the local record for overrides
+provided directly to this <code>.evolve</code> call.</li>
+<li><strong>Parental Fallback</strong>: If the property is missing locally (omitted for
+memory efficiency), the system "walks up" the inheritance chain to the
+<code>principal</code>.</li>
+<li><strong>Terminal Defaults</strong>: The chain continues until it eventually falls
+back to global framework defaults (terminating at <a href="../../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a>).</li>
+</ol>
+<h3 id="3-synchronization-domain-lock-inheritance">3. Synchronization Domain (Lock Inheritance)</h3>
+<p>A key feature of evolved extensions is their relationship with the
+<code>principal</code>'s synchronization primitive:</p>
+<ul>
+<li><strong>Shared Atomicity</strong>: By default, extensions share the <code>principal</code>'s
+atomic <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This ensures that the principal and its proxies maintain
+a single atomic boundary for complex graph transitions.</li>
+<li><strong>Isolation</strong>: If an <code>override</code> is provided and it contains its own
+lock, the extension can effectively branch into an independent
+synchronization domain.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ephemeralPolicy</code>: Optional. A <strong>Lifecycle Governance Policy</strong> defining
+how and when the resulting cell should be automatically invalidated.</li>
+<li><code>bind</code>: Optional. A <a href="../../cell_tissue/Cell-class.html">Cell</a> dependency. Note: bindings are instance-specific
+and are <strong>not</strong> inherited from the principal. <em>(Ignored if <code>override</code> is set)</em>.</li>
+<li><code>context</code>: Defines the execution tier and operational authority.
+If null, resolves from the <code>principal</code>. <em>(Ignored if <code>override</code> is set)</em>.</li>
+<li><code>receptor</code>: The <strong>Transformation Pipeline</strong> logic. <em>(Ignored if <code>override</code> is set)</em>.</li>
+<li><code>testRule</code>: <strong>Policy Guard</strong> rules for state changes. If null, inherits
+from the <code>principal</code>. <em>(Ignored if <code>override</code> is set)</em>.</li>
+<li><code>synapses</code>: <strong>Egress Network</strong> management. Determines if the node
+maintains its own observer list. <em>(Ignored if <code>override</code> is set)</em>.</li>
+<li><code>user</code>: Optional ad-hoc metadata or extension-specific storage.</li>
+<li><code>override</code>: Optional. A pre-compiled <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> whose record will be
+directly adopted as the property base.</li>
+<li><code>principal</code>: <strong>Required</strong>. The source <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> from which this instance
+derives its structural and logic inheritance.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">NucleusBase.evolve({
+  EphemeralPolicy? ephemeralPolicy,
+
+  Cell? bind,
+  Context? context,
+  Receptor? receptor,
+  TestCell? testRule,
+  Synapses? synapses,
+  Record? user,
+
+  Nucleus? override,
+  required Nucleus principal
+}) : this.fromRecord(record: (
+    local: (override as NucleusBase?)?.record.local ?? NucleusBase.mask(bind: bind,
+        context: context,
+        receptor: receptor, testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy),
+    principal: principal
+));</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
+    <li class="self-crumb">NucleusBase.evolve constructor</li>
+</ol>
+
+    <h5>NucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

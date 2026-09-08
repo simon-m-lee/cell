@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the call method from the TestRule class, for the Dart programming language.">
+  <title>call method - TestRule class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+  </ol>
+  <div class="self-name">call</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TestRule-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">call</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span></li>
+<li><span class="parameter" id="call-param-host"><span class="type-annotation">C?</span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="call-param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes the <strong>Validation Predicate</strong> and orchestrates the
+<strong>Chain of Responsibility</strong> for this rule.</p>
+<p>This method serves as the operational entry point for <strong>Policy
+Enforcement</strong> and <strong>Integrity Gate</strong> resolution. It evaluates a stimulus
+(<code>object</code>)—typically a <code>payload</code> or a state transition—against the
+governing invariants.</p>
+<h3 id="developer-ergonomics--human-legibility">Developer Ergonomics &amp; Human Legibility</h3>
+<p>Developers typically don't call this directly. The framework invokes it
+automatically during validation. However, it can be called manually for
+testing:</p>
+<pre class="language-dart"><code class="language-dart">final rule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object &gt; 0;
+});
+
+final result = await rule.call(5); // true
+final result2 = await rule.call(-1); // false
+</code></pre>
+<h3 id="1-hybrid-convergence-syncasync-orchestration">1. Hybrid Convergence: Sync/Async Orchestration</h3>
+<p>To support high-performance reactive waves alongside complex security
+checks (like database lookups or remote authority verification), the
+method returns <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>:</p>
+<ul>
+<li><strong>Synchronous Path</strong>: For standard invariants (e.g., range checks),
+it returns <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> immediately, allowing the reactive wave to
+complete within the current call stack at <strong>Native Speed</strong>.</li>
+<li><strong>Asynchronous Path</strong>: For I/O-bound logic, it returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>,
+safely suspending the node's <strong>Conactive Lock</strong> until validation
+is complete.</li>
+</ul>
+<h3 id="2-operational-pipeline">2. Operational Pipeline</h3>
+<ol>
+<li><strong>Predicate Evaluation</strong>: Executes the primary validation logic.
+If the result is a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, the method transitions into
+an asynchronous mode for the remainder of the validation.</li>
+<li><strong>Short-Circuit Logic</strong>: If this rule is part of a composite chain,
+execution halts immediately if any segment returns <code>false</code>.</li>
+<li><strong>Fail-Safe Resilience</strong>: To ensure <strong>Operational Resilience</strong>,
+unhandled exceptions within a validator are caught and treated as
+<code>true</code> (Pass). This prevents a faulty validator from paralyzing
+the <strong>System</strong>.</li>
+<li><strong>Hierarchical Delegation</strong>: If all local conditions pass, the
+evaluation is delegated to the parent ancestor in the inheritance chain.</li>
+</ol>
+<h3 id="3-example-testing-validation">3. Example: Testing Validation</h3>
+<pre class="language-dart"><code class="language-dart">final rule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
+  return object &gt;= 0 &amp;&amp; object &lt;= 100;
+});
+
+// Sync test
+expect(await rule.call(50), isTrue);
+expect(await rule.call(150), isFalse);
+
+// Async test
+final asyncRule = TestRule&lt;int&gt;((object, {host, arguments, user}) async {
+  await Future.delayed(Duration.zero);
+  return object &gt;= 0;
+});
+expect(await asyncRule.call(5), isTrue);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>object</code>: The data, action, or payload being validated.</li>
+<li><code>host</code>: The host environment (typically a <a href="../../cell_tissue/Cell-class.html">Cell</a>) providing
+context for cross-field validation.</li>
+<li><code>arguments</code>: Optional metadata or execution parameters from the <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if all validation criteria are met; <code>false</code> if the operation
+is rejected by policy.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;bool&gt; call(dynamic object, {C? host, dynamic arguments}) {
+  FutureOr&lt;bool&gt; result = true;
+
+  final rule = _rule;
+
+  &#47;&#47; Handle Primary Predicate
+  if (rule != null) {
+    try {
+      result = rule(object, host: host, arguments: arguments, user: _user);
+    } on Exception {
+      rethrow;
+    }
+  } else { &#47;&#47; Handle Composite Chain
+    final rules = _rules;
+    if (rules.isNotEmpty) {
+      result = _evaluateChain(rules, 0, object, host, arguments);
+    }
+  }
+
+  if (result is Future&lt;bool&gt;) {
+    final parent = _parent;
+    if (parent != null) {
+      return result.then((passed) {
+        if (!passed) return false;
+        return parent.call(object, host: host, arguments: arguments);
+      });
+    }
+    return result.catchError((e) =&gt; e);
+  } else if (!result) {
+    return false;
+  }
+
+  &#47;&#47; Handle Hierarchical Delegation
+  return _parent?.call(object, host: host, arguments: arguments) ?? true;
+
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">call method</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

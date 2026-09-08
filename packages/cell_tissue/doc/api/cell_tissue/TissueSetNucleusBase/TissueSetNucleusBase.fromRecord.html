@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueSetNucleusBase.fromRecord constructor from Class TissueSetNucleusBase from the cell_tissue library, for the Dart programming language.">
+  <title>TissueSetNucleusBase.fromRecord constructor - TissueSetNucleusBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueSetNucleusBase-class.html">TissueSetNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueSetNucleusBase.fromRecord const constructor</li>
+  </ol>
+  <div class="self-name">TissueSetNucleusBase.fromRecord</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TissueSetNucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TissueSetNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TissueSetNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p><strong>Low‑level Record Constructor</strong> – instantiates a nucleus from a
+pre‑packed property record.</p>
+<h3 id="who-should-call-this">Who should call this</h3>
+<p><strong>Strictly internal framework use only.</strong> This constructor bypasses
+all parameter validation and default‑value logic. It is designed for
+performance‑critical paths like cloning and state restoration.
+<strong>Application code must never call this.</strong></p>
+<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
+<ul>
+<li>When implementing <code>clone</code> or <code>evolve</code> in a custom nucleus subclass.</li>
+<li>When restoring a nucleus from a serialised state where the record
+shape is already guaranteed.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The provided <code>record</code> is directly assigned to the internal storage.</li>
+<li>No validation or default‑value logic is performed – the record is
+assumed to be correct and complete.</li>
+<li>This bypasses the bitmask optimisation of the primary constructor,
+which is why it is only safe to use when the record shape is
+guaranteed.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The record must contain all necessary fields for a set nucleus,
+including the <code>container</code> (of type <a href="../../cell_tissue/Container-class.html">Container&lt;Set&lt;E&gt;&gt;</a>) and a
+synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> (unless sharing one via a principal).</li>
+<li>If the record is malformed, the resulting nucleus may behave
+unpredictably – use with extreme caution.</li>
+<li>This constructor is <code>const</code>‑friendly, enabling compile‑time
+instantiation of static nuclei for zero‑cost default configurations.</li>
+</ul>
+<h3 id="example-internal">Example (Internal)</h3>
+<pre class="language-dart"><code class="language-dart">final record = (mask: (container: Container.set, ...), principal: null);
+final nucleus = TissueSetNucleusBase.fromRecord(record: record);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>record</code>: The internal property record – an implementation‑specific
+Dart <code>Record</code> containing all nucleus fields.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const TissueSetNucleusBase.fromRecord({super.record}) : super.fromRecord();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueSetNucleusBase-class.html">TissueSetNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueSetNucleusBase.fromRecord const constructor</li>
+</ol>
+
+    <h5>TissueSetNucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

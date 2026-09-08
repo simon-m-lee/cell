@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueNucleusNever class from the cell_tissue library, for the Dart programming language.">
+  <title>TissueNucleusNever class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li class="self-crumb">TissueNucleusNever class</li>
+  </ol>
+  <div class="self-name">TissueNucleusNever</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;cell_tissue-library-sidebar.html"
+    data-below-sidebar="cell_tissue&#47;TissueNucleusNever-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">TissueNucleusNever</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A terminal, immutable representation of empty tissue properties.</p>
+<p><a href="../cell_tissue/TissueNucleusNever-class.html">TissueNucleusNever</a> serves as the "Null Object" or "bottom" type
+within the <a href="../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> hierarchy. It implements the interface
+for a tissue holding <code>Never</code>, representing a configuration that
+contains no data, permits no mutations, and occupies minimal memory.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You never create this directly. The framework uses it internally
+as the fallback for empty or uninitialised collections.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Only if you are building a custom collection implementation that needs
+a no‑op nucleus placeholder. For standard use, the framework provides
+this automatically.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It extends <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> to inherit the zero‑state property resolution.</li>
+<li>It returns a specialised <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> that is permanently empty
+and rejects all mutations.</li>
+<li>It uses <a href="../cell_tissue/TestTissue/allowAll-constant.html">TestTissue.allowAll</a> and <a href="../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a> as
+defaults, but since the type is <code>Never</code>, no signals can actually be
+posted to it.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a <code>const</code> singleton – all empty tissue nuclei point to the
+exact same instance, making it extremely memory‑efficient.</li>
+<li>Attempting to call mutation methods on a collection built from this
+nucleus will either throw or be silently ignored (depending on the
+implementation).</li>
+<li>It serves as the <strong>root of the inheritance chain</strong> for any nucleus
+that has no explicit <code>principal</code>.</li>
+</ul>
+<h3 id="example-internal">Example (Internal)</h3>
+<pre class="language-dart"><code class="language-dart">final emptyNucleus = TissueNucleusNever();
+final emptyList = Tissue.fromNucleus(emptyNucleus);
+print(emptyList.length); // 0
+// emptyList.add(1); // throws or silently fails
+</code></pre>
+<p>Inherits from <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> to ensure it is a fundamental, non‑reducible
+part of the reactive property tree.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
+        <li><a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a></li>
+      <li>TissueNucleusNever</li>
+    </ul>
+  </dd>
+
+        
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>&gt;</span></li>
+    </ul>
+  </dd>
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="TissueNucleusNever.new" class="callable">
+          <span class="name"><a href="../cell_tissue/TissueNucleusNever/TissueNucleusNever.html">TissueNucleusNever</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          Creates a constant instance of <a href="../cell_tissue/TissueNucleusNever-class.html">TissueNucleusNever</a>.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="bind" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/bind.html">bind</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Cell-class.html">Cell</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The upstream <a href="../cell_tissue/Cell-class.html">Cell</a> dependency that serves as the primary <strong>Ingress Source</strong>
+for this node's reactive logic.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="cell" class="property inherited">
+  <span class="name"><a href="../cell_tissue/NucleusBase/cell.html">cell</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Cell-class.html">Cell</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the live <a href="../cell_tissue/Cell-class.html">Cell</a> instance that this nucleus is bound to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="clone" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/clone.html">clone</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TissueNucleusNever-class.html">TissueNucleusNever</a></span>
+  
+
+</dt>
+<dd>
+  Generates a decoupled, peer-level replica of the current <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> blueprint
+with an independent synchronization domain.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="container" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/container.html">container</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Provides a specialized, empty <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="containerType" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/containerType.html">containerType</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Container-class.html">Container</a></span>
+  
+
+</dt>
+<dd>
+  The physical storage strategy (e.g., List, Set, Map, Queue) used by this
+collection.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="context" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The operational tier and execution environment assigned to the <a href="../cell_tissue/Cell-class.html">Cell</a>
+associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../cell_tissue/NucleusBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inheritable" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/inheritable.html">inheritable</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/InheritableHandle.html">InheritableHandle</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Retrieves the optimized <strong>Logic Inheritance Handle</strong> containing the
+shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isActivated" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/isActivated.html">isActivated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this nucleus has been bound to a live <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property inherited">
+  <span class="name"><a href="../cell_tissue/NucleusBase/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether the associated <a href="../cell_tissue/Cell-class.html">Cell</a> has been formally invalidated
+and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The synchronization primitive used to ensure thread-safe and atomic
+operations across the reactive <a href="../cell_tissue/Cell-class.html">Cell</a> associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="principal" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/principal.html">principal</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  The optional reference to a precursor <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> in the inheritance
+hierarchy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="receptor" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/receptor.html">receptor</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the default pass-through receptor.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="record" class="property inherited">
+  <span class="name"><a href="../cell_tissue/NucleusBase/record.html">record</a></span>
+  <span class="signature">&#8594; dynamic</span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="synapses" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/synapses.html">synapses</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The connectivity manager responsible for tracking and notifying downstream
+observers of this <code>Cell</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="testRule" class="property">
+  <span class="name"><a href="../cell_tissue/TissueNucleusNever/testRule.html">testRule</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">Never</span>, <span class="type-parameter">Never</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the default permissive validation rule.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="timestamp" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/timestamp.html">timestamp</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The <strong>Temporal Origin</strong> and synthesis record of this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="user" class="property inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/user.html">user</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Retrieves the optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing developer-defined metadata or
+custom property extensions for the associated <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="activate" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/Nucleolus/activate.html">activate</a></span><span class="signature">(<wbr><span class="parameter" id="activate-param-cell"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Activates this nucleus by binding it to a live <a href="../cell_tissue/Cell-class.html">Cell</a> instance.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/NucleusBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">cell_tissue</a></li>
+    <li class="self-crumb">TissueNucleusNever class</li>
+</ol>
+
+    <h5>cell_tissue library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueNucleusBase.new constructor from Class TissueNucleusBase from the cell_tissue library, for the Dart programming language.">
+  <title>TissueNucleusBase.new constructor - TissueNucleusBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueNucleusBase.new constructor</li>
+  </ol>
+  <div class="self-name">TissueNucleusBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TissueNucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TissueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TissueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="-param-container"><span class="type-annotation"><a href="../../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span></li>
+<li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">TissueReceptor.passThrough</span>, </span></li>
+<li><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span></li>
+<li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+<li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">others</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p><strong>Primary Constructor</strong> – defines the immutable behaviour and storage
+strategy for a reactive collection.</p>
+<h3 id="who-should-call-this">Who should call this</h3>
+<p><strong>Internal framework use only.</strong> This constructor is <code>public</code> only so
+that concrete subclasses (like <code>_TissueNucleus</code>) can invoke it via
+<code>super()</code>. <strong>Application code should never call this directly.</strong></p>
+<p>If you need a nucleus, use <a href="../../cell_tissue/TissueNucleus/create.html">TissueNucleus.create</a> to create one
+from scratch, or <a href="../../cell_tissue/TissueNucleus/TissueNucleus.evolve.html">TissueNucleus.evolve</a> to derive one from an
+existing principal.</p>
+<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
+<p>You are writing a custom collection implementation that extends
+<code>TissueNucleusBase</code> and need to pass configuration up to the base.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The <code>container</code> parameter defines the physical storage strategy.
+If omitted, the framework infers a default from the iterable type <code>I</code>.</li>
+<li>All other parameters are passed to the super‑constructor, which
+stores them in a memory‑optimised record using bitmasking.</li>
+<li>The resulting nucleus is immutable – you cannot change its
+configuration after creation.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>receptor</code> is automatically cloned if it is already activated
+(bound to another cell), ensuring that each nucleus starts with a
+clean logic instance.</li>
+<li>If <code>synapses</code> is <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>, a fresh, empty registry is
+created for the new collection. If you pass <a href="../../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a>,
+the collection will be terminal (no broadcasts).</li>
+<li>The <code>forceLock</code> flag controls whether a new synchronization lock is
+allocated. <code>false</code> (default) creates a new lock; <code>true</code> shares the
+principal's lock (used for deputies).</li>
+</ul>
+<h3 id="example-internal--how-the-framework-uses-it">Example (Internal – how the framework uses it)</h3>
+<pre class="language-dart"><code class="language-dart">class _MyCustomNucleus&lt;E&gt; extends TissueNucleusBase&lt;E, List&lt;E&gt;, TissueList&lt;E&gt;&gt; {
+  _MyCustomNucleus({super.container = Container.list, ...}) : super();
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>ephemeralPolicy</code>: Optional lifecycle policy (TTL/event limit).</li>
+<li><code>container</code>: The physical storage template. If <code>null</code>, a default
+container for type <code>I</code> is resolved.</li>
+<li><code>bind</code>: Optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> – the collection will automatically
+mirror changes from this source (deputy pattern).</li>
+<li><code>context</code>: Security tier and execution domain (default: <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: Mutation processor – defaults to <a href="../../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a>.</li>
+<li><code>testRule</code>: Validation gate – defaults to <a href="../../cell_tissue/TestTissue/allowAll-constant.html">TestTissue.allowAll</a>.</li>
+<li><code>synapses</code>: Distribution configuration – defaults to <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>.</li>
+<li><code>forceLock</code>: If <code>true</code>, shares the principal's lock (optimisation
+for deputies); if <code>false</code> (default), allocates a new lock.</li>
+<li><code>user</code>: Optional custom metadata (e.g., UI hints, serialisation tags).</li>
+<li><code>others</code>: A specialised extension point for injecting collection‑
+specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TissueNucleusBase({
+  EphemeralPolicy? ephemeralPolicy,
+
+  Container? container,
+
+  Cell? bind,
+  Context context = Context.system,
+  TissueReceptor&lt;E,C&gt; receptor = TissueReceptor.passThrough,
+  TestTissue&lt;E,C&gt; testRule = TestTissue.allowAll,
+  Synapses synapses = Synapses.enabled,
+
+  bool forceLock = false,
+  Record? user,
+  Record? others
+
+}) : super.fromRecord(
+    record: (
+    mask: local&lt;E,I,C&gt;(
+        container: container,
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+        user: user,
+        others: others
+    ))
+);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueNucleusBase.new constructor</li>
+</ol>
+
+    <h5>TissueNucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

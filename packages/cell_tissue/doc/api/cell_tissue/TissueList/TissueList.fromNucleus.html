@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueList.fromNucleus constructor from Class TissueList from the cell_tissue library, for the Dart programming language.">
+  <title>TissueList.fromNucleus constructor - TissueList - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueList-class.html">TissueList<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueList.fromNucleus factory constructor</li>
+  </ol>
+  <div class="self-name">TissueList.fromNucleus</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TissueList-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;.fromNucleus</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;.fromNucleus</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromNucleus-param-properties"><span class="type-annotation"><a href="../../cell_tissue/TissueListNucleus-class.html">TissueListNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">properties</span>, {</span></li>
+<li><span class="parameter" id="fromNucleus-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">elements</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a <a href="../../cell_tissue/TissueList-class.html">TissueList</a> instance materialized from a pre‑configured
+<a href="../../cell_tissue/TissueListNucleus-class.html">TissueListNucleus</a> blueprint, optionally ingesting a starting set of data.</p>
+<p>This factory is the primary architectural constructor for
+<strong>Blueprint‑Driven Instantiation</strong>. In the <code>cell_tissue</code> ecosystem,
+this constructor facilitates a strict separation between a list's
+"DNA" (its rules, context, and receptors) and its "Body" (its physical
+storage and elements).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You have a reusable nucleus (e.g., a "ValidatedUserList" blueprint).</li>
+<li>You are building a custom list implementation that needs a specific
+nucleus configuration.</li>
+<li>You are restoring a list from a serialised state where the nucleus is
+already constructed.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The list adopts the nucleus's rules, context, and receptor.</li>
+<li>If <code>elements</code> are provided, they are ingested atomically and validated
+against the nucleus's <code>testRule</code>.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final nucleus = TissueListNucleus.create&lt;int&gt;(
+  testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt; 0),
+);
+final list = TissueList.fromNucleus(nucleus, elements: [1, 2, 3]);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>nucleus</code>: The blueprint to use.</li>
+<li><code>elements</code>: Optional initial data.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A concrete <a href="../../cell_tissue/TissueList-class.html">TissueList&lt;E&gt;</a> instance.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory TissueList.fromNucleus(
+    TissueListNucleus&lt;E&gt; properties, {
+      Iterable&lt;E&gt;? elements
+    }) = _TissueList&lt;E, TissueList&lt;E&gt;&gt;.fromNucleus;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueList-class.html">TissueList<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueList.fromNucleus factory constructor</li>
+</ol>
+
+    <h5>TissueList class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

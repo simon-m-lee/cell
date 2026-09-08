@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PulseRuleBase class from the cell_tissue library, for the Dart programming language.">
+  <title>PulseRuleBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li class="self-crumb">PulseRuleBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">PulseRuleBase</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;cell_tissue-library-sidebar.html"
+    data-below-sidebar="cell_tissue&#47;PulseRuleBase-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">PulseRuleBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>The foundational implementation and architectural base for all <a href="../cell_tissue/PulseRule-class.html">PulseRule</a>
+variants.</p>
+<p><a href="../cell_tissue/PulseRuleBase-class.html">PulseRuleBase</a> provides the common infrastructure for defining,
+composing, and executing transformation logic within the reactive graph.
+It is engineered for <strong>High-Performance Composition</strong>, allowing complex
+processing pipelines to be built from simple, discrete functional units.</p>
+<h3 id="1-architectural-role-the-logic-unit">1. Architectural Role: The Logic Unit</h3>
+<p>In the <code>cell.core</code> ecosystem, a pulse rule is the atomic unit of
+transformation. <a href="../cell_tissue/PulseRuleBase-class.html">PulseRuleBase</a> orchestrates the lifecycle of these
+units:</p>
+<ul>
+<li><strong>Encapsulation</strong>: It wraps a standard Dart function into a formal
+reactive contract, providing the necessary signatures to interact
+with a <a href="../cell_tissue/Cell-class.html">Cell</a> and its <a href="../cell_tissue/Pulse-class.html">Pulse</a> stream.</li>
+<li><strong>Composition Engine</strong>: It implements the <code>+</code> operator, enabling
+the <strong>Chain of Responsibility</strong> pattern. Rules can be sequentially
+linked into a <a href="../cell_tissue/PulseRuleChain-class.html">PulseRuleChain</a> where the output of one rule
+becomes the input for the next.</li>
+<li><strong>Metadata Attachment</strong>: It facilitates the inclusion of
+arbitrary <code>user</code> data, allowing logic to be parameterized without
+altering the functional signature of the rule.</li>
+</ul>
+<h3 id="2-memory-optimization-the-record-pattern">2. Memory Optimization: The Record Pattern</h3>
+<p>To support systems with millions of reactive nodes, this class utilizes
+the framework's <strong>Flyweight Strategy</strong>:</p>
+<ul>
+<li><strong>Sparsity-Aware Storage</strong>: Configuration data (the function and
+metadata) is packed into a compact, internal <strong>Record</strong>.</li>
+<li><strong>Zero-Tax Defaults</strong>: If no metadata is provided, the record shape
+is automatically optimized to omit the field, reducing the memory
+footprint of the rule instance in the heap.</li>
+<li><strong>Const-Ready Design</strong>: The base is designed to be <code>const</code>,
+ensuring that identical rules share the same physical memory
+address across the entire application.</li>
+</ul>
+<h3 id="3-functional-mechanics-resilient-execution">3. Functional Mechanics: Resilient Execution</h3>
+<p>The primary entry point for a rule is the <a href="../cell_tissue/PulseRuleBase/call.html">call</a> method, which implements
+a <strong>Safe-Harbor Execution</strong> model:</p>
+<ol>
+<li><strong>Contextual Awareness</strong>: The rule is executed with full access to
+the host <a href="../cell_tissue/Cell-class.html">Cell</a> and the triggering <a href="../cell_tissue/Pulse-class.html">Pulse</a>, allowing for
+state-aware transformations.</li>
+<li><strong>Error Isolation</strong>: Transformations are wrapped in an internal
+error boundary. If a custom rule function throws an exception,
+the framework catches it and fallbacks to the original pulse.
+This ensures that a local logic error in a specific cell does not
+  terminate the broader "Reactive Wave."</li>
+<li><strong>Type Integrity</strong>: The base ensures that the output of the
+transformation matches the expected pulse type <code>O</code>, discarding
+incompatible results to maintain graph-wide type safety.</li>
+</ol>
+<h3 id="4-usage-in-receptors">4. Usage in Receptors</h3>
+<p><a href="../cell_tissue/PulseRuleBase-class.html">PulseRuleBase</a> is the engine behind <a href="../cell_tissue/Receptor-class.html">Receptor</a> logic. Whether
+performing a simple value mapping or a complex security filter,
+receptors rely on the resilience and composability provided by this
+base class to navigate the reactive pulse chain.</p>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>C</code>: The type of the host <a href="../cell_tissue/Cell-class.html">Cell</a> (the transformation target).</li>
+<li><code>I</code>: The type of the incoming <a href="../cell_tissue/Pulse-class.html">Pulse</a> (the input).</li>
+<li><code>O</code>: The type of the resulting <a href="../cell_tissue/Pulse-class.html">Pulse</a> (the output).</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></li>
+    </ul>
+  </dd>
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="PulseRuleBase.new" class="callable">
+          <span class="name"><a href="../cell_tissue/PulseRuleBase/PulseRuleBase.html">PulseRuleBase</a></span><span class="signature">(<span class="parameter" id="-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">O?</span>&gt;</span></span> <span class="parameter-name">rule</span>(<span class="parameter" id="param-cell"><span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a base rule with a single transformation and rule logic.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+        <dt id="PulseRuleBase.fromRecord" class="callable">
+          <span class="name"><a href="../cell_tissue/PulseRuleBase/PulseRuleBase.fromRecord.html">PulseRuleBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-_record"><span class="type-annotation">dynamic</span> <span class="parameter-name">_record</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a base rule directly from a property record.
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="call" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseRuleBase/call.html">call</a></span><span class="signature">(<wbr>{<span class="parameter" id="call-param-cell"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="call-param-pulse"><span>required</span> <span class="type-annotation">I</span> <span class="parameter-name">pulse</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">O?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Executes the transformation logic of this rule with error handling.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator +" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseRuleBase/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter">I</span>, <span class="type-parameter">O</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Combines this rule with another to create a <a href="../cell_tissue/PulseRuleChain-class.html">PulseRuleChain</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">cell_tissue</a></li>
+    <li class="self-crumb">PulseRuleBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span> class</li>
+</ol>
+
+    <h5>cell_tissue library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

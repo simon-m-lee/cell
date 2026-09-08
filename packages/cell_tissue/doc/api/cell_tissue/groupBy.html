@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the groupBy function from the cell_tissue library, for the Dart programming language.">
+  <title>groupBy function - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li class="self-crumb">groupBy&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; function</li>
+  </ol>
+  <div class="self-name">groupBy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;cell_tissue-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">groupBy&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">groupBy</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="groupBy-param-values"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">values</span>, </span></li>
+<li><span class="parameter" id="groupBy-param-key"><span class="type-annotation">T</span> <span class="parameter-name">key</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation">S</span></span></li>
+</ol>)</span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Groups the elements of an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> into a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> based on a specified key
+selection function.</p>
+<p><a href="../cell_tissue/groupBy.html">groupBy</a> is a structural utility used to organise a flat collection into
+categories or "buckets." It is particularly useful for organising search
+results, categorising entities by type, or grouping model fields by their
+metadata within the reactive ecosystem.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You call <a href="../cell_tissue/groupBy.html">groupBy</a> when you have a list of items and you want to partition
+them by some common property – for example, grouping a list of tasks by their
+priority, or grouping a list of users by their role.</p>
+<p>This is a pure, synchronous utility – it does not interact with the reactive
+graph directly. It's often used in combination with <a href="../cell_tissue/Tissue-class.html">Tissue</a> collections to
+prepare data for display or further processing.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You have a flat list of elements and need to organise them into
+categories (e.g., tasks by status, products by category).</li>
+<li>You are building a UI that displays grouped data (e.g., a sectioned list).</li>
+<li>You want to perform an aggregation or summary by group (e.g., count items
+per group).</li>
+<li>You are preparing data for a <a href="../cell_tissue/TissueMap-class.html">TissueMap</a> or a <a href="../cell_tissue/TissueList-class.html">TissueList</a> where the
+grouping key becomes the key of a map.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It iterates through every element in the <code>values</code> collection.</li>
+<li>For each element, it calls the <code>key</code> function to determine which group
+it belongs to.</li>
+<li>It maintains a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> where each key points to a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> of elements that
+share that key.</li>
+<li>If a key is encountered for the first time, a new empty list is created
+for that bucket.</li>
+<li>The order of elements within each group preserves the original iteration
+order (insertion order).</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The function returns a <strong>new</strong> <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> – the original iterable is not
+modified.</li>
+<li>The keys are determined by the <code>key</code> function <strong>at the time of grouping</strong>.
+If the elements are mutable and change later, the grouping is not updated
+automatically – you would need to re‑run <a href="../cell_tissue/groupBy.html">groupBy</a>.</li>
+<li>The values in the resulting map are <strong>new lists</strong> – they are not the same
+lists as the original iterable. Modifying them does not affect the source.</li>
+<li>The function is <strong>lazy</strong> in the sense that it only iterates over the
+<code>values</code> once, but it eagerly collects all elements into the map.</li>
+<li>If the <code>key</code> function returns <code>null</code> for some elements, they are grouped
+under the key <code>null</code> (since Dart maps allow null keys).</li>
+</ul>
+<h3 id="example-grouping-tasks-by-priority">Example: Grouping tasks by priority</h3>
+<pre class="language-dart"><code class="language-dart">final tasks = [
+  Task('Buy milk', priority: 'high'),
+  Task('Walk dog', priority: 'low'),
+  Task('Write report', priority: 'high'),
+];
+
+final grouped = groupBy(tasks, (task) =&gt; task.priority);
+// grouped = {
+//   'high': [Task('Buy milk'), Task('Write report')],
+//   'low': [Task('Walk dog')],
+// }
+</code></pre>
+<h3 id="example-grouping-products-by-category">Example: Grouping products by category</h3>
+<pre class="language-dart"><code class="language-dart">final products = [
+  Product('Laptop', category: 'Electronics'),
+  Product('Apple', category: 'Food'),
+  Product('Phone', category: 'Electronics'),
+];
+
+final byCategory = groupBy(products, (p) =&gt; p.category);
+// byCategory['Electronics'] contains laptop and phone
+</code></pre>
+<h3 id="example-using-with-reactive-collections">Example: Using with reactive collections</h3>
+<pre class="language-dart"><code class="language-dart">final tasksList = TissueList&lt;Task&gt;();
+// ... populate tasksList
+final grouped = groupBy(tasksList.toList(), (task) =&gt; task.priority);
+// Use the grouped map to populate a sectioned UI list
+</code></pre>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the elements in the source collection.</li>
+<li><code>T</code>: The type of the key used to categorise the elements.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>values</code>: The source <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> containing the elements to be grouped.</li>
+<li><code>key</code>: A mapping function that takes an element of type <code>S</code> and returns
+a key of type <code>T</code> representing its group.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map&lt;T, List&lt;S&gt;&gt;</a> where each entry represents a group of elements
+sharing the same key.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Map&lt;T, List&lt;S&gt;&gt; groupBy&lt;S, T&gt;(Iterable&lt;S&gt; values, T Function(S) key) {
+  var map = &lt;T, List&lt;S&gt;&gt;{};
+  for (var element in values) {
+    (map[key(element)] ??= []).add(element);
+  }
+  return map;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">cell_tissue</a></li>
+    <li class="self-crumb">groupBy&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; function</li>
+</ol>
+
+    <h5>cell_tissue library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the UnmodifiableTissueValueBase class from the cell_tissue library, for the Dart programming language.">
+  <title>UnmodifiableTissueValueBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li class="self-crumb">UnmodifiableTissueValueBase<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">UnmodifiableTissueValueBase</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;cell_tissue-library-sidebar.html"
+    data-below-sidebar="cell_tissue&#47;UnmodifiableTissueValueBase-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">UnmodifiableTissueValueBase&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>The foundational base class for all read‑only reactive value views.</p>
+<p><a href="../cell_tissue/UnmodifiableTissueValueBase-class.html">UnmodifiableTissueValueBase</a> is the abstract anchor for unmodifiable
+value implementations (e.g., <code>_UnmodifiableTissueValue</code>). It ties together
+a read‑only nucleus and a shared storage container, ensuring that all
+mutations are blocked while reactivity remains live.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>This class is <strong>abstract</strong> – you never instantiate it directly.
+You obtain an unmodifiable value by calling <code>.unmodifiable</code> on any
+mutable <a href="../cell_tissue/TissueValue-class.html">TissueValue</a>, or by using one of the dedicated factories
+(<code>UnmodifiableTissueValue</code>, <code>UnmodifiableTissueValue.view</code>, etc.).</p>
+<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
+<p>Only if you are building a custom read‑only value variant that needs
+to override the default unmodifiable behaviour. For everyday use,
+the existing <code>.unmodifiable</code> getter is all you need.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The constructor receives a <a href="../cell_tissue/TissueValueNucleusBase-class.html">TissueValueNucleusBase</a> that defines the
+value's structural strategy (<code>finalValue</code>) and governance rules.</li>
+<li>The <code>unmodifiableElement</code> flag controls deep immutability:
+<ul>
+<li>If <code>true</code>, and the value is a <a href="../cell_tissue/Cell-class.html">Cell</a>, it is automatically projected
+as its <code>.unmodifiable</code> deputy when accessed via this value.</li>
+<li>If <code>false</code>, child cells remain mutable (but the value itself is
+still read‑only).</li>
+</ul>
+</li>
+<li>The value shares the same physical storage as its mutable source
+(when created via <code>.view</code>) – changes to the source are immediately
+reflected in this read‑only view.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>It is not a snapshot</strong>: The view is live. Changes to the mutable
+source are instantly visible.</li>
+<li><strong>Equality</strong>: <code>source == source.unmodifiable</code> is <code>true</code> – they are
+considered the same logical entity.</li>
+<li><strong>Recursive projection</strong>: If <code>unmodifiableElement</code> is <code>true</code>, and the
+value is a <a href="../cell_tissue/Cell-class.html">Cell</a>, accessing it through the view returns its
+<code>.unmodifiable</code> deputy, preventing side‑door mutations.</li>
+<li><strong>Own observer registry</strong>: The view has its own <a href="../cell_tissue/Synapses-class.html">Synapses</a> registry,
+so observers attached to the view are independent of those on the
+source.</li>
+</ul>
+<h3 id="example-internal">Example (Internal)</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueValue&lt;int&gt;(42);
+final readOnly = _UnmodifiableTissueValue&lt;int&gt;.view(source);
+// readOnly.value = 100; // throws UnsupportedError
+source.value = 100; // readOnly now contains 100
+</code></pre>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>V</code>: The type of the value contained in the cell.</li>
+<li><code>C</code>: The specific <a href="../cell_tissue/TissueValue-class.html">TissueValue</a> implementation type (usually <code>TissueValue&lt;V&gt;</code>).</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../cell_tissue/CellBase-class.html">CellBase</a></li>
+        <li><a href="../cell_tissue/TissueBase-class.html">TissueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span></li>
+        <li><a href="../cell_tissue/UnmodifiableTissueBase-class.html">UnmodifiableTissueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span></li>
+      <li>UnmodifiableTissueValueBase</li>
+    </ul>
+  </dd>
+
+        
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell_tissue/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></li>
+    </ul>
+  </dd>
+        
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../cell_tissue/TissueValueMixin-mixin.html">TissueValueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></li>
+    </ul>
+  </dd>
+
+
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
+      <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
+  </ul></dd>
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="UnmodifiableTissueValueBase.new" class="callable">
+          <span class="name"><a href="../cell_tissue/UnmodifiableTissueValueBase/UnmodifiableTissueValueBase.html">UnmodifiableTissueValueBase</a></span><span class="signature">(<span class="parameter" id="-param-properties"><span class="type-annotation"><a href="../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">properties</span>, {</span><span class="parameter" id="-param-unmodifiableElement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">unmodifiableElement</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>})</span>
+        </dt>
+        <dd>
+          The internal constructor that materialises a read‑only, live view of a
+reactive single value.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="async" class="property inherited">
+  <span class="name"><a href="../cell_tissue/TissueValue/async.html">async</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides an asynchronous interface for performing mutation operations.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="context" class="property inherited">
+  <span class="name"><a href="../cell_tissue/CellBase/context.html">context</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Context-class.html">Context</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the security tier, execution priority,
+and administrative authority of this <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="first" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/first.html">first</a></span>
+  <span class="signature">&#8594; V</span>
+  
+
+</dt>
+<dd class="inherited">
+  The first element.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="firstOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/firstOrNull.html">firstOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The first element of this iterator, or <code>null</code> if the iterable is empty.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueValueBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Computes the hash code for this <code>UnmodifiableTissueValueBase</code> instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="indexed" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/indexed.html">indexed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>, </span><span class="field"><span class="type-annotation">T</span></span>)</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  Pairs of elements of the indices and elements of this iterable.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isEmpty" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isEmpty.html">isEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this collection has no elements.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isGoverned" class="property inherited">
+  <span class="name"><a href="../cell_tissue/CellBase/isGoverned.html">isGoverned</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
+that oversees its operational boundaries, security constraints, and administrative metadata.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property inherited">
+  <span class="name"><a href="../cell_tissue/CellBase/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="../cell_tissue/Cell-class.html">Cell</a> has initiated its <strong>Automatic Termination</strong>
+sequence and is currently in the process of being neutralized.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isNotEmpty" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/isNotEmpty.html">isNotEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this collection has at least one element.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isTerminal" class="property inherited">
+  <span class="name"><a href="../cell_tissue/CellBase/isTerminal.html">isTerminal</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
+within the reactive graph.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="iterator" class="property inherited">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueBase/iterator.html">iterator</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns an <a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a> that allows for a safe, read‑only traversal of the
+elements within this tissue.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="last" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/last.html">last</a></span>
+  <span class="signature">&#8594; V</span>
+  
+
+</dt>
+<dd class="inherited">
+  The last element.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lastOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/lastOrNull.html">lastOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The last element of this iterable, or <code>null</code> if the iterable is empty.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="length" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/length.html">length</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The number of elements in this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="modifiable" class="property inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/modifiable.html">modifiable</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The exhaustive whitelist of functions that can be invoked via <code>apply</code>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="nonNulls" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions/nonNulls.html">nonNulls</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T?</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a> extension</span>
+      </p>
+  The non-<code>null</code> elements of this iterable.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="single" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/single.html">single</a></span>
+  <span class="signature">&#8594; V</span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks that this iterable has only one element, and returns that element.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="singleOrNull" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/singleOrNull.html">singleOrNull</a></span>
+  <span class="signature">&#8594; T?</span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The single element of this iterator, or <code>null</code>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="unmodifiable" class="property">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueValueBase/unmodifiable.html">unmodifiable</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns this instance, as it is already unmodifiable.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="unmodifiableElement" class="property inherited">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueBase/unmodifiableElement.html">unmodifiableElement</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Determines whether elements that are <a href="../cell_tissue/Cell-class.html">Cell</a>s should be wrapped in their
+unmodifiable views.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validate" class="property">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueValueBase/validate.html">validate</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the validation rule currently applied to this value.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="value" class="property inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/value.html">value</a></span>
+  <span class="signature">&#8596; V?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The value of this TissueValue
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="wait" class="property">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable/wait.html">wait</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a> extension</span>
+      </p>
+  Waits for futures in parallel.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="any" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/any.html">any</a></span><span class="signature">(<wbr><span class="parameter" id="any-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether any element of this iterable satisfies <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="apply" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes a whitelisted function on this tissue via the command gateway.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="asNameMap" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumByName/asNameMap.html">asNameMap</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a> extension</span>
+      </p>
+  Creates a map from the names of enum values to the values.
+  
+
+</dd>
+
+        <dt id="byName" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/EnumByName/byName.html">byName</a></span><span class="signature">(<wbr><span class="parameter" id="byName-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a> extension</span>
+      </p>
+  Finds the enum value in this list with name <code>name</code>.
+  
+
+</dd>
+
+        <dt id="cast" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A view of this iterable as an iterable of <code>R</code> instances.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="contains" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/contains.html">contains</a></span><span class="signature">(<wbr><span class="parameter" id="contains-param-element"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">element</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether the collection contains an element equal to <code>element</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="deputy" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValue/deputy.html">deputy</a></span><span class="signature">(<wbr>{<span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span><span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a "Deputy" projection of this value—a specialised proxy that
+shares the same physical data but operates under unique behavioural rules.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="elementAt" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/elementAt.html">elementAt</a></span><span class="signature">(<wbr><span class="parameter" id="elementAt-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>)
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the <code>index</code>th element.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="elementAtOrNull" class="callable">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions/elementAtOrNull.html">elementAtOrNull</a></span><span class="signature">(<wbr><span class="parameter" id="elementAtOrNull-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>)
+    <span class="returntype parameter">&#8594; T?</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>,
+        provided by the <a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a> extension</span>
+      </p>
+  The element at position <code>index</code> of this iterable, or <code>null</code>.
+  
+
+</dd>
+
+        <dt id="every" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/every.html">every</a></span><span class="signature">(<wbr><span class="parameter" id="every-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether every element of this iterable satisfies <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="expand" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/expand.html">expand</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="expand-param-toElements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">toElements</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Expands each element of this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> into zero or more elements.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="firstWhere" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/firstWhere.html">firstWhere</a></span><span class="signature">(<wbr><span class="parameter" id="firstWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>), {</span><span class="parameter" id="firstWhere-param-orElse"><span class="type-annotation">V</span> <span class="parameter-name">orElse</span>()?</span>})
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The first element that satisfies the given predicate <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="fold" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/fold.html">fold</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fold-param-initialValue"><span class="type-annotation">T</span> <span class="parameter-name">initialValue</span>, </span><span class="parameter" id="fold-param-combine"><span class="type-annotation">T</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-previousValue"><span class="type-annotation">T</span> <span class="parameter-name">previousValue</span>, </span><span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Reduces a collection to a single value by iteratively combining each
+element of the collection with an existing value
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="followedBy" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/followedBy.html">followedBy</a></span><span class="signature">(<wbr><span class="parameter" id="followedBy-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates the lazy concatenation of this iterable and <code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="forEach" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/forEach.html">forEach</a></span><span class="signature">(<wbr><span class="parameter" id="forEach-param-action"><span class="type-annotation">void</span> <span class="parameter-name">action</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invokes <code>action</code> on each element of this iterable in iteration order.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="join" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/join.html">join</a></span><span class="signature">(<wbr>[<span class="parameter" id="join-param-separator"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">separator</span> = <span class="default-value">&quot;&quot;</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Converts each element to a <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> and concatenates the strings.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lastWhere" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/lastWhere.html">lastWhere</a></span><span class="signature">(<wbr><span class="parameter" id="lastWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>), {</span><span class="parameter" id="lastWhere-param-orElse"><span class="type-annotation">V</span> <span class="parameter-name">orElse</span>()?</span>})
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The last element that satisfies the given predicate <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="map" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-toElement"><span class="type-annotation">T</span> <span class="parameter-name">toElement</span>(<span class="parameter" id="param-e"><span class="type-annotation">V</span> <span class="parameter-name">e</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The current elements of this iterable modified by <code>toElement</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reduce" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/reduce.html">reduce</a></span><span class="signature">(<wbr><span class="parameter" id="reduce-param-combine"><span class="type-annotation">V</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Reduces a collection to a single value by iteratively combining elements
+of the collection using the provided function.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="set" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/set.html">set</a></span><span class="signature">(<wbr><span class="parameter" id="set-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Sets the current value and returns <code>true</code> if successful.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="singleWhere" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/singleWhere.html">singleWhere</a></span><span class="signature">(<wbr><span class="parameter" id="singleWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>), {</span><span class="parameter" id="singleWhere-param-orElse"><span class="type-annotation">V</span> <span class="parameter-name">orElse</span>()?</span>})
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The single element that satisfies <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="skip" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/skip.html">skip</a></span><span class="signature">(<wbr><span class="parameter" id="skip-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> that provides all but the first <code>count</code> elements.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="skipWhile" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/skipWhile.html">skipWhile</a></span><span class="signature">(<wbr><span class="parameter" id="skipWhile-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates an <code>Iterable</code> that skips leading elements while <code>test</code> is satisfied.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="take" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/take.html">take</a></span><span class="signature">(<wbr><span class="parameter" id="take-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a lazy iterable of the <code>count</code> first elements of this iterable.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="takeWhile" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/takeWhile.html">takeWhile</a></span><span class="signature">(<wbr><span class="parameter" id="takeWhile-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a lazy iterable of the leading elements satisfying <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toList" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> containing the elements of this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toSet" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toSet.html">toSet</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> containing the same elements as this iterable.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="where" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/where.html">where</a></span><span class="signature">(<wbr><span class="parameter" id="where-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-element"><span class="type-annotation">V</span> <span class="parameter-name">element</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new lazy <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> with all elements that satisfy the
+predicate <code>test</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="whereType" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/whereType.html">whereType</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new lazy <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> with all elements that have type <code>T</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator &lt;" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/operator_less.html">operator <</a></span><span class="signature">(<wbr><span class="parameter" id="<-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Comparison operators for numeric values
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator &lt;=" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/operator_less_equal.html">operator <=</a></span><span class="signature">(<wbr><span class="parameter" id="<=-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Comparison operators for numeric values
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueValueBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Determines whether this <code>UnmodifiableTissueValueBase</code> is equal to another <code>Object</code>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="operator &gt;" class="callable inherited">
+  <span class="name"><a href="../cell_tissue/TissueValueMixin/operator_greater.html">operator ></a></span><span class="signature">(<wbr><span class="parameter" id=">-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Comparison operators for numeric values
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">cell_tissue</a></li>
+    <li class="self-crumb">UnmodifiableTissueValueBase<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span> class</li>
+</ol>
+
+    <h5>cell_tissue library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the create method from the TissueMapNucleus class, for the Dart programming language.">
+  <title>create method - TissueMapNucleus class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">create&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">create</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueMapNucleus-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">create&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_tissue/TissueMapNucleusBase-class.html">TissueMapNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span>
+<span class="name ">create</span>&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="create-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="create-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="create-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
+<li><span class="parameter" id="create-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
+<li><span class="parameter" id="create-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="create-param-container"><span class="type-annotation"><a href="../../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span></li>
+<li><span class="parameter" id="create-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="create-param-forceLock"><span class="type-annotation">dynamic</span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="create-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueMapNucleusBase-class.html">TissueMapNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>A static utility factory that produces a type‑safe nucleus configuration
+for a specific key type <code>K</code>, value type <code>V</code>, and a specialised <a href="../../cell_tissue/TissueMap-class.html">TissueMap</a>
+interface <code>C</code>.</p>
+<p>This method is the preferred architectural entry point for defining the
+behavioural and structural blueprint of reactive maps. It ensures that
+all core components are strictly aligned with the target interface <code>C</code>,
+providing compile‑time safety for complex map‑based data structures.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you are building a custom map implementation that extends
+<a href="../../cell_tissue/TissueMap-class.html">TissueMap</a> and you want to ensure type safety between the map and its
+receptor/testRule.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It creates a nucleus with the provided parameters, inferring defaults
+where omitted.</li>
+<li>If a <code>principal</code> is provided, it creates an evolved nucleus that
+inherits from that principal.</li>
+<li>The <code>container</code> parameter determines the storage strategy (standard Map
+or IdentityMap).</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>forceLock</code> flag, when <code>true</code>, allows sharing the principal's lock.
+This is typically used for deputies to maintain a single atomic boundary.</li>
+<li>The <code>container</code> parameter can be used to explicitly set the storage
+strategy – useful for custom container types.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>bind</code>: Optional upstream cell.</li>
+<li><code>context</code>: Optional execution context.</li>
+<li><code>receptor</code>: Optional mutation processor.</li>
+<li><code>testRule</code>: Optional validation rule.</li>
+<li><code>synapses</code>: Optional propagation configuration.</li>
+<li><code>container</code>: Optional storage strategy (e.g., Map or IdentityMap).</li>
+<li><code>user</code>: Optional metadata.</li>
+<li><code>forceLock</code>: If <code>true</code>, shares the principal's lock.</li>
+<li><code>principal</code>: Optional ancestor nucleus to evolve.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A nucleus instance strictly configured for the specified key, value, and
+tissue types.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static TissueMapNucleusBase&lt;K,V,C&gt; create&lt;K,V,C extends TissueMap&lt;K,V&gt;&gt;({
+  Cell? bind,
+  Context? context,
+  TissueReceptor&lt;V,C&gt;? receptor,
+  TestTissue&lt;V,C&gt;? testRule,
+  Synapses? synapses,
+
+  Container? container,
+  Record? user,
+  forceLock = false,
+  TissueMapNucleusBase&lt;K,V,C&gt;? principal
+}) {
+  if (principal != null) {
+    final local = TissueNucleusBase.local&lt;V,TissueMap&lt;K,V&gt;,C&gt;(
+      container: container,
+      bind: bind,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses: synapses,
+      forceLock: forceLock,
+      user: user,
+    );
+    return _TissueMapNucleus&lt;K,V,C&gt;.fromRecord(
+        record: (mask: local, principal: principal)
+    );
+  }
+
+  return _TissueMapNucleus&lt;K,V,C&gt;(
+      bind: bind,
+      context: context ?? Context.system,
+      receptor: receptor ?? TissueReceptor.passThrough,
+      testRule: testRule ?? TestTissue.allowAll,
+      synapses: synapses ?? Synapses.enabled,
+      identityMap: container == Container.identityMap,
+      user: user,
+      forceLock: forceLock
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">create&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt; static method</li>
+</ol>
+
+    <h5>TissueMapNucleus class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

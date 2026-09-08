@@ -1,0 +1,26 @@
+name: cell_tissue
+description: Reactive collections (TissueList, Set, Map, Queue) with granular signaling and TestTissue immune system.
+version: 1.0.0-rc.2.0.2
+homepage: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+repository: https://github.com/simon-m-lee/cell
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+
+# To be removed when live in public
+publish_to: none
+
+resolution: workspace
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+#  cell_core: ^1.0.0-rc.2
+
+  # To be removed when live in public
+  cell:
+    path: ../cell/
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^5.0.0

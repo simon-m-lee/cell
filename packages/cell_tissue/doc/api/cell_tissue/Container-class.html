@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Container class from the cell_tissue library, for the Dart programming language.">
+  <title>Container class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li class="self-crumb">Container class</li>
+  </ol>
+  <div class="self-name">Container</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;cell_tissue-library-sidebar.html"
+    data-below-sidebar="cell_tissue&#47;Container-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Container</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+    <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A strategic architectural contract that defines how <a href="../cell_tissue/Tissue-class.html">Tissue</a> data is
+physically stored, initialised, and manipulated.</p>
+<p><a href="../cell_tissue/Container-class.html">Container</a> serves as the <strong>Storage Strategy Provider</strong> for the
+<code>cell_tissue</code> ecosystem. It decouples the high‑level reactive
+requirements of a collection (like signalling and dependency tracking)
+from the low‑level mechanics of Dart's native collection types (like <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>,
+<a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, or <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>).</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You rarely need to interact with this interface directly. It is used
+internally by the framework to select the appropriate storage strategy
+based on the collection type. The predefined constants (<code>Container.list</code>,
+<code>Container.set</code>, <code>Container.map</code>, <code>Container.queue</code>, <code>Container.value</code>)
+are the entry points for most use cases.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>You might need to use this interface if you are building a custom
+collection type that requires a non‑standard storage behaviour (e.g.,
+a specialised list that maintains a fixed capacity, or a set that uses
+identity equality). In such cases, you can create a custom <code>Container</code>
+strategy using <code>Container.create()</code>.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Each <a href="../cell_tissue/Container-class.html">Container</a> instance is a strategy object that defines three
+functions: <code>create</code>, <code>add</code>, and <code>remove</code>.</li>
+<li>The <code>create</code> function initialises the underlying storage (e.g., a new
+<code>List</code>, <code>Set</code>, or <code>Map</code>).</li>
+<li>The <code>add</code> and <code>remove</code> functions perform the actual mutation on the
+storage, with the strategy handling type‑specific concerns (e.g.,
+uniqueness for sets, shifting for lists).</li>
+<li>The framework uses these strategies via a <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>, which
+holds the strategy and the actual storage instance.</li>
+</ul>
+<h3 id="predefined-strategies">Predefined Strategies</h3>
+<p>The interface provides several static constants for common storage types:</p>
+<ul>
+<li><a href="../cell_tissue/Container/list-constant.html">Container.list</a> – standard growable list.</li>
+<li><a href="../cell_tissue/Container/growableTrue-constant.html">Container.growableTrue</a> / <a href="../cell_tissue/Container/growableFalse-constant.html">Container.growableFalse</a> – fixed/growable list.</li>
+<li><a href="../cell_tissue/Container/set-constant.html">Container.set</a> – value‑based set.</li>
+<li><a href="../cell_tissue/Container/identitySet-constant.html">Container.identitySet</a> – identity‑based set (uses <a href="https://api.flutter.dev/flutter/dart-core/identical.html">identical</a>).</li>
+<li><a href="../cell_tissue/Container/map-constant.html">Container.map</a> – standard map (value‑based keys).</li>
+<li><a href="../cell_tissue/Container/identityMap-constant.html">Container.identityMap</a> – identity‑based map.</li>
+<li><a href="../cell_tissue/Container/queue-constant.html">Container.queue</a> – double‑ended queue.</li>
+<li><a href="../cell_tissue/Container/value-constant.html">Container.value</a> – mutable scalar value container.</li>
+<li><a href="../cell_tissue/Container/finalValue-constant.html">Container.finalValue</a> – write‑once scalar container.</li>
+<li><a href="../cell_tissue/Container/iterable-constant.html">Container.iterable</a> – read‑only iterable (no mutations).</li>
+<li><a href="../cell_tissue/Container/iterableNever-constant.html">Container.iterableNever</a> – permanently empty iterable.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The strategy is <strong>stateless</strong> – it holds no data. The data is stored
+in a separate <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> instance. This allows strategies to
+be shared (flyweight pattern) across millions of collections.</li>
+<li>The <code>add</code> and <code>remove</code> functions are responsible for <strong>reactive
+lifecycle management</strong> – they should not be called directly without
+the appropriate context (tissue, lock, etc.). The framework handles
+this via <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>.</li>
+<li>When you create a custom strategy, you must ensure that the <code>add</code> and
+<code>remove</code> functions correctly handle the linking/unlinking of <a href="../cell_tissue/Cell-class.html">Cell</a>
+elements if needed. The framework expects that the container will
+call <code>synapses.link</code>/<code>unlink</code> appropriately, but the strategy itself
+only knows about the storage; the linking is done in <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>.</li>
+</ul>
+<h3 id="example-using-a-predefined-strategy">Example: Using a predefined strategy</h3>
+<pre class="language-dart"><code class="language-dart">// Create a container backed by an identity set
+final strategy = Container.identitySet;
+final container = strategy.create&lt;String&gt;();
+container.init(['a', 'b']);
+</code></pre>
+<h3 id="example-custom-strategy">Example: Custom strategy</h3>
+<pre class="language-dart"><code class="language-dart">final custom = Container.create&lt;List&lt;int&gt;, List&lt;int&gt;&gt;(
+  create: (init) =&gt; List&lt;int&gt;.from(init ?? [], growable: false),
+  add: (tissue, list, e) {
+    if (list.length &lt; 10) { list.add(e); return true; }
+    return false;
+  },
+  remove: (tissue, list, e) =&gt; list.remove(e),
+);
+</code></pre>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> – the physical container that uses these strategies.</li>
+<li><a href="../cell_tissue/Container/create.html">Container.create</a> – factory to build custom strategies.</li>
+</ul>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a></li>
+          </ul></dd>
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="add" class="callable">
+  <span class="name"><a href="../cell_tissue/Container/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-tissue"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="add-param-e"><span>covariant</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">e</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Attempts to physically insert an element <code>e</code> into the underlying storage.
+  
+
+</dd>
+
+        <dt id="init" class="callable">
+  <span class="name"><a href="../cell_tissue/Container/init.html">init</a></span><span class="signature">(<wbr>[<span class="parameter" id="init-param-initialization"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialization</span></span>])
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Commits the initial state and allocates the physical storage for the
+collection.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="remove" class="callable">
+  <span class="name"><a href="../cell_tissue/Container/remove.html">remove</a></span><span class="signature">(<wbr><span class="parameter" id="remove-param-tissue"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/Tissue-class.html">Tissue</a></span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="remove-param-e"><span>covariant</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">e</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Attempts to physically remove an element <code>e</code> from the underlying storage.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="create" class="callable">
+  <span class="name"><a href="../cell_tissue/Container/create.html">create</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="create-param-create"><span class="type-annotation">I</span> <span class="parameter-name">create</span>([<span class="parameter" id="param-initialization"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialization</span></span>])?, </span><span class="parameter" id="create-param-add"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">add</span>(<span class="parameter" id="param-tissue"><span class="type-annotation"><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="param-container"><span class="type-annotation">I</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)?, </span><span class="parameter" id="create-param-remove"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">remove</span>(<span class="parameter" id="param-tissue"><span class="type-annotation"><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="param-container"><span class="type-annotation">I</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="param-e"><span class="type-annotation">E</span> <span class="parameter-name">e</span></span>)?, </span><span class="parameter" id="create-param-growable"><span class="type-annotation">dynamic</span> <span class="parameter-name">growable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="create-param-identitySet"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">identitySet</span> = <span class="default-value">false</span>, </span><span class="parameter" id="create-param-identityMap"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">identityMap</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Container-class.html">Container</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates and configures a <a href="../cell_tissue/Container-class.html">Container</a> strategy that defines the physical
+allocation, mutation logic, and structural behaviour for a <a href="../cell_tissue/Tissue-class.html">Tissue</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="finalValue" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/finalValue-constant.html">finalValue</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A specialised <a href="../cell_tissue/Container-class.html">Container</a> strategy for representing a single,
+<strong>Deeply Immutable</strong> value within the tissue ecosystem.
+  
+
+</dd>
+
+        <dt id="growableFalse" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/growableFalse-constant.html">growableFalse</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for <strong>Fixed‑Length</strong> <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> behaviour, where the structural
+dimensions of the collection are immutable after initialisation.
+  
+
+</dd>
+
+        <dt id="growableTrue" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/growableTrue-constant.html">growableTrue</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for explicitly <strong>Growable</strong> <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> behaviour.
+  
+
+</dd>
+
+        <dt id="identityMap" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/identityMap-constant.html">identityMap</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A specialised <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> strategy that determines key uniqueness based on
+<strong>Referential Identity</strong> (<a href="https://api.flutter.dev/flutter/dart-core/identical.html">identical</a>) rather than value equality.
+  
+
+</dd>
+
+        <dt id="identitySet" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/identitySet-constant.html">identitySet</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A specialised <a href="../cell_tissue/Container-class.html">Container</a> strategy that determines uniqueness based on
+<strong>Referential Identity</strong> (<a href="https://api.flutter.dev/flutter/dart-core/identical.html">identical</a>) rather than value equality.
+  
+
+</dd>
+
+        <dt id="iterable" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/iterable-constant.html">iterable</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for standard, read‑only <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> behaviour.
+  
+
+</dd>
+
+        <dt id="iterableNever" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/iterableNever-constant.html">iterableNever</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A specialised <a href="../cell_tissue/Container-class.html">Container</a> sentinel strategy specifically designed for
+collections that are intended to remain permanently empty and unmodifiable.
+  
+
+</dd>
+
+        <dt id="list" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/list-constant.html">list</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for standard, growable <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> behaviour.
+  
+
+</dd>
+
+        <dt id="map" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/map-constant.html">map</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for standard <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> behaviour, providing reactive
+key‑value association through value‑based indexing.
+  
+
+</dd>
+
+        <dt id="queue" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/queue-constant.html">queue</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for standard <strong>Queue</strong> (First‑In‑First‑Out) behaviour.
+  
+
+</dd>
+
+        <dt id="set" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/set-constant.html">set</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for standard <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> behaviour, ensuring element uniqueness
+through value equality (<code>==</code>).
+  
+
+</dd>
+
+        <dt id="value" class="constant">
+    <span class="name "><a href="../cell_tissue/Container/value-constant.html">value</a></span>
+  <span class="signature">&#8594; const _Container</span>
+  
+
+</dt>
+<dd>
+  A strategy for <strong>Single‑Value</strong> behaviour using <a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li><a href="../cell_tissue/">cell_tissue</a></li>
+    <li class="self-crumb">Container class</li>
+</ol>
+
+    <h5>cell_tissue library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

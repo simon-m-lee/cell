@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mask method from the ReceptorBase class, for the Dart programming language.">
+  <title>mask method - ReceptorBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">mask static method</li>
+  </ol>
+  <div class="self-name">mask</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;ReceptorBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">mask</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+<span class="name ">mask</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="mask-param-rule"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span></li>
+<li><span class="parameter" id="mask-param-preProcess"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span></li>
+<li><span class="parameter" id="mask-param-postProcess"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span></li>
+<li><span class="parameter" id="mask-param-reaction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">reaction</span>, </span></li>
+<li><span class="parameter" id="mask-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="mask-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Record mask({
+  PulseRule? rule,
+  PulseRule? preProcess,
+  PulseRule? postProcess,
+  Function? reaction,
+  dynamic user,
+  bool isGoverned = false,
+}) {
+
+  final mask = (
+      (rule != null ? 1 : 0) |
+      (preProcess != null ? 2 : 0 ) |
+      (postProcess != null ? 4 : 0) |
+      (reaction != null ? 8 : 0) |
+      (user != null ? 16 : 0) |
+      (isGoverned ? 32 : 0)
+  );
+
+  return switch (mask) {
+    0 =&gt; (),
+    1 =&gt; (rule: rule),
+    2 =&gt; (preProcess: preProcess),
+    3 =&gt; (rule: rule, preProcess: preProcess),
+    4 =&gt; (postProcess: postProcess),
+    5 =&gt; (rule: rule, postProcess: postProcess),
+    6 =&gt; (preProcess: preProcess, postProcess: postProcess),
+    7 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess),
+    8 =&gt; (reaction: reaction),
+    9 =&gt; (rule: rule, reaction: reaction),
+    10 =&gt; (preProcess: preProcess, reaction: reaction),
+    11 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction),
+    12 =&gt; (postProcess: postProcess, reaction: reaction),
+    13 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction),
+    14 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+    15 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+    16 =&gt; (user: user),
+    17 =&gt; (rule: rule, user: user),
+    18 =&gt; (preProcess: preProcess, user: user),
+    19 =&gt; (rule: rule, preProcess: preProcess, user: user),
+    20 =&gt; (postProcess: postProcess, user: user),
+    21 =&gt; (rule: rule, postProcess: postProcess, user: user),
+    22 =&gt; (preProcess: preProcess, postProcess: postProcess, user: user),
+    23 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, user: user),
+    24 =&gt; (reaction: reaction, user: user),
+    25 =&gt; (rule: rule, reaction: reaction, user: user),
+    26 =&gt; (preProcess: preProcess, reaction: reaction, user: user),
+    27 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, user: user),
+    28 =&gt; (postProcess: postProcess, reaction: reaction, user: user),
+    29 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, user: user),
+    30 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user),
+    31 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user),
+
+    32 =&gt; (isGoverned: true),
+    33 =&gt; (rule: rule, isGoverned: true),
+    34 =&gt; (preProcess: preProcess, isGoverned: true),
+    35 =&gt; (rule: rule, preProcess: preProcess, isGoverned: true),
+    36 =&gt; (postProcess: postProcess, isGoverned: true),
+    37 =&gt; (rule: rule, postProcess: postProcess, isGoverned: true),
+    38 =&gt; (preProcess: preProcess, postProcess: postProcess, isGoverned: true),
+    39 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, isGoverned: true),
+    40 =&gt; (reaction: reaction, isGoverned: true),
+    41 =&gt; (rule: rule, reaction: reaction, isGoverned: true),
+    42 =&gt; (preProcess: preProcess, reaction: reaction, isGoverned: true),
+    43 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, isGoverned: true),
+    44 =&gt; (postProcess: postProcess, reaction: reaction, isGoverned: true),
+    45 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, isGoverned: true),
+    46 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, isGoverned: true),
+    47 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, isGoverned: true),
+    48 =&gt; (user: user, isGoverned: true),
+    49 =&gt; (rule: rule, user: user, isGoverned: true),
+    50 =&gt; (preProcess: preProcess, user: user, isGoverned: true),
+    51 =&gt; (rule: rule, preProcess: preProcess, user: user, isGoverned: true),
+    52 =&gt; (postProcess: postProcess, user: user, isGoverned: true),
+    53 =&gt; (rule: rule, postProcess: postProcess, user: user, isGoverned: true),
+    54 =&gt; (preProcess: preProcess, postProcess: postProcess, user: user, isGoverned: true),
+    55 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, user: user, isGoverned: true),
+    56 =&gt; (reaction: reaction, user: user, isGoverned: true),
+    57 =&gt; (rule: rule, reaction: reaction, user: user, isGoverned: true),
+    58 =&gt; (preProcess: preProcess, reaction: reaction, user: user, isGoverned: true),
+    59 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, user: user, isGoverned: true),
+    60 =&gt; (postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
+    61 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
+    62 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
+    63 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
+    _ =&gt; ()
+  };
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
+    <li class="self-crumb">mask static method</li>
+</ol>
+
+    <h5>ReceptorBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

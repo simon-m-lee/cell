@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the receptor method from the OpenReceptorMixin mixin, for the Dart programming language.">
+  <title>receptor method - OpenReceptorMixin mixin - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">receptor method</li>
+  </ol>
+  <div class="self-name">receptor</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;OpenReceptorMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">receptor</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
+<span class="name ">receptor</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="receptor-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Processes an incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a> via the cell's internal transformation logic.</p>
+<p>This method acts as the public entry point for <strong>Pulse Ingestion</strong>.</p>
+<h3 id="execution-logic">Execution Logic:</h3>
+<ol>
+<li><strong>Authorization</strong>: Invokes the <strong>Integrity Gate</strong> (<code>validate</code>) to
+ensure the stimulus is permitted within the current <strong>Host</strong> <a href="../../cell_tissue/Context-class.html">Context</a>.</li>
+<li><strong>Transformation</strong>: If authorized, delegates to the internal
+<a href="../../cell_tissue/Receptor-class.html">Receptor</a> logic stored in the <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>.</li>
+<li><strong>Result Attribution</strong>: Returns the transformed output if successful,
+preserving the <strong>Causal Trace</strong> for downstream modules.</li>
+</ol>
+<ul>
+<li><code>pulse</code>: The input stimulus to be ingested.</li>
+</ul>
+<p>Returns a <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a> containing the transformed output pulse, or
+<code>null</code> if the action was rejected by governance or produced no state change.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;Pulse?&gt; receptor(Pulse pulse) {
+  final validation = validate(pulse, host: this);
+
+  &#47;&#47; Helper to execute the core receptor logic
+  FutureOr&lt;Pulse?&gt; process() {
+    try {
+      return _nucleus.receptor.call(pulse);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  &#47;&#47; 1. Branch: Asynchronous Path (Remote Governance&#47;IO)
+  if (validation is Future&lt;bool&gt;) {
+    return validation.then((passed) =&gt; passed ? process() : null);
+  }
+
+  &#47;&#47; 2. Branch: Synchronous Path (Native Speed)
+  return validation ? process() : null;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
+    <li class="self-crumb">receptor method</li>
+</ol>
+
+    <h5>OpenReceptorMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

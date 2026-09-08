@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueListNucleusBase.evolve constructor from Class TissueListNucleusBase from the cell_tissue library, for the Dart programming language.">
+  <title>TissueListNucleusBase.evolve constructor - TissueListNucleusBase - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueListNucleusBase.evolve constructor</li>
+  </ol>
+  <div class="self-name">TissueListNucleusBase.evolve</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TissueListNucleusBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TissueListNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.evolve</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TissueListNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>?</span> <span class="parameter-name">override</span>, </span></li>
+<li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/TissueListNucleus-class.html">TissueListNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">principal</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p><strong>Evolution Constructor</strong> – creates a specialised deputy nucleus by
+extending an existing <code>principal</code>.</p>
+<p>This is the engine behind <code>deputy()</code> calls on <a href="../../cell_tissue/TissueList-class.html">TissueList</a>. It allows
+you to create a new nucleus that inherits most of its configuration
+from a parent (the principal) while overriding specific properties
+like the <a href="../../cell_tissue/TissueNucleusBase/testRule.html">testRule</a> or <a href="../../cell_tissue/NucleusBase/context.html">context</a> – all while sharing the same
+physical list data.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You rarely call this directly – use <a href="../../cell_tissue/TissueList/deputy.html">TissueList.deputy</a> instead.
+This constructor is exposed for advanced cases where you need to
+create a deputy nucleus programmatically.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You need a restricted view of a list (read‑only, scoped authority,
+temporary access) that shares the same underlying storage.</li>
+<li>You are building a custom deputy implementation and need to
+control how properties are overridden.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The <code>principal</code> provides the baseline configuration (including the
+container type and growable flag).</li>
+<li>If <code>override</code> is provided, its entire record is used as the local
+base – any individual parameters (bind, context, etc.) are ignored.</li>
+<li>If <code>override</code> is <code>null</code>, a new local record is built from the
+individual parameters, falling back to the principal's values for
+any omitted property.</li>
+<li>The new nucleus links to the <code>principal</code> via its <code>principal</code> chain,
+so property lookups walk up the chain.</li>
+<li>The resulting nucleus shares the same <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> as the principal
+(unless <code>override</code> introduces its own lock).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>growable</code> flag is <strong>always inherited</strong> from the principal.
+You cannot change a fixed‑length list into a growable one, or
+vice versa, through a deputy.</li>
+<li>If you override the <a href="../../cell_tissue/NucleusBase/synapses.html">synapses</a>, the deputy gets its own observer
+registry – observers attached to the deputy are separate from
+those on the principal.</li>
+<li>The <a href="../../cell_tissue/TissueNucleusBase/testRule.html">testRule</a> passed here is <strong>layered on top</strong> of the principal's
+testRule (via <code>+</code>). You can only narrow permissions, never widen.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final principal = TissueListNucleus.create&lt;int&gt;(growable: true);
+final readOnlyNucleus = TissueListNucleusBase.evolve(
+  principal: principal,
+  testRule: TestTissue.readOnly,
+);
+final readOnlyList = TissueList.fromNucleus(readOnlyNucleus);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>principal</code>: <strong>Required</strong>. The source nucleus to inherit from.</li>
+<li><code>override</code>: Optional. A complete nucleus whose record will replace
+the local base. If provided, individual parameters are ignored.</li>
+<li><a href="../../cell_tissue/NucleusBase/bind.html">bind</a>: Optional override for the upstream cell.</li>
+<li><a href="../../cell_tissue/NucleusBase/context.html">context</a>: Optional override for the execution context.</li>
+<li><a href="../../cell_tissue/TissueNucleusBase/receptor.html">receptor</a>: Optional override for the mutation processor.</li>
+<li><a href="../../cell_tissue/TissueNucleusBase/testRule.html">testRule</a>: Optional override for the validation rule (layered
+on top of the principal's).</li>
+<li><a href="../../cell_tissue/NucleusBase/synapses.html">synapses</a>: Optional override for propagation behaviour.</li>
+<li>(Other parameters like <code>forceLock</code> and <a href="../../cell_tissue/NucleusBase/user.html">user</a> are typically
+inherited from the principal or taken from <code>override</code>).</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TissueListNucleusBase.evolve({
+  super.override,
+  required TissueListNucleus&lt;E&gt; super.principal
+}) : super.evolve();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueListNucleusBase.evolve constructor</li>
+</ol>
+
+    <h5>TissueListNucleusBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

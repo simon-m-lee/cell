@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TissueNucleus.empty constructor from Class TissueNucleus from the cell_tissue library, for the Dart programming language.">
+  <title>TissueNucleus.empty constructor - TissueNucleus - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueNucleus.empty const constructor</li>
+  </ol>
+  <div class="self-name">TissueNucleus.empty</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TissueNucleus-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TissueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.empty</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TissueNucleus&lt;<wbr><span class="type-parameter">E</span>&gt;.empty</span>(<wbr>)
+    </section>
+    
+<section class="desc markdown">
+  <p>A specialised, terminal factory for creating a <strong>Null Nucleus</strong>—a stateless,
+immutable configuration representing a collection that can never contain
+data and rejects all mutations.</p>
+<p>The <a href="../../cell_tissue/TissueNucleus/TissueNucleus.empty.html">empty</a> factory is a primary architectural implementation of the
+<strong>Null Object Pattern</strong> within the <code>cell_tissue</code> ecosystem. It is
+designed for scenarios where a <a href="../../cell_tissue/Tissue-class.html">Tissue</a> identity is required by an
+interface or API, but the underlying state is conceptually "Never" or
+"Permanently Depleted."</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need a tissue placeholder that is guaranteed to be
+empty and immutable – e.g., as a fallback for a collection that is
+not yet initialised or for a terminal node in a graph.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The factory returns a singleton <a href="../../cell_tissue/TissueNucleusNever-class.html">TissueNucleusNever</a> instance.</li>
+<li>This nucleus has no storage, no synapses, and a testRule that rejects
+all mutations.</li>
+<li>It is the most memory‑efficient nucleus possible.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The resulting nucleus is <strong>not</strong> a deputy – it is a root nucleus with
+no principal.</li>
+<li>Any tissue created from this nucleus will be empty and immutable.</li>
+<li>It is a singleton – all calls return the same instance.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final emptyNucleus = TissueNucleus.empty&lt;int&gt;();
+final emptyList = Tissue.fromNucleus(emptyNucleus);
+print(emptyList.length); // 0
+// emptyList.add(1); // throws or silently fails
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>A <code>const</code> <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus&lt;E&gt;</a> that represents a permanently empty,
+read‑only, and non‑allocating reactive blueprint.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const factory TissueNucleus.empty() = TissueNucleusNever;</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">TissueNucleus.empty const constructor</li>
+</ol>
+
+    <h5>TissueNucleus class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

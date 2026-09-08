@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the passThrough constant from the TissueReceptor class, for the Dart programming language.">
+  <title>passThrough constant - TissueReceptor class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">passThrough constant</li>
+  </ol>
+  <div class="self-name">passThrough</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueReceptor-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">passThrough</span> constant 
+</h1></div>
+
+    
+      <section class="multi-line-signature">
+        
+        _PassThroughTissueReceptor
+        const <span class="name ">passThrough</span>
+        
+
+      </section>
+      
+<section class="desc markdown">
+  <p>The default, singleton implementation of <a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> providing
+standardised pulse propagation and structural state synchronisation.</p>
+<p>In the <code>cell_tissue</code> ecosystem, <a href="../../cell_tissue/TissueReceptor/passThrough-constant.html">passThrough</a> serves as the <strong>Standard
+Reactive Gateway</strong>. It is the "Vanilla" implementation used by the
+framework whenever a <a href="../../cell_tissue/Tissue-class.html">Tissue</a> needs to stay perfectly synchronised with
+an upstream source without applying custom transformations or filters.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is the default for all tissues. You only need to specify it explicitly
+if you are building a custom tissue and want to be explicit, or if you
+are overriding a receptor in a deputy and want to preserve the pass‑through
+behaviour.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It checks if the incoming pulse originates from the tissue's bound
+principal (via <code>Cell.bind</code>).</li>
+<li>If so, it applies the structural deltas (adds, removes, updates) to the
+local <a href="../../cell_tissue/TissueContainer-class.html">TissueContainer</a> – this is the "mirroring" phase.</li>
+<li>Then it forwards the pulse unchanged to downstream observers.</li>
+<li>If the pulse is from any other source, it simply relays it without
+modifying the local state.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a singleton; millions of tissues can share it without memory
+overhead.</li>
+<li>It is the foundation of the <strong>Deputy Pattern</strong>: a deputy with a pass‑
+through receptor stays perfectly in sync with its principal.</li>
+<li>It does <strong>not</strong> perform any validation – that is the job of the
+<a href="../../cell_tissue/TestTissue-class.html">TestTissue</a> gatekeeper.</li>
+</ul>
+</section>
+
+      
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static const passThrough = _PassThroughTissueReceptor();</code></pre>
+</section>
+
+
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">passThrough constant</li>
+</ol>
+
+  <h5>TissueReceptor class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

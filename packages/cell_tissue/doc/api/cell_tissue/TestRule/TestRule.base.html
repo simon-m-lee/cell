@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TestRule.base constructor from Class TestRule from the cell_tissue library, for the Dart programming language.">
+  <title>TestRule.base constructor - TestRule - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.base const constructor</li>
+  </ol>
+  <div class="self-name">TestRule.base</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_tissue&#47;TestRule-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.base</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.base</span>(<wbr>)
+    </section>
+    
+<section class="desc markdown">
+  <p>The foundational base class for <strong>Metadata-Driven Validation Annotations</strong>.</p>
+<p>Classes extending <a href="../../cell_tissue/TestRule-class.html">TestRule</a> (such as <a href="../../cell_tissue/ValueRange-class.html">ValueRange</a>, <a href="../../cell_tissue/EntryPattern-class.html">EntryPattern</a>, and <a href="../../cell_tissue/Values-class.html">Values</a>)
+allow for the declarative definition of <strong>Business Invariants</strong> directly on
+class fields. This enables the framework to automate data sanitization,
+schema generation, and UI state management.</p>
+<h3 id="1-developer-ergonomics--human-legibility">1. Developer Ergonomics &amp; Human Legibility</h3>
+<p>Developers use annotations to declare constraints declaratively:</p>
+<pre class="language-dart"><code class="language-dart">class User {
+  @ValueRange(min: 0, max: 120)
+  final int age;
+
+  @EntryPattern(pattern: r'^[^@]+@[^@]+\.[^@]+$')
+  final String email;
+
+  @MaxLength(50)
+  final String name;
+
+  @Values(['admin', 'editor', 'viewer'])
+  final String role;
+}
+</code></pre>
+<h3 id="2-architectural-role-structural-constraints">2. Architectural Role: Structural Constraints</h3>
+<p>As an annotation, a <a href="../../cell_tissue/TestRule-class.html">TestRule</a> serves as a <strong>Static Blueprint</strong> for data
+integrity. It ensures that any <a href="../../cell_tissue/Pulse-class.html">Pulse</a> payload entering a <a href="../../cell_tissue/Cell-class.html">Cell</a> adheres
+to the formal constraints defined in the source code before the state
+transition is committed.</p>
+<h3 id="3-se-patterns-stateless-validation">3. SE Patterns: Stateless Validation</h3>
+<p>Most annotation-based rules extend <code>TestRule&lt;Never&gt;</code>, indicating they are
+<strong>Stateless Validators</strong>. They rely purely on the value of the input <code>object</code>
+and do not require access to a <code>host</code> container or external state variables.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const TestRule.base() : _record = ();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
+    <li class="self-crumb">TestRule.base const constructor</li>
+</ol>
+
+    <h5>TestRule class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

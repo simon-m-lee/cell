@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the batch method from the Pulse class, for the Dart programming language.">
+  <title>batch method - Pulse class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">batch&lt;<wbr><span class="type-parameter">P</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">batch</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;Pulse-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">batch&lt;<wbr><span class="type-parameter">P</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>
+<span class="name ">batch</span>&lt;<wbr><span class="type-parameter">P</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="batch-param-pulses"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">pulses</span>, {</span></li>
+<li><span class="parameter" id="batch-param-policy"><span class="type-annotation"><a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="batch-param-context"><span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="batch-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="batch-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="batch-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
+<li><span class="parameter" id="batch-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
+<li><span class="parameter" id="batch-param-onComplete"><span class="type-annotation">void</span> <span class="parameter-name">onComplete</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="batch-param-onError"><span class="type-annotation">void</span> <span class="parameter-name">onError</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, {</span></li>
+<li><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="batch-param-onProgress"><span class="type-annotation">void</span> <span class="parameter-name">onProgress</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, {</span></li>
+<li><span class="parameter" id="param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">message</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a <strong>Collective Pulse</strong> by aggregating multiple signals into a
+single, atomic wave.</p>
+<p>A Collective Pulse is a <strong>Signal Bundle</strong> that allows multiple independent
+pulses to travel together as one unit. This is essential for batch
+operations, coordinated updates, or any scenario where multiple state
+changes must be processed atomically.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>Use this when you need to send multiple related signals as a single
+atomic unit. For simple two-pulse combinations, the <code>+</code> operator is
+more concise: <code>pulseA + pulseB</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>A batch update that must be processed together.</li>
+<li>Coordinating multiple state changes that depend on each other.</li>
+<li>Reducing overhead by combining several small pulses into one wave.</li>
+<li>When you want to iterate over a collection of pulses as a single entity.</li>
+<li>When you need to apply common metadata (context, type, priority) to
+a collection of pulses.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The factory takes an iterable of pulses and bundles them into a
+single Collective Pulse.</li>
+<li>The collective's <a href="../../cell_tissue/Pulse/payload.html">payload</a> is the iterable of pulses itself – this is
+the collection you provided.</li>
+<li>The collective is iterable – you can loop over it to access each
+individual pulse.</li>
+<li>The collective is processed atomically – all sub‑pulses travel
+together through the graph.</li>
+<li>You can override the <code>context</code>, <code>type</code>, <code>source</code>, and <code>priority</code> by
+passing them as named parameters to this constructor.</li>
+<li>The collective's <a href="../../cell_tissue/Pulse/isComposite.html">isComposite</a> property returns <code>true</code>.</li>
+<li>Each sub‑pulse retains its independent identity, causal trace, and
+parent chain.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>A Collective Pulse is <strong>not</strong> the same as an <a href="../../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> created by
+the <code>+</code> operator. While both are composites, <code>Pulse.batch()</code> creates
+a collective where the payload is the collection of pulses, whereas <code>+</code>
+creates a chain that preserves parent-child relationships.</li>
+<li>The collective does <strong>not</strong> create a new causal chain; it simply
+groups existing pulses for atomic propagation.</li>
+<li>If you need to add a step to all pulses in a collective, you can
+iterate over the collective and call <code>withStep</code> on each, then create
+a new collective from the processed pulses.</li>
+<li>The <code>+</code> operator is syntactic sugar for creating a <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> chain,
+not a Collective Pulse: <code>pulseA + pulseB</code> creates a chain where
+<code>pulseB</code> is a child of <code>pulseA</code>, while <code>Pulse.batch([pulseA, pulseB])</code>
+creates a collective where both pulses are independent members and the
+payload is the collection <code>[pulseA, pulseB]</code>.</li>
+<li>The collective's <a href="../../cell_tissue/Pulse/payload.html">payload</a> is the <strong>entire iterable</strong> of pulses, not
+just the first pulse's payload. This means <code>collective.payload</code> is
+the collection itself.</li>
+<li>The collective's <code>source</code> is the source of the <strong>first</strong> pulse, unless
+overridden via the <code>source</code> parameter.</li>
+<li>The collective does <strong>not</strong> have its own <code>parent</code> – the parent chain
+of the collective is <code>null</code> (it's a root collective). Each sub‑pulse
+retains its own parent chain.</li>
+<li>The <code>onComplete</code>, <code>onError</code>, and <code>onProgress</code> callbacks are preserved
+from the <strong>first</strong> pulse in the iterable, unless overridden via the
+named parameters. They are <strong>not</strong> applied to each individual pulse.</li>
+<li>If the iterable is empty, the factory returns an empty collective
+with <code>null</code> payload and <code>isComposite</code> set to <code>true</code>.</li>
+<li>The collective's <code>root</code> is itself (it's a root collective), but each
+sub‑pulse's <code>root</code> remains its own root.</li>
+<li>The optional parameters (<code>policy</code>, <code>context</code>, <code>type</code>, <code>source</code>, <code>step</code>,
+<code>priority</code>, <code>onComplete</code>, <code>onError</code>, <code>onProgress</code>) apply to the
+collective as a whole, not to individual pulses. They override the
+corresponding values from the first pulse.</li>
+</ul>
+<h3 id="example-batching-updates">Example: Batching updates</h3>
+<pre class="language-dart"><code class="language-dart">final priceUpdate = Pulse&lt;double&gt;(99.99);
+final stockUpdate = Pulse&lt;int&gt;(42);
+final batch = Pulse.batch([priceUpdate, stockUpdate]);
+
+// The payload is the collection of pulses
+print(batch.payload); // [99.99, 42] (as Iterable&lt;Pulse&gt;)
+
+// Process as a single wave
+receptor.call(batch);
+
+// Iterate to access individual pulses
+for (final p in batch) {
+  print(p.payload);
+}
+// Outputs: 99.99, 42
+</code></pre>
+<h3 id="example-adding-a-step-to-all-subpulses">Example: Adding a step to all sub‑pulses</h3>
+<pre class="language-dart"><code class="language-dart">final collective = Pulse.batch([pulse1, pulse2, pulse3]);
+final processed = collective
+    .map((p) =&gt; p.withStep('validation'))
+    .toList();
+final batch = Pulse.batch(processed);
+</code></pre>
+<h3 id="example-empty-collective">Example: Empty collective</h3>
+<pre class="language-dart"><code class="language-dart">final empty = Pulse.batch&lt;int&gt;([]);
+print(empty.isComposite); // true
+print(empty.payload); // null
+print(empty.length); // 0
+</code></pre>
+<h3 id="example-overriding-collective-metadata">Example: Overriding collective metadata</h3>
+<pre class="language-dart"><code class="language-dart">final batch = Pulse.batch(
+  [pulse1, pulse2, pulse3],
+  context: PulseContext.userAction(actor: 'admin', reason: 'Batch update'),
+  type: 'bulk_operation',
+  priority: 80,
+);
+// All pulses in the batch share the same context, type, and priority
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulses</code>: An iterable of <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instances to be bundled together.
+The iterable can be empty, in which case an empty collective is returned.</li>
+<li><code>policy</code>: Optional lifecycle governance policy for the collective.</li>
+<li><code>context</code>: Optional pulse context override for the collective.
+If not provided, the context from the first pulse is used.</li>
+<li><code>type</code>: Optional semantic type tag override for the collective.
+If not provided, the type from the first pulse is used.</li>
+<li><code>source</code>: Optional originating cell override for the collective.
+If not provided, the source from the first pulse is used.</li>
+<li><code>step</code>: Optional audit step description for the collective.</li>
+<li><code>priority</code>: Optional scheduling priority override for the collective.
+If not provided, the priority from the first pulse is used.</li>
+<li><code>onComplete</code>: Optional completion callback override for the collective.</li>
+<li><code>onError</code>: Optional error callback override for the collective.</li>
+<li><code>onProgress</code>: Optional progress callback override for the collective.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A Collective <a href="../../cell_tissue/Pulse-class.html">Pulse</a> containing all the provided pulses. The collective
+is iterable, and its <a href="../../cell_tissue/Pulse/isComposite.html">isComposite</a> property is <code>true</code>. The <a href="../../cell_tissue/Pulse/payload.html">payload</a> is
+the iterable of pulses itself. The <code>context</code>, <code>source</code>, <code>type</code>, and
+<code>priority</code> are taken from the first pulse (or overridden by the
+named parameters). The callbacks are taken from the first pulse
+(or overridden by the named parameters).</p>
+<h3 id="differences-from--operator">Differences from <code>+</code> operator:</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>Pulse.batch([a, b])</code></th>
+<th><code>a + b</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Returns</td>
+<td><a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a></td>
+<td><a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a></td>
+</tr>
+<tr>
+<td>Structure</td>
+<td>Flat bundle</td>
+<td>Flat bundle</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>Iterable of pulses <code>[a, b]</code></td>
+<td>Iterable of pulses <code>[a, b]</code></td>
+</tr>
+<tr>
+<td>Metadata override</td>
+<td>Yes (via named params)</td>
+<td>No (inherited from first)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Explicit batching with overrides</td>
+<td>Quick combination</td>
+</tr>
+</tbody>
+</table>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_tissue/Pulse/operator_plus.html">Pulse.+</a> – the binary operator for combining two pulses.</li>
+<li><a href="../../cell_tissue/Pulse/isComposite.html">isComposite</a> – to check if a pulse is a composite (collective or chain).</li>
+<li><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> – collectives can be iterated over to access individual pulses.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Pulse batch&lt;P&gt;(Iterable&lt;Pulse&lt;P&gt;&gt; pulses, {
+  PulseEphemeralPolicy? policy,
+  PulseContext? context,
+
+  String? type,
+
+  Cell? source,
+  String? step,
+
+  int? priority,
+
+  void Function(Pulse pulse)? onComplete,
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+  void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
+}) =&gt; _CollectivePulse&lt;P&gt;(pulses);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
+    <li class="self-crumb">batch&lt;<wbr><span class="type-parameter">P</span>&gt; static method</li>
+</ol>
+
+    <h5>Pulse class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

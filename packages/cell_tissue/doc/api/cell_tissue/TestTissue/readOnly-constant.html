@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the readOnly constant from the TestTissue class, for the Dart programming language.">
+  <title>readOnly constant - TestTissue class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TestTissue-class.html">TestTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">readOnly constant</li>
+  </ol>
+  <div class="self-name">readOnly</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TestTissue-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">readOnly</span> constant 
+</h1></div>
+
+    
+      <section class="multi-line-signature">
+        
+        _TestTissueReadOnly
+        const <span class="name ">readOnly</span>
+        
+
+      </section>
+      
+<section class="desc markdown">
+  <p>A predefined, immutable security policy that enforces a strict <strong>Read‑Only
+Mutation Barrier</strong> specifically for reactive collections.</p>
+<p><a href="../../cell_tissue/TestTissue/readOnly-constant.html">readOnly</a> is a core architectural constant used to implement the
+<strong>Deputy Pattern</strong> for unmodifiable collection views. It serves as a
+specialised gatekeeper that targets and blocks any attempt to execute
+functions or commands defined as "modifiable" by the host <a href="../../cell_tissue/Tissue-class.html">Tissue</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to share a collection with code that should only
+read data, never write it – e.g., passing a list to a UI widget.</p>
+<pre class="language-dart"><code class="language-dart">final readOnly = sourceList.deputy(testRule: TestTissue.readOnly);
+</code></pre>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>It intercepts all mutation methods (e.g., <code>add</code>, <code>remove</code>, <code>clear</code>).</li>
+<li>If the requested function is in the host's <code>modifiable</code> whitelist,
+the rule returns <code>true</code> (disallow), effectively blocking the mutation.</li>
+<li>It does <strong>not</strong> block observation, iteration, or pulse propagation.
+A read‑only deputy remains a "Live" node that reflects the source state
+in real time; it simply lacks "Write‑Back" rights.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>This is a singleton – all unmodifiable collection deputies share the
+exact same validation logic, reducing memory footprint.</li>
+<li>It only blocks <em>structural</em> mutations. If the collection contains
+mutable cells, those cells can still be mutated directly unless
+<code>unmodifiableElement</code> is used.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['A', 'B']);
+final readOnly = source.deputy(testRule: TestTissue.readOnly);
+print(readOnly[0]); // 'A' – works
+readOnly.add('C'); // blocked – throws UnsupportedError
+source.add('C');   // allowed – readOnly reflects the change
+</code></pre>
+</section>
+
+      
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static const readOnly = _TestTissueReadOnly();</code></pre>
+</section>
+
+
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TestTissue-class.html">TestTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">readOnly constant</li>
+</ol>
+
+  <h5>TestTissue class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

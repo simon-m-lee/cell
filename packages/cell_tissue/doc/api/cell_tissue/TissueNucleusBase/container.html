@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the container property from the TissueNucleusBase class, for the Dart programming language.">
+  <title>container property - TissueNucleusBase class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">container property</li>
+  </ol>
+  <div class="self-name">container</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueNucleusBase-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">container</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="../../cell_tissue/TissueContainer-class.html">TissueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I</span>&gt;</span></span>
+      get
+      <span class="name ">container</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>The <a href="../../cell_tissue/TissueContainer-class.html">TissueContainer</a> responsible for managing the physical storage,
+low‑level data access, and structural strategy for this reactive tissue.</p>
+<p>The <a href="../../cell_tissue/TissueNucleusBase/container.html">container</a> serves as the "source of truth" and the primary storage
+abstraction for the collection's data. It encapsulates the underlying
+Dart collection implementation (such as a <code>List</code>, <code>Set</code>, or <code>Map</code>) into
+a unified, reactive‑ready interface.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>You rarely need to access this directly. The collection's public API
+(e.g., <code>add</code>, <code>remove</code>, <code>length</code>) delegates to this container, but you
+typically work with the high‑level <code>Tissue</code> methods.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Only if you are building a custom collection implementation that needs
+to manipulate the underlying storage directly. For most application code,
+the provided collection methods are sufficient.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Local Lookup</strong>: First attempts to retrieve a <code>container</code> defined
+explicitly in the current nucleus's record.</li>
+<li><strong>Parental Delegation</strong>: If not found, it recursively "walks up"
+the <code>principal</code> chain to find the container from an ancestor.</li>
+<li><strong>Root Synchronization</strong>: The search continues until it reaches
+the root property set that originally initialized the physical storage.
+This ensures that all derived views (deputies) share the same
+underlying data instance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The container is resolved lazily – it is only instantiated when first
+accessed, saving memory for collections that are never used.</li>
+<li>For deputies, the container is always inherited from the principal –
+a deputy never has its own container.</li>
+<li>The container's type (List, Set, Map, Queue, etc.) is fixed at the
+root nucleus and cannot be changed by deputies.</li>
+</ul>
+<h3 id="example-internal">Example (Internal)</h3>
+<pre class="language-dart"><code class="language-dart">final container = list._nucleus.container;
+print(container.length); // number of elements
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>The resolved <a href="../../cell_tissue/TissueContainer-class.html">TissueContainer&lt;E, I&gt;</a> associated with this property set.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+TissueContainer&lt;E,I&gt; get container {
+  return get&lt;TissueContainer&lt;E,I&gt;&gt;(() =&gt; record.mask.container, fallback: () =&gt; principal?.container);
+}</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">container property</li>
+</ol>
+
+  <h5>TissueNucleusBase class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

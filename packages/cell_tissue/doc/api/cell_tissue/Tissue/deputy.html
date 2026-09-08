@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the deputy method from the Tissue class, for the Dart programming language.">
+  <title>deputy method - Tissue class - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">deputy method</li>
+  </ol>
+  <div class="self-name">deputy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;Tissue-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">deputy</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">deputy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="deputy-param-context"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a></span> <span class="parameter-name">context</span> = <span class="default-value">DeputyContext.system</span>, </span></li>
+<li><span class="parameter" id="deputy-param-testRule"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../../cell_tissue/Tissue-class.html">Tissue</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span></li>
+<li><span class="parameter" id="deputy-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="deputy-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes a specialised <strong>Mandate Handle</strong> (Deputy) of this collection,
+providing a scoped, authoritative interface to the underlying state.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need a restricted view of a collection – e.g., read‑only,
+scoped authority, temporary access, or sandboxed simulation.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>You provide a new <code>context</code> (authority, clearance, lease) and/or an
+additional <code>testRule</code> (validation gate). The deputy shares the principal's
+state and lock but applies the new rules.</li>
+<li>If all parameters are left at their defaults, the method returns <code>this</code>
+– no proxy is created.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The deputy's <code>testRule</code> is layered <strong>on top</strong> of the principal's rule.
+You can only narrow permissions, never expand them.</li>
+<li>Deputies are logically equal to their principal: <code>deputy == principal</code>
+is <code>true</code>, so they work seamlessly in <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>s.</li>
+<li>The deputy gets its own independent <a href="../../cell_tissue/Synapses-class.html">Synapses</a> registry by default,
+so it can have its own observers separate from the principal.</li>
+</ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>context</code>: <a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a> defining the authority tier.</li>
+<li><code>testRule</code>: Additional <a href="../../cell_tissue/TestTissue-class.html">TestTissue</a> validation, layered on top.</li>
+<li><code>ephemeralPolicy</code>: Optional TTL/event‑count lifecycle for this handle.</li>
+<li><code>synapses</code>: The deputy's own observer registry.</li>
+</ul>
+<h3 id="returns">Returns</h3>
+<p>A new <a href="../../cell_tissue/Tissue-class.html">Tissue</a> instance acting as a governed proxy of the principal.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['A', 'B', 'C']);
+final readOnly = await source.deputy(testRule: TestTissue.readOnly);
+// readOnly.add('D'); // blocked
+source.add('D'); // readOnly reflects the change
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;Tissue&lt;E&gt;&gt; deputy({
+  covariant DeputyContext context = DeputyContext.system,
+  covariant TestTissue testRule = TestTissue.allowAll,
+  EphemeralPolicy? ephemeralPolicy,
+  Synapses synapses = Synapses.enabled,
+}) =&gt; deputy(context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">deputy method</li>
+</ol>
+
+    <h5>Tissue class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
