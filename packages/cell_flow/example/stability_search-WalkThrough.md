@@ -14,6 +14,27 @@ Flow handles the timing and request management. Cell carries the input and resul
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — Basic Search (scenario 1)](#3-step-by-step--basic-search-scenario-1)
+4. [Step by step — Rapid Typing (scenario 2)](#4-step-by-step--rapid-typing-scenario-2)
+5. [Step by step — Cancellation (scenario 3)](#5-step-by-step--cancellation-scenario-3)
+6. [Step by step — Error Handling (scenario 4)](#6-step-by-step--error-handling-scenario-4)
+7. [Step by step — Loading State (scenario 5)](#7-step-by-step--loading-state-scenario-5)
+8. [Step by step — Validation (scenario 6)](#8-step-by-step--validation-scenario-6)
+9. [Step by step — Enhanced Loading (scenario 7)](#9-step-by-step--enhanced-loading-scenario-7)
+10. [Step by step — Debounce vs Throttle (scenario 8)](#10-step-by-step--debounce-vs-throttle-scenario-8)
+11. [Search Pipeline Stages](#11-search-pipeline-stages)
+12. [Parts checklist](#12-parts-checklist)
+13. [Rules for combining them](#13-rules-for-combining-them)
+14. [Debounce vs Throttle Decision Guide](#14-debounce-vs-throttle-decision-guide)
+15. [Still demo-only](#still-demo-only)
+16. [Summary table](#summary-table)
+
+---
+
 ## 1. Why they have to combine
 
 A user types **quickly**. An API call is **expensive**. A previous request should be **cancelled**.

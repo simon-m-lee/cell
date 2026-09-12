@@ -8,6 +8,27 @@ jam, and keep a last pack from going out twice.
 
 ---
 
+## Contents
+
+1. [Design requirement](#1-design-requirement)
+2. [The three parts (in depth)](#2-the-three-parts-in-depth)
+   - [2.1 Instruction](#21-instruction)
+   - [2.2 Receptor](#22-receptor)
+   - [2.3 Cells](#23-cells)
+3. [Pulse path (one successful scan)](#3-pulse-path-one-successful-scan)
+4. [Scenarios, step by step](#4-scenarios-step-by-step)
+   - [Scenario 1 — happy path](#scenario-1--happy-path)
+   - [Scenario 2 — invalid NDC](#scenario-2--invalid-ndc)
+   - [Scenario 3 — out of stock](#scenario-3--out-of-stock)
+   - [Scenario 4 — printer jam + compensate](#scenario-4--printer-jam--compensate)
+   - [Scenario 5 — last pack, two scans](#scenario-5--last-pack-two-scans)
+   - [Scenario 6 — TestCell on ingress](#scenario-6--testcell-on-ingress)
+5. [What this is not (yet) for real life](#5-what-this-is-not-yet-for-real-life)
+6. [Proposed production shape (Cell + Flow)](#6-proposed-production-shape-cell--flow)
+7. [How to read the demo file](#7-how-to-read-the-demo-file)
+
+---
+
 ## 1. Design requirement
 
 A technician scans an NDC. The system must:

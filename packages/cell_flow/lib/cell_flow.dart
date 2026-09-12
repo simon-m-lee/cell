@@ -73,10 +73,17 @@
 /// * `HowTo-FlowInstruction-Receptor.md`: Advanced custom gate composition.
 library cell_flow;
 
+// -----------------------------------------------------------------------------
+// Dependencies
+// -----------------------------------------------------------------------------
+
 import 'dart:async';
 
+/// External package dependencies.
 import 'package:cell/cell.dart';
 
+/// Re-exporting core cell primitives to ensure consumers have access to
+/// foundational types like [Cell], [Pulse], and [Synapses].
 export 'package:cell/cell.dart';
 
 // ── Create ────────────────────────────────────────────────────

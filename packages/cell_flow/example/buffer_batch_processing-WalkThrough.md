@@ -16,6 +16,25 @@ Buffer collects events into lists. The five strategies control **when** and **ho
 
 ---
 
+## Contents
+
+1. [Why buffer matters](#1-why-buffer-matters)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — count-based batching (scenario 1)](#3-step-by-step--count-based-batching-scenario-1)
+4. [Step by step — time-based batching (scenario 2)](#4-step-by-step--time-based-batching-scenario-2)
+5. [Step by step — time or count (scenario 3)](#5-step-by-step--time-or-count-scenario-3)
+6. [Step by step — conditional batching (scenario 4)](#6-step-by-step--conditional-batching-scenario-4)
+7. [Step by step — external trigger (scenario 5)](#7-step-by-step--external-trigger-scenario-5)
+8. [Real-world: log batching (scenario 6)](#8-real-world-log-batching-scenario-6)
+9. [Real-world: sensor data batching (scenario 7)](#9-real-world-sensor-data-batching-scenario-7)
+10. [Performance: firehose to batches (scenario 9)](#10-performance-firehose-to-batches-scenario-9)
+11. [Buffer strategy comparison](#11-buffer-strategy-comparison)
+12. [Rules for combining them](#12-rules-for-combining-them)
+13. [Still demo-only](#still-demo-only)
+14. [Production shape](#production-shape)
+
+---
+
 ## 1. Why buffer matters
 
 Events arrive as individual pulses. Processing each event separately is expensive. Batching groups events into lists for processing once per batch.

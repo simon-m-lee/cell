@@ -1,33 +1,40 @@
 name: cell_flow
-description: >
-  Cell Flow (codename Mitosis): Rx-shaped operators for the Cell framework.
-  Debounce, switchMap, zip, retry and friends as FlowInstructions on package:cell.
-version: 1.0.0-rc.2.0.2
-homepage: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
-repository: https://github.com/simon-m-lee/cell
-issue_tracker: https://github.com/simon-m-lee/cell/issues
-documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+description: >-
+  Orchestration Layer (Flow) for the Cell Framework — 90+ forensic-grade 
+  operators (asyncMap, switchMap, debounce) for reactive signal processing.
+version: 1.0.0-rc.3
 
-resolution: workspace
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow#readme
 
 topics:
   - reactive
   - streams
-  - rx
+  - forensic-traceability
   - state-management
-  - cells
+  - async-orchestration
+
+# Use 'none' to prevent accidental publishing until the RC cycle is complete
+publish_to: none
+
+resolution: workspace
 
 environment:
   sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
-  cell: ^1.0.0-rc.2
-
-#dependency_overrides:
-#  cell:
-#    path: ../cell
+  cell: ^1.0.0-rc.3
 
 dev_dependencies:
   lints: ^6.0.0
   test: ^1.25.0
 
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:

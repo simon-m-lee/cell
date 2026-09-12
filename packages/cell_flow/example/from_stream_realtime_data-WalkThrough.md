@@ -14,6 +14,26 @@ Flow never stores data. Cell never knows about stream sources. The observer is t
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — Basic Stream Bridge (scenario 1)](#3-step-by-step--basic-stream-bridge-scenario-1)
+4. [Step by step — Real-Time Sensor Processing (scenario 2)](#4-step-by-step--real-time-sensor-processing-scenario-2)
+5. [Step by step — Real-Time Dashboard (scenario 3)](#5-step-by-step--real-time-dashboard-scenario-3)
+6. [Step by step — Multiple Stream Aggregation (scenario 4)](#6-step-by-step--multiple-stream-aggregation-scenario-4)
+7. [Step by step — Anomaly Detection (scenario 5)](#7-step-by-step--anomaly-detection-scenario-5)
+8. [Step by step — Data Quality Pipeline (scenario 6)](#8-step-by-step--data-quality-pipeline-scenario-6)
+9. [Step by step — Data Enrichment (scenario 7)](#9-step-by-step--data-enrichment-scenario-7)
+10. [Step by step — Alert Aggregation (scenario 8)](#10-step-by-step--alert-aggregation-scenario-8)
+11. [Supported Stream Sources](#11-supported-stream-sources)
+12. [Parts checklist](#12-parts-checklist)
+13. [Rules for combining them](#13-rules-for-combining-them)
+14. [Still demo-only](#still-demo-only)
+15. [Summary table](#summary-table)
+
+---
+
 ## 1. Why they have to combine
 
 A WebSocket message is a **stream event**. A sensor reading is **real-time data**. A dashboard is **UI state**.

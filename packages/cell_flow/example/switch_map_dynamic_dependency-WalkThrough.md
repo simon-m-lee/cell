@@ -14,6 +14,29 @@ Flow handles the source switching and cancellation. Cell carries the selection a
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — Basic Source Switching (scenario 1)](#3-step-by-step--basic-source-switching-scenario-1)
+4. [Step by step — User Profile Switching (scenario 2)](#4-step-by-step--user-profile-switching-scenario-2)
+5. [Step by step — Dashboard Switching (scenario 3)](#5-step-by-step--dashboard-switching-scenario-3)
+6. [Step by step — Feature Flag Switching (scenario 4)](#6-step-by-step--feature-flag-switching-scenario-4)
+7. [Step by step — API Endpoint Switching (scenario 5)](#7-step-by-step--api-endpoint-switching-scenario-5)
+8. [Step by step — Stateful Switch (scenario 6)](#8-step-by-step--stateful-switch-scenario-6)
+9. [Step by step — Nested Switch (scenario 7)](#9-step-by-step--nested-switch-scenario-7)
+10. [Step by step — Auth Provider Switching (scenario 8)](#10-step-by-step--auth-provider-switching-scenario-8)
+11. [Step by step — Error Handling (scenario 9)](#11-step-by-step--error-handling-scenario-9)
+12. [Flow.switchMap vs Other Operators](#12-flowswitchmap-vs-other-operators)
+13. [Source Types Supported](#13-source-types-supported)
+14. [Parts checklist](#14-parts-checklist)
+15. [Rules for combining them](#15-rules-for-combining-them)
+16. [Common Use Cases](#16-common-use-cases)
+17. [Still demo-only](#still-demo-only)
+18. [Summary table](#summary-table)
+
+---
+
 ## 1. Why they have to combine
 
 A user selects a **different source**. The previous source should be **cancelled**. The new source should start **immediately**.

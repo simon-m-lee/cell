@@ -14,6 +14,26 @@ Flow never modifies the original data source. Cell never validates business rule
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — Basic Numeric Filtering (scenario 1)](#3-step-by-step--basic-numeric-filtering-scenario-1)
+4. [Step by step — String Validation (scenario 2)](#4-step-by-step--string-validation-scenario-2)
+5. [Step by step — Complex Object Filter (scenario 3)](#5-step-by-step--complex-object-filter-scenario-3)
+6. [Step by step — Real-Time Sensor Filtering (scenario 4)](#6-step-by-step--real-time-sensor-filtering-scenario-4)
+7. [Step by step — Multi-Condition Filter Pipeline (scenario 5)](#7-step-by-step--multi-condition-filter-pipeline-scenario-5)
+8. [Step by step — Real-Time Log Filtering (scenario 6)](#8-step-by-step--real-time-log-filtering-scenario-6)
+9. [Step by step — Conditional Filter with Complex Logic (scenario 8)](#9-step-by-step--conditional-filter-with-complex-logic-scenario-8)
+10. [Step by step — Combined Filter Pipeline (scenario 10)](#10-step-by-step--combined-filter-pipeline-scenario-10)
+11. [Filter types in this demo](#11-filter-types-in-this-demo)
+12. [Parts checklist](#12-parts-checklist)
+13. [Rules for combining them](#13-rules-for-combining-them)
+14. [Still demo-only](#still-demo-only)
+15. [Summary table](#summary-table)
+
+---
+
 ## 1. Why they have to combine
 
 A sensor reading is a **pulse**. A filter condition is **logic**. Logging is **I/O**.

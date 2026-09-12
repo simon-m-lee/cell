@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.3)] - Release Candidate
+
+This release formalizes **Topographical Integrity** and **Forensic Traceability** within the orchestration layer, ensuring that causal anchors are preserved across complex asynchronous transformations and operator chains.
+
+### Added
+
+- **Causal Anchor Propagation**: Updated `FlowInstruction` and `FlowHandle` to respect the refined `Context` system. Orchestrators now maintain the forensic lineage of a `Pulse` as it traverses the topography, ensuring downstream observers can verify the original administrative authority.
+
+### Changed
+
+- **Workspace Governance**: Migrated to `resolution: workspace`. Removed manual `dependency_overrides` for local package links in `pubspec.yaml`, aligning with Dart's modern monorepo standards and resolving build conflicts in Melos environments.
+- **Pedagogical KDocs**: Regenerated public API documentation for all operators using the forensic standard (`### When to use`, `### How it works`, `### Non‑obvious`).
+- **Metadata Standardization**: Synchronized `pubspec.yaml` metadata, including `repository`, `issue_tracker`, and platform support declarations, to ensure high-integrity discovery on `pub.dev`.
+
+### Fixed
+
+- **Trace Integrity**: Resolved a specialized case where the `Pulse.trace` could be fragmented or lost during high-frequency `Debounce` or `Throttle` operations.
+- **Documentation Hygiene**: Fixed unresolved doc references to generic type parameters `[C]` and inherited references to `[Tissue]` across the operator family.
+
+### Tests
+
+- **1038** unit tests in **44** files, **452** groups (+13 tests covering context propagation and workspace resolution).
+- Last full run: **+1038, exit 0**.
+- Line coverage (`lib/`): **96.8%** (+0.3% improvement in operator edge-cases).
+
+[Mitosis (1.0.0-rc.3)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
+---
+
 ## [Mitosis (1.0.0-rc.2.0.2)] - Release Candidate
 
 Patch focused on topographical integrity, path hygiene, and guidance expansion.

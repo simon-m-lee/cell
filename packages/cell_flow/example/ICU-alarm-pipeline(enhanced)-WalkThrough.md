@@ -8,6 +8,21 @@ Adds TestCell on sensor ingress, a WARN Receptor, a ledger, ACK that
 
 ---
 
+## Contents
+
+1. [Design](#design)
+2. [Parts](#parts)
+   - [Cell](#cell)
+   - [Instruction](#instruction)
+   - [Receptor](#receptor)
+   - [Flow operators](#flow-operators)
+3. [Implementation map](#implementation-map)
+4. [Scenarios (what the last good run showed)](#scenarios-what-the-last-good-run-showed)
+5. [Pulse path (scenario 2)](#pulse-path-scenario-2)
+6. [Real bay vs this file](#real-bay-vs-this-file)
+
+---
+
 ## Design
 
 ```

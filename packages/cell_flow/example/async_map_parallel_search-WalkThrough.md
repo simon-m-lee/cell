@@ -14,6 +14,23 @@ One source cell. Three asyncMap strategies in one job:
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — parallel fetches (scenario 1)](#3-step-by-step--parallel-fetches-scenario-1)
+4. [Step by step — search-as-you-type (scenario 2)](#4-step-by-step--search-as-you-type-scenario-2)
+5. [Step by step — ordered sequential tasks (scenario 3)](#5-step-by-step--ordered-sequential-tasks-scenario-3)
+6. [Performance comparison (scenario 6)](#6-performance-comparison-scenario-6)
+7. [Real-world: product search with auto-suggest (scenario 7)](#7-real-world-product-search-with-auto-suggest-scenario-7)
+8. [Error handling with fallback (scenario 8)](#8-error-handling-with-fallback-scenario-8)
+9. [Operator comparison](#9-operator-comparison)
+10. [Rules for combining them](#10-rules-for-combining-them)
+11. [Still demo-only](#still-demo-only)
+12. [Production shape](#production-shape)
+
+---
+
 ## 1. Why they have to combine
 
 A search is a **query**. An API call is **I/O**. A user types **rapidly**.

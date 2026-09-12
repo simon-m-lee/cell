@@ -15,6 +15,25 @@ CombineLatest emits when ANY source changes. All sources must have at least one 
 
 ---
 
+## Contents
+
+1. [Why combineLatest matters](#1-why-combinelatest-matters)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — basic combine (scenario 1)](#3-step-by-step--basic-combine-scenario-1)
+4. [Step by step — dashboard metrics (scenario 2)](#4-step-by-step--dashboard-metrics-scenario-2)
+5. [Step by step — form validation (scenario 3)](#5-step-by-step--form-validation-scenario-3)
+6. [Step by step — portfolio aggregation (scenario 4)](#6-step-by-step--portfolio-aggregation-scenario-4)
+7. [Step by step — health monitor (scenario 5)](#7-step-by-step--health-monitor-scenario-5)
+8. [Step by step — search with filters (scenario 6)](#8-step-by-step--search-with-filters-scenario-6)
+9. [Step by step — user preferences (scenario 7)](#9-step-by-step--user-preferences-scenario-7)
+10. [Step by step — chat aggregation (scenario 8)](#10-step-by-step--chat-aggregation-scenario-8)
+11. [combineLatest vs other combine operators](#11-combinelatest-vs-other-combine-operators)
+12. [Rules for using combineLatest](#12-rules-for-using-combinelatest)
+13. [Still demo-only](#still-demo-only)
+14. [Production shape](#production-shape)
+
+---
+
 ## 1. Why combineLatest matters
 
 Multiple data sources update independently. You need the latest values from all sources combined into a single state. CombineLatest waits for all sources to have a value, then emits whenever any source updates.

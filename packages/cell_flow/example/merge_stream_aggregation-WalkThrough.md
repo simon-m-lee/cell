@@ -14,6 +14,26 @@ Flow is minimal here — the fan-in pattern uses observers as the glue. Cell pro
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — Fan-In Pattern (scenario 1)](#3-step-by-step--fan-in-pattern-scenario-1)
+4. [Step by step — Real-Time Event Aggregation (scenario 2)](#4-step-by-step--real-time-event-aggregation-scenario-2)
+5. [Step by step — Multi-Source Log Aggregation (scenario 3)](#5-step-by-step--multi-source-log-aggregation-scenario-3)
+6. [Step by step — IoT Sensor Data Merge (scenario 4)](#6-step-by-step--iot-sensor-data-merge-scenario-4)
+7. [Step by step — Financial Data Streams (scenario 5)](#7-step-by-step--financial-data-streams-scenario-5)
+8. [Step by step — User Activity Streams (scenario 6)](#8-step-by-step--user-activity-streams-scenario-6)
+9. [Step by step — Type-Aware Transformation (scenario 7)](#9-step-by-step--type-aware-transformation-scenario-7)
+10. [Step by step — Real-Time Dashboard (scenario 8)](#10-step-by-step--real-time-dashboard-scenario-8)
+11. [The Fan-In Pattern — Why Not Flow.mergeWith?](#11-the-fan-in-pattern--why-not-flowmergewith)
+12. [Parts checklist](#12-parts-checklist)
+13. [Rules for combining them](#13-rules-for-combining-them)
+14. [Still demo-only](#still-demo-only)
+15. [Summary table](#summary-table)
+
+---
+
 ## 1. Why they have to combine
 
 A user click is an **event**. A system metric is a **different event**. A dashboard needs **all events** in one stream.

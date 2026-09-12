@@ -7,6 +7,31 @@ into one page, without putting HTTP on the policy chain.
 
 ---
 
+## Contents
+
+1. [Design requirement](#1-design-requirement)
+2. [Instruction (in depth)](#2-instruction-in-depth)
+   - [2.1 `toSeverity`](#21-toseverity)
+   - [2.2 `distinct`](#22-distinct)
+   - [2.3 `filterPage`](#23-filterpage)
+   - [2.4 `+`](#24-)
+3. [Receptor (in depth)](#3-receptor-in-depth)
+4. [Cells (in depth)](#4-cells-in-depth)
+5. [End-to-end pulse (scenario 2)](#5-end-to-end-pulse-scenario-2)
+6. [Scenarios, step by step](#6-scenarios-step-by-step)
+   - [Seed](#seed)
+   - [1 — Normal](#1--normal)
+   - [2 — Desat 86](#2--desat-86)
+   - [3 — Motion then still](#3--motion-then-still)
+   - [4 — SpO2 85](#4--spo2-85)
+   - [5 — HR 35](#5--hr-35)
+   - [6 — Recover 95 / HR 74](#6--recover-95--hr-74)
+   - [7 — SpO2 87](#7--spo2-87)
+7. [Real-life gaps](#7-real-life-gaps)
+8. [Proposed production shape (Cell + Flow)](#8-proposed-production-shape-cell--flow)
+
+---
+
 ## 1. Design requirement
 
 A bed emits heart rate, SpO2, and motion many times per second.

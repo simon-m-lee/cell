@@ -15,6 +15,20 @@ observer is the only glue.
 
 ---
 
+## Contents
+
+1. [Why they have to combine](#1-why-they-have-to-combine)
+2. [Design (tagged)](#2-design-tagged)
+3. [Step by step — one successful pack (scenario 1)](#3-step-by-step--one-successful-pack-scenario-1)
+4. [Step by step — last pack (scenarios 7 and 8)](#4-step-by-step--last-pack-scenarios-7-and-8)
+5. [Step by step — jam (scenario 4)](#5-step-by-step--jam-scenario-4)
+6. [Parts checklist](#6-parts-checklist)
+7. [Scenarios (what each layer did)](#7-scenarios-what-each-layer-did)
+8. [Rules for combining them](#8-rules-for-combining-them)
+9. [Still demo-only](#still-demo-only)
+
+---
+
 ## 1. Why they have to combine
 
 A scan is a **pulse**. A shelf count is **state**. A printer is **I/O**.
