@@ -1,19 +1,60 @@
-# Cell Framework - Test Verification Report
+# cell package - Test Verification Report
 
-**Generated:** 2026-09-01  
-**Package:** cell (v1.0.0-rc.2)  
-**Test Files Analyzed:** 20  
+**Generated:** 2026-09-13
+**Package:** cell (v1.0.0-rc.3)
+**Test Files Analyzed:** 20
 **Total Tests:** 1115 (0 skipped)
+
+---
+
+## Table of contents
+
+- [Executive Summary](#executive-summary)
+  - [Snapshot](#snapshot)
+  - [Quick Stats](#quick-stats)
+- [Test File Inventory](#test-file-inventory)
+- [Detailed Test Coverage](#detailed-test-coverage)
+  - [test_cell.dart](#file-1-test_cell.dart-72-tests)
+  - [test_cell_policy.dart](#file-2-test_cell_policy.dart-38-tests)
+  - [test_commons.dart](#file-3-test_commons.dart-43-tests)
+  - [test_context.dart](#file-4-test_context.dart-117-tests)
+  - [test_deputy.dart](#file-5-test_deputy.dart-21-tests)
+  - [test_instruction.dart](#file-6-test_instruction.dart-23-tests)
+  - [test_nucleus.dart](#file-7-test_nucleus.dart-39-tests)
+  - [test_operators_phase1_foundation.dart](#file-8-test_operators_phase1_foundation.dart-64-tests)
+  - [test_operators_phase2_flow_control.dart](#file-9-test_operators_phase2_flow_control.dart-43-tests)
+  - [test_operators_phase3_async_routing.dart](#file-10-test_operators_phase3_async_routing.dart-60-tests)
+  - [test_operators_phase4_advanced_transactions.dart](#file-11-test_operators_phase4_advanced_transactions.dart-39-tests)
+  - [test_propagation_policy.dart](#file-12-test_propagation_policy.dart-41-tests)
+  - [test_pulse.dart](#file-13-test_pulse.dart-157-tests)
+  - [test_receptor.dart](#file-14-test_receptor.dart-50-tests)
+  - [test_synapses.dart](#file-15-test_synapses.dart-82-tests)
+  - [test_synthesis_cell.dart](#file-16-test_synthesis_cell.dart-37-tests)
+  - [test_test_cell.dart](#file-17-test_test_cell.dart-41-tests)
+  - [test_test_rule_meta.dart](#file-18-test_test_rule_meta.dart-48-tests)
+  - [test_transaction.dart](#file-19-test_transaction.dart-54-tests)
+  - [test_tx_apply.dart](#file-20-test_tx_apply.dart-46-tests)
+- [Runtime Verification Status](#runtime-verification-status)
+  - [Last `dart test`](#last-dart-test)
+  - [Line Coverage (`lib/`)](#line-coverage-lib)
+- [Recommendations](#recommendations)
+- [Appendix: File Locations](#appendix-file-locations)
 
 ---
 
 ## Executive Summary
 
-The Cell framework test suite contains **1115 unit tests** across **20 files** in `packages/cell/test/`. Coverage spans core types (`Cell`, `Pulse`, `Nucleus`, `Receptor`, `Instruction`, `Synapses`, `TestCell` / `TestRule`), **`Context` / `DeputyContext` / `PulseContext`** (`test_context.dart`), **`EphemeralPolicy`** (`test_cell_policy.dart`), **annotation `TestRule`s** (`test_test_rule_meta.dart`), **`commons.dart` collections** (`test_commons.dart`), **Cell / OpenCell deputy** (`test_deputy.dart`), **`PulseExtension.map` / `cast`** against `evolve(pulse:)`, **`FilterRule` parent / `fromRecord` / equality**, **async synapses policies**, **`PropagationStrategy.sample`**, **`ValueNucleus` / `ValueCell` constructors**, synthesis, `Cell.transaction` / `Cell.txApply`, the Core 16 operators, **`Cell.valve`**, and **`OpenCell.perform`**. Counts are `test(` declarations. None are skipped.
+The cell test suite contains **1115 unit tests** across **20 files** in `test/`. Counts are `test(` declarations.
 
-Suites follow **public APIs and documented contracts** (for example `Cell.ingress` / `Cell.observe` to drive operators, aggregators that return `Pulse`, `synapses.call` for policy, `activate` / `fromNucleus` for receptors and nuclei).
+This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
-Line coverage of `lib/` was **re-measured** on 2026-09-01 with `dart test --coverage=coverage`: **95.9%** of instrumented lines (3397 / 3541). This is not a production-readiness claim. Operator coverage lives in `test_operators_phase1_foundation.dart` … `phase4_advanced_transactions.dart`, plus `Cell.valve` / `OpenCell.perform` in `test_cell.dart`. Context, EphemeralPolicy, `test_rule_meta`, commons, deputy, `ValueCell.async`, synapses strategies including sample/async debounce/throttle/audit/buffered/retry/resilient, Pulse `toString`/shell/unmodifiable, TestCell readOnly composition, `PulseExtension.map` / `cast`, `FilterRule` parent/`fromRecord`, `ValueNucleus.from` / `evolve`, `ValueCell.terminal` / `receptor`, standalone `TestRule` async parent/chain, `OpenCell.async` emit/ingest, `Receptor.pipeline` reaction/`isGoverned`/`init` mask combinations, `PulseShell` scrutinize, and `Cell.debounce` `ephemeralPolicy` now have dedicated cases. `Nucleus.isInvalidated` / `Cell.isInvalidated` follow a hosted `EphemeralPolicy`. `_DebounceState.cancel` runs on re-arm, zero duration, timer fire, and output invalidation.
+### Snapshot
+
+Last `dart test` is **green**: **1115 passed**, 0 failed (exit 0).
+
+`lib/` line coverage is **95.1%** (3411 / 3587).
+
+Below 70%: `lib/src/receptor.dart`.
 
 ### Quick Stats
 
@@ -22,12 +63,10 @@ Line coverage of `lib/` was **re-measured** on 2026-09-01 with `dart test --cove
 | **Total Test Files** | 20 |
 | **Total Tests** | 1115 |
 | **Skipped** | 0 |
-| **Last full run** | 1115 passed, 0 failed, 0 skipped (~7 s wall clock with coverage, 2026-09-01) |
-| **Test Groups** | 251 (`group(` declarations, including nested groups) |
-| **Async Tests** | 350 (`test(..., () async`) |
-| **Sync Tests** | 765 |
-| **Line coverage (`lib/`)** | **95.9%** (3397 / 3541 instrumented lines; VM coverage → lcov; measured 2026-09-01) |
-| **API Compatibility** | Public APIs exercised by the suite match current contracts, including `Cell.valve`, `OpenCell.perform` (there is no `Cell.perform` static), Context / DeputyContext / PulseContext, EphemeralPolicy, annotation TestRules, commons collections, Cell / OpenCell deputy, and `PulseExtension.map` / `cast` |
+| **Last full run** | 1115 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 251 (`group(` declarations) |
+| **Async-ish tests** | ~349 (heuristic) |
+| **Line coverage (`lib/`)** | **95.1%** (3411 / 3587) |
 
 ---
 
@@ -35,776 +74,1668 @@ Line coverage of `lib/` was **re-measured** on 2026-09-01 with `dart test --cove
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | test_cell.dart | 1,096 | 72 | 38.6 KB | Core Cell factories, deputy, apply, validate, `Cell.valve`, `OpenCell.perform` |
-| 2 | test_pulse.dart | 1,826 | 157 | 70.8 KB | Pulse, evolve/withStep, batch, shell, unmodifiable, PulseContext, `compareTo`, `PulseExtension.map` / `cast` |
-| 3 | test_nucleus.dart | 350 | 39 | 12.2 KB | Nucleus / Nucleolus, evolve, clone, `Cell.fromNucleus` |
-| 4 | test_receptor.dart | 678 | 50 | 23.5 KB | Receptor factories, pipeline reaction/`isGoverned` mask, clone, async hook, PulseShell, graph bind |
-| 5 | test_instruction.dart | 350 | 23 | 12.3 KB | Instruction, `+` / chain / strategy, `Instruction.future`, custom throwing stage |
-| 6 | test_synapses.dart | 1,146 | 82 | 37.4 KB | Synapses enabled/disabled, link/unlink, FilterRule, relay cycle, async policies, persistent, retry/resilient, sample |
-| 7 | test_propagation_policy.dart | 746 | 41 | 27.9 KB | PropagationPolicy strategies including sample, equality |
-| 8 | test_test_cell.dart | 577 | 41 | 19.1 KB | TestCell allowAll/readOnly, chain, pulse/link/action rules; standalone TestRule |
-| 9 | test_synthesis_cell.dart | 623 | 37 | 21.0 KB | SynthesisCell, handle add/remove/stop, aggregation |
-| 10 | test_transaction.dart | 1,191 | 54 | 35.7 KB | `Cell.transaction` isolation, locks, savepoints, events |
-| 11 | test_tx_apply.dart | 1,101 | 46 | 32.2 KB | `Cell.txApply` staging, compensation, events |
-| 12 | test_operators_phase1_foundation.dart | 1,043 | 64 | 36.5 KB | `state`, `ingress`, `observe`, `derive`; ValueNucleus.from/evolve, ValueCell.terminal/receptor |
-| 13 | test_operators_phase2_flow_control.dart | 764 | 43 | 22.3 KB | `debounce` (including `ephemeralPolicy` cancel), `throttle`, `distinct`, `synthesis` |
-| 14 | test_operators_phase3_async_routing.dart | 1,040 | 60 | 30.2 KB | `asyncMap`, `hub`, `switchMap`, `fromFuture`, `fromStream` |
-| 15 | test_operators_phase4_advanced_transactions.dart | 777 | 39 | 23.6 KB | `sanitized`, `open` including `async` emit/ingest, combined tx / txApply |
-| 16 | test_context.dart | 1,626 | 117 | 60.7 KB | Context, DeputyContext, PulseContext, Ontology / Mandate / Provenance |
-| 17 | test_cell_policy.dart | 596 | 38 | 20.4 KB | `EphemeralPolicy` TTL, eventLimit, `call`, `mask`, dispose; Cell/Nucleus follow hosted policy |
-| 18 | test_test_rule_meta.dart | 349 | 48 | 11.7 KB | `DefaultValue`, `MaxLength`, `ValueRange`, `EntryPattern`, `Values`, email/URL patterns |
-| 19 | test_commons.dart | 447 | 43 | 13.6 KB | `mapMerge`, SyncSet, QueueList, PriorityQueue, SyncQueue, Box / `get` |
-| 20 | test_deputy.dart | 253 | 21 | 8.3 KB | Cell / OpenCell deputy identity, rule layering, apply forwarding, causal integrity |
-| **Total** | | **16,581** | **1115** | **558.0 KB** | |
+| 1 | test_cell.dart | 1,098 | 72 | 38.6 KB | cell; groups: Cell, Factory Constructors, Identity & Equality, Apply, Modifiable, Terminal & State… |
+| 2 | test_cell_policy.dart | 598 | 38 | 20.4 KB | cell policy; groups: EphemeralPolicy, Construction, call / events, eventLimit, TTL, combined TTL and eventLimit… |
+| 3 | test_commons.dart | 449 | 43 | 13.6 KB | commons; groups: mapMerge, SyncSet, QueueList, AsyncQueueList, PriorityQueue, AsyncPriorityQueue… |
+| 4 | test_context.dart | 1,628 | 117 | 60.7 KB | context; groups: GovernanceEntry, Ontology, Context, system, describe, primary constructor… |
+| 5 | test_deputy.dart | 255 | 21 | 8.3 KB | deputy; groups: Cell.deputy, identity, testRule layering, apply forwarding, unmodifiable, causal integrity… |
+| 6 | test_instruction.dart | 354 | 23 | 12.3 KB | instruction; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration |
+| 7 | test_nucleus.dart | 352 | 39 | 12.2 KB | nucleus; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
+| 8 | test_operators_phase1_foundation.dart | 1,045 | 64 | 36.5 KB | operators phase1 foundation; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
+| 9 | test_operators_phase2_flow_control.dart | 766 | 43 | 22.3 KB | operators phase2 flow control; groups: Phase 2: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
+| 10 | test_operators_phase3_async_routing.dart | 1,042 | 60 | 30.2 KB | operators phase3 async routing; groups: Phase 3: Async & Routing Operators, Cell.asyncMap, Cell.hub, Cell.switchMap, Cell.fromFuture, Cell.fromStream… |
+| 11 | test_operators_phase4_advanced_transactions.dart | 779 | 39 | 23.7 KB | operators phase4 advanced transactions; groups: Phase 4: Advanced & Transactions, Cell.sanitized, Cell.open, Combined Operators, Edge Cases & Error Handling, toString |
+| 12 | test_propagation_policy.dart | 748 | 41 | 28.0 KB | propagation policy; groups: PropagationPolicy, Construction & Defaults, Strategy: immediate, Strategy: debounced, Strategy: throttled, Strategy: batched… |
+| 13 | test_pulse.dart | 1,828 | 157 | 70.8 KB | pulse; groups: Pulse, Construction, withStep vs evolve distinction, Evolution, Composition, Shell… |
+| 14 | test_receptor.dart | 680 | 50 | 23.6 KB | receptor; groups: Receptor, passThrough, Construction, Activation & clone, Pipeline, Instruction composition… |
+| 15 | test_synapses.dart | 1,148 | 82 | 37.5 KB | synapses; groups: Synapses, disabled, enabled, Construction & broadcast, link / unlink, FilterRule… |
+| 16 | test_synthesis_cell.dart | 625 | 37 | 21.0 KB | synthesis cell; groups: SynthesisCell, Construction, Aggregation, Source Management, Stop/Start, Edge Cases & Error Handling… |
+| 17 | test_test_cell.dart | 579 | 41 | 19.1 KB | cell; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
+| 18 | test_test_rule_meta.dart | 351 | 48 | 11.8 KB | rule meta; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
+| 19 | test_transaction.dart | 1,193 | 54 | 35.8 KB | transaction; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
+| 20 | test_tx_apply.dart | 1,103 | 46 | 32.3 KB | tx apply; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
+| **Total** | | **16,621** | **1115** | **558.6 KB** | |
 
 ---
 
 ## Detailed Test Coverage
 
+Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
+
 ### File 1: test_cell.dart (72 tests)
 
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Factory Constructors | 5 | `Cell()`, `Cell.governed`, `Cell.fromNucleus` |
-| Identity & Equality | 4 | Distinct cells, deputy identity, nested-deputy `hashCode`, set membership |
-| Apply | 7 | Whitelisted functions, positional/named args, testRule block, async allow/deny |
-| Modifiable | 2 | Whitelist contents, read-only cell |
-| Terminal & State | 5 | `isTerminal`, `isInvalidated`, `isGoverned` |
-| Deputy | 6 | No-op, testRule, context, ephemeral, nested deputy |
-| Async | 6 | `async.apply` args, result, no lock, lock serialization |
-| Unmodifiable | 4 | `Modifiable` marker, CustomCell, value cell, deputy principal |
-| Validation | 5 | Default allow, custom value/pulse/link/action rules |
-| Context | 6 | system, module, core, secure enclave, public interface, evolve |
-| Ephemeral Policy | 4 | TTL, eventLimit, combined, reset |
-| Cell.valve | 8 | Gate pass/fail, payload unchanged, dynamic gate, type, disabled synapses |
-| OpenCell.perform | 8 | Emit, host cell, user metadata, null drop, testRule, bound source, commands |
-| toString | 2 | Cell and `ValueCell<int>(42)` |
-
-✅ **Factory Constructors**
-- `Cell()` creates a basic cell with defaults
-- `Cell()` with custom receptor
-- `Cell.governed` creates a governed cell
-- `Cell.governed` with ephemeral policy
-- `Cell.fromNucleus` creates a cell from a nucleus
-
-✅ **Identity & Equality**
-- Two distinct cells are not equal
-- Cell is equal to its deputy (`cell == deputy`)
-- Nested deputy `hashCode` walks to the root principal
-- Cell identity preserved in sets
-
-✅ **Apply / Modifiable / Terminal**
-- `apply` executes a whitelisted function (positional, named, return value)
-- `apply` with testRule blocks unauthorized actions
-- `apply` awaits an async testRule (allow runs the function; deny returns null)
-- `modifiable` returns the whitelist; read-only cells still expose a list
-- `isTerminal` follows disabled vs enabled synapses
-- `isGoverned` is true for a custom context and false for `Context.system`
-
-✅ **Deputy / Async / Unmodifiable / Validation**
-- Deputy is a no-op when nothing changes; custom testRule / context / ephemeral policy create a new instance
-- Deputy of a deputy; `async.apply` with and without a lock
-- Unmodifiable for CustomCell, value cell, and deputy principal; `const Modifiable()`
-- `validate` allows all by default; blocks with custom value, pulse, link, and action rules
-
-✅ **Context / Ephemeral / toString**
-- system, module, core, secure enclave, public interface, custom context evolve
-- TTL invalidates after duration; eventLimit after threshold; both; events can be reset
-- Value cell `toString` is `ValueCell<int>(42)`, not the subclass name
-
-✅ **Cell.valve (8 tests)**
-- Creates a non-terminal cell bound to the source
-- Forwards pulses that pass the gate; drops the rest; interleaved pass/fail
-- Payload is unchanged (trim-empty filter)
-- Dynamic open/close; gate can inspect `pulse.type`
-- `Synapses.disabled` → terminal, observers see nothing
-
-✅ **OpenCell.perform (8 tests)**
-- Returns an `OpenCell` (there is no `Cell.perform` static)
-- `emit` runs `perform`; observers see the transformed pulse; host cell and `user` are forwarded
-- Returning `null` drops; `testRule` can reject `emit`
-- Bound source emissions also run `perform`
-- Command-handler credit/debit against a state cell (100 → 125 → 115)
-
----
-
-### File 2: test_pulse.dart (149 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Construction | 10 | Payload, type, priority, source, step, `Pulse.governed` |
-| withStep vs evolve distinction | 11 | When `EvolvedPulse` is created vs lineage-only |
-| Evolution | 14 | Trace steps, lineage history, required parameters |
-| Composition | 5 | `+` and `Pulse.batch` |
-| Shell | 3 | Hide payload, scrutinize receptor, governed shell |
-| Unmodifiable | 15 | Payload lock, parent chain, observations still allowed |
-| Comparison | 6 | `compareTo` (timestamp, priority, trace), equality, hashCode |
-| Iterable | 6 | Single, withStep, evolve, collective payload |
-| Governance | 9 | `isGoverned` / `isInvalidated` inheritance |
-| Provenance | 12 | PulseContext fields (actor, reason, purpose, …) |
-| Policy | 3 | Hops, hop limit, TTL |
-| Context Factories | 12 | All `PulseContext.*` factories |
-| PulseExtension | 14 | `map` / `cast` via `PulseExtension(pulse)` (`evolve(pulse:)`), `attach`, `tap`; Iterable `map`/`cast` are not the extension |
-| PulseIterableExtension | 5 | batch, flatten, withStep, attach, mapEach (results are EvolvedPulse) |
-| Causal Chain Distinction | 7 | withStep vs evolve(pulse) parent/root/trace |
-
-✅ **Construction & governed**
-- Simple pulse; type; priority; source; step
-- Governed with context, policy, context+callbacks
-- `Pulse.governed` without context/policy, or with only callbacks, is not governed
-
-✅ **withStep vs evolve**
-- `withStep` and `evolve(step)` / `evolve(context)` do not create `EvolvedPulse`
-- `evolve(pulse)` creates `EvolvedPulse` (causal branch) and a parent-child relationship
-- `withStep` lengthens lineage without branching; preserves identity, context, payload
-
-✅ **Evolution / Composition / Shell**
-- Trace chaining; lineage tracks payload/type/priority/source only with `evolve(pulse)`
-- `evolve` requires at least one parameter
-- `+` and `Pulse.batch` (including governed pulses and callback)
-- Shell hides payload, scrutinizes receptor, works on governed pulses
-
-✅ **Unmodifiable / Comparison / Iterable**
-- Unmodifiable locks this instance’s payload; `withStep` / `evolve(step)` create new modifiable instances
-- Recursive protection for parent chain, root, source, nested iterables
-- `compareTo` by timestamp waits until the clock advances, then asserts older < newer, reverse, and identity 0 (payload is ignored)
-- `compareTo` by priority and trace depth; equality is not value-based; hashCode is stable
-
-✅ **Governance / Policy / Context / Extensions**
-- `isGoverned` follows context or policy; inherited via evolve
-- Hop tracking and hop-limit invalidation; TTL invalidation
-- All listed `PulseContext` factories (userAction through infrastructureChange)
-- `PulseExtension.map` / `cast` via `PulseExtension(pulse)` because `Pulse` is an `Iterable` (instance `map`/`cast` are Iterable's). Result is `EvolvedPulse` from `evolve(pulse:)`; mixed-type `root` throws; use `EvolvedPulse.parent`
-- `attach` / `tap`; iterable `batch` / `flatten` / `mapEach`
-- Causal chain: `withStep` is documentation; `evolve(pulse)` is branching
-
----
-
-### File 3: test_nucleus.dart (39 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| empty / Nucleolus | 4 | Singleton, defaults, activation-resistant, timestamp |
-| Construction & defaults | 12 | Context, lock, synapses, receptor, testRule, bind, user, `isGoverned` |
-| Nucleus.create | 2 | Defaults vs inherit from principal |
-| Activation | 5 | cell getter, activate identity, `fromNucleus`, clone-on-second-hydrate, bind link |
-| evolve | 8 | Inherit/override pillars; bind is not inherited |
-| clone | 2 | Distinct unactivated blueprint; independent hydration |
-| Equality | 3 | Distinct roots, identity, shared-root evolved nuclei |
-| inheritable | 1 | Resolved pillars |
-| Cell hydration | 2 | testRule on hydrated cell; disabled synapses → terminal |
-
-✅ Nucleolus is a reusable singleton and cannot be activated  
-✅ Default Nucleus uses system context and `allowAll`; allocates a lock unless `forceLock: false`  
-✅ Default synapses are an enabled registry, not the flyweight; `Synapses.disabled` is terminal egress  
-✅ `isGoverned` follows the receptor, not a custom context  
-✅ `Cell.fromNucleus` binds and activates; a second hydration of an activated nucleus uses a clone  
-✅ Evolve inherits context/receptor/testRule/user/lock; **bind is not inherited**  
-✅ Evolved nuclei that share a root principal compare equal  
-
----
-
-### File 4: test_receptor.dart (50 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| passThrough | 11 | Singleton, forward without activation, cannot activate, clone, async/cell unsupported, `passThroughRule`, hashCode, `==` vs ReceptorBase |
-| Construction | 8 | Closure, instruction, typed, empty pipeline, `Receptor.instruction` user factory |
-| Activation & clone | 5 | Template until bound; `Cell(receptor:)` activates in place |
-| Pipeline | 7 | pre/instruction/post order, throwing stage, short-circuit, omitted stages, pre+post without core |
-| Instruction composition | 5 | `+`, `chain`, nest, exception → null |
-| Instruction.future | 1 | Null immediately, resume via callback |
-| Receptor.async | 3 | Hook sees result and drop; `serializedCompletion: false` |
-| Graph integration | 3 | `Cell(bind:)`, testRule drop, null suppresses observers |
-| call contract extras | 4 | Async `TestCell` Future; PulseShell scrutinize (sync + async); governed pulse records DeputyContext role |
-| Receptor.pipeline mask | 3 | reaction / `isGoverned` / `init` / `user` flyweight combinations; reaction transform; governed EphemeralPolicy |
-
-✅ `Receptor.passThrough` is a singleton that cannot be activated  
-✅ `Receptor.passThroughRule` is an identity instruction; `+` yields the other side  
-✅ Template is not activated until bound; unactivated `call` asserts  
-✅ `Cell` construction activates an unbound template in place  
-✅ Pipeline: preProcess → instruction → postProcess; null short-circuits; pre+post without a core instruction  
-✅ `Receptor.async` hook captures transformed result and sees null on drop; `serializedCompletion: false` still drains via the hook  
-✅ Async `TestCell` `Future<bool>` is awaited; a governed pulse on a deputy host records `DeputyContext.role` in `trace`  
-✅ `Pulse.shell` is scrutinized on sync and async `call` instead of running the pipeline  
-✅ `Receptor.pipeline` stores reaction / `isGoverned` / `init` / `user` flyweight combinations; a governed receptor ticks a hosted `EphemeralPolicy`  
-
----
-
-### File 5: test_instruction.dart (23 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Construction | 6 | Transform, drop, user, host, exception → null, same instance |
-| Composition | 9 | `+`, `chain`, short-circuit, nest, custom strategy, throwing strategy, future continuation |
-| Instruction.future | 6 | Suspend/resume, user metadata, sync return, null callback drop, chain resume, Function token |
-| Custom Instruction | 1 | Throwing public `Instruction` in a chain returns null |
-| Receptor integration | 1 | `Receptor.instruction` runs the instruction |
-
-✅ Transform payload; returning null drops; exception terminates with null  
-✅ `+` runs left then right; `Instruction.chain` matches `+`; null short-circuits later stages  
-✅ Custom strategy replaces sequential execution and receives chain user metadata  
-✅ `Instruction.future` returns null immediately and resumes via `future(result:, token:)`  
-
----
-
-### File 6: test_synapses.dart (82 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| disabled | 6 | Singleton, no-op call, link false, empty iterable, async unsupported, terminal cell |
-| enabled | 5 | Flyweight, link false, empty iterable, async unsupported, non-terminal cell |
-| Construction & broadcast | 6 | Empty complete, onComplete empty, initial downstreams, order, successive pulses, cycle checker |
-| link / unlink | 7 | Host identity required; duplicate false; testRule deny; async `Future<bool>` |
-| FilterRule | 12 | Transform, drop, `+`/chain, base, throw keeps original, user, parent, chain parent/strategy, `fromRecord`, equality |
-| relay | 2 | Replaces sequential broadcast; skipped when the checker already contains every downstream |
-| PropagationPolicy | 4 | Immediate, async, persistent replay, persistent with an existing observer |
-| async view | 27 | `async.call`, empty, filter, zero and non-zero debounce/throttle/audit/buffered, exhaust/resilient/retry/debounceLeading/sample, relay, persistent, cycle |
-| remaining strategies | 9 | Sync exhaust, resilient, retry, debounceLeading, buffered zero, throwing relay, sample, debounce-after-unlink |
-| mask / equality | 2 | Filter+policy+relay; distinct instances |
-| Graph integration | 2 | Bound source emission; filter redacts before observers |
-
-✅ `Synapses.disabled` / `Synapses.enabled` flyweights do not accept `link`  
-✅ `link` succeeds only when `identical(host.synapses, this)`  
-✅ Duplicate `link` returns false; unlink of a missing observer returns false  
-✅ FilterRule transform/drop/`+`/chain/parent/`fromRecord`; throwing filter leaves the original pulse; `==` follows the flyweight record  
-✅ Persistent policy replays the last pulse to a newly linked observer (including when initially empty)  
-✅ `synapses.async` shares the source filter, policy, buffer, and relay  
-✅ Exhaust / resilient / retry / debounceLeading are covered on both sync `call` and `async.call`  
-✅ Throwing `relay` is swallowed by resilient and retried then given up by retry  
-✅ `link` awaits an async `TestCell`; a governed `onComplete` pulse completes on empty synapses  
-✅ `PropagationStrategy.sample` starts a `throttleTime` heartbeat of the first pulse; the cycle checker drops later ticks of that same pulse; unlinking the last observer cancels the timer  
-
----
-
-### File 7: test_propagation_policy.dart (41 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Construction & Defaults | 6 | Strategy, debounceTime, throttleTime, batchSize, all parameters |
-| Strategy: immediate | 2 | Synchronous ordered delivery |
-| Strategy: debounced | 3 | Silence delay, reset, `Duration.zero` |
-| Strategy: throttled | 3 | Leading edge, suppress window, `Duration.zero` |
-| Strategy: batched | 3 | Accumulate, `batchSize: 1` still composite, large size |
-| Strategy: buffered | 2 | Flush on timer and on size |
-| Strategy: audit | 2 | Latest at intervals; zero throttleTime |
-| Strategy: debounceLeading | 1 | First pulse immediately |
-| Strategy: sample | 1 | Heartbeat of the first pulse; unlink cancels `Timer.periodic` |
-| Strategy: exhaust | 1 | Delivers to downstreams |
-| Strategy: resilient | 1 | Delivers when the observer accepts |
-| Strategy: retry | 1 | Delivers when the observer accepts |
-| Policy Composition & Equality | 5 | `==` / inequality on each field |
-| Edge Cases | 4 | Zero duration, batchSize 0, all strategies instantiate, defaults |
-| Integration with Synapses | 4 | Policy on synapses, multiple policies, filter preserve/drop |
-| toString | 2 | Default and immediate |
-
-✅ Default constructor uses immediate strategy  
-✅ `Duration.zero` means no delay / no lockout for debounce and throttle  
-✅ Batched `batchSize: 1` is still a composite (not a no-op identity)  
-✅ Policy value equality and `hashCode`  
-✅ `sample` does not deliver on the calling turn; later arrivals do not replace the sampled pulse; unlink stops the heartbeat  
-✅ `persistent` is smoked in `test_synapses.dart`
-
----
-
-### File 8: test_test_cell.dart (41 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| allowAll | 4 | TestPasses singleton; allows values/links/pulses/actions; `+` custom |
-| readOnly | 7 | Singleton; values/pulses pass; `apply` blocked; Function `call`; `+` custom; TestPasses; non-modifiable action with arguments |
-| Construction | 4 | Matching values, Pulse payload, user metadata, parent after pass |
-| Composition | 3 | `+`, `chain`, nest |
-| Exceptions | 2 | Throwing rule passes if ungoverned or no host |
-| Async | 1 | `Future<bool>` awaited |
-| TestPulseRule | 3 | Predicate, non-pulse objects, chained consult |
-| TestLinkRule | 2 | Predicate, chained consult |
-| TestActionRule | 2 | Predicate, positional args via `call` |
-| Graph integration | 3 | `cell.validate`, odd-payload drop, denied link |
-| TestRule | 6 | Async parent, async chain continue/short-circuit, Exception rethrow, equality/`hashCode`, `fromRecord` |
-
-✅ `TestCell.allowAll` is `TestPasses()`; `TestCell.readOnly` is a distinct singleton and blocks `apply` on the modifiable whitelist  
-✅ `TestCell.call` is the framework gate for pulses/values; specialized `pulse`/`link`/`action` need those rule types in a chain  
-✅ A throwing rule passes when the host is ungoverned  
-✅ Standalone `TestRule` awaits an async parent/chain, rethrows `Exception` from a child, and follows record equality / `fromRecord`  
-
----
-
-### File 9: test_synthesis_cell.dart (37 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Construction | 6 | Sources, context, testRule, disabled synapses, forceLock, empty sources |
-| Aggregation | 6 | Combine values, emitting pulse, all sources, null suppress, complex types, no initial aggregate |
-| Source Management | 9 | Iterable, add/remove/clear, `isEmpty()`, `toList` |
-| Stop/Start | 2 | Stop prevents aggregation; membership kept |
-| Edge Cases & Error Handling | 5 | Null values, non-ValueCell, aggregator throw, missing remove, duplicate add |
-| Context & Governance | 3 | Context not inherited from sources; custom override; validation |
-| Real-World Scenarios | 4 | Form validation, price, full name, counter sum |
-| toString | 2 | Representation includes sources |
-
-✅ Aggregator must return a `Pulse` (or null to drop)  
-✅ No initial aggregate on construction  
-✅ Handle `isEmpty` is `bool Function()` (`isEmpty()`), not a getter  
-✅ Empty sources do not throw  
-✅ Synthesis context is the synthesis cell’s, not inherited from sources  
-
----
-
-### File 10: test_transaction.dart (54 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Basic Transaction | 8 | Commit, rollback, re-begin, outsider read/write, single cell, empty list |
-| Isolation Levels | 6 | readCommitted, repeatableRead, serializable |
-| Lock Ordering | 4 | byHashCode, insertion, explicit comparator, explicit without comparator throws |
-| Validation | 4 | Invalid value, custom validate, multiple cells, testRule at commit |
-| Custom Apply | 3 | Override default, side effects, multiple cells |
-| Savepoint | 4 | Capture, multiple, unknown name throws, after rollback |
-| Timeout | 3 | Times out, rollback, timeout event |
-| Events | 5 | Begun, Updated, Committed, RolledBack, RolledBack with savepoint |
-| Cell Types | 4 | ValueCell, CellBase, pending reads, pending fallback |
-| Real-World Scenarios | 4 | Bank transfer, savepoint multi-step, concurrent isolation |
-| Edge Cases & Error Handling | 6 | Last write wins, rollback no-op, commit throws, options, null/non-int |
-| Exception toString | 3 | Validation, conflict, timeout |
-
-✅ Empty participant list throws  
-✅ `LockOrdering.explicit` without a comparator throws `ArgumentError`  
-✅ Isolation: readCommitted sees live values; repeatableRead snapshots; serializable tracks read set  
-✅ Bank-transfer-style commit/rollback with non-negative validation  
-
----
-
-### File 11: test_tx_apply.dart (39 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Basic Operations | 5 | Single/multiple apply, participants, options, apply without tx |
-| Compensation | 5 | Later failure, custom cell, retries, rollback skip, `compensateIfNotExecuted` |
-| Error Handling | 5 | Participant missing, non-modifiable enqueue, compensation policies |
-| Stop On First Failure | 2 | true stops; false continues |
-| Savepoint | 3 | Capture, rollback to savepoint, rollback all |
-| Real-World Scenarios | 4 | Bank transfer, oversized rollback, migration, inventory |
-| Events | 5 | Begun, Staged, Committed, RolledBack, Rejected |
-| Edge Cases & Error Handling | 6 | Empty participants, commit without begin, null compensation, named args, re-begin |
-| Custom Comparator | 1 | Custom lock comparator |
-| Exception toString | 3 | TxApplyException, compensation exception, CompensationFailure |
-
-✅ Enqueue only functions on `cell.modifiable` (default `{apply}`); tear-offs on `AccountCell` / `LedgerCell`  
-✅ Compensation on commit failure; `compensateIfNotExecuted` on rollback of staged calls  
-✅ Empty participants throw; enqueue of a non-modifiable function is rejected  
-
----
-
-### File 12: test_operators_phase1_foundation.dart (64 tests)
-
-#### Test Breakdown by Operator
-
-| Operator | Tests | Sub-categories |
-|----------|------:|----------------|
-| **Cell.state** | 26 | Basic State (18), Evolve (5), Ingest (2), Edge Cases (1) |
-| **Cell.ingress** | 15 | Basic Ingress (6), Governance (3), Source Binding (1), Ingest (2), Edge Cases (3) |
-| **Cell.observe** | 11 | Lifecycle, start/stop, payload variants |
-| **Cell.derive** | 12 | Basic (4), Filtering (2), Edge Cases (3), Combined (3) |
-
-✅ **Basic State (18 tests)**
-- Creates state cell with initial value / null / no initial
-- Update changes state; update multiple times
-- `updateAsync` and concurrent updates
-- `cell.async.state` through the lock; unlocked `ValueNucleus.from` + `updateAsync`
-- `ValueNucleus.from` with instruction; `ValueNucleus.evolve` (principal, instruction, passThrough, custom receptor, override)
-- `ValueCell.terminal` holds state without broadcasting; `ValueCell.receptor` persists; nested `unmodifiable`
-
-✅ **State with evolve (5 tests)**
-- Evolve modifies incoming pulses; filters by returning null
-- Type conversion; complex objects (append incoming `List<int>`); validation
-
-✅ **Ingest / Edge (3 tests)**
-- Ingest with pulse; serialized completion (await completes after processing)
-- State cell with null update
-
-✅ **Basic Ingress (6 tests)**
-- Creates ingress; emit; refine transform/filter; `emitAsync`; concurrent emissions
-- Observers receive emitted / refined payloads
-
-✅ **Governance / Binding / Ingest / Edge (9 tests)**
-- Custom context, testRule (Pulse payload unwrapped), forceLock
-- Source bind
-- Ingest pulse / serialized completion
-- Null payload, empty string after refine, disabled synapses
-
-✅ **Cell.observe (11 tests)**
-- Creates; receives when started; stop/restart; `initiallyStarted: false`
-- Multiple pulses; String; complex objects; governed pulse (`ingest` with `PulseContext.actor`); null payload
-- Stop and start are idempotent
-
-✅ **Cell.derive (12 tests)**
-- Creates; transforms; type conversion; chained transformations
-- Filter even numbers; complex string-length condition
-- Null source; project that throws; rapid source changes
-- Combined: state+derive+observe, ingress+derive+observe, state+derive+state
-
----
-
-### File 13: test_operators_phase2_flow_control.dart (43 tests)
-
-#### Test Breakdown by Operator
-
-| Operator / group | Tests | Description |
-|------------------|------:|-------------|
-| **Cell.debounce** | 8 | Default leading false, silence delay, reset, leading, zero duration, `ephemeralPolicy` cancel, leading+zero, burst |
-| **Cell.throttle** | 7 | Defaults, leading, suppress window, trailing, leading false, zero duration, both false |
-| **Cell.distinct** | 6 | Default equality, consecutive dups, non-consecutive, custom equals, objects, null |
-| **Cell.synthesis** | 8 | Sources, aggregate, triggering pulse, null suppress, types, empty, single source |
-| Combined Operators | 5 | debounce/throttle then distinct; synthesis+observe; form validation |
-| Edge Cases | 5 | Negative duration throws; custom equals null; non-ValueCell; aggregator throw |
-| toString | 4 | debounce, throttle, distinct, synthesis |
-
-✅ Debounce/throttle/distinct drop pulses unless `pulse.source` is the bound cell — tests drive via `Cell.ingress`  
-✅ Debounce then distinct works (debounce rewrites source); distinct then debounce does not (not asserted as a pass of the reverse)  
-✅ Empty synthesis does not throw; negative duration throws  
-✅ Throttle `leading: false, trailing: false` emits nothing  
-✅ Throttle trailing uses a 100 ms window so the muted interval is wider than the inner delays  
-
----
-
-### File 14: test_operators_phase3_async_routing.dart (60 tests)
-
-#### Test Breakdown by Operator
-
-| Operator / group | Tests | Description |
-|------------------|------:|-------------|
-| **Cell.asyncMap** | 7 | State/ingress, concurrency 1, latestOnly, exhaust, observe, error → no emission |
-| **Cell.hub** | 11 | Type, prefix, glob, multicast, fallback, priority, async emit, ingest, governed spokes, state |
-| **Cell.switchMap** | 4 | Switch, observe, multiple changes, null payload does not switch |
-| **Cell.fromFuture** | 8 | Result, observe, state, derive, delayed, error, complex type, null |
-| **Cell.fromStream** | 12 | Values, observe, state, delayed, periodic, cancelOnError, distinct, derive, types, null, empty, cancel on invalidate |
-| Combined Operators | 7 | ingress/asyncMap/observe/state; fromFuture/fromStream pipelines; hub routing |
-| Edge Cases | 6 | Empty asyncMap source, hub no spokes, completed future, stream error without cancel, multicast+priority, switchMap multi |
-| toString | 5 | asyncMap, hub, switchMap, fromFuture, fromStream |
-
-✅ Hub observe on the root does not see routed spoke pulses; tests assert spoke/state effects  
-✅ Duplicate spoke keys overwrite; multicast still key-matches unless custom `match`  
-✅ `fromStream` continues after error when `cancelOnError: false`  
-
----
-
-### File 15: test_operators_phase4_advanced_transactions.dart (39 tests)
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| **Cell.sanitized** | 7 | Redact, non-sensitive pass-through, threshold, ingress/state/observe, objects, multi-level |
-| **Cell.open** | 15 | Create, emit, ingest, link/unlink, observe, testRule, state, forceLock, ephemeral, governed, `async` emit/ingest, modifiable, async testRule emit/link |
-| Combined Operators | 6 | ingress/state/open + sanitized/observe; transaction; txApply compensation |
-| Edge Cases | 6 | Missing sensitivity, disabled synapses, empty tx/txApply, unknown savepoint, null redact |
-| toString | 5 | sanitized, open, transaction/txApply exception strings |
-
-✅ `Cell.sanitized` redacts only when `PulseContext.sensitivity != null` and `index >= minSensitivity`  
-✅ Email redact in the library is `.(?=@)` (`alic*@example.com`), not a full local-part mask  
-✅ Empty transaction / txApply participants throw  
-⚠️ OpenCell `EphemeralPolicy.eventLimit` / `onEvent` are not fully exercised on `emit` (the suite asserts emit still works)
-
-`Cell.valve` and `OpenCell.perform` are covered in `test_cell.dart`, not in this phase-4 file.
-
----
-
-### File 16: test_context.dart (117 tests)
-
-Standalone suite for the authority / provenance stack. `test_cell.dart` still smokes a few Context factories on a cell; `test_pulse.dart` still smokes PulseContext fields and factories on a pulse. This file is the contract for `Context`, `DeputyContext`, and `PulseContext` themselves.
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| GovernanceEntry | 4 | `.entry()`, constructor, `toEntry()`, collection/enum values |
-| Ontology | 5 | Static vs fluid `evolvable`, `isType`, `compose`, `evolve` |
-| Context.system / describe | 4 | Empty singleton; `describe` getters unset; both can `evolve` |
-| Constructor / fromEntries | 6 | All named ontology fields; parent inherit; local shadow |
-| Named factories | 11 | `core`, `module`, `secureEnclave`, `publicInterface`, `shieldedCortex`, `receptor`, `integrityGate`, `homeostasis`, `sandbox`, `auditLog`, `transientTask` |
-| Context.deputy / Context.pulse | 2 | Redirecting factories return `DeputyContext` / `PulseContext` |
-| evolve / lineage / equality | 11 | Fluid refine; static pillars ignored; parent-chain lineage; record identity |
-| Mandate | 3 | `role` static; other dimensions fluid; `compose` / `evolve` |
-| DeputyContext system / constructor | 5 | Safe defaults; authority + ontology from base; clearance default |
-| DeputyContext named factories | 12 | observer, delegate, sandbox (+ default role), intervention, janitor, architect, auditor, ambassador, shielded, gatekeeper, homeostasis |
-| fromEntries / evolve / equality | 5 | Mixed Ontology+Mandate entries; role immutable; mandate inherit |
-| Clearance / Isolation / Sovereignty / AuditLevel | 6 | Rank, `authorizes`, `isVirtual` / `isGuarded`, approval / preemptive, deep reasoning / silent |
-| Provenance | 5 | Static vs fluid, `isType`, `compose`, `evolve` |
-| PulseContext system / constructor | 9 | Empty fallback; all provenance fields; auto `traceId`; `others`; parent inherit |
-| PulseContext named factories | 17 | userAction (2), aiInference, inference, regulated (2), homeostasis, systemInternal, complianceAudit, selfCorrection, infrastructureChange, securityIntervention, telemetry, collaboration, hypothesis, instruction, parentTraceId link |
-| evolve / lineage / equality | 7 | Fluid refine; static actor/traceId preserved; `[]` walks parent |
-| Identity / ReasoningStrategy / Sensitivity / PriorityTier | 5 | UUID shape; strategy flags; masking / high-risk; `fromValue` |
-
-✅ **Context**
-- `Context.system` is a reusable empty singleton; `evolve` does not mutate it
-- `Context.describe` returns a Context whose ontology getters are unset (no NLP hydration)
-- Primary constructor stores type, identity, domains, dataSources, **taxonomy, topology, version**, subDomains, stakeholders, constraints, isNot, compliance, partOf
-- `fromEntries` inherits unset dimensions from `parent`; local values shadow
-- Named factories set the documented taxonomy / domains / subDomains / isNot / compliance pillars
-- `evolve` refines fluid boundaries (`type`, `identity`, `subDomains`, `constraints`, `compliance`) and ignores static pillars (`taxonomy`, `domains`, `version`)
-- `lineage` walks root → leaf; independently constructed contexts are distinct records (map identity)
-
-✅ **DeputyContext**
-- `DeputyContext.system` defaults: `Clearance.standard`, `Isolation.scoped`, `Sovereignty.sovereign`, `AuditLevel.standard`
-- Constructor required `authority`; ontology is inherited from a `Context.module` (or other ContextBase) parent
-- All 11 named factories plus sandbox default role
-- `evolve` can tighten clearance / authority / justification / auditLevel; **role is not evolvable**
-- Mandate inherit from a parent deputy when a child omits the field
-
-✅ **PulseContext**
-- Auto-generated `traceId` is unique; constructor does not auto-link `parentTraceId` from a generic `Context`
-- `others` is stored with or without a parent
-- Ontology inherit from a ContextBase parent; provenance inherit from a PulseContext parent
-- All listed factories, including `inference`, `complianceAudit`, and `parentTraceId` linking when `baseContext` is a PulseContext
-- `evolve` changes reason/priority; actor, traceId, compliance, sensitivity stay put
-
----
-
-### File 17: test_cell_policy.dart (38 tests)
-
-Standalone suite for [`EphemeralPolicy`](lib/src/internal/cell_policy.dart) (cell TTL / event quota). Pulse hop/TTL policy remains in `test_pulse.dart`. Tests drive the public `policy(object, cell:)` entry point.
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Construction | 6 | duration, eventLimit, both, tracking-only, user metadata |
-| call / events | 7 | object/cell/arguments forwarding, counter, negative ignore, reset-to-zero, no-op after reclaim |
-| eventLimit | 6 | below threshold, at limit, limit 1, reset avoids quota, failed onInvalidate retry, no limit |
-| TTL | 5 | lazy start, fire after duration, no restart, dispose cancels, already-reclaimed no-op |
-| Combined | 2 | quota before TTL; TTL before quota |
-| mask | 8 | All flyweight bit combinations (0–7) |
-| Cell integration | 4 | unused hosted policy stays live; Cell/Nucleus follow reclaim; deputy follows principal; independent counters |
-
-✅ `onEvent` receives object, host cell, `user`, and `arguments`  
-✅ Negative `events` are ignored; `events: 0` stores zero and does not reclaim unless `eventLimit` is 0  
-✅ Reclamation runs `onInvalidate(nucleus)` and sets `policy.isInvalidated` only when it returns `true`  
-✅ TTL timer starts on the first `call`, not at construction; later calls do not restart it  
-✅ `dispose` cancels a pending TTL  
-
-✅ `Cell.isInvalidated` / `Nucleus.isInvalidated` follow a hosted `EphemeralPolicy` (stored on the nucleus inheritable record). A deputy without its own policy follows the principal.
-
----
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 72 |
+| Cell | |
+| Factory Constructors | |
+| Identity & Equality | |
+| Apply | |
+| Modifiable | |
+| Terminal & State | |
+| Deputy | |
+| Async | |
+| Unmodifiable | |
+| Validation | |
+| Context | |
+| Ephemeral Policy | |
+| Cell.valve | |
+| OpenCell.perform | |
+| toString | |
+
+**Tests**
+
+- Cell() creates a basic cell with defaults
+- Cell() with custom receptor
+- Cell.governed creates a governed cell
+- Cell.governed with ephemeral policy
+- Cell.fromNucleus creates a cell from a nucleus
+- two distinct cells are not equal
+- cell is equal to its deputy
+- hashCode walks nested deputy principals
+- cell identity preserved in sets
+- apply executes a whitelisted function
+- apply with positional arguments
+- apply awaits an async testRule and runs when allowed
+- apply awaits an async testRule and returns null when denied
+- apply with named arguments
+- apply returns function result
+- apply with testRule blocks unauthorized actions
+- modifiable returns list of whitelisted functions
+- read-only cell has modifiable list
+- isTerminal returns true for cells with disabled synapses
+- isTerminal returns false for cells with enabled synapses
+- isInvalidated returns false for active cells
+- isGoverned returns true for cells with custom context
+- isGoverned returns false for cells with system context
+- deputy returns itself when no changes requested
+- deputy creates a new instance with custom testRule
+- deputy with custom context
+- deputy with ephemeral policy
+- deputy equality with principal
+- deputy of a deputy
+- async.apply executes function asynchronously
+- async.apply with positional arguments
+- async.apply with named arguments
+- async.apply returns function result
+- async.apply without a lock still completes
+- async.apply with lock serialization
+- Modifiable is a const marker
+- unmodifiable returns the same cell instance for CustomCell
+- unmodifiable for value cell is read-only
+- unmodifiable for deputy returns principal unmodifiable
+- validate allows all by default
+- validate blocks with custom rule
+- validate with pulse and custom rule
+- validate with link rule
+- validate with action rule
+- cell with system context
+- cell with module context
+- cell with core context
+- cell with secure enclave context
+- cell with public interface context
+- cell with custom context evolves
+- policy with TTL invalidates after duration
+- policy with event limit invalidates after threshold
+- policy with both TTL and event limit
+- policy events can be reset
+- creates a valve bound to the source
+- forwards pulses that pass the gate
+- drops pulses that fail the gate
+- pass and fail can be interleaved
+- forwards the original payload unchanged
+- dynamic gate can open and close
+- gate can inspect pulse type
+- disabled synapses is terminal and does not broadcast
+- returns an OpenCell bound to the source
+- emit runs perform and observers see the result
+- perform receives the host OpenCell
+- user metadata is forwarded to perform
+- returning null drops the pulse
+- testRule can reject emit
+- bound source emissions also run perform
+- can drive a state cell as a command handler
+- cell returns string representation
+- value cell returns string with value
+
+### File 2: test_cell_policy.dart (38 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 38 |
+| EphemeralPolicy | |
+| Construction | |
+| call / events | |
+| eventLimit | |
+| TTL | |
+| combined TTL and eventLimit | |
+| mask | |
+| cell integration | |
+
+**Tests**
+
+- stores duration and leaves eventLimit unset
+- stores eventLimit and leaves duration unset
+- stores duration and eventLimit together
+- allows a tracking-only policy with no TTL or quota
+- stores user metadata for onEvent
+- omitted user is null in onEvent
+- forwards the interaction object to onEvent
+- forwards the host cell to onEvent
+- forwards call arguments to onEvent
+- updates the events counter from onEvent
+- ignores an event when onEvent returns a negative count
+- returning zero is a counted event and stores 0
+- does not invoke onEvent after the cell is reclaimed
+- does not reclaim below the threshold
+- reclaims when the counter reaches the limit
+- reclaims on the first counted event when eventLimit is 1
+- resetting the counter avoids the quota
+- failed onInvalidate leaves the cell alive for a later retry
+- without an eventLimit the counter never reclaims
+- does not start the timer until the first interaction
+- reclaims after duration from the first interaction
+- does not restart the TTL on later interactions
+- dispose cancels a pending TTL
+- TTL is a no-op if the cell was already reclaimed
+- event quota can reclaim before the TTL
+- TTL can reclaim before the event quota
+- bit 0: callbacks only
+- bit 1: eventLimit
+- bit 2: duration
+- bit 3: eventLimit and duration
+- bit 4: user
+- bit 5: eventLimit and user
+- bit 6: duration and user
+- bit 7: eventLimit, duration, and user
+- an unused hosted policy does not invalidate the cell
+- Cell and Nucleus follow a hosted policy after reclamation
+- a deputy without its own policy follows the principal
+- two policies keep independent event counters
+
+### File 3: test_commons.dart (43 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 43 |
+| mapMerge | |
+| SyncSet | |
+| QueueList | |
+| AsyncQueueList | |
+| PriorityQueue | |
+| AsyncPriorityQueue | |
+| SyncQueue | |
+| Box / SyncBox / FinalBox | |
+| TypeObject / FunctionObject / get | |
+| marker types | |
+
+**Tests**
+
+- copies keys that only exist in other
+- concatenates when both values are iterables
+- wraps an existing non-iterable when other is iterable
+- appends a scalar onto an existing iterable
+- wraps both scalars into a list when keys collide
+- does not mutate the original maps
+- add, contains, length, and lookup
+- remove, isEmpty, and isNotEmpty
+- addAll, toSet, toList, replicate, and iterator
+- containsAll, intersection, union, and difference
+- removeAll, retainAll, removeWhere, retainWhere, clear
+- map, forEach, and where
+- reduce combines elements
+- constructors and FIFO operations
+- removeWhere, retainWhere, and clear
+- cast and async wrapper
+- mirrors queue mutations under the lock
+- toListAndClear, clearAndAdd, removeWhere, retainWhere, clear
+- iterator and cast
+- extracts the smallest element first with a comparator
+- uses Comparable when no comparator is provided
+- addFirst and addLast still rank by priority
+- remove, removeWhere, retainWhere, and clear
+- empty buffer throws on extract
+- removeLast pops a leaf and iterator walks the heap
+- add, peek, and ranked extract
+- addAll, map, toList, toSet, reduce, forEach, replicate
+- orders by comparison and reports emptiness
+- of constructor seeds the heap
+- capacity rejects overflow on add and addAll
+- addFirst, addLast, remove, map, clear
+- Box starts null and accepts mutation
+- SyncBox serializes get and set
+- FinalBox is write-once
+- FinalBox.async is a SyncBox
+- TypeObject wraps a value
+- FunctionTypeObject evaluates lazily
+- FunctionObject stores a record
+- get returns the primary value
+- get uses fallback when primary throws
+- get uses orElse when primary and fallback throw
+- get rethrows the original error when orElse cannot satisfy T
+- Async and Unmodifiable are usable as type checks
+
+### File 4: test_context.dart (117 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 117 |
+| GovernanceEntry | |
+| Ontology | |
+| Context | |
+| system | |
+| describe | |
+| primary constructor | |
+| fromEntries | |
+| named factories | |
+| Context.deputy and Context.pulse | |
+| evolve | |
+| lineage | |
+| equality | |
+| Mandate | |
+| DeputyContext | |
+| system | |
+| constructor | |
+| named factories | |
+| fromEntries | |
+| evolve | |
+| equality | |
+| Clearance | |
+| Isolation | |
+| Sovereignty | |
+| AuditLevel | |
+| Provenance | |
+| PulseContext | |
+| system | |
+| constructor | |
+| named factories | |
+| evolve | |
+| lineage and index | |
+| equality | |
+| Identity | |
+| ReasoningStrategy | |
+| Sensitivity | |
+| PriorityTier | |
+
+**Tests**
+
+- binds a typed value to a governance dimension
+- constructor is equivalent to Governance.entry
+- toEntry produces a MapEntry with the same key and value
+- supports collection and enum value types
+- static pillars are not evolvable
+- fluid boundaries are evolvable
+- isType validates the dimension value type
+- compose includes every resolved dimension and omits nulls
+- evolve yields only fluid boundaries
+- is a reusable singleton with empty ontology
+- evolve produces a specialized context without mutating system
+- returns a Context whose ontology getters are unset
+- evolve materializes ontology from the description context
+- stores every named ontological dimension
+- omitted dimensions remain null
+- index operator returns local dimension values
+- builds a context from governance entries
+- inherits unset dimensions from an explicit parent
+- local values shadow parent values
+- core is a system-space infrastructure blueprint
+- module is a user-space application blueprint
+- secureEnclave is a privileged security environment
+- publicInterface is a sanitized ingress boundary
+- shieldedCortex isolates high-reasoning logic
+- receptor hydrates inbound sensory sources
+- integrityGate is a judicial validation barrier
+- homeostasis is a metabolic stability loop
+- sandbox is a speculative simulation workspace
+- auditLog is a forensic compliance ledger
+- transientTask is a leased ephemeral worker
+- deputy factory returns a DeputyContext
+- pulse factory returns a PulseContext
+- refines fluid boundaries and preserves the original
+- ignores attempts to change static pillars
+- can tighten constraints and compliance
+- is empty when the dimension was never set
+- returns the local value for a root context
+- walks the parent chain from root to leaf
+- identical instances are equal
+- independently constructed contexts are distinct records
+- different dimensions are not equal
+- an evolved child is not equal to its parent
+- system is not equal to an empty constructed context
+- role is a static pillar; remaining dimensions are fluid
+- isType validates mandate value types
+- compose and evolve filter dimensions correctly
+- exposes safe mandate defaults
+- evolve from system creates a specialized deputy
+- requires authority and links ontology from the base context
+- defaults isolation, clearance, sovereignty, and auditLevel
+- stores standard clearance when it is the default
+- observer is a read-oriented monitoring mandate
+- delegate is an operational mutating mandate
+- sandbox virtualizes mutations
+- sandbox default role is Reasoning_Sandbox
+- intervention is an emergency sentinel mandate
+- janitor is a structural hygiene mandate
+- architect is an infrastructure orchestration mandate
+- auditor is a read-only compliance witness
+- ambassador is a cross-domain negotiator
+- shielded is a privileged enclave mandate
+- gatekeeper is a policy enforcement mandate
+- homeostasis is a background maintenance mandate
+- can assemble a mandate from mixed ontology and mandate entries
+- refines fluid mandate dimensions and keeps role immutable
+- inherits unset mandate fields from the parent deputy
+- independently constructed deputies are distinct records
+- different authority values are not equal
+- levels are ranked from observational to unrestricted
+- authorizes is inclusive of the required rank
+- virtualization starts at sandboxed
+- only restricted is guarded
+- supervised requires approval; preemptive can override
+- deep reasoning starts at detailed; none is silent
+- static pillars are not evolvable
+- fluid boundaries are evolvable
+- isType validates provenance value types
+- compose includes resolved dimensions
+- evolve excludes static pillars
+- is an empty telemetric fallback
+- evolve from system creates a specialized pulse context
+- stores every named provenance dimension
+- auto-generates a unique traceId when omitted
+- does not auto-link parentTraceId from a generic base context
+- inherits ontology from a ContextBase parent
+- inherits provenance from a PulseContext parent
+- stores others even without a parent
+- stores others when a parent is also provided
+- userAction captures explicit human intent
+- userAction defaults purpose, priority, and sensitivity
+- aiInference captures probabilistic autonomous intent
+- inference matches the aiInference blueprint
+- regulated forces forensic compliance markers
+- regulated default reason mentions the framework
+- homeostasis is a low-priority maintenance signal
+- systemInternal uses a fixed system_daemon actor
+- complianceAudit is a forensic witness signal
+- selfCorrection prefixes the target field in reason
+- infrastructureChange uses formal strategy
+- securityIntervention is an emergency shield
+- telemetry is unaudited background observation
+- collaboration records a delegation handoff
+- hypothesis is a non-committal simulation
+- instruction is a critical manual override
+- factories link parentTraceId when baseContext is a PulseContext
+- refines fluid provenance and preserves static pillars
+- can evolve ontology identity alongside provenance
+- others passed to evolve are stored on the child
+- index operator walks parent provenance
+- lineage traces evolved ontology identity through a pulse parent
+- independently constructed pulse contexts are distinct records
+- auto-generated traceIds make otherwise identical contexts unequal
+- next generates unique UUID-shaped identifiers
+- classifies stochastic, mandated, and agentic strategies
+- masking and high-risk thresholds follow classification rank
+- fromValue maps numeric urgency onto semantic tiers
+- urgent tiers start at critical
+
+### File 5: test_deputy.dart (21 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 21 |
+| Cell.deputy | |
+| identity | |
+| testRule layering | |
+| apply forwarding | |
+| unmodifiable | |
+| causal integrity | |
+| OpenCell.deputy | |
+
+**Tests**
+
+- returns this when no attenuation is requested
+- creates a distinct proxy when a testRule is supplied
+- creates a distinct proxy when a DeputyContext is supplied
+- creates a distinct proxy when an ephemeral policy is supplied
+- creates a distinct proxy when synapses are overridden
+- deputies of the same principal compare equal and share hashCode
+- a nested deputy remains equal to the root principal
+- unrelated cells are not equal to a deputy
+- the deputy rule is additive on top of the principal
+- readOnly deputy still exposes apply on the principal via forwarding
+- deputy.apply executes on the principal
+- deputy.unmodifiable is the principal unmodifiable view
+- ValueCell deputy unmodifiable is an UnmodifiableValueCell
+- a nested deputy may use DeputyContext.system
+- a nested deputy may use an evolved descendant context
+- a nested deputy rejects an unrelated DeputyContext
+- returns this when no attenuation is requested
+- creates an OpenCell proxy that can emit
+- nested OpenCell deputy with defaults returns this
+- OpenCell deputy exposes async handle
+- OpenCell deputy can link a downstream observer
+
+### File 6: test_instruction.dart (23 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 23 |
+| Instruction | |
+| Construction | |
+| Composition | |
+| Instruction.future | |
+| Custom Instruction | |
+| Receptor integration | |
+
+**Tests**
+
+- transforms the payload
+- returning null drops the pulse
+- user metadata is passed to the instruction
+- host cell is passed through
+- exception terminates with null
+- can return the same pulse instance
+- + runs left then right
+- Instruction.chain matches +
+- null short-circuits later stages
+- chains nest and stay Instruction
+- exception in a stage terminates the chain
+- custom strategy replaces sequential execution
+- strategy receives chain user metadata
+- a throwing strategy terminates the chain with null
+- chain.call accepts a future continuation
+- returns null immediately and resumes via future
+- user metadata is available on a future instruction
+- returning a pulse still emits synchronously
+- null future callback drops the continuation without printing
+- future instruction in a chain resumes through the chain callback
+- a Function resume token is walked without matching a stage
+- a throwing custom stage in a chain terminates with null
+- Receptor.instruction runs the instruction
+
+### File 7: test_nucleus.dart (39 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 39 |
+| Nucleus | |
+| empty / Nucleolus | |
+| Construction & defaults | |
+| Nucleus.create | |
+| Activation | |
+| evolve | |
+| clone | |
+| Equality | |
+| inheritable | |
+| Cell hydration | |
+
+**Tests**
+
+- Nucleus.empty is a reusable singleton
+- empty nucleus uses framework defaults
+- empty nucleus is activation-resistant
+- empty nucleus timestamp is a DateTime
+- default Nucleus uses system context and allowAll
+- default Nucleus allocates a lock
+- forceLock: false omits a dedicated lock
+- default synapses are an enabled registry, not the flyweight
+- Synapses.disabled is stored as a terminal egress
+- custom context is stored
+- custom receptor is stored
+- custom testRule is stored
+- bind is stored
+- user record is stored
+- isGoverned follows the receptor, not a custom context
+- timestamp is a DateTime
+- create without principal uses defaults
+- create with principal inherits from it
+- unactivated cell getter throws
+- activate returns false for a cell that does not own this nucleus
+- Cell.fromNucleus binds and activates the nucleus
+- fromNucleus of an already activated nucleus uses a clone
+- fromNucleus with bind links the upstream synapses
+- inherits context, receptor, and testRule from principal
+- local testRule overrides the principal
+- local context overrides the principal
+- bind is not inherited
+- user is inherited
+- local user overrides the principal
+- walks a chain of principals
+- lock falls back to the principal
+- clone is a distinct unactivated blueprint
+- clone can hydrate an independent cell
+- two distinct root nuclei are not equal
+- identity equality holds
+- evolved nuclei that share a root principal compare equal
+- inheritable handle exposes the resolved pillars
+- hydrated cell uses the nucleus testRule
+- hydrated cell with disabled synapses is terminal
+
+### File 8: test_operators_phase1_foundation.dart (64 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 64 |
+| Cell.state | |
+| Basic State | |
+| State with evolve | |
+| Ingest | |
+| Edge Cases | |
+| Cell.ingress | |
+| Basic Ingress | |
+| Ingress with Governance | |
+| Ingress with Source Binding | |
+| Ingest | |
+| Edge Cases | |
+| Cell.observe | |
+| Cell.derive | |
+| Basic Derive | |
+| Derive with Filtering | |
+| Edge Cases | |
+| Combined Operators | |
+
+**Tests**
+
+- creates a state cell with initial value
+- creates a state cell with null initial value
+- creates a state cell with no initial value
+- update changes the state value
+- update multiple times
+- updateAsync changes the state value
+- updateAsync with multiple concurrent updates
+- cell.async.state reads through the cell lock
+- unlocked ValueNucleus still supports async state and updateAsync
+- ValueNucleus.from with instruction transforms updates
+- ValueNucleus.evolve hydrates a cell from a principal
+- ValueNucleus.evolve with instruction transforms updates
+- ValueNucleus.evolve with passThrough still commits via postProcess
+- ValueNucleus.evolve with a custom receptor commits via postProcess
+- ValueNucleus.evolve with override uses the override local record
+- ValueCell.terminal holds state without broadcasting
+- ValueCell.receptor persists transformed pulses
+- unmodifiable projects a nested Cell and is already the view
+- evolve modifies incoming pulses
+- evolve can filter updates by returning null
+- evolve with type conversion
+- evolve with complex objects
+- evolve with validation
+- ingest with pulse
+- ingest with serialized completion
+- state cell with null update
+- creates an ingress cell
+- emit sends a pulse through the ingress
+- emit with refine transforms the input
+- emit with refine can filter input
+- emitAsync sends a pulse asynchronously
+- emitAsync with multiple concurrent emissions
+- ingress with custom context
+- ingress with test rule
+- ingress with forceLock
+- ingress with source bind
+- ingest with pulse
+- ingest with serialized completion
+- ingress with null payload
+- ingress with empty string after refine
+- ingress with disabled synapses
+- creates an observer
+- observer receives pulses when started
+- observer can be stopped
+- observer with initiallyStarted false
+- observer with multiple pulses
+- observer with String pulses
+- observer with complex object pulses
+- observer with governed pulse
+- observer with null payload
+- observer stop called multiple times
+- observer start called multiple times
+- creates a derived cell
+- derive transforms the source value
+- derive with type conversion
+- derive with multiple transformations
+- derive can filter by returning null
+- derive filter with complex condition
+- derive with null source value
+- derive with project that throws
+- derive with source changes multiple times
+- state + derive + observe
+- ingress + derive + observe
+- state + derive + state
+
+### File 9: test_operators_phase2_flow_control.dart (43 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 43 |
+| Phase 2: Flow Control Operators | |
+| Cell.debounce | |
+| Cell.throttle | |
+| Cell.distinct | |
+| Cell.synthesis | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- creates a debounce cell with default leading false
+- debounce delays delivery until silence
+- debounce resets timer on each pulse
+- debounce with leading true emits first immediately
+- debounce with zero duration delivers immediately
+- debounce cancels a pending timer when the output is invalidated
+- debounce with leading true and zero duration emits immediately
+- debounce with leading true and burst of three
+- creates a throttle cell with defaults
+- throttle with leading true emits first immediately
+- throttle suppresses pulses during window
+- throttle with trailing true emits last during window
+- throttle with leading false only emits trailing
+- throttle with zero duration delivers the leading pulse
+- throttle with leading false and trailing false emits nothing
+- creates a distinct cell with default equality
+- distinct filters consecutive duplicates
+- distinct allows non-consecutive duplicates
+- distinct with custom equals function
+- distinct with custom equals on objects
+- distinct handles null values
+- creates a synthesis cell with sources
+- synthesis aggregates values from sources
+- synthesis receives the triggering pulse
+- synthesis with null suppression
+- synthesis with complex object types
+- synthesis with multiple source types
+- synthesis with empty sources does not throw
+- synthesis with single source
+- debounce then distinct
+- throttle then distinct
+- synthesis then observe (debounce of synthesis is source-gated)
+- synthesis consecutive equal sums still fire (no distinct)
+- synthesis for form validation
+- debounce with negative duration throws
+- throttle with negative duration throws
+- distinct with null values and custom equals
+- synthesis with sources that are not ValueCell
+- synthesis with aggregator throwing exception
+- debounce cell toString
+- throttle cell toString
+- distinct cell toString
+- synthesis cell toString
+
+### File 10: test_operators_phase3_async_routing.dart (60 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 60 |
+| Phase 3: Async & Routing Operators | |
+| Cell.asyncMap | |
+| Cell.hub | |
+| Cell.switchMap | |
+| Cell.fromFuture | |
+| Cell.fromStream | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- asyncMap transforms values from a state cell
+- asyncMap transforms values from an ingress cell
+- asyncMap with concurrency 1 processes sequentially
+- asyncMap with latestOnly drops older results
+- asyncMap with exhaust ignores while busy
+- asyncMap with observe receives results
+- asyncMap handles errors gracefully (no emission)
+- hub routes pulses to spokes based on type
+- hub with prefix routing uses longest prefix match
+- hub with pattern routing uses glob matching
+- hub with multicast delivers to all matching spokes
+- hub multicast with custom match delivers to every interested spoke
+- hub with fallback routes unmatched pulses
+- hub with priority ordering processes higher priority first
+- hub emits async with lock protection
+- hub ingest with serialized completion
+- hub with governed spokes uses DeputyContext
+- hub spoke handler can drive a state cell
+- switchMap switches to new cell on source change
+- switchMap with observe receives switched values
+- switchMap with multiple source changes
+- switchMap with null payload does not switch
+- fromFuture emits future result
+- fromFuture with observe receives value
+- fromFuture with state cell receives value
+- fromFuture with derived cell transforms value
+- fromFuture with delayed Future
+- fromFuture emits an error pulse when the Future fails
+- fromFuture with complex type
+- fromFuture with null value
+- fromStream emits stream values
+- fromStream with observe receives values
+- fromStream with state cell accumulates values
+- fromStream with delayed stream
+- fromStream with periodic stream
+- fromStream with cancelOnError handles errors
+- fromStream with distinct filters duplicates
+- fromStream with derived transforms values
+- fromStream with complex types
+- fromStream with null values
+- fromStream with empty stream emits nothing
+- fromStream cancels the subscription when the cell is invalidated
+- ingress + asyncMap + observe
+- fromFuture + derive + state
+- fromStream + distinct + observe
+- ingress + asyncMap + state
+- fromFuture + asyncMap + observe
+- fromStream + asyncMap + observe
+- hub + state for routing
+- asyncMap with empty source emits nothing
+- hub with no spokes uses fallback
+- fromFuture with already completed future
+- fromStream with error after values (no cancelOnError)
+- hub with multicast and priority
+- switchMap with source emitting multiple values
+- asyncMap cell toString
+- hub toString
+- switchMap cell toString
+- fromFuture cell toString
+- fromStream cell toString
+
+### File 11: test_operators_phase4_advanced_transactions.dart (39 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 39 |
+| Phase 4: Advanced & Transactions | |
+| Cell.sanitized | |
+| Cell.open | |
+| Combined Operators | |
+| Edge Cases & Error Handling | |
+| toString | |
+
+**Tests**
+
+- sanitized redacts sensitive data
+- sanitized passes through non-sensitive data
+- sanitized with different sensitivity threshold
+- sanitized with ingress and observe
+- sanitized with state and observe
+- sanitized with complex object type
+- sanitized with multiple sensitivity levels
+- open creates a manually controllable cell
+- open with emit sends pulses
+- open with ingest and serialized completion
+- open with link and unlink observers
+- open with observe receives pulses
+- open with test rule filters pulses
+- open with state receives updates
+- open with forceLock serializes emissions
+- open with ephemeral policy auto-invalidates
+- open with governed context
+- async emit and ingest deliver the pulse
+- async emit with forceLock still delivers
+- modifiable includes emit, ingest, link, and apply
+- emit awaits an async testRule
+- link awaits an async testRule
+- ingress + sanitized + observe
+- state + sanitized + observe
+- open + state + observe
+- ingress + open + observe
+- state + transaction + state
+- txApply with state and compensation
+- sanitized with missing sensitivity passes through
+- open with disabled synapses
+- transaction with empty participants throws
+- txApply with empty participants throws
+- transaction with non-existent savepoint throws
+- sanitized with null redact result
+- sanitized cell toString
+- open cell toString
+- TransactionValidationException toString
+- TransactionConflictException toString
+- TxApplyException toString
+
+### File 12: test_propagation_policy.dart (41 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 41 |
+| PropagationPolicy | |
+| Construction & Defaults | |
+| Strategy: immediate | |
+| Strategy: debounced | |
+| Strategy: throttled | |
+| Strategy: batched | |
+| Strategy: buffered | |
+| Strategy: audit | |
+| Strategy: debounceLeading | |
+| Strategy: sample | |
+| Strategy: exhaust | |
+| Strategy: resilient | |
+| Strategy: retry | |
+| Policy Composition & Equality | |
+| Edge Cases | |
+| Integration with Synapses | |
+| toString | |
+
+**Tests**
+
+- default constructor uses immediate strategy
+- constructor sets strategy
+- constructor sets debounceTime
+- constructor sets throttleTime
+- constructor sets batchSize
+- constructor with all parameters
+- immediate delivers pulses synchronously
+- immediate delivers all pulses in order
+- debounced delays delivery until silence
+- debounced resets timer on each pulse
+- debounced with zero duration delivers immediately
+- throttled delivers first pulse immediately
+- throttled suppresses subsequent pulses during window
+- throttled with zero duration delivers all pulses
+- batched accumulates pulses until batchSize
+- batched with batchSize 1 delivers immediately
+- batched with large batch size buffers until threshold
+- buffered accumulates pulses and flushes after throttleTime
+- buffered flushes when batchSize is reached
+- audit delivers the latest pulse at intervals
+- audit with zero throttleTime delivers immediately
+- debounceLeading delivers first pulse immediately
+- sample heartbeats the first pulse then stops when unlinked
+- exhaust delivers pulses to downstreams
+- resilient delivers when the observer accepts the pulse
+- retry delivers when the observer accepts the pulse
+- two identical policies are equal
+- two different policies are not equal
+- policies with different debounce times are not equal
+- policies with different throttle times are not equal
+- policies with different batch sizes are not equal
+- zero duration works
+- batchSize of 0 works
+- all strategies can be instantiated
+- policy with no parameters uses defaults
+- policy can be used with synapses
+- multiple policies can be used with different synapses
+- policy with filter preserves payload
+- policy with filter can drop pulses
+- policy returns string representation
+- policy with immediate strategy toString
+
+### File 13: test_pulse.dart (157 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 157 |
+| Pulse | |
+| Construction | |
+| withStep vs evolve distinction | |
+| Evolution | |
+| Composition | |
+| Shell | |
+| Unmodifiable | |
+| Comparison | |
+| Iterable | |
+| Governance | |
+| Provenance | |
+| Policy | |
+| Context Factories | |
+| PulseExtension | |
+| PulseIterableExtension | |
+| Causal Chain Distinction | |
+| toString | |
+| Callbacks and mask variants | |
+| Lineage extras | |
+| Unmodifiable collective | |
+| Shell extras | |
+| Composition extras | |
+
+**Tests**
+
+- creates a simple pulse with payload
+- creates a pulse with type
+- creates a pulse with priority
+- creates a pulse with source
+- creates a pulse with step
+- creates a governed pulse with context
+- creates a governed pulse with policy
+- creates a governed pulse with context and callbacks
+- Pulse.governed without context or policy is NOT governed
+- Pulse.governed with only callbacks is NOT governed
+- withStep does NOT create an EvolvedPulse
+- evolve with ONLY step does NOT create an EvolvedPulse
+- evolve with ONLY context does NOT create an EvolvedPulse
+- evolve with pulse creates an EvolvedPulse (causal branch)
+- evolve with pulse but no step creates EvolvedPulse
+- withStep vs evolve(step) are semantically similar
+- withStep lengthens lineage without causal branching
+- evolve(step) lengthens lineage without causal branching
+- withStep preserves identity, context, and payload
+- evolve(step) preserves identity, context, and payload
+- evolve with pulse creates parent-child relationship
+- withStep adds a trace step
+- withStep chains multiple steps
+- evolve(step) adds trace step without EvolvedPulse
+- evolve(step) chains multiple steps without EvolvedPulse
+- evolve with context and step adds trace without EvolvedPulse
+- evolve with pulse appends and creates EvolvedPulse
+- evolve requires at least one parameter
+- lineage tracks payload history with evolve(pulse)
+- lineage tracks type history with evolve(pulse)
+- lineage tracks priority history with evolve(pulse)
+- lineage tracks source history with evolve(pulse)
+- withStep does NOT affect lineage history
+- evolve(step) does NOT affect lineage history
+- evolve with pulse creates causal chain, evolve(step) does not
+- + operator creates collective pulse
+- + operator with multiple pulses
+- Pulse.batch creates collective pulse
+- Pulse.batch with governed pulses
+- Pulse.batch with callback
+- shell hides payload
+- shell scrutinizes receptor
+- shell with governed pulse
+- unmodifiable locks payload of this specific instance
+- unmodifiable prevents mutation of the instance
+- unmodifiable does NOT block withStep - creates new modifiable instance
+- unmodifiable does NOT block evolve(step) - creates new modifiable instance
+- unmodifiable protects the payload cell from mutation
+- unmodifiable recursively protects parent chain for EvolvedPulse
+- unmodifiable with evolve(step) does NOT create recursive parent chain
+- unmodifiable recursively protects root and source
+- unmodifiable preserves reactivity of payload cell
+- unmodifiable is recursive for nested iterables
+- unmodifiable allows reading payload but blocks modifications
+- evolve with pulse from unmodifiable preserves protected instance as parent
+- withStep from unmodifiable creates new modifiable instance
+- unmodifiable does not prevent withStep chain
+- unmodifiable blocks modifications but not observations
+- compareTo orders by timestamp
+- compareTo orders by priority when timestamps equal
+- compareTo orders by trace depth when timestamps and priority equal
+- equality uses record comparison
+- identity equality works
+- hashCode is stable
+- iterating over single pulse yields itself
+- iterating over withStep pulse yields itself (not EvolvedPulse)
+- iterating over evolve(step) pulse yields itself (not EvolvedPulse)
+- iterating over evolve(pulse) yields EvolvedPulse
+- iterating over collective pulse yields itself
+- collective payload iteration yields individual pulses
+- isGoverned returns true when context provided
+- isGoverned returns true when policy provided
+- isGoverned returns false when no context or policy
+- isGoverned returns false when only callbacks provided
+- isGoverned returns true when context is inherited via evolve(step)
+- isGoverned returns true when context is inherited via evolve(pulse)
+- withStep does NOT inherit governance differently
+- isInvalidated returns false initially
+- isInvalidated returns true after policy expires
+- context stores actor
+- context stores reason
+- context stores purpose
+- context stores strategy
+- context stores confidence
+- context stores priority
+- context stores sensitivity
+- context stores auditLevel
+- context stores traceId
+- context auto-generates traceId
+- context stores parentTraceId
+- context stores compliance
+- policy tracks hops
+- policy invalidates on hop limit
+- policy invalidates on TTL
+- userAction factory creates correct context
+- aiInference factory creates correct context
+- regulated factory creates correct context
+- securityIntervention factory creates correct context
+- systemInternal factory creates correct context
+- homeostasis factory creates correct context
+- telemetry factory creates correct context
+- instruction factory creates correct context
+- selfCorrection factory creates correct context
+- collaboration factory creates correct context
+- hypothesis factory creates correct context
+- infrastructureChange factory creates correct context
+- Iterable.map on a Pulse is not PulseExtension.map
+- Iterable.cast on a Pulse is not PulseExtension.cast
+- map transforms payload and preserves causality
+- map does not mutate the original pulse
+- map keeps ancestor withStep entries via parent walk
+- map keeps the original context and governance on the evolved child
+- chained maps nest EvolvedPulse parents
+- same-type map lineage includes parent and child payloads
+- mixed-type map lineage skips payloads that fail the cast
+- attach adds context metadata
+- tap executes side-effect without modifying pulse
+- cast re-types payload via evolve(pulse:)
+- cast of a typed pulse still creates an EvolvedPulse child
+- incompatible PulseExtension.cast throws
+- batch creates collective from iterable
+- flatten converts nested collective to flat sequence
+- withStep adds step to all pulses (not EvolvedPulse)
+- attach adds context to all pulses
+- mapEach transforms payload of each pulse
+- withStep does NOT create parent-child relationship
+- evolve(step) does NOT create parent-child relationship
+- evolve(pulse) creates parent-child relationship
+- withStep is for documentation, evolve(pulse) is for causal branching
+- withStep does NOT affect root.trace
+- evolve(pulse) affects parent chain but root remains oblivious
+- withStep and evolve(pulse) can be combined
+- formats a payload-only pulse
+- formats a null payload
+- includes source, type, and trace when present
+- collective toString names CollectivePulse
+- evolved pulse toString names EvolvedPulse
+- onError-only governed pulse is constructible
+- onProgress-only governed pulse is constructible
+- onComplete and onProgress together
+- all three callbacks plus policy and source
+- lineage of policy and context walks the chain
+- equality with a non-Pulse is false
+- batch.unmodifiable is a composite with unmodifiable members
+- unmodifiable compareTo and equality delegate to the source
+- unmodifiable wraps a Cell payload
+- unmodifiable wraps a Map payload containing a Cell
+- shell compareTo follows timestamp then priority
+- shell + / evolve / withStep are unsupported
+- shell exposes kernel priority and source
+- shell compareTo uses priority then trace when timestamps match
+- shell scrutinize catch returns null when the kernel rejects
+- + of mixed payload types still builds a collective
+- a withStep child of a governed pulse stays governed
+- CollectivePulse.governed stores type, context, step, and scrutinize
+- evolved unmodifiable exposes parent, iterator, and toString
+- Pulse.evolve(pulse:) with step, context, and a completing parent
+
+### File 14: test_receptor.dart (50 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 50 |
+| Receptor | |
+| passThrough | |
+| Construction | |
+| Activation & clone | |
+| Pipeline | |
+| Instruction composition | |
+| Instruction.future | |
+| Receptor.async | |
+| Graph integration | |
+| call contract extras | |
+| Receptor.pipeline mask | |
+
+**Tests**
+
+- is a reusable singleton
+- forwards the pulse unchanged without activation
+- cannot be activated
+- clone is the same instance
+- async is unsupported
+- cell getter is unsupported
+- is never governed
+- passThroughRule is an identity instruction
+- passThroughRule + other yields the other instruction
+- hashCode is stable on the singleton
+- passThrough == a ReceptorBase is true; the reverse is not
+- closure receptor transforms payload
+- closure receptor returning null drops the pulse
+- closure receptor exception terminates the pulse
+- Receptor.instruction wraps a reusable instruction
+- Instruction user metadata is available during execution
+- Receptor.instruction stores a user factory on the receptor
+- Receptor.typed transforms between pulse payload types
+- empty pipeline is a pass-through
+- template is not activated until bound
+- Cell construction activates an unbound template in place
+- activate binds the host cell
+- clone is an independent unactivated copy
+- unactivated call fails the activation assertion
+- runs preProcess then instruction then postProcess
+- a throwing custom instruction in the pipeline returns null
+- null from a stage short-circuits later stages
+- postProcess can drop after a successful core stage
+- omitted stages are skipped
+- preProcess and postProcess run without a core instruction
+- instruction exception terminates the pipeline
+- + chains two instructions in order
+- Instruction.chain is equivalent to +
+- chain short-circuits on null
+- chains nest
+- instruction exception returns null
+- returns null immediately and resumes via future callback
+- hook captures the transformed result
+- hook sees null when the receptor drops the pulse
+- serializedCompletion false still processes via the hook
+- Cell(bind:) delivers transformed pulses to observers
+- testRule on the host can drop pulses before transformation
+- null from the bound receptor suppresses observers
+- async testRule Future is awaited before transformation
+- a PulseShell is scrutinized instead of run through the pipeline
+- async call scrutinizes a PulseShell
+- governed pulse on a deputy host records the mandate role
+- stores reaction and isGoverned flyweight combinations
+- a reaction receptor transforms without an instruction chain
+- a governed receptor ticks a hosted EphemeralPolicy
+
+### File 15: test_synapses.dart (82 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 82 |
+| Synapses | |
+| disabled | |
+| enabled | |
+| Construction & broadcast | |
+| link / unlink | |
+| FilterRule | |
+| relay | |
+| PropagationPolicy | |
+| async view | |
+| remaining strategies | |
+| mask combinations and equality | |
+| Graph integration | |
+
+**Tests**
+
+- is a reusable singleton
+- call is a no-op
+- link and unlink return false
+- is an empty iterable
+- async is unsupported
+- Cell with disabled synapses is terminal
+- is a reusable singleton flyweight
+- link and unlink return false on the flyweight
+- is an empty iterable
+- async is unsupported on the flyweight
+- Cell with default synapses is not terminal
+- empty synapses complete a pulse without observers
+- constructor registers initial downstreams
+- call delivers to every downstream in order
+- call delivers successive pulses in order
+- cycle checker skips a downstream already visited by the pulse
+- empty synapses still complete a governed pulse with onComplete
+- link adds an observer when the synapses belong to the host
+- link returns false when the synapses are not the host\
+- duplicate link returns false
+- unlink removes an observer
+- unlink of a missing observer returns false
+- link is rejected when the host testRule denies the observer
+- async testRule Future is awaited on link
+- filter transforms the outgoing payload
+- filter returning null drops the pulse
+- + chains filters sequentially
+- FilterRule.chain stops when a stage returns null
+- FilterRule.base is an identity
+- a throwing filter leaves the original pulse
+- FilterRule.user is passed to the rule
+- parent runs after the primary rule
+- chain parent runs after the collected rules
+- chain strategy overrides sequential rules and still calls parent
+- fromRecord reconstitutes a callable rule
+- equality and hashCode follow the flyweight record
+- relay replaces sequential broadcast
+- relay is skipped when every downstream already saw the pulse
+- default strategy delivers immediately
+- async strategy delivers on a later event-loop turn
+- persistent replays the last pulse to a newly linked observer
+- persistent with an existing observer stores and delivers
+- async.call delivers to downstreams
+- async.call on empty synapses completes without observers
+- async.call on empty synapses completes a governed onComplete pulse
+- async.call applies the source filter
+- async.call respects a zero-duration debounce policy
+- async.call respects a zero-duration throttle policy
+- async.call batches until batchSize
+- async.call with audit zero throttle delivers immediately
+- async.call with exhaust delivers
+- async.call with resilient delivers
+- async.call with retry delivers
+- async.call with debounceLeading zero throttle delivers
+- async.call uses a custom relay
+- async.call with async strategy delivers
+- async.call with non-zero debounce delivers after the window
+- async.call with non-zero throttle delivers the leading pulse
+- async.call with audit non-zero window delivers the latest
+- async.call buffered flushes on batchSize
+- async.call buffered flushes after throttleTime
+- async.call debounceLeading non-zero throttle delivers the first pulse
+- async.call persistent delivers to current observers
+- async.call on a revisited pulse does not re-notify
+- async relay is skipped when every downstream already saw the pulse
+- async resilient swallows a throwing relay
+- async retry retries a throwing relay then gives up
+- async.call sample heartbeats the first pulse then stops when unlinked
+- async debounce completes after observers are unlinked
+- exhaust delivers the pulse
+- resilient delivers when downstreams succeed
+- retry delivers when downstreams succeed
+- debounceLeading with zero throttle delivers every pulse
+- buffered Duration.zero flushes on the first pulse
+- resilient swallows a throwing relay
+- retry retries a throwing relay then gives up
+- sample heartbeats then stops when unlinked
+- debounced pulse completes after observers are unlinked
+- filter plus relay plus policy is a valid synapses
+- two synapses instances are not identical
+- host synapses broadcast a bound source emission
+- filter on the host synapses redacts before observers
+
+### File 16: test_synthesis_cell.dart (37 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 37 |
+| SynthesisCell | |
+| Construction | |
+| Aggregation | |
+| Source Management | |
+| Stop/Start | |
+| Edge Cases & Error Handling | |
+| Context & Governance | |
+| Real-World Scenarios | |
+| toString | |
+
+**Tests**
+
+- creates a synthesis cell with sources
+- creates a synthesis cell with custom context
+- creates a synthesis cell with custom test rule
+- creates a synthesis cell with disabled synapses (terminal)
+- creates a synthesis cell with forceLock
+- empty sources does not throw
+- aggregator combines values from multiple sources
+- aggregator receives the emitting pulse
+- aggregator can access all source values
+- aggregator returning null suppresses emission
+- aggregator with complex object types
+- does not emit an initial aggregate
+- synthesis cell is iterable over sources
+- synthesis handle can add sources dynamically
+- added source participates in aggregation
+- synthesis handle can remove sources dynamically
+- synthesis handle can add multiple sources
+- synthesis handle can remove multiple sources
+- synthesis handle can clear all sources
+- synthesis handle reports isEmpty correctly
+- synthesis handle toList returns current sources
+- stop prevents aggregation from sources
+- stop disconnects all sources but keeps membership
+- handles null values from sources
+- handles sources that are not ValueCell
+- handles aggregator throwing exception gracefully
+- handles removing non-existent source
+- handles adding duplicate source
+- synthesis cell does not inherit context from sources
+- synthesis cell with custom context overrides
+- synthesis cell validation rule applies to incoming pulses
+- synthesis for form validation - all fields valid
+- synthesis for price calculation with tax and discount
+- synthesis for user profile - derived full name
+- synthesis for counter - sum of multiple counters
+- synthesis cell returns string representation
+- synthesis cell shows sources in string representation
+
+### File 17: test_test_cell.dart (41 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 41 |
+| TestCell | |
+| allowAll | |
+| readOnly | |
+| Construction | |
+| Composition | |
+| Exceptions | |
+| Async | |
+| TestPulseRule | |
+| TestLinkRule | |
+| TestActionRule | |
+| Graph integration | |
+| TestRule | |
+
+**Tests**
+
+- is a reusable TestPasses singleton
+- allows every object
+- allows links, pulses, and actions
+- allowAll + customRule behaves like the custom rule
+- is a reusable singleton
+- allows observation of values and pulses
+- blocks apply when the action is on the modifiable whitelist
+- call on a Function consults action
+- readOnly + customRule delegates to the custom rule
+- TestPasses is the allowAll implementation
+- readOnly action with arguments still allows non-modifiable tear-offs
+- custom rule allows matching values
+- custom rule can inspect a Pulse payload
+- user metadata is passed to the rule
+- parent is evaluated after this rule passes
+- + evaluates left to right and short-circuits
+- TestCell.chain is fail-fast like +
+- chains nest
+- a throwing rule passes when the host is ungoverned
+- a throwing rule with no host passes
+- an async rule is awaited
+- accepts pulses that match the predicate
+- non-pulse objects pass the wrapped call
+- TestCell.pulse consults chained TestPulseRules
+- TestCell.pulse awaits chained async TestPulseRules
+- accepts links that match the predicate
+- TestCell.link consults chained TestLinkRules
+- TestCell.link awaits chained async TestLinkRules
+- accepts actions that match the predicate
+- TestCell.action validates positional arguments via call
+- TestCell.action validates named arguments via call
+- TestCell.action awaits chained async TestActionRules
+- cell.validate uses the TestCell rule
+- pulse validation on a cell drops odd payloads
+- link is rejected when the host TestCell denies the observer
+- an async rule still consults parent
+- chain awaits an async rule and continues
+- chain short-circuits later rules when an async rule fails
+- chain rethrows an Exception from a child rule
+- equality and hashCode follow the flyweight record
+- fromRecord reconstitutes a callable rule
 
 ### File 18: test_test_rule_meta.dart (48 tests)
 
-Standalone suite for annotation [TestRule]s in `lib/src/test_rule_meta.dart` (`DefaultValue`, `MaxLength`, `ValueRange`, `EntryPattern`, `Values`, `EmailPattern`, `WebsiteUrlPattern`).
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 48 |
+| DefaultValue | |
+| MaxLength | |
+| direct field limit | |
+| hostLength | |
+| composite field + container | |
+| host-only | |
+| ValueRange | |
+| EntryPattern | |
+| Values | |
+| EmailPattern | |
+| WebsiteUrlPattern | |
+| TestRule composition | |
 
-#### Test Breakdown by Category
+**Tests**
 
-| Category | Tests | Description |
-|----------|------:|-------------|
-| DefaultValue | 3 | Primitive/collection constants; not a TestRule |
-| MaxLength direct | 5 | String/iterable limit; non-string/iterable pass |
-| MaxLength hostLength | 3 | Host iterable quota; non-iterable host still checks object |
-| MaxLength composite | 4 | Field **and** container both enforced |
-| MaxLength.host | 4 | Object unlimited; host quota; missing host passes |
-| ValueRange | 6 | Inclusive int/double bounds; non-numeric pass; inverted min/max |
-| EntryPattern | 7 | Match, case flags, null/empty, non-string pass |
-| Values | 4 | Whitelist, null membership, numeric `==` |
-| EmailPattern | 5 | Defaults, typical addresses, reject malformed, custom pattern |
-| WebsiteUrlPattern | 5 | Defaults, typical URLs, reject empty, custom pattern |
-| Composition | 2 | Types are TestRule; `MaxLength + ValueRange` short-circuits |
+- stores a primitive constant
+- stores a string, bool, list, and map
+- is a const annotation, not a TestRule
+- allows a string at or under the limit
+- rejects a string over the limit
+- allows an iterable at or under the limit
+- rejects an iterable over the limit
+- passes non-string, non-iterable objects
+- rejects when the host iterable exceeds hostLength
+- allows a host iterable at the hostLength
+- ignores a non-iterable host and still checks the object
+- rejects an over-long element even when the host is in quota
+- rejects an over-long host even when the element is in quota
+- allows when both the element and the host are in quota
+- checks a list object against length when no host is passed
+- stores the sentinel direct length and the host limit
+- does not limit the annotated object
+- rejects an over-long host container
+- passes when the host is absent
+- stores inclusive bounds
+- allows integers on the inclusive bounds
+- rejects integers outside the range
+- allows doubles on a unit interval
+- passes null and non-numeric values
+- always fails numbers when min is greater than max
+- stores pattern flags with documented defaults
+- matches a non-empty string against the pattern
+- is case-insensitive by default
+- honors caseSensitive: true
+- rejects null unless allowNull is true
+- rejects empty strings unless allowEmpty is true
+- passes non-string objects
+- allows members of the whitelist
+- rejects values not in the whitelist
+- rejects null unless null is listed
+- matches numeric option sets by ==
+- uses the documented default flags
+- accepts typical email addresses
+- rejects malformed addresses and empty strings
+- allows null by default and can reject it
+- accepts a custom corporate pattern
+- uses the documented default flags
+- accepts typical web addresses
+- rejects empty strings and non-urls
+- allows null by default and can reject it
+- accepts a custom pattern
+- MaxLength is a TestRule
+- MaxLength + ValueRange short-circuits on the first failure
 
-✅ `MaxLength(n, hostLength: h)` checks the object **and** the host (else-if host-only path was a bug; both checks now run)  
-✅ `MaxLength.host` ignores the annotated object’s length  
-✅ `ValueRange` / `EntryPattern` pass non-applicable types; `Values` does not  
-✅ `EmailPattern` / `WebsiteUrlPattern` default `allowNull: true`, `allowEmpty: false`, case-insensitive  
+### File 19: test_transaction.dart (54 tests)
 
----
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 54 |
+| Cell.transaction | |
+| Basic Transaction | |
+| Isolation Levels | |
+| Lock Ordering | |
+| Validation | |
+| Custom Apply | |
+| Savepoint | |
+| Timeout | |
+| Events | |
+| Cell Types | |
+| Real-World Scenarios | |
+| Edge Cases & Error Handling | |
+| Exception toString | |
 
-### File 19: test_commons.dart (43 tests)
+**Tests**
 
-Standalone suite for `lib/src/internal/commons.dart` (public via `package:cell/cell.dart`): `mapMerge`, synchronized collections, boxes, and `get`.
+- commits multiple updates atomically
+- rollback discards all changes
+- commit after rollback works
+- cannot begin while transaction is active
+- cannot update cell not in transaction
+- cannot read cell not in transaction
+- transaction with single cell
+- empty cells list throws
+- readCommitted reads current live values
+- repeatableRead reads snapshot from begin
+- repeatableRead detects conflict on changed cell
+- serializable tracks read set
+- serializable ignores unread, unwritten participant changes
+- serializable commits globally serialized
+- byHashCode orders locks by hash code
+- insertion orders locks by insertion order
+- explicit uses custom comparator
+- explicit without comparator throws
+- validation fails on invalid value
+- custom validate callback can override
+- multiple cells validation
+- cell testRule rejects negatives at commit
+- custom apply callback overrides default
+- custom apply with side effects
+- custom apply with multiple cells
+- savepoint captures state for rollback
+- multiple savepoint
+- rollback to unknown savepoint throws
+- savepoint after rollback
+- transaction times out
+- timeout triggers rollback
+- timeout event emitted
+- TransactionBegun event emitted
+- TransactionUpdated event emitted
+- TransactionCommitted event emitted
+- TransactionRolledBack event emitted
+- TransactionRolledBack with savepoint event emitted
+- transaction with ValueCell
+- transaction with non-ValueCell (CellBase)
+- pending reads see buffered writes
+- pending falls back to read
+- bank transfer with validation to prevent negative
+- bank transfer commits when balances stay non-negative
+- multi-step operation with savepoint
+- concurrent transactions isolation
+- updating same cell multiple times uses last value
+- rollback when no transaction active is no-op
+- commit when no transaction active throws
+- transaction with options and all callbacks
+- transaction with null values
+- transaction with non-int values
+- TransactionValidationException toString
+- TransactionConflictException toString
+- TransactionTimeoutException toString
 
-#### Test Breakdown by Category
+### File 20: test_tx_apply.dart (46 tests)
 
-| Category | Tests | Description |
-|----------|------:|-------------|
-| mapMerge | 6 | Copy, concatenate iterables, wrap scalars, no mutation of inputs |
-| SyncSet | 7 | add/contains/lookup, bulk set algebra, where/map/reduce, clear |
-| QueueList | 3 | FIFO constructors, removeWhere/retainWhere, `cast` / `async` |
-| AsyncQueueList | 3 | Locked mutations, toListAndClear / clearAndAdd, iterator |
-| PriorityQueue | 6 | Comparator and Comparable, addFirst/addLast, rebuild, empty extract |
-| AsyncPriorityQueue | 2 | Ranked extract, map/toList/toSet/reduce/replicate |
-| SyncQueue | 4 | Custom comparison, `of`, capacity overflow, addFirst/addLast |
-| Box / SyncBox / FinalBox | 4 | Mutable box, locked SyncBox, write-once FinalBox |
-| TypeObject / get | 7 | TypeObject, FunctionTypeObject, FunctionObject, get fallbacks |
-| Markers | 1 | `async` / `unmodifiable` type checks |
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 46 |
+| Cell.txApply | |
+| Basic Operations | |
+| Compensation | |
+| Error Handling | |
+| Stop On First Failure | |
+| Savepoint | |
+| Real-World Scenarios | |
+| Events | |
+| Edge Cases & Error Handling | |
+| Custom Comparator | |
+| Exception toString | |
 
-✅ `SyncSet` / `SyncQueue` / `AsyncPriorityQueue` mutation methods return the lock `Future` so `await` observes the change  
-✅ `SyncQueue.addFirst` / `addLast` alias `add` (they must not fire-and-forget the inner Future)  
-✅ `FinalBox` is write-once; a second assignment throws  
+**Tests**
 
----
-
-### File 20: test_deputy.dart (21 tests)
-
-Standalone suite for `Cell.deputy` / `OpenCell.deputy` forwarding, identity, additive `testRule`, and the nested-deputy causal-integrity assert. Mandate profile remains in `test_context.dart`.
-
-#### Test Breakdown by Category
-
-| Category | Tests | Description |
-|----------|------:|-------------|
-| Cell.deputy | 5 | No-op returns `this`; testRule / context / ephemeral / synapses create a proxy |
-| Identity | 3 | Equal to principal, nested deputy, unrelated cells |
-| testRule layering | 2 | Additive short-circuit; readOnly still forwards `apply` to the principal |
-| apply forwarding | 1 | `deputy.apply` executes on the bound principal |
-| unmodifiable | 2 | Deputy unmodifiable is the principal view; ValueCell read-only view |
-| Causal integrity | 3 | `DeputyContext.system`, evolved descendant, reject unrelated context |
-| OpenCell.deputy | 5 | No-op, emit, nested defaults, `async` handle, `link` |
-
-✅ `TestCell.readOnly` is not `==` `TestCell.allowAll`; attenuation uses `identical` against the default sentinels  
-✅ Deputy `testRule` is `TestCell.chain([principal, extra])` so `host` stays `Cell?` (not `Never?`)  
-✅ Nested `DeputyContext.evolve` is accepted when `_parent` is the current deputy context  
-
----
-
-## Test Quality Assessment
-
-### Strengths
-
-✅ **Breadth**
-- 20 files / 1115 tests covering Cell, Pulse (including `PulseExtension.map` / `cast`), Nucleus, Receptor, Instruction, Synapses (`FilterRule` parent/`fromRecord`, async policies, sample), TestCell / TestRule, **Context / DeputyContext / PulseContext**, **EphemeralPolicy**, **annotation TestRules**, **commons collections**, **Cell / OpenCell deputy**, **ValueNucleus / ValueCell**, synthesis, transaction, txApply, `Cell.valve`, and `OpenCell.perform`
-
-✅ **Aligned to public contracts**
-- Observe via `Cell.observe`, not `listen`
-- Operators driven with `Cell.ingress` / `Cell.state` handles
-- Synthesis aggregators return `Pulse`
-- Receptor templates activated before `call`
-- `Synapses.link` requires host identity
-- `Cell.txApply` enqueues only `modifiable` tear-offs
-- Ingress/derive tests assert observed payloads
-- `ingest` with `serializedCompletion: true` waits until the pulse is processed
-
-✅ **Structure**
-- Hierarchical `group(` organization by type or operator
-- Named tests describe the contract under assertion
-- Mix of sync construction tests and async timer/transaction tests
-
-✅ **Scenario coverage where it exists**
-- Concurrent `updateAsync` / `emitAsync`
-- Isolation levels and lock ordering
-- Compensation and savepoints
-- Form / price / bank-transfer style examples in synthesis and transactions
-
-### Areas for Improvement
-
-⚠️ **PropagationPolicy strategies**
-- `exhaust` / `resilient` / `retry` / `sample` are in `test_propagation_policy.dart`; `persistent` is smoked in `test_synapses.dart`
-
-⚠️ **Low line-coverage areas** (lcov 2026-09-01)
-- Remaining `internal/synapses.dart` gaps are `AsyncSynapses._rehydrate` (public `link` is identity-checked against the sync instance) and `Synapses.enabled.call` (`Never`)
-- Remaining `receptor.dart` InstructionChainMixin gaps are a strategy catch-without-`future` line and a Function-token resume that is identical to a chain stage (`token` is an `Instruction`, not a `Function`)
-- Remaining `internal/pulse.dart` / `context.dart` gaps are combinatorial flyweight mask arms not reached from public factories
-
-⚠️ **Integration tests**
-- No cross-package tests (`cell_flow`, `cell_tissue`, …)
-- No Flutter / widget tests
-- HowTo examples still mention some private APIs (`_nucleus`); the unit tests do not
+- executes a single apply with txApply
+- executes multiple applies with txApply
+- txApply with multiple participants
+- txApply with custom apply options
+- apply without tx runs immediately
+- compensation is called when a later apply fails
+- compensation with custom cell
+- compensation with multiple retries
+- rollback before commit skips compensation by default
+- compensateIfNotExecuted runs undo on rollback of staged calls
+- txApply throws when participant not included
+- enqueue of a non-modifiable function is rejected
+- txApply with compensation error policy
+- txApply with failFast compensation policy
+- txApply with collectThenThrow compensation policy
+- stopOnFirstFailure stops execution on first failure
+- stopOnFirstFailure false continues execution
+- txApply savepoint captures state
+- txApply rollback to savepoint
+- txApply rollback all
+- txApply for bank transfer with compensation
+- oversized transfer rolls back via compensation
+- txApply for multi-step data migration
+- txApply for inventory adjustment
+- TxApplyBegun event emitted
+- TxApplyStaged event emitted
+- TxApplyCommitted event emitted
+- TxApplyRolledBack event emitted
+- TxApplyRejected event emitted on rejection
+- txApply with empty participants throws
+- txApply commit without begin throws
+- txApply with null compensation
+- txApply with compensation cell different from operation cell
+- txApply with compensation named arguments
+- begin while already begun throws
+- txApply with custom comparator
+- TxApplyException toString
+- TxApplyCompensationException toString
+- enqueue rejects a compensate cell that is not a participant
+- enqueue rejects a compensate function not in modifiable
+- commit rejects a function removed from modifiable
+- commit rejects compensate removed from modifiable
+- default compensation backoff retries a transient undo
+- compensation ApplyRejected is not retryable by default
+- ApplyRejected during commit rethrows failFast compensation
+- CompensationFailure toString
 
 ---
 
 ## Runtime Verification Status
 
-### Current Environment
+Working directory: `packages/cell` (package-relative; host paths omitted).
 
-Dart SDK **3.11.5** (stable), Windows. Full suite and `lib/` line coverage collected 2026-09-01 after raising coverage on `operator_debounce.dart`, `internal/receptor.dart`, and `internal/test_cell.dart`.
-
-Test files are named `test_*.dart`, not the package:test default `*_test.dart`. Therefore:
-
-- `dart test` with **no path** finds **no tests**
-- `dart test test` is a **name filter** (substring `test`), not a directory
-- Pass **explicit files**: `dart test test/test_cell.dart …`
-
-### Commands to Run Tests
-
-From `packages/cell`:
+If tests are named `test_*.dart` instead of `*_test.dart`, `dart test` with
+no path finds nothing. Pass explicit files:
 
 ```bash
 dart pub get
-
-# All 20 files (required — dart test with no path finds nothing)
-dart test test/test_cell.dart test/test_pulse.dart test/test_nucleus.dart \
-  test/test_receptor.dart test/test_instruction.dart test/test_synapses.dart \
-  test/test_propagation_policy.dart test/test_test_cell.dart \
-  test/test_synthesis_cell.dart test/test_transaction.dart test/test_tx_apply.dart \
+dart test \
+  test/test_cell.dart \
+  test/test_cell_policy.dart \
+  test/test_commons.dart \
+  test/test_context.dart \
+  test/test_deputy.dart \
+  test/test_instruction.dart \
+  test/test_nucleus.dart \
   test/test_operators_phase1_foundation.dart \
   test/test_operators_phase2_flow_control.dart \
   test/test_operators_phase3_async_routing.dart \
   test/test_operators_phase4_advanced_transactions.dart \
-  test/test_context.dart test/test_cell_policy.dart test/test_test_rule_meta.dart \
-  test/test_commons.dart test/test_deputy.dart
-
-# Single file
-dart test test/test_cell.dart
-
-# Coverage
-dart test test/test_*.dart --coverage=coverage
-# PowerShell: dart test @(Get-ChildItem test/*.dart | ForEach-Object { "test/$($_.Name)" }) --coverage=coverage
-dart pub global activate coverage
-dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib --packages=.dart_tool/package_config.json
+  test/test_propagation_policy.dart \
+  test/test_pulse.dart \
+  test/test_receptor.dart \
+  test/test_synapses.dart \
+  test/test_synthesis_cell.dart \
+  test/test_test_cell.dart \
+  test/test_test_rule_meta.dart \
+  test/test_transaction.dart \
+  test/test_tx_apply.dart
 ```
 
-Do **not** combine `--coverage` and `--coverage-path`. Dart 3.11 also accepts `--coverage-path=coverage/lcov.info` as an alternative that writes lcov directly.
+### Last `dart test`
 
-### Measured Results (2026-09-01)
+| Passed | Failed | Skipped | Exit |
+|-------:|-------:|--------:|-----:|
+| 1115 | 0 | 0 | 0 |
 
-Full suite, relative `test/*.dart` paths (20 files), compact reporter, with `--coverage=coverage`:
+Status: **green**.
 
-| Result | Count |
-|--------|------:|
-| Passed | 1115 |
-| Failed | 0 |
-| Skipped | 0 |
-| Declared | 1115 |
-| Wall clock | ~7 s (coverage on); tests themselves ~5 s |
+<details><summary>tail of test log</summary>
+
+```
+0:04 +1106: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:04 +1107: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:04 +1108: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:04 +1108: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:04 +1109: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:04 +1109: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:05 +1109: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:05 +1110: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:05 +1110: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:05 +1111: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:05 +1111: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:05 +1112: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:05 +1112: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:05 +1113: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:05 +1113: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:05 +1114: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:05 +1114: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:05 +1115: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:06 +1115: test/test_operators_phase3_async_routing.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:06 +1115: All tests passed!
+```
+
+</details>
 
 ### Line Coverage (`lib/`)
 
-Instrumented lines only (VM hit maps merged to lcov, `--report-on=lib`). `lib/cell.dart` is a barrel/`part` file with no executable lines, so it does not appear.
-
-**Overall: 3397 / 3541 lines = 95.9%** across 33 files. Collected **2026-09-01**.
+**Overall: 3411 / 3587 lines = 95.1%**
 
 | File | Hit | Found | Line % |
 |------|----:|------:|-------:|
-| `lib/src/internal/cell.dart` | 120 | 120 | 100.0 |
-| `lib/src/internal/receptor.dart` | 182 | 182 | 100.0 |
-| `lib/src/value.dart` | 71 | 71 | 100.0 |
-| `lib/src/test_cell.dart` | 75 | 75 | 100.0 |
-| `lib/src/test_rule.dart` | 40 | 40 | 100.0 |
-| `lib/src/internal/operator/operator_debounce.dart` | 35 | 35 | 100.0 |
-| `lib/src/internal/test_cell.dart` | 33 | 33 | 100.0 |
-| `lib/src/test_rule_meta.dart` | 29 | 29 | 100.0 |
-| `lib/src/synapses.dart` | 25 | 25 | 100.0 |
-| `lib/src/internal/pulse_extensions.dart` | 19 | 19 | 100.0 |
-| `lib/src/internal/value.dart` | 12 | 12 | 100.0 |
 | `lib/src/deputy.dart` | 10 | 10 | 100.0 |
+| `lib/src/internal/cell.dart` | 120 | 120 | 100.0 |
+| `lib/src/internal/operator/operator_debounce.dart` | 35 | 35 | 100.0 |
+| `lib/src/internal/pulse_extensions.dart` | 19 | 19 | 100.0 |
+| `lib/src/internal/test_cell.dart` | 33 | 33 | 100.0 |
+| `lib/src/internal/value.dart` | 12 | 12 | 100.0 |
 | `lib/src/nucleus.dart` | 5 | 5 | 100.0 |
 | `lib/src/pulse.dart` | 4 | 4 | 100.0 |
+| `lib/src/synapses.dart` | 25 | 25 | 100.0 |
+| `lib/src/test_cell.dart` | 75 | 75 | 100.0 |
+| `lib/src/test_rule.dart` | 40 | 40 | 100.0 |
+| `lib/src/test_rule_meta.dart` | 29 | 29 | 100.0 |
+| `lib/src/value.dart` | 71 | 71 | 100.0 |
 | `lib/src/internal/operator/operator_transaction.dart` | 172 | 173 | 99.4 |
 | `lib/src/internal/deputy_context.dart` | 112 | 113 | 99.1 |
 | `lib/src/internal/synapses.dart` | 455 | 460 | 98.9 |
@@ -812,184 +1743,58 @@ Instrumented lines only (VM hit maps merged to lcov, `--report-on=lib`). `lib/ce
 | `lib/src/internal/cell_policy.dart` | 41 | 42 | 97.6 |
 | `lib/src/internal/operator/operator_async_map.dart` | 41 | 42 | 97.6 |
 | `lib/src/internal/commons.dart` | 283 | 290 | 97.6 |
+| `lib/src/internal/receptor.dart` | 192 | 197 | 97.5 |
 | `lib/src/internal/operator/operators.dart` | 94 | 98 | 95.9 |
 | `lib/src/cell.dart` | 51 | 54 | 94.4 |
 | `lib/src/internal/deputy.dart` | 17 | 18 | 94.4 |
-| `lib/src/internal/nucleus.dart` | 177 | 188 | 94.1 |
+| `lib/src/internal/nucleus.dart` | 181 | 192 | 94.3 |
 | `lib/src/internal/operator/operator_hub.dart` | 94 | 100 | 94.0 |
 | `lib/src/internal/pulse_policy.dart` | 30 | 32 | 93.8 |
 | `lib/src/internal/context.dart` | 111 | 119 | 93.3 |
 | `lib/src/internal/operator/operator_throttle.dart` | 37 | 40 | 92.5 |
 | `lib/src/internal/pulse_context.dart` | 237 | 258 | 91.9 |
-| `lib/src/receptor.dart` | 38 | 42 | 90.5 |
 | `lib/src/internal/pulse.dart` | 424 | 469 | 90.4 |
 | `lib/src/context.dart` | 149 | 165 | 90.3 |
-
-Branch coverage was **not** collected (`--branch-coverage` was not passed). Artifacts: `coverage/test/*.vm.json` and `coverage/lcov.info` (gitignored).
-
----
-
-## API Compatibility Checklist
-
-Checked items are **exercised by at least one test**. Unchecked items are public and have no dedicated coverage in `/test`.
-
-### Core Cell Class
-- [x] `Cell()` / `Cell.governed` / `Cell.fromNucleus` (bind, receptor, context, testRule, synapses)
-- [x] Value cell `value` / `toString`
-- [x] `Cell.context`
-- [x] `Cell.apply()`
-- [x] `async.apply` (not `applyAsync`)
-- [x] `isTerminal` (disabled synapses)
-- [x] `deputy`
-- [x] `unmodifiable`
-- [x] `validate` (value, pulse, link, action)
-- [x] `modifiable`
-- [x] `EphemeralPolicy` TTL / eventLimit / `call` / `mask` (`test_cell_policy.dart`; OpenCell emit path is incomplete)
-- [x] `Cell.valve`
-- [x] `OpenCell.perform` (no `Cell.perform` static)
-
-### Cell.state Operator
-- [x] `Cell.state<V>(initial, evolve)`
-- [x] `StateHandle.update()` / `updateAsync()`
-- [x] `ValueCell.async.state` (locked and unlocked nucleus)
-- [x] `StateHandle.ingest()`
-
-### Cell.ingress Operator
-- [x] `Cell.ingress<I>(refine, context, testRule, forceLock, source)`
-- [x] `IngressHandle.emit()` / `emitAsync()`
-- [x] `IngressHandle.ingest()`
-
-### Cell.observe Operator
-- [x] `Cell.observe(source:, effect:, initiallyStarted:)`
-- [x] `ObserveHandle.start()` / `stop()`
-
-### Cell.derive Operator
-- [x] `Cell.derive(source:, project:)`
-
-### Other operators
-- [x] `Cell.hub` (type, prefix, glob, multicast, fallback)
-- [x] `Cell.synthesis` (aggregator returns `Pulse`)
-- [x] `Cell.debounce` (`leading`, `ephemeralPolicy`) / `Cell.throttle` / `Cell.distinct`
-- [x] `Cell.asyncMap` / `Cell.switchMap` / `Cell.fromFuture` / `Cell.fromStream`
-- [x] `Cell.sanitized` / `Cell.open`
-- [x] `Cell.transaction` / `Cell.txApply`
-- [x] `Cell.valve`
-- [x] `OpenCell.perform`
-
-### Supporting types
-- [x] `Pulse<T>` / `Pulse.governed` / `EvolvedPulse` / shell / unmodifiable
-- [x] `PulseExtension.map` / `cast` via `PulseExtension(pulse)` (`evolve(pulse:)` → `EvolvedPulse`)
-- [x] `PulseContext` factories (`test_pulse.dart` and `test_context.dart`)
-- [x] `Receptor` / `Receptor.passThrough` / `Receptor.async` / `Receptor.pipeline` (`reaction`, `init`, `isGoverned`, PulseShell)
-- [x] `Instruction` / `Instruction.chain` / `Instruction.future`
-- [x] `Nucleus` / `Nucleolus` / `ValueNucleus` / `Cell.fromNucleus`
-- [x] `Synapses` / `FilterRule` (parent, `fromRecord`, equality, strategy) / `PropagationPolicy` (subset of strategies)
-- [x] `TestCell` / `TestPasses` / `TestPulseRule` / `TestLinkRule` / `TestActionRule`
-- [x] `DefaultValue` / `MaxLength` / `ValueRange` / `EntryPattern` / `Values` / `EmailPattern` / `WebsiteUrlPattern`
-- [x] `Context` / `DeputyContext` / `PulseContext` (via `test_context.dart`; factories also smoked in `test_cell.dart` / `test_pulse.dart`)
-- [x] `Ontology` / `Mandate` / `Provenance` / `GovernanceEntry`
-- [x] `Clearance` / `Isolation` / `Sovereignty` / `AuditLevel` / `Sensitivity` / `ReasoningStrategy` / `PriorityTier` / `Identity`
-- [x] `ValueCell` / `ValueNucleus.from` / `evolve` / `ValueCell.terminal` / `ValueCell.receptor` / nested `unmodifiable`
-- [x] `TestRule` async parent/chain, Exception rethrow, equality/`hashCode`, `fromRecord`
-- [x] `mapMerge` / `SyncSet` / `QueueList` / `PriorityQueue` / `SyncQueue` / `Box` / `get` (`test_commons.dart`)
-- [x] `Cell.deputy` / `OpenCell.deputy` identity, additive `testRule`, apply forwarding, causal integrity (`test_deputy.dart`)
-
----
-
-## Performance Estimates
-
-The 2026-09-01 full run of all 1115 tests finished in **~7 seconds** wall clock with coverage enabled (tests themselves ~5 s; timer delays in debounce/throttle/asyncMap/sample are short). Memory was not measured. `test_context.dart` and `test_test_rule_meta.dart` are entirely synchronous.
-
-| Test File | Tests | Notes |
-|-----------|------:|-------|
-| test_cell.dart | 72 | TTL sleeps; async apply allow/deny |
-| test_pulse.dart | 157 | TTL / hop policy, toString, shell extras, PulseExtension.map / cast |
-| test_nucleus.dart | 39 | Sync |
-| test_receptor.dart | 50 | Async hook, PulseShell, pipeline mask, Future testRule |
-| test_instruction.dart | 23 | Future resume / throwing custom stage |
-| test_synapses.dart | 82 | Async view + remaining strategies + FilterRule parent + sample |
-| test_propagation_policy.dart | 41 | Debounce/throttle/audit/exhaust/retry/sample |
-| test_test_cell.dart | 41 | TestCell plus standalone TestRule async parent/chain |
-| test_synthesis_cell.dart | 37 | Mostly sync observe |
-| test_transaction.dart | 54 | Timeout + isolation |
-| test_tx_apply.dart | 46 | Compensation / events |
-| test_operators_phase1_foundation.dart | 64 | Some `updateAsync` / `emitAsync` / `async.state`; ValueNucleus / ValueCell |
-| test_operators_phase2_flow_control.dart | 43 | Debounce/throttle windows; debounce `ephemeralPolicy` cancel |
-| test_operators_phase3_async_routing.dart | 60 | `delay(20–80)` |
-| test_operators_phase4_advanced_transactions.dart | 39 | Sanitized + open including `async` emit/ingest + tx |
-| test_context.dart | 117 | Sync; Context / DeputyContext / PulseContext |
-| test_cell_policy.dart | 38 | TTL sleeps; EphemeralPolicy; Cell/Nucleus follow hosted policy |
-| test_test_rule_meta.dart | 48 | Sync; annotation TestRules |
-| test_commons.dart | 43 | Mixed; SyncSet / queues / boxes |
-| test_deputy.dart | 21 | Mostly async deputy / OpenCell |
-| **Total** | **1115** | **~7 s with coverage** |
+| `lib/src/receptor.dart` | 38 | 69 | 55.1 |
 
 ---
 
 ## Recommendations
 
-### Immediate Actions
-1. Leftover `receptor.dart` InstructionChainMixin lines are a strategy catch-without-`future` path and a Function-token resume identical to a chain stage
-2. Leftover `internal/pulse.dart` / `context.dart` lines are combinatorial flyweight mask arms
-3. Leftover `internal/synapses.dart` lines are `AsyncSynapses._rehydrate` and `Synapses.enabled.call` (`Never`)
-4. Leftover `operator_tx_apply.dart` lines are defensive compensation / fail-fast arms
-
-### Medium-Term
-5. OpenCell `EphemeralPolicy.eventLimit` / `onEvent` are not fully exercised on `emit`
-
-### Long-Term
-6. CI job that runs the **explicit file list** (or a `dart_test.yaml` that includes `test_*.dart`), not `dart test` / `dart test test`
-7. Cross-package tests when other packages depend on these contracts
-8. Keep HowTo examples on public APIs so they cannot drift from this suite
-
----
-
-## Conclusion
-
-**Overall Assessment: RC test inventory with measured 95.9% lib line coverage, not a production-readiness certificate.**
-
-The `cell` package has **1115** declared tests in **20** files. The suites exercise core types including standalone **Context / DeputyContext / PulseContext**, **EphemeralPolicy**, **annotation TestRule**, **commons**, **deputy**, **`PulseExtension.map` / `cast`**, **`FilterRule` parent/`fromRecord`**, async synapses policies, **`PropagationStrategy.sample`**, **`ValueNucleus` / `ValueCell`**, and standalone **`TestRule`**, the Core 16 operators including `Cell.valve`, `OpenCell.perform`, and both transaction APIs. They follow public contracts rather than private `_nucleus` HowTo snippets.
-
-A full run on 2026-09-01 was **1115 passed / 0 failed / 0 skipped** (~7 s with coverage). Line coverage of `lib/` is **95.9%** (3397 / 3541). `Nucleus.isInvalidated` / `Cell.isInvalidated` follow a hosted `EphemeralPolicy`. `operator_debounce.dart`, `internal/receptor.dart`, and `internal/test_cell.dart` are 100%.
+1. Keep this report generated — do not hand-count `test(`.
+2. CI should pass the explicit file list below (or a `dart_test.yaml`) because `cell` uses `test_*.dart` naming.
+3. The operator phase files (`test_operators_phase*.dart`) exercise the instruction pipeline; keep them in sync with `lib/src/internal/operator/`.
+4. Cross-package dependents (`cell_tissue`, `cell_flow`) rely on these contracts — add integration tests when the core APIs change.
+5. Track coverage per public/internal pair (`lib/src/*.dart` vs `lib/src/internal/*.dart`), not just the whole `lib/` average.
 
 ---
 
 ## Appendix: File Locations
 
 ```
-packages/cell/test/
-├── test_cell.dart                                      (72 tests, 38.6 KB, 1,096 lines)
-├── test_pulse.dart                                     (157 tests, 70.8 KB, 1,826 lines)
-├── test_nucleus.dart                                   (39 tests, 12.2 KB, 350 lines)
-├── test_receptor.dart                                  (50 tests, 23.5 KB, 678 lines)
-├── test_instruction.dart                               (23 tests, 12.3 KB, 350 lines)
-├── test_synapses.dart                                  (82 tests, 37.4 KB, 1,146 lines)
-├── test_propagation_policy.dart                        (41 tests, 27.9 KB, 746 lines)
-├── test_test_cell.dart                                 (41 tests, 19.1 KB, 577 lines)
-├── test_synthesis_cell.dart                            (37 tests, 21.0 KB, 623 lines)
-├── test_transaction.dart                               (54 tests, 35.7 KB, 1,191 lines)
-├── test_tx_apply.dart                                  (46 tests, 32.2 KB, 1,101 lines)
-├── test_operators_phase1_foundation.dart               (64 tests, 36.5 KB, 1,043 lines)
-├── test_operators_phase2_flow_control.dart             (43 tests, 22.3 KB, 764 lines)
-├── test_operators_phase3_async_routing.dart            (60 tests, 30.2 KB, 1,040 lines)
-├── test_operators_phase4_advanced_transactions.dart    (39 tests, 23.6 KB, 777 lines)
-├── test_context.dart                                   (117 tests, 60.7 KB, 1,626 lines)
-├── test_cell_policy.dart                               (38 tests, 20.4 KB, 596 lines)
-├── test_test_rule_meta.dart                            (48 tests, 11.7 KB, 349 lines)
-├── test_commons.dart                                   (43 tests, 13.6 KB, 447 lines)
-├── test_deputy.dart                                    (21 tests, 8.3 KB, 253 lines)
-└── ../TEST_VERIFICATION.md                             (This report)
-
-packages/cell/coverage/                                 (gitignored)
-├── test/*.vm.json                                      (20 VM hit maps, 2026-09-01)
-└── lcov.info                                           (merged lib/ report)
+test/
+├── test_cell.dart  (72 tests, 38.6 KB, 1,098 lines)
+├── test_cell_policy.dart  (38 tests, 20.4 KB, 598 lines)
+├── test_commons.dart  (43 tests, 13.6 KB, 449 lines)
+├── test_context.dart  (117 tests, 60.7 KB, 1,628 lines)
+├── test_deputy.dart  (21 tests, 8.3 KB, 255 lines)
+├── test_instruction.dart  (23 tests, 12.3 KB, 354 lines)
+├── test_nucleus.dart  (39 tests, 12.2 KB, 352 lines)
+├── test_operators_phase1_foundation.dart  (64 tests, 36.5 KB, 1,045 lines)
+├── test_operators_phase2_flow_control.dart  (43 tests, 22.3 KB, 766 lines)
+├── test_operators_phase3_async_routing.dart  (60 tests, 30.2 KB, 1,042 lines)
+├── test_operators_phase4_advanced_transactions.dart  (39 tests, 23.7 KB, 779 lines)
+├── test_propagation_policy.dart  (41 tests, 28.0 KB, 748 lines)
+├── test_pulse.dart  (157 tests, 70.8 KB, 1,828 lines)
+├── test_receptor.dart  (50 tests, 23.6 KB, 680 lines)
+├── test_synapses.dart  (82 tests, 37.5 KB, 1,148 lines)
+├── test_synthesis_cell.dart  (37 tests, 21.0 KB, 625 lines)
+├── test_test_cell.dart  (41 tests, 19.1 KB, 579 lines)
+├── test_test_rule_meta.dart  (48 tests, 11.8 KB, 351 lines)
+├── test_transaction.dart  (54 tests, 35.8 KB, 1,193 lines)
+├── test_tx_apply.dart  (46 tests, 32.3 KB, 1,103 lines)
 ```
 
-**Total lines of test code:** 16,581  
-**Lib Dart files:** 34 (28,096 physical lines; 33 files have instrumented lines in lcov)  
-**Test-to-source ratio:** ~0.57:1 (physical lines)  
-**Measured line coverage:** 95.9% of instrumented `lib/` lines (3397 / 3541, 2026-09-01)
+**Total lines of test code:** 16,621
 
----
-
-*Test counts, the 2026-09-01 full run, and lcov are from the current `packages/cell/test/` tree.*
+*Generated 2026-09-13 by generate_test_verification.py*

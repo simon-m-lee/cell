@@ -52,18 +52,18 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category instructions cp-6 linked" title="This is part of the Instructions topic."><a href="../topics/Instructions-topic.html">Instructions</a></span>
-    <span class="category pipelines-&-receptors cp-7 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
+    <span class="category instructions cp-8 linked" title="This is part of the Instructions topic."><a href="../topics/Instructions-topic.html">Instructions</a></span>
+    <span class="category pipelines-&-receptors cp-9 linked" title="This is part of the Pipelines & Receptors topic."><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></span>
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>A reusable unit of logic for processing and transforming <a href="../cell/Pulse-class.html">Pulse</a> instances.</p>
-<p><a href="../cell/Instruction-class.html">Instruction</a> is the foundational building block for <a href="../cell/Receptor-class.html">Receptor</a> pipelines.
-It encapsulates a discrete transformation logic that takes an incoming
-pulse and either evolves it into a new form or terminates the signal by
-returning <code>null</code>. Instructions are <strong>stateless</strong> and <strong>composable</strong>,
-allowing complex processing logic to be assembled from small, focused units.</p>
+  <p>A discrete logic unit that defines how a <a href="../cell/Receptor-class.html">Receptor</a> reacts to a <a href="../cell/Pulse-class.html">Pulse</a>.</p>
+<p>In the biological metaphor, <a href="../cell/Instruction-class.html">Instruction</a>s are the DNA of the <a href="../cell/Nucleus-class.html">Nucleus</a>.
+They provide the "blueprints" for signal transformation, allowing a
+<a href="../cell/Receptor-class.html">Receptor</a> to process stimuli with forensic integrity. Instructions are
+<strong>stateless</strong> and <strong>composable</strong>, allowing complex processing logic to be
+assembled from small, focused units.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use <a href="../cell/Instruction-class.html">Instruction</a> to encapsulate reusable transformations, filters, or
 side-effects that can be shared across multiple receptors. It is the
@@ -331,7 +331,7 @@ custom instructions.</li>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

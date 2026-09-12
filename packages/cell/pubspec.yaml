@@ -1,12 +1,13 @@
 name: cell
 description: Foundation layer of the Cell Framework — Cells, Nucleus, Context, Deputy Pattern, and Conactive execution with Causal Integrity.
-version: 1.0.0-rc.2
+version: 1.0.0-rc.3
 # Point this to the main project landing page
 homepage: https://github.com/simon-m-lee/cell
 # Point this specifically to the package subdirectory in the repository
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell
 # Align the tracker with the new repository name
 issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell#readme
 
 resolution: workspace
 

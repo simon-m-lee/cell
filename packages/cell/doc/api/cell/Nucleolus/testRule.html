@@ -72,14 +72,54 @@
     </section>
     
 <section class="desc markdown">
-  <p>The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <code>Cell</code>.</p>
+  <p>The active <a href="../../cell/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.</p>
+<p>In the biological metaphor of the framework, the <a href="../../cell/Nucleolus/testRule.html">testRule</a> acts as the
+<strong>Immune System</strong> or <strong>Quality Control</strong> mechanism of the <a href="../../cell/Nucleus-class.html">Nucleus</a>. It
+evaluates every incoming <a href="../../cell/Pulse-class.html">Pulse</a> to ensure that only stimuli meeting the
+node's structural and security constraints are permitted to evolve the state.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this to inspect or compose validation rules. You rarely modify it
-directly; instead, use <code>Cell.deputy</code> with a new <a href="../../cell/TestCell-class.html">TestCell</a>.</p>
+<ul>
+<li><strong>Integrity Validation</strong>: Defining business rules that must never be
+violated (e.g., "Account balance cannot be negative").</li>
+<li><strong>Security Constraints</strong>: Verifying that a <a href="../../cell/Pulse-class.html">Pulse</a> carries the
+necessary <a href="../../cell/Context-class.html">Context</a> authority before allowing a sensitive mutation.</li>
+<li><strong>State Consistency</strong>: Ensuring that complex structural changes in
+reactive collections maintain valid internal relationships.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Returns the <a href="../../cell/TestCell-class.html">TestCell</a> that validates all state changes. It is resolved
-by walking up the principal chain.</p>
+<p>The integrity gate employs a <strong>Tiered Resolution Strategy</strong> to determine
+the active rule for a specific cell handle:</p>
+<ol>
+<li><strong>Local Override</strong>: It first checks for a <a href="../../cell/TestCell-class.html">TestCell</a> defined
+explicitly in this node's local segment.</li>
+<li><strong>Prototype Inheritance</strong>: If not found locally, it walks up the
+<a href="../../cell/Nucleolus/principal.html">principal</a> chain to inherit a rule from its prototype (Flyweight pattern).</li>
+<li><strong>Causal Binding</strong>: If the resolved rule is the default
+<a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a> and the node is <a href="../../cell/Nucleolus/bind.html">bind</a>ed to an upstream source,
+it adopts the integrity gate of the bound cell to ensure causal parity.</li>
+<li><strong>Global Default</strong>: If no rule is found in the lineage or bindings,
+it defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Forensic Rejection</strong>: When a <a href="../../cell/Nucleolus/testRule.html">testRule</a> rejects a stimulus, the
+mutation is aborted. The framework records a <strong>Rejection Milestone</strong> in
+the forensic <a href="../../cell/Pulse/trace.html">Pulse.trace</a> and returns <code>null</code> rather than throwing a
+runtime exception, allowing for graceful self-healing logic.</li>
+<li><strong>Causal Consistency</strong>: The automatic inheritance from the <a href="../../cell/Nucleolus/bind.html">bind</a>
+target ensures that derived cells (projections) respect the same
+integrity constraints as their data sources by default.</li>
+<li><strong>Short-circuiting</strong>: The rule is evaluated synchronously <em>before</em> the
+<a href="../../cell/Receptor-class.html">Receptor</a> processes the pulse, preventing unnecessary computation or
+side-effects from invalid stimuli.</li>
+</ul>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><a href="../../cell/TestCell-class.html">TestCell</a> – The functional interface for defining integrity gates.</li>
+<li><a href="../../cell/Context-class.html">Context</a> – The operational anchor used within rules to verify authority.</li>
+<li><a href="../../cell/Receptor-class.html">Receptor</a> – The transformation logic that executes only after the gate clears.</li>
+</ul>
 </section>
 
     
@@ -116,7 +156,7 @@ TestCell&lt;Cell&gt; get testRule =&gt; TestCell.allowAll;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

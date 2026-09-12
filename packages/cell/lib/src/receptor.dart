@@ -10,13 +10,13 @@ part of '../cell.dart';
 // Instruction
 // ─────────────────────────────────────────────────────────────────────
 
-/// A reusable unit of logic for processing and transforming [Pulse] instances.
+/// A discrete logic unit that defines how a [Receptor] reacts to a [Pulse].
 ///
-/// [Instruction] is the foundational building block for [Receptor] pipelines.
-/// It encapsulates a discrete transformation logic that takes an incoming
-/// pulse and either evolves it into a new form or terminates the signal by
-/// returning `null`. Instructions are **stateless** and **composable**,
-/// allowing complex processing logic to be assembled from small, focused units.
+/// In the biological metaphor, [Instruction]s are the DNA of the [Nucleus].
+/// They provide the "blueprints" for signal transformation, allowing a
+/// [Receptor] to process stimuli with forensic integrity. Instructions are
+/// **stateless** and **composable**, allowing complex processing logic to be
+/// assembled from small, focused units.
 ///
 /// ### When to use
 /// Use [Instruction] to encapsulate reusable transformations, filters, or

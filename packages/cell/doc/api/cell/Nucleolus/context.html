@@ -72,14 +72,55 @@
     </section>
     
 <section class="desc markdown">
-  <p>The operational tier and execution environment assigned to the <a href="../../cell/Cell-class.html">Cell</a>
-associated with this <a href="../../cell/Nucleus-class.html">Nucleus</a>.</p>
+  <p>The operational <a href="../../cell/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../../cell/Cell-class.html">Cell</a> handle.</p>
+<p>The <a href="../../cell/Nucleolus/context.html">context</a> is a foundational architectural element that represents the
+"Identity" or "Provenance" under which the cell performs its logic. It
+acts as the primary metadata anchor for the <a href="../../cell/Nucleolus/testRule.html">testRule</a>, providing
+the necessary evidence to verify if an incoming <a href="../../cell/Pulse-class.html">Pulse</a> possesses the
+required authority to trigger a state transition.</p>
+<h3 id="architectural-significance-the-forensic-anchor">Architectural Significance: The Forensic Anchor</h3>
+<p>In a multi-package or monorepo environment, the context ensures
+<strong>Causal Integrity</strong>. It prevents unauthorized "cross-talk" between
+different layers of the application (e.g., a UI component attempting
+to trigger a low-level system-tier mutation) by validating the
+lineage of every stimulus.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You can read this to get the cell's security tier or domain. You rarely
-set it directly – use <code>Cell.governed</code> with a <a href="../../cell/Context-class.html">Context</a> instead.</p>
+<ul>
+<li><strong>Integrity Rules</strong>: Within a <a href="../../cell/TestCell-class.html">TestCell</a> gate to verify if the acting
+authority matches the expected tier for a specific command.</li>
+<li><strong>Forensic Auditing</strong>: When logging state changes to identify which
+subsystem or authority triggered the mutation.</li>
+<li><strong>Deputy Evolution</strong>: To use as a parent reference when calling
+<a href="../../cell/Context/evolve.html">Context.evolve</a> to create a more specialized or restricted scope.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Returns the <a href="../../cell/Context-class.html">Context</a> instance. It is resolved by walking up the
-principal chain; defaults to <a href="../../cell/Context/system-constant.html">Context.system</a>.</p>
+<p>The context employs a <strong>Tiered Resolution Strategy</strong> to determine the
+handle's identity:</p>
+<ol>
+<li><strong>Local Override</strong>: It first checks for a context defined explicitly
+in this nucleus's local segment.</li>
+<li><strong>Prototype Inheritance</strong>: If not found locally, it walks up the
+<a href="../../cell/Nucleolus/principal.html">principal</a> chain to inherit a context from its prototype.</li>
+<li><strong>Causal Binding</strong>: If the resolved context is the default
+<a href="../../cell/Context/system-constant.html">Context.system</a> and the node is <a href="../../cell/Nucleolus/bind.html">bind</a>ed to an upstream source, it
+adopts the context of the bound cell.</li>
+<li><strong>Global Default</strong>: If no context is found in the lineage or bindings,
+it defaults to <a href="../../cell/Context/system-constant.html">Context.system</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Immutability</strong>: The context is established during the <strong>Reciprocal
+Handshake</strong> at the node's synthesis and cannot be changed.</li>
+<li><strong>Deputy Restrictions</strong>: While a principal cell and its deputies share
+the same internal state, they each possess a unique <a href="../../cell/Nucleolus/context.html">context</a>, allowing
+for authority attenuation (e.g., a "Guest" deputy of a "System" cell).</li>
+<li><strong>Trace Stamping</strong>: Every <a href="../../cell/Pulse-class.html">Pulse</a> emitted by this cell is stamped with
+this context in the forensic <a href="../../cell/Pulse/trace.html">Pulse.trace</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The <a href="../../cell/Context-class.html">Context</a> instance representing the forensic anchor and authority
+tier of this node.</p>
 </section>
 
     
@@ -116,7 +157,7 @@ Context get context =&gt; Context.system;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

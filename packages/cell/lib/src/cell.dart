@@ -70,7 +70,7 @@ part of '../cell.dart';
 /// infrastructure nodes, not typical application state.
 ///
 /// For a rich ecosystem of reactive primitives, see **cell_flow**—a
-/// complementary library providing 79 instruction-layer `Flow` factories
+/// complementary library providing 90+ instruction-layer `Flow` factories
 /// for complex stream orchestration, advanced filtering, and
 /// high-level data synchronization.
 ///
@@ -82,6 +82,8 @@ part of '../cell.dart';
 /// {@category Getting Started}
 /// {@category Core}
 /// {@category Core 16 Operators}
+/// {@category Demo: aircraft}
+/// {@category Demo: hotel}
 abstract interface class Cell {
 
   /// Internal evolve of the cell, encapsulating its configuration.
@@ -2039,78 +2041,100 @@ abstract interface class Cell {
     Synapses synapses = Synapses.enabled,
   });
 
-  /// The authoritative **Integrity Gate** and validation rule governing this
-  /// cell's structural and operational boundaries.
+  /// The authoritative **Integrity Gate** governing this node's structural
+  /// boundaries and operational authority.
   ///
-  /// This property returns the [TestCell] instance—essentially the "Cell
-  /// Membrane"—which serves as the primary **Security Policy** for the node.
-  /// It dictates the conditions under which state transitions, signal
-  /// propagation, and command execution ([apply]) are permitted.
+  /// In the biological metaphor, the [validate] rule (a [TestCell] instance)
+  /// acts as the **Immune System** or **Cell Membrane**. It serves as the
+  /// primary security perimeter, evaluating every incoming [Pulse] to ensure
+  /// that only stimuli meeting the node's integrity constraints and
+  /// administrative authority are permitted to evolve the state.
   ///
   /// ### Architectural Significance: The Integrity Gate
-  /// In the Cell-Mitosis ecosystem, every interaction with a cell is
-  /// intercepted by its [validate] rule. This ensures that the reactive
-  /// graph remains in a consistent and authorized state, regardless of
-  /// where a stimulus originates.
-  ///
-  /// ### Validation Scope
-  /// The [validate] rule inspects multiple facets of an interaction:
-  /// - **Data Integrity**: Does the incoming value meet the domain constraints?
-  /// - **Action Authority**: Is the specific function passed to [apply]
-  ///   permitted by this node's security profile?
-  /// - **Causal Lineage**: Is the [Pulse] originating from an authorized
-  ///   upstream source or [Context]?
-  ///
-  /// ### Relationship with Deputies
-  /// When a cell is evolved into an attenuated proxy via [deputy], the
-  /// resulting handle possesses its own [validate] rule. However:
-  /// - **Rule Layering**: The deputy's rule is layered *on top* of the
-  ///   principal's rule.
-  /// - **Additive Constraint**: A deputy can only narrow the permissions
-  ///   (e.g., making a cell read-only); it can never bypass the root
-  ///   [validate] logic of the underlying principal cell.
-  ///
-  /// ### When to use
-  /// - **Security Auditing**: Inspecting the current constraints of a node
-  ///   at runtime for debugging or logging.
-  /// - **Dynamic Proxying**: Capturing the current rule to synthesize a
-  ///   new `Nucleus` or a specialized [Cell] with similar constraints.
-  /// - **Custom Handlers**: Developing framework-level tools that need to
-  ///   simulate or pre-verify a [Pulse] before dispatching it.
+  /// In a forensic-grade reactive environment, every interaction—whether
+  /// a direct value update or a complex command—is intercepted by
+  /// this gate. This ensures that the reactive graph remains consistent
+  /// and that the **Causal Lineage** of a state change is never broken.
   ///
   /// ### How it works
-  /// Before any state modification occurs, the cell invokes the internal
-  /// validation logic of the [TestCell]. If this check fails, the cell
-  /// suppresses the update, returns `null` to the caller, and prevents any
-  /// downstream notification, effectively neutralizing the "threat" to the
-  /// graph's integrity.
+  /// The integrity gate employs a **Tiered Resolution Strategy**:
+  /// 1. **Local Override**: It first checks for a [TestCell] defined
+  ///    explicitly in this handle's local segment.
+  /// 2. **Prototype Inheritance**: If not found locally, it searches up the
+  ///    inheritance chain (the prototype lineage) to inherit the rule from
+  ///    its parent node.
+  /// 3. **Causal Binding**: If the resolved rule is the default
+  ///    [TestCell.allowAll] and the node is bound to an upstream source,
+  ///    it adopts the integrity gate of that source.
+  /// 4. **Global Default**: If no rule is found in the lineage or
+  ///    bindings, it defaults to [TestCell.allowAll].
+  ///
+  /// ### Non‑obvious
+  /// - **Forensic Rejection**: If validation fails, the mutation is
+  ///   neutralized. The framework records a rejection milestone in the
+  ///   [Pulse.trace] and returns `null`, ensuring the "threat" is logged
+  ///   without crashing the application.
+  /// - **Synchronous Enforcement**: Validation happens before the
+  ///   transformation logic is executed, preventing side-effects from
+  ///   invalid data.
+  /// - **Deputy Narrowing**: A [deputy] handle can only narrow permissions;
+  ///   it can never bypass the root integrity logic of the underlying cell.
   ///
   /// ### Returns:
   /// The [TestCell] validator representing the active security perimeter
   /// of this node.
   TestCell get validate;
 
-  /// The operational [Context] defining the security tier, execution priority,
-  /// and administrative authority of this [Cell].
+  /// The operational [Context] defining the forensic identity, administrative
+  /// authority, and causal lineage of this specific [Cell] handle.
   ///
   /// The [context] is a foundational architectural element that represents the
-  /// "Identity" or "Scope" under which the cell performs its logic. It acts
-  /// as a mandatory metadata layer that informs the [validate] rule and
-  /// processing mechanisms about the provenance and permissions of
-  /// any entity attempting to interact with the node.
+  /// **Identity** or **Provenance** under which the cell performs its logic. It
+  /// acts as the primary metadata anchor for the [validate] rule, providing
+  /// the necessary evidence to verify if an incoming [Pulse] possesses the
+  /// required authority to trigger a state transition.
+  ///
+  /// ### Architectural Significance: The Forensic Anchor
+  /// In a multi-package or monorepo environment, the context ensures
+  /// **Causal Integrity**. It prevents unauthorized "cross-talk" between
+  /// different layers of the application (e.g., a UI component attempting
+  /// to trigger a low-level system-tier mutation) by validating the
+  /// lineage of every stimulus.
   ///
   /// ### When to use
-  /// You'll typically only read this when writing custom rules or when
-  /// creating a deputy that needs a different authority tier. For most
-  /// application code, the default [Context.system] is sufficient.
+  /// - **Integrity Rules**: Within a [TestCell] gate to verify if the acting
+  ///   authority matches the expected tier for a specific command.
+  /// - **Forensic Auditing**: When logging state changes to identify which
+  ///   subsystem or authority triggered the mutation.
+  /// - **Deputy Evolution**: To use as a parent reference when calling
+  ///   [Context.evolve] to create a more specialized or restricted scope.
   ///
   /// ### How it works
-  /// The context is immutable for the cell. If you need a different context,
-  /// create a deputy with a new context (which shares the same state).
+  /// The context employs a **Tiered Resolution Strategy** to determine the
+  /// handle's identity:
+  /// 1. **Local Override**: It first checks for a context defined explicitly
+  ///    in this node's local segment.
+  /// 2. **Prototype Inheritance**: If not found locally, it walks up the
+  ///    principal chain to inherit a context from its prototype.
+  /// 3. **Causal Binding**: If the resolved context is the default
+  ///    [Context.system] and the node is bound to an upstream source, it
+  ///    adopts the context of the bound cell.
+  /// 4. **Global Default**: If no context is found in the lineage or
+  ///    bindings, it defaults to [Context.system].
+  ///
+  /// ### Non‑obvious
+  /// - **Immutability**: The context is established during the **Reciprocal
+  ///   Handshake** at the node's synthesis and cannot be changed.
+  /// - **Deputy Restrictions**: While a principal cell and its deputies share
+  ///   the same internal state, they each possess a unique [context],
+  ///   allowing for authority attenuation (e.g., a "Guest" deputy of a
+  ///   "System" cell).
+  /// - **Trace Stamping**: Every [Pulse] emitted by this cell is stamped with
+  ///   this context in the forensic [Pulse.trace].
   ///
   /// ### Returns:
-  /// The [Context] instance representing the authority tier and operational
-  /// domain of this node.
+  /// The [Context] instance representing the forensic anchor and authority
+  /// tier of this node.
   Context get context;
 
   /// A boolean indicator identifying whether this [Cell] acts as a

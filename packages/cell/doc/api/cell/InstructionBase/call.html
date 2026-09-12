@@ -131,7 +131,11 @@ O? call(I pulse, {
   dynamic token
 }) {
   void future_({required Pulse? result, required dynamic token}) {
-    future?.call(result: result, token: token);
+    if (future != null) {
+      future(result: result, token: token);
+    }
+    &#47;&#47; When no external continuation is attached, the result is dropped
+    &#47;&#47; silently — this is the normal unit-testing &#47; terminal-cell path.
   }
 
   try {
@@ -180,7 +184,7 @@ O? call(I pulse, {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

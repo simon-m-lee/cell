@@ -162,18 +162,13 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-&#47;&#47; dynamic apply(Function function, List? positionalArguments, [Map&lt;Symbol, dynamic&gt;? namedArguments]) {
-dynamic apply(
-    Function function,
-{List? positionalArguments,
-    Map&lt;Symbol, dynamic&gt;? namedArguments,
-
-      ApplyTransactionScope? tx,
-      Function? compensate,
-      List? compensatePositional,
-      Map&lt;Symbol, dynamic&gt;? compensateNamed,
-      Cell? compensateCell,
-    }) {
+dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+  ApplyTransactionScope? tx,
+  Function? compensate,
+  List? compensatePositional,
+  Map&lt;Symbol, dynamic&gt;? compensateNamed,
+  Cell? compensateCell,
+}) {
 
   if (tx != null) {
     tx.enqueue(
@@ -241,7 +236,7 @@ dynamic apply(
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

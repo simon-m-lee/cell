@@ -52,8 +52,8 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
-    <span class="category advanced cp-8 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
-    <span class="category advanced-·-nucleus cp-13 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
+    <span class="category advanced cp-10 linked" title="This is part of the Advanced topic."><a href="../topics/Advanced-topic.html">Advanced</a></span>
+    <span class="category advanced-·-nucleus cp-15 linked" title="This is part of the Advanced · Nucleus topic."><a href="../topics/Nucleus-topic.html">Advanced&nbsp;·&nbsp;Nucleus</a></span>
 </h1></div>
 
     
@@ -183,8 +183,8 @@ with an independent synchronization domain.
 
 </dt>
 <dd>
-  The operational tier and execution environment assigned to the <a href="../cell/Cell-class.html">Cell</a>
-associated with this <a href="../cell/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -322,8 +322,8 @@ observers of this <a href="../cell/Cell-class.html">Cell</a>.
 
 </dt>
 <dd>
-  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <a href="../cell/Cell-class.html">Cell</a>.
+  The active <a href="../cell/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -470,7 +470,7 @@ as the architectural <strong>Blueprint</strong> for a <a href="../cell/Cell-clas
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -477,19 +477,17 @@ abstract interface class TissueEvent<E> implements Pulse<E> {
     PulseContext? context,
 
     String? type,
-
-    Cell? source,
+    Tissue? source,
     String? step,
-
     int? priority,
 
-    void Function(Pulse pulse)? onComplete,
-    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
-    void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
+    void Function(TissueEvent event)? onComplete,
+    void Function(TissueEvent event, Object error, {StackTrace? stackTrace})? onError,
+    void Function(TissueEvent event, Cell cell, {String? message})? onProgress,
 
-    FutureOr<TissueEvent?> Function(Receptor receptor)? scrutinize,
+    FutureOr<TissueEvent?> Function(TissueReceptor receptor)? scrutinize,
 
-  }) => _CollectiveTissueEvent<E>;
+  }) => _CollectiveTissueEvent<E>(events);
 
   /// Challenges a receptor to prove its authority before revealing the event.
   ///

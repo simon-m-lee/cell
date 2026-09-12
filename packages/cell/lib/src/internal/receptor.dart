@@ -295,11 +295,9 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
     void future_({required Pulse? result, required dynamic token}) {
       if (future != null) {
         future(result: result, token: token);
-      } else {
-        // Intentionally using print during [Instruction] unit testing.
-        // It should never happen when it is resided inside [Receptor]
-        print(UnimplementedError('[future] is null to forward (result: $result, token: $token)'));
       }
+      // When no external continuation is attached, the result is dropped
+      // silently — this is the normal unit-testing / terminal-cell path.
     }
 
     try {
@@ -652,7 +650,8 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     void Function()? init,
     dynamic Function()? user,
     bool isGoverned = false,
-  }) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, init: init, isGoverned: isGoverned)
+  }) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
+      reaction: reaction, user: user, init: init, isGoverned: isGoverned)
   );
 
   /// Creates a mask record for the receptor configuration.
@@ -842,6 +841,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.');
 
     if (!(incoming as PulseBase)._checker.add(cell)) {
+      print('DEBUG receptor: checker add false');
       return null;
     }
 
@@ -872,7 +872,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     final step = cell.context is DeputyContext
         ? (cell.context as DeputyContext).role ?? cell.toString()
         : cell.toString();
-    pulse = pulse.withStep(step) as PulseBase;
+    pulse = pulse.isComposite ? pulse : (pulse.withStep(step) as PulseBase);
 
     final result = _onPulseReceived(pulse);
     if (result != null) {
@@ -886,7 +886,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     final pulseEphemeralPolicy = pulse.policy;
     if (pulseEphemeralPolicy != null) {
       pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
-      return pulse.isInvalidated;
+      return !pulse.isInvalidated;
     }
     return true;
   }
@@ -895,7 +895,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
     if (ephemeralPolicy != null) {
       ephemeralPolicy(pulse, cell: cell);
-      return pulse.isInvalidated;
+      return !pulse.isInvalidated;
     }
     return true;
   }

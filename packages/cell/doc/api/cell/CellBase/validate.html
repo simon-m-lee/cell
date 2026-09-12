@@ -72,51 +72,44 @@
     </section>
     
 <section class="desc markdown">
-  <p>The authoritative <strong>Integrity Gate</strong> and validation rule governing this
-cell's structural and operational boundaries.</p>
-<p>This property returns the <a href="../../cell/TestCell-class.html">TestCell</a> instance—essentially the "Cell
-Membrane"—which serves as the primary <strong>Security Policy</strong> for the node.
-It dictates the conditions under which state transitions, signal
-propagation, and command execution (<a href="../../cell/CellBase/apply.html">apply</a>) are permitted.</p>
+  <p>The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.</p>
+<p>In the biological metaphor, the <a href="../../cell/CellBase/validate.html">validate</a> rule (a <a href="../../cell/TestCell-class.html">TestCell</a> instance)
+acts as the <strong>Immune System</strong> or <strong>Cell Membrane</strong>. It serves as the
+primary security perimeter, evaluating every incoming <a href="../../cell/Pulse-class.html">Pulse</a> to ensure
+that only stimuli meeting the node's integrity constraints and
+administrative authority are permitted to evolve the state.</p>
 <h3 id="architectural-significance-the-integrity-gate">Architectural Significance: The Integrity Gate</h3>
-<p>In the Cell-Mitosis ecosystem, every interaction with a cell is
-intercepted by its <a href="../../cell/CellBase/validate.html">validate</a> rule. This ensures that the reactive
-graph remains in a consistent and authorized state, regardless of
-where a stimulus originates.</p>
-<h3 id="validation-scope">Validation Scope</h3>
-<p>The <a href="../../cell/CellBase/validate.html">validate</a> rule inspects multiple facets of an interaction:</p>
-<ul>
-<li><strong>Data Integrity</strong>: Does the incoming value meet the domain constraints?</li>
-<li><strong>Action Authority</strong>: Is the specific function passed to <a href="../../cell/CellBase/apply.html">apply</a>
-permitted by this node's security profile?</li>
-<li><strong>Causal Lineage</strong>: Is the <a href="../../cell/Pulse-class.html">Pulse</a> originating from an authorized
-upstream source or <a href="../../cell/Context-class.html">Context</a>?</li>
-</ul>
-<h3 id="relationship-with-deputies">Relationship with Deputies</h3>
-<p>When a cell is evolved into an attenuated proxy via <a href="../../cell/CellBase/deputy.html">deputy</a>, the
-resulting handle possesses its own <a href="../../cell/CellBase/validate.html">validate</a> rule. However:</p>
-<ul>
-<li><strong>Rule Layering</strong>: The deputy's rule is layered <em>on top</em> of the
-principal's rule.</li>
-<li><strong>Additive Constraint</strong>: A deputy can only narrow the permissions
-(e.g., making a cell read-only); it can never bypass the root
-<a href="../../cell/CellBase/validate.html">validate</a> logic of the underlying principal cell.</li>
-</ul>
-<h3 id="when-to-use">When to use</h3>
-<ul>
-<li><strong>Security Auditing</strong>: Inspecting the current constraints of a node
-at runtime for debugging or logging.</li>
-<li><strong>Dynamic Proxying</strong>: Capturing the current rule to synthesize a
-new <code>Nucleus</code> or a specialized <code>Cell</code> with similar constraints.</li>
-<li><strong>Custom Handlers</strong>: Developing framework-level tools that need to
-simulate or pre-verify a <a href="../../cell/Pulse-class.html">Pulse</a> before dispatching it.</li>
-</ul>
+<p>In a forensic-grade reactive environment, every interaction—whether
+a direct value update or a complex command—is intercepted by
+this gate. This ensures that the reactive graph remains consistent
+and that the <strong>Causal Lineage</strong> of a state change is never broken.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>Before any state modification occurs, the cell invokes the internal
-validation logic of the <a href="../../cell/TestCell-class.html">TestCell</a>. If this check fails, the cell
-suppresses the update, returns <code>null</code> to the caller, and prevents any
-downstream notification, effectively neutralizing the "threat" to the
-graph's integrity.</p>
+<p>The integrity gate employs a <strong>Tiered Resolution Strategy</strong>:</p>
+<ol>
+<li><strong>Local Override</strong>: It first checks for a <a href="../../cell/TestCell-class.html">TestCell</a> defined
+explicitly in this handle's local segment.</li>
+<li><strong>Prototype Inheritance</strong>: If not found locally, it searches up the
+inheritance chain (the prototype lineage) to inherit the rule from
+its parent node.</li>
+<li><strong>Causal Binding</strong>: If the resolved rule is the default
+<a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a> and the node is bound to an upstream source,
+it adopts the integrity gate of that source.</li>
+<li><strong>Global Default</strong>: If no rule is found in the lineage or
+bindings, it defaults to <a href="../../cell/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Forensic Rejection</strong>: If validation fails, the mutation is
+neutralized. The framework records a rejection milestone in the
+<a href="../../cell/Pulse/trace.html">Pulse.trace</a> and returns <code>null</code>, ensuring the "threat" is logged
+without crashing the application.</li>
+<li><strong>Synchronous Enforcement</strong>: Validation happens before the
+transformation logic is executed, preventing side-effects from
+invalid data.</li>
+<li><strong>Deputy Narrowing</strong>: A <a href="../../cell/CellBase/deputy.html">deputy</a> handle can only narrow permissions;
+it can never bypass the root integrity logic of the underlying cell.</li>
+</ul>
 <h3 id="returns">Returns:</h3>
 <p>The <a href="../../cell/TestCell-class.html">TestCell</a> validator representing the active security perimeter
 of this node.</p>
@@ -156,7 +149,7 @@ TestCell get validate =&gt; _nucleus.testRule;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

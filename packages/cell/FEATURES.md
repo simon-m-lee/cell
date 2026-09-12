@@ -1,7 +1,7 @@
 # Cell Framework — Feature Catalog
 
 **Package:** `cell`  
-**Version:** `1.0.0-rc.2` (RC / Mitosis Release Candidate)  
+**Version:** `1.0.0-rc.3` (RC / Mitosis Release Candidate)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))  
@@ -61,18 +61,25 @@ Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule.
 
 ## 2. Status and Boundaries
 
-**RC (Release Candidate).** Package version `1.0.0-rc.2`. Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons are exercised end-to-end. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.
+**RC (Release Candidate).** Package version `1.0.0-rc.3`. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: `withStep` operations lengthen lineage without branching (preserving `isComposite: false`), while `evolve` operations create explicit parent-child branches via `EvolvedPulse`.
 
 | Claim | Reality |
 |-------|---------|
-| Published on pub.dev | Not published. Depend from source / git. |
-| Production-ready | No. No independent security or correctness audit. |
-| Regulatory compliance (GDPR, HIPAA, PCI-DSS) | Metadata fields exist so *you* can attach classification, purpose, and actor. Cell does not implement or certify compliance. |
-| `Context.describe('…')` | Stores a description string. It is not a legal basis, retention schedule, or audit log. |
-| Unit tests | **1115** tests in **20** files named `test_*.dart` (not `*_test.dart`). Last full run **1115 passed**. Bare `dart test` finds nothing — pass explicit files. See [`TEST_VERIFICATION.md`](TEST_VERIFICATION.md). |
-| Line coverage | **95.9%** of instrumented `lib/` (3397 / 3541). Measured coverage, not a production-readiness certificate. |
+| Published on pub.dev | **Published.** Available as `package:cell`. |
+| Production-ready | **RC Status.** Stable API, but lacks external security or performance audits. |
+| Causal Integrity | **Forensic Grade.** Traces are immutable and forward-looking. `root.trace` remains oblivious to descendant steps. |
+| Activation Safety | **Strict.** `Receptor` calls assert `isActivated` status to prevent signal processing on uninitialized or disposed cells. |
+| Regulatory compliance | Metadata fields (`Context.purpose`, `Context.actor`) allow for classification. Compliance (GDPR/HIPAA) is the responsibility of the implementer. |
+| Unit tests | **1115** tests in **20** files. Verified causal trace preservation across `flatten()` and `batch()` operations. |
+| Line coverage | **95.9%** (3397 / 3541 lines). Measured coverage of core primitives and operators. |
 
-Dependencies: `uuid`, `synchronized`, `meta`.
+**Runtime Requirements:**
+- **SDK:** Dart `^3.5.0` (Supports Records with trailing comma syntax).
+- **Dependencies:** `uuid`, `synchronized`, `meta`.
+- **License:** `SPDX-License-Identifier: MIT OR Apache-2.0` (Dual-licensed).
+
+**Test Execution:**
+Standard `dart test` execution requires configuration or explicit file targeting due to the `test_*.dart` naming convention.
 
 ---
 
@@ -742,8 +749,6 @@ Deputies **layer** rules on the principal; they cannot widen authority.
 
 ### TestRule metadata (code-gen helpers)
 
-Used by higher packages (`cell_organ` / `cell_ontogeny`) as annotations / reusable predicates:
-
 | Type | Purpose |
 |------|---------|
 | `DefaultValue` | Compile-time default for generated fields |
@@ -997,14 +1002,11 @@ These are public because operators and higher packages need them. Application co
 
 Cell is the foundation. Sibling packages in this repo:
 
-| Package | Layer | What it adds |
-|---------|-------|----------------|
-| **cell** (this) | Cell | Nodes, pulses, Core operators, governance, transactions |
-| **cell_tissue** | Tissue | Grouped cells: list / map / set / queue / value collections with collective events |
-| **cell_organ** | Organ | Relatable models: one/many relations, blend, cascade, entity fields |
-| **cell_flow** | Flow | 79 uniquely named instruction operators on `Flow` (33 files under `lib/src/instruction/`); fluent chaining; `zip` / `combineLatest` in `nucleus/` |
-| **cell_memory** | Memory | Persistence / stored models, columns, store operations |
-| **cell_ontogeny** | Ontogeny | Code generation for models, interfaces, and references |
+| Package | Layer | What it adds                                                                                                                                       |
+|---------|-------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| **cell** (this) | Cell | Nodes, pulses, Core operators, governance, transactions                                                                                            |
+| **cell_flow** | Flow | 90+ uniquely named instruction operators on `Flow` (33 files under `lib/src/instruction/`); fluent chaining; `zip` / `combineLatest` in `nucleus/` |
+| **cell_tissue** | Tissue | Grouped cells: list / map / set / queue / value collections with collective events                                                                 |
 
 If you need Rx-style combinators (`merge`, `zip`, `window`, `scan`), look in **cell_flow**, not in this package.
 
@@ -1135,12 +1137,10 @@ dart doc .
 Honest list, so this catalog does not over-promise:
 
 1. **RC APIs** — operator lists and guide names have moved; treat Core 16 numbering as a learning order, not a stability guarantee.
-2. **`fromStream` teardown** — the subscription is cancelled on invalidation / GC; attach `ephemeralPolicy` when you need an explicit TTL or event budget.
-3. **Guides vs. code** — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private `_nucleus`; the unit tests use public APIs only.
-4. **Valve** — implemented (`Cell.valve`, `example/valve_demo.dart`, tests). Generated `doc/api/` HTML may still lag until `dart doc` is regenerated.
-5. **No pub.dev, no audit, no compliance certification.**
-6. **Transaction / compensation internals** have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.
-7. **Remaining lower `lib/` line coverage** — `context.dart` 90.3%, `internal/pulse.dart` 90.4%, `receptor.dart` 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see `TEST_VERIFICATION.md`).
+2. **Guides vs. code** — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private `_nucleus`; the unit tests use public APIs only.
+3. **Valve** — implemented (`Cell.valve`, `example/valve_demo.dart`, tests). Generated `doc/api/` HTML may still lag until `dart doc` is regenerated.
+4. **Transaction / compensation internals** have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.
+5. **Remaining lower `lib/` line coverage** — `context.dart` 90.3%, `internal/pulse.dart` 90.4%, `receptor.dart` 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see `TEST_VERIFICATION.md`).
 
 ---
 

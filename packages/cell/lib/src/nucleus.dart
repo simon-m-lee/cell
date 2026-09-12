@@ -370,28 +370,102 @@ abstract interface class Nucleus {
   /// by walking up the principal chain if not defined locally.
   Receptor get receptor;
 
-  /// The **Policy Guard** and integrity engine responsible for governing state
-  /// mutations and operational permissions for the associated [Cell].
+  /// The active [TestCell] integrity gate that governs and validates all state
+  /// transitions for this node.
+  ///
+  /// In the biological metaphor of the framework, the [testRule] acts as the
+  /// **Immune System** or **Quality Control** mechanism of the [Nucleus]. It
+  /// evaluates every incoming [Pulse] to ensure that only stimuli meeting the
+  /// node's structural and security constraints are permitted to evolve the state.
   ///
   /// ### When to use
-  /// Use this to inspect or compose validation rules. You rarely modify it
-  /// directly; instead, use `Cell.deputy` with a new [TestCell].
+  /// - **Integrity Validation**: Defining business rules that must never be
+  ///   violated (e.g., "Account balance cannot be negative").
+  /// - **Security Constraints**: Verifying that a [Pulse] carries the
+  ///   necessary [Context] authority before allowing a sensitive mutation.
+  /// - **State Consistency**: Ensuring that complex structural changes in
+  ///   reactive collections maintain valid internal relationships.
   ///
   /// ### How it works
-  /// Returns the [TestCell] that validates all state changes. It is resolved
-  /// by walking up the principal chain.
+  /// The integrity gate employs a **Tiered Resolution Strategy** to determine
+  /// the active rule for a specific cell handle:
+  /// 1. **Local Override**: It first checks for a [TestCell] defined
+  ///    explicitly in this node's local segment.
+  /// 2. **Prototype Inheritance**: If not found locally, it walks up the
+  ///    [principal] chain to inherit a rule from its prototype (Flyweight pattern).
+  /// 3. **Causal Binding**: If the resolved rule is the default
+  ///    [TestCell.allowAll] and the node is [bind]ed to an upstream source,
+  ///    it adopts the integrity gate of the bound cell to ensure causal parity.
+  /// 4. **Global Default**: If no rule is found in the lineage or bindings,
+  ///    it defaults to [TestCell.allowAll].
+  ///
+  /// ### Non‑obvious
+  /// - **Forensic Rejection**: When a [testRule] rejects a stimulus, the
+  ///   mutation is aborted. The framework records a **Rejection Milestone** in
+  ///   the forensic [Pulse.trace] and returns `null` rather than throwing a
+  ///   runtime exception, allowing for graceful self-healing logic.
+  /// - **Causal Consistency**: The automatic inheritance from the [bind]
+  ///   target ensures that derived cells (projections) respect the same
+  ///   integrity constraints as their data sources by default.
+  /// - **Short-circuiting**: The rule is evaluated synchronously *before* the
+  ///   [Receptor] processes the pulse, preventing unnecessary computation or
+  ///   side-effects from invalid stimuli.
+  ///
+  /// ### See also:
+  /// * [TestCell] – The functional interface for defining integrity gates.
+  /// * [Context] – The operational anchor used within rules to verify authority.
+  /// * [Receptor] – The transformation logic that executes only after the gate clears.
   TestCell get testRule;
 
-  /// The operational tier and execution environment assigned to the [Cell]
-  /// associated with this [Nucleus].
+  /// The operational [Context] defining the forensic identity, administrative
+  /// authority, and causal lineage of this specific [Cell] handle.
+  ///
+  /// The [context] is a foundational architectural element that represents the
+  /// "Identity" or "Provenance" under which the cell performs its logic. It
+  /// acts as the primary metadata anchor for the [testRule], providing
+  /// the necessary evidence to verify if an incoming [Pulse] possesses the
+  /// required authority to trigger a state transition.
+  ///
+  /// ### Architectural Significance: The Forensic Anchor
+  /// In a multi-package or monorepo environment, the context ensures
+  /// **Causal Integrity**. It prevents unauthorized "cross-talk" between
+  /// different layers of the application (e.g., a UI component attempting
+  /// to trigger a low-level system-tier mutation) by validating the
+  /// lineage of every stimulus.
   ///
   /// ### When to use
-  /// You can read this to get the cell's security tier or domain. You rarely
-  /// set it directly – use `Cell.governed` with a [Context] instead.
+  /// - **Integrity Rules**: Within a [TestCell] gate to verify if the acting
+  ///   authority matches the expected tier for a specific command.
+  /// - **Forensic Auditing**: When logging state changes to identify which
+  ///   subsystem or authority triggered the mutation.
+  /// - **Deputy Evolution**: To use as a parent reference when calling
+  ///   [Context.evolve] to create a more specialized or restricted scope.
   ///
   /// ### How it works
-  /// Returns the [Context] instance. It is resolved by walking up the
-  /// principal chain; defaults to [Context.system].
+  /// The context employs a **Tiered Resolution Strategy** to determine the
+  /// handle's identity:
+  /// 1. **Local Override**: It first checks for a context defined explicitly
+  ///    in this nucleus's local segment.
+  /// 2. **Prototype Inheritance**: If not found locally, it walks up the
+  ///    [principal] chain to inherit a context from its prototype.
+  /// 3. **Causal Binding**: If the resolved context is the default
+  ///    [Context.system] and the node is [bind]ed to an upstream source, it
+  ///    adopts the context of the bound cell.
+  /// 4. **Global Default**: If no context is found in the lineage or bindings,
+  ///    it defaults to [Context.system].
+  ///
+  /// ### Non‑obvious
+  /// - **Immutability**: The context is established during the **Reciprocal
+  ///   Handshake** at the node's synthesis and cannot be changed.
+  /// - **Deputy Restrictions**: While a principal cell and its deputies share
+  ///   the same internal state, they each possess a unique [context], allowing
+  ///   for authority attenuation (e.g., a "Guest" deputy of a "System" cell).
+  /// - **Trace Stamping**: Every [Pulse] emitted by this cell is stamped with
+  ///   this context in the forensic [Pulse.trace].
+  ///
+  /// ### Returns:
+  /// The [Context] instance representing the forensic anchor and authority
+  /// tier of this node.
   Context get context;
 
   /// The optional reference to a precursor [Nucleus] in the inheritance

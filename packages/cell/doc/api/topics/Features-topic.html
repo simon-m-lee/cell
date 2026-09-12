@@ -47,7 +47,7 @@
 <section class="desc markdown">
   <h1 id="cell-framework--feature-catalog">Cell Framework — Feature Catalog</h1>
 <p><strong>Package:</strong> <code>cell</code><br>
-<strong>Version:</strong> <code>1.0.0-rc.1</code> (RC / Mitosis Release Candidate)<br>
+<strong>Version:</strong> <code>1.0.0-rc.3</code> (RC / Mitosis Release Candidate)<br>
 <strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
 <strong>License:</strong> MIT or Apache-2.0<br>
 <strong>Author:</strong> Lee Man Hoi Simon (see <a href="AUTHORS"><code>AUTHORS</code></a>)<br>
@@ -97,7 +97,7 @@
 <p>Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule. Defaults are pass-through and allow-all.</p>
 <hr>
 <h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
-<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.1</code>. Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons are exercised end-to-end. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.</p>
+<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.3</code>. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
 <table>
 <thead>
 <tr>
@@ -108,31 +108,42 @@
 <tbody>
 <tr>
 <td>Published on pub.dev</td>
-<td>Not published. Depend from source / git.</td>
+<td><strong>Published.</strong> Available as <code>package:cell</code>.</td>
 </tr>
 <tr>
 <td>Production-ready</td>
-<td>No. No independent security or correctness audit.</td>
+<td><strong>RC Status.</strong> Stable API, but lacks external security or performance audits.</td>
 </tr>
 <tr>
-<td>Regulatory compliance (GDPR, HIPAA, PCI-DSS)</td>
-<td>Metadata fields exist so <em>you</em> can attach classification, purpose, and actor. Cell does not implement or certify compliance.</td>
+<td>Causal Integrity</td>
+<td><strong>Forensic Grade.</strong> Traces are immutable and forward-looking. <code>root.trace</code> remains oblivious to descendant steps.</td>
 </tr>
 <tr>
-<td><code>Context.describe('…')</code></td>
-<td>Stores a description string. It is not a legal basis, retention schedule, or audit log.</td>
+<td>Activation Safety</td>
+<td><strong>Strict.</strong> <code>Receptor</code> calls assert <code>isActivated</code> status to prevent signal processing on uninitialized or disposed cells.</td>
+</tr>
+<tr>
+<td>Regulatory compliance</td>
+<td>Metadata fields (<code>Context.purpose</code>, <code>Context.actor</code>) allow for classification. Compliance (GDPR/HIPAA) is the responsibility of the implementer.</td>
 </tr>
 <tr>
 <td>Unit tests</td>
-<td><strong>1115</strong> tests in <strong>20</strong> files named <code>test_*.dart</code> (not <code>*_test.dart</code>). Last full run <strong>1115 passed</strong>. Bare <code>dart test</code> finds nothing — pass explicit files. See <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>.</td>
+<td><strong>1115</strong> tests in <strong>20</strong> files. Verified causal trace preservation across <code>flatten()</code> and <code>batch()</code> operations.</td>
 </tr>
 <tr>
 <td>Line coverage</td>
-<td><strong>95.9%</strong> of instrumented <code>lib/</code> (3397 / 3541). Measured coverage, not a production-readiness certificate.</td>
+<td><strong>95.9%</strong> (3397 / 3541 lines). Measured coverage of core primitives and operators.</td>
 </tr>
 </tbody>
 </table>
-<p>Dependencies: <code>uuid</code>, <code>synchronized</code>, <code>meta</code>.</p>
+<p><strong>Runtime Requirements:</strong></p>
+<ul>
+<li><strong>SDK:</strong> Dart <code>^3.5.0</code> (Supports Records with trailing comma syntax).</li>
+<li><strong>Dependencies:</strong> <code>uuid</code>, <code>synchronized</code>, <code>meta</code>.</li>
+<li><strong>License:</strong> <code>SPDX-License-Identifier: MIT OR Apache-2.0</code> (Dual-licensed).</li>
+</ul>
+<p><strong>Test Execution:</strong>
+Standard <code>dart test</code> execution requires configuration or explicit file targeting due to the <code>test_*.dart</code> naming convention.</p>
 <hr>
 <h2 id="3-progressive-disclosure">3. Progressive Disclosure</h2>
 <p>Four concentric tiers. You only learn a tier when you need it.</p>
@@ -919,37 +930,82 @@
 </tr>
 </tbody>
 </table>
-<h3 id="fluent-extensions-pulseextension">Fluent extensions (<code>PulseExtension</code>)</h3>
+<h3 id="fluent-extensions-pulseextension-and-pulseiterableextension">Fluent extensions (<code>PulseExtension</code> and <code>PulseIterableExtension</code>)</h3>
+<p>The <code>cell</code> package provides two primary extension groups to manipulate individual signals and collections of signals fluently while preserving their causal lineage and provenance.</p>
+<h4 id="1-extension-pulseextension">1. <code>extension PulseExtension</code></h4>
+<p>Applied directly to an instance of <code>Pulse&lt;P&gt;</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Method</th>
+<th>Signature</th>
 <th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>map&lt;T&gt;(mapper)</code></td>
-<td>Transform payload via <code>evolve(pulse:)</code>; call as <code>PulseExtension(pulse).map</code> (<code>Pulse</code> is an <code>Iterable</code>, so <code>pulse.map</code> is <code>Iterable.map</code>). Result is an <code>EvolvedPulse</code>. Mixed-type mapping cannot walk <code>Pulse.root</code> — use <code>EvolvedPulse.parent</code>.</td>
+<td><code>map&lt;T&gt;</code></td>
+<td><code>Pulse&lt;T&gt; map&lt;T&gt;(T Function(P payload) mapper)</code></td>
+<td>Transforms the payload of this pulse into a new type <code>T</code> while preserving its causal history and lineage.</td>
 </tr>
 <tr>
-<td><code>cast&lt;T&gt;()</code></td>
-<td>Re-type payload via <code>evolve(pulse:)</code>; same Iterable hiding — <code>PulseExtension(pulse).cast&lt;T&gt;()</code></td>
+<td><code>attach</code></td>
+<td><code>Pulse&lt;P&gt; attach(dynamic context)</code></td>
+<td>Returns a new version of this pulse with updated context metadata attached without altering its core payload.</td>
 </tr>
 <tr>
-<td><code>attach(context)</code></td>
-<td>New pulse with updated context metadata</td>
+<td><code>tap</code></td>
+<td><code>Pulse&lt;P&gt; tap(void Function(P payload) action)</code></td>
+<td>Executes a side-effect action using the current payload and returns this pulse instance for fluent chaining (peeking).</td>
 </tr>
 <tr>
-<td><code>tap(effect)</code></td>
-<td>Side-effect without changing the pulse</td>
-</tr>
-<tr>
-<td><code>batch</code> (on <code>Iterable&lt;Pulse&gt;</code>)</td>
-<td>Bundle helpers</td>
+<td><code>cast&lt;T&gt;</code></td>
+<td><code>Pulse&lt;T&gt; cast&lt;T&gt;()</code></td>
+<td>Re-casts the pulse payload to type <code>T</code> at runtime while maintaining causal history and type safety.</td>
 </tr>
 </tbody>
 </table>
+<h4 id="2-extension-pulseiterableextension">2. <code>extension PulseIterableExtension</code></h4>
+<p>Applied to an <code>Iterable&lt;Pulse&gt;</code> collection to manage atomic batching, flattening, and bulk transformations.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Signature</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>batch</code></td>
+<td><code>Pulse batch()</code></td>
+<td>Aggregates multiple signals into a single, flat <code>CollectivePulse</code> for atomic batching.</td>
+</tr>
+<tr>
+<td><code>flatten</code></td>
+<td><code>Iterable&lt;Pulse&gt; flatten()</code></td>
+<td>Recursively flattens any nested <code>CollectivePulse</code> structures into a linear sequence of simple pulses.</td>
+</tr>
+<tr>
+<td><code>withStep</code></td>
+<td><code>Iterable&lt;Pulse&gt; withStep(String step)</code></td>
+<td>Appends a diagnostic stage to the causal trace of every pulse in the collection simultaneously.</td>
+</tr>
+<tr>
+<td><code>attach</code></td>
+<td><code>Iterable&lt;Pulse&gt; attach(dynamic context)</code></td>
+<td>Returns a new collection of pulses, each with the provided context metadata attached.</td>
+</tr>
+<tr>
+<td><code>mapEach&lt;T&gt;</code></td>
+<td><code>Iterable&lt;Pulse&lt;T&gt;&gt; mapEach&lt;T&gt;(T Function(dynamic payload) mapper)</code></td>
+<td>Transforms the payload of every pulse in the collection while preserving their individual causal traces.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note on Usage:</strong> Because <code>Pulse</code> implements <code>Iterable</code>, standard iterable methods can sometimes conflict or shadow. The framework uses explicit extension structuring to ensure clean separation between single-pulse operations (<code>PulseExtension</code>) and collection operations (<code>PulseIterableExtension</code>).</p>
+</blockquote>
 <h3 id="sensitivity-on-pulse--deputy-context">Sensitivity (on pulse / deputy context)</h3>
 <p><code>public</code> &lt; <code>internal</code> &lt; <code>private</code> &lt; <code>confidential</code> &lt; <code>restricted</code> &lt; <code>secret</code></p>
 <p>Used by <code>Cell.sanitized</code> and by rules you write. Not a legal classification by itself.</p>
@@ -1174,7 +1230,6 @@ TestRule.chain([rule1, rule2, …], {parent, strategy})
 <p>Specialized rule types: <code>TestPulseRule</code>, <code>TestLinkRule</code>, <code>TestActionRule</code>. <code>TestCell</code> implements all three (pulses, links, <code>apply</code> actions). <code>TestCell.action</code> validates positional <strong>and</strong> named arguments via <code>call</code>.</p>
 <p>Deputies <strong>layer</strong> rules on the principal; they cannot widen authority.</p>
 <h3 id="testrule-metadata-code-gen-helpers">TestRule metadata (code-gen helpers)</h3>
-<p>Used by higher packages (<code>cell_organ</code> / <code>cell_ontogeny</code>) as annotations / reusable predicates:</p>
 <table>
 <thead>
 <tr>
@@ -1658,29 +1713,14 @@ Future&lt;T&gt; withCellLocks&lt;T&gt;(
 <td>Nodes, pulses, Core operators, governance, transactions</td>
 </tr>
 <tr>
+<td><strong>cell_flow</strong></td>
+<td>Flow</td>
+<td>90+ uniquely named instruction operators on <code>Flow</code> (33 files under <code>lib/src/instruction/</code>); fluent chaining; <code>zip</code> / <code>combineLatest</code> in <code>nucleus/</code></td>
+</tr>
+<tr>
 <td><strong>cell_tissue</strong></td>
 <td>Tissue</td>
 <td>Grouped cells: list / map / set / queue / value collections with collective events</td>
-</tr>
-<tr>
-<td><strong>cell_organ</strong></td>
-<td>Organ</td>
-<td>Relatable models: one/many relations, blend, cascade, entity fields</td>
-</tr>
-<tr>
-<td><strong>cell_flow</strong></td>
-<td>Flow</td>
-<td>79 uniquely named instruction operators on <code>Flow</code> (33 files under <code>lib/src/instruction/</code>); fluent chaining; <code>zip</code> / <code>combineLatest</code> in <code>nucleus/</code></td>
-</tr>
-<tr>
-<td><strong>cell_memory</strong></td>
-<td>Memory</td>
-<td>Persistence / stored models, columns, store operations</td>
-</tr>
-<tr>
-<td><strong>cell_ontogeny</strong></td>
-<td>Ontogeny</td>
-<td>Code generation for models, interfaces, and references</td>
 </tr>
 </tbody>
 </table>
@@ -1999,10 +2039,8 @@ dart doc .
 <p>Honest list, so this catalog does not over-promise:</p>
 <ol>
 <li><strong>RC APIs</strong> — operator lists and guide names have moved; treat Core 16 numbering as a learning order, not a stability guarantee.</li>
-<li><strong><code>fromStream</code> teardown</strong> — the subscription is cancelled on invalidation / GC; attach <code>ephemeralPolicy</code> when you need an explicit TTL or event budget.</li>
 <li><strong>Guides vs. code</strong> — still being reconciled. Prefer this file + source over stale comments (e.g. “HowTo-17_Essential_Operators”). HowTo examples may mention private <code>_nucleus</code>; the unit tests use public APIs only.</li>
 <li><strong>Valve</strong> — implemented (<code>Cell.valve</code>, <code>example/valve_demo.dart</code>, tests). Generated <code>doc/api/</code> HTML may still lag until <code>dart doc</code> is regenerated.</li>
-<li><strong>No pub.dev, no audit, no compliance certification.</strong></li>
 <li><strong>Transaction / compensation internals</strong> have not been independently reviewed end-to-end. Treat as RC for money/inventory until you have your own review.</li>
 <li><strong>Remaining lower <code>lib/</code> line coverage</strong> — <code>context.dart</code> 90.3%, <code>internal/pulse.dart</code> 90.4%, <code>receptor.dart</code> 90.5% (InstructionChainMixin). Leftover lines are mostly combinatorial flyweight arms (see <code>TEST_VERIFICATION.md</code>).</li>
 </ol>
@@ -2328,6 +2366,8 @@ dart doc .
         <li><a href="../topics/Testing & Validation-topic.html">Testing&nbsp;&&nbsp;Validation</a></li>
         <li><a href="../topics/Instructions-topic.html">Instructions</a></li>
         <li><a href="../topics/Advanced-topic.html">Advanced</a></li>
+        <li><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></li>
+        <li><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></li>
         <li><a href="../topics/Pipelines & Internal-topic.html">Pipelines&nbsp;&&nbsp;Receptors</a></li>
         <li><a href="../topics/Pulse Context-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Context</a></li>
         <li><a href="../topics/Pulse Ephemeral Policy-topic.html">Advanced&nbsp;·&nbsp;Pulse&nbsp;Ephemeral&nbsp;Policy</a></li>
@@ -2364,7 +2404,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

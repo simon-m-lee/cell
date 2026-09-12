@@ -130,64 +130,35 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
   assert(isActivated,
   &#39;Receptor call failed: The receptor must be activated before it can process pulses. &#39;
       &#39;Verify that the host cell has been properly initialized and is not in a disposed state.&#39;);
+  &#47;&#47; assert(!cell.isInvalidated,
+  &#47;&#47; &#39;Receptor call failed: The [cell] the receptor is activated with is in a disposed state.&#39;);
+  assert(!incoming.isInvalidated,
+  &#39;Receptor call failed: The [incoming] pulse is in a disposed state.&#39;);
 
   if (incoming is Shell) {
     return incoming.scrutinize(this, null);
   }
 
-  var pulse = incoming as PulseBase;
-  if (!isActivated || !pulse._checker.add(cell)) return null;
-
-  FutureOr&lt;Pulse?&gt; proceed() {
-
-    if (isGoverned) {
-      if (cell.isInvalidated || pulse.isInvalidated) return null;
-
-      final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
-      if (ephemeralPolicy != null) {
-        ephemeralPolicy(pulse, cell: cell);
-        if (pulse.isInvalidated) return null;
-      }
-    }
-    if (cell.isInvalidated) {
-      return null;
-    }
-
-    if (pulse.isGoverned) {
-
-      if (pulse.isInvalidated) return null;
-
-      final pulseEphemeralPolicy = pulse.policy;
-      if (pulseEphemeralPolicy != null) {
-        pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
-        if (pulse.isInvalidated) return null;
-      }
-
-      final step = cell.context is DeputyContext
-          ? (cell.context as DeputyContext).role ?? cell.toString()
-          : cell.toString();
-
-      pulse = pulse.withStep(step) as PulseBase;
-    }
-    if (pulse.isInvalidated) {
-      return null;
-    }
-
-    final result = _onPulseReceived(pulse);
-    if (result != null) {
-      _propagate(pulse, result: result);
-    }
-    return result;
+  if (incoming.isInvalidated) {
+    return null;
   }
 
-  final validation = cell.validate(pulse, host: cell);
+  assert(incoming is PulseBase,
+  &#39;Receptor call failed: The [incoming] pulse is not implemented from PulseBase.&#39;);
+
+  if (!(incoming as PulseBase)._checker.add(cell)) {
+    print(&#39;DEBUG receptor: checker add false&#39;);
+    return null;
+  }
+
+  final validation = cell.validate(incoming, host: cell);
   if (validation is Future&lt;bool&gt;) {
-    return validation.then((isValid) =&gt; isValid ? proceed() : null);
+    return validation.then((isValid) =&gt; isValid ? _proceed(incoming) : null);
   } else if (!validation) {
     return null;
   }
 
-  return proceed();
+  return _proceed(incoming);
 }</code></pre>
 </section>
 
@@ -216,7 +187,7 @@ FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

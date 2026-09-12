@@ -30,12 +30,11 @@ It is more machinery than you need for a couple of flags, a basic form, or a sin
 
 ## Install
 
-The package is not on pub.dev. From this monorepo:
+The package is on pub.dev. From this monorepo:
 
 ```yaml
 dependencies:
-  cell:
-    path: packages/cell
+  cell: 1.0.0-rc.3
 ```
 
 From git:
@@ -44,7 +43,7 @@ From git:
 dependencies:
   cell:
     git:
-      url: https://github.com/simon-m-lee/Cell-Framework-Mitosis.git
+      url: https://github.com/simon-m-lee/cell.git
       path: packages/cell
 ```
 
@@ -155,14 +154,11 @@ If a guide and the source disagree, **the source is current**.
 
 ## Ecosystem
 
-| Package | Delivery | Adds |
-|---------|----------|------|
-| **cell** (this) | Now      | Nodes, pulses, operators, governance, transactions |
-| **cell_tissue** | Sept 26  | Reactive collections (list / map / set / queue) |
-| **cell_organ** | Sept 26    | Relatable models (one / many, cascade, blend) |
-| **cell_flow** | Sept 26  | 79 instruction factories on `Flow`, plus fluent chaining (`mapTo`, `asyncExpand`, `zip`, …) |
-| **cell_memory** | TBD      | Persistence and storage adapters |
-| **cell_ontogeny** | Sept 26  | Code generation |
+| Package | Delivery | Adds                                                                                          |
+|---------|----------|-----------------------------------------------------------------------------------------------|
+| **cell** (this) | Now      | Nodes, pulses, operators, governance, transactions                                            |
+| **cell_flow** | Now      | 100+ instruction factories on `Flow`, plus fluent chaining (`mapTo`, `asyncExpand`, `zip`, …) |
+| **cell_tissue** | Now      | Reactive collections (list / map / set / queue)                                               |
 
 Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) and drive `setState` or your existing state library.
 
@@ -170,11 +166,11 @@ Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) 
 
 ## Status
 
-**RC** (Mitosis `1.0.0-rc.2`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
+**RC** (Mitosis `1.0.0-rc.3`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
 
 A fuller developer list is in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Known limits, so this page does not over-promise:
 
-- Not published to pub.dev. No independent security or correctness audit.
+- Published to pub.dev.
 - `Context`, `PulseContext`, and `Sensitivity` let you *attach* classification, actor, and purpose. They do not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation. `Context.describe('…')` stores text; it is not a legal basis or an audit log.
 
 Feedback and issues are useful at this stage.

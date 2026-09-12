@@ -427,14 +427,22 @@ abstract class NucleusBase implements Nucleus {
 
   @override
   TestCell get testRule {
-    return get<TestCell>(() => record.local.inheritable.testRule,
+    final localRule = get<TestCell>(() => record.local.inheritable.testRule,
         fallback: () => principal?.testRule, orElse: TestCell.allowAll);
+    if (localRule != TestCell.allowAll) return localRule;
+    if (bind != null) return bind!._nucleus.testRule;
+    return localRule;
   }
 
   @override
-  Context get context => get<Context>(() => record.local.inheritable.context,
+  Context get context {
+    final localCtx = get<Context>(() => record.local.inheritable.context,
       fallback: () => principal?.context, orElse: Context.system
-  );
+    );
+    if (localCtx != Context.system) return localCtx;
+    if (bind != null) return bind!.context;
+    return localCtx;
+  }
 
   @override
   Nucleus? get principal => get<Nucleus?>(() => record.principal, orElse: null);

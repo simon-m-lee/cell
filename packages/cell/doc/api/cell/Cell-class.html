@@ -54,6 +54,8 @@
  
     <span class="category getting-started cp-1 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
     <span class="category core-16-operators cp-2 linked" title="This is part of the Core 16 Operators topic."><a href="../topics/Core 16 Operators-topic.html">Core&nbsp;16&nbsp;Operators</a></span>
+    <span class="category demo:aircraft cp-3 linked" title="This is part of the Demo:aircraft topic."><a href="../topics/Demo: aircraft-topic.html">Demo:aircraft</a></span>
+    <span class="category demo:hotel cp-4 linked" title="This is part of the Demo:hotel topic."><a href="../topics/Demo: hotel-topic.html">Demo:hotel</a></span>
 </h1></div>
 
     
@@ -115,7 +117,7 @@ lifecycle, security tier, and concurrency. Reach for these only when
 the operators above are genuinely insufficient — e.g. building
 infrastructure nodes, not typical application state.</p>
 <p>For a rich ecosystem of reactive primitives, see <strong>cell_flow</strong>—a
-complementary library providing 79 instruction-layer <code>Flow</code> factories
+complementary library providing 90+ instruction-layer <code>Flow</code> factories
 for complex stream orchestration, advanced filtering, and
 high-level data synchronization.</p>
 <h3 id="see-also">See Also:</h3>
@@ -207,8 +209,8 @@ its <strong>Identity Lifecycle</strong>, <strong>Administrative Policy</strong>,
 
 </dt>
 <dd>
-  The operational <a href="../cell/Context-class.html">Context</a> defining the security tier, execution priority,
-and administrative authority of this <a href="../cell/Cell-class.html">Cell</a>.
+  The operational <a href="../cell/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -308,8 +310,8 @@ execution on this node via the dynamic <a href="../cell/Cell/apply.html">apply</
 
 </dt>
 <dd>
-  The authoritative <strong>Integrity Gate</strong> and validation rule governing this
-cell's structural and operational boundaries.
+  The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -558,7 +560,7 @@ and compliance mandates.
 </dd>
 
         <dt id="state" class="callable">
-  <span class="name"><a href="../cell/Cell/state.html">state</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="state-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="state-param-evolve"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">evolve</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span></span>)?</span>})
+  <span class="name"><a href="../cell/Cell/state.html">state</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="state-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="state-param-evolve"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">evolve</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span></span>)?, </span><span class="parameter" id="state-param-testRule"><span class="type-annotation"><a href="../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell/StateHandle.html">StateHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
   </span>
   
@@ -681,7 +683,7 @@ reactive circuit breaker, controlling signal propagation through the graph.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>

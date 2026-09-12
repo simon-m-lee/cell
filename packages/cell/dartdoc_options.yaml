@@ -23,6 +23,12 @@ dartdoc:
     "Core 16 Operators":
       markdown: guide/HowTo-16_Essential_Operators.md
       displayName: Core 16 Operators
+    "Demo: aircraft":
+      markdown: example/aircraft-gate-turnaround-WalkThrough.md
+      displayName: Demo:aircraft
+    "Demo: hotel":
+      markdown: example/hotel-front-desk-checkin-WalkThrough.md
+      displayName: Demo:hotel
     "Pulse":
       markdown: guide/HowTo-Pulse.md
       displayName: Pulse
@@ -81,6 +87,8 @@ dartdoc:
     - "Architecture"
     - "Getting Started"
     - "Core 16 Operators"
+    - "Demo: aircraft"
+    - "Demo: hotel"
     - "Pulse"
     - "Signals & Synapses"
     - "Testing & Validation"

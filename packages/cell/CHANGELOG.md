@@ -1,3 +1,37 @@
+## Mitosis (1.0.0-rc.3) - Release Candidate
+
+This release formalizes the **Forensic Identity** and **Causal Anchor** logic within the core layer. It introduces tiered resolution for integrity gates and synchronizes the monorepo governance to support high-integrity, multi-package development.
+
+### Workspace & Monorepo Governance
+- **Workspace Resolution**: Migrated the package to `resolution: workspace`. Removed manual `dependency_overrides` in favor of Dart's native workspace resolution, ensuring a unified lockfile and consistent dependency trees.
+- **Metadata Standardization**: Updated `pubspec.yaml` to include precise `repository` and `issue_tracker` links for better package discovery and forensic traceability of the source code.
+- **Platform Alignment**: Explicitly declared support for Android, iOS, Linux, macOS, Windows, and Web platforms in the package manifest.
+
+### Forensic Identity & Integrity Gates
+- **Context as Causal Anchor**: Refined the `Context` logic. It now serves as a persistent **Forensic Anchor**, defining identity and administrative authority that travels with the `Pulse` across asynchronous boundaries.
+- **Tiered Resolution Strategy**: Implemented a tiered lookup for `Context` and `TestCell` (Integrity Gates). Handles now resolve their identity and rules through a hierarchy: **Local Override > Prototype Inheritance > Causal Binding > Global Default**.
+- **Instruction DNA**: Reconceptualized `Instruction` as the core **DNA** of the nucleus. Refined the internal logic to ensure stateless transformations are correctly recorded in the forensic `Pulse.trace`.
+
+### High-Integrity Domain Demos
+Introduced comprehensive, real-world applications of the framework's forensic capabilities across two high-stakes scenarios:
+- **Aircraft Gate Turnaround**:
+  - `aircraft-gate-turnaround-Demo.dart`: A live executable simulating the orchestration between "Ground Crew," "Refueling," and "Flight Deck." Demonstrates atomic state evolution where multiple systems must synchronize under strict timing and safety constraints.
+  - `aircraft-gate-turnaround-WalkThrough.md`: A deep-dive guide explaining how the framework handles concurrent causal paths and maintains a single source of truth for aircraft readiness.
+- **Hotel Front Desk Check-in**:
+  - `hotel-front-desk-checkin-Demo.dart`: A live executable demonstrating reactive synchronization between "Front Desk" (Guest-tier) and "Security" (System-tier).
+  - `hotel-front-desk-checkin-WalkThrough.md`: A deep-dive guide detailing how `Context` anchors and `TestCell` gates prevent unauthorized state transitions in multi-tier environments.
+
+### Documentation & Pedagogical Overhaul
+- **Interactive Walkthroughs**:
+  - Introduced `WALKTHROUGH.md`, a comprehensive guide detailing the forensic lifecycle of a Pulse, from Receptor ingress to terminal evolution.
+- **Pedagogical KDocs**: Applied a standardized documentation format across the public API, including `### When to use`, `### How it works`, and `### Non‑obvious` sections for core classes like `Context`, `Instruction`, and `TestCell`.
+- **Architecture Visualization**: Standardized terminal-friendly architecture diagrams (67-character width) to ensure visual consistency in IDEs and documentation viewers.
+
+### Fixes & Maintenance
+- **Map Type Invariance**: Fixed a potential `CastMap` runtime error by utilizing `Map.of` and `updateAll` during unmodifiable payload cloning.
+- **Synapse Reliability**: Improved the reliability of tiered rule resolution when cells are bound via `Synapses`, ensuring inheritance logic correctly identifies the source gate.
+- **Library Entry Points**: Reorganized `lib/cell.dart` using categorical headers to separate public interfaces, core implementations, and internal logic.
+---
 
 ## Mitosis (1.0.0-rc.2) - Release Candidate
 

@@ -516,10 +516,8 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
     PulseContext? context,
 
     String? type,
-
     Cell? source,
     String? step,
-
     int? priority,
 
     void Function(Pulse pulse)? onComplete,

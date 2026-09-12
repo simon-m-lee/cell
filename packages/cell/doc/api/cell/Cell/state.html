@@ -59,6 +59,7 @@
 <li><span class="parameter" id="state-param-evolve"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">evolve</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-host"><span class="type-annotation"><a href="../../cell/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span></li>
 <li><span class="parameter" id="param-input"><span class="type-annotation"><a href="../../cell/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span></span></li>
 </ol>)?, </span></li>
+<li><span class="parameter" id="state-param-testRule"><span class="type-annotation"><a href="../../cell/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
 </ol>})
 
       
@@ -85,30 +86,40 @@ observable node using the <code>bind</code> parameter.</li>
 current value of type <code>V</code>.</li>
 <li><strong>Ingress</strong>: It accepts pulses from manual <code>update()</code> calls or
 upstream <code>bind</code> dependencies.</li>
+<li><strong>Validation</strong>: If a <code>testRule</code> is provided, the incoming pulse is
+evaluated against the rule. If the rule rejects the stimulus, the
+cycle terminates.</li>
 <li><strong>Evolution</strong>: If an <code>evolve</code> function is provided, it is invoked
-synchronously for every incoming pulse. It compares the
-<code>host.value</code> (current state) with the <code>input</code> pulse to decide
-the next state.</li>
+synchronously. It compares the <code>host.value</code> (current state) with the
+<code>input</code> pulse to decide the next state.</li>
 <li><strong>Commitment</strong>: If <code>evolve</code> returns a new <a href="../../cell/Pulse-class.html">Pulse</a>, the state is
 updated and immediately broadcast via <a href="../../cell/Synapses-class.html">Synapses</a>.</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
 <li><strong>Initial Seed</strong>: The <code>initial</code> value is written directly to storage,
-bypassing the transformation cycle.</li>
+bypassing the transformation and validation cycle.</li>
+<li><strong>Testing &amp; Integrity</strong>: The <code>testRule</code> acts as an <strong>Integrity Gate</strong>,
+allowing you to enforce constraints (e.g., "value must never be negative")
+or inject mock behaviors during unit testing without altering production
+transformation logic.</li>
 <li><strong>Null Filtering</strong>: If <code>evolve</code> returns <code>null</code>, the update is
 rejected, the storage remains unchanged, and no propagation occurs.</li>
 <li><strong>Atomic Isolation</strong>: By default, state updates are serialized
 through an internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to prevent race conditions during
 concurrent async operations.</li>
 </ul>
-<h3 id="example-counter">Example: Counter</h3>
-<pre class="language-dart"><code class="language-dart">final counter = Cell.state(0, (host, input) {
-  final delta = input.payload as int;
-  return Pulse(host.value + delta);
-});
+<h3 id="example-validated-counter">Example: Validated Counter</h3>
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(
+  initial: 0,
+  // Transformation logic
+  evolve: (host, input) =&gt; Pulse(host.value + (input.payload as int)),
+  // Integrity Gate: Only allow increments less than 100
+  testRule: (host, input) =&gt; (input.payload as int) &lt; 100,
+);
 
-counter.update(5); // value becomes 5
+counter.update(5);  // value becomes 5
+counter.update(150); // Rejected by testRule; value remains 5
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -117,6 +128,9 @@ creation.</li>
 <li><code>evolve</code>: <strong>Optional.</strong> The <strong>Transformation Pipeline</strong> logic. It
 determines how the incoming <code>input</code> maps to the final committed
 state based on the current <code>host.value</code>.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> A safety check that must approve
+every incoming stimulus before it reaches the transformation logic.
+Useful for enforcing domain invariants and mocking test scenarios.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell/StateHandle.html">StateHandle</a> (Record) providing:</p>
@@ -142,6 +156,7 @@ state management and reactive patterns.
   <pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; state&lt;V&gt;({
   V? initial,
   Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input)? evolve,
+  TestCell testRule = TestCell.allowAll,
 }) {
   return ValueCell.create&lt;V&gt;(
     ValueNucleus&lt;V&gt;(
@@ -149,6 +164,7 @@ state management and reactive patterns.
           evolve != null
               ? (host, input, {user}) =&gt; evolve(host, input)
               : null,
+      testRule: testRule,
     ),
     initial: initial,
   );
@@ -180,7 +196,7 @@ state management and reactive patterns.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.1
+      1.0.0-rc.3
   </span>
   
 </footer>
