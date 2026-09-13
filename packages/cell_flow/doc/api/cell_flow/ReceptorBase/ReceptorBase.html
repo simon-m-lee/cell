@@ -63,7 +63,6 @@
 </ol>})?, </span></li>
 <li><span class="parameter" id="-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?, </span></li>
-<li><span class="parameter" id="-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -80,7 +79,7 @@ checks (pre-processing).</li>
 <li><strong>Functional Mapping</strong>: When using a simple <code>reaction</code> function instead
 of a full instruction object.</li>
 <li><strong>Governance Nodes</strong>: When creating cells that must adhere to strict
-architectural invariants (<code>isGoverned</code>).</li>
+architectural invariants (<a href="../../cell_flow/Cell/isGoverned.html">Cell.isGoverned</a>).</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
 <ol>
@@ -120,7 +119,6 @@ Use <a href="../../cell_flow/ReceptorAsync-class.html">ReceptorAsync</a> for asy
 <li><code>reaction</code>: A simplified functional interface for basic transformations.</li>
 <li><code>init</code>: A one-time setup hook triggered during cell activation.</li>
 <li><code>user</code>: A factory for dynamic metadata passed to the pipeline.</li>
-<li><code>isGoverned</code>: Flags this receptor as subject to architectural governance.</li>
 </ul>
 </section>
 
@@ -135,8 +133,8 @@ Use <a href="../../cell_flow/ReceptorAsync-class.html">ReceptorAsync</a> for asy
   Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
   void Function()? init,
   dynamic Function()? user,
-  bool isGoverned = false,
-}) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, init: init, isGoverned: isGoverned)
+}) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
+    reaction: reaction, user: user, init: init)
 );</code></pre>
 </section>
 
@@ -165,7 +163,7 @@ Use <a href="../../cell_flow/ReceptorAsync-class.html">ReceptorAsync</a> for asy
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

@@ -18,8 +18,8 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: 1.0.0-rc.2
-  cell_flow: 1.0.0-rc.2
+  cell: ^1.0.0-rc.4
+  cell_flow: ^1.0.0-rc.4
 ```
 
 Import once in your Dart file:
@@ -410,14 +410,14 @@ dart run example/filter_data_quality_demo.dart
 
 ## 📌 Versioning
 
-| Package | Version | Status |
-|---|---|---|
-| `cell` | `1.0.0-rc.2` | Release Candidate |
-| `cell_flow` | `1.0.0-rc.2` | Release Candidate |
+| Package | Version      | Status |
+|---|--------------|---|
+| `cell` | `1.0.0-rc.4` | Release Candidate |
+| `cell_flow` | `1.0.0-rc.4` | Release Candidate |
 
 **Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be `1.0.0`.
 
-> ⚠️ **Status:** Release Candidate (RC2). APIs may change. Not yet on pub.dev — use path or git dependencies. Verify behaviour against source.
+> ⚠️ **Status:** Release Candidate (RC4). APIs may change. Not yet on pub.dev — use path or git dependencies. Verify behaviour against source.
 
 ---
 

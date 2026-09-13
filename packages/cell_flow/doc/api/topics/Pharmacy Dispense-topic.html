@@ -77,6 +77,19 @@
 <p>Flow never decrements stock. Transaction never parses an NDC. The
 observer is the only glue.</p>
 <hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-why-they-have-to-combine">Why they have to combine</a></li>
+<li><a href="#2-design-tagged">Design (tagged)</a></li>
+<li><a href="#3-step-by-step--one-successful-pack-scenario-1">Step by step — one successful pack (scenario 1)</a></li>
+<li><a href="#4-step-by-step--last-pack-scenarios-7-and-8">Step by step — last pack (scenarios 7 and 8)</a></li>
+<li><a href="#5-step-by-step--jam-scenario-4">Step by step — jam (scenario 4)</a></li>
+<li><a href="#6-parts-checklist">Parts checklist</a></li>
+<li><a href="#7-scenarios-what-each-layer-did">Scenarios (what each layer did)</a></li>
+<li><a href="#8-rules-for-combining-them">Rules for combining them</a></li>
+<li><a href="#still-demo-only">Still demo-only</a></li>
+</ol>
+<hr>
 <h2 id="1-why-they-have-to-combine">1. Why they have to combine</h2>
 <p>A scan is a <strong>pulse</strong>. A shelf count is <strong>state</strong>. A printer is <strong>I/O</strong>.</p>
 <p>If you put <code>tx.begin</code> inside <code>Filter + MapValue</code>, the gate holds a
@@ -444,7 +457,7 @@ wrapper designed for fluent orchestration and pipeline assembly.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

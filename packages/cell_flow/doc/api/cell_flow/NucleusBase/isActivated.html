@@ -83,7 +83,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-bool get isActivated =&gt; _boundCells[this] != null;</code></pre>
+bool get isActivated {
+  try {
+    receptor.cell;
+    return true;
+  } catch (_) {}
+  return false;
+}</code></pre>
 </section>
 
   </section>
@@ -113,7 +119,7 @@ bool get isActivated =&gt; _boundCells[this] != null;</code></pre>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

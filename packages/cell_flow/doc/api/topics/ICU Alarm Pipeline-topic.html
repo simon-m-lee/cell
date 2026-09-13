@@ -51,6 +51,23 @@
 <p>Adds TestCell on sensor ingress, a WARN Receptor, a ledger, ACK that
 <strong>resets Distinct on the same Receptor</strong>, and <code>AsyncMapWithRetry</code>.</p>
 <hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#design">Design</a></li>
+<li><a href="#parts">Parts</a>
+<ul>
+<li><a href="#cell">Cell</a></li>
+<li><a href="#instruction">Instruction</a></li>
+<li><a href="#receptor">Receptor</a></li>
+<li><a href="#flow-operators">Flow operators</a></li>
+</ul>
+</li>
+<li><a href="#implementation-map">Implementation map</a></li>
+<li><a href="#scenarios-what-the-last-good-run-showed">Scenarios (what the last good run showed)</a></li>
+<li><a href="#pulse-path-scenario-2">Pulse path (scenario 2)</a></li>
+<li><a href="#real-bay-vs-this-file">Real bay vs this file</a></li>
+</ol>
+<hr>
 <h2 id="design">Design</h2>
 <pre class="language-dart"><code>hrIn    TestCell 20–250  ─┐
 spo2In  TestCell 0–100   ─┼─ set* → publishVitals → Reading(bed, hr, spo2, moving)
@@ -471,7 +488,7 @@ wrapper designed for fluent orchestration and pipeline assembly.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

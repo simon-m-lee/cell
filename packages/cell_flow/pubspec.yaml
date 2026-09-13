@@ -2,7 +2,7 @@ name: cell_flow
 description: >-
   Orchestration Layer (Flow) for the Cell Framework — 90+ forensic-grade 
   operators (asyncMap, switchMap, debounce) for reactive signal processing.
-version: 1.0.0-rc.3
+version: 1.0.0-rc.4
 
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
@@ -17,7 +17,7 @@ topics:
   - async-orchestration
 
 # Use 'none' to prevent accidental publishing until the RC cycle is complete
-publish_to: none
+#publish_to: none
 
 resolution: workspace
 

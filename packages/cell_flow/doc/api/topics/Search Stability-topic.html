@@ -76,6 +76,26 @@
 </table>
 <p>Flow handles the timing and request management. Cell carries the input and results. The observer displays the outcome.</p>
 <hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-why-they-have-to-combine">Why they have to combine</a></li>
+<li><a href="#2-design-tagged">Design (tagged)</a></li>
+<li><a href="#3-step-by-step--basic-search-scenario-1">Step by step — Basic Search (scenario 1)</a></li>
+<li><a href="#4-step-by-step--rapid-typing-scenario-2">Step by step — Rapid Typing (scenario 2)</a></li>
+<li><a href="#5-step-by-step--cancellation-scenario-3">Step by step — Cancellation (scenario 3)</a></li>
+<li><a href="#6-step-by-step--error-handling-scenario-4">Step by step — Error Handling (scenario 4)</a></li>
+<li><a href="#7-step-by-step--loading-state-scenario-5">Step by step — Loading State (scenario 5)</a></li>
+<li><a href="#8-step-by-step--validation-scenario-6">Step by step — Validation (scenario 6)</a></li>
+<li><a href="#9-step-by-step--enhanced-loading-scenario-7">Step by step — Enhanced Loading (scenario 7)</a></li>
+<li><a href="#10-step-by-step--debounce-vs-throttle-scenario-8">Step by step — Debounce vs Throttle (scenario 8)</a></li>
+<li><a href="#11-search-pipeline-stages">Search Pipeline Stages</a></li>
+<li><a href="#12-parts-checklist">Parts checklist</a></li>
+<li><a href="#13-rules-for-combining-them">Rules for combining them</a></li>
+<li><a href="#14-debounce-vs-throttle-decision-guide">Debounce vs Throttle Decision Guide</a></li>
+<li><a href="#still-demo-only">Still demo-only</a></li>
+<li><a href="#summary-table">Summary table</a></li>
+</ol>
+<hr>
 <h2 id="1-why-they-have-to-combine">1. Why they have to combine</h2>
 <p>A user types <strong>quickly</strong>. An API call is <strong>expensive</strong>. A previous request should be <strong>cancelled</strong>.</p>
 <p>If you put debounce logic inside the observer, the observer becomes coupled to timing. If you put request cancellation in the API call, the API becomes complex. If you put validation in the Cell, the Cell becomes specific to one use case.</p>
@@ -538,7 +558,7 @@ into reactive <a href="../cell_flow/Cell-class.html">Cell</a> topographies.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

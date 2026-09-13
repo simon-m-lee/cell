@@ -133,11 +133,9 @@ O? call(I pulse, {
   void future_({required Pulse? result, required dynamic token}) {
     if (future != null) {
       future(result: result, token: token);
-    } else {
-      &#47;&#47; Intentionally using print during [Instruction] unit testing.
-      &#47;&#47; It should never happen when it is resided inside [Receptor]
-      print(UnimplementedError(&#39;[future] is null to forward (result: $result, token: $token)&#39;));
     }
+    &#47;&#47; When no external continuation is attached, the result is dropped
+    &#47;&#47; silently — this is the normal unit-testing &#47; terminal-cell path.
   }
 
   try {
@@ -186,7 +184,7 @@ O? call(I pulse, {
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

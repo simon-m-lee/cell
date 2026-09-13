@@ -54,46 +54,78 @@
 
     
 <section class="desc markdown">
-  <p>Defines the <strong>Lifecycle Governance</strong> for transient reactive elements.</p>
-<p><code>EphemeralPolicy</code> manages the automatic reclamation of a <code>Cell</code> based on
-temporal constraints (TTL) or event frequency. This prevents memory leaks
-and ensures that transient states do not persist beyond their operational
-relevance.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need a cell to self‑destruct after a certain time
-or after a certain number of events – e.g., for caching, temporary
-state, or error budgets.</p>
-<h3 id="how-it-works">How it works</h3>
+  <p>Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.</p>
+<p><code>EphemeralPolicy</code> gives a <a href="../cell_flow/Cell-class.html">Cell</a> — or any cell-backed node such as a
+<code>Tissue</code> collection — a finite operational life. The framework reclaims
+the node automatically when a time budget (<a href="../cell_flow/EphemeralPolicy/duration.html">duration</a>) elapses or an
+event budget (<a href="../cell_flow/EphemeralPolicy/eventLimit.html">eventLimit</a>) is exhausted. This prevents memory leaks and
+guarantees that transient state never outlives its usefulness.</p>
+<h3 id="what-constitutes-a-governed-cell">What constitutes a governed cell</h3>
+<p>A cell is <strong>governed</strong> when it has an <a href="../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a>, either directly
+or inherited from upstream:</p>
+<ol>
+<li><strong>Hosted (local) policy</strong> — the policy is stored in the cell's own
+<a href="../cell_flow/Nucleus-class.html">Nucleus</a>, or in its <code>principal</code> chain (which is how a deputy inherits
+the policy of the nucleus it extends). This is what
+<code>Cell.governed(ephemeralPolicy: ...)</code>,
+<code>Cell.deputy(ephemeralPolicy: ...)</code>, and the <code>Tissue*Nucleus</code> factories
+establish. The cell ticks <em>this</em> policy for its own activity.</li>
+<li><strong>Upstream (bind) policy</strong> — when the cell hosts no policy of its own,
+the framework walks up the upstream <code>Cell.bind</code> chain and adopts the
+first policy it finds there. This is the <strong>"head owns the body"</strong> rule:
+a node bound to a governed head reports <code>isGoverned == true</code> and
+mirrors the head's <code>isInvalidated</code> state.</li>
+</ol>
+<p>A hosted policy always takes precedence over one found upstream, so a
+body part can deliberately override the policy inherited from the head of
+its reactive graph.</p>
+<h3 id="how-the-policy-works">How the policy works</h3>
 <p>You provide two callbacks:</p>
 <ul>
-<li><code>onEvent</code>: called on every interaction with the cell; you update the
-event count (or reset it). The policy tracks the count.</li>
-<li><code>onInvalidate</code>: called when the TTL expires or the event limit is hit.
-Return <code>true</code> to confirm successful cleanup.</li>
+<li><code>onEvent</code>: invoked whenever the governed cell ticks the policy for an
+interaction (a pulse flowing through the cell, an action, a link, or a
+data mutation). Return the new <code>events</code> count — a usage meter, an error
+budget, or any other quota you choose.</li>
+<li><code>onInvalidate</code>: invoked when the policy reaches its terminal condition.
+Perform any cleanup and return <code>true</code> to confirm the node was reclaimed.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
+<h3 id="non-obvious">Non-obvious</h3>
 <ul>
-<li>The timer starts lazily – only on the first interaction with the cell.</li>
-<li>If both <code>duration</code> and <code>eventLimit</code> are set, whichever condition is met
+<li>The TTL timer starts lazily on the <strong>first interaction</strong>, not at policy
+creation.</li>
+<li>If both <a href="../cell_flow/EphemeralPolicy/duration.html">duration</a> and <a href="../cell_flow/EphemeralPolicy/eventLimit.html">eventLimit</a> are set, whichever condition fires
 first triggers invalidation.</li>
-<li>The policy is attached to a cell via its <code>Nucleus</code>; you typically pass
-it to <code>Cell.governed</code> or <code>Cell.deputy</code>.</li>
+<li>A shared policy is ticked <strong>once per pulse</strong> regardless of how many
+governed cells that pulse visits. Without this per-policy, per-pulse
+guard, a pulse emitted by the head of a bound chain would be counted
+again at every governed downstream cell that inherits the same policy.</li>
+<li>A body that hosts its own policy is governed exclusively by it: its
+<code>isInvalidated</code> reflects only the body's policy, not the head's.</li>
 </ul>
-<h3 id="example-cache-with-5minute-ttl">Example: Cache with 5‑minute TTL</h3>
+<h3 id="example-cache-with-a-5-minute-ttl">Example: cache with a 5-minute TTL</h3>
 <pre class="language-dart"><code class="language-dart">final cachePolicy = EphemeralPolicy(
   duration: Duration(minutes: 5),
   onEvent: (object, {required cell, policy, arguments, user}) {
-    // Reset timer on cache hit – extends TTL
+    // Reset the counter on a cache hit – extends the TTL window.
     return (events: 0);
   },
   onInvalidate: (nucleus) {
-    // Clear cache entries
+    // Clear cache entries.
     return true;
   },
 );
-final cell = Cell(ephemeralPolicy: cachePolicy);
+
+final cell = Cell.governed(
+  ephemeralPolicy: cachePolicy,
+  context: Context.system,
+);
 </code></pre>
-<p>See also: <a href="../cell_flow/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> (similar, but for individual pulses).</p>
+<p>See also:</p>
+<ul>
+<li><a href="../cell_flow/Cell/isGoverned.html">Cell.isGoverned</a> and <a href="../cell_flow/Cell/isInvalidated.html">Cell.isInvalidated</a> for how governance cascades.</li>
+<li><a href="../cell_flow/Cell/Cell.governed.html">Cell.governed</a> and <a href="../cell_flow/Cell/deputy.html">Cell.deputy</a> for attaching a policy to a cell.</li>
+<li><a href="../cell_flow/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> — the equivalent lifecycle for individual pulses.</li>
+</ul>
 </section>
 
 
@@ -321,7 +353,7 @@ interaction vectors.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

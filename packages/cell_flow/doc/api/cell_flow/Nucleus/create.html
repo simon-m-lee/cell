@@ -137,7 +137,7 @@ specified reactive node.</p>
   if (principal != null) {
     final local = NucleusBase.mask(bind: bind, context: context, receptor: receptor,
       testRule: testRule, synapses: synapses, forceLock: forceLock, user: user);
-    return _Nucleus.fromRecord((mask: local, principal: principal));
+    return _Nucleus.fromRecord((local: local, principal: principal));
   }
   return _Nucleus(
     bind: bind,
@@ -176,7 +176,7 @@ specified reactive node.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

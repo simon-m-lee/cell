@@ -5,10 +5,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:cell_flow/cell_flow.dart';
-import 'ai_tissue_command_domain.dart';
+import '../../cell_flow.dart';
 
 // ─────────────────────────────────────────────────────────────
 // AiTissueCommand family — AI-Bridged Interpretation
@@ -20,82 +18,47 @@ import 'ai_tissue_command_domain.dart';
 //   2. AiTissueCommandBatch<S>     — batch of sentences, one call
 //   3. AiTissueCommandWithRetry<S> — single sentence, retry policy
 //
-// All three translate natural language into a closed, machine-
-// validated [TissueCommand] by asking an [Interpreter] (a live AI
-// chatbot over HTTP, or a deterministic offline stub) to choose a
-// verb from a closed list. The instruction never executes Dart
-// code returned by the model; it parses a verb string and an args
-// array, then looks the verb up in [verbByName].
+// Each of the three instructions has a primary constructor (which
+// takes an [Interpreter] directly) and a `.fromConfig(...)` factory
+// (which builds the interpreter from an [AiConfig]).
+//
+// The demo at the bottom (`main`) exercises all three against the
+// deterministic offline stub. It does not require network access.
 //
 // ─────────────────────────────────────────────────────────────
-// HOW TO RUN
+// No Environment Fallback
 // ─────────────────────────────────────────────────────────────
 //
-// ### Offline (default, no network, no key)
+// When a caller supplies an [AiConfig] via `.fromConfig(...)`, the
+// resulting interpreter reads **only** the values in the config.
+// It does not consult `Platform.environment` and it does not merge
+// with `AI_ENDPOINT`, `AI_API_KEY`, or `AI_MODEL`.
 //
-//     dart run ai_tissue_command.dart
+// That is deliberate. A caller that supplies a config object has
+// declared its intent. Silent env-var substitution would mean the
+// same code produced different behaviour on two machines, which is
+// exactly the source of misconfiguration the config file is meant
+// to eliminate.
 //
-// The demo runs against the deterministic [StubInterpreter]. The
-// stub fabricates a request body and an OpenAI-compatible response
-// envelope for every sentence, so the console shows the same seven
-// steps a live HTTP call would produce:
+// If you *do* want env-var fallback, merge the two sources before
+// constructing the config:
 //
-//     1. system prompt
-//     2. request body
-//     3. HTTP status
-//     4. response body
-//     5. parsed verb / args / confidence
-//     6. downstream classification (TissueCommand or Reject)
-//     7. per-scenario assertions
+// ```dart
+// final merged = {
+//   if (Platform.environment['AI_ENDPOINT'] != null)
+//     'endpoint': Platform.environment['AI_ENDPOINT'],
+//   if (Platform.environment['AI_API_KEY'] != null)
+//     'apiKey': Platform.environment['AI_API_KEY'],
+//   if (Platform.environment['AI_MODEL'] != null)
+//     'model': Platform.environment['AI_MODEL'],
+//   ...fileConfig,
+// };
+// final config = AiConfig.fromJson(merged);
+// ```
 //
-// ### Live against DeepSeek
-//
-//     export AI_ENDPOINT=https://api.deepseek.com/chat/completions
-//     export AI_API_KEY=sk-your-deepseek-key
-//     export AI_MODEL=deepseek-flash
-//     dart run ai_tissue_command.dart --live
-//
-// ### Live against OpenAI
-//
-//     export AI_ENDPOINT=https://api.openai.com/v1/chat/completions
-//     export AI_API_KEY=sk-...
-//     export AI_MODEL=gpt-4o-mini
-//     dart run ai_tissue_command.dart --live
-//
-// ### Live against any OpenAI-compatible endpoint
-//
-// Any endpoint that accepts the OpenAI chat-completions request
-// shape and returns the standard `choices[0].message.content`
-// envelope will work. Set AI_ENDPOINT to the full URL, AI_API_KEY
-// to the bearer token, and AI_MODEL to the model identifier.
-//
-// In live mode the demo runs the same seven scenarios against the
-// live endpoint. The traffic log shows the *real* bytes on the
-// wire — every prompt, every request body, every response body,
-// every usage block. Nothing is fabricated.
-//
-// ### Live demo failure modes
-//
-// If `--live` is passed but AI_ENDPOINT or AI_API_KEY is missing,
-// the demo prints a diagnostic and falls back to the offline stub
-// so the run still completes. If the endpoint returns a non-2xx
-// status, the response body is logged and the pipeline routes the
-// exception to the scenario's error handler.
-//
+// That way the precedence is under your control, not hidden inside
+// the instruction.
 // ─────────────────────────────────────────────────────────────
-// DOCUMENTED DEVIATIONS
-// ─────────────────────────────────────────────────────────────
-//
-// 1. `FlowInstructionMixin` is applied to each class explicitly,
-//    so `toHandle` and the `+` operator are available on every
-//    instruction. If your `FlowInstructionBase` already carries
-//    the mixin, the `with FlowInstructionMixin<...>` clauses here
-//    are redundant but harmless.
-//
-// 2. The demo helpers (`_CountingInterpreter`,
-//    `_AlwaysFailsInterpreter`, `_RoutingInterpreter`) are private
-//    so they do not pollute the public API. A future test suite
-//    can lift them into a shared support file.
 
 // ─────────────────────────────────────────────────────────────
 // Helper: output pulse with provenance
@@ -112,6 +75,22 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
   );
 }
 
+/// Safely invokes an error handler.
+///
+/// [onError] is captured from the enclosing constructor's parameter
+/// list. Dart's flow analysis treats a captured nullable parameter
+/// as potentially nullable inside the closure, so this helper makes
+/// the null check explicit and silences false positives about the
+/// null-aware operator.
+void _invokeOnError(
+    AiTissueCommandErrorHandler? onError,
+    Object error,
+    StackTrace stack,
+    ) {
+  final handler = onError;
+  if (handler != null) handler(error, stack);
+}
+
 // ═════════════════════════════════════════════════════════════
 // 1. AiTissueCommand — Single-Sentence, Latest-Wins
 // ═════════════════════════════════════════════════════════════
@@ -120,6 +99,23 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// a [TissueCommand] by asking an [Interpreter] (a live AI chatbot
 /// over HTTP, or a deterministic offline stub) to choose a verb
 /// from a closed list.
+///
+/// [AiTissueCommand] is the **only** operator in the demo that
+/// performs I/O. Everything downstream — the `modifiable` check,
+/// the dispatch tear-off, and TestTissue — is pure.
+///
+/// ### When to use
+/// Use [AiTissueCommand] whenever a signal carries natural language
+/// that must be translated into a closed, machine-validated command
+/// before it can mutate a reactive collection.
+///
+/// - **Chat-ops**: An operator types "add 3" and the graph mutates
+///   a set.
+/// - **Voice commands**: A speech-to-text result is interpreted as
+///   a verb on a tissue.
+/// - **LLM tool calls**: The model chooses a tool from a schema,
+///   and the instruction materializes that choice as a reactive
+///   signal.
 ///
 /// ### How it works
 /// 1. **Stimulus Reception**: The instruction receives a pulse whose
@@ -153,6 +149,17 @@ class AiTissueCommand<S>
   final Interpreter interpreter;
 
   /// Synthesizes an **AI-Bridged Interpretation Gate**.
+  ///
+  /// ### Parameters
+  ///
+  /// - [interpreter]: **Required.** The interpreter the gate uses
+  ///   for every `complete` call. Env vars are not consulted; the
+  ///   interpreter must be fully configured before being passed
+  ///   here.
+  /// - [verbs]: **Required.** The closed verb list passed to the
+  ///   interpreter's `complete` method.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
   AiTissueCommand({
     required this.interpreter,
     required Set<String> verbs,
@@ -164,7 +171,8 @@ class AiTissueCommand<S>
       return (pulse, {cell, user, future, token}) {
         final payload = pulse.payload;
         if (payload is! S) {
-          onError?.call(
+          _invokeOnError(
+            onError,
             FormatException(
               'Expected payload of type $S, got ${payload.runtimeType}',
             ),
@@ -213,7 +221,7 @@ class AiTissueCommand<S>
             );
           } catch (e, stack) {
             if (id != generation) return;
-            onError?.call(e, stack);
+            _invokeOnError(onError, e, stack);
           }
         }
 
@@ -223,6 +231,53 @@ class AiTissueCommand<S>
     })(),
     user: user,
   );
+
+  /// Builds an [AiTissueCommand] from an [AiConfig].
+  ///
+  /// ### No Environment Fallback
+  ///
+  /// This factory builds the wrapped [Interpreter] exclusively from
+  /// [config]. It does **not** read `AI_ENDPOINT`, `AI_API_KEY`, or
+  /// `AI_MODEL` from the environment, and it does not merge the two
+  /// sources. If you want env-var fallback, construct the config
+  /// with those values yourself before calling this method.
+  ///
+  /// That is deliberate. A caller that goes to the trouble of
+  /// supplying a config object has declared its intent. Silently
+  /// consulting the environment on top of that would make the
+  /// instruction's behaviour depend on a state the caller did not
+  /// pass in.
+  ///
+  /// ### Parameters
+  ///
+  /// - [config]: **Required.** The AI configuration. Every value
+  ///   the interpreter uses comes from here.
+  /// - [verbs]: **Required.** The closed verb list passed to the
+  ///   interpreter's `complete` method.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
+  ///
+  /// ### Returns
+  ///
+  /// A fully configured [AiTissueCommand] whose wrapped interpreter
+  /// reads only [config].
+  ///
+  /// ### See Also
+  ///
+  /// - [AiConfig.toInterpreter] — the interpreter builder.
+  /// - [AiTissueCommand] — the primary constructor.
+  factory AiTissueCommand.fromConfig({
+    required AiConfig config,
+    required Set<String> verbs,
+    AiTissueCommandErrorHandler? onError,
+    dynamic user,
+  }) =>
+      AiTissueCommand<S>(
+        interpreter: config.toInterpreter(),
+        verbs: verbs,
+        onError: onError,
+        user: user,
+      );
 
   /// Injects a one-shot timeout into the wrapped interpreter.
   void injectTimeoutOnce() {
@@ -267,6 +322,14 @@ class AiTissueCommandBatch<S>
   final Interpreter interpreter;
 
   /// Synthesizes a **Batch AI-Bridged Interpretation Gate**.
+  ///
+  /// ### Parameters
+  ///
+  /// - [interpreter]: **Required.** The interpreter the gate uses
+  ///   for every sentence in the batch. Env vars are not consulted.
+  /// - [verbs]: **Required.** The closed verb list.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
   AiTissueCommandBatch({
     required this.interpreter,
     required Set<String> verbs,
@@ -278,7 +341,8 @@ class AiTissueCommandBatch<S>
       return (pulse, {cell, user, future, token}) {
         final payload = pulse.payload;
         if (payload is! Iterable<S>) {
-          onError?.call(
+          _invokeOnError(
+            onError,
             FormatException(
               'Expected payload of type Iterable<$S>, '
                   'got ${payload.runtimeType}',
@@ -315,7 +379,7 @@ class AiTissueCommandBatch<S>
                 );
               }
             } catch (e, stack) {
-              onError?.call(e, stack);
+              _invokeOnError(onError, e, stack);
               results.add(
                 Reject(
                   source: sentence.toString(),
@@ -343,6 +407,36 @@ class AiTissueCommandBatch<S>
     })(),
     user: user,
   );
+
+  /// Builds an [AiTissueCommandBatch] from an [AiConfig].
+  ///
+  /// ### No Environment Fallback
+  ///
+  /// Same contract as [AiTissueCommand.fromConfig]: the interpreter
+  /// reads only [config].
+  ///
+  /// ### Parameters
+  ///
+  /// - [config]: **Required.** The AI configuration.
+  /// - [verbs]: **Required.** The closed verb list.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
+  ///
+  /// ### Returns
+  ///
+  /// A fully configured [AiTissueCommandBatch].
+  factory AiTissueCommandBatch.fromConfig({
+    required AiConfig config,
+    required Set<String> verbs,
+    AiTissueCommandErrorHandler? onError,
+    dynamic user,
+  }) =>
+      AiTissueCommandBatch<S>(
+        interpreter: config.toInterpreter(),
+        verbs: verbs,
+        onError: onError,
+        user: user,
+      );
 
   /// Injects a one-shot timeout into the wrapped interpreter.
   void injectTimeoutOnce() {
@@ -380,6 +474,15 @@ class AiTissueCommandWithRetry<S>
   final Interpreter interpreter;
 
   /// Synthesizes a **Resilient AI-Bridged Interpretation Gate**.
+  ///
+  /// ### Parameters
+  ///
+  /// - [interpreter]: **Required.** The interpreter the gate uses
+  ///   for every attempt. Env vars are not consulted.
+  /// - [verbs]: **Required.** The closed verb list.
+  /// - [count]: **Optional.** Max retry attempts. Defaults to 3.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
   AiTissueCommandWithRetry({
     required this.interpreter,
     required Set<String> verbs,
@@ -392,7 +495,8 @@ class AiTissueCommandWithRetry<S>
       return (pulse, {cell, user, future, token}) {
         final payload = pulse.payload;
         if (payload is! S) {
-          onError?.call(
+          _invokeOnError(
+            onError,
             FormatException(
               'Expected payload of type $S, got ${payload.runtimeType}',
             ),
@@ -450,7 +554,7 @@ class AiTissueCommandWithRetry<S>
             } catch (e, stack) {
               lastError = e;
               lastStack = stack;
-              onError?.call(e, stack);
+              _invokeOnError(onError, e, stack);
               if (attempt >= count) break;
               attempt++;
             }
@@ -459,11 +563,13 @@ class AiTissueCommandWithRetry<S>
           if (id != generation) return;
 
           final frame = lastStack
-              ?.toString()
+              .toString()
               .split('\n')
-              .firstWhere((l) => l.trim().isNotEmpty, orElse: () => '');
-          final frameSuffix =
-          (frame != null && frame.isNotEmpty) ? ' @ $frame' : '';
+              .firstWhere(
+                (l) => l.trim().isNotEmpty,
+            orElse: () => '',
+          );
+          final frameSuffix = frame.isNotEmpty ? ' @ $frame' : '';
 
           future!(
             result: _out<Reject>(
@@ -486,409 +592,423 @@ class AiTissueCommandWithRetry<S>
     user: user,
   );
 
+  /// Builds an [AiTissueCommandWithRetry] from an [AiConfig].
+  ///
+  /// ### No Environment Fallback
+  ///
+  /// Same contract as [AiTissueCommand.fromConfig]: the interpreter
+  /// reads only [config].
+  ///
+  /// ### Parameters
+  ///
+  /// - [config]: **Required.** The AI configuration.
+  /// - [verbs]: **Required.** The closed verb list.
+  /// - [count]: **Optional.** Max retry attempts. Defaults to 3.
+  /// - [onError]: **Optional.** The error handler.
+  /// - [user]: **Optional.** Flyweight metadata.
+  ///
+  /// ### Returns
+  ///
+  /// A fully configured [AiTissueCommandWithRetry].
+  factory AiTissueCommandWithRetry.fromConfig({
+    required AiConfig config,
+    required Set<String> verbs,
+    int count = 3,
+    AiTissueCommandErrorHandler? onError,
+    dynamic user,
+  }) =>
+      AiTissueCommandWithRetry<S>(
+        interpreter: config.toInterpreter(),
+        verbs: verbs,
+        count: count,
+        onError: onError,
+        user: user,
+      );
+
   /// Injects a one-shot timeout into the wrapped interpreter.
   void injectTimeoutOnce() {
     interpreter.injectTimeoutOnce();
   }
 }
 
-/// Error handler callback for the AI-bridged interpretation gates.
-typedef AiTissueCommandErrorHandler =
-void Function(Object error, StackTrace? stackTrace);
+// ─────────────────────────────────────────────────────────────
+// VISUAL OUTPUT HELPERS
+// ─────────────────────────────────────────────────────────────
+
+void _section(String label, String drive) {
+  print('');
+  print('── $label ── $drive');
+}
 
 // ═════════════════════════════════════════════════════════════
-// DEMO
+// DEMO — AiTissueCommand family self-tests
 // ═════════════════════════════════════════════════════════════
 
-/// A self-demonstrating run of the three AI-bridged interpretation
-/// instructions.
+/// A demonstration of the three AI-bridged interpretation
+/// instructions against the deterministic offline stub.
 ///
-/// ### Offline mode (default)
-/// Runs the seven scenarios against the deterministic
-/// [StubInterpreter]. The stub fabricates a request body and an
-/// OpenAI-compatible response envelope for every sentence, so the
-/// console shows the same seven steps a live HTTP call would
-/// produce.
+/// ### Expected console output
 ///
-///     dart run ai_tissue_command.dart
-///
-/// ### Live mode (`--live`)
-/// Runs the same seven scenarios against the live endpoint named
-/// by the three environment variables. The traffic log shows the
-/// real bytes on the wire — every prompt, every request body,
-/// every response body, every usage block.
-///
-///     export AI_ENDPOINT=https://api.deepseek.com/chat/completions
-///     export AI_API_KEY=sk-your-deepseek-key
-///     export AI_MODEL=deepseek-flash
-///     dart run ai_tissue_command.dart --live
-///
-/// If `--live` is passed but AI_ENDPOINT or AI_API_KEY is missing,
-/// the demo prints a diagnostic and falls back to the offline stub
-/// so the run still completes.
-///
-/// ### Expected console output (offline mode)
 /// ```text
 /// ── AiTissueCommand Operators Demo ──────────────────────────────
-/// mode: offline stub (pass --live for HTTP)
 ///
-/// 1. AiTissueCommand — single sentence
+/// ── 1 ── AiTissueCommand — single sentence
 ///    [cmd] TissueCommand(add, args=[1])
 ///    [cmd] TissueCommand(remove, args=[1])
 ///    [cmd] Reject(reason=no-permitted-verb)
 ///
-/// 2. AiTissueCommand — latest-wins
+/// ── 2 ── AiTissueCommand — latest-wins
 ///    [cmd] TissueCommand(add, args=[9])
 ///
-/// 3. AiTissueCommandBatch — 4 sentences in one batch
+/// ── 3 ── AiTissueCommandBatch — 4 sentences in one batch
 ///    [batch] size=4
 ///    [batch] 0: TissueCommand(add, args=[1])
 ///    [batch] 1: TissueCommand(add, args=[2])
 ///    [batch] 2: TissueCommand(clear, args=[])
 ///    [batch] 3: Reject(reason=no-permitted-verb)
 ///
-/// 4. AiTissueCommandBatch — mixed with a timeout
+/// ── 4 ── AiTissueCommandBatch — mixed with a timeout
 ///    [batch] size=3
 ///    [batch] 0: Reject(reason=interpreter-error)
 ///    [batch] 1: TissueCommand(add, args=[8])
 ///    [batch] 2: TissueCommand(add, args=[9])
 ///
-/// 5. AiTissueCommandWithRetry — success on first try
+/// ── 5 ── AiTissueCommandWithRetry — success on first try
 ///    [retry] TissueCommand(add, args=[5])
 ///    attempts=1
 ///
-/// 6. AiTissueCommandWithRetry — success after retries
+/// ── 6 ── AiTissueCommandWithRetry — success after retries
 ///    [retry] TissueCommand(add, args=[6])
 ///    attempts=4
 ///
-/// 7. AiTissueCommandWithRetry — retries exhausted
+/// ── 7 ── AiTissueCommandWithRetry — retries exhausted
 ///    [retry] Reject(reason=retries-exhausted: Bad state: permanent failure...)
 ///    attempts=3
 ///
+/// ── 8 ── AiTissueCommand.fromConfig
+///    instruction=AiTissueCommand<String> transport=http
+///    (no HTTP call — placeholder endpoint)
+///
 /// ── finished ────────────────────────────────────────────────────
 /// ```
-Future<void> main(List<String> args) async {
-  final live = args.contains('--live');
-
-  // ── Mode selection ──────────────────────────────────────────
-  final Interpreter primary;
-  final String modeLabel;
-
-  if (live) {
-    final endpoint = Platform.environment['AI_ENDPOINT'];
-    final apiKey = Platform.environment['AI_API_KEY'];
-    final model = Platform.environment['AI_MODEL'] ?? 'gpt-4o-mini';
-
-    if (endpoint == null || apiKey == null) {
-      stderr.writeln(
-        'Live mode requires AI_ENDPOINT and AI_API_KEY env vars.',
-      );
-      stderr.writeln('Falling back to offline stub.');
-      primary = StubInterpreter(latency: Duration.zero);
-      modeLabel = 'offline stub (live mode requested but env vars missing)';
-    } else {
-      primary = HttpInterpreter(
-        endpoint: Uri.parse(endpoint),
-        apiKey: apiKey,
-        model: model,
-        log: TrafficLog(silent: false),
-      );
-      modeLabel = 'live HTTP (model=$model, endpoint=$endpoint)';
-    }
-  } else {
-    primary = StubInterpreter(latency: Duration.zero);
-    modeLabel = 'offline stub (pass --live for HTTP)';
-  }
-
+///
+/// ### How to run
+///
+/// Offline (default):
+///
+///     dart run ai_tissue_command.dart
+///
+/// The demo runs entirely against the deterministic stub. To see
+/// the live HTTP path, use the full demo at
+/// `nl-instruction-tissue-set-enhanced-Demo.dart --live` or
+/// `--config ai_config.json`.
+///
+/// ### What it demonstrates
+///
+/// 1. **AiTissueCommand** — a single sentence produces a
+///    [TissueCommand] or a [Reject].
+/// 2. **AiTissueCommand** — latest-wins: the second sentence
+///    supersedes the first.
+/// 3. **AiTissueCommandBatch** — a batch of four sentences
+///    produces a four-element list preserving order.
+/// 4. **AiTissueCommandBatch** — a timeout inside a batch becomes
+///    an `interpreter-error` Reject; the batch continues.
+/// 5. **AiTissueCommandWithRetry** — first-try success.
+/// 6. **AiTissueCommandWithRetry** — success after retries.
+/// 7. **AiTissueCommandWithRetry** — retries exhausted produces a
+///    `retries-exhausted` Reject.
+/// 8. **AiTissueCommand.fromConfig** — the config path produces an
+///    instruction identical in behaviour to the primary
+///    constructor.
+///
+/// ### Key takeaways
+///
+/// - All three instructions share the same [Interpreter] port.
+/// - All three have `.fromConfig(...)` factories that build the
+///   interpreter from an [AiConfig] with no env-var fallback.
+/// - The retry variant distinguishes transport failures from model
+///   refusals.
+Future<void> main() async {
   print('── AiTissueCommand Operators Demo ──────────────────────────────');
-  print('mode: $modeLabel\n');
 
-  try {
-    // ═══════════════════════════════════════════════════════════
-    // 1. AiTissueCommand — single sentence
-    // ═══════════════════════════════════════════════════════════
-    print('1. AiTissueCommand — single sentence');
+  // ─────────────────────────────────────────────────────────────
+  // 1. AiTissueCommand — single sentence
+  // ─────────────────────────────────────────────────────────────
+  _section('1', 'AiTissueCommand — single sentence');
 
-    final commandIn = Cell.ingress<String>();
+  final stub = StubInterpreter(latency: Duration.zero);
+  final commandIn = Cell.ingress<String>();
 
-    final single = AiTissueCommand<String>(
-      interpreter: primary,
-      verbs: <String>{...verbByName.keys},
-    ).toHandle(source: commandIn.cell);
+  final single = AiTissueCommand<String>(
+    interpreter: stub,
+    verbs: <String>{...verbByName.keys},
+  ).toHandle(source: commandIn.cell);
 
-    final singleObs = Cell.observe(
-      source: single.cell,
-      effect: (Pulse p) {
-        final v = p.payload;
-        if (v is TissueCommand) {
-          print('   [cmd] TissueCommand(${v.verb.name}, args=${v.args})');
-        } else if (v is Reject) {
-          print('   [cmd] Reject(reason=${v.reason})');
-        } else {
-          print('   [cmd] unexpected payload: $v');
-        }
-      },
-    );
+  final singleObs = Cell.observe(
+    source: single.cell,
+    effect: (Pulse p) {
+      final v = p.payload;
+      if (v is TissueCommand) {
+        print('   [cmd] TissueCommand(${v.verb.name}, args=${v.args})');
+      } else if (v is Reject) {
+        print('   [cmd] Reject(reason=${v.reason})');
+      } else {
+        print('   [cmd] unexpected payload: $v');
+      }
+    },
+  );
 
-    await commandIn.emitAsync('add 1');
-    await commandIn.emitAsync('remove 1');
-    await commandIn.emitAsync('hack the nucleus');
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    singleObs.stop();
-    print('');
+  await commandIn.emitAsync('add 1');
+  await commandIn.emitAsync('remove 1');
+  await commandIn.emitAsync('hack the nucleus');
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  singleObs.stop();
 
-    // ═══════════════════════════════════════════════════════════
-    // 2. AiTissueCommand — latest-wins
-    // ═══════════════════════════════════════════════════════════
-    print('2. AiTissueCommand — latest-wins');
+  // ─────────────────────────────────────────────────────────────
+  // 2. AiTissueCommand — latest-wins
+  // ─────────────────────────────────────────────────────────────
+  _section('2', 'AiTissueCommand — latest-wins');
 
-    final latestIn = Cell.ingress<String>();
-    final latest = AiTissueCommand<String>(
-      interpreter: primary,
-      verbs: <String>{...verbByName.keys},
-    ).toHandle(source: latestIn.cell);
+  final latestIn = Cell.ingress<String>();
+  final latest = AiTissueCommand<String>(
+    interpreter: stub,
+    verbs: <String>{...verbByName.keys},
+  ).toHandle(source: latestIn.cell);
 
-    final latestObs = Cell.observe(
-      source: latest.cell,
-      effect: (Pulse p) {
-        final v = p.payload;
-        if (v is TissueCommand) {
-          print('   [cmd] TissueCommand(${v.verb.name}, args=${v.args})');
-        } else if (v is Reject) {
-          print('   [cmd] Reject(reason=${v.reason})');
-        }
-      },
-    );
+  final latestObs = Cell.observe(
+    source: latest.cell,
+    effect: (Pulse p) {
+      final v = p.payload;
+      if (v is TissueCommand) {
+        print('   [cmd] TissueCommand(${v.verb.name}, args=${v.args})');
+      } else if (v is Reject) {
+        print('   [cmd] Reject(reason=${v.reason})');
+      }
+    },
+  );
 
-    await latestIn.emitAsync('add 1');
-    await latestIn.emitAsync('add 9');
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    latestObs.stop();
-    print('');
+  await latestIn.emitAsync('add 1');
+  await latestIn.emitAsync('add 9');
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  latestObs.stop();
 
-    // ═══════════════════════════════════════════════════════════
-    // 3. AiTissueCommandBatch — 4 sentences in one batch
-    // ═══════════════════════════════════════════════════════════
-    print('3. AiTissueCommandBatch — 4 sentences in one batch');
+  // ─────────────────────────────────────────────────────────────
+  // 3. AiTissueCommandBatch — 4 sentences in one batch
+  // ─────────────────────────────────────────────────────────────
+  _section('3', 'AiTissueCommandBatch — 4 sentences in one batch');
 
-    final batchIn = Cell.ingress<List<String>>();
-    final batch = AiTissueCommandBatch<String>(
-      interpreter: primary,
-      verbs: <String>{...verbByName.keys},
-    ).toHandle(source: batchIn.cell);
+  final batchIn = Cell.ingress<List<String>>();
+  final batch = AiTissueCommandBatch<String>(
+    interpreter: stub,
+    verbs: <String>{...verbByName.keys},
+  ).toHandle(source: batchIn.cell);
 
-    final batchObs = Cell.observe(
-      source: batch.cell,
-      effect: (Pulse p) {
-        final list = p.payload;
-        if (list is List) {
-          print('   [batch] size=${list.length}');
-          for (var i = 0; i < list.length; i++) {
-            final item = list[i];
-            if (item is TissueCommand) {
-              print('   [batch] $i: '
-                  'TissueCommand(${item.verb.name}, args=${item.args})');
-            } else if (item is Reject) {
-              print('   [batch] $i: Reject(reason=${item.reason})');
-            }
+  final batchObs = Cell.observe(
+    source: batch.cell,
+    effect: (Pulse p) {
+      final list = p.payload;
+      if (list is List) {
+        print('   [batch] size=${list.length}');
+        for (var i = 0; i < list.length; i++) {
+          final item = list[i];
+          if (item is TissueCommand) {
+            print('   [batch] $i: '
+                'TissueCommand(${item.verb.name}, args=${item.args})');
+          } else if (item is Reject) {
+            print('   [batch] $i: Reject(reason=${item.reason})');
           }
         }
-      },
-    );
+      }
+    },
+  );
 
-    await batchIn.emitAsync([
-      'add 1',
-      'add 2',
-      'clear',
-      'hack the nucleus',
-    ]);
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    batchObs.stop();
-    print('');
+  await batchIn.emitAsync(
+      ['add 1', 'add 2', 'clear', 'hack the nucleus']);
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  batchObs.stop();
 
-    // ═══════════════════════════════════════════════════════════
-    // 4. AiTissueCommandBatch — mixed with a timeout
-    // ═══════════════════════════════════════════════════════════
-    print('4. AiTissueCommandBatch — mixed with a timeout');
+  // ─────────────────────────────────────────────────────────────
+  // 4. AiTissueCommandBatch — mixed with a timeout
+  // ─────────────────────────────────────────────────────────────
+  _section('4', 'AiTissueCommandBatch — mixed with a timeout');
 
-    // Offline mode uses a stub we control directly. Live mode uses
-    // the shared primary interpreter; the timeout injection fires
-    // on whichever interpreter is active.
-    final Interpreter flaky;
-    if (primary is StubInterpreter) {
-      flaky = StubInterpreter(latency: Duration.zero);
-      (flaky as StubInterpreter).injectTimeoutOnce();
-    } else {
-      flaky = primary;
-      flaky.injectTimeoutOnce();
-    }
+  final flakyStub = StubInterpreter(latency: Duration.zero);
+  final mixedIn = Cell.ingress<List<String>>();
+  final mixed = AiTissueCommandBatch<String>(
+    interpreter: flakyStub,
+    verbs: <String>{...verbByName.keys},
+    onError: (_, __) {},
+  ).toHandle(source: mixedIn.cell);
 
-    final mixedIn = Cell.ingress<List<String>>();
-    final mixed = AiTissueCommandBatch<String>(
-      interpreter: flaky,
-      verbs: <String>{...verbByName.keys},
-      onError: (_, __) {},
-    ).toHandle(source: mixedIn.cell);
-
-    final mixedObs = Cell.observe(
-      source: mixed.cell,
-      effect: (Pulse p) {
-        final list = p.payload;
-        if (list is List) {
-          print('   [batch] size=${list.length}');
-          for (var i = 0; i < list.length; i++) {
-            final item = list[i];
-            if (item is TissueCommand) {
-              print('   [batch] $i: '
-                  'TissueCommand(${item.verb.name}, args=${item.args})');
-            } else if (item is Reject) {
-              print('   [batch] $i: Reject(reason=${item.reason})');
-            }
+  final mixedObs = Cell.observe(
+    source: mixed.cell,
+    effect: (Pulse p) {
+      final list = p.payload;
+      if (list is List) {
+        print('   [batch] size=${list.length}');
+        for (var i = 0; i < list.length; i++) {
+          final item = list[i];
+          if (item is TissueCommand) {
+            print('   [batch] $i: '
+                'TissueCommand(${item.verb.name}, args=${item.args})');
+          } else if (item is Reject) {
+            print('   [batch] $i: Reject(reason=${item.reason})');
           }
         }
-      },
-    );
+      }
+    },
+  );
 
-    await mixedIn.emitAsync(['add 7', 'add 8', 'add 9']);
-    await Future<void>.delayed(const Duration(milliseconds: 80));
-    mixedObs.stop();
-    print('');
+  // The stub's `injectTimeoutOnce` fires on the NEXT complete
+  // call. Because the batch processes sentences sequentially,
+  // this targets the FIRST sentence.
+  flakyStub.injectTimeoutOnce();
+  await mixedIn.emitAsync(['add 7', 'add 8', 'add 9']);
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  mixedObs.stop();
 
-    // ═══════════════════════════════════════════════════════════
-    // 5. AiTissueCommandWithRetry — success on first try
-    // ═══════════════════════════════════════════════════════════
-    print('5. AiTissueCommandWithRetry — success on first try');
+  // ─────────────────────────────────────────────────────────────
+  // 5. AiTissueCommandWithRetry — success on first try
+  // ─────────────────────────────────────────────────────────────
+  _section('5', 'AiTissueCommandWithRetry — success on first try');
 
-    final retryIn = Cell.ingress<String>();
+  final retryStub = StubInterpreter(latency: Duration.zero);
+  final retryIn = Cell.ingress<String>();
 
-    var attempts5 = 0;
-    final retry5 = AiTissueCommandWithRetry<String>(
-      interpreter: _CountingInterpreter(
-        primary,
-        onAttempt: () => attempts5++,
-      ),
-      verbs: <String>{...verbByName.keys},
-      count: 3,
-    ).toHandle(source: retryIn.cell);
+  var attempts5 = 0;
+  final retry5 = AiTissueCommandWithRetry<String>(
+    interpreter: _CountingInterpreter(
+      retryStub,
+      onAttempt: () => attempts5++,
+    ),
+    verbs: <String>{...verbByName.keys},
+    count: 3,
+  ).toHandle(source: retryIn.cell);
 
-    final retry5Obs = Cell.observe(
-      source: retry5.cell,
-      effect: (Pulse p) {
-        final v = p.payload;
-        if (v is TissueCommand) {
-          print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
-        } else if (v is Reject) {
-          print('   [retry] Reject(reason=${v.reason})');
-        }
-      },
-    );
+  final retry5Obs = Cell.observe(
+    source: retry5.cell,
+    effect: (Pulse p) {
+      final v = p.payload;
+      if (v is TissueCommand) {
+        print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
+      } else if (v is Reject) {
+        print('   [retry] Reject(reason=${v.reason})');
+      }
+    },
+  );
 
-    await retryIn.emitAsync('add 5');
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    print('   attempts=$attempts5');
-    retry5Obs.stop();
-    print('');
+  await retryIn.emitAsync('add 5');
+  await Future<void>.delayed(const Duration(milliseconds: 20));
+  print('   attempts=$attempts5');
+  retry5Obs.stop();
 
-    // ═══════════════════════════════════════════════════════════
-    // 6. AiTissueCommandWithRetry — success after retries
-    // ═══════════════════════════════════════════════════════════
-    print('6. AiTissueCommandWithRetry — success after retries');
+  // ─────────────────────────────────────────────────────────────
+  // 6. AiTissueCommandWithRetry — success after retries
+  // ─────────────────────────────────────────────────────────────
+  _section('6', 'AiTissueCommandWithRetry — success after retries');
 
-    // Offline mode: fresh stub, three injected timeouts, success
-    // on the fourth attempt.
-    // Live mode: shared primary, one injected timeout, success on
-    // the second attempt. (Live mode does not force three attempts
-    // because each injected timeout is a one-shot flag and a live
-    // endpoint can succeed on the retry.)
-    final Interpreter flakyRetry;
-    final int injectedTimeouts;
-    if (primary is StubInterpreter) {
-      flakyRetry = StubInterpreter(latency: Duration.zero);
-      injectedTimeouts = 3;
-    } else {
-      flakyRetry = primary;
-      injectedTimeouts = 1;
-    }
-    for (var i = 0; i < injectedTimeouts; i++) {
-      flakyRetry.injectTimeoutOnce();
-    }
+  final flaky = StubInterpreter(latency: Duration.zero);
+  final retry6In = Cell.ingress<String>();
 
-    final retry6In = Cell.ingress<String>();
-    var attempts6 = 0;
-    final retry6 = AiTissueCommandWithRetry<String>(
-      interpreter: _CountingInterpreter(
-        flakyRetry,
-        onAttempt: () => attempts6++,
-      ),
-      verbs: <String>{...verbByName.keys},
-      count: 5,
-      onError: (_, __) {},
-    ).toHandle(source: retry6In.cell);
+  var attempts6 = 0;
+  final retry6 = AiTissueCommandWithRetry<String>(
+    interpreter: _CountingInterpreter(
+      flaky,
+      onAttempt: () => attempts6++,
+    ),
+    verbs: <String>{...verbByName.keys},
+    count: 5,
+    onError: (_, __) {},
+  ).toHandle(source: retry6In.cell);
 
-    final retry6Obs = Cell.observe(
-      source: retry6.cell,
-      effect: (Pulse p) {
-        final v = p.payload;
-        if (v is TissueCommand) {
-          print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
-        } else if (v is Reject) {
-          print('   [retry] Reject(reason=${v.reason})');
-        }
-      },
-    );
+  final retry6Obs = Cell.observe(
+    source: retry6.cell,
+    effect: (Pulse p) {
+      final v = p.payload;
+      if (v is TissueCommand) {
+        print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
+      } else if (v is Reject) {
+        print('   [retry] Reject(reason=${v.reason})');
+      }
+    },
+  );
 
-    await retry6In.emitAsync('add 6');
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    print('   attempts=$attempts6');
-    retry6Obs.stop();
-    print('');
+  // Three timeouts in a row; the fourth attempt succeeds because
+  // injectTimeoutOnce only fires once per call.
+  flaky.injectTimeoutOnce();
+  flaky.injectTimeoutOnce();
+  flaky.injectTimeoutOnce();
 
-    // ═══════════════════════════════════════════════════════════
-    // 7. AiTissueCommandWithRetry — retries exhausted
-    // ═══════════════════════════════════════════════════════════
-    print('7. AiTissueCommandWithRetry — retries exhausted');
+  await retry6In.emitAsync('add 6');
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  print('   attempts=$attempts6');
+  retry6Obs.stop();
 
-    final retry7In = Cell.ingress<String>();
+  // ─────────────────────────────────────────────────────────────
+  // 7. AiTissueCommandWithRetry — retries exhausted
+  // ─────────────────────────────────────────────────────────────
+  _section('7', 'AiTissueCommandWithRetry — retries exhausted');
 
-    var attempts7 = 0;
-    final retry7 = AiTissueCommandWithRetry<String>(
-      interpreter: _CountingInterpreter(
-        _AlwaysFailsInterpreter(),
-        onAttempt: () => attempts7++,
-      ),
-      verbs: <String>{...verbByName.keys},
-      count: 2, // total attempts = 3
-      onError: (_, __) {},
-    ).toHandle(source: retry7In.cell);
+  final alwaysFails = _AlwaysFailsInterpreter();
+  final retry7In = Cell.ingress<String>();
 
-    final retry7Obs = Cell.observe(
-      source: retry7.cell,
-      effect: (Pulse p) {
-        final v = p.payload;
-        if (v is Reject) {
-          final short = v.reason.length > 60
-              ? '${v.reason.substring(0, 60)}...'
-              : v.reason;
-          print('   [retry] Reject(reason=$short)');
-        } else if (v is TissueCommand) {
-          print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
-        }
-      },
-    );
+  var attempts7 = 0;
+  final retry7 = AiTissueCommandWithRetry<String>(
+    interpreter: _CountingInterpreter(
+      alwaysFails,
+      onAttempt: () => attempts7++,
+    ),
+    verbs: <String>{...verbByName.keys},
+    count: 2, // total attempts = 3
+    onError: (_, __) {},
+  ).toHandle(source: retry7In.cell);
 
-    await retry7In.emitAsync('add 7');
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    print('   attempts=$attempts7');
-    retry7Obs.stop();
-    print('');
+  final retry7Obs = Cell.observe(
+    source: retry7.cell,
+    effect: (Pulse p) {
+      final v = p.payload;
+      if (v is Reject) {
+        final short = v.reason.length > 60
+            ? '${v.reason.substring(0, 60)}...'
+            : v.reason;
+        print('   [retry] Reject(reason=$short)');
+      } else if (v is TissueCommand) {
+        print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
+      }
+    },
+  );
 
-    print('── finished ────────────────────────────────────────────────────');
-  } finally {
-    // Live HTTP clients hold OS resources; close them on exit.
-    if (primary is HttpInterpreter) {
-      primary.close();
-    }
-  }
+  await retry7In.emitAsync('add 7');
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  print('   attempts=$attempts7');
+  retry7Obs.stop();
+
+  // ─────────────────────────────────────────────────────────────
+  // 8. AiTissueCommand.fromConfig — builds an interpreter from a
+  //    config (no env-var fallback)
+  // ─────────────────────────────────────────────────────────────
+  _section('8', 'AiTissueCommand.fromConfig');
+
+  // We use a placeholder config here so the demo does not attempt
+  // a live HTTP call. The factory itself is what is being
+  // demonstrated; the interpreter it builds is a real
+  // HttpInterpreter that would contact the endpoint named by the
+  // config if it were ever invoked.
+  final placeholderConfig = AiConfig(
+    endpoint: Uri.parse('https://example.invalid/v1/chat/completions'),
+    apiKey: 'not-a-real-key',
+    model: 'placeholder-model',
+  );
+  final fromConfig = AiTissueCommand<String>.fromConfig(
+    config: placeholderConfig,
+    verbs: <String>{...verbByName.keys},
+  );
+  print('   instruction=${fromConfig.runtimeType} '
+      'transport=${fromConfig.interpreter.transport}');
+  print('   (no HTTP call — placeholder endpoint)');
+
+  print('');
+  print('── finished ────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -940,3 +1060,7 @@ class _AlwaysFailsInterpreter implements Interpreter {
     );
   }
 }
+
+/// Error handler callback for the AI-bridged interpretation gates.
+typedef AiTissueCommandErrorHandler =
+void Function(Object error, StackTrace? stackTrace);

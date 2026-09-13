@@ -73,6 +73,22 @@
 of a transient cell.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Create this policy and attach it to a cell that should not live forever.</p>
+<h3 id="attaching-the-policy">Attaching the policy</h3>
+<p>The policy travels inside the cell's <a href="../../cell_flow/Nucleus-class.html">Nucleus</a> record:</p>
+<ul>
+<li><code>Cell.governed(ephemeralPolicy: policy, context: ...)</code> — a new governed
+cell that hosts the policy locally.</li>
+<li><code>cell.deputy(ephemeralPolicy: policy)</code> — a governed deputy that hosts
+the policy locally, overriding any policy inherited from its principal
+or upstream bind chain.</li>
+<li><code>Tissue.governed(...)</code>, <code>TissueListNucleus(...)</code>, <code>TissueSetNucleus(...)</code>,
+and the other <code>Tissue*Nucleus</code> factories — the equivalent entry points
+for governed tissue collections.</li>
+</ul>
+<p>A cell that hosts no policy of its own still inherits governance from
+upstream: the framework locates the nearest <a href="../../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a> on the
+<code>Cell.bind</code> chain, so a node bound to a governed head behaves as a
+governed body.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li><code>onEvent</code> is called on every pulse, action, or link; update the
@@ -85,6 +101,8 @@ cleanup and return <code>true</code> to confirm.</li>
 <ul>
 <li>Returning a negative <code>events</code> count from <code>onEvent</code> will ignore the event.</li>
 <li>The TTL timer starts only on the first interaction, not at creation.</li>
+<li>A hosted policy wins over an upstream one; a body can therefore
+override the lifecycle policy of the head of its reactive graph.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -135,7 +153,7 @@ dynamic user
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

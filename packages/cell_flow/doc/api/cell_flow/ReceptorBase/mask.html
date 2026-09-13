@@ -61,7 +61,6 @@
 <li><span class="parameter" id="mask-param-reaction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">reaction</span>, </span></li>
 <li><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">user</span>, </span></li>
 <li><span class="parameter" id="mask-param-init"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">init</span>, </span></li>
-<li><span class="parameter" id="mask-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       
@@ -80,7 +79,6 @@ by only including fields that are actually used.</p>
 <li><code>reaction</code>: Simplified reaction function.</li>
 <li><code>user</code>: User metadata factory.</li>
 <li><code>init</code>: Initialization function.</li>
-<li><code>isGoverned</code>: Governance flag.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>A record containing only the provided fields, optimized for memory.</p>
@@ -96,8 +94,7 @@ by only including fields that are actually used.</p>
   Instruction? postProcess,
   Function? reaction,
   Function? user,
-  Function? init,
-  bool isGoverned = false,
+  Function? init
 }) {
 
   final instructionMask = (
@@ -130,8 +127,7 @@ by only including fields that are actually used.</p>
   final mask = (
       (instructionMask != 0 ? 1 : 0) |
       (init != null ? 2 : 0) |
-      (user != null ? 4 : 0) |
-      (isGoverned ? 8 : 0)
+      (user != null ? 4 : 0)
   );
 
   final userBox = user != null ? (FinalBox()..value = user()) : null;
@@ -145,14 +141,6 @@ by only including fields that are actually used.</p>
     5 =&gt; (instruction: instructionRecord, user: user, userBox: userBox),
     6 =&gt; (init: init, user: user, userBox: userBox),
     7 =&gt; (instruction: instructionRecord, init: init, user: user, userBox: userBox),
-    8 =&gt; (isGoverned: isGoverned),
-    9 =&gt; (instruction: instructionRecord, isGoverned: isGoverned),
-    10 =&gt; (init: init, isGoverned: isGoverned),
-    11 =&gt; (instruction: instructionRecord, init: init, isGoverned: isGoverned),
-    12 =&gt; (user: user, userBox: userBox, isGoverned: isGoverned),
-    13 =&gt; (instruction: instructionRecord, user: user, userBox: userBox, isGoverned: isGoverned),
-    14 =&gt; (init: init, user: user, userBox: userBox, isGoverned: isGoverned),
-    15 =&gt; (instruction: instructionRecord, init: init, user: user, userBox: userBox, isGoverned: isGoverned),
     _ =&gt; ()
   };
 }</code></pre>
@@ -183,7 +171,7 @@ by only including fields that are actually used.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

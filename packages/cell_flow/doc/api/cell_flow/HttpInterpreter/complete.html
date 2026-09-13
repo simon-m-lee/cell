@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the complete method from the HttpInterpreter class, for the Dart programming language.">
+  <title>complete method - HttpInterpreter class - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow.dart</a></li>
+    <li><a href="../../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a></li>
+    <li class="self-crumb">complete method</li>
+  </ol>
+  <div class="self-name">complete</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_flow&#47;HttpInterpreter-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">complete</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_flow/InterpreterReply.html">InterpreterReply</a></span>&gt;</span></span>
+<span class="name ">complete</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="complete-param-text"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">text</span>, </span></li>
+<li><span class="parameter" id="complete-param-verbs"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">verbs</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Ask the interpreter what verb (if any) the <code>text</code> names.</p>
+<p><code>verbs</code> is the closed allow-list of verb strings derived from
+<code>TissueSet.modifiable</code>. The interpreter must not return a verb
+outside this list.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The interpreter builds a system prompt from <code>verbs</code>.</li>
+<li>It sends the prompt and <code>text</code> to the model (or classifies
+locally, in the stub's case).</li>
+<li>It parses the reply into an <a href="../../cell_flow/InterpreterReply.html">InterpreterReply</a>.</li>
+<li>It returns the reply.</li>
+</ol>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>text</code>: <strong>The Sentence.</strong> The natural-language string to
+interpret.</li>
+<li><code>verbs</code>: <strong>The Closed Verb List.</strong> Names allowed to appear
+in the reply.</li>
+</ul>
+<h3 id="returns">Returns</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> resolving to an <a href="../../cell_flow/InterpreterReply.html">InterpreterReply</a> — either a
+<a href="../../cell_flow/TissueCommand-class.html">TissueCommand</a> or a <a href="../../cell_flow/Reject-class.html">Reject</a>.</p>
+<h3 id="throws">Throws</h3>
+<p>A live implementation may throw on transport failures. The
+instruction routes those to its <code>onError</code> handler and emits a
+<code>Reject(reason: 'interpreter-error')</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Future&lt;InterpreterReply&gt; complete({
+  required String text,
+  required Set&lt;String&gt; verbs,
+}) async {
+  final prompt = systemPrompt(verbs);
+
+  log.systemPrompt(prompt);
+
+  final body = jsonEncode({
+    &#47;&#47; extraBody is merged first so the interpreter&#39;s keys win if
+    &#47;&#47; they collide. That is the same policy AiConfig.fromJson
+    &#47;&#47; documents.
+    ...extraBody,
+    &#39;model&#39;: model,
+    &#39;messages&#39;: [
+      {&#39;role&#39;: &#39;system&#39;, &#39;content&#39;: prompt},
+      {&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: text},
+    ],
+    &#39;temperature&#39;: 0,
+    &#39;response_format&#39;: {&#39;type&#39;: &#39;json_object&#39;},
+  });
+
+  log.request(
+    endpoint: endpoint.toString(),
+    model: model,
+    sentence: text,
+    body: body,
+  );
+
+  &#47;&#47; Simulated transport failure for scenario 10.
+  if (_pendingTimeouts &gt; 0) {
+    _pendingTimeouts--;
+    throw TimeoutException(
+      &#39;injected timeout (scenario 10)&#39;,
+      Duration.zero,
+    );
+  }
+
+  final request = await client.postUrl(endpoint);
+  request.headers
+    ..set(HttpHeaders.authorizationHeader, &#39;Bearer $apiKey&#39;)
+    ..set(HttpHeaders.contentTypeHeader, &#39;application&#47;json&#39;)
+    ..set(HttpHeaders.acceptHeader, &#39;application&#47;json&#39;);
+  request.add(utf8.encode(body));
+
+  final response = await request.close().timeout(timeout);
+  final replyBody =
+  await response.transform(utf8.decoder).join().timeout(timeout);
+
+  log.response(status: response.statusCode, body: replyBody);
+
+  if (response.statusCode &lt; 200 || response.statusCode &gt;= 300) {
+    throw HttpException(
+      &#39;AI endpoint returned ${response.statusCode}: $replyBody&#39;,
+    );
+  }
+
+  final reply = _parse(replyBody, source: text);
+  if (reply.command != null) {
+    log.parsed(reply.command!);
+  } else if (reply.reject != null) {
+    log.refused(reply.reject!.reason);
+  }
+  return reply;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_flow</a></li>
+    <li><a href="../../cell_flow/">cell_flow</a></li>
+    <li><a href="../../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a></li>
+    <li class="self-crumb">complete method</li>
+</ol>
+
+    <h5>HttpInterpreter class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

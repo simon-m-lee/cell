@@ -155,8 +155,8 @@ pulse (or <code>null</code> to drop it).</p>
 
 </dt>
 <dd class="inherited">
-  The operational <a href="../cell_flow/Context-class.html">Context</a> defining the security tier, execution priority,
-and administrative authority of this <a href="../cell_flow/Cell-class.html">Cell</a>.
+  The operational <a href="../cell_flow/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_flow/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -204,8 +204,8 @@ and administrative authority of this <a href="../cell_flow/Cell-class.html">Cell
 
 </dt>
 <dd class="inherited">
-  Indicates whether this <a href="../cell_flow/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
-that oversees its operational boundaries, security constraints, and administrative metadata.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -340,8 +340,8 @@ execution on this node via the dynamic <a href="../cell_flow/CellBase/apply.html
 
 </dt>
 <dd class="inherited">
-  The authoritative <strong>Integrity Gate</strong> and validation rule governing this
-cell's structural and operational boundaries.
+  The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -936,7 +936,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

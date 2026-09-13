@@ -191,8 +191,8 @@ with an independent synchronization domain.
 
 </dt>
 <dd>
-  The operational tier and execution environment assigned to the <a href="../cell_flow/Cell-class.html">Cell</a>
-associated with this <a href="../cell_flow/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell_flow/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_flow/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -241,7 +241,8 @@ shared behavioral configuration for this <a href="../cell_flow/Nucleus-class.htm
 
 </dt>
 <dd class="inherited">
-  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -253,8 +254,8 @@ shared behavioral configuration for this <a href="../cell_flow/Nucleus-class.htm
 
 </dt>
 <dd>
-  Indicates whether the associated <a href="../cell_flow/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -342,8 +343,8 @@ observers of this <code>Cell</code>.
 
 </dt>
 <dd>
-  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <code>Cell</code>.
+  The active <a href="../cell_flow/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -471,7 +472,7 @@ custom property extensions for the associated <a href="../cell_flow/Cell-class.h
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.4)] - Release Candidate
+
+This release introduces the **AI Command Infrastructure**, establishing a forensic gateway for AI-orchestrated state mutations. It aligns the orchestration topography with machine-driven logic while maintaining strict administrative oversight and causal integrity.
+
+### Added
+
+- **AI Command Topography**: Materialized the foundational infrastructure for AI-driven state evolution within the flow layer:
+  - `ai_tissue_command.dart`: The command gateway implementation. It handles the execution of AI-generated instructions through governed `apply` and `dispatch` mechanics, ensuring transactions remain isolated and compensable.
+  - `ai_tissue_command_domain.dart`: Formalized the forensic domain for machine commands. Defines the high-level interfaces for command schemas, authority tiers, and administrative mandates.
+- **AI Command Verification**:
+  - `ai_tissue_command_test.dart`: Exhaustive test suite for the new command infrastructure. Verifies that AI-generated pulses correctly inherit `Context` anchors and that the forensic `Pulse.trace` accurately captures machine-initiated mutations.
+- **Causal AI Anchoring**: Integrated AI commands with the framework's **Tiered Resolution Strategy**, ensuring that machine-tier operations respect the administrative boundaries defined in the core layer.
+
+### Changed
+
+- **Monorepo Synchronization**: Aligned `cell_flow` with the core `cell` (1.0.0-rc.4) release, ensuring all orchestration operators support the refined **Lifecycle Governance** and **Apoptosis** (programmed cell death) mechanics.
+- **Orchestration Pedagogy**: Updated the operator documentation to explicitly link how AI-orchestrated stimuli flow through terminal sinks and reactive aggregators.
+
+### Fixed
+
+- **Dependency Scoping**: Resolved linter warnings related to machine-tier examples by refining the `dev_dependencies` manifest to ensure forensic demos possess local workspace parity.
+
+### Tests
+
+- **1051** unit tests in **45** files, **465** groups (+13 tests for AI Command gateways).
+- Last full run: **+1051, exit 0**.
+- Line coverage (`lib/`): **96.9%** (+0.1% improvement in command gateway edge-cases).
+
+[Mitosis (1.0.0-rc.4)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
 ## [Mitosis (1.0.0-rc.3)] - Release Candidate
 
 This release formalizes **Topographical Integrity** and **Forensic Traceability** within the orchestration layer, ensuring that causal anchors are preserved across complex asynchronous transformations and operator chains.

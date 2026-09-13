@@ -1,9 +1,9 @@
 # cell_flow package - Test Verification Report
 
-**Generated:** 2026-09-06
-**Package:** cell_flow (v1.0.0-rc.2.0.1)
-**Test Files Analyzed:** 42
-**Total Tests:** 1022 (0 skipped)
+**Generated:** 2026-09-13
+**Package:** cell_flow (v1.0.0-rc.3)
+**Test Files Analyzed:** 43
+**Total Tests:** 1081 (0 skipped)
 
 ---
 
@@ -14,49 +14,51 @@
   - [Quick Stats](#quick-stats)
 - [Test File Inventory](#test-file-inventory)
 - [Detailed Test Coverage](#detailed-test-coverage)
-  - [async_expand_test.dart](#file-1-async_expand_test.dart-24-tests)
-  - [async_fold_test.dart](#file-2-async_fold_test.dart-20-tests)
-  - [async_map_test.dart](#file-3-async_map_test.dart-30-tests)
-  - [buffer_test.dart](#file-4-buffer_test.dart-24-tests)
-  - [combine_latest_test.dart](#file-5-combine_latest_test.dart-13-tests)
-  - [concat_map_test.dart](#file-6-concat_map_test.dart-25-tests)
-  - [concat_test.dart](#file-7-concat_test.dart-21-tests)
-  - [debounce_test.dart](#file-8-debounce_test.dart-21-tests)
-  - [delay_test.dart](#file-9-delay_test.dart-26-tests)
-  - [distinct_test.dart](#file-10-distinct_test.dart-23-tests)
-  - [exhaust_map_test.dart](#file-11-exhaust_map_test.dart-24-tests)
-  - [filter_test.dart](#file-12-filter_test.dart-31-tests)
-  - [flow_test.dart](#file-13-flow_test.dart-81-tests)
-  - [fluent_operator_test.dart](#file-14-fluent_operator_test.dart-37-tests)
-  - [from_future_test.dart](#file-15-from_future_test.dart-37-tests)
-  - [from_stream_test.dart](#file-16-from_stream_test.dart-25-tests)
-  - [group_by_test.dart](#file-17-group_by_test.dart-23-tests)
-  - [instruction_demo_test.dart](#file-18-instruction_demo_test.dart-39-tests)
-  - [interval_test.dart](#file-19-interval_test.dart-19-tests)
-  - [map_test.dart](#file-20-map_test.dart-35-tests)
-  - [merge_map_test.dart](#file-21-merge_map_test.dart-20-tests)
-  - [merge_test.dart](#file-22-merge_test.dart-19-tests)
-  - [of_test.dart](#file-23-of_test.dart-23-tests)
-  - [pairwise_test.dart](#file-24-pairwise_test.dart-13-tests)
-  - [partition_test.dart](#file-25-partition_test.dart-22-tests)
-  - [pluck_test.dart](#file-26-pluck_test.dart-24-tests)
-  - [race_test.dart](#file-27-race_test.dart-22-tests)
-  - [reduce_test.dart](#file-28-reduce_test.dart-19-tests)
-  - [retry_test.dart](#file-29-retry_test.dart-26-tests)
-  - [routing_test.dart](#file-30-routing_test.dart-29-tests)
-  - [sample_test.dart](#file-31-sample_test.dart-16-tests)
-  - [scan_test.dart](#file-32-scan_test.dart-16-tests)
-  - [share_test.dart](#file-33-share_test.dart-19-tests)
-  - [skip_test.dart](#file-34-skip_test.dart-26-tests)
-  - [start_with_test.dart](#file-35-start_with_test.dart-21-tests)
-  - [switch_map_test.dart](#file-36-switch_map_test.dart-21-tests)
-  - [take_test.dart](#file-37-take_test.dart-21-tests)
-  - [tap_test.dart](#file-38-tap_test.dart-23-tests)
-  - [throttle_test.dart](#file-39-throttle_test.dart-14-tests)
-  - [timeout_test.dart](#file-40-timeout_test.dart-19-tests)
-  - [window_test.dart](#file-41-window_test.dart-17-tests)
-  - [zip_test.dart](#file-42-zip_test.dart-14-tests)
+  - [ai_tissue_command_test.dart](#file-1-ai_tissue_command_test.dart-59-tests)
+  - [async_expand_test.dart](#file-2-async_expand_test.dart-24-tests)
+  - [async_fold_test.dart](#file-3-async_fold_test.dart-20-tests)
+  - [async_map_test.dart](#file-4-async_map_test.dart-30-tests)
+  - [buffer_test.dart](#file-5-buffer_test.dart-24-tests)
+  - [combine_latest_test.dart](#file-6-combine_latest_test.dart-13-tests)
+  - [concat_map_test.dart](#file-7-concat_map_test.dart-25-tests)
+  - [concat_test.dart](#file-8-concat_test.dart-21-tests)
+  - [debounce_test.dart](#file-9-debounce_test.dart-21-tests)
+  - [delay_test.dart](#file-10-delay_test.dart-26-tests)
+  - [distinct_test.dart](#file-11-distinct_test.dart-23-tests)
+  - [exhaust_map_test.dart](#file-12-exhaust_map_test.dart-24-tests)
+  - [filter_test.dart](#file-13-filter_test.dart-31-tests)
+  - [flow_test.dart](#file-14-flow_test.dart-81-tests)
+  - [fluent_operator_test.dart](#file-15-fluent_operator_test.dart-37-tests)
+  - [from_future_test.dart](#file-16-from_future_test.dart-37-tests)
+  - [from_stream_test.dart](#file-17-from_stream_test.dart-25-tests)
+  - [group_by_test.dart](#file-18-group_by_test.dart-23-tests)
+  - [instruction_demo_test.dart](#file-19-instruction_demo_test.dart-39-tests)
+  - [interval_test.dart](#file-20-interval_test.dart-19-tests)
+  - [map_test.dart](#file-21-map_test.dart-35-tests)
+  - [merge_map_test.dart](#file-22-merge_map_test.dart-20-tests)
+  - [merge_test.dart](#file-23-merge_test.dart-19-tests)
+  - [of_test.dart](#file-24-of_test.dart-23-tests)
+  - [pairwise_test.dart](#file-25-pairwise_test.dart-13-tests)
+  - [partition_test.dart](#file-26-partition_test.dart-22-tests)
+  - [pluck_test.dart](#file-27-pluck_test.dart-24-tests)
+  - [race_test.dart](#file-28-race_test.dart-22-tests)
+  - [reduce_test.dart](#file-29-reduce_test.dart-19-tests)
+  - [retry_test.dart](#file-30-retry_test.dart-26-tests)
+  - [routing_test.dart](#file-31-routing_test.dart-29-tests)
+  - [sample_test.dart](#file-32-sample_test.dart-16-tests)
+  - [scan_test.dart](#file-33-scan_test.dart-16-tests)
+  - [share_test.dart](#file-34-share_test.dart-19-tests)
+  - [skip_test.dart](#file-35-skip_test.dart-26-tests)
+  - [start_with_test.dart](#file-36-start_with_test.dart-21-tests)
+  - [switch_map_test.dart](#file-37-switch_map_test.dart-21-tests)
+  - [take_test.dart](#file-38-take_test.dart-21-tests)
+  - [tap_test.dart](#file-39-tap_test.dart-23-tests)
+  - [throttle_test.dart](#file-40-throttle_test.dart-14-tests)
+  - [timeout_test.dart](#file-41-timeout_test.dart-19-tests)
+  - [window_test.dart](#file-42-window_test.dart-17-tests)
+  - [zip_test.dart](#file-43-zip_test.dart-14-tests)
 - [Runtime Verification Status](#runtime-verification-status)
+  - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
 - [Recommendations](#recommendations)
 - [Appendix: File Locations](#appendix-file-locations)
@@ -65,11 +67,13 @@
 
 ## Executive Summary
 
-The cell_flow test suite contains **1022 unit tests** across **42 files** in `test/`. Counts are `test(` declarations.
+The cell_flow test suite contains **1081 unit tests** across **43 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
+
+Last `dart test` is **green**: **1081 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **96.3%** (5557 / 5768).
 
@@ -79,12 +83,12 @@ No `lib/` file is below 70% in this lcov.
 
 | Metric | Value |
 |--------|-------|
-| **Total Test Files** | 42 |
-| **Total Tests** | 1022 |
+| **Total Test Files** | 43 |
+| **Total Tests** | 1081 |
 | **Skipped** | 0 |
-| **Last full run** | *(pass `--run-tests` to fill)* |
-| **Test Groups** | 440 (`group(` declarations) |
-| **Async-ish tests** | ~980 (heuristic) |
+| **Last full run** | 1081 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 452 (`group(` declarations) |
+| **Async-ish tests** | ~1010 (heuristic) |
 | **Line coverage (`lib/`)** | **96.3%** (5557 / 5768) |
 
 ---
@@ -93,49 +97,50 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | async_expand_test.dart | 365 | 24 | 11.7 KB | async expand test; groups: AsyncExpand, AsyncExpandConcurrent, AsyncExpandLatest, AsyncExpandExhaust, edges, performance… |
-| 2 | async_fold_test.dart | 360 | 20 | 11.3 KB | async fold test; groups: AsyncFold snapshot, AsyncFoldLatest snapshot, AsyncFoldExhaust snapshot, edges, performance, AsyncFold extra… |
-| 3 | async_map_test.dart | 488 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
-| 4 | buffer_test.dart | 398 | 24 | 11.5 KB | buffer test; groups: BufferCount, BufferWithCount, BufferTime, BufferWhen, BufferWithPredicate, BufferWithTimeAndCount… |
-| 5 | combine_latest_test.dart | 273 | 13 | 8.2 KB | combine latest; groups: CombineLatestWith, CombineLatest, WithLatestFrom, CombineLatest2, CombineLatestWith extra, CombineLatest extra… |
-| 6 | concat_map_test.dart | 375 | 25 | 11.7 KB | concat map test; groups: ConcatMap, ConcatMapTo, ConcatMapLatest, ConcatMapFirst, ConcatMap extra, ConcatMapTo extra… |
-| 7 | concat_test.dart | 285 | 21 | 8.2 KB | concat test; groups: Concat, ConcatAll, ConcatFirst, ConcatLatest, edges, performance… |
-| 8 | debounce_test.dart | 310 | 21 | 10.7 KB | debounce test; groups: Debounce, DebounceLeading, DebounceLeadingOnly, DebounceWith, Debounce extra, DebounceLeading extra… |
-| 9 | delay_test.dart | 368 | 26 | 12.0 KB | delay test; groups: Delay, DelayWithSelector, DelayWhen, DelayLatest, DelayWithTrailing, DelayWithTimeout… |
-| 10 | distinct_test.dart | 356 | 23 | 11.1 KB | distinct test; groups: DistinctUntilChanged, DistinctUntilKeyChanged, Distinct, DistinctKey, DistinctUntilChanged extra, DistinctUntilKeyChanged extra… |
-| 11 | exhaust_map_test.dart | 368 | 24 | 11.8 KB | exhaust map test; groups: ExhaustMap, ExhaustMapTo, ExhaustAll, ExhaustMapFirst, ExhaustMapLatest, ExhaustMap extra… |
-| 12 | filter_test.dart | 474 | 31 | 15.1 KB | filter test; groups: Filter, FilterNotNull, FilterType, FilterAllowed / FilterBlocked, FilterByTime, AsyncFilter… |
-| 13 | flow_test.dart | 1,193 | 81 | 37.4 KB | flow test; groups: FlowHandle / toHandle, Flow create, Flow transform, Flow filter family, Flow flatten / combine, Flow time… |
-| 14 | fluent_operator_test.dart | 520 | 37 | 17.0 KB | fluent operator test; groups: CellFlowOperators, FlowOperators transform, FlowOperators async, FlowOperators filter family, FlowOperators flatten / combine, FlowOperators time / collect / control… |
-| 15 | from_future_test.dart | 573 | 37 | 18.1 KB | from future test; groups: FromFuture, DeferFuture, FromFutureOr, ConcatFromFuture, MergeFromFuture, SwitchFromFuture… |
-| 16 | from_stream_test.dart | 369 | 25 | 11.4 KB | from stream test; groups: FromStream, DeferStream, ConcatFromStream, MergeFromStream, SwitchFromStream, MapToStream… |
-| 17 | group_by_test.dart | 384 | 23 | 12.3 KB | group by test; groups: Grouped, GroupBy, GroupCollect, GroupByCount, GroupBy extra, GroupCollect extra… |
-| 18 | instruction_demo_test.dart | 102 | 39 | 5.5 KB | instruction demo test; groups: instruction demo mains emit through bodies |
-| 19 | interval_test.dart | 309 | 19 | 9.6 KB | interval test; groups: Interval, IntervalWithValue, IntervalWithState, TimerPulse, Interval extra, IntervalWithValue extra… |
-| 20 | map_test.dart | 503 | 35 | 15.2 KB | map test; groups: MapValue, MapTo, MapWithIndex, MapNotNull, MapWhen, MapValueIf… |
-| 21 | merge_map_test.dart | 320 | 20 | 9.7 KB | merge map test; groups: MergeMap, MergeMapTo, MergeScan, MergeMap extra, MergeMapTo extra, MergeScan extra… |
-| 22 | merge_test.dart | 297 | 19 | 9.2 KB | merge test; groups: MergeWith, Merge, MergeAll, MergeWith extra, Merge extra, MergeAll extra… |
-| 23 | of_test.dart | 274 | 23 | 7.6 KB | of test; groups: Of, FromIterable, Range, Repeat, edges, performance… |
-| 24 | pairwise_test.dart | 214 | 13 | 6.4 KB | pairwise test; groups: Pairwise, PairwiseWith, Pairwise extra, PairwiseWith extra, composition / performance |
-| 25 | partition_test.dart | 340 | 22 | 10.2 KB | partition test; groups: Partition, PartitionMap, PartitionCollect, PartitionOnly, Partition extra, PartitionMap extra… |
-| 26 | pluck_test.dart | 310 | 24 | 8.9 KB | pluck test; groups: Pluck, PluckOr, PluckAll, PluckPath, Pluck extra, PluckOr extra… |
-| 27 | race_test.dart | 347 | 22 | 10.7 KB | race test; groups: Race, RaceFirst, RaceMap, RaceWith, RaceUntil, Race extra… |
-| 28 | reduce_test.dart | 315 | 19 | 9.5 KB | reduce test; groups: Reduce, ReduceSelect, ReduceMachine, Reduce extra, ReduceSelect extra, ReduceMachine extra… |
-| 29 | retry_test.dart | 486 | 26 | 14.5 KB | retry test; groups: Retry, RetryWhen, RetryWithDelay, RetryWithBackoff, RetryUntil, Retry extra… |
-| 30 | routing_test.dart | 451 | 29 | 13.8 KB | routing test; groups: Iif, RouteWhen, RouteByKey, PartitionTag, Iif extra, RouteWhen extra… |
-| 31 | sample_test.dart | 264 | 16 | 8.3 KB | sample test; groups: Sample, SampleTime, Audit, AuditTime, edges, performance… |
-| 32 | scan_test.dart | 279 | 16 | 8.3 KB | scan test; groups: Scan, ScanSeeded, ScanIndexed, Scan extra, ScanSeeded extra, ScanIndexed extra… |
-| 33 | share_test.dart | 294 | 19 | 9.0 KB | share test; groups: Share, ShareLatest, ShareReplay, ShareReplayStart, Share extra, ShareLatest extra… |
-| 34 | skip_test.dart | 394 | 26 | 11.7 KB | skip test; groups: Skip, SkipWhile, SkipUntil, SkipUntilTime, SkipFirst, SkipLast… |
-| 35 | start_with_test.dart | 291 | 21 | 9.2 KB | start with test; groups: StartWith, StartWithValue, StartWithMany, StartWithFactory, StartWith extra, StartWithMany extra… |
-| 36 | switch_map_test.dart | 345 | 21 | 10.9 KB | switch map test; groups: SwitchMap, SwitchMapTo, SwitchLatest, SwitchMapState, SwitchMap extra, SwitchMapTo extra… |
-| 37 | take_test.dart | 305 | 21 | 9.2 KB | take test; groups: Take, TakeWhile, TakeUntil, TakeUntilTime, Take extra, TakeWhile extra… |
-| 38 | tap_test.dart | 376 | 23 | 11.1 KB | tap test; groups: Tap, TapAll, TapWithIndex, TapState, Tap extra, TapAll extra… |
-| 39 | throttle_test.dart | 222 | 14 | 7.2 KB | throttle test; groups: Throttle, ThrottleLeading, ThrottleTrailing, Throttle extra, ThrottleLeading extra, ThrottleTrailing extra… |
-| 40 | timeout_test.dart | 325 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
-| 41 | window_test.dart | 296 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
-| 42 | zip_test.dart | 250 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
-| **Total** | | **15,368** | **1022** | **476.6 KB** | |
+| 1 | ai_tissue_command_test.dart | 1,205 | 59 | 40.6 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
+| 2 | async_expand_test.dart | 365 | 24 | 11.7 KB | async expand test; groups: AsyncExpand, AsyncExpandConcurrent, AsyncExpandLatest, AsyncExpandExhaust, edges, performance… |
+| 3 | async_fold_test.dart | 360 | 20 | 11.3 KB | async fold test; groups: AsyncFold snapshot, AsyncFoldLatest snapshot, AsyncFoldExhaust snapshot, edges, performance, AsyncFold extra… |
+| 4 | async_map_test.dart | 488 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
+| 5 | buffer_test.dart | 398 | 24 | 11.5 KB | buffer test; groups: BufferCount, BufferWithCount, BufferTime, BufferWhen, BufferWithPredicate, BufferWithTimeAndCount… |
+| 6 | combine_latest_test.dart | 273 | 13 | 8.2 KB | combine latest; groups: CombineLatestWith, CombineLatest, WithLatestFrom, CombineLatest2, CombineLatestWith extra, CombineLatest extra… |
+| 7 | concat_map_test.dart | 375 | 25 | 11.7 KB | concat map test; groups: ConcatMap, ConcatMapTo, ConcatMapLatest, ConcatMapFirst, ConcatMap extra, ConcatMapTo extra… |
+| 8 | concat_test.dart | 285 | 21 | 8.2 KB | concat test; groups: Concat, ConcatAll, ConcatFirst, ConcatLatest, edges, performance… |
+| 9 | debounce_test.dart | 310 | 21 | 10.7 KB | debounce test; groups: Debounce, DebounceLeading, DebounceLeadingOnly, DebounceWith, Debounce extra, DebounceLeading extra… |
+| 10 | delay_test.dart | 368 | 26 | 12.0 KB | delay test; groups: Delay, DelayWithSelector, DelayWhen, DelayLatest, DelayWithTrailing, DelayWithTimeout… |
+| 11 | distinct_test.dart | 356 | 23 | 11.1 KB | distinct test; groups: DistinctUntilChanged, DistinctUntilKeyChanged, Distinct, DistinctKey, DistinctUntilChanged extra, DistinctUntilKeyChanged extra… |
+| 12 | exhaust_map_test.dart | 368 | 24 | 11.8 KB | exhaust map test; groups: ExhaustMap, ExhaustMapTo, ExhaustAll, ExhaustMapFirst, ExhaustMapLatest, ExhaustMap extra… |
+| 13 | filter_test.dart | 474 | 31 | 15.1 KB | filter test; groups: Filter, FilterNotNull, FilterType, FilterAllowed / FilterBlocked, FilterByTime, AsyncFilter… |
+| 14 | flow_test.dart | 1,193 | 81 | 37.4 KB | flow test; groups: FlowHandle / toHandle, Flow create, Flow transform, Flow filter family, Flow flatten / combine, Flow time… |
+| 15 | fluent_operator_test.dart | 520 | 37 | 17.0 KB | fluent operator test; groups: CellFlowOperators, FlowOperators transform, FlowOperators async, FlowOperators filter family, FlowOperators flatten / combine, FlowOperators time / collect / control… |
+| 16 | from_future_test.dart | 573 | 37 | 18.1 KB | from future test; groups: FromFuture, DeferFuture, FromFutureOr, ConcatFromFuture, MergeFromFuture, SwitchFromFuture… |
+| 17 | from_stream_test.dart | 369 | 25 | 11.4 KB | from stream test; groups: FromStream, DeferStream, ConcatFromStream, MergeFromStream, SwitchFromStream, MapToStream… |
+| 18 | group_by_test.dart | 384 | 23 | 12.3 KB | group by test; groups: Grouped, GroupBy, GroupCollect, GroupByCount, GroupBy extra, GroupCollect extra… |
+| 19 | instruction_demo_test.dart | 104 | 39 | 5.5 KB | instruction demo test; groups: instruction demo mains emit through bodies |
+| 20 | interval_test.dart | 309 | 19 | 9.6 KB | interval test; groups: Interval, IntervalWithValue, IntervalWithState, TimerPulse, Interval extra, IntervalWithValue extra… |
+| 21 | map_test.dart | 503 | 35 | 15.2 KB | map test; groups: MapValue, MapTo, MapWithIndex, MapNotNull, MapWhen, MapValueIf… |
+| 22 | merge_map_test.dart | 320 | 20 | 9.7 KB | merge map test; groups: MergeMap, MergeMapTo, MergeScan, MergeMap extra, MergeMapTo extra, MergeScan extra… |
+| 23 | merge_test.dart | 297 | 19 | 9.2 KB | merge test; groups: MergeWith, Merge, MergeAll, MergeWith extra, Merge extra, MergeAll extra… |
+| 24 | of_test.dart | 274 | 23 | 7.6 KB | of test; groups: Of, FromIterable, Range, Repeat, edges, performance… |
+| 25 | pairwise_test.dart | 214 | 13 | 6.4 KB | pairwise test; groups: Pairwise, PairwiseWith, Pairwise extra, PairwiseWith extra, composition / performance |
+| 26 | partition_test.dart | 340 | 22 | 10.2 KB | partition test; groups: Partition, PartitionMap, PartitionCollect, PartitionOnly, Partition extra, PartitionMap extra… |
+| 27 | pluck_test.dart | 310 | 24 | 8.9 KB | pluck test; groups: Pluck, PluckOr, PluckAll, PluckPath, Pluck extra, PluckOr extra… |
+| 28 | race_test.dart | 347 | 22 | 10.7 KB | race test; groups: Race, RaceFirst, RaceMap, RaceWith, RaceUntil, Race extra… |
+| 29 | reduce_test.dart | 315 | 19 | 9.5 KB | reduce test; groups: Reduce, ReduceSelect, ReduceMachine, Reduce extra, ReduceSelect extra, ReduceMachine extra… |
+| 30 | retry_test.dart | 486 | 26 | 14.5 KB | retry test; groups: Retry, RetryWhen, RetryWithDelay, RetryWithBackoff, RetryUntil, Retry extra… |
+| 31 | routing_test.dart | 451 | 29 | 13.8 KB | routing test; groups: Iif, RouteWhen, RouteByKey, PartitionTag, Iif extra, RouteWhen extra… |
+| 32 | sample_test.dart | 264 | 16 | 8.4 KB | sample test; groups: Sample, SampleTime, Audit, AuditTime, edges, performance… |
+| 33 | scan_test.dart | 279 | 16 | 8.3 KB | scan test; groups: Scan, ScanSeeded, ScanIndexed, Scan extra, ScanSeeded extra, ScanIndexed extra… |
+| 34 | share_test.dart | 294 | 19 | 9.1 KB | share test; groups: Share, ShareLatest, ShareReplay, ShareReplayStart, Share extra, ShareLatest extra… |
+| 35 | skip_test.dart | 394 | 26 | 11.7 KB | skip test; groups: Skip, SkipWhile, SkipUntil, SkipUntilTime, SkipFirst, SkipLast… |
+| 36 | start_with_test.dart | 291 | 21 | 9.2 KB | start with test; groups: StartWith, StartWithValue, StartWithMany, StartWithFactory, StartWith extra, StartWithMany extra… |
+| 37 | switch_map_test.dart | 345 | 21 | 10.9 KB | switch map test; groups: SwitchMap, SwitchMapTo, SwitchLatest, SwitchMapState, SwitchMap extra, SwitchMapTo extra… |
+| 38 | take_test.dart | 305 | 21 | 9.2 KB | take test; groups: Take, TakeWhile, TakeUntil, TakeUntilTime, Take extra, TakeWhile extra… |
+| 39 | tap_test.dart | 376 | 23 | 11.1 KB | tap test; groups: Tap, TapAll, TapWithIndex, TapState, Tap extra, TapAll extra… |
+| 40 | throttle_test.dart | 222 | 14 | 7.2 KB | throttle test; groups: Throttle, ThrottleLeading, ThrottleTrailing, Throttle extra, ThrottleLeading extra, ThrottleTrailing extra… |
+| 41 | timeout_test.dart | 325 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
+| 42 | window_test.dart | 296 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
+| 43 | zip_test.dart | 250 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
+| **Total** | | **16,575** | **1081** | **517.4 KB** | |
 
 ---
 
@@ -143,7 +148,87 @@ No `lib/` file is below 70% in this lcov.
 
 Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 
-### File 1: async_expand_test.dart (24 tests)
+### File 1: ai_tissue_command_test.dart (59 tests)
+
+| Category (group) | Tests in file |
+|------------------|--------------:|
+| *(all groups)* | 59 |
+| TissueVerb / verbByName | |
+| TissueCommand | |
+| Reject | |
+| systemPrompt | |
+| AiConfig | |
+| StubInterpreter | |
+| AiTissueCommand | |
+| AiTissueCommandBatch | |
+| AiTissueCommandWithRetry | |
+| AiTissueCommand.fromConfig | |
+| Integration with TissueSet | |
+| provenance | |
+
+**Tests**
+
+- verbByName resolves every enum value
+- verbByName contains exactly the enum names
+- verbByName returns null for an unknown verb string
+- removeWhere / retainWhere are declared but not driven
+- ok is true
+- toString is informative
+- const constructor is available
+- ok is false
+- toString is informative
+- is const
+- lists the given verbs in sorted order
+- does not leak verbs not in the given set
+- contains both reply shapes
+- is deterministic for the same verb set
+- round-trips through toJson / fromJson
+- fromJson throws when endpoint is missing
+- fromJson throws when apiKey is missing
+- fromJson throws when model is missing
+- fromJson defaults timeoutSeconds to 30
+- fromJson honours a positive timeoutSeconds
+- fromJson ignores a non-positive timeoutSeconds
+- fromJson preserves extraBody
+- toJson omits extraBody when empty
+- toInterpreter carries every field through
+- transport label is 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- unknown sentence produces a Reject
+- verb not in allow-list produces a Reject
+- empty text produces a Reject with reason empty-command
+- injectTimeoutOnce throws on the next call
+- injectTimeoutOnce fires exactly once
+- source is preserved in the reply
+- confidence is carried
+- emits a TissueCommand for an accepted sentence
+- emits a Reject for an unrecognised sentence
+- latest-wins: a second sentence supersedes the first
+- injectTimeoutOnce is proxied to the interpreter
+- emits a list of results preserving order
+- mixed batch with a timeout emits a Reject for the failure
+- empty batch emits an empty list
+- first-try success uses exactly one attempt
+- success after retries uses count+1 attempts
+- retries exhausted produces a Reject
+- model refusal is not retried
+- builds a live HttpInterpreter from a config
+- fromConfig for Batch builds a live interpreter
+- fromConfig for Retry builds a live interpreter
+- fromConfig does not consult environment variables
+- dispatch only invokes verbs in host.modifiable
+- unmodifiable deputy blocks every verb
+- single sentence carries the AiTissueCommand step
+- batch carries the AiTissueCommandBatch step
+- retry carries the AiTissueCommandWithRetry step
+
+### File 2: async_expand_test.dart (24 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -187,7 +272,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError and do not occupy the slot
 - AsyncExpand + AsyncExpandExhaust is a chain
 
-### File 2: async_fold_test.dart (20 tests)
+### File 3: async_fold_test.dart (20 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -226,7 +311,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - AsyncFold handle is bindable
 
-### File 3: async_map_test.dart (30 tests)
+### File 4: async_map_test.dart (30 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -284,7 +369,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - AsyncMap + AsyncMapSequential is a chain
 
-### File 4: buffer_test.dart (24 tests)
+### File 5: buffer_test.dart (24 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -330,7 +415,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - BufferCount + BufferWithCount is a chain
 - BufferCount(1) emits 200 buffers
 
-### File 5: combine_latest_test.dart (13 tests)
+### File 6: combine_latest_test.dart (13 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -361,7 +446,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - combine throw calls onError
 - handles stay bindable when chained conceptually
 
-### File 6: concat_map_test.dart (25 tests)
+### File 7: concat_map_test.dart (25 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -404,7 +489,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ConcatMap + ConcatMapTo is a chain
 - ConcatMap flattens 50 singleton lists
 
-### File 7: concat_test.dart (21 tests)
+### File 8: concat_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -445,7 +530,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - empty list is a no-op
 - ConcatAll + ConcatFirst is a chain
 
-### File 8: debounce_test.dart (21 tests)
+### File 9: debounce_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -484,7 +569,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Debounce + DebounceLeadingOnly is a chain
 - DebounceLeadingOnly keeps first of a burst
 
-### File 9: delay_test.dart (26 tests)
+### File 10: delay_test.dart (26 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -534,7 +619,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - DelayWithTrailing binds
 - DelayWhen Duration notifier
 
-### File 10: distinct_test.dart (23 tests)
+### File 11: distinct_test.dart (23 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -575,7 +660,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - DistinctUntilChanged + Distinct is a chain
 - DistinctUntilChanged handles 200 ints
 
-### File 11: exhaust_map_test.dart (24 tests)
+### File 12: exhaust_map_test.dart (24 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -619,7 +704,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - ExhaustMap + ExhaustMapTo is a chain
 
-### File 12: filter_test.dart (31 tests)
+### File 13: filter_test.dart (31 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -678,7 +763,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - Filter pass-through handles 200 ints
 
-### File 13: flow_test.dart (81 tests)
+### File 14: flow_test.dart (81 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -782,7 +867,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - concat / concatAll / concatLatest / merge / zip / race
 - takeUntil / skipUntil / skipWhen / sample / audit / timeoutWithFallback
 
-### File 14: fluent_operator_test.dart (37 tests)
+### File 15: fluent_operator_test.dart (37 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -835,7 +920,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - tapAll / tapWithIndex bind
 - filter + map + tap + take is one pipeline
 
-### File 15: from_future_test.dart (37 tests)
+### File 16: from_future_test.dart (37 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -904,7 +989,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - FromFuture handle is bindable
 
-### File 16: from_stream_test.dart (25 tests)
+### File 17: from_stream_test.dart (25 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -953,7 +1038,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - project throw is reported
 - FromStream handle is bindable
 
-### File 17: group_by_test.dart (23 tests)
+### File 18: group_by_test.dart (23 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -993,7 +1078,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - GroupBy + GroupCollect is a chain
 - GroupBy tags 200 ints
 
-### File 18: instruction_demo_test.dart (39 tests)
+### File 19: instruction_demo_test.dart (39 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1042,7 +1127,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - race
 - from_future
 
-### File 19: interval_test.dart (19 tests)
+### File 20: interval_test.dart (19 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1079,7 +1164,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - second pulse is ignored
 - Interval handle is bindable
 
-### File 20: map_test.dart (35 tests)
+### File 21: map_test.dart (35 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1134,7 +1219,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - MapKeys projects map keys
 - MapValues wrong type calls onError
 
-### File 21: merge_map_test.dart (20 tests)
+### File 22: merge_map_test.dart (20 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1170,7 +1255,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - MergeMap + MergeMapTo is a chain
 - MergeMap flattens 50 singleton lists
 
-### File 22: merge_test.dart (19 tests)
+### File 23: merge_test.dart (19 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1206,7 +1291,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Merge two static sources binds
 - MergeAll Future inner
 
-### File 23: of_test.dart (23 tests)
+### File 24: of_test.dart (23 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1249,7 +1334,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Repeat count 0 is silent
 - FromIterable empty
 
-### File 24: pairwise_test.dart (13 tests)
+### File 25: pairwise_test.dart (13 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1276,7 +1361,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Pairwise + PairwiseWith is a chain
 - Pairwise emits 199 pairs from 200 ints
 
-### File 25: partition_test.dart (22 tests)
+### File 26: partition_test.dart (22 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1317,7 +1402,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - PartitionCollect fills both lists
 - PartitionOnly matched false drops
 
-### File 26: pluck_test.dart (24 tests)
+### File 27: pluck_test.dart (24 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1359,7 +1444,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Pluck + PluckOr is a chain
 - Pluck handles 200 maps
 
-### File 27: race_test.dart (22 tests)
+### File 28: race_test.dart (22 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1401,7 +1486,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - Race handle is bindable
 
-### File 28: reduce_test.dart (19 tests)
+### File 29: reduce_test.dart (19 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1437,7 +1522,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ReduceSelect projects then folds
 - ReduceMachine applies events
 
-### File 29: retry_test.dart (26 tests)
+### File 30: retry_test.dart (26 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1483,7 +1568,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - maxAttempts stops a never-until loop
 - Retry first-try success on 50 triggers
 
-### File 30: routing_test.dart (29 tests)
+### File 31: routing_test.dart (29 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1531,7 +1616,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - PartitionTag tags both sides
 - Iif false branch
 
-### File 31: sample_test.dart (16 tests)
+### File 32: sample_test.dart (16 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1567,7 +1652,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - wrong types call onError
 - SampleTime + AuditTime is a chain
 
-### File 32: scan_test.dart (16 tests)
+### File 33: scan_test.dart (16 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1599,7 +1684,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - ScanSeeded + ScanIndexed is a chain
 - ScanSeeded folds 200 ints
 
-### File 33: share_test.dart (19 tests)
+### File 34: share_test.dart (19 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1636,7 +1721,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Share + ShareLatest is a chain
 - Share counts 200 ints
 
-### File 34: skip_test.dart (26 tests)
+### File 35: skip_test.dart (26 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1688,7 +1773,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - SkipUntilTime opens after window
 - SkipWhen drops matches
 
-### File 35: start_with_test.dart (21 tests)
+### File 36: start_with_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1727,7 +1812,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - StartWithFactory builds prefix
 - StartWithMany empty prefix
 
-### File 36: switch_map_test.dart (21 tests)
+### File 37: switch_map_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1766,7 +1851,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - shared snapshot is updated
 - SwitchMap + SwitchMapTo is a chain
 
-### File 37: take_test.dart (21 tests)
+### File 38: take_test.dart (21 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1806,7 +1891,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TakeUntilTime closes after window
 - TakeWhile inclusive
 
-### File 38: tap_test.dart (23 tests)
+### File 39: tap_test.dart (23 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1848,7 +1933,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TapState next throw calls onError
 - TapAll onPulse throw is dropped
 
-### File 39: throttle_test.dart (14 tests)
+### File 40: throttle_test.dart (14 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1878,7 +1963,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - Throttle + ThrottleLeading is a chain
 - ThrottleLeading keeps first of 200 in one window
 
-### File 40: timeout_test.dart (19 tests)
+### File 41: timeout_test.dart (19 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1917,7 +2002,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TimeoutWithFallback once
 - TimeoutFirst does not reset
 
-### File 41: window_test.dart (17 tests)
+### File 42: window_test.dart (17 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1951,7 +2036,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - WindowCount + WindowSize is a chain
 - WindowCount(1) emits 200 windows
 
-### File 42: zip_test.dart (14 tests)
+### File 43: zip_test.dart (14 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
@@ -1995,6 +2080,7 @@ no path finds nothing. Pass explicit files:
 ```bash
 dart pub get
 dart test \
+  test/ai_tissue_command_test.dart \
   test/async_expand_test.dart \
   test/async_fold_test.dart \
   test/async_map_test.dart \
@@ -2038,6 +2124,41 @@ dart test \
   test/window_test.dart \
   test/zip_test.dart
 ```
+
+### Last `dart test`
+
+| Passed | Failed | Skipped | Exit |
+|-------:|-------:|--------:|-----:|
+| 1081 | 0 | 0 | 0 |
+
+Status: **green**.
+
+<details><summary>tail of test log</summary>
+
+```
+0:14 +1069: test/timeout_test.dart: coverage extras TimeoutFirst does not reset                                                                                                                       
+00:14 +1070: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:14 +1071: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:14 +1072: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:14 +1072: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
+00:14 +1073: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
+00:14 +1074: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:14 +1075: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:14 +1076: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
+00:14 +1077: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
+00:14 +1077: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
+00:14 +1078: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
+00:14 +1078: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:14 +1079: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:14 +1079: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:14 +1080: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:14 +1080: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:14 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:15 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:15 +1081: All tests passed!
+```
+
+</details>
 
 ### Line Coverage (`lib/`)
 
@@ -2104,6 +2225,7 @@ dart test \
 
 ```
 test/
+├── ai_tissue_command_test.dart  (59 tests, 40.6 KB, 1,205 lines)
 ├── async_expand_test.dart  (24 tests, 11.7 KB, 365 lines)
 ├── async_fold_test.dart  (20 tests, 11.3 KB, 360 lines)
 ├── async_map_test.dart  (30 tests, 15.1 KB, 488 lines)
@@ -2121,7 +2243,7 @@ test/
 ├── from_future_test.dart  (37 tests, 18.1 KB, 573 lines)
 ├── from_stream_test.dart  (25 tests, 11.4 KB, 369 lines)
 ├── group_by_test.dart  (23 tests, 12.3 KB, 384 lines)
-├── instruction_demo_test.dart  (39 tests, 5.5 KB, 102 lines)
+├── instruction_demo_test.dart  (39 tests, 5.5 KB, 104 lines)
 ├── interval_test.dart  (19 tests, 9.6 KB, 309 lines)
 ├── map_test.dart  (35 tests, 15.2 KB, 503 lines)
 ├── merge_map_test.dart  (20 tests, 9.7 KB, 320 lines)
@@ -2134,9 +2256,9 @@ test/
 ├── reduce_test.dart  (19 tests, 9.5 KB, 315 lines)
 ├── retry_test.dart  (26 tests, 14.5 KB, 486 lines)
 ├── routing_test.dart  (29 tests, 13.8 KB, 451 lines)
-├── sample_test.dart  (16 tests, 8.3 KB, 264 lines)
+├── sample_test.dart  (16 tests, 8.4 KB, 264 lines)
 ├── scan_test.dart  (16 tests, 8.3 KB, 279 lines)
-├── share_test.dart  (19 tests, 9.0 KB, 294 lines)
+├── share_test.dart  (19 tests, 9.1 KB, 294 lines)
 ├── skip_test.dart  (26 tests, 11.7 KB, 394 lines)
 ├── start_with_test.dart  (21 tests, 9.2 KB, 291 lines)
 ├── switch_map_test.dart  (21 tests, 10.9 KB, 345 lines)
@@ -2148,6 +2270,6 @@ test/
 ├── zip_test.dart  (14 tests, 7.1 KB, 250 lines)
 ```
 
-**Total lines of test code:** 15,368
+**Total lines of test code:** 16,575
 
-*Generated 2026-09-06 by generate_test_verification.py*
+*Generated 2026-09-13 by generate_test_verification.py*

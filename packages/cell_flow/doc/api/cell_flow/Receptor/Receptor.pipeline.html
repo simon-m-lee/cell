@@ -63,7 +63,6 @@
 </ol>})?, </span></li>
 <li><span class="parameter" id="pipeline-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span></li>
 <li><span class="parameter" id="pipeline-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?, </span></li>
-<li><span class="parameter" id="pipeline-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -111,7 +110,6 @@ use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the ove
 <li><code>reaction</code>: A simplified transform used instead of an instruction chain.</li>
 <li><code>init</code>: Runs once when the receptor is activated on a cell.</li>
 <li><code>user</code>: Factory for per-invocation metadata passed to pipeline stages.</li>
-<li><code>isGoverned</code>: When <code>true</code>, the receptor ticks a hosted <a href="../../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a>.</li>
 </ul>
 <h3 id="example-secure-multi-stage-processor">Example: Secure Multi-Stage Processor</h3>
 <pre class="language-dart"><code class="language-dart">final secureReceptor = Receptor.pipeline(
@@ -132,8 +130,7 @@ use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the ove
   Instruction? postProcess,
   Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
   void Function()? init,
-  dynamic Function()? user,
-  bool isGoverned = false,
+  dynamic Function()? user
 }) {
   return _Receptor&lt;C&gt;(
     instruction: instruction,
@@ -141,8 +138,7 @@ use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the ove
     postProcess: postProcess,
     reaction: reaction,
     init: init,
-    user: user,
-    isGoverned: isGoverned,
+    user: user
   );
 }</code></pre>
 </section>
@@ -172,7 +168,7 @@ use <a href="../../cell_flow/Receptor/async.html">Receptor.async</a> for the ove
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

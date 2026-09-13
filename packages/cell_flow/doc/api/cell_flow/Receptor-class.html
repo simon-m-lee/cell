@@ -103,7 +103,7 @@ filter signals (e.g., ignoring out-of-range values). It is not treated
 as an error path.</li>
 <li><strong>Synchronous vs Asynchronous</strong>: The <a href="../cell_flow/Receptor/call.html">call</a> method executes
 synchronously. Use <a href="../cell_flow/Receptor/async.html">Receptor.async</a> for asynchronous pulse injection.</li>
-<li><strong>Governance</strong>: When <a href="../cell_flow/Receptor/isGoverned.html">isGoverned</a> is <code>true</code>, the receptor applies
+<li><strong>Governance</strong>: When <a href="../cell_flow/Cell/isGoverned.html">Cell.isGoverned</a> is <code>true</code>, the receptor applies
 architectural policies and appends forensic trace information.</li>
 </ul>
 <h3 id="type-parameters">Type Parameters:</h3>
@@ -150,7 +150,7 @@ and implementing custom receptors.</li>
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="Receptor.pipeline" class="callable">
-          <span class="name"><a href="../cell_flow/Receptor/Receptor.pipeline.html">Receptor.pipeline</a></span><span class="signature">({<span class="parameter" id="pipeline-param-instruction"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="pipeline-param-preProcess"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="pipeline-param-postProcess"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="pipeline-param-reaction"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="pipeline-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span><span class="parameter" id="pipeline-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?, </span><span class="parameter" id="pipeline-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../cell_flow/Receptor/Receptor.pipeline.html">Receptor.pipeline</a></span><span class="signature">({<span class="parameter" id="pipeline-param-instruction"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="pipeline-param-preProcess"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="pipeline-param-postProcess"><span class="type-annotation"><a href="../cell_flow/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_flow/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_flow/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="pipeline-param-reaction"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_flow/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="pipeline-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span><span class="parameter" id="pipeline-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?</span>})</span>
         </dt>
         <dd>
           The advanced compositional factory for <a href="../cell_flow/Receptor-class.html">Receptor</a>, enabling the creation
@@ -222,19 +222,6 @@ of structured, three-stage pulse processing pipelines.
 <dd>
   Indicates whether this receptor has transitioned from a stateless template
 to a functional, cell-bound instance.
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
-        <dt id="isGoverned" class="property">
-  <span class="name"><a href="../cell_flow/Receptor/isGoverned.html">isGoverned</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd>
-  Indicates whether the receptor's host <a href="../cell_flow/Cell-class.html">Cell</a> is currently operating
-under a <strong>Governance Policy</strong>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -418,7 +405,7 @@ Transformation</strong> on all incoming signals.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

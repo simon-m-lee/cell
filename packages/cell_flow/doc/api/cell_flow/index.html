@@ -126,6 +126,44 @@ unnecessary computations.</p>
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="AiConfig">
+  <span class="name "><a href="../cell_flow/AiConfig-class.html">AiConfig</a></span> 
+
+</dt>
+<dd>
+  A JSON-shaped configuration for an <a href="../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a>.
+</dd>
+
+          <dt id="AiTissueCommand">
+  <span class="name "><a href="../cell_flow/AiTissueCommand-class.html">AiTissueCommand</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> that turns a natural-language sentence into
+a <a href="../cell_flow/TissueCommand-class.html">TissueCommand</a> by asking an <a href="../cell_flow/Interpreter-class.html">Interpreter</a> (a live AI chatbot
+over HTTP, or a deterministic offline stub) to choose a verb
+from a closed list.
+</dd>
+
+          <dt id="AiTissueCommandBatch">
+  <span class="name "><a href="../cell_flow/AiTissueCommandBatch-class.html">AiTissueCommandBatch</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> that turns a <strong>batch</strong> of natural-language
+sentences into a batch of <a href="../cell_flow/TissueCommand-class.html">TissueCommand</a>s in a single port call.
+</dd>
+
+          <dt id="AiTissueCommandWithRetry">
+  <span class="name "><a href="../cell_flow/AiTissueCommandWithRetry-class.html">AiTissueCommandWithRetry</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_flow/FlowInstruction-class.html">FlowInstruction</a> that turns a natural-language sentence into
+a <a href="../cell_flow/TissueCommand-class.html">TissueCommand</a>, retrying the port call up to <code>count</code> extra
+times on failure.
+</dd>
+
           <dt id="ApplyRejected">
   <span class="name "><a href="../cell_flow/ApplyRejected-class.html">ApplyRejected</a></span> 
 
@@ -297,7 +335,7 @@ whether a string input matches a specific Regular Expression (<a href="https://a
 
 </dt>
 <dd>
-  Defines the <strong>Lifecycle Governance</strong> for transient reactive elements.
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.
 </dd>
 
           <dt id="EvolvedPulse">
@@ -410,6 +448,16 @@ behavioral guardrails within the framework's <a href="../cell_flow/Mandate.html"
 governance within the framework's <strong>Scene-Driven Ontology</strong>.
 </dd>
 
+          <dt id="HttpInterpreter">
+  <span class="name "><a href="../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a></span> 
+
+</dt>
+<dd>
+  A live interpreter that POSTs the sentence to an
+OpenAI-compatible chat-completions endpoint and parses the JSON
+reply.
+</dd>
+
           <dt id="Identity">
   <span class="name "><a href="../cell_flow/Identity-class.html">Identity</a></span> 
 
@@ -431,7 +479,7 @@ governance within the framework's <strong>Scene-Driven Ontology</strong>.
 
 </dt>
 <dd>
-  A reusable unit of logic for processing and transforming <a href="../cell_flow/Pulse-class.html">Pulse</a> instances.
+  A discrete logic unit that defines how a <a href="../cell_flow/Receptor-class.html">Receptor</a> reacts to a <a href="../cell_flow/Pulse-class.html">Pulse</a>.
 </dd>
 
           <dt id="InstructionBase">
@@ -449,6 +497,15 @@ variants.
 </dt>
 <dd>
   A composite <a href="../cell_flow/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="Interpreter">
+  <span class="name "><a href="../cell_flow/Interpreter-class.html">Interpreter</a></span> 
+
+</dt>
+<dd>
+  The interpreter port — the seam between the NL sentence and the
+closed verb list.
 </dd>
 
           <dt id="Lock">
@@ -634,6 +691,14 @@ non‑blocking pulse processing and lifecycle synchronization.
 core synchronization and pulse propagation engine.
 </dd>
 
+          <dt id="Reject">
+  <span class="name "><a href="../cell_flow/Reject-class.html">Reject</a></span> 
+
+</dt>
+<dd>
+  An interpreter refusal.
+</dd>
+
           <dt id="Shell">
   <span class="name "><a href="../cell_flow/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
@@ -641,6 +706,15 @@ core synchronization and pulse propagation engine.
 <dd>
   A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
 a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="StubInterpreter">
+  <span class="name "><a href="../cell_flow/StubInterpreter-class.html">StubInterpreter</a></span> 
+
+</dt>
+<dd>
+  A deterministic offline interpreter that simulates the HTTP
+traffic a live chatbot would produce.
 </dd>
 
           <dt id="Synapses">
@@ -756,6 +830,22 @@ graph formation within the reactive framework.
   A fundamental architectural component representing an <strong>Integrity Gate</strong> or
 <strong>Validation Guard</strong>, responsible for enforcing structural and business
 invariants across the reactive graph.
+</dd>
+
+          <dt id="TissueCommand">
+  <span class="name "><a href="../cell_flow/TissueCommand-class.html">TissueCommand</a></span> 
+
+</dt>
+<dd>
+  A successfully interpreted command.
+</dd>
+
+          <dt id="TrafficLog">
+  <span class="name "><a href="../cell_flow/TrafficLog-class.html">TrafficLog</a></span> 
+
+</dt>
+<dd>
+  Prints HTTP request/response traffic in a human-readable form.
 </dd>
 
           <dt id="TransactionBegun">
@@ -1149,6 +1239,14 @@ of a <a href="../cell_flow/Pulse-class.html">Pulse</a>.
 assigned to a <a href="../cell_flow/Deputy-mixin.html">Deputy</a>.
 </dd>
 
+          <dt id="TissueVerb">
+  <span class="name "><a href="../cell_flow/TissueVerb.html">TissueVerb</a></span> 
+
+</dt>
+<dd>
+  Domain types shared by the AI-assisted tissue-command pipeline.
+</dd>
+
       </dl>
     </section>
 
@@ -1268,6 +1366,23 @@ extension designed to chain pulse evolution from an existing <a href="../cell_fl
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="verbByName" class="constant">
+    <span class="name "><a href="../cell_flow/verbByName-constant.html">verbByName</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../cell_flow/TissueVerb.html">TissueVerb</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Lookup table from a verb string to the enum value.
+  
+
+</dd>
+
+      </dl>
+    </section>
 
 
     <section class="summary offset-anchor" id="functions">
@@ -1296,6 +1411,19 @@ with multi-stage recovery logic and hierarchical fallbacks.
 </dt>
 <dd>
   
+  
+
+</dd>
+
+          <dt id="systemPrompt" class="callable">
+  <span class="name"><a href="../cell_flow/systemPrompt.html">systemPrompt</a></span><span class="signature">(<wbr><span class="parameter" id="systemPrompt-param-verbs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">verbs</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds the system prompt sent to the live AI chatbot.
   
 
 </dd>
@@ -1333,6 +1461,20 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
     <section class="summary offset-anchor" id="typedefs">
       <h2>Typedefs</h2>
       <dl>
+          
+  <dt id="AiTissueCommandErrorHandler" class="callable">
+    <span class="name"><a href="../cell_flow/AiTissueCommandErrorHandler.html">AiTissueCommandErrorHandler</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Error handler callback for the AI-bridged interpretation gates.
+    
+
+  </dd>
+
           
   <dt id="Arguments" class="">
   <span class="name"><a href="../cell_flow/Arguments.html">Arguments</a></span>
@@ -1438,6 +1580,21 @@ interface for injecting external imperative stimuli into the reactive graph.
 <dd>
   A structured grouping of the <strong>Governance &amp; Logic</strong> properties that define
 a node's operational identity and can be cascaded through the inheritance chain.
+  
+
+</dd>
+
+
+          
+  <dt id="InterpreterReply" class="">
+  <span class="name"><a href="../cell_flow/InterpreterReply.html">InterpreterReply</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_flow/TissueCommand-class.html">TissueCommand</a>?</span> <span class="field-name">command</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_flow/Reject-class.html">Reject</a>?</span> <span class="field-name">reject</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The reply from the interpreter port.
   
 
 </dd>
@@ -1623,7 +1780,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

@@ -32,8 +32,8 @@ Observer answers: what should we record about the result?
 
 ## 2. Design (tagged)
 
-**[Cell]** holds or carries. **[FlowInstruction]** is `(pulse)→pulse|null`.
-**[Receptor]** runs the chain under one lock. **[Cell.observe]** is
+**`Cell`** holds or carries. **`FlowInstruction`** is `(pulse)→pulse|null`.
+**`Receptor`** runs the chain under one lock. **`Cell.observe`** is
 `(pulse)→side effect`.
 
 ```

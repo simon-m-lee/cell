@@ -99,6 +99,15 @@ activity. If the policy's terminal condition is met, the cell
 automatically sets <a href="../../cell_flow/Cell/isInvalidated.html">isInvalidated</a> to <code>true</code> and detaches itself
 from the graph.</li>
 </ol>
+<h3 id="what-governed-means">What "governed" means</h3>
+<p>A cell is governed when it hosts an <a href="../../cell_flow/EphemeralPolicy-class.html">EphemeralPolicy</a> in its <a href="../../cell_flow/Nucleus-class.html">Nucleus</a>,
+which makes <code>isGoverned</code> report <code>true</code>. When <code>ephemeralPolicy</code> is
+omitted here, the cell can still become governed by <strong>inheritance</strong>: if
+it is <code>bind</code>ed to an upstream cell that is governed, <code>isGoverned</code> walks
+the bind chain and reports <code>true</code>, and <code>isInvalidated</code> mirrors the
+upstream cell ("the head owns the body"). A policy passed to this factory
+is hosted locally and therefore overrides any policy inherited from
+upstream.</p>
 <h3 id="synchronization--forcelock">Synchronization &amp; ForceLock</h3>
 <p>When <code>forceLock</code> is <code>true</code>, the cell initializes a new <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This
 effectively creates a <strong>Private Transaction Domain</strong>. Operations within
@@ -169,7 +178,7 @@ explicit lifecycle configuration.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.2.0.1
+      1.0.0-rc.4
   </span>
   
 </footer>

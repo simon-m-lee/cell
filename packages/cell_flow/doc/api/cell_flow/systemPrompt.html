@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the systemPrompt function from the cell_flow library, for the Dart programming language.">
+  <title>systemPrompt function - cell_flow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow.dart</a></li>
+    <li class="self-crumb">systemPrompt function</li>
+  </ol>
+  <div class="self-name">systemPrompt</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="cell_flow&#47;cell_flow-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">systemPrompt</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">systemPrompt</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="systemPrompt-param-verbs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">verbs</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Builds the system prompt sent to the live AI chatbot.</p>
+<p>The prompt establishes the closed verb list and the JSON reply
+shape. The instruction does not trust the model beyond parsing
+this shape; an unrecognized verb is discarded.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Called by <a href="../cell_flow/HttpInterpreter/complete.html">HttpInterpreter.complete</a> and
+<a href="../cell_flow/StubInterpreter/complete.html">StubInterpreter.complete</a> to produce the <code>system</code> message. A
+custom interpreter may reuse it to keep the same contract.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The prompt has four sections, in this order:</p>
+<ol>
+<li><strong>Role definition</strong> (4 lines) — tells the model what it is
+doing and why.</li>
+<li><strong>Closed verb list</strong> (N lines) — tells the model what verbs
+are available. The list comes from the <code>verbs</code> parameter;
+the prompt does not hardcode a second copy.</li>
+<li><strong>Reply shape</strong> (2 lines × 2 shapes) — tells the model what
+JSON to produce. Both the success shape and the refusal
+shape are shown.</li>
+<li><strong>Rules</strong> (7 lines) — enumerates edge cases the model would
+otherwise guess wrong: single-element verbs use a 1-element
+array, multi-element verbs use a nested array, zero-arg
+verbs use <code>[]</code>, never invent a verb, never return code.</li>
+</ol>
+<h3 id="non-obvious">Non-obvious</h3>
+<ul>
+<li><strong>The prompt is the security contract.</strong> Trimming it would
+weaken the guarantee that the model's reply can be parsed by
+the strict shape the instruction enforces.</li>
+<li><strong>Verbs are listed in sorted order.</strong> Sorting makes the
+prompt deterministic for a given verb set, which is useful
+for caching and diffing. It does not affect the model's
+choice.</li>
+<li><strong>The prompt is bounded by the caller's verb set.</strong> A caller
+that passes <code>{'add'}</code> gets a prompt listing only <code>add</code>. The
+prompt does not leak verbs the caller did not authorise.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final prompt = systemPrompt({'add', 'remove', 'clear'});
+// Prompt lists only these three verbs, in sorted order:
+//   - add
+//   - clear
+//   - remove
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>verbs</code>: <strong>The Closed Verb List.</strong> Names the model is allowed
+to return.</li>
+</ul>
+<h3 id="returns">Returns</h3>
+<p>The complete system prompt as a <code>String</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String systemPrompt(Set&lt;String&gt; verbs) {
+  final sorted = verbs.toList()..sort();
+  return &#39;&#39;&#39;
+You are a verb interpreter for a reactive set container.
+
+The operator will write a natural-language sentence. Your job is to
+choose exactly one verb from the closed list below and produce the
+positional arguments for that verb.
+
+Closed verb list:
+${sorted.map((v) =&gt; &#39;  - $v&#39;).join(&#39;\n&#39;)}
+
+Reply ONLY with a JSON object matching one of these two shapes:
+
+  {&quot;verb&quot;:&quot;&lt;name&gt;&quot;,&quot;args&quot;:[...],&quot;confidence&quot;:&lt;0.0..1.0&gt;}
+  {&quot;verb&quot;:&quot;reject&quot;,&quot;reason&quot;:&quot;&lt;short reason&gt;&quot;}
+
+Rules:
+- &quot;verb&quot; MUST be one of the closed list, or the literal &quot;reject&quot;.
+- &quot;args&quot; MUST be a JSON array (may be empty).
+- For single-element verbs (add, remove), &quot;args&quot; is a 1-element array.
+- For multi-element verbs (addAll, removeAll, retainAll), &quot;args&quot; is a
+  1-element array whose element is a JSON array of values.
+- For zero-arg verbs (clear), &quot;args&quot; is [].
+- Never invent a verb, never return code, never return prose.
+- If you cannot choose a verb, return {&quot;verb&quot;:&quot;reject&quot;,&quot;reason&quot;:&quot;...&quot;}.
+&#39;&#39;&#39;;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_flow</a></li>
+    <li><a href="../cell_flow/">cell_flow</a></li>
+    <li class="self-crumb">systemPrompt function</li>
+</ol>
+
+    <h5>cell_flow library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_flow
+      1.0.0-rc.4
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

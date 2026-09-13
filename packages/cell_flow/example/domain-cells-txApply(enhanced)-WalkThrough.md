@@ -51,8 +51,8 @@ Hardware + restorePack answers: the motor failed after commit.
 
 ## 2. Design (tagged)
 
-**[Cell]** holds or carries. **[Instruction]** is `(pulse)→pulse|null`.
-**[Receptor]** runs the chain under one lock. **[Tx]** is
+**`Cell`** holds or carries. **`Instruction`** is `(pulse)→pulse|null`.
+**`Receptor`** runs the chain under one lock. **`Tx`** is
 `Cell.transaction` on state Cells only.
 
 ```
