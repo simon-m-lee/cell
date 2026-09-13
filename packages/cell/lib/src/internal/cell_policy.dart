@@ -6,49 +6,83 @@
 
 part of '../../cell.dart';
 
-/// Defines the **Lifecycle Governance** for transient reactive elements.
+/// Defines the **Lifecycle Governance** for transient reactive nodes.
 ///
-/// `EphemeralPolicy` manages the automatic reclamation of a `Cell` based on
-/// temporal constraints (TTL) or event frequency. This prevents memory leaks
-/// and ensures that transient states do not persist beyond their operational
-/// relevance.
+/// `EphemeralPolicy` gives a [Cell] — or any cell-backed node such as a
+/// `Tissue` collection — a finite operational life. The framework reclaims
+/// the node automatically when a time budget ([duration]) elapses or an
+/// event budget ([eventLimit]) is exhausted. This prevents memory leaks and
+/// guarantees that transient state never outlives its usefulness.
 ///
-/// ### When to use
-/// Use this when you need a cell to self‑destruct after a certain time
-/// or after a certain number of events – e.g., for caching, temporary
-/// state, or error budgets.
+/// ### What constitutes a governed cell
 ///
-/// ### How it works
+/// A cell is **governed** when it has an [EphemeralPolicy], either directly
+/// or inherited from upstream:
+///
+/// 1. **Hosted (local) policy** — the policy is stored in the cell's own
+///    [Nucleus], or in its `principal` chain (which is how a deputy inherits
+///    the policy of the nucleus it extends). This is what
+///    `Cell.governed(ephemeralPolicy: ...)`,
+///    `Cell.deputy(ephemeralPolicy: ...)`, and the `Tissue*Nucleus` factories
+///    establish. The cell ticks *this* policy for its own activity.
+/// 2. **Upstream (bind) policy** — when the cell hosts no policy of its own,
+///    the framework walks up the upstream [Cell.bind] chain and adopts the
+///    first policy it finds there. This is the **"head owns the body"** rule:
+///    a node bound to a governed head reports `isGoverned == true` and
+///    mirrors the head's `isInvalidated` state.
+///
+/// A hosted policy always takes precedence over one found upstream, so a
+/// body part can deliberately override the policy inherited from the head of
+/// its reactive graph.
+///
+/// ### How the policy works
+///
 /// You provide two callbacks:
-/// - `onEvent`: called on every interaction with the cell; you update the
-///   event count (or reset it). The policy tracks the count.
-/// - `onInvalidate`: called when the TTL expires or the event limit is hit.
-///   Return `true` to confirm successful cleanup.
+/// - `onEvent`: invoked whenever the governed cell ticks the policy for an
+///   interaction (a pulse flowing through the cell, an action, a link, or a
+///   data mutation). Return the new `events` count — a usage meter, an error
+///   budget, or any other quota you choose.
+/// - `onInvalidate`: invoked when the policy reaches its terminal condition.
+///   Perform any cleanup and return `true` to confirm the node was reclaimed.
 ///
-/// ### Non‑obvious
-/// - The timer starts lazily – only on the first interaction with the cell.
-/// - If both `duration` and `eventLimit` are set, whichever condition is met
+/// ### Non-obvious
+///
+/// - The TTL timer starts lazily on the **first interaction**, not at policy
+///   creation.
+/// - If both [duration] and [eventLimit] are set, whichever condition fires
 ///   first triggers invalidation.
-/// - The policy is attached to a cell via its `Nucleus`; you typically pass
-///   it to `Cell.governed` or `Cell.deputy`.
+/// - A shared policy is ticked **once per pulse** regardless of how many
+///   governed cells that pulse visits. Without this per-policy, per-pulse
+///   guard, a pulse emitted by the head of a bound chain would be counted
+///   again at every governed downstream cell that inherits the same policy.
+/// - A body that hosts its own policy is governed exclusively by it: its
+///   `isInvalidated` reflects only the body's policy, not the head's.
 ///
-/// ### Example: Cache with 5‑minute TTL
+/// ### Example: cache with a 5-minute TTL
+///
 /// ```dart
 /// final cachePolicy = EphemeralPolicy(
 ///   duration: Duration(minutes: 5),
 ///   onEvent: (object, {required cell, policy, arguments, user}) {
-///     // Reset timer on cache hit – extends TTL
+///     // Reset the counter on a cache hit – extends the TTL window.
 ///     return (events: 0);
 ///   },
 ///   onInvalidate: (nucleus) {
-///     // Clear cache entries
+///     // Clear cache entries.
 ///     return true;
 ///   },
 /// );
-/// final cell = Cell(ephemeralPolicy: cachePolicy);
+///
+/// final cell = Cell.governed(
+///   ephemeralPolicy: cachePolicy,
+///   context: Context.system,
+/// );
 /// ```
 ///
-/// See also: [PulseEphemeralPolicy] (similar, but for individual pulses).
+/// See also:
+/// - [Cell.isGoverned] and [Cell.isInvalidated] for how governance cascades.
+/// - [Cell.governed] and [Cell.deputy] for attaching a policy to a cell.
+/// - [PulseEphemeralPolicy] — the equivalent lifecycle for individual pulses.
 /// {@category Advanced}
 /// {@category Ephemeral Policy}
 class EphemeralPolicy<C extends Cell> {
@@ -66,6 +100,22 @@ class EphemeralPolicy<C extends Cell> {
   /// ### When to use
   /// Create this policy and attach it to a cell that should not live forever.
   ///
+  /// ### Attaching the policy
+  /// The policy travels inside the cell's [Nucleus] record:
+  /// - `Cell.governed(ephemeralPolicy: policy, context: ...)` — a new governed
+  ///   cell that hosts the policy locally.
+  /// - `cell.deputy(ephemeralPolicy: policy)` — a governed deputy that hosts
+  ///   the policy locally, overriding any policy inherited from its principal
+  ///   or upstream bind chain.
+  /// - `Tissue.governed(...)`, `TissueListNucleus(...)`, `TissueSetNucleus(...)`,
+  ///   and the other `Tissue*Nucleus` factories — the equivalent entry points
+  ///   for governed tissue collections.
+  ///
+  /// A cell that hosts no policy of its own still inherits governance from
+  /// upstream: the framework locates the nearest [EphemeralPolicy] on the
+  /// [Cell.bind] chain, so a node bound to a governed head behaves as a
+  /// governed body.
+  ///
   /// ### How it works
   /// - `onEvent` is called on every pulse, action, or link; update the
   ///   `events` count and return the new count. Use this to track usage.
@@ -76,6 +126,8 @@ class EphemeralPolicy<C extends Cell> {
   /// ### Non‑obvious
   /// - Returning a negative `events` count from `onEvent` will ignore the event.
   /// - The TTL timer starts only on the first interaction, not at creation.
+  /// - A hosted policy wins over an upstream one; a body can therefore
+  ///   override the lifecycle policy of the head of its reactive graph.
   ///
   /// ### Parameters:
   /// * `onEvent`: A user-defined logic function called on every pulse to

@@ -1,3 +1,19 @@
+
+## Mitosis (1.0.0-rc.4) - Release Candidate
+
+This release centers on **Lifecycle Governance** and **Pedagogical Standardization**. It formalizes the structural "DNA" of the core layer by refining how nodes handle administrative oversight, programmed expiration, and forensic documentation.
+
+### Lifecycle & Governance
+- **Administrative Oversight**: Refined `isGoverned` to reflect a node's structural mandate. It now accurately reports based on a **Causal Aggregation Strategy**, ensuring that projections of a governed cell inherit their parent's administrative status.
+- **Programmed Cell Death**: Hardened `isInvalidated` to serve as the authoritative indicator for a node's functional lifecycle (Apoptosis). It ensures that once a node or its causal source is invalidated, it is logically severed from the reactive graph to preserve system integrity.
+- **Ephemeral Policy**: Improved the integration between `EphemeralPolicy` and `NucleusBase`, allowing for more robust lifecycle monitoring and stale state detection.
+
+### Fixes & Maintenance
+- **Monorepo Integrity**: Verified monorepo-wide stability using `melos bootstrap` and aligned all package metadata for consistent workspace resolution.
+- **Trace Stamping**: Refined internal `Pulse.trace` milestones to ensure that "Rejection Milestones" provide clearer forensic data when an integrity gate denies a mutation.
+
+---
+
 ## Mitosis (1.0.0-rc.3) - Release Candidate
 
 This release formalizes the **Forensic Identity** and **Causal Anchor** logic within the core layer. It introduces tiered resolution for integrity gates and synchronizes the monorepo governance to support high-integrity, multi-package development.

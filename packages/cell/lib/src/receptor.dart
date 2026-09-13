@@ -901,7 +901,7 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
 ///   as an error path.
 /// - **Synchronous vs Asynchronous**: The [call] method executes
 ///   synchronously. Use [Receptor.async] for asynchronous pulse injection.
-/// - **Governance**: When [isGoverned] is `true`, the receptor applies
+/// - **Governance**: When [Cell.isGoverned] is `true`, the receptor applies
 ///   architectural policies and appends forensic trace information.
 ///
 /// ### Type Parameters:
@@ -1095,7 +1095,6 @@ abstract interface class Receptor<C extends Cell> {
   /// - [reaction]: A simplified transform used instead of an instruction chain.
   /// - [init]: Runs once when the receptor is activated on a cell.
   /// - [user]: Factory for per-invocation metadata passed to pipeline stages.
-  /// - [isGoverned]: When `true`, the receptor ticks a hosted [EphemeralPolicy].
   ///
   /// ### Example: Secure Multi-Stage Processor
   /// ```dart
@@ -1111,8 +1110,7 @@ abstract interface class Receptor<C extends Cell> {
     Instruction? postProcess,
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
-    dynamic Function()? user,
-    bool isGoverned = false,
+    dynamic Function()? user
   }) {
     return _Receptor<C>(
       instruction: instruction,
@@ -1120,8 +1118,7 @@ abstract interface class Receptor<C extends Cell> {
       postProcess: postProcess,
       reaction: reaction,
       init: init,
-      user: user,
-      isGoverned: isGoverned,
+      user: user
     );
   }
 
@@ -1357,27 +1354,6 @@ abstract interface class Receptor<C extends Cell> {
   /// ### Returns:
   /// `true` if the receptor is activated and bound to a cell.
   bool get isActivated;
-
-  /// Indicates whether the receptor's host [Cell] is currently operating
-  /// under a **Governance Policy**.
-  ///
-  /// ### When to use
-  /// Use this for **Conditional Logic** in custom receptors. You might
-  /// choose to apply stricter validation or additional logging if you
-  /// know the cell is subject to specific architectural governance.
-  ///
-  /// ### How it works
-  /// It checks if the bound host [Cell] has a non-default operational
-  /// context or specific governance metadata attached.
-  ///
-  /// ### Non‑obvious
-  /// - **Activation Requirement**: This property is only meaningful when
-  ///   [isActivated] is `true`. Accessing it on a template receptor will
-  ///   return a default value or throw an error depending on the binding state.
-  ///
-  /// ### Returns:
-  /// `true` if the host cell is governed.
-  bool get isGoverned;
 
   /// The host [Cell] instance that this receptor is currently serving.
   ///

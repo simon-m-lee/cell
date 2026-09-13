@@ -94,10 +94,6 @@ void main() {
         expect(() => Receptor.passThrough.cell, throwsUnsupportedError);
       });
 
-      test('is never governed', () {
-        expect(Receptor.passThrough.isGoverned, isFalse);
-      });
-
       test('passThroughRule is an identity instruction', () {
         final pulse = Pulse<int>(3);
         expect(identical(Receptor.passThroughRule.call(pulse), pulse), isTrue);
@@ -580,7 +576,7 @@ void main() {
     });
 
     group('Receptor.pipeline mask', () {
-      test('stores reaction and isGoverned flyweight combinations', () {
+      test('stores reaction flyweight combinations', () {
         final identity = Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p);
         Pulse? react(Pulse p, Cell host, {user}) => p;
         var inits = 0;
@@ -613,32 +609,28 @@ void main() {
             postProcess: identity,
             reaction: react,
           ),
-          Receptor.pipeline(isGoverned: true),
-          Receptor.pipeline(instruction: identity, isGoverned: true),
-          Receptor.pipeline(init: init, isGoverned: true),
+          Receptor.pipeline(),
+          Receptor.pipeline(instruction: identity),
+          Receptor.pipeline(init: init),
           Receptor.pipeline(
             instruction: identity,
             init: init,
-            isGoverned: true,
           ),
-          Receptor.pipeline(user: user, isGoverned: true),
+          Receptor.pipeline(user: user),
           Receptor.pipeline(
             instruction: identity,
             user: user,
-            isGoverned: true,
           ),
-          Receptor.pipeline(init: init, user: user, isGoverned: true),
+          Receptor.pipeline(init: init, user: user),
           Receptor.pipeline(
             instruction: identity,
             init: init,
             user: user,
-            isGoverned: true,
           ),
         ];
         for (final r in combos) {
           expect(r.activate(Cell()), isTrue);
         }
-        expect(combos[8].isGoverned, isTrue);
         expect(inits, greaterThan(0));
       });
 
@@ -653,7 +645,7 @@ void main() {
         expect(invoke(receptor, Pulse<int>(21))?.payload, 42);
       });
 
-      test('a governed receptor ticks a hosted EphemeralPolicy', () {
+      test('a hosted EphemeralPolicy is ticked on a governed cell', () {
         final policy = EphemeralPolicy(
           eventLimit: 1,
           onEvent: (object, {required cell, required policy, arguments, user}) =>
@@ -665,7 +657,6 @@ void main() {
           bind: source.cell,
           ephemeralPolicy: policy,
           receptor: Receptor.pipeline(
-            isGoverned: true,
             instruction: Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p),
           ),
         );

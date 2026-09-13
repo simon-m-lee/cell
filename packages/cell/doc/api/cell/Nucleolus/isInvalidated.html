@@ -72,14 +72,46 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether the associated <a href="../../cell/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.</p>
+  <p>Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.</p>
+<p>In the forensic architecture, invalidation represents a "Programmed Cell
+Death" (Apoptosis). Once a node is invalidated, it is logically severed
+from the reactive graph, and any further attempts to interact with it
+will fail to preserve the <strong>Causal Integrity</strong> of the system.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this as a safety check before interacting with a cell, especially
-if it has an <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>.</p>
+<ul>
+<li><strong>Resource Cleanup</strong>: To determine if a node's allocated memory and
+listeners can be safely decommissioned by the framework.</li>
+<li><strong>Stale State Detection</strong>: Checking if a derived <a href="../../cell/Cell-class.html">Cell</a> or deputy handle
+is still linked to a living data source.</li>
+<li><strong>Lifecycle Monitoring</strong>: Determining if an <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> has
+triggered a scheduled expiration.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Delegates to the <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> associated with this nucleus.
-Returns <code>true</code> if the policy has triggered invalidation.</p>
+<p>The invalidation state is resolved through a <strong>Lifecycle Inheritance Strategy</strong>:</p>
+<ol>
+<li><strong>Policy Authority</strong>: If a local <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> is defined, its
+internal logic (e.g., timeout, usage count) dictates the status.</li>
+<li><strong>Causal Parity</strong>: If no local policy exists but the node is <a href="../../cell/Nucleolus/bind.html">bind</a>ed
+to an upstream source, it adopts the invalidation status of that source.
+This ensures that projections never outlive their prototypes.</li>
+<li><strong>Terminal Living</strong>: If neither a local policy nor an upstream binding
+is present, the node is considered permanent (<code>false</code>).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Way Transition</strong>: Invalidation is terminal. A node that returns
+<code>true</code> for <a href="../../cell/Nucleolus/isInvalidated.html">isInvalidated</a> can never return to a living state; its
+provenance is effectively closed.</li>
+<li><strong>Binding Contagion</strong>: If a root cell in a complex graph is invalidated,
+the status propagates instantly down the entire binding chain, ensuring
+no "zombie" nodes continue to broadcast stale pulses.</li>
+<li><strong>Active vs. Valid</strong>: A node can be <a href="../../cell/Nucleolus/isInvalidated.html">isInvalidated</a> but still
+<a href="../../cell/Nucleolus/isActivated.html">isActivated</a> if the garbage collector has not yet reclaimed the
+instance. This getter should be used to gate operational logic.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the node has expired or its causal source has been invalidated.</p>
 </section>
 
     
@@ -116,7 +148,7 @@ bool get isInvalidated =&gt; false;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>

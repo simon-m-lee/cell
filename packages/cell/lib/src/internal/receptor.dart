@@ -465,15 +465,6 @@ class _PassThroughReceptor implements Receptor<Never> {
   @override
   int get hashCode => identityHashCode(_singleton);
 
-  /// Indicates whether this receptor is governed.
-  ///
-  /// Since this is a pass-through receptor, it is never governed.
-  ///
-  /// ### Returns:
-  /// Always `false`.
-  @override
-  bool get isGoverned => false;
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -513,8 +504,7 @@ class _Receptor<C extends Cell> extends ReceptorBase<C>{
   /// - [postProcess]: Commitment/validation stage.
   /// - [reaction]: Simplified reaction function.
   /// - [user]: Optional user metadata.
-  /// - [isGoverned]: Whether this receptor is governed.
-  _Receptor({super.instruction, super.preProcess, super.postProcess, super.reaction, super.init, super.user, super.isGoverned}) : super();
+  _Receptor({super.instruction, super.preProcess, super.postProcess, super.reaction, super.init, super.user}) : super();
 
   /// Creates a receptor from a pre-configured record.
   ///
@@ -604,7 +594,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// - **Functional Mapping**: When using a simple [reaction] function instead
   ///   of a full instruction object.
   /// - **Governance Nodes**: When creating cells that must adhere to strict
-  ///   architectural invariants ([isGoverned]).
+  ///   architectural invariants ([Cell.isGoverned]).
   ///
   /// ### How it works
   /// 1. **Pipeline Assembly**: It organizes optional logic units into a
@@ -641,7 +631,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// - [reaction]: A simplified functional interface for basic transformations.
   /// - [init]: A one-time setup hook triggered during cell activation.
   /// - [user]: A factory for dynamic metadata passed to the pipeline.
-  /// - [isGoverned]: Flags this receptor as subject to architectural governance.
   ReceptorBase({
     Instruction? instruction,
     Instruction? preProcess,
@@ -649,9 +638,8 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
     dynamic Function()? user,
-    bool isGoverned = false,
   }) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-      reaction: reaction, user: user, init: init, isGoverned: isGoverned)
+      reaction: reaction, user: user, init: init)
   );
 
   /// Creates a mask record for the receptor configuration.
@@ -666,7 +654,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// - [reaction]: Simplified reaction function.
   /// - [user]: User metadata factory.
   /// - [init]: Initialization function.
-  /// - [isGoverned]: Governance flag.
   ///
   /// ### Returns:
   /// A record containing only the provided fields, optimized for memory.
@@ -676,8 +663,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     Instruction? postProcess,
     Function? reaction,
     Function? user,
-    Function? init,
-    bool isGoverned = false,
+    Function? init
   }) {
 
     final instructionMask = (
@@ -710,8 +696,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     final mask = (
         (instructionMask != 0 ? 1 : 0) |
         (init != null ? 2 : 0) |
-        (user != null ? 4 : 0) |
-        (isGoverned ? 8 : 0)
+        (user != null ? 4 : 0)
     );
 
     final userBox = user != null ? (FinalBox()..value = user()) : null;
@@ -725,14 +710,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       5 => (instruction: instructionRecord, user: user, userBox: userBox),
       6 => (init: init, user: user, userBox: userBox),
       7 => (instruction: instructionRecord, init: init, user: user, userBox: userBox),
-      8 => (isGoverned: isGoverned),
-      9 => (instruction: instructionRecord, isGoverned: isGoverned),
-      10 => (init: init, isGoverned: isGoverned),
-      11 => (instruction: instructionRecord, init: init, isGoverned: isGoverned),
-      12 => (user: user, userBox: userBox, isGoverned: isGoverned),
-      13 => (instruction: instructionRecord, user: user, userBox: userBox, isGoverned: isGoverned),
-      14 => (init: init, user: user, userBox: userBox, isGoverned: isGoverned),
-      15 => (instruction: instructionRecord, init: init, user: user, userBox: userBox, isGoverned: isGoverned),
       _ => ()
     };
   }
@@ -857,10 +834,9 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
 
   FutureOr<Pulse?> _proceed(PulseBase pulse) {
 
-    if (isGoverned) {
-      if (_ephemeralPolicyCheck(pulse) == false || cell.isInvalidated) {
-        return null;
-      }
+    // A governed cell that has already been reclaimed rejects all stimuli.
+    if (cell.isGoverned && cell.isInvalidated) {
+      return null;
     }
 
     if (pulse.isGoverned) {
@@ -878,6 +854,13 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     if (result != null) {
       _propagate(pulse, result: result);
     }
+
+    // Tick the hosted lifecycle policy after propagation so the event that
+    // reaches an event limit is still delivered before reclamation.
+    if (cell.isGoverned) {
+      _ephemeralPolicyCheck(pulse);
+    }
+
     return result;
 
   }
@@ -894,7 +877,12 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   bool _ephemeralPolicyCheck(PulseBase pulse) {
     final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
     if (ephemeralPolicy != null) {
-      ephemeralPolicy(pulse, cell: cell);
+      // Tick each lifecycle policy only once per stimulus wave. Without this
+      // guard, a pulse emitted by the head of a bound chain would be counted
+      // again at every governed downstream cell that inherits the same policy.
+      if (pulse._checker.tickPolicy(ephemeralPolicy)) {
+        ephemeralPolicy(pulse, cell: cell);
+      }
       return !pulse.isInvalidated;
     }
     return true;
@@ -1119,21 +1107,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     return false;
   }
 
-  /// Indicates whether this receptor is governed.
-  ///
-  /// A governed receptor applies architectural policies and forensic
-  /// trace information during pulse processing.
-  ///
-  /// ### Returns:
-  /// `true` if the receptor is governed, `false` otherwise.
-  @override
-  bool get isGoverned {
-    try {
-      return _record.isGoverned;
-    } catch (_) {}
-    return false;
-  }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1297,10 +1270,6 @@ class ReceptorAsync<C extends Cell> implements Async {
       incoming.scrutinize(_receptor, null, {#serializedCompletion: serializedCompletion});
       return;
     }
-
-    // assert(incoming is PulseBase,
-    // 'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.'
-    // );
 
     var pulse = incoming as PulseBase;
     final cell = _receptor.cell;

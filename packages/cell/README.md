@@ -34,7 +34,7 @@ The package is on pub.dev. From this monorepo:
 
 ```yaml
 dependencies:
-  cell: 1.0.0-rc.3
+  cell: ^1.0.0-rc.4
 ```
 
 From git:
@@ -166,7 +166,7 @@ Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) 
 
 ## Status
 
-**RC** (Mitosis `1.0.0-rc.3`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
+**RC** (Mitosis `1.0.0-rc.4`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
 
 A fuller developer list is in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Known limits, so this page does not over-promise:
 

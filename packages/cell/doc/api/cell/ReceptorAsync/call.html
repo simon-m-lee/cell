@@ -143,10 +143,6 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
     return;
   }
 
-  &#47;&#47; assert(incoming is PulseBase,
-  &#47;&#47; &#39;Receptor call failed: The [incoming] pulse is not implemented from PulseBase.&#39;
-  &#47;&#47; );
-
   var pulse = incoming as PulseBase;
   final cell = _receptor.cell;
   if (await pulse._checker.async.add(cell) == false) {
@@ -252,7 +248,7 @@ and the resulting <code>result</code> pulse (which may be <code>null</code> if f
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>

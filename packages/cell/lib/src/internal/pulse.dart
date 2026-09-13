@@ -1638,6 +1638,14 @@ class CycleChecker {
   /// The set of nodes that have already processed the current stimulus.
   final Set<Cell> _visited = {};
 
+  /// The set of lifecycle policies that have already been ticked for the
+  /// current stimulus wave.
+  ///
+  /// This guarantees a shared (hosted or inherited) [EphemeralPolicy] counts
+  /// each pulse exactly once, no matter how many governed cells the pulse
+  /// visits while propagating through the reactive graph.
+  final Set<EphemeralPolicy> _tickedPolicies = {};
+
   CycleChecker._();
 
   /// Registers a node in the current traversal path.
@@ -1657,6 +1665,14 @@ class CycleChecker {
   /// allowing internal logic to inspect the current propagation state without
   /// registering a new visit.
   bool contains(Cell cell) => _visited.contains(cell);
+
+  /// Registers [policy] for the current stimulus wave.
+  ///
+  /// Returns `true` the first time the policy is seen for this pulse (and
+  /// therefore should be ticked), and `false` on subsequent cell visits, so a
+  /// policy shared through the upstream [Cell.bind] chain is only counted once
+  /// per pulse.
+  bool tickPolicy(EphemeralPolicy policy) => _tickedPolicies.add(policy);
 
   /// Provides a thread-safe, synchronized version of this checker for
   /// asynchronous propagation waves.

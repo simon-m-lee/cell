@@ -38,7 +38,7 @@ Cell _debounce(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
     receptor: ephemeralPolicy != null
-        ? _Receptor(isGoverned: true)
+        ? _Receptor()
         : Receptor.passThrough,
     testRule: testRule,
     synapses: synapses,

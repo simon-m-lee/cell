@@ -100,6 +100,24 @@ class _OpenCellDeputy extends _CellDeputy with OpenReceptorMixin, OpenSynapsesMi
   }
 
   @override
+  FutureOr<Pulse?> emit(Pulse pulse) {
+    final principal = _nucleus.bind;
+    if (principal is OpenCell) {
+      return principal.emit(pulse);
+    }
+    return super.emit(pulse);
+  }
+
+  @override
+  Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) {
+    final principal = _nucleus.bind;
+    if (principal is OpenCell) {
+      return principal.ingest(pulse, serializedCompletion: serializedCompletion);
+    }
+    return super.ingest(pulse, serializedCompletion: serializedCompletion);
+  }
+
+  @override
   OpenCellAsync get async => OpenCellAsync(this);
 
 }

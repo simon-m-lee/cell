@@ -85,8 +85,9 @@ on an unactivated nucleus throws a <a href="https://api.flutter.dev/flutter/dart
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Cell get cell {
-  final bound = _boundCells[this];
-  if (bound != null) return bound;
+  try {
+    return receptor.cell;
+  } catch (_) {}
   throw StateError(&#39;Nucleus is not activated&#39;);
 }</code></pre>
 </section>
@@ -118,7 +119,7 @@ Cell get cell {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>

@@ -67,13 +67,48 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.</p>
+  <p>Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.</p>
+<p>In the biological metaphor, a <a href="../../cell/Nucleus-class.html">Nucleus</a> is considered "Governed" if it
+departs from the default, passive system state by possessing either a
+specific operational mandate (<a href="../../cell/Nucleus/context.html">context</a>) or a defined survival
+duration (<a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>).</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is mostly informational – you might use it to conditionally apply
-stricter checks in custom receptors.</p>
+<ul>
+<li><strong>Resource Management</strong>: To identify nodes that require active monitoring
+by the garbage collector or specialized lifecycle managers.</li>
+<li><strong>Security Auditing</strong>: To distinguish between standard system-tier nodes
+and nodes carrying specialized <a href="../../cell/Context-class.html">Context</a> authority.</li>
+<li><strong>Forensic Filtering</strong>: When traversing the graph to isolate nodes
+that possess non-standard provenance or specific integrity rules.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Returns <code>true</code> if the nucleus's context contains governance metadata
-(e.g., it was created with a non‑default <a href="../../cell/Context-class.html">Context</a>).</p>
+<p>The governance state is determined by a <strong>Causal Aggregation Strategy</strong>:</p>
+<ol>
+<li><strong>Local Mandate</strong>: Returns <code>true</code> if the nucleus has a local
+<a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> (lifecycle limit) or if its <a href="../../cell/Nucleus/context.html">context</a> is evolved
+beyond the default <a href="../../cell/Context/system-constant.html">Context.system</a>.</li>
+<li><strong>Causal Inheritance</strong>: If no local mandate is found and the node is
+<a href="../../cell/Nucleus/bind.html">bind</a>ed to an upstream source, it adopts the governance status of
+that source. This ensures that projections of a governed cell are
+themselves considered governed.</li>
+<li><strong>Passive Default</strong>: If no local overrides exist and there is no
+upstream binding, the node is considered un-governed (standard system state).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Recursive Integrity</strong>: Governance is contagious. A chain of bindings
+will propagate the governance flag downward. If the root data source
+is governed, the entire reactive lineage is flagged as governed.</li>
+<li><strong>Authority vs. Governance</strong>: A node can have a strict <a href="../../cell/Nucleus/testRule.html">testRule</a> (gate)
+but remain un-governed if its <a href="../../cell/Nucleus/context.html">context</a> is still <a href="../../cell/Context/system-constant.html">Context.system</a> and
+it lacks a lifecycle policy.</li>
+<li><strong>Identity vs. State</strong>: This getter reflects the <em>structural</em>
+governance of the node (its "DNA"), not the current <em>activation</em>
+state of the resulting <a href="../../cell/Cell-class.html">Cell</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the node is under specialized administrative or lifecycle control.</p>
 </section>
 
     
@@ -109,7 +144,7 @@ stricter checks in custom receptors.</p>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>

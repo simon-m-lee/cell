@@ -348,7 +348,7 @@ abstract class CellBase implements Cell {
   CellBase.fromNucleus(Nucleus nucleus) : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
     try {
       _nucleus.activate(this);
-      final bind = nucleus.bind;
+      final bind = _nucleus.bind;
       if (bind != null) {
         final synapses = bind._nucleus.synapses;
         synapses.link(bind, downstreamCell: this);

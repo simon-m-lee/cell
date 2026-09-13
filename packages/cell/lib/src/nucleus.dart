@@ -227,7 +227,7 @@ abstract interface class Nucleus {
     if (principal != null) {
       final local = NucleusBase.mask(bind: bind, context: context, receptor: receptor,
         testRule: testRule, synapses: synapses, forceLock: forceLock, user: user);
-      return _Nucleus.fromRecord((mask: local, principal: principal));
+      return _Nucleus.fromRecord((local: local, principal: principal));
     }
     return _Nucleus(
       bind: bind,
@@ -276,27 +276,88 @@ abstract interface class Nucleus {
   /// Returns `true` after [activate] has been called successfully.
   bool get isActivated;
 
-  /// Indicates whether the associated [Cell] has been formally invalidated
-  /// and neutralized by its **Lifecycle Governance Policy**.
+  /// Indicates whether this node has reached the end of its **Functional Lifecycle**
+  /// and is no longer capable of processing pulses or maintaining state.
+  ///
+  /// In the forensic architecture, invalidation represents a "Programmed Cell
+  /// Death" (Apoptosis). Once a node is invalidated, it is logically severed
+  /// from the reactive graph, and any further attempts to interact with it
+  /// will fail to preserve the **Causal Integrity** of the system.
   ///
   /// ### When to use
-  /// Use this as a safety check before interacting with a cell, especially
-  /// if it has an [EphemeralPolicy].
+  /// - **Resource Cleanup**: To determine if a node's allocated memory and
+  ///   listeners can be safely decommissioned by the framework.
+  /// - **Stale State Detection**: Checking if a derived [Cell] or deputy handle
+  ///   is still linked to a living data source.
+  /// - **Lifecycle Monitoring**: Determining if an [EphemeralPolicy] has
+  ///   triggered a scheduled expiration.
   ///
   /// ### How it works
-  /// Delegates to the [EphemeralPolicy] associated with this nucleus.
-  /// Returns `true` if the policy has triggered invalidation.
+  /// The invalidation state is resolved through a **Lifecycle Inheritance Strategy**:
+  /// 1. **Policy Authority**: If a local [EphemeralPolicy] is defined, its
+  ///    internal logic (e.g., timeout, usage count) dictates the status.
+  /// 2. **Causal Parity**: If no local policy exists but the node is [bind]ed
+  ///    to an upstream source, it adopts the invalidation status of that source.
+  ///    This ensures that projections never outlive their prototypes.
+  /// 3. **Terminal Living**: If neither a local policy nor an upstream binding
+  ///    is present, the node is considered permanent (`false`).
+  ///
+  /// ### Non‑obvious
+  /// - **One-Way Transition**: Invalidation is terminal. A node that returns
+  ///   `true` for [isInvalidated] can never return to a living state; its
+  ///   provenance is effectively closed.
+  /// - **Binding Contagion**: If a root cell in a complex graph is invalidated,
+  ///   the status propagates instantly down the entire binding chain, ensuring
+  ///   no "zombie" nodes continue to broadcast stale pulses.
+  /// - **Active vs. Valid**: A node can be [isInvalidated] but still
+  ///   [isActivated] if the garbage collector has not yet reclaimed the
+  ///   instance. This getter should be used to gate operational logic.
+  ///
+  /// ### Returns:
+  /// `true` if the node has expired or its causal source has been invalidated.
   bool get isInvalidated;
 
-  /// Indicates whether this nucleus is subject to a **Governance Policy**.
+  /// Indicates whether this node is subject to active **Administrative Oversight**
+  /// or specialized **Lifecycle Governance**.
+  ///
+  /// In the biological metaphor, a [Nucleus] is considered "Governed" if it
+  /// departs from the default, passive system state by possessing either a
+  /// specific operational mandate ([context]) or a defined survival
+  /// duration ([EphemeralPolicy]).
   ///
   /// ### When to use
-  /// This is mostly informational – you might use it to conditionally apply
-  /// stricter checks in custom receptors.
+  /// - **Resource Management**: To identify nodes that require active monitoring
+  ///   by the garbage collector or specialized lifecycle managers.
+  /// - **Security Auditing**: To distinguish between standard system-tier nodes
+  ///   and nodes carrying specialized [Context] authority.
+  /// - **Forensic Filtering**: When traversing the graph to isolate nodes
+  ///   that possess non-standard provenance or specific integrity rules.
   ///
   /// ### How it works
-  /// Returns `true` if the nucleus's context contains governance metadata
-  /// (e.g., it was created with a non‑default [Context]).
+  /// The governance state is determined by a **Causal Aggregation Strategy**:
+  /// 1. **Local Mandate**: Returns `true` if the nucleus has a local
+  ///    [EphemeralPolicy] (lifecycle limit) or if its [context] is evolved
+  ///    beyond the default [Context.system].
+  /// 2. **Causal Inheritance**: If no local mandate is found and the node is
+  ///    [bind]ed to an upstream source, it adopts the governance status of
+  ///    that source. This ensures that projections of a governed cell are
+  ///    themselves considered governed.
+  /// 3. **Passive Default**: If no local overrides exist and there is no
+  ///    upstream binding, the node is considered un-governed (standard system state).
+  ///
+  /// ### Non‑obvious
+  /// - **Recursive Integrity**: Governance is contagious. A chain of bindings
+  ///   will propagate the governance flag downward. If the root data source
+  ///   is governed, the entire reactive lineage is flagged as governed.
+  /// - **Authority vs. Governance**: A node can have a strict [testRule] (gate)
+  ///   but remain un-governed if its [context] is still [Context.system] and
+  ///   it lacks a lifecycle policy.
+  /// - **Identity vs. State**: This getter reflects the *structural*
+  ///   governance of the node (its "DNA"), not the current *activation*
+  ///   state of the resulting [Cell].
+  ///
+  /// ### Returns:
+  /// `true` if the node is under specialized administrative or lifecycle control.
   bool get isGoverned;
 
   /// The synchronization primitive used to ensure thread-safe and atomic

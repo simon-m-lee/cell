@@ -1,7 +1,7 @@
 # Cell Framework — Feature Catalog
 
 **Package:** `cell`  
-**Version:** `1.0.0-rc.3` (RC / Mitosis Release Candidate)  
+**Version:** `1.0.0-rc.4` (RC / Mitosis Release Candidate)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))  
@@ -61,7 +61,7 @@ Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule.
 
 ## 2. Status and Boundaries
 
-**RC (Release Candidate).** Package version `1.0.0-rc.3`. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: `withStep` operations lengthen lineage without branching (preserving `isComposite: false`), while `evolve` operations create explicit parent-child branches via `EvolvedPulse`.
+**RC (Release Candidate).** Package version `1.0.0-rc.4`. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: `withStep` operations lengthen lineage without branching (preserving `isComposite: false`), while `evolve` operations create explicit parent-child branches via `EvolvedPulse`.
 
 | Claim | Reality |
 |-------|---------|

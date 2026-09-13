@@ -92,7 +92,6 @@ or an internal error occurred.</li>
 bool activate(Cell cell) {
   try {
     if (identical(cell._nucleus, this) ) {
-      _boundCells[this] = cell;
       return receptor.activate(cell);
     }
   } catch (_) {}
@@ -125,7 +124,7 @@ bool activate(Cell cell) {
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>

@@ -92,16 +92,17 @@ class _Nucleus extends NucleusBase {
 
   @override
   Nucleus get clone {
-    final receptor = get<Receptor?>(() => record.mask.inheritable.receptor, orElse: null);
-    final testRule = get<TestCell?>(() => record.mask.inheritable.testRule, orElse: null);
-    final context = get<Context?>(() => record.mask.inheritable.context, orElse: null);
+    final handle = inheritable;
     return _Nucleus(
-        context: context ?? Context.system,
-        receptor: (receptor ?? this.receptor).clone,
-        testRule: testRule ?? TestCell.allowAll,
-        synapses: synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
-        ephemeralPolicy: _ephemeralPolicy,
-        principal: this
+      context: handle.context,
+      receptor: handle.receptor.clone,
+      testRule: handle.testRule,
+      synapses: synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
+      ephemeralPolicy: handle.ephemeralPolicy,
+      bind: handle.bind,
+      user: user,
+      forceLock: lock != null,
+      principal: this,
     );
   }
 
@@ -137,8 +138,6 @@ abstract class NucleusBase implements Nucleus {
 
   // ignore: strict_top_level_inference, prefer_typing_uninitialized_variables
   final record;
-
-  static final Expando<Cell> _boundCells = Expando<Cell>('nucleus.bound');
 
   /// The primary constructor for [NucleusBase], initializing a memory-optimized
   /// tiered property storage for a reactive [Cell].
@@ -380,7 +379,6 @@ abstract class NucleusBase implements Nucleus {
   bool activate(Cell cell) {
     try {
       if (identical(cell._nucleus, this) ) {
-        _boundCells[this] = cell;
         return receptor.activate(cell);
       }
     } catch (_) {}
@@ -388,13 +386,28 @@ abstract class NucleusBase implements Nucleus {
   }
 
   @override
-  bool get isActivated => _boundCells[this] != null;
+  bool get isActivated {
+    try {
+      receptor.cell;
+      return true;
+    } catch (_) {}
+    return false;
+  }
 
   @override
-  bool get isInvalidated => _ephemeralPolicy?.isInvalidated ?? false;
+  bool get isInvalidated {
+    final policy = _ephemeralPolicy;
+    if (policy == null && bind != null) return bind!.isInvalidated;
+    return policy?.isInvalidated ?? false;
+  }
+
 
   @override
-  bool get isGoverned => receptor.isGoverned;
+  bool get isGoverned {
+    final local = _ephemeralPolicy != null;
+    if (!local && bind != null) return bind!.isGoverned;
+    return local;
+  }
 
   @override
   Lock? get lock => get<Lock?>(() => record.local.lock, fallback: () => principal?.lock, orElse: null);
@@ -404,13 +417,14 @@ abstract class NucleusBase implements Nucleus {
 
   @override
   InheritableHandle get inheritable {
-    return (bind: bind, context: context, receptor: receptor, testRule: testRule, ephemeralPolicy: _ephemeralPolicy);
+    return (bind: bind, context: context, receptor: receptor, testRule: testRule, ephemeralPolicy: _hostedEphemeralPolicy);
   }
 
   @override
   Cell get cell {
-    final bound = _boundCells[this];
-    if (bound != null) return bound;
+    try {
+      return receptor.cell;
+    } catch (_) {}
     throw StateError('Nucleus is not activated');
   }
 
@@ -458,11 +472,40 @@ abstract class NucleusBase implements Nucleus {
     throw StateError('Nucleus timestamp is missing');
   }
 
-  EphemeralPolicy? get _ephemeralPolicy {
+  /// The [EphemeralPolicy] hosted by this nucleus itself, or by an ancestor in
+  /// the [principal] chain. This deliberately does **not** follow the upstream
+  /// [bind]; it is used when the policy must stay within the nucleus lineage
+  /// (e.g., when materialising a [clone]).
+  EphemeralPolicy? get _hostedEphemeralPolicy {
     return get<EphemeralPolicy?>(() => record.local.inheritable.ephemeralPolicy,
-        fallback: () => (principal as NucleusBase?)?._ephemeralPolicy,
+        fallback: () => (principal as NucleusBase?)?._hostedEphemeralPolicy,
         orElse: null
     );
+  }
+
+  /// The effective [EphemeralPolicy] governing this node.
+  ///
+  /// Resolution order:
+  /// 1. The policy **hosted** by this nucleus itself, or by an ancestor in the
+  ///    [principal] chain (see [_hostedEphemeralPolicy]).
+  /// 2. If no policy is hosted, the policy is located by walking up the
+  ///    upstream [bind] chain — the nearest governed head supplies the policy
+  ///    for its whole body ("the head owns the body").
+  ///
+  /// A locally hosted policy therefore overrides any policy inherited from the
+  /// head of the reactive graph. This getter feeds the node's `isGoverned` /
+  /// `isInvalidated` flags and the receptor's lifecycle tick; the tick is
+  /// guarded per policy, per pulse, so a shared policy counts each pulse only
+  /// once no matter how many governed cells the pulse visits.
+  EphemeralPolicy? get _ephemeralPolicy {
+    final hosted = _hostedEphemeralPolicy;
+    if (hosted != null) return hosted;
+    final upstream = bind;
+    if (upstream != null) {
+      final nucleus = upstream._nucleus;
+      if (nucleus is NucleusBase) return nucleus._ephemeralPolicy;
+    }
+    return null;
   }
 
   @override

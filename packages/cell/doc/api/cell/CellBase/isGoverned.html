@@ -72,48 +72,70 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this <a href="../../cell/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
-that oversees its operational boundaries, security constraints, and administrative metadata.</p>
-<p>This property determines if the node's behavior is mediated by a
-<strong>Policy Enforcement Point (PEP)</strong>—utilizing security mandates, taxonomic
-definitions, and architectural invariants—rather than operating as a
-purely autonomous reactive unit.</p>
-<h3 id="architectural-significance-managed-vs-autonomous">Architectural Significance: Managed vs. Autonomous</h3>
-<p>In the Cell-Mitosis ecosystem, governance represents the layer of
-<strong>External Oversight</strong>.</p>
-<ul>
-<li><strong>Governed Nodes</strong>: These cells are integrated into a larger
-administrative framework (e.g., a "Tissue" or "Organism") where their
-<a href="../../cell/CellBase/apply.html">apply</a> and <a href="../../cell/CellBase/deputy.html">deputy</a> operations are audited or constrained by global
-mandates.</li>
-<li><strong>Autonomous Nodes</strong>: These operate as free agents, relying solely on
-their internal <a href="../../cell/CellBase/validate.html">validate</a> rules without external administrative
-interference.</li>
-</ul>
+  <p>Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.</p>
+<p>In the forensic architecture of the framework, a node is considered "Governed"
+if it departs from the default, passive system state by carrying either an explicit
+operational mandate (<a href="../../cell/Context-class.html">Context</a>) or a defined survival policy (<a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>).</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Diagnostic Branching</strong>: Use this to differentiate between "System"
-cells and "User" cells in logging or performance monitoring tools.</li>
-<li><strong>Conditional Security</strong>: Adjust UI or logic visibility based on whether
-a cell is under a specific administrative policy.</li>
-<li><strong>Reflection</strong>: Useful for framework-level tools that need to map
-the topology and identify nodes that are bound to organizational
-standards.</li>
+<li><strong>Resource Management</strong>: To identify nodes that require active teardown or
+monitoring by a lifecycle manager or garbage collector.</li>
+<li><strong>Security Auditing</strong>: To distinguish between standard system-tier nodes and
+nodes operating under elevated or specialized administrative boundaries.</li>
+<li><strong>Forensic Diagnostics</strong>: To isolate nodes in a complex graph that possess
+transient lineage or non-standard authority vectors.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
+<p>Governance is determined by the presence of an <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>,
+resolved in two tiers:</p>
 <ol>
-<li><strong>Policy Attachment</strong>: A cell becomes governed during its
-initialization or deputy evolution if a management policy is injected
-into its configuration.</li>
-<li><strong>Mediation</strong>: When <code>true</code>, every interaction with the cell is
-intercepted by the policy layer to ensure compliance with
-architectural invariants.</li>
+<li><strong>Hosted policy</strong>: if this node's <a href="../../cell/Nucleus-class.html">Nucleus</a> — or its <code>principal</code> chain,
+for deputies — carries an <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a>, the node is immediately
+governed. A hosted policy always wins.</li>
+<li><strong>Upstream policy</strong>: if no policy is hosted, the node checks its
+upstream <code>Cell.bind</code>. If the bind is governed, the node inherits that
+state (<strong>"the head owns the body"</strong>), so a downstream projection of a
+governed source also reports <code>true</code>.</li>
+<li><strong>Default</strong>: with neither a hosted nor an upstream policy, the node is
+un-governed (<code>false</code>).</li>
 </ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Cascading Contagion</strong>: Governance propagates down a binding lineage
+automatically. If a root source cell becomes governed, every node bound
+downstream reports <code>isGoverned == true</code>.</li>
+<li><strong>Authority vs. Governance</strong>: A node can enforce strict structural
+validation rules via a <a href="../../cell/TestCell-class.html">TestCell</a> gate, yet still remain un-governed if
+it hosts no <a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> and is not bound to a governed source.
+<a href="../../cell/Context-class.html">Context</a> alone does <strong>not</strong> make a node governed.</li>
+<li><strong>Structural Verification</strong>: This property inspects the structural
+metadata (the "DNA") of the underlying node configuration rather than
+tracking dynamic mutations or value modifications.</li>
+</ul>
+<h3 id="example-inspecting-governance-state">Example: Inspecting Governance State</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+final head = Cell.governed(ephemeralPolicy: policy, context: Context.system);
+final body = Cell(bind: head); // hosts no policy of its own
+
+print(head.isGoverned); // true (hosted policy)
+print(body.isGoverned); // true (inherited from the upstream bind)
+</code></pre>
 <h3 id="returns">Returns:</h3>
 <ul>
 <li><code>true</code>: If the cell is managed by a governance framework (<strong>Managed Node</strong>).</li>
 <li><code>false</code>: If the cell is autonomous or operates without an external
 management policy (<strong>Autonomous/Free Node</strong>).</li>
+</ul>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><a href="../../cell/Context-class.html">Context</a> – Establishes the authoritative identity driving the governance model.</li>
+<li><a href="../../cell/EphemeralPolicy-class.html">EphemeralPolicy</a> – Regulates transient survival constraints on governed nodes.</li>
 </ul>
 </section>
 
@@ -151,7 +173,7 @@ bool get isGoverned =&gt; _nucleus.isGoverned;</code></pre>
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.3
+      1.0.0-rc.4
   </span>
   
 </footer>
