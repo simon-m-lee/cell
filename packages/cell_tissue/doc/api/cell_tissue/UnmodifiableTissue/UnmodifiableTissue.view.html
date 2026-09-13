@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissue-class.html">UnmodifiableTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissue.view factory constructor</li>
   </ol>
@@ -61,14 +61,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a live, read‑only “view” (deputy) of an existing mutable tissue.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>This factory is the low‑level constructor for the <code>.unmodifiable</code> getter.
-You almost never call it directly – instead, just write:</p>
-<pre class="language-dart"><code class="language-dart">final readOnly = myList.unmodifiable;
-</code></pre>
-<p>Use this factory only when you need fine‑grained control over the view’s
-<code>context</code> or the <code>unmodifiableElement</code> flag.</p>
+  <p>Creates a live, read‑only "view" (deputy) of an existing mutable tissue.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You have a mutable tissue that you want to share with code that should
@@ -78,6 +71,12 @@ only read data, never write it.</li>
 <li>You want to enforce deep immutability: any child cells retrieved through
 this view should also be read‑only.</li>
 </ul>
+<p>This factory is the low‑level constructor for the <code>.unmodifiable</code> getter.
+You almost never call it directly – instead, just write:</p>
+<pre class="language-dart"><code class="language-dart">final readOnly = myList.unmodifiable;
+</code></pre>
+<p>Use this factory only when you need fine‑grained control over the view's
+<code>context</code> or the <code>unmodifiableElement</code> flag.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The factory creates a new tissue node that shares the <strong>same physical
@@ -115,7 +114,7 @@ final uiView = UnmodifiableTissue.view(
 <ul>
 <li><code>bind</code>: The mutable source tissue to mirror.</li>
 <li><code>context</code>: Optional override for the execution context of the view.
-If omitted, it inherits the source’s context.</li>
+If omitted, it inherits the source's context.</li>
 <li><code>unmodifiableElement</code>: If <code>true</code> (default), child cells are projected
 as unmodifiable. Prevents nested mutations.</li>
 </ul>
@@ -156,7 +155,7 @@ as unmodifiable. Prevents nested mutations.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

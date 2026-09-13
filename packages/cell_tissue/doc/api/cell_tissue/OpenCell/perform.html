@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/OpenCell-class.html">OpenCell</a></li>
     <li class="self-crumb">perform static method</li>
   </ol>
@@ -55,8 +55,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/OpenCell-class.html">OpenCell</a></span>
-<span class="name ">perform</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="perform-param-on"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span></li>
-<li><span class="parameter" id="perform-param-perform"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span> <span class="parameter-name">perform</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-on"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span></li>
+<span class="name ">perform</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="perform-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="perform-param-perform"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">perform</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-on"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span></li>
 <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span></li>
 <li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
 </ol>}), {</span></li>
@@ -74,21 +74,21 @@
 to be executed upon the ingestion of an external <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</p>
 <p>This factory is the primary architectural utility for building <strong>Action-
 Oriented Reactive Nodes</strong>. It allows developers to define a discrete
-piece of business logic (the <code>perform</code> function) that is triggered
-whenever the cell's public <a href="../../cell_tissue/OpenCell/receptor.html">receptor</a> method is invoked.</p>
+piece of business logic (the <code>perform</code> function) that is emitted
+whenever the cell's public <a href="../../cell_tissue/OpenCell/emit.html">emit</a> method is invoked.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use this when you have an open cell that should execute a specific
 function on each manually injected pulse – e.g. a command handler.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li><code>on</code>: the principal cell that provides the state.</li>
+<li><code>source</code>: the principal cell that provides the state.</li>
 <li><code>perform</code>: the function to run on each pulse.</li>
 <li>The resulting open cell is bound to <code>on</code> and will execute <code>perform</code>
 on every <code>receptor</code> call.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>on</code>: <strong>Required</strong>. The principal <a href="../../cell_tissue/Cell-class.html">Cell</a> that serves as the
+<li><code>source</code>: <strong>Required</strong>. The principal <a href="../../cell_tissue/Cell-class.html">Cell</a> that serves as the
 operational target for the transformation.</li>
 <li><code>perform</code>: <strong>Required</strong>. The transformation logic that maps
 input pulses to output state evolutions.</li>
@@ -110,15 +110,15 @@ logic upon pulse ingestion.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static OpenCell perform(
-    Cell on, FutureOr&lt;Pulse?&gt; Function(Cell on, Pulse pulse, {dynamic user}) perform, {
+    Cell source, Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform, {
   dynamic user,
   TestCell testRule = TestCell.allowAll,
   Synapses synapses = Synapses.enabled
 }) {
   return _OpenCell(
-      bind: on,
-      receptor: Receptor.from(rule: PulseRule((Cell cell, Pulse pulse, {dynamic user}) {
-        return perform(cell, pulse, user: user);
+      bind: source,
+      receptor: Receptor.pipeline(instruction: Instruction((Pulse pulse, {Cell? cell, dynamic user}) {
+        return perform(cell!, pulse, user: user);
         }, user: user)),
       testRule: testRule,
       synapses: synapses
@@ -151,7 +151,7 @@ logic upon pulse ingestion.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

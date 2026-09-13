@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueValueMixin-mixin.html">TissueValueMixin<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">apply method</li>
   </ol>
@@ -60,27 +60,75 @@
     </ol>
   </div>
 <span class="returntype">dynamic</span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span></li>
-</ol>])
+<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
+<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
+</ol>})
 
       <div class="features"><span class="feature">override</span></div>
 
     </section>
     
 <section class="desc markdown">
-  <p>Executes a whitelisted function on this tissue via the command gateway.</p>
+  <p>Executes a governed mutation on this tissue through the command gateway.</p>
+<p>This is the foundational method for all structural changes (e.g., adding
+elements, clearing the collection). It ensures that every action is
+audited, validated by the <code>testRule</code>, and correctly linked in the
+forensic causal chain.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is a low‑level method; you rarely call it directly. Instead, use the
-higher‑level methods like <code>add</code>, <code>remove</code>, etc.</p>
-<h3 id="how-it-works">How it works</h3>
 <ul>
-<li>Only functions listed in <code>modifiable</code> can be executed.</li>
-<li>The call is gated by <code>testRule.action</code> – if rejected, <code>null</code> is returned.</li>
+<li><strong>Custom Mutations</strong>: When implementing specialized collection
+operations not covered by the standard <code>add</code>/<code>remove</code> methods.</li>
+<li><strong>Transaction Logic</strong>: When you need to bundle operations with
+<code>compensate</code> logic for self-healing or undo-capabilities.</li>
+<li><strong>Internal Logic</strong>: Used primarily by the framework's high-level
+API to route mutations through the security and auditing gates.</li>
 </ul>
-<h3 id="returns">Returns</h3>
-<p>The result of the function execution, or <code>null</code> if rejected.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Whitelist Check</strong>: The provided <code>function</code> is verified against the
+<a href="../../cell_tissue/TissueValueMixin/modifiable.html">modifiable</a> whitelist. If the function is not registered as an
+authorized mutation, it is rejected.</li>
+<li><strong>Integrity Validation</strong>: The <code>testRule</code> (DNA) evaluates the action
+request. If the rule rejects the stimulus, the method returns <code>null</code>
+and the state remains unchanged.</li>
+<li><strong>Command Execution</strong>: The function is invoked within the tissue's
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> boundary to ensure atomic state transitions.</li>
+<li><strong>Forensic Auditing</strong>: The mutation is recorded as a step in the
+resulting <a href="../../cell_tissue/Pulse/trace.html">Pulse.trace</a>, identifying the logic that caused the
+structural change.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>Unlike standard Dart collections where mutations are silent, <code>apply</code>
+ensures that every change creates an <strong>Audit Milestone</strong>. If this action
+is part of a larger transaction, the <code>tx</code> scope ensures that multiple
+<code>apply</code> calls are batched into a single atomic propagation wave.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Compensation</strong>: The <code>compensate</code> function provides a "Reversal
+Blueprint." If a subsequent step in a transaction fails, the
+framework can invoke this logic to restore the tissue to its
+primordial state.</li>
+<li><strong>Deputy Restrictions</strong>: If called on a read-only deputy (like
+<a href="../../cell_tissue/TissueValue/unmodifiable.html">unmodifiable</a>), <code>apply</code> will always return <code>null</code> or throw an
+<a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>, as the whitelist for deputies is empty.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>function</code>: The specific mutation logic to execute.</li>
+<li><code>positionalArguments</code>: Arguments passed to the mutation function.</li>
+<li><code>namedArguments</code>: Named arguments passed to the mutation function.</li>
+<li><code>tx</code>: Optional <a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a> for batching and atomic commits.</li>
+<li><code>compensate</code>: Logic used to reverse this mutation in case of failure.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The result of the mutation (usually the return value of <code>function</code>),
+or <code>null</code> if the action was rejected by the <code>testRule</code>.</p>
 </section>
 
 
@@ -88,7 +136,13 @@ higher‑level methods like <code>add</code>, <code>remove</code>, etc.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(Function function, List? positionalArguments, [Map&lt;Symbol, dynamic&gt;? namedArguments]) {
+dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+  ApplyTransactionScope? tx,
+  Function? compensate,
+  List? compensatePositional,
+  Map&lt;Symbol, dynamic&gt;? compensateNamed,
+  Cell? compensateCell,
+}) {
 
   if (modifiable.contains(function)) {
     try {
@@ -131,7 +185,7 @@ dynamic apply(Function function, List? positionalArguments, [Map&lt;Symbol, dyna
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

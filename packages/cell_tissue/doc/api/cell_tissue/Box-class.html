@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Box<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">Box</div>
@@ -54,61 +54,71 @@
 
     
 <section class="desc markdown">
-  <p>A specialized, lightweight container used to provide a mutable state/// anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.</p>
+  <p>A specialized, lightweight container used to provide a mutable state
+anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.</p>
 <p>In the reactive ecosystem, the <a href="../cell_tissue/Box-class.html">Box</a> is the primary vehicle for
 <strong>Identity-Preserving State Updates</strong>. While the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> and its
 underlying records are strictly <code>final</code> to ensure architectural
 stability, the <a href="../cell_tissue/Box-class.html">Box</a> allows the framework to update a cell's
 internal data without reallocating the entire configuration tree.</p>
-<h3 id="1-architectural-role-the-flyweight-state-container">1. Architectural Role: The Flyweight State Container</h3>
-<p>To achieve high-density scalability, the framework utilizes the
-<strong>Flyweight Pattern</strong>. Most of a node's memory footprint is stored
-in a shared, immutable <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>. The <a href="../cell_tissue/Box-class.html">Box</a> serves as the minimal
-"Variable Segment" of that footprint:</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Record Integration</strong>: A <a href="../cell_tissue/Box-class.html">Box</a> is typically stored within the
-extensions segment of a nucleus record.</li>
-<li><strong>Pointer Stability</strong>: Because the <a href="../cell_tissue/Box-class.html">Box</a> instance itself is final
-within the record, the structural blueprint remains immutable even
-as the <em>content</em> of the box evolves.</li>
-<li><strong>Memory Efficiency</strong>: By wrapping only volatile state, the
-framework avoids the overhead of traditional class-heavy state
-management for every node in the graph.</li>
+<li><strong>Flyweight State Management</strong>: Storing volatile state within immutable
+<a href="../cell_tissue/Nucleus-class.html">Nucleus</a> records to minimize heap pressure.</li>
+<li><strong>Identity-Preserving Updates</strong>: When you need to evolve a cell's value
+without changing its structural identity or memory address in the graph.</li>
+<li><strong>Internal Buffer</strong>: Storing intermediate results or transformation
+context inside a <a href="../cell_tissue/Receptor-class.html">Receptor</a>.</li>
 </ul>
-<h3 id="2-functional-mechanics-the-transformation-bridge">2. Functional Mechanics: The Transformation Bridge</h3>
-<p>The <a href="../cell_tissue/Box-class.html">Box</a> acts as the bridge between a <a href="../cell_tissue/Receptor-class.html">Receptor</a> and the node's storage:</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Flyweight Segment</strong>: Acts as the minimal "Variable Segment" of a
+node's footprint. Most of the node's metadata is shared, while the
+<a href="../cell_tissue/Box-class.html">Box</a> holds the unique, changing state.</li>
+<li><strong>Pointer Stability</strong>: Because the <a href="../cell_tissue/Box-class.html">Box</a> instance itself is <code>final</code>
+within its containing record, the reactive blueprint remains
+structurally immutable even as the <em>content</em> of the box evolves.</li>
+<li><strong>Transformation Bridge</strong>: During a reactive wave, the <a href="../cell_tissue/Receptor-class.html">Receptor</a>
+extracts the current value, applies logic, and writes the result back
+to the box.</li>
+<li><strong>Conactive Gateway</strong>: Provides a <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> via the <a href="../cell_tissue/Box/async.html">async</a> property,
+allowing the same state to be managed safely across asynchronous
+execution boundaries.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>State Persistence</strong>: During a "Propagation Wave," the <a href="../cell_tissue/Receptor-class.html">Receptor</a>
-extracts the current value from the box, performs a mapping
-transformation, and writes the new result back.</li>
-<li><strong>Type Safety</strong>: The box preserves the generic type <code>T</code> of the
-node's state, ensuring that <a href="../cell_tissue/Pulse-class.html">Pulse</a> processing remains type-safe
-at the storage layer.</li>
-<li><strong>Nullable Flexibility</strong>: A box can hold a <code>null</code> value,
-representing an uninitialized or reset state.</li>
+<li><strong>Nullable Flexibility</strong>: A box is designed to hold <code>null</code> by default,
+representing an uninitialized, reset, or transitional state.</li>
+<li><strong>Thread Safety Boundary</strong>: The base <a href="../cell_tissue/Box-class.html">Box</a> is optimized for
+high-performance, synchronous execution within a single reactive wave.
+It is <strong>not</strong> thread-safe; use the <a href="../cell_tissue/Box/async.html">async</a> property for cross-context
+mutations.</li>
+<li><strong>Identity Transparency</strong>: Replacing the <em>value</em> inside a box does not
+trigger observer notifications directly—that responsibility lies with
+the <a href="../cell_tissue/Cell-class.html">Cell</a> or <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> orchestrating the change.</li>
 </ul>
-<h3 id="3-conactive-synchronization-async">3. Conactive Synchronization (<a href="../cell_tissue/Box/async.html">async</a>)</h3>
-<p>Every <a href="../cell_tissue/Box-class.html">Box</a> provides a <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> via the <a href="../cell_tissue/Box/async.html">async</a> property. This property
-implements the <strong>Synchronized Proxy</strong> pattern, allowing the same
-physical state to be accessed via:</p>
-<ul>
-<li><strong>Synchronous Access</strong>: Directly through <code>value</code> for high-performance
-reactive propagation within a single thread.</li>
-<li><strong>Asynchronous Access</strong>: Through <code>async.set()</code> or <code>async.value</code> to
-ensure <strong>Conactive Integrity</strong> and thread-safety when updates
-originate from external asynchronous drivers.</li>
-</ul>
-<h3 id="example-usage">Example Usage:</h3>
-<pre class="language-dart"><code class="language-dart">// A nucleus extension stored in a record:
-final extension = (state: Box&lt;int&gt;(0), category: 'counter');
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Define a state box within an immutable record
+final metadata = (id: 'counter_01', state: Box&lt;int&gt;(0));
 
-// Updating the state through the box
-extension.state.value = (extension.state.value ?? 0) + 1;
+// 2. Perform identity-preserving mutation
+void increment(Box&lt;int&gt; box) {
+  box.state = (box.state ?? 0) + 1;
+}
+
+// 3. Accessing synchronized proxy for async updates
+await metadata.state.async.set(100);
 </code></pre>
-<p>See also:</p>
+<h3 id="parameters">Parameters:</h3>
 <ul>
-<li><a href="../cell_tissue/FinalBox-class.html">FinalBox</a>: A variant for late-bound, immutable constants.</li>
-<li><a href="../cell_tissue/SyncBox-class.html">SyncBox</a>: The thread-safe wrapper provided by the <a href="../cell_tissue/Box/async.html">async</a> property.</li>
+<li><a href="../cell_tissue/Box/value.html">value</a>: <strong>The Initial State.</strong> The starting payload for the container.
+Defaults to <code>null</code>.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/FinalBox-class.html">FinalBox</a>: For write-once, late-bound constants.</li>
+<li><a href="../cell_tissue/SyncBox-class.html">SyncBox</a>: The synchronized proxy for cross-thread access.</li>
+<li><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>: The blueprint that typically holds these containers.</li>
 </ul>
 </section>
 
@@ -266,7 +276,7 @@ asynchronous access to the underlying state.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

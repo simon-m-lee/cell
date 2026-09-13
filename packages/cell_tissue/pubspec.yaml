@@ -1,13 +1,23 @@
 name: cell_tissue
-description: Reactive collections (TissueList, Set, Map, Queue) with granular signaling and TestTissue immune system.
-version: 1.0.0-rc.2.0.2
-homepage: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
-repository: https://github.com/simon-m-lee/cell
-issue_tracker: https://github.com/simon-m-lee/cell/issues
-documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+description: >-
+  Application Layer (Tissue) for the Cell Framework — Reactive collections 
+  (List, Set, Map, Queue) with granular signaling and forensic traceability.
+version: 1.0.0-rc.3
 
-# To be removed when live in public
-publish_to: none
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue#readme
+
+topics:
+  - reactive
+  - collections
+  - state-management
+  - forensic-traceability
+  - observable
+
+# Use 'none' to prevent accidental publishing until the RC cycle is complete
+#publish_to: none
 
 resolution: workspace
 
@@ -15,12 +25,19 @@ environment:
   sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
-#  cell_core: ^1.0.0-rc.2
-
-  # To be removed when live in public
-  cell:
-    path: ../cell/
+  cell: ^1.0.0-rc.2
 
 dev_dependencies:
+  lints: ^6.0.0
   test: ^1.25.0
-  lints: ^5.0.0
+
+  cell_flow:
+    path: ../cell_flow
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:

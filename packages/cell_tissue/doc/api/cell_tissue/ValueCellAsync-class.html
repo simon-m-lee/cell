@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ValueCellAsync<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ValueCellAsync</div>
@@ -62,18 +62,21 @@ implements the <code>ModifiableAsync</code> contract, allowing external componen
 such as UI frameworks, background workers, or network layers—to interact
 with a <code>ValueCell</code> without stalling the main execution thread or
 compromising the cell's atomic integrity.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You obtain an instance via <code>cell.async</code> on any <code>ValueCell</code>:</p>
-<pre class="language-dart"><code class="language-dart">final score = ValueCell&lt;int&gt;(value: 0);
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You obtain an instance via <code>cell.async</code> on any <code>ValueCell</code>:
+<pre class="language-dart"><code class="language-dart">final score = ValueCell&lt;int&gt;(state: 0);
 final async = score.async;
 </code></pre>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to:</p>
+</li>
+<li>Use this when you need to:
 <ul>
 <li>Read the current state from an asynchronous context.</li>
 <li>Trigger an update without blocking the caller.</li>
 <li>Ensure thread‑safe access to the cell's state.</li>
 <li>Await the completion of a state transition.</li>
+</ul>
+</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
@@ -81,16 +84,16 @@ final async = score.async;
 ensuring that reads and writes are serialised and atomic.</li>
 <li>Reads return <code>Future&lt;V?&gt;</code> and are guaranteed to see a consistent
 snapshot of the state.</li>
-<li>Writes (via <code>_trigger</code>) are also serialised through the lock.</li>
+<li>Writes (via <code>_emit</code>) are also serialised through the lock.</li>
 <li>The controller is lightweight – it holds only a reference to the
 principal cell.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The <code>value</code> getter uses the cell's lock, so it waits for any ongoing
+<li>The <code>state</code> getter uses the cell's lock, so it waits for any ongoing
 transformation to complete before returning.</li>
-<li>The <code>_trigger</code> method is private; you use <code>triggerAsync</code> from the
-<code>StateHandle</code> returned by <code>Cell.value</code>.</li>
+<li>The <code>update</code> method is private; you use <code>updateAsync</code> from the
+<code>StateHandle</code> returned by <code>Cell.state</code>.</li>
 <li>All operations are scheduled on the Dart event loop; they never block
 the calling thread.</li>
 <li>The controller does not create its own lock – it reuses the cell's.</li>
@@ -98,20 +101,20 @@ the calling thread.</li>
 silently; check <code>cell.isInvalidated</code> before using.</li>
 </ul>
 <h3 id="example-reading-state-asynchronously">Example: Reading State Asynchronously</h3>
-<pre class="language-dart"><code class="language-dart">final counter = Cell.value&lt;int&gt;(value: 0);
+<pre class="language-dart"><code class="language-dart">final counter = Cell.state&lt;int&gt;(state: 0);
 final async = counter.cell.async;
-final current = await async.value; // waits for any ongoing update
+final current = await async.state; // waits for any ongoing update
 print('Current: $current');
 </code></pre>
 <h3 id="example-triggering-an-update">Example: Triggering an Update</h3>
-<pre class="language-dart"><code class="language-dart">// From the StateHandle returned by Cell.value:
-final handle = Cell.value&lt;int&gt;(value: 0);
-await handle.triggerAsync(5); // increments by 5
+<pre class="language-dart"><code class="language-dart">// From the StateHandle returned by Cell.state:
+final handle = Cell.state&lt;int&gt;(state: 0);
+await handle.updateAsync(5); // sets state to 5
 </code></pre>
 <p>See also:</p>
 <ul>
 <li><a href="../cell_tissue/ValueCell-class.html">ValueCell</a> – the synchronous state container.</li>
-<li><a href="../cell_tissue/StateHandle.html">StateHandle</a> – the record returned by <a href="../cell_tissue/Cell/value.html">Cell.value</a>.</li>
+<li><a href="../cell_tissue/StateHandle.html">StateHandle</a> – the record returned by <a href="../cell_tissue/Cell/state.html">Cell.state</a>.</li>
 <li><a href="../cell_tissue/ModifiableAsync-class.html">ModifiableAsync</a> – the base contract for asynchronous operations.</li>
 </ul>
 </section>
@@ -183,8 +186,8 @@ asynchronous execution layer to a specific <a href="../cell_tissue/ValueCell-cla
 
 </dd>
 
-        <dt id="value" class="property">
-  <span class="name"><a href="../cell_tissue/ValueCellAsync/value.html">value</a></span>
+        <dt id="state" class="property">
+  <span class="name"><a href="../cell_tissue/ValueCellAsync/state.html">state</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>
   
 
@@ -206,7 +209,7 @@ with a guarantee of <strong>Atomic Memory Consistency</strong>.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
   </span>
   
@@ -294,7 +297,7 @@ with a guarantee of <strong>Atomic Memory Consistency</strong>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

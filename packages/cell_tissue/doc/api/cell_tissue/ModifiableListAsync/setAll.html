@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">setAll method</li>
   </ol>
@@ -56,7 +56,7 @@
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
 <span class="name ">setAll</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setAll-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span></li>
-<li><span class="parameter" id="setAll-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">elements</span></span></li>
+<li><span class="parameter" id="setAll-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span></span></li>
 </ol>)
 
       
@@ -64,28 +64,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously writes the elements of <code>elements</code> into this list, starting at position <code>index</code>.
-This operation does not increase the length of the list.
-The <code>index</code> must be non-negative and no greater than <code>length</code>.
-The <code>elements</code> iterable must not have more elements than what can fit from <code>index</code> to <code>length</code>.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/setAll.html">TissueList.setAll</a>. The <code>Future</code> completes successfully if the
-operation is permitted. Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>index</code>: The starting index in this list to write to.</li>
-<li><code>elements</code>: An <code>Iterable&lt;E&gt;</code> of elements to write.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously overwrites elements starting at <code>index</code> with <code>iterable</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setAll(int index, Iterable&lt;E&gt; elements) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.setAll(index, elements));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setAll(int index, Iterable&lt;E&gt; iterable) =&gt;
+    Future&lt;void&gt;(() =&gt; _tissue.setAll(index, iterable));</code></pre>
 </section>
 
 
@@ -113,7 +100,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

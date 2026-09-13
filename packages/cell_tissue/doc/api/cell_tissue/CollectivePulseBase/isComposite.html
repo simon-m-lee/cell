@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectivePulseBase-class.html">CollectivePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">isComposite property</li>
   </ol>
@@ -72,22 +72,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this pulse is a <strong>Multi-Message Bundle</strong> (Composite).</p>
+  <p>Indicates that this pulse is a composite bundle.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Check this if you need to know whether a pulse contains multiple
-sub‑pulses – e.g., when iterating over it.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>A composite pulse is created with the <code>+</code> operator. It acts as an
-iterable collection of pulses.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final composite = Pulse&lt;int&gt;(1) + Pulse&lt;String&gt;('hello');
-if (composite.isComposite) {
-  for (final p in composite) {
-    print(p.payload);
-  }
-}
-// Outputs: 1, hello
-</code></pre>
+<p>Check this to know if a pulse contains multiple sub‑pulses.</p>
 </section>
 
     
@@ -124,7 +111,7 @@ bool get isComposite =&gt; true;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

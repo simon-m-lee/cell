@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">async property</li>
   </ol>
@@ -83,8 +83,8 @@ operations.</p>
 writes are serialized.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final async = counter.cell.async;
-final current = await async.value; // waits for pending mutations
-await async._trigger(10); // trigger is private, but triggerAsync is available
+final current = await async.state; // waits for pending mutations
+await async._emit(10); // emit is private, but updateAsync is available
 </code></pre>
 </section>
 
@@ -122,7 +122,7 @@ ValueCellAsync&lt;V&gt; get async =&gt; ValueCellAsync&lt;V&gt;(this);</code></p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

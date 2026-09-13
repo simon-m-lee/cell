@@ -123,6 +123,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
     TestTissue<V,TissueValue<V>> testRule,
     Synapses synapses,
     bool finalValue,
+    EphemeralPolicy? ephemeralPolicy,
     Record? user
   }) = _TissueValueNucleus<V,TissueValue<V>>;
 
@@ -189,6 +190,8 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
     TestTissue<V, TissueValue<V>>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     TissueValueNucleus<V>? override,
     required TissueValueNucleus<V> principal
   }) = _TissueValueNucleus<V,TissueValue<V>>.evolve;
@@ -245,6 +248,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 
     Container? container,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     forceLock = false,
     TissueValueNucleusBase<V,C>? principal
   }) {
@@ -253,9 +257,10 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
       final local = TissueNucleusBase.local<V,ValueContainer<V>,C>(
         container: container,
         bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        ephemeralPolicy: ephemeralPolicy,
       );
       return _TissueValueNucleus<V,C>.fromRecord(
-          (mask: local, principal: principal)
+          (local: local, principal: principal)
       );
     }
 
@@ -267,6 +272,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
         synapses: synapses ?? Synapses.enabled,
         finalValue: container == Container.finalValue,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock
     );
 
@@ -361,7 +367,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - Internally, it uses a [TissueValueNucleus] to govern behaviour and a
 ///   [ValueContainer] for physical storage.
 /// - Every mutation (e.g., `value = ...`, `set(...)`) goes through a validation
-///   pipeline ([testRule]) and emits a [ValueChangedEvent].
+///   pipeline ([testRule]) and emits a [ElementUpdated].
 /// - The value is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, etc.) that share the same storage.
@@ -429,7 +435,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueValueNucleus] – the blueprint and configuration for the value.
 /// - [UnmodifiableTissueValue] – a read‑only deputy variant.
-/// - [ValueChangedEvent] – the event emitted on value changes.
+/// - [ElementUpdated] – the event emitted on value changes.
 abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
 
   /// Provides access to the configuration properties of this `TissueValue`.
@@ -755,7 +761,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// - The `newValue` is submitted to the [TestTissue] ruleset.
   /// - If the value is valid and different, it is written to the [ValueContainer].
   /// - If the value is a [Cell], the framework manages the synapse wiring.
-  /// - A [ValueChangedEvent] is dispatched to observers.
+  /// - A [ElementUpdated] is dispatched to observers.
   ///
   /// ### Non‑obvious
   /// - If the new value is identical to the current value (by `==`), the
@@ -807,7 +813,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   bool set(V? value);
 
   // ignore: unused_element_parameter (notification and deputy are used by implementations)
-  ValueChangedEvent? _set(V? v, {bool notification = true, Tissue<V>? deputy});
+  ElementUpdated? _set(V? v, {bool notification = true, Tissue<V>? deputy});
 
   /// Returns a read‑only, reactive projection (Deputy) of this [TissueValue].
   ///
@@ -969,7 +975,7 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// - [value]: The immutable data.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
-  /// - [nucleus]: Optional blueprint; if omitted, a standard read‑only nucleus
+  /// - [properties]: Optional blueprint; if omitted, a standard read‑only nucleus
   ///   is used.
   ///
   /// ### Returns:
@@ -1017,7 +1023,7 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueValue] directly from a pre‑constructed
-  /// reactive blueprint ([nucleus]).
+  /// reactive blueprint ([properties]).
   ///
   /// This constructor is the primary **Materialization Hook** used when the
   /// behavioural identity—including security rules, execution context, and
@@ -1035,7 +1041,7 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// - The [unmodifiableElement] flag applies deep immutability.
   ///
   /// ### Parameters:
-  /// - [nucleus]: The pre‑configured read‑only blueprint.
+  /// - [properties]: The pre‑configured read‑only blueprint.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
   /// - [value]: Optional initial data.

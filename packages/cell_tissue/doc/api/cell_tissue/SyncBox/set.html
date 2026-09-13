@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/SyncBox-class.html">SyncBox<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></a></li>
     <li class="self-crumb">set method</li>
   </ol>
@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">set</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="set-param-value"><span class="type-annotation">T?</span> <span class="parameter-name">value</span></span></li>
+<span class="name ">set</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="set-param-state"><span class="type-annotation">T?</span> <span class="parameter-name">state</span></span></li>
 </ol>)
 
       
@@ -63,7 +63,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Sets the current value asynchronously, ensuring the write is
+  <p>Sets the current state asynchronously, ensuring the write is
 performed within a thread-safe <strong>State Commitment Phase</strong>.</p>
 <p>This method serializes the mutation, preventing race conditions
 when multiple asynchronous sources attempt to update the same cell.</p>
@@ -73,8 +73,8 @@ when multiple asynchronous sources attempt to update the same cell.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; set(T? value) async =&gt;
-    _lock.synchronized(() =&gt; _box.value = value);</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; set(T? state) async =&gt;
+    _lock.synchronized(() =&gt; _box.value = state);</code></pre>
 </section>
 
 
@@ -102,7 +102,7 @@ when multiple asynchronous sources attempt to update the same cell.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

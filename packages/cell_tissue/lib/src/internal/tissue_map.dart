@@ -32,6 +32,7 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
     super.testRule,
     super.synapses,
 
+    super.ephemeralPolicy,
     super.identityMap,
     super.forceLock,
     super.user
@@ -45,6 +46,8 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
     TestTissue<V,C>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     bool identityMap = false,
     bool forceLock = true,
 
@@ -52,9 +55,10 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
     required super.principal
   }) : super.evolve(
       override: override ?? _TissueMapNucleus<K,V,C>.fromRecord(
-          TissueNucleusBase.local<V, TissueMap<K,V>, C>(
-              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock
-          ))
+          (local: TissueNucleusBase.local<V, MapStore<K,V>, C>(
+              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock,
+              ephemeralPolicy: ephemeralPolicy
+          )))
   );
 
   _TissueMapNucleus.fromRecord(super.record) : super.fromRecord();
@@ -75,6 +79,7 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
   /// A new [TissueMapNucleusBase] instance with identical behavioural logic.
   @override
   TissueMapNucleusBase<K,V,C> get clone {
+    final p = principal;
     return TissueMapNucleus.create<K,V,C>(
         container: containerType,
         context: context,
@@ -82,7 +87,11 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
         testRule: testRule,
         synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
         user: user,
-        forceLock: false
+        forceLock: false,
+        ephemeralPolicy: _hostedEphemeralPolicy,
+        // A deputy clone must keep the principal chain and bind.
+        bind: p != null ? bind : null,
+        principal: p == null ? null : this,
     );
   }
 
@@ -144,7 +153,7 @@ class _TissueMapNucleus<K,V,C extends TissueMap<K,V>> extends TissueMapNucleusBa
 /// - [C]: The specific [TissueMap] implementation type (usually `TissueMap<K, V>`),
 ///   allowing for type‑safe pulse processing within the hierarchy.
 abstract class TissueMapNucleusBase<K, V, C extends TissueMap<K,V>>
-    extends TissueNucleusBase<V, TissueMap<K,V>, C>
+    extends TissueNucleusBase<V, MapStore<K,V>, C>
     implements TissueMapNucleus<K, V> {
 
   /// **Primary Constructor** – defines the immutable behaviour and storage
@@ -210,6 +219,7 @@ abstract class TissueMapNucleusBase<K, V, C extends TissueMap<K,V>>
     super.testRule,
     super.synapses,
     bool identityMap = false,
+    super.ephemeralPolicy,
     super.forceLock,
     super.user
   }) : super(container: identityMap ? Container.identityMap : Container.map);
@@ -386,7 +396,7 @@ abstract class TissueMapNucleusBase<K, V, C extends TissueMap<K,V>>
   /// - Defaults to [Container.map] if not set.
   @override
   Container get containerType {
-    return get<Container>(() => record.mask.inhertiable.container, fallback: () => principal?.containerType, orElse: Container.map);
+    return get<Container>(() => record.local.inheritable.container, fallback: () => principal?.containerType, orElse: Container.map);
   }
 
 }
@@ -422,21 +432,19 @@ class _TissueMap<K,V,C extends TissueMap<K,V>> extends TissueMapBase<K,V,C> {
   _TissueMap.fromEntries(Iterable<MapEntry<K, V>> entries, {TissueMapNucleus<K,V>? properties})
       : this.fromNucleus(properties ?? _TissueMapNucleus<K,V,C>(), entries: entries);
 
-  _TissueMap.identity({Iterable<MapEntry<K, V>>? entries})
-      : this.fromNucleus(_TissueMapNucleus<K,V,C>(identityMap: true), entries: entries);
+  _TissueMap.identity({Iterable<MapEntry<K, V>>? entries, Cell? bind})
+      : this.fromNucleus(_TissueMapNucleus<K,V,C>(identityMap: true, bind: bind), entries: entries);
 
   _TissueMap.fromNucleus(TissueMapNucleus<K,V> properties, {Iterable<MapEntry<K, V>>? entries})
       : super.fromNucleus(properties as TissueMapNucleusBase<K,V,C>) {
     if (entries != null) {
-      _nucleus.container.init(Map<K,V>.fromEntries(entries));
+      _nucleus.container.store.addEntries(entries);
       final values = _nucleus.container.store.values;
       for (var v in values) {
         if (v is Cell) {
           _nucleus.synapses.link(v, downstreamCell: this);
         }
       }
-    } else {
-      _nucleus.container.init();
     }
   }
 
@@ -478,7 +486,7 @@ class _TissueMap<K,V,C extends TissueMap<K,V>> extends TissueMapBase<K,V,C> {
 /// - Every structural change (adding, removing, clearing) is:
 ///   1. Validated against the [TestTissue] rules.
 ///   2. Applied atomically to the [Container].
-///   3. Dispatched as a [TissueEvent] to all observers.
+///   3. Dispatched as a [TissuePulse] to all observers.
 /// - The underlying storage is a Dart `Map<K, V>` with the key‑comparison
 ///   strategy defined by the nucleus's `identityMap` flag.
 ///
@@ -506,22 +514,12 @@ class _TissueMap<K,V,C extends TissueMap<K,V>> extends TissueMapBase<K,V,C> {
 /// - [C]: The specific [Tissue] implementation type (usually `TissueMap<K, V>`),
 ///   allowing for type‑safe pulse processing within the hierarchy.
 abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
-    extends TissueBase<V, TissueMap<K,V>,C>
+    extends TissueBase<V, MapStore<K,V>,C>
     with TissueMapMixin<K,V,C>
     implements TissueMap<K, V> {
 
   @override
   TissueMapNucleusBase<K,V,C> get _nucleus => super._nucleus as TissueMapNucleusBase<K,V,C>;
-
-  /// Constructs a [TissueMapBase] with the specified [properties] and optional
-  /// initial [entries].
-  ///
-  /// ### Parameters:
-  /// - [properties]: The configuration and state container for this map.
-  /// - [entries]: Optional initial key‑value pairs. These are loaded atomically.
-  TissueMapBase({TissueMapNucleusBase<K,V,C>? properties, Iterable<MapEntry<K, V>>? entries})
-      : this.fromNucleus(properties ?? _TissueMapNucleus<K,V,C>(),
-      entries: entries);
 
   /// Creates a [TissueMapBase] from an existing [Map], optionally with
   /// custom [properties].
@@ -531,27 +529,13 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// - [properties]: Optional nucleus configuration.
   TissueMapBase.from(Map<K,V> map, {TissueMapNucleusBase<K,V,C>? properties})
       : super(properties ?? _TissueMapNucleus<K,V,C>()) {
-    _nucleus.container.init(map);
+    _nucleus.container.store.addEntries(map.entries);
     for (var v in values) {
       if (v is Cell) {
         _nucleus.synapses.link(v, downstreamCell: this);
       }
     }
   }
-
-  /// Creates a [TissueMapBase] initialized with the given [entries] and
-  /// optional [properties].
-  TissueMapBase.fromEntries(Iterable<MapEntry<K, V>> entries,
-      {TissueMapNucleusBase<K,V,C>? properties})
-      : this.fromNucleus(properties ??_TissueMapNucleus<K,V,C>(),
-      entries: entries);
-
-  /// Creates a [TissueMapBase] that uses identity comparison for its keys.
-  ///
-  /// Equivalent to `TissueMap.identity` but for the base class.
-  TissueMapBase.identity({Iterable<MapEntry<K, V>>? entries})
-      : this.fromNucleus(_TissueMapNucleus<K,V,C>(identityMap: true),
-      entries: entries);
 
   /// Primary constructor that initialises the map from a [TissueMapNucleusBase].
   ///
@@ -567,17 +551,7 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// - [entries]: Optional initial key‑value pairs.
   TissueMapBase.fromNucleus(TissueMapNucleusBase<K,V,C> super.properties,
       {Iterable<MapEntry<K, V>>? entries})
-      : super() {
-    if (entries != null) {
-      _nucleus.container.init(Map<K, V>.fromEntries(entries));
-      final values = _nucleus.container.store.values;
-      for (var v in values) {
-        if (v is Cell) {
-          _nucleus.synapses.link(v, downstreamCell: this);
-        }
-      }
-    }
-  }
+      : super();
 
 // ---- MapMixin mandatory overrides ----
 
@@ -590,7 +564,7 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// - [key]: The key to associate.
   /// - [value]: The value to store.
   @override
-  void operator []=(K key, V value) => apply(add, positionalArguments: [key, value]).isNotEmpty;
+  void operator []=(K key, V value) => apply(add, positionalArguments: [key, value]);
 
   /// Looks up the value for [key] directly from the underlying storage.
   ///
@@ -610,7 +584,8 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// Returns `true` if the entry was added (i.e., the key was not already
   /// present and validation passed), `false` otherwise.
   @override
-  bool add(K key, V value) => apply(add, positionalArguments: [key, value]).isNotEmpty;
+  bool add(K key, V value) =>
+      (apply(add, positionalArguments: [key, value])?.isNotEmpty) ?? false;
 
   /// Adds all entries from the given [other] map.
   @override
@@ -636,7 +611,7 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// Removes [key] and its associated value, returning the removed value,
   /// or `null` if the key was not present.
   @override
-  V remove(Object? key) => apply(remove, positionalArguments: [key]);
+  V? remove(Object? key) => apply(remove, positionalArguments: [key]);
 
   /// Removes all entries that satisfy the given [predicate].
   @override
@@ -648,7 +623,7 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K,V>>
   /// If [key] is not present, [ifAbsent] is called and its result is added.
   @override
   V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =>
-      apply(update, positionalArguments: [key, update], namedArguments: {#ifAbsent: ifAbsent});
+      apply(this.update, positionalArguments: [key, update], namedArguments: {#ifAbsent: ifAbsent});
 
   /// Updates all values by applying the [update] function to each entry.
   @override
@@ -706,12 +681,17 @@ class _TissueMapDeputy<K,V,C extends TissueMap<K,V>> extends TissueMapBase<K,V,C
       bind: bind,
       testRule: bind._nucleus.testRule + testRule,
       synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
+      ephemeralPolicy: ephemeralPolicy,
       principal: bind._nucleus as TissueMapNucleus<K,V>
   ));
 
   @override
   FutureOr<TissueMap<K,V>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueMapDeputy<K,V,C>._(_nucleus.bind as TissueMapBase<K,V,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    final bind = _nucleus.bind;
+    if (bind is TissueMapBase<K, V, C>) {
+      return _TissueMapDeputy<K,V,C>._(bind, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    }
+    return this;
   }
 }
 
@@ -765,7 +745,7 @@ class _UnmodifiableTissueMap<K,V,C extends TissueMap<K,V>> extends UnmodifiableT
 
   _UnmodifiableTissueMap.fromNucleus(TissueMapNucleus<K,V> properties, {super.unmodifiableElement, Iterable<MapEntry<K, V>>? entries})
       : super(properties as TissueMapNucleusBase<K,V,C>) {
-    final container = get<Container?>(() => _nucleus.record.mask.container, orElse: null);
+    final container = get<Container?>(() => _nucleus.record.local.container, orElse: null);
     if (container != null) {
       if (entries != null) {
         _nucleus.container.store.addEntries(entries);
@@ -790,7 +770,11 @@ class _UnmodifiableTissueMap<K,V,C extends TissueMap<K,V>> extends UnmodifiableT
   ///   - map: Value mapping configuration
   @override
   FutureOr<TissueMap<K,V>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueMapDeputy<K,V,C>._(this as TissueMapBase<K,V,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    final bind = _nucleus.bind;
+    if (bind is TissueMapBase<K, V, C>) {
+      return _TissueMapDeputy<K,V,C>._(bind, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    }
+    return this;
   }
 
   @override
@@ -853,13 +837,16 @@ class _UnmodifiableTissueMap<K,V,C extends TissueMap<K,V>> extends UnmodifiableT
 /// - [V]: The type of values in the map.
 /// - [C]: The specific [TissueMap] implementation type (usually `TissueMap<K, V>`).
 abstract class UnmodifiableTissueMapBase<K,V,C extends TissueMap<K,V>>
-    extends UnmodifiableTissueBase<V,TissueMap<K,V>,C>
+    extends UnmodifiableTissueBase<V,MapStore<K,V>,C>
     with TissueMapMixin<K,V,C>
     implements UnmodifiableTissueMap<K,V> {
 
   @override
   TissueMapNucleusBase<K, V, C> get _nucleus =>
       super._nucleus as TissueMapNucleusBase<K, V, C>;
+
+  @override
+  Iterable<Function> get modifiable => <Function>{};
 
   /// Initializes an unmodifiable map with the provided [properties] and optional [entries].
   ///
@@ -874,20 +861,7 @@ abstract class UnmodifiableTissueMapBase<K,V,C extends TissueMap<K,V>>
   /// - [entries]: Initial data to populate the map.
   UnmodifiableTissueMapBase(
       TissueMapNucleusBase<K,V,C> super.properties, {super.unmodifiableElement, Iterable<MapEntry<K,V>>? entries})
-      : super() {
-    final container = get<Container?>(() => _nucleus.record.mask.container, orElse: null);
-    if (container != null) {
-      _nucleus.container.init(entries);
-    }
-    if (unmodifiableElement) {
-      final bind = get<Cell?>(() => _nucleus.record.mask.bind, orElse: null);
-      if (bind != null && entries != null) {
-        entries.map<V>((en) => en.value).whereType<Cell>()
-            .forEach((e) => _nucleus.synapses.link(e, downstreamCell: this));
-      }
-    }
-
-  }
+      : super();
 
   /// Returns an asynchronous wrapper for operations.
   ///
@@ -988,7 +962,8 @@ abstract class UnmodifiableTissueMapBase<K,V,C extends TissueMap<K,V>>
 ///   reactive system – they are direct storage reads.
 /// - The `modifiable` set is used by the `apply` method to determine which
 ///   functions are allowed to be invoked.
-mixin TissueMapMixin<K,V,C extends TissueMap<K,V>> implements TissueMap<K,V> {
+mixin TissueMapMixin<K,V,C extends TissueMap<K,V>>
+on TissueBase<V, MapStore<K,V>,C> implements TissueMap<K,V> {
 
   @override
   TissueMapNucleusBase<K,V,C> get _nucleus;
@@ -1000,13 +975,14 @@ mixin TissueMapMixin<K,V,C extends TissueMap<K,V>> implements TissueMap<K,V> {
   Iterable<Function> get modifiable => <Function>{
     add,
     addAll,
+    addEntries,
     clear,
+    putIfAbsent,
     remove,
     removeWhere,
+    update,
+    updateAll,
   };
-
-  @override
-  V? operator [](Object? key) => _nucleus.container.store[key];
 
   @override
   bool containsKey(Object? key) => _nucleus.container.store.containsKey(key);
@@ -1015,7 +991,9 @@ mixin TissueMapMixin<K,V,C extends TissueMap<K,V>> implements TissueMap<K,V> {
   bool containsValue(Object? value) => _nucleus.container.store.containsValue(value);
 
   @override
-  Iterable<MapEntry<K, V>> get entries => _nucleus.container.store.entries;
+  Iterable<MapEntry<K, V>> get entries => _nucleus.container.store.entries
+      .map((en) => MapEntry<K, V>(en.key as K, en.value as V))
+      .cast<MapEntry<K, V>>();
 
   @override
   bool get isEmpty => _nucleus.container.store.isEmpty;
@@ -1024,14 +1002,270 @@ mixin TissueMapMixin<K,V,C extends TissueMap<K,V>> implements TissueMap<K,V> {
   bool get isNotEmpty => _nucleus.container.store.isNotEmpty;
 
   @override
-  Iterable<K> get keys => _nucleus.container.store.keys;
+  Iterable<K> get keys =>
+      _nucleus.container.store.keys.map((key) => key as K).cast<K>();
 
   @override
   int get length => _nucleus.container.store.length;
 
   @override
-  Iterable<V> get values => _nucleus.container.store.values;
+  Iterable<V> get values => _nucleus.container.store.values.cast<V>();
 
+  /// Routes whitelisted mutation functions through validation and the
+  /// private reactive helpers; rejects anything else.
+  @override
+  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+    ApplyTransactionScope? tx,
+    Function? compensate,
+    List? compensatePositional,
+    Map<Symbol, dynamic>? compensateNamed,
+    Cell? compensateCell,
+  }) {
+    if (tx != null) {
+      return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
+          tx: tx, compensate: compensate, compensatePositional: compensatePositional, compensateNamed: compensateNamed, compensateCell: compensateCell
+      );
+    }
+
+    try {
+      if (validate.action(function, host: this as C, arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)) == true) {
+        final notification = namedArguments?[#$notification] ?? true;
+        final deputy = namedArguments?[#deputy];
+
+        if (function == add) {
+          return Function.apply(_add, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == addAll) {
+          return Function.apply(_addAll, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == addEntries) {
+          return Function.apply(_addEntries, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == clear) {
+          return Function.apply(_clear, null, {#notification: notification, #deputy: deputy});
+        } else if (function == putIfAbsent) {
+          return Function.apply(_putIfAbsent, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == remove) {
+          return Function.apply(_remove, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == removeWhere) {
+          return Function.apply(_removeWhere, positionalArguments, {#notification: notification, #deputy: deputy});
+        } else if (function == update) {
+          return Function.apply(_update, positionalArguments, {#notification: notification, #deputy: deputy, #ifAbsent: namedArguments?[#ifAbsent]});
+        } else if (function == updateAll) {
+          return Function.apply(_updateAll, positionalArguments, {#notification: notification, #deputy: deputy});
+        }
+      }
+    } catch (e) {
+      if (e is StateError) {
+        rethrow;
+      }
+    }
+
+  }
+
+  TissuePulse? _add(K key, V value, {bool notification = true, Tissue<V>? deputy}) {
+    ElementAdded<V>? event;
+    if (this is! Unmodifiable && modifiable.contains(add)) {
+      if (!_nucleus.container.store.containsKey(key) &&
+          validate.element(value, host: this as C, action: add) == true) {
+        _nucleus.container.store[key] = value;
+        final cell = value;
+        if (cell is Cell) {
+          _nucleus.synapses.link(cell, downstreamCell: this);
+        }
+        event = ElementAdded<V>._(source: deputy ?? this, payload: value);
+        if (notification) {
+          _nucleus.receptor(event);
+        }
+      }
+    }
+    return event;
+  }
+
+  TissuePulse? _addAll(Map<K, V> other, {bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse? result;
+    if (this is! Unmodifiable && modifiable.contains(addAll)) {
+      final events = <ElementAdded<V>>[];
+      for (final entry in other.entries) {
+        final value = entry.value;
+        if (!_nucleus.container.store.containsKey(entry.key) &&
+            validate.element(value, host: this as C, action: add) == true) {
+          _nucleus.container.store[entry.key] = value;
+          if (value is Cell) {
+            _nucleus.synapses.link(value, downstreamCell: this);
+          }
+          events.add(ElementAdded<V>._(source: deputy ?? this, payload: value));
+        }
+      }
+      if (events.isNotEmpty) {
+        result = events.length == 1 ? events.first : TissuePulse.batch<V>(events);
+        if (notification) {
+          _nucleus.receptor(result);
+        }
+      }
+    }
+    return result;
+  }
+
+  TissuePulse? _addEntries(Iterable<MapEntry<K, V>> newEntries, {bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse? result;
+    if (this is! Unmodifiable && modifiable.contains(addEntries)) {
+      final events = <ElementAdded<V>>[];
+      for (final entry in newEntries) {
+        final value = entry.value;
+        if (!_nucleus.container.store.containsKey(entry.key) &&
+            validate.element(value, host: this as C, action: add) == true) {
+          _nucleus.container.store[entry.key] = value;
+          if (value is Cell) {
+            _nucleus.synapses.link(value, downstreamCell: this);
+          }
+          events.add(ElementAdded<V>._(source: deputy ?? this, payload: value));
+        }
+      }
+      if (events.isNotEmpty) {
+        result = events.length == 1 ? events.first : TissuePulse.batch<V>(events);
+        if (notification) {
+          _nucleus.receptor(result);
+        }
+      }
+    }
+    return result;
+  }
+
+  TissuePulse? _clear({bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse? result;
+    if (this is! Unmodifiable && modifiable.contains(clear)) {
+      final events = <ElementRemoved<V>>[];
+      final keys = _nucleus.container.store.keys.toList();
+      for (final key in keys) {
+        final value = _nucleus.container.store[key];
+        if (value != null && validate.element(value, host: this as C, action: remove) == true) {
+          _nucleus.container.store.remove(key);
+          events.add(ElementRemoved<V>._(source: deputy ?? this, payload: value));
+        }
+      }
+      if (events.isNotEmpty) {
+        result = events.length == 1 ? events.first : TissuePulse.batch<V>(events);
+        if (notification) {
+          _nucleus.receptor(result);
+        }
+      }
+    }
+    return result;
+  }
+
+  V _putIfAbsent(K key, V Function() ifAbsent, {bool notification = true, Tissue<V>? deputy}) {
+    if (this is! Unmodifiable && modifiable.contains(putIfAbsent)) {
+      if (_nucleus.container.store.containsKey(key)) {
+        return _nucleus.container.store[key] as V;
+      }
+      final value = ifAbsent();
+      if (validate.element(value, host: this as C, action: add) == true) {
+        _nucleus.container.store[key] = value;
+        if (value is Cell) {
+          _nucleus.synapses.link(value, downstreamCell: this);
+        }
+        final event = ElementAdded<V>._(source: deputy ?? this, payload: value);
+        if (notification) {
+          _nucleus.receptor(event);
+        }
+      }
+      return value;
+    }
+    throw UnsupportedError('Unmodifiable operation');
+  }
+
+  V? _remove(Object? key, {bool notification = true, Tissue<V>? deputy}) {
+    if (this is! Unmodifiable && modifiable.contains(remove)) {
+      if (_nucleus.container.store.containsKey(key)) {
+        final value = _nucleus.container.store[key];
+        if (value != null && validate.element(value, host: this as C, action: remove) == true) {
+          _nucleus.container.store.remove(key);
+          final event = ElementRemoved<V>._(source: deputy ?? this, payload: value);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+        }
+        return value;
+      }
+      return null;
+    }
+    return null;
+  }
+
+  TissuePulse? _removeWhere(bool Function(K key, V value) predicate, {bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse? result;
+    if (this is! Unmodifiable && modifiable.contains(removeWhere)) {
+      final events = <ElementRemoved<V>>[];
+      final keys = _nucleus.container.store.keys.toList();
+      for (final rawKey in keys) {
+        final key = rawKey;
+        final value = _nucleus.container.store[key];
+        if (value != null && predicate(key, value) &&
+            validate.element(value, host: this as C, action: remove) == true) {
+          _nucleus.container.store.remove(key);
+          events.add(ElementRemoved<V>._(source: deputy ?? this, payload: value));
+        }
+      }
+      if (events.isNotEmpty) {
+        result = events.length == 1 ? events.first : TissuePulse.batch<V>(events);
+        if (notification) {
+          _nucleus.receptor(result);
+        }
+      }
+    }
+    return result;
+  }
+
+  V _update(K key, V Function(V value) update, {V Function()? ifAbsent, bool notification = true, Tissue<V>? deputy}) {
+    if (this is! Unmodifiable && modifiable.contains(this.update)) {
+      if (_nucleus.container.store.containsKey(key)) {
+        final newValue = update(_nucleus.container.store[key] as V);
+        if (validate.element(newValue, host: this as C, action: add) == true) {
+          _nucleus.container.store[key] = newValue;
+          final event = ElementAdded<V>._(source: deputy ?? this, payload: newValue);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+        }
+        return newValue;
+      }
+      if (ifAbsent != null) {
+        final value = ifAbsent();
+        if (validate.element(value, host: this as C, action: add) == true) {
+          _nucleus.container.store[key] = value;
+          final event = ElementAdded<V>._(source: deputy ?? this, payload: value);
+          if (notification) {
+            _nucleus.receptor(event);
+          }
+        }
+        return value;
+      }
+      throw StateError('No element');
+    }
+    throw UnsupportedError('Unmodifiable operation');
+  }
+
+  TissuePulse? _updateAll(V Function(K key, V value) update, {bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse? result;
+    if (this is! Unmodifiable && modifiable.contains(updateAll)) {
+      final events = <ElementAdded<V>>[];
+      final keys = _nucleus.container.store.keys.toList();
+      for (final rawKey in keys) {
+        final key = rawKey;
+        final oldValue = _nucleus.container.store[key] as V;
+        final newValue = update(key, oldValue);
+        if (validate.element(newValue, host: this as C, action: add) == true) {
+          _nucleus.container.store[key] = newValue;
+          events.add(ElementAdded<V>._(source: deputy ?? this, payload: newValue));
+        }
+      }
+      if (events.isNotEmpty) {
+        result = events.length == 1 ? events.first : TissuePulse.batch<V>(events);
+        if (notification) {
+          _nucleus.receptor(result);
+        }
+      }
+    }
+    return result;
+  }
 }
 
 /// An asynchronous facade for performing reactive mutation operations on a [TissueMap].
@@ -1267,5 +1501,65 @@ class _UnmodifiableModifiableMapAsync<K,V> implements ModifiableMapAsync<K,V> {
   Future<void> updateAll(V Function(K key, V value) update) async {
     return Future.error(UnsupportedError('Unmodifiable operation'));
   }
+
+}
+
+/// A physical map storage that is both an [Iterable] over its values and a
+/// map-like accessor for keys. It bridges the gap between the generic
+/// [TissueContainer] (which requires an [Iterable] store) and the map‑shaped
+/// storage needs of [TissueMap].
+class MapStore<K,V> extends IterableBase<V> {
+
+  /// Creates a [MapStore] wrapping the provided [map].
+  MapStore(Map<K, V> map) : _map = map;
+
+  final Map<K, V> _map;
+
+  /// The value associated with [key], if any.
+  V? operator [](Object? key) => _map[key];
+
+  /// Associates [key] with [value].
+  void operator []=(K key, V value) => _map[key] = value;
+
+  /// Whether the store contains [key].
+  bool containsKey(Object? key) => _map.containsKey(key);
+
+  /// Whether the store contains [value].
+  bool containsValue(Object? value) => _map.containsValue(value);
+
+  /// The entries of the underlying map.
+  Iterable<MapEntry<K, V>> get entries => _map.entries;
+
+  /// The keys of the underlying map.
+  Iterable<K> get keys => _map.keys;
+
+  /// The values of the underlying map.
+  Iterable<V> get values => _map.values;
+
+  /// The number of key‑value pairs.
+  @override
+  int get length => _map.length;
+
+  /// Whether the store is empty.
+  @override
+  bool get isEmpty => _map.isEmpty;
+
+  /// Whether the store is non‑empty.
+  @override
+  bool get isNotEmpty => _map.isNotEmpty;
+
+  /// Adds all [newEntries].
+  void addEntries(Iterable<MapEntry<K, V>> newEntries) =>
+      _map.addEntries(newEntries);
+
+  /// Removes [key] and returns its value, if present.
+  V? remove(Object? key) => _map.remove(key);
+
+  /// Iterates the values of the map.
+  @override
+  Iterator<V> get iterator => _map.values.iterator;
+
+  @override
+  String toString() => _map.toString();
 
 }

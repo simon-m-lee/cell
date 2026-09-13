@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">open static method</li>
   </ol>
@@ -55,7 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/OpenCell-class.html">OpenCell</a></span>
-<span class="name ">open</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="open-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<span class="name ">open</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="open-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="open-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
+<li><span class="parameter" id="open-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="open-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
 <li><span class="parameter" id="open-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
 <li><span class="parameter" id="open-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
@@ -67,51 +69,91 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates an <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a>, a specialized <strong>Module Interface</strong> that exposes
-public control planes for manual signal injection and structural
-modification.</p>
-<p>Unlike standard <a href="../../cell_tissue/Cell-class.html">Cell</a> instances, which are typically "Closed" or
-reactive-only nodes, an <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> is designed for <strong>Imperative Orchestration</strong>
-and <strong>Dynamic Topology</strong>. It serves as the primary gateway for bridging
-external systems or user interactions with the reactive <strong>Collection</strong>.</p>
+  <p>Synthesizes a <strong>Manual Control Interface</strong>—a specialized node that allows
+you to manually push data into the reactive network or change how cells
+are connected at runtime.</p>
+<p>The <a href="../../cell_tissue/Cell/open.html">open</a> factory creates an <strong>Imperative Gateway</strong>. Unlike most cells
+that react automatically to upstream changes, an <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> acts as a
+"Sovereign Port." It is designed for cases where your code needs to bridge
+external systems or manually manage the lifecycle of connections while the
+app is running.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to manually control a cell – to inject pulses
-from outside the reactive graph, or to dynamically link/unlink observers
-at runtime.</p>
-<h3 id="how-it-works">How it works</h3>
 <ul>
-<li><code>receptor(pulse)</code>: manually send a pulse into the cell.</li>
-<li><code>link(cell)</code>: manually attach a downstream observer.</li>
-<li><code>unlink(cell)</code>: remove an observer.</li>
+<li><strong>Dynamic Topology</strong>: Use this when you need an entry point that isn't locked to a single
+source, or when you need to manually <code>link</code> and <code>unlink</code> observers
+as the state of your application changes.</li>
+<li><strong>Module Boundaries</strong>: Creating a public API for a module that
+receives external commands.</li>
+<li><strong>Dynamic Layouts</strong>: Attaching or detaching observers based on
+user navigation or temporary app states.</li>
+<li><strong>Testing &amp; Simulation</strong>: Manually injecting data pulses to verify
+that downstream logic behaves correctly.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The factory creates an <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> with a public <code>receptor</code>.</li>
+<li><strong>Pushing Data</strong>: Calling <code>receptor(pulse)</code> manually sends data into
+the network, provided it passes the <code>testRule</code> validation.</li>
+<li><strong>Dynamic Connections</strong>: You can use the <code>link()</code> and <code>unlink()</code>
+methods to change which cells receive updates at runtime.</li>
+<li><strong>Tracking History</strong>: Any data pushed through the receptor is
+recorded with its origin, allowing you to trace the cause of changes
+back to this specific gateway.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
-<p>An <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> is still governed by its <code>testRule</code> and <a href="../../cell_tissue/Cell/context.html">context</a> – manual
-pulses are validated just like reactive ones. This is not a backdoor.</p>
-<h3 id="example-api-gateway-cell">Example: API Gateway Cell</h3>
-<pre class="language-dart"><code class="language-dart">final gateway = Cell.open(
+<ul>
+<li><strong>Security Rules Apply</strong>: Even though this node is "Open," it is not
+a backdoor. All manual data entries must match the <code>context</code>
+permissions and pass the safety checks in the <code>testRule</code>.</li>
+<li><strong>Connection Authority</strong>: Linking and unlinking other nodes are
+protected actions. A caller must have the correct <a href="../../cell_tissue/Context-class.html">Context</a>
+authority to change the network structure.</li>
+<li><strong>Hybrid Mode</strong>: If a <code>bind</code> source is provided, the cell will relay
+data from that source automatically while <em>also</em> accepting your
+manual inputs.</li>
+<li><strong>Flow Control</strong>: Use the <code>synapses</code> parameter to attach a
+<a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>. This allows you to debounce state emissions,
+throttle high-frequency updates, or batch multiple state changes
+into a single downstream pulse.</li>
+</ul>
+<h3 id="example-system-command-gateway">Example: System Command Gateway</h3>
+<pre class="language-dart"><code class="language-dart">final commandGate = Cell.open(
+  context: Context.admin,
   receptor: Receptor((cell, pulse, {user}) {
-    // Handle incoming HTTP request
+    // Handle manual commands like "SHUTDOWN" or "RESET"
     return pulse;
   }),
 );
-gateway.receptor(Pulse(request)); // manual injection
-final unlinker = gateway.link(serviceCell);
+
+// Manually push a pulse from a UI button or admin console
+commandGate.emit(Pulse('SHUTDOWN', type: 'system.command'));
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: An optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> to observe, making the node a
-hybrid reactive-imperative relay.</li>
-<li><code>receptor</code>: The logic unit (<a href="../../cell_tissue/Receptor-class.html">Receptor</a>) that processes incoming
-signals. Defaults to <a href="../../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>.</li>
-<li><code>testRule</code>: The authoritative <strong>Integrity Gate</strong> (defaults to
-<a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>). This governs all manual injections and structural
-modifications.</li>
-<li><code>synapses</code>: The synapse registry manager. Defaults to <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>.</li>
-<li><code>forceLock</code>: If <code>true</code>, ensures the creation of an <strong>Atomic
-Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Management.</strong> Defines how the node
+is cleaned up when it is no longer being used.</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The security and priority tier
+that governs manual data entry and connection changes.</li>
+<li><code>bind</code>: <strong>Ingress Source.</strong> An optional cell to watch automatically.</li>
+<li><code>receptor</code>: <strong>The Control Port.</strong> The logic that processes your
+manual data injections. Defaults to passing data through as-is.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> A safety check that validates
+both manual pulses and requests to link/unlink new cells.</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Configures how data is initially
+distributed to other parts of the app.</li>
+<li><code>forceLock</code>: <strong>Atomic Isolation.</strong> If <code>true</code>, ensures that manual
+inputs are processed one at a time in a safe, isolated block.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>An <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> serving as a governable, imperative gateway into the system.</p>
+<p>An <a href="../../cell_tissue/OpenCell-class.html">OpenCell</a> instance that serves as a governable, manual gateway.</p>
+<h3 id="example">Example:</h3>
+<p>See <code>example/open_cell_demo.dart</code> for a complete walkthrough of manual signal injection and dynamic topology control.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Cell/ingress.html">Cell.ingress</a>: For standard, single-path entry points.</li>
+<li><a href="../../cell_tissue/Cell/hub.html">Cell.hub</a>: For routing manual signals to multiple specific handlers.
+{@category Core 16 Operators}</li>
+</ul>
 </section>
 
 
@@ -119,18 +161,22 @@ Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentati
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static OpenCell open({
-  Cell? bind,
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  Cell? source,
   Receptor receptor = Receptor.passThrough,
   TestCell testRule = TestCell.allowAll,
   Synapses synapses = Synapses.enabled,
   bool forceLock = false,
 }) {
-  return OpenCell(
-      bind: bind,
-      receptor: receptor,
-      testRule: testRule,
-      synapses: synapses,
-      forceLock: forceLock,
+  return OpenCell.governed(
+    context: context,
+    ephemeralPolicy: ephemeralPolicy,
+    bind: source,
+    receptor: receptor,
+    testRule: testRule,
+    synapses: synapses,
+    forceLock: forceLock,
   );
 }</code></pre>
 </section>
@@ -160,7 +206,7 @@ Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentati
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

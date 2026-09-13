@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
     <li class="self-crumb">TestRule.new const constructor</li>
   </ol>
@@ -144,8 +144,13 @@ the <code>rule</code> during execution.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TestRule(FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
   TestRule&lt;C&gt;? parent, dynamic user
-}) : _record = parent != null ? user != null
-    ? (rule: rule, parent: parent, user: user) : (rule: rule, parent: parent) : (rule: rule);</code></pre>
+}) : _record = parent != null
+    ? user != null
+        ? (rule: rule, parent: parent, user: user)
+        : (rule: rule, parent: parent)
+    : user != null
+        ? (rule: rule, user: user)
+        : (rule: rule);</code></pre>
 </section>
 
 
@@ -173,7 +178,7 @@ the <code>rule</code> during execution.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

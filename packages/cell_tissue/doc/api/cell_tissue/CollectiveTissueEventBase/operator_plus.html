@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectiveTissueEventBase-class.html">CollectiveTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">operator + method</li>
   </ol>
@@ -59,8 +59,8 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="../../cell_tissue/CollectiveTissueEvent-class.html">CollectiveTissueEvent</a></span>
-<span class="name ">operator +</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></span> <span class="parameter-name">other</span></span></li>
+<span class="returntype"><a href="../../cell_tissue/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a></span>
+<span class="name ">operator +</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -68,8 +68,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>Combines this collective with another <a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a> to create a new,
+  <p>Combines this collective with another <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a> to create a new,
 flattened collective.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to concatenate two batches into one flat batch.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>If <code>other</code> is a <code>CollectivePulse</code>, its events are extracted and
@@ -83,6 +85,12 @@ operands.</li>
 final batch2 = CollectiveTissueEvent.from([c, d]);
 final combined = batch1 + batch2; // contains a, b, c, d
 </code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>other</code>: The event or collective to combine with this one.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_tissue/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> containing all events from both sources.</p>
 </section>
 
 
@@ -90,12 +98,12 @@ final combined = batch1 + batch2; // contains a, b, c, d
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-CollectiveTissueEvent operator +(covariant TissueEvent other) {
-  return other is TissueEvent&lt;E&gt;
-      ? other is CollectivePulse&lt;E&gt;
-      ? _CollectiveTissueEvent&lt;E&gt;([this as TissueEvent&lt;E&gt;, ...(other.payload as Iterable&lt;TissueEvent&lt;E&gt;&gt;)])
-      : _CollectiveTissueEvent&lt;E&gt;([this as TissueEvent&lt;E&gt;, other])
-      : other is CollectivePulse ? _CollectiveTissueEvent([this, ...other.payload]) : _CollectiveTissueEvent([this, other]);
+CollectiveTissuePulse operator +(covariant TissuePulse other) {
+  final own = [for (final event in payload) event];
+  if (other is CollectivePulse) {
+    return _CollectiveTissueEvent&lt;dynamic&gt;([...own, ...other.payload]);
+  }
+  return _CollectiveTissueEvent&lt;dynamic&gt;([...own, other]);
 }</code></pre>
 </section>
 
@@ -124,7 +132,7 @@ CollectiveTissueEvent operator +(covariant TissueEvent other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

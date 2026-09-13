@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectiveTissueEventBase-class.html">CollectiveTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">CollectiveTissueEventBase.new constructor</li>
   </ol>
@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CollectiveTissueEventBase&lt;<wbr><span class="type-parameter">E</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-pulses"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">pulses</span>, </span></li>
+      <span class="name ">CollectiveTissueEventBase&lt;<wbr><span class="type-parameter">E</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-pulses"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">pulses</span>, </span></li>
 <li><span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
 <li><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
 <li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
@@ -65,7 +65,7 @@
 <li><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span></li>
 <li><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span></li>
 <li><span class="parameter" id="-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">pulse</span>, </span></li>
-<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
 <li><span class="parameter" id="-param-scrutinize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">scrutinize</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
 <li><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
@@ -76,8 +76,8 @@
   <p>Creates a collective from the given <code>pulses</code> (which are actually
 <code>TissueEvent&lt;E&gt;</code> instances).</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is used internally by <a href="../../cell_tissue/TissueEvent/batch.html">TissueEvent.batch</a> and the <code>+</code> operator.
-You don’t call it directly.</p>
+<p>This is used internally by <a href="../../cell_tissue/TissuePulse/batch.html">TissuePulse.batch</a> and the <code>+</code> operator.
+You don't call it directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>All metadata (type, context, priority, callbacks) is taken from the
 <strong>first</strong> event in the iterable. The <code>_branches</code> counter is initialised
@@ -86,7 +86,7 @@ to the number of events.</p>
 <ul>
 <li><code>pulses</code>: The events to bundle.</li>
 <li><code>policy</code>, <code>type</code>, <code>context</code>, <code>timestamp</code>, <code>source</code>, <code>step</code>:
-Optional overrides for the collective’s metadata.</li>
+Optional overrides for the collective's metadata.</li>
 <li><code>onComplete</code>, <code>onError</code>, <code>onProgress</code>: Optional callbacks for the
 entire batch.</li>
 <li><code>pulse</code>, <code>parent</code>, <code>scrutinize</code>, <code>user</code>, <code>priority</code>: Low‑level
@@ -99,7 +99,7 @@ pulse‑related fields (rarely used directly).</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CollectiveTissueEventBase({
-  Iterable&lt;TissueEvent&lt;E&gt;&gt;? pulses,
+  Iterable&lt;TissuePulse&lt;E&gt;&gt;? pulses,
   super.policy,
   super.type,
   super.context,
@@ -148,7 +148,7 @@ pulse‑related fields (rarely used directly).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

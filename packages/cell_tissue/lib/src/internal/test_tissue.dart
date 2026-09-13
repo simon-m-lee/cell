@@ -54,9 +54,9 @@ typedef TestTissueBase<E, C extends Tissue<E>> = TestTissue<E,C>;
 /// See also:
 /// - [TestTissue.allowAll] – the canonical constant.
 /// - [TestTissue.readOnly] – the opposite, blocking all mutations.
-class _TestTissueNever implements TestTissue<Never, Never>, TestPasses {
+class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
 
-  const _TestTissueNever();
+  const _TestTissueNever() : super.fromRecord(());
 
   @override
   TestTissue<Never, Never> operator +(covariant TestRule<Never> other) {
@@ -64,12 +64,6 @@ class _TestTissueNever implements TestTissue<Never, Never>, TestPasses {
         strategy: (object, {Never? host, dynamic arguments, dynamic user}) => other.call(object, host: host, arguments: arguments)
     );
   }
-
-  @override
-  get _record => ();
-
-  @override
-  Iterable<TestRule<Never>> get _rules => const Iterable.empty();
 
   @override
   FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
@@ -143,9 +137,9 @@ class _TestTissueNever implements TestTissue<Never, Never>, TestPasses {
 /// See also:
 /// - [TestTissue.readOnly] – the canonical constant.
 /// - [TestTissue.allowAll] – the permissive counterpart.
-class _TestTissueReadOnly implements TestTissue<Never,Never> {
+class _TestTissueReadOnly extends TestTissue<Never,Never> {
 
-  const _TestTissueReadOnly();
+  const _TestTissueReadOnly() : super.fromRecord(());
 
   @override
   TestTissue<Never,Never> operator +(covariant TestRule<Cell> other) {
@@ -157,12 +151,6 @@ class _TestTissueReadOnly implements TestTissue<Never,Never> {
   }
 
   @override
-  get _record => ();
-
-  @override
-  Iterable<TestRule<Never>> get _rules => const Iterable.empty();
-
-  @override
   FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
     return !host.modifiable.contains(action);
   }
@@ -172,21 +160,6 @@ class _TestTissueReadOnly implements TestTissue<Never,Never> {
     if (object is Function && host != null) {
       return action(object, host: host);
     }
-    return true;
-  }
-
-  @override
-  FutureOr<bool> link(covariant Cell link, {required Never host}) {
-    return true;
-  }
-
-  @override
-  FutureOr<bool> pulse(covariant Pulse<dynamic> pulse, {required Cell host}) {
-    return true;
-  }
-
-  @override
-  FutureOr<bool> element(covariant Never? element, {required Never host, Function? action}) {
     return true;
   }
 

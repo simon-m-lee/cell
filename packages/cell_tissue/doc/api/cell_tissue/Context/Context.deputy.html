@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Context-class.html">Context</a></li>
     <li class="self-crumb">Context.deputy factory constructor</li>
   </ol>
@@ -59,7 +59,6 @@
 <li><span class="parameter" id="deputy-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span></li>
 <li><span class="parameter" id="deputy-param-isolation"><span class="type-annotation"><a href="../../cell_tissue/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span>, </span></li>
 <li><span class="parameter" id="deputy-param-clearance"><span class="type-annotation"><a href="../../cell_tissue/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span>, </span></li>
-<li><span class="parameter" id="deputy-param-lease"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">lease</span>, </span></li>
 <li><span class="parameter" id="deputy-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span></li>
 <li><span class="parameter" id="deputy-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span></li>
 <li><span class="parameter" id="deputy-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span></li>
@@ -85,6 +84,28 @@ with mandate‑specific fields. The resulting context can be passed to
 <p>The deputy's authority is always <strong>downward‑only</strong> – you cannot grant
 more privileges than the base context provides. This enforces least
 privilege.</p>
+<h3 id="example-use-of-ontologytype-ontologyidentity-mandaterole-and-mandateauthority-together">Example (Use of <a href="../../cell_tissue/Ontology.html">Ontology.type</a>, <a href="../../cell_tissue/Ontology.html">Ontology.identity</a>, <a href="../../cell_tissue/Mandate.html">Mandate.role</a> and <a href="../../cell_tissue/Mandate.html">Mandate.authority</a> together)</h3>
+<pre class="language-dart"><code class="language-dart">// The Principal Identity
+final room302 = Context(type: 'RoomController', identity: 'Room_302_Master');
+
+// Housekeeping Deputy Context
+final housekeepingMandate = DeputyContext(
+  baseContext: room302,
+  role: 'Housekeeping',          // The "Who" (Semantic)
+  authority: 'LIGHTS_AND_TEMP',  // The "Verb" (Functional)
+  justification: 'Daily cleaning cycle',
+  clearance: Clearance.standard,
+);
+
+// Security Deputy Context
+final securityMandate = DeputyContext(
+  baseContext: room302,
+  role: 'Security',              // The "Who"
+  authority: 'LOCK_OVERRIDE',    // The "Verb"
+  justification: 'Fire alarm triggered',
+  clearance: Clearance.administrative, // Higher clearance for dangerous verbs
+);
+</code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>baseContext</code>: The existing environment from which this deputy
@@ -115,7 +136,6 @@ mandate.</li>
   String? role,
   Isolation? isolation,
   Clearance clearance,
-  Duration? lease,
   String? justification,
   Map&lt;String, dynamic&gt;? constraints,
   Map&lt;String, dynamic&gt;? others,
@@ -147,7 +167,7 @@ mandate.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

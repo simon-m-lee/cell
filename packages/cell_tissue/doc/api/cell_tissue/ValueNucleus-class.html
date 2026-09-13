@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ValueNucleus</div>
@@ -57,10 +57,10 @@
   <p>A specialized <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> blueprint designed to manage and propagate a
 discrete, persistent state value of type <code>V</code>.</p>
 <p>This is the internal blueprint that powers <a href="../cell_tissue/ValueCell-class.html">ValueCell</a>. You almost never
-construct it directly – <a href="../cell_tissue/Cell/value.html">Cell.value</a> does it for you.</p>
+construct it directly – <a href="../cell_tissue/Cell/state.html">Cell.state</a> does it for you.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Only if you're building custom cell types or advanced tooling. For
-application code, use <a href="../cell_tissue/Cell/value.html">Cell.value</a>.</p>
+application code, use <a href="../cell_tissue/Cell/state.html">Cell.state</a>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It holds a <a href="../cell_tissue/Box-class.html">Box&lt;V&gt;</a> (the physical storage) and integrates the
 transformation logic (<code>transform</code>) with the commitment pipeline
@@ -74,7 +74,7 @@ own lock to prevent race conditions.</li>
 <li>When you <code>evolve</code> a <code>ValueNucleus</code>, the new nucleus shares the same
 <code>Box</code> as its principal – no state duplication.</li>
 </ul>
-<p>See also: <a href="../cell_tissue/ValueCell-class.html">ValueCell</a>, <a href="../cell_tissue/Box-class.html">Box</a>, <a href="../cell_tissue/Cell/value.html">Cell.value</a>.</p>
+<p>See also: <a href="../cell_tissue/ValueCell-class.html">ValueCell</a>, <a href="../cell_tissue/Box-class.html">Box</a>, <a href="../cell_tissue/Cell/state.html">Cell.state</a>.</p>
 </section>
 
 
@@ -113,7 +113,7 @@ own lock to prevent race conditions.</li>
 cell.
         </dd>
         <dt id="ValueNucleus.evolve" class="callable">
-          <span class="name"><a href="../cell_tissue/ValueNucleus/ValueNucleus.evolve.html">ValueNucleus.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a></span> <span class="parameter-name">principal</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ValueNucleus/ValueNucleus.evolve.html">ValueNucleus.evolve</a></span><span class="signature">({<span class="parameter" id="evolve-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="evolve-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a>?</span> <span class="parameter-name">override</span>, </span><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a></span> <span class="parameter-name">principal</span></span>})</span>
         </dt>
         <dd>
           Synthesizes a derivative <code>ValueNucleus</code> that shares the same physical
@@ -121,11 +121,11 @@ state (<a href="../cell_tissue/Box-class.html">Box</a>) as its <code>principal</
 context, testRule, etc.).
         </dd>
         <dt id="ValueNucleus.from" class="callable">
-          <span class="name"><a href="../cell_tissue/ValueNucleus/ValueNucleus.from.html">ValueNucleus.from</a></span><span class="signature">({<span class="parameter" id="from-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="from-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="from-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="from-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="from-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="from-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="from-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="from-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ValueNucleus/ValueNucleus.from.html">ValueNucleus.from</a></span><span class="signature">({<span class="parameter" id="from-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="from-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="from-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="from-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="from-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="from-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span><span class="parameter" id="from-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="from-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span></span>})</span>
         </dt>
         <dd>
           Initializes a new primary <code>ValueNucleus</code> using a pre‑configured
-<a href="../cell_tissue/PulseRule-class.html">PulseRule</a> – the preferred way to reuse transformation logic.
+<a href="../cell_tissue/Instruction-class.html">Instruction</a> – the preferred way to reuse transformation logic.
         </dd>
     </dl>
   </section>
@@ -162,7 +162,7 @@ for this node's reactive logic.
 
         <dt id="clone" class="property">
   <span class="name"><a href="../cell_tissue/ValueNucleus/clone.html">clone</a></span>
-  <span class="signature">&#8594; <a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
   
 
 </dt>
@@ -180,8 +180,8 @@ with an independent synchronization domain.
 
 </dt>
 <dd class="inherited">
-  The operational tier and execution environment assigned to the <a href="../cell_tissue/Cell-class.html">Cell</a>
-associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -230,7 +230,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd class="inherited">
-  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -242,8 +243,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd class="inherited">
-  Indicates whether the associated <a href="../cell_tissue/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -311,6 +312,19 @@ associated <code>Cell</code>.
 
 </dd>
 
+        <dt id="state" class="property">
+  <span class="name"><a href="../cell_tissue/ValueNucleus/state.html">state</a></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Resolves the physical <a href="../cell_tissue/Box-class.html">Box</a> storage container that holds the current
+state.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="synapses" class="property inherited">
   <span class="name"><a href="../cell_tissue/NucleusBase/synapses.html">synapses</a></span>
   <span class="signature">&#8594; <a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span>
@@ -331,8 +345,8 @@ observers of this <code>Cell</code>.
 
 </dt>
 <dd class="inherited">
-  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <code>Cell</code>.
+  The active <a href="../cell_tissue/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -359,19 +373,6 @@ mutations and operational permissions for the associated <code>Cell</code>.
   Retrieves the optional <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing developer-defined metadata or
 custom property extensions for the associated <a href="../cell_tissue/Cell-class.html">Cell</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="value" class="property">
-  <span class="name"><a href="../cell_tissue/ValueNucleus/value.html">value</a></span>
-  <span class="signature">&#8594; <a href="../cell_tissue/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Resolves the physical <a href="../cell_tissue/Box-class.html">Box</a> storage container that holds the current
-state.
-  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -473,7 +474,7 @@ state.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

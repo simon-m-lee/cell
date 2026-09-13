@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseBase-class.html">PulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">withStep method</li>
   </ol>
@@ -68,29 +68,55 @@
     </section>
     
 <section class="desc markdown">
-  <p>Adds a step to the pulse's causal trace and returns a new pulse.</p>
+  <p>Appends a diagnostic stage to the pulse's causal trace without branching
+the causal chain.</p>
+<p>Use this method to document the logical path a signal takes as it flows
+through the cell graph. Unlike <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a>, this method does not create a
+parent-child relationship; it simply records milestones within the current
+signal's lineage.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this to mark significant processing stages – e.g., 'validation',
-'transformation', 'persistence'. It builds a breadcrumb trail.</p>
+<ul>
+<li><strong>Diagnostic Auditing</strong>: Use this to mark significant milestones in a
+pulse's journey (e.g., <code>'sanitized'</code>, <code>'validated'</code>, <code>'serialized'</code>).</li>
+<li><strong>Breadcrumb Generation</strong>: Building a historical trail that describes
+how a value reached its current state without creating a new evolved signal.</li>
+<li><strong>Performance Tracing</strong>: Marking timestamps or stages to analyze
+propagation latency across different cells.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>This is a convenience wrapper around <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a> that keeps the same
-context but appends a step to the trace. It's the simplest way to
-document a signal's journey.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final p = Pulse(42);
-final processed = p
-  .withStep('validation')
-  .withStep('transformation')
-  .withStep('persistence');
-
-print(processed.trace); // ['validation', 'transformation', 'persistence']
-</code></pre>
+<p>This method updates the internal <a href="../../cell_tissue/PulseBase/trace.html">trace</a> log. Unlike <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a>, which
+creates a new <a href="../../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> instance to represent a transition to a new
+stage or context, <code>withStep</code> simply lengthens the <strong>lineage</strong> of the
+current pulse. It preserves the same identity, context, and payload.</p>
+<h3 id="nonobvious-it-is-not-an-evolution">Non‑obvious: It is not an Evolution</h3>
+<p>Calling <code>withStep</code> does not trigger a causal branch. Because it does not
+create an <code>EvolvedPulse</code>, the pulse's structure remains flat. This means:</p>
+<ul>
+<li><code>isComposite</code> remains <code>false</code>.</li>
+<li><code>length</code> remains <code>1</code>.</li>
+<li>Iterating over the pulse yields only the pulse itself.</li>
+</ul>
+<h3 id="nonobvious-traces-are-forwardlooking">Non‑obvious: Traces are forward‑looking</h3>
+<p>Causal tracking is inherently backwards-looking. Because <code>withStep</code>
+lengthens the lineage of the specific pulse instance without creating a
+new causal node, the <a href="../../cell_tissue/PulseBase/root.html">root</a> pulse remains oblivious to these steps.
+Calling <code>root.trace</code> will <strong>not</strong> show steps added via <code>withStep</code> on its
+descendants. To see the full story, you must inspect the <a href="../../cell_tissue/PulseBase/trace.html">trace</a> of the
+final pulse in the chain.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>step</code>: The step description to append to the trace.</li>
+<li><code>step</code>: A descriptive string identifying the processing stage completed.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A new <a href="../../cell_tissue/Pulse-class.html">Pulse</a> with the step added to its trace.</p>
+<p>The <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance with the updated causal trace.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final root = Pulse&lt;int&gt;(10);
+final processed = root.withStep('sanitized').withStep('validated');
+
+print(processed.trace);  // ['sanitized', 'validated']
+print(root.trace);       // [] (root doesn't know about future steps)
+print(processed.length); // 1 (lineage lengthened, not evolved)
+</code></pre>
 </section>
 
 
@@ -126,7 +152,7 @@ Pulse&lt;P&gt; withStep(String step) =&gt; _Pulse&lt;P&gt;(step: step, parent: t
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

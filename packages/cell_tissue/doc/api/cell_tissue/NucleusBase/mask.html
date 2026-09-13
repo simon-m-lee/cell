@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">mask static method</li>
   </ol>
@@ -74,64 +74,74 @@
   <p>Generates a memory-optimized, multi-tiered <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> that serves as the
 fundamental state and behavior definition for a <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>.</p>
 <p>This static helper is the core engine of the framework's <strong>Structural
-Flyweight Pattern</strong>. It is responsible for translating high-level
-configuration parameters into a strictly typed, nested Dart <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>.
-By using records instead of class instances with multiple nullable
-fields, the framework achieves near-zero overhead for property storage.</p>
-<h3 id="1-architectural-role-the-local-segment">1. Architectural Role: The Local Segment</h3>
-<p>The <code>local</code> method defines the <strong>Memory Layout</strong> of the nucleus. It
-segregates properties into logical tiers to optimize both memory
-consumption and lookup speed:</p>
+Flyweight Pattern</strong>. It translates high-level configuration parameters
+into a strictly typed, nested Dart <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> to minimize memory pressure.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <code>mask</code> when you need to synthesize the physical storage for a nucleus,
+typically during:</p>
 <ul>
-<li><strong>Inheritable Tier</strong>: Contains logic-defining properties such as
-<code>context</code>, <code>receptor</code>, and <code>testRule</code>. These are the properties
-that can be shadowed or inherited by child nuclei.</li>
-<li><strong>User Tier</strong>: A dedicated slot for developer-provided metadata or
-specialized state containers like <a href="../../cell_tissue/Box-class.html">Box</a> in a <code>ValueNucleus</code>.</li>
-<li><strong>Instance Tier</strong>: Contains properties unique to a specific
-physical cell instance, such as its upstream <code>bind</code> or its
-downstream observer registry (<code>synapses</code>).</li>
+<li><strong>Nucleus Initialization</strong>: Defining the blueprint for a new reactive node.</li>
+<li><strong>Structural Evolution</strong>: Creating specialized extensions or deputies
+with localized overrides.</li>
+<li><strong>Framework Bootstrapping</strong>: Defining static, compile-time nuclei
+with zero runtime allocation overhead.</li>
 </ul>
-<h3 id="2-implementation-logic--bitmasking">2. Implementation Logic &amp; Bitmasking</h3>
-<p>To minimize the heap footprint, this method employs a dual-stage
-bitmasking strategy:</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Dual-Stage Bitmasking</strong>: Translates the provided parameters into
+numeric bitsets (a 4-bit <code>inheritableMask</code> and a 6-bit composition <code>mask</code>).</li>
+<li><strong>Nullable Field Omission</strong>: Instead of a class with multiple nullable
+fields, it uses Dart's <code>switch</code> expressions to allocate a record
+containing <em>only</em> the specific fields that are non-default. This
+effectively eliminates the "Nullable Field Tax."</li>
+<li><strong>Tiered Segregation</strong>:
 <ul>
-<li><strong>Inheritable Mask</strong>: Evaluates which core logic properties deviate
-from framework defaults (e.g., <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>). Only non-default
-properties are packed into the inner record.</li>
-<li><strong>Composition Mask (6-Bit)</strong>: Determines the final "Shape" of the
-top-level record. If a feature like <code>synapses</code> or <code>user</code> data is
-not used, the record field is entirely omitted from the allocation
-rather than being stored as <code>null</code>. This eliminates the
-"Nullable Field Tax."</li>
+<li><strong>Inheritable Segment</strong>: Logic-defining properties (<code>context</code>,
+<code>receptor</code>, <code>testRule</code>, <code>ephemeralPolicy</code>) that can be inherited.</li>
+<li><strong>Local Segment</strong>: Instance-specific anchors (<code>bind</code>, <code>synapses</code>,
+<a href="../../cell_tissue/NucleusBase/lock.html">lock</a>) and metadata (<code>user</code>, <code>others</code>).</li>
 </ul>
-<h3 id="3-key-internal-behaviors">3. Key Internal Behaviors</h3>
+</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Receptor Lifecycle</strong>: It inspects the provided <code>receptor</code>. If the
-receptor is already "activated" (bound to another cell), it
-automatically triggers a <code>copy</code> to ensure the new nucleus starts
-with a clean, independent logic state.</li>
-<li><strong>Synapses Auto-Allocation</strong>: If <code>synapses</code> is set to the
-<code>Synapses.enabled</code> template, a new <a href="../../cell_tissue/Synapses-class.html">Synapses</a> instance is
-instantiated. This ensures every nucleus has its own unique
-registry for managing its own dependents.</li>
-<li><strong>Lock Management</strong>: By default, the method ensures a unique
-atomic synchronization lock is present unless <code>forceLock</code> is <code>true</code>.</li>
+<li><strong>Receptor Auto-Cloning</strong>: If the provided <code>receptor</code> is already
+"activated" (bound to another cell), <code>mask</code> automatically clones it
+to ensure independent logic states for the new node.</li>
+<li><strong>Synapses Provisioning</strong>: Passing <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> triggers the
+allocation of a new registry, ensuring every node has a unique
+egress network for its dependents.</li>
+<li><strong>Lock Injection</strong>: By default, it allocates a new reentrant <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
+to serve as the node's atomic boundary, unless <code>forceLock</code> is <code>true</code>.</li>
+<li><strong>Timestamping</strong>: Every record is tagged with a <code>timestamp</code> to
+facilitate causal ordering and cache invalidation.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: The upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> this nucleus is bound to in the DAG.</li>
-<li><code>context</code>: The execution domain defining priority and scope.</li>
-<li><code>receptor</code>: The <a href="../../cell_tissue/Receptor-class.html">Receptor</a> logic that processes incoming signals.</li>
-<li><code>testRule</code>: The validation predicate for state transitions.</li>
-<li><code>synapses</code>: The observer registry for pulse propagation.</li>
-<li><code>forceLock</code>: If <code>true</code>, avoids allocating a new synchronization lock.</li>
-<li><code>user</code>: A <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing custom metadata or state storage.</li>
-<li><code>others</code>: An optional field for ad-hoc extensions or overflow data.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Guard.</strong> Defines when the nucleus
+should be invalidated.</li>
+<li><code>bind</code>: <strong>Upstream Anchor.</strong> The cell this node monitors in the DAG.</li>
+<li><code>context</code>: <strong>Governance Tier.</strong> The execution authority (defaults to
+<a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
+<li><code>receptor</code>: <strong>Transformation Logic.</strong> The pipeline processing
+incoming pulses.</li>
+<li><code>testRule</code>: <strong>Integrity Gate.</strong> Validation predicate for state changes.</li>
+<li><code>synapses</code>: <strong>Egress Registry.</strong> The observer network for signal
+propagation.</li>
+<li><code>forceLock</code>: <strong>Atomic Control.</strong> If <code>true</code>, suppresses the allocation
+of a new synchronization lock.</li>
+<li><code>user</code>: <strong>Extension Data.</strong> Compact storage for metadata or specialized
+state.</li>
+<li><code>others</code>: <strong>Overflow Slot.</strong> Reserved for framework extensions and
+ad-hoc records.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A specialized Dart <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> representing the most compact possible
-physical storage for the nucleus's configuration.</p>
+<p>A compact <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> representing the physical storage for the nucleus.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a>: The primary implementation utilizing this masking logic.</li>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The synchronization primitive injected by this method.</li>
+</ul>
 </section>
 
 
@@ -169,7 +179,7 @@ physical storage for the nucleus's configuration.</p>
   final inheritableMask = (
       (context != null &amp;&amp; context != Context.system         ? 1 : 0) |
       (receptor != null &amp;&amp; receptor != Receptor.passThrough ? 2 : 0) |
-      (testRule != null &amp;&amp; testRule != TestCell.allowAll    ? 4 : 0) |
+      (testRule != null &amp;&amp; !identical(testRule, TestCell.allowAll) ? 4 : 0) |
       (ephemeralPolicy != null                              ? 8 : 0)
   );
 
@@ -302,7 +312,7 @@ physical storage for the nucleus's configuration.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

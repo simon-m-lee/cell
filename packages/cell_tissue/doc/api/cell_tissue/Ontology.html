@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Ontology<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
   </ol>
   <div class="self-name">Ontology</div>
@@ -65,7 +65,7 @@ of a <a href="../cell_tissue/Cell-class.html">Cell</a>.</p>
 <a href="../cell_tissue/Provenance.html">Provenance</a> tracks the dynamic history of a signal (the "How"), <a href="../cell_tissue/Ontology.html">Ontology</a>
 provides the machine-readable schema that defines what a node <em>is</em> (the "What"),
 its role in the topology, and the rules governing its existence.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You don't configure <a href="../cell_tissue/Ontology.html">Ontology</a> directly. Instead, you use context
 factories like <code>Context.module()</code>, <code>Context.secureEnclave()</code>, etc.,
 which automatically populate the relevant ontology dimensions.
@@ -304,6 +304,89 @@ if (context.version?.startsWith('2') ?? false) {
 
     <div>
       <span class="signature"><code>const Ontology&lt;String&gt;(false)</code></span>
+    </div>
+</dd>
+
+            <dt id="type" class="constant">
+    <span class="name ">type</span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The functional <strong>Category or Archetype</strong> of the signal or node, used to
+label the "Kind" of operation being performed.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (e.g., 'command', 'event', 'telemetry')
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Set this to categorize a cell. This allows the system to perform high-level
+routing or filtering without inspecting the raw data.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this to align <strong>Signals</strong> with <strong>Boundaries</strong>. For
+example, a <code>Pulse.type('alert')</code> can be screened by an <strong>Integrity Gate</strong>
+that specifically looks for the 'alert' type in the context.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>While <a href="../cell_tissue/Ontology.html">taxonomy</a> is a static architectural identifier (what the cell
+<em>is</em>), <a href="../cell_tissue/Ontology.html">type</a> is a fluid operational identifier (what the current
+interaction <em>is about</em>). It is designed to match the <code>type</code> parameter
+in the <a href="../cell_tissue/Pulse-class.html">Pulse</a> factory.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Type: 'security_event'
+if (context.type == 'security_event') {
+  triggerHighPriorityAlert(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Pulse/type.html">Pulse.type</a>: The factory for creating typed signals.</li>
+<li><a href="../cell_tissue/Context/type.html">Context.type</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
+    </div>
+</dd>
+
+            <dt id="identity" class="constant">
+    <span class="name ">identity</span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <p>The <strong>Unique Instance Name</strong> or specific label assigned to a <a href="../cell_tissue/Cell-class.html">Cell</a> or
+<a href="../cell_tissue/Pulse-class.html">Pulse</a>, distinguishing it from others of the same <a href="../cell_tissue/Ontology.html">type</a>.</p>
+<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> (e.g., 'Primary_Auth_Node', 'User_123_Profile')
+<strong>Mutability</strong>: <strong>Evolvable</strong> (Operational Variable)</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to name specific instances of components. While <a href="../cell_tissue/Ontology.html">type</a> defines
+<em>what</em> a thing is, <a href="../cell_tissue/Ontology.html">identity</a> defines <em>which</em> specific thing it is.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The framework uses this for <strong>Precise Targeting</strong> and <strong>Forensic Audit</strong>.
+When a <a href="../cell_tissue/Pulse-class.html">Pulse</a> moves through the fabric, its <a href="../cell_tissue/Ontology.html">identity</a> allows the
+<strong>Switching Fabric</strong> to track exactly which node initiated a change.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>This dimension is <strong>Evolvable</strong> specifically to support the
+<strong>Deputy Pattern</strong>. When you create a proxy of a cell, its <a href="../cell_tissue/Ontology.html">identity</a>
+can be refined (e.g., from 'Auth_Node' to 'Auth_Node_ReadOnly_Proxy')
+to maintain clear <strong>Identity Transparency</strong> across the system.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Identity: 'Payment_Gateway_Alpha'
+if (context.identity == 'Payment_Gateway_Alpha') {
+  routeToHighIntegrityProcessor(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Ontology.html">Ontology.type</a>: For categorical labeling.</li>
+<li><a href="../cell_tissue/Ontology.html">Ontology.partOf</a>: For structural membership.</li>
+<li><a href="../cell_tissue/Context/identity.html">Context.identity</a>: The runtime getter.</li>
+</ul>
+  
+
+    <div>
+      <span class="signature"><code>const Ontology&lt;String&gt;(true)</code></span>
     </div>
 </dd>
 
@@ -749,7 +832,7 @@ every defined dimension in the <a href="../cell_tissue/Ontology.html">Ontology</
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">IngressHandle&lt;<wbr><span class="type-parameter">I</span>&gt; typedef</li>
   </ol>
   <div class="self-name">IngressHandle</div>
@@ -54,7 +54,7 @@
     <section class="multi-line-signature">
         
   
-<span class="name ">IngressHandle</span>&lt;<wbr><span class="type-parameter">I</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)</span>
+<span class="name ">IngressHandle</span>&lt;<wbr><span class="type-parameter">I</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)</span>
 
 
     </section>
@@ -75,13 +75,13 @@ the reactive graph.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The handle wraps a cell and provides three ways to send data:</p>
 <ul>
-<li><code>trigger</code>: synchronous, immediate update.</li>
-<li><code>triggerAsync</code>: asynchronous, lock-protected update.</li>
+<li><code>emit</code>: synchronous, immediate update.</li>
+<li><code>emitAsync</code>: asynchronous, lock-protected update.</li>
 <li><code>ingest</code>: full <a href="../cell_tissue/Pulse-class.html">Pulse</a> injection with provenance.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>If the cell has a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> (via <code>forceLock: true</code>), <code>triggerAsync</code> queues
+<li>If the cell has a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> (via <code>forceLock: true</code>), <code>emitAsync</code> queues
 the update to prevent race conditions.</li>
 <li>The <code>ingest</code> method with <code>serializedCompletion: true</code> waits for the
 entire graph to stabilise before the Future completes.</li>
@@ -100,37 +100,27 @@ entire graph to stabilise before the Future completes.</li>
   &#47;&#47;&#47; The source node (&quot;cell&quot;) that anchors this entry point to the graph.
   Cell cell,
 
-  &#47;&#47;&#47; Synchronously injects a stimulus into the reactive graph at **Native Speed**.
+  &#47;&#47;&#47; Emits a raw stimulus into the reactive graph at **Native Speed**.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; Returns `true` if the transformation and validation were successful.
-  bool Function(I input) trigger,
+  &#47;&#47;&#47; This is the most common way to bridge imperative code (like UI events)
+  &#47;&#47;&#47; into the reactive fabric. The handle automatically wraps the [input]
+  &#47;&#47;&#47; in a [Pulse] and initiates the **Ingress Phase**.
+  &#47;&#47;&#47;
+  &#47;&#47;&#47; Returns `true` if the signal successfully passed the **Integrity Gate**.
+  bool Function(I input) emit,
 
-  &#47;&#47;&#47; Asynchronously injects a stimulus into the reactive graph, ensuring
-  &#47;&#47;&#47; **Serialized Transformation** through the node&#39;s **Conactive Lock**.
+  &#47;&#47;&#47; Asynchronously emits a stimulus, ensuring **Serialized Transformation**
+  &#47;&#47;&#47; through the node&#39;s **Conactive Lock**.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; ### Operational Logic:
-  &#47;&#47;&#47; *   **Lock Integration**: If the [cell] is governed by an atomic [lock],
-  &#47;&#47;&#47;     this method wraps the execution in a `synchronized` block.
-  &#47;&#47;&#47; *   **Fallback Path**: If no lock is available, it returns a [Future]
-  &#47;&#47;&#47;     that executes the transformation in the next available microtask.
-  &#47;&#47;&#47;
-  &#47;&#47;&#47; Returns a [Future&lt;bool&gt;] resolving to `true` if the signal passed the
-  &#47;&#47;&#47; **Integrity Gate** and the resulting **Reactive Wave** successfully propagated.
-  Future&lt;bool&gt; Function(I input) triggerAsync,
+  &#47;&#47;&#47; Use this when you need to ensure that the update respects the system&#39;s
+  &#47;&#47;&#47; atomic boundaries, preventing race conditions in high-concurrency scenes.
+  Future&lt;bool&gt; Function(I input) emitAsync,
 
   &#47;&#47;&#47; The **Primary Ingress Handle** for direct **Signal Orchestration**.
   &#47;&#47;&#47;
-  &#47;&#47;&#47; This method allows for the injection of a fully-formed [Pulse],
-  &#47;&#47;&#47; bypassing the standard transformation mapping for complex scenarios.
-  &#47;&#47;&#47;
-  &#47;&#47;&#47; ### The Consequence of `serializedCompletion`:
-  &#47;&#47;&#47; *   **Wave Atomicity (`true`)**: The returned [Future] acts as a
-  &#47;&#47;&#47;     **Stabilization Barrier**. It only resolves once the injected pulse
-  &#47;&#47;&#47;     has fully propagated through the graph and all downstream
-  &#47;&#47;&#47;     side-effects have reached a stable state.
-  &#47;&#47;&#47; *   **Fire-and-Forget (`false`)**: The [Future] resolves as soon as the
-  &#47;&#47;&#47;     pulse is accepted by the ingress buffer, allowing for high-throughput
-  &#47;&#47;&#47;     background processing.
+  &#47;&#47;&#47; Unlike [emit], which takes raw data, [ingest] accepts a fully-formed
+  &#47;&#47;&#47; [Pulse]. Use this when you need to provide specific **Provenance**
+  &#47;&#47;&#47; (like a custom `justification` or `traceId`).
   Future&lt;void&gt; Function(Pulse&lt;I&gt; pulse, {bool serializedCompletion}) ingest
 });</code></pre>
 </section>
@@ -158,7 +148,7 @@ entire graph to stabilise before the Future completes.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

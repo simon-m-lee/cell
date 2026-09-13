@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">NucleusBase.new constructor</li>
   </ol>
@@ -100,7 +100,7 @@ omitted from the record entirely, eliminating the "Nullable Field Tax."</li>
 atomic <code>Lock</code>. This lock is the primary synchronization mechanism
 guaranteeing that <a href="../../cell_tissue/Pulse-class.html">Pulse</a> processing is atomic and thread-safe.</li>
 <li><strong>Logic Purity</strong>: If the provided <code>receptor</code> is already "activated"
-(bound to a live cell), the constructor automatically triggers
+(bound to a live cell), the constructor automatically emits
 <code>receptor.copy</code>. This prevents logic leakage and ensures each blueprint
 remains a clean, unactivated template.</li>
 <li><strong>Synapses Lifecycle</strong>: When <code>synapses</code> is provided as the
@@ -148,8 +148,8 @@ primitive (used when sharing a lock with a <code>principal</code>).</li>
 
   Nucleus? principal
 }) : record = principal != null
-   ? (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user), principal: principal)
-   : (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user)
+   ? (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy), principal: principal)
+   : (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy)
 );</code></pre>
 </section>
 
@@ -178,7 +178,7 @@ primitive (used when sharing a lock with a <code>principal</code>).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

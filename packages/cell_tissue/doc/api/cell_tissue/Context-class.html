@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Context class</li>
   </ol>
   <div class="self-name">Context</div>
@@ -58,7 +58,7 @@
 <section class="desc markdown">
   <p>Metadata describing a <a href="../cell_tissue/Cell-class.html">Cell</a>'s tier, domain, and operational
 boundaries — used by <a href="../cell_tissue/TestCell-class.html">TestCell</a> rules to make context-aware decisions.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <ul>
 <li><a href="../cell_tissue/Context/system-constant.html">Context.system</a> — the default. Leave this alone unless you have a
 specific reason to set it.</li>
@@ -71,21 +71,24 @@ to reason about the individual dimensions yourself.</li>
 <li><code>Context(domains: ..., compliances: ...)</code> — for a fully custom
 context, if none of the named factories fit.</li>
 </ul>
-<h3 id="non-obvious-not-every-field-can-be-changed-later">Non-obvious: not every field can be changed later</h3>
-<p>Fields like <a href="../cell_tissue/Context/taxonomy.html">taxonomy</a> and <a href="../cell_tissue/Context/topology.html">topology</a> are fixed at creation — calling
-<a href="../cell_tissue/Context/evolve.html">evolve</a> can't change them, only fields marked evolvable (like
-<a href="../cell_tissue/Context/constraints.html">constraints</a>, <a href="../cell_tissue/Context/stakeholders.html">stakeholders</a>, <a href="../cell_tissue/Context/compliance.html">compliance</a>) can be refined. This is
-intentional: it stops a cell's fundamental identity from silently
-drifting as it gets passed through <a href="../cell_tissue/Context/Context.deputy.html">deputy</a> layers. If <a href="../cell_tissue/Context/evolve.html">evolve</a> seems
-to be ignoring a field you passed, check whether that field is
+<h3 id="how-it-works">How it works</h3>
+<p><a href="../cell_tissue/Context-class.html">Context</a> organizes metadata into distinct, type-safe <a href="../cell_tissue/Mandate.html">Mandate</a> dimensions.
+It uses a <strong>Prototype-based Inheritance</strong> model where dimensions are
+either <strong>Static Pillars</strong> (invariant) or <strong>Fluid Boundaries</strong> (evolvable).</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p><strong>Not every field can be changed later.</strong> Fields like <a href="../cell_tissue/Context/taxonomy.html">taxonomy</a> and <a href="../cell_tissue/Context/topology.html">topology</a>
+are fixed at creation — calling <a href="../cell_tissue/Context/evolve.html">evolve</a> can't change them, only fields
+marked evolvable (like <a href="../cell_tissue/Context/constraints.html">constraints</a>, <a href="../cell_tissue/Context/stakeholders.html">stakeholders</a>, <a href="../cell_tissue/Context/compliance.html">compliance</a>) can be
+refined. This is intentional: it stops a cell's fundamental identity from
+silently drifting as it gets passed through <a href="../cell_tissue/Context/Context.deputy.html">deputy</a> layers. If <a href="../cell_tissue/Context/evolve.html">evolve</a>
+seems to be ignoring a field you passed, check whether that field is
 evolvable at all.</p>
-<h3 id="related-more-specific-types">Related, more specific types</h3>
-<p><a href="../cell_tissue/Context/Context.deputy.html">Context.deputy</a> returns a <a href="../cell_tissue/DeputyContext-class.html">DeputyContext</a> (per-proxy authority — see
-<a href="../cell_tissue/Cell/deputy.html">Cell.deputy</a>); <a href="../cell_tissue/Context/Context.pulse.html">Context.pulse</a> returns a <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> (per-signal
-provenance — see <a href="../cell_tissue/Pulse/Pulse.governed.html">Pulse.governed</a>). Both extend this class but carry
-additional fields specific to their purpose.</p>
-<p>See also: <a href="../cell_tissue/Ontology.html">Ontology</a> (the underlying dimension keys, if you need
-<a href="../cell_tissue/Context/Context.fromEntries.html">Context.fromEntries</a> for advanced composition).</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../cell_tissue/Context/Context.deputy.html">Context.deputy</a>: Returns a <a href="../cell_tissue/DeputyContext-class.html">DeputyContext</a> for per‑proxy authority.</li>
+<li><a href="../cell_tissue/Context/Context.pulse.html">Context.pulse</a>: Returns a <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> for per‑signal provenance.</li>
+<li><a href="../cell_tissue/Ontology.html">Ontology</a>: The underlying dimension keys.</li>
+</ul>
 </section>
 
 
@@ -95,7 +98,7 @@ additional fields specific to their purpose.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="Context.new" class="callable">
-          <span class="name"><a href="../cell_tissue/Context/Context.html">Context</a></span><span class="signature">({<span class="parameter" id="-param-domains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">domains</span>, </span><span class="parameter" id="-param-dataSources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">dataSources</span>, </span><span class="parameter" id="-param-taxonomy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">taxonomy</span>, </span><span class="parameter" id="-param-topology"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">topology</span>, </span><span class="parameter" id="-param-version"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">version</span>, </span><span class="parameter" id="-param-subDomains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">subDomains</span>, </span><span class="parameter" id="-param-stakeholders"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">stakeholders</span>, </span><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="-param-isNot"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">isNot</span>, </span><span class="parameter" id="-param-compliances"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">compliances</span>, </span><span class="parameter" id="-param-partOf"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">partOf</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/Context/Context.html">Context</a></span><span class="signature">({<span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">identity</span>, </span><span class="parameter" id="-param-domains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">domains</span>, </span><span class="parameter" id="-param-dataSources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">dataSources</span>, </span><span class="parameter" id="-param-taxonomy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">taxonomy</span>, </span><span class="parameter" id="-param-topology"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">topology</span>, </span><span class="parameter" id="-param-version"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">version</span>, </span><span class="parameter" id="-param-subDomains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">subDomains</span>, </span><span class="parameter" id="-param-stakeholders"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">stakeholders</span>, </span><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="-param-isNot"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">isNot</span>, </span><span class="parameter" id="-param-compliances"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">compliances</span>, </span><span class="parameter" id="-param-partOf"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">partOf</span>, </span><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
         </dt>
         <dd>
           Primary constructor for building a <a href="../cell_tissue/Context-class.html">Context</a> from explicit ontological dimensions,
@@ -111,7 +114,7 @@ non-repudiation, forensic logging, and compliance tracking.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="Context.core" class="callable">
-          <span class="name"><a href="../cell_tissue/Context/Context.core.html">Context.core</a></span><span class="signature">(<span class="parameter" id="core-param-label"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">label</span>, {</span><span class="parameter" id="core-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/Context/Context.core.html">Context.core</a></span><span class="signature">(<span class="parameter" id="core-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, {</span><span class="parameter" id="core-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">identity</span>, </span><span class="parameter" id="core-param-partOf"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">partOf</span>, </span><span class="parameter" id="core-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
         </dt>
         <dd>
           Synthesizes a <strong>Core Infrastructure Blueprint</strong> for foundational nodes,
@@ -119,7 +122,7 @@ ingress switches, and architectural plumbing within the Switching Fabric.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="Context.deputy" class="callable">
-          <span class="name"><a href="../cell_tissue/Context/Context.deputy.html">Context.deputy</a></span><span class="signature">({<span class="parameter" id="deputy-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="deputy-param-authority"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">authority</span>, </span><span class="parameter" id="deputy-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span><span class="parameter" id="deputy-param-isolation"><span class="type-annotation"><a href="../cell_tissue/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span>, </span><span class="parameter" id="deputy-param-clearance"><span class="type-annotation"><a href="../cell_tissue/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span>, </span><span class="parameter" id="deputy-param-lease"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">lease</span>, </span><span class="parameter" id="deputy-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span><span class="parameter" id="deputy-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="deputy-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/Context/Context.deputy.html">Context.deputy</a></span><span class="signature">({<span class="parameter" id="deputy-param-baseContext"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">baseContext</span>, </span><span class="parameter" id="deputy-param-authority"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">authority</span>, </span><span class="parameter" id="deputy-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span><span class="parameter" id="deputy-param-isolation"><span class="type-annotation"><a href="../cell_tissue/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span>, </span><span class="parameter" id="deputy-param-clearance"><span class="type-annotation"><a href="../cell_tissue/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span>, </span><span class="parameter" id="deputy-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span><span class="parameter" id="deputy-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span><span class="parameter" id="deputy-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
         </dt>
         <dd>
           Creates a specialized <strong>Deputy Mandate</strong>, allowing for authority
@@ -160,10 +163,10 @@ framework's "Judicial Branch."
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="Context.module" class="callable">
-          <span class="name"><a href="../cell_tissue/Context/Context.module.html">Context.module</a></span><span class="signature">(<span class="parameter" id="module-param-label"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">label</span>, {</span><span class="parameter" id="module-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/Context/Context.module.html">Context.module</a></span><span class="signature">(<span class="parameter" id="module-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">type</span>, {</span><span class="parameter" id="module-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">identity</span>, </span><span class="parameter" id="module-param-partOf"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">partOf</span>, </span><span class="parameter" id="module-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span></span>})</span>
         </dt>
         <dd>
-          Creates a <strong>Module-Level Context</strong> for domain-specific logic, feature
+          Synthesizes a <strong>Module‑Level Context</strong> for domain‑specific logic, feature
 components, and specialized state atoms.
             <div class="constructor-modifier features">factory</div>
         </dd>
@@ -295,6 +298,18 @@ context belongs to.
 
 </dd>
 
+        <dt id="identity" class="property">
+  <span class="name"><a href="../cell_tissue/Context/identity.html">identity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  The unique instance name or specific label assigned to this context.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isNot" class="property">
   <span class="name"><a href="../cell_tissue/Context/isNot.html">isNot</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
@@ -380,6 +395,19 @@ scoping of authority.
 <dd>
   The structural position or network role of this context within the
 organizational hierarchy.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="type" class="property">
+  <span class="name"><a href="../cell_tissue/Context/type.html">type</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  The categorical archetype or "Kind" of functional operation this context
+represents.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -512,8 +540,8 @@ type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic
 
 </dt>
 <dd>
-  The canonical root context for the entire framework, acting as the
-<strong>Terminal Ancestor</strong> in the system's <strong>Prototype-based Inheritance</strong> model.
+  The canonical root context and <strong>Terminal Ancestor</strong> of the reactive fabric's
+governance model.
   
 
 </dd>
@@ -543,7 +571,7 @@ type-level marker, supporting the <strong>Flyweight Pattern</strong> and generic
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

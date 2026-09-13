@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueNucleusBase.fromRecord const constructor</li>
   </ol>
@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">TissueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span>, </span></li>
-</ol>})
+      <span class="name ">TissueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span></li>
+</ol>)
     </section>
     
 <section class="desc markdown">
@@ -106,7 +106,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TissueNucleusBase.fromRecord({super.record}) : super.fromRecord();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TissueNucleusBase.fromRecord(super.record) : super.fromRecord();</code></pre>
 </section>
 
 
@@ -134,7 +134,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

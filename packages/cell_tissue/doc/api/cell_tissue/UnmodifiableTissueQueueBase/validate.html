@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">validate property</li>
   </ol>
@@ -72,22 +72,47 @@
     </section>
     
 <section class="desc markdown">
-  <p>The primary structural gatekeeper and validation rule governing this cell's
-integrity and security.</p>
-<p>This property returns the <a href="../../cell_tissue/TestCell-class.html">TestCell</a> instance associated with the cell's
-configuration. It serves as the authoritative <strong>Security Policy</strong> for the
-node, determining which signals, commands, or structural transitions are
-permitted based on the current execution environment.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Rarely needed in application code – the framework uses this internally
-to validate pulses and commands. You might inspect it for debugging or
-for custom deputy creation.</p>
+  <p>The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.</p>
+<p>In the biological metaphor, the <a href="../../cell_tissue/UnmodifiableTissueQueueBase/validate.html">validate</a> rule (a <a href="../../cell_tissue/TestCell-class.html">TestCell</a> instance)
+acts as the <strong>Immune System</strong> or <strong>Cell Membrane</strong>. It serves as the
+primary security perimeter, evaluating every incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a> to ensure
+that only stimuli meeting the node's integrity constraints and
+administrative authority are permitted to evolve the state.</p>
+<h3 id="architectural-significance-the-integrity-gate">Architectural Significance: The Integrity Gate</h3>
+<p>In a forensic-grade reactive environment, every interaction—whether
+a direct value update or a complex command—is intercepted by
+this gate. This ensures that the reactive graph remains consistent
+and that the <strong>Causal Lineage</strong> of a state change is never broken.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>This is the cell's own validation rule. A deputy's rule is layered on
-top of this, but you can access the principal's rule via this getter.</p>
+<p>The integrity gate employs a <strong>Tiered Resolution Strategy</strong>:</p>
+<ol>
+<li><strong>Local Override</strong>: It first checks for a <a href="../../cell_tissue/TestCell-class.html">TestCell</a> defined
+explicitly in this handle's local segment.</li>
+<li><strong>Prototype Inheritance</strong>: If not found locally, it searches up the
+inheritance chain (the prototype lineage) to inherit the rule from
+its parent node.</li>
+<li><strong>Causal Binding</strong>: If the resolved rule is the default
+<a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a> and the node is bound to an upstream source,
+it adopts the integrity gate of that source.</li>
+<li><strong>Global Default</strong>: If no rule is found in the lineage or
+bindings, it defaults to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Forensic Rejection</strong>: If validation fails, the mutation is
+neutralized. The framework records a rejection milestone in the
+<a href="../../cell_tissue/Pulse/trace.html">Pulse.trace</a> and returns <code>null</code>, ensuring the "threat" is logged
+without crashing the application.</li>
+<li><strong>Synchronous Enforcement</strong>: Validation happens before the
+transformation logic is executed, preventing side-effects from
+invalid data.</li>
+<li><strong>Deputy Narrowing</strong>: A <a href="../../cell_tissue/TissueQueue/deputy.html">deputy</a> handle can only narrow permissions;
+it can never bypass the root integrity logic of the underlying cell.</li>
+</ul>
 <h3 id="returns">Returns:</h3>
-<p>The <a href="../../cell_tissue/TestCell-class.html">TestCell</a> validator currently governing this node's operational
-  boundaries.</p>
+<p>The <a href="../../cell_tissue/TestCell-class.html">TestCell</a> validator representing the active security perimeter
+of this node.</p>
 </section>
 
     
@@ -124,7 +149,7 @@ TestTissue&lt;E,C&gt; get validate =&gt; _nucleus.testRule;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

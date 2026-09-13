@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedPulseBase-class.html">EvolvedPulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">iterator property</li>
   </ol>
@@ -64,27 +64,40 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span>
+      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a></span>&gt;</span></span>
       get
       <span class="name ">iterator</span>
-      <div class="features"><span class="feature">inherited</span></div>
+      
 
     </section>
     
 <section class="desc markdown">
-  <p>Returns an iterator over the sub‑pulses contained in this pulse.</p>
-<p>For a standard (non‑composite) pulse, this returns an iterator over a
-single element – the pulse itself.
-For a composite pulse (<a href="../../cell_tissue/EvolvedPulseBase/isComposite.html">isComposite</a> is <code>true</code>), this returns an iterator
-over all the sub‑pulses in the bundle or chain.</p>
+  <p>Returns an iterator over the sub‑pulses in this pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this to iterate over the individual pulses in a composite.</p>
+<ul>
+<li>Use this to iterate over the individual pulses in a composite.</li>
+<li>Iterating over the pulses in a collective.</li>
+<li>Processing each pulse in a bundle individually.</li>
+<li>Checking what pulses are in a composite.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>For a standard or collective pulse: returns an iterator over a single
+element — the pulse itself.</li>
+<li>For an evolved pulse: returns an iterator over the entire chain.</li>
+</ul>
+<h3 id="nonobvious-a-collective-iterates-over-itself-not-its-payload">Non‑obvious: a collective iterates over itself, not its payload</h3>
+<p>For a <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>, iterating over the collective yields the
+collective as a single item, not its constituent pulses. To access the
+individual pulses, use the <a href="../../cell_tissue/EvolvedPulseBase/payload.html">payload</a> getter:</p>
+<pre class="language-dart"><code class="language-dart">for (final p in collective) { } // one item (the collective)
+for (final p in collective.payload) { } // all sub‑pulses
+</code></pre>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final collective = Pulse&lt;int&gt;(1) + Pulse&lt;String&gt;('hello');
 for (final p in collective) {
-  print(p.payload);
+  print(p.payload); // Outputs: 1, hello
 }
-// Outputs: 1, hello
 </code></pre>
 </section>
 
@@ -92,7 +105,7 @@ for (final p in collective) {
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Iterator&lt;PulseBase&lt;P&gt;&gt; get iterator =&gt; _pulses.iterator;</code></pre>
+Iterator&lt;PulseBase&gt; get iterator =&gt; _pulses.iterator;</code></pre>
 </section>
 
   </section>
@@ -122,7 +135,7 @@ Iterator&lt;PulseBase&lt;P&gt;&gt; get iterator =&gt; _pulses.iterator;</code></
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -118,6 +118,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
     TestTissue<V, TissueMap<K, V>> testRule,
     Synapses synapses,
     bool identityMap,
+    EphemeralPolicy? ephemeralPolicy,
     Record? user
   }) = _TissueMapNucleus<K,V,TissueMap<K,V>>;
 
@@ -183,6 +184,8 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
     TestTissue<V,TissueMap<K, V>>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     TissueMapNucleus<K,V>? override,
     required TissueMapNucleus<K,V> principal
   }) = _TissueMapNucleus<K,V,TissueMap<K,V>>.evolve;
@@ -238,6 +241,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
 
     Container? container,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     forceLock = false,
     TissueMapNucleusBase<K,V,C>? principal
   }) {
@@ -251,9 +255,10 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
         synapses: synapses,
         forceLock: forceLock,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
       );
       return _TissueMapNucleus<K,V,C>.fromRecord(
-          (mask: local, principal: principal)
+          (local: local, principal: principal)
       );
     }
 
@@ -265,6 +270,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
         synapses: synapses ?? Synapses.enabled,
         identityMap: container == Container.identityMap,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock
     );
   }
@@ -361,7 +367,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
 /// - Internally, it uses a [TissueMapNucleus] to govern behaviour and a
 ///   [Container] for physical storage.
 /// - Every mutation (e.g., `[]=`, `remove`, `clear`) goes through a validation
-///   pipeline ([testRule]) and emits a [TissueEvent].
+///   pipeline ([testRule]) and emits a [TissuePulse].
 /// - The map is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, etc.) that share the same storage.
@@ -455,12 +461,12 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// [TissueMap.create] or [TissueMap.fromNucleus].
   ///
   /// ### How it works
-  /// - You provide an optional [nucleus] (or let the framework create a default).
+  /// - You provide an optional [properties] (or let the framework create a default).
   /// - Optionally, you can supply initial [entries].
   /// - The map is created and automatically linked to any child cells.
   ///
   /// ### Parameters
-  /// - [nucleus]: Optional pre‑configured blueprint.
+  /// - [properties]: Optional pre‑configured blueprint.
   /// - [entries]: Optional initial key‑value pairs.
   ///
   /// ### Returns
@@ -494,7 +500,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   ///
   /// ### Parameters
   /// - [map]: The source data.
-  /// - [nucleus]: Optional blueprint.
+  /// - [properties]: Optional blueprint.
   ///
   /// ### Example
   /// ```dart
@@ -523,7 +529,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   ///
   /// ### Parameters
   /// - [entries]: The source entries.
-  /// - [nucleus]: Optional blueprint.
+  /// - [properties]: Optional blueprint.
   ///
   /// ### Example
   /// ```dart
@@ -592,7 +598,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// ```
   ///
   /// ### Parameters:
-  /// - [nucleus]: The blueprint to use.
+  /// - [properties]: The blueprint to use.
   /// - [entries]: Optional initial data.
   ///
   /// ### Returns:
@@ -780,7 +786,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// Otherwise the key‑value pair is added to the map.
   ///
   /// This operation is equivalent to calling `add(key, value)`.
-  void operator []=(K key, V value) => add(key, value);
+  void operator []=(K key, V value);
 
   /// Add a new entry to this map [Tissue].
   ///
@@ -967,7 +973,7 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   ///
   /// ### Parameters:
   /// - [entries]: The immutable key‑value data set.
-  /// - [nucleus]: Optional blueprint; if omitted, a standard read‑only nucleus
+  /// - [properties]: Optional blueprint; if omitted, a standard read‑only nucleus
   ///   is used.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
@@ -1022,7 +1028,7 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueMap] directly from a pre‑constructed
-  /// reactive blueprint ([nucleus]).
+  /// reactive blueprint ([properties]).
   ///
   /// This constructor is the primary **Materialization Hook** used when the
   /// behavioural identity—including security rules, execution context, and
@@ -1040,7 +1046,7 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   /// - The [unmodifiableElement] flag applies deep immutability.
   ///
   /// ### Parameters:
-  /// - [nucleus]: The pre‑configured read‑only blueprint.
+  /// - [properties]: The pre‑configured read‑only blueprint.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
   /// - [entries]: Optional initial data.

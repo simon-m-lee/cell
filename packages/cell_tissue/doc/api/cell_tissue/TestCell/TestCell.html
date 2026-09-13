@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestCell-class.html">TestCell<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">TestCell.new const constructor</li>
   </ol>
@@ -100,8 +100,13 @@ final policy = positiveRule + adminRule;
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TestCell(FutureOr&lt;bool&gt; Function(
     dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestCell&lt;C&gt;? parent, dynamic user})
-    : this.fromRecord(parent != null ? user != null
-    ? (rule: rule, parent: parent, user: user) : (rule: rule, parent: parent) : (rule: rule));</code></pre>
+    : this.fromRecord(parent != null
+    ? user != null
+        ? (rule: rule, parent: parent, user: user)
+        : (rule: rule, parent: parent)
+    : user != null
+        ? (rule: rule, user: user)
+        : (rule: rule));</code></pre>
 </section>
 
 
@@ -129,7 +134,7 @@ final policy = positiveRule + adminRule;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

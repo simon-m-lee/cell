@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TestRule</div>
@@ -54,142 +54,80 @@
 
     
 <section class="desc markdown">
-  <p>The foundational abstraction for <strong>Validation Logic</strong>, <strong>Policy Enforcement</strong>,
-and <strong>Security Guarding</strong> within the reactive framework.</p>
-<p>A <a href="../cell_tissue/TestRule-class.html">TestRule</a> defines a boolean predicate that determines whether a specific
-operation, state transition, or data <strong>payload</strong> is permissible
-within a given <strong>host environment</strong>. It acts as an <strong>Integrity Gate</strong> for the
-reactive graph, ensuring all mutations maintain structural and business invariants.</p>
-<h2 id="developer-ergonomics-intuitive-orchestration">Developer Ergonomics: Intuitive Orchestration</h2>
-<p>The Cell Framework is architected with a <strong>human-first</strong> approach.
-Human developers can define validation rules using simple, intuitive
-function signatures and compose them using the <code>+</code> operator, creating
-clear, readable validation pipelines.</p>
-<pre class="language-dart"><code class="language-dart">// Simple validation rule
-final isPositive = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  return object &gt; 0;
-});
-
-// Rule with host context
-final isAllowed = TestRule&lt;Cell&gt;((object, {host, arguments, user}) {
-  final ctx = host?.context;
-  return ctx?.domains?.contains('Finance') ?? false;
-});
-
-// Composition
-final combined = isPositive + isAllowed + isInRange;
-</code></pre>
-<h3 id="1-architectural-role-decoupling-logic-from-state">1. Architectural Role: Decoupling Logic from State</h3>
-<p>The primary role of <a href="../cell_tissue/TestRule-class.html">TestRule</a> is to decouple <strong>Validation Constraints</strong> from
-<strong>State Management</strong>. In this architecture, state containers (like <a href="../cell_tissue/Cell-class.html">Cell</a>)
-are not burdened with the specific implementation of their constraints.
-<a href="../cell_tissue/TestRule-class.html">TestRule</a> provides a standardized interface for defining <strong>Business Invariants</strong>
-that can be composed, inherited, and executed across any layer of the system.</p>
-<h3 id="2-developer-ergonomics--human-legibility">2. Developer Ergonomics &amp; Human Legibility</h3>
-<p>Human developers define rules using simple function signatures:</p>
-<pre class="language-dart"><code class="language-dart">// 1. Range validation
-final rangeRule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  return object &gt;= 0 &amp;&amp; object &lt;= 100;
-});
-
-// 2. Pattern validation
-final emailRule = TestRule&lt;String&gt;((object, {host, arguments, user}) {
-  return RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(object);
-});
-
-// 3. Context-aware validation
-final adminRule = TestRule&lt;Cell&gt;((object, {host, arguments, user}) {
-  final ctx = host?.context;
-  return ctx?.stakeholders?.contains('Admin') ?? false;
-});
-
-// 4. Using user data for configuration
-final thresholdRule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  final limit = user as int? ?? 100;
-  return object &lt;= limit;
-}, user: 50);
-</code></pre>
-<h3 id="3-core-architectural-patterns">3. Core Architectural Patterns:</h3>
-<h4 id="a-the-chain-of-responsibility-composition">A. The Chain of Responsibility (Composition)</h4>
-<p><a href="../cell_tissue/TestRule-class.html">TestRule</a> is designed for <strong>Atomic Composition</strong>. Using the <code>+</code> operator,
-individual rules are combined into a <strong>Validation Pipeline</strong>. This follows
-the <strong>Chain of Responsibility</strong> pattern, where a proposed state change
-must satisfy every rule in the sequence to be committed.</p>
-<pre class="language-dart"><code class="language-dart">final pipeline = isPositive + isInRange + isAuthorized;
-// All rules must pass for validation to succeed
-</code></pre>
-<h4 id="b-hybrid-convergence-syncasync">B. Hybrid Convergence (Sync/Async)</h4>
-<p>To support high-performance reactive waves alongside complex I/O-bound security
-checks, <a href="../cell_tissue/TestRule-class.html">TestRule</a> utilizes <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>.</p>
+  <p>A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.</p>
+<p><a href="../cell_tissue/TestRule-class.html">TestRule</a> serves as the formal boundary between proposed state changes
+(stimuli) and their commitment to the graph. It decouples validation logic
+from state management, allowing for composable, type-safe, and highly
+performant security and integrity checks.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Synchronous Path</strong>: Simple checks (e.g., range validation) resolve immediately,
-minimizing latency in the <strong>Digital Organism</strong>.</li>
-<li><strong>Asynchronous Path</strong>: Complex checks (e.g., database lookups or <strong>Deputy Mandate</strong>
-verification) resolve via <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, maintaining <strong>Causal Integrity</strong> across the event loop.</li>
+<li><strong>Business Invariants</strong>: Enforcing rules such as range limits, regex
+patterns, or complex logical dependencies on state updates.</li>
+<li><strong>Security &amp; Authorization</strong>: Verifying that a specific <a href="../cell_tissue/Context-class.html">Context</a> or
+principal has the authority to perform an action or modify a node.</li>
+<li><strong>Policy Orchestration</strong>: Composing multiple atomic rules into a
+<strong>Validation Pipeline</strong> using the <code>+</code> operator.</li>
+<li><strong>Data Sanitization</strong>: Screening incoming pulses to ensure they meet
+the requirements of downstream nodes.</li>
 </ul>
-<pre class="language-dart"><code class="language-dart">final asyncRule = TestRule&lt;Cell&gt;((object, {host, arguments, user}) async {
-  final result = await database.checkAuthorization(object);
-  return result;
-});
-</code></pre>
-<h4 id="c-operational-resilience-fail-safe-execution">C. Operational Resilience (Fail-Safe Execution)</h4>
-<p>To prevent validation logic from stalling the reactive graph, unhandled
-exceptions within a rule's execution are treated as a <strong>Pass</strong> (<code>true</code>). This
-<strong>Fail-Safe</strong> philosophy ensures that a faulty validator does not paralyze
-the system, while still allowing for diagnostic auditing.</p>
-<h4 id="d-memory-efficiency-flyweight-pattern">D. Memory Efficiency (Flyweight Pattern)</h4>
-<p>To support high-density reactive networks, rules utilize the <strong>Flyweight Pattern</strong>.
-Rule configurations are stored in memory-optimized <strong>Dart Records</strong>,
-minimizing the heap footprint of validation chains even at massive scale.</p>
-<h3 id="4-example-e-commerce-validation-pipeline">4. Example: E-Commerce Validation Pipeline</h3>
-<pre class="language-dart"><code class="language-dart">// Step 1: Validate positive quantity
-final positiveQuantity = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  return object &gt; 0;
-});
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Evaluation</strong>: When a stimulus (like a <a href="../cell_tissue/Pulse-class.html">Pulse</a>) is intercepted by an
+integrity engine (like <a href="../cell_tissue/TestCell-class.html">TestCell</a>), the rule's predicate is invoked.</li>
+<li><strong>Contextual Awareness</strong>: The rule is provided with the <code>object</code> under
+test, the <code>host</code> environment (<code>C</code>), and execution <code>arguments</code>,
+allowing for context-aware decisions.</li>
+<li><strong>Composition (Chain of Responsibility)</strong>: Using the <code>+</code> operator,
+multiple rules are chained. The system evaluates them sequentially;
+if any rule returns <code>false</code>, the chain <strong>Short-Circuits</strong> and the
+operation is rejected.</li>
+<li><strong>Hybrid Execution</strong>: Supports <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr&lt;bool&gt;</a>. Synchronous rules
+execute with zero-latency, while asynchronous rules suspend the reactive
+wave until I/O or remote validation completes.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fail-Safe Execution</strong>: To maintain graph resilience, unhandled
+exceptions within a rule are treated as a <strong>Pass</strong> (<code>true</code>). This
+prevents a single faulty validator from paralyzing the entire system.</li>
+<li><strong>Memory Optimization</strong>: Employs the <strong>Flyweight Pattern</strong> by storing
+configuration in memory-optimized records, minimizing the heap footprint
+of validation chains even at massive scale.</li>
+<li><strong>Zero-State</strong>: Rules are stateless and can be safely cached, shared
+across domains, or reused across multiple <a href="../cell_tissue/Cell-class.html">Cell</a> instances.</li>
+<li><strong>Causal Integrity</strong>: Rules evaluated asynchronously maintain their
+position in the reactive timeline, ensuring state transitions occur in
+the correct order relative to other pulses.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// 1. Define atomic rules
+final isPositive = TestRule&lt;int&gt;((val, {host, arguments, user}) =&gt; val &gt; 0);
+final isInRange = TestRule&lt;int&gt;((val, {host, arguments, user}) =&gt; val &lt;= 100);
 
-// Step 2: Validate within stock
-final inStock = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  final stock = (host as InventoryCell).stock;
-  return object &lt;= stock;
-});
+// 2. Compose into a pipeline (Chain of Responsibility)
+final pipeline = isPositive + isInRange;
 
-// Step 3: Validate user authorization
-final isAuthorized = TestRule&lt;Cell&gt;((object, {host, arguments, user}) {
-  final ctx = host?.context;
-  return ctx?.domains?.contains('Inventory') ?? false;
-});
-
-// Combine into a validation pipeline
-final orderValidation = positiveQuantity + inStock + isAuthorized;
-
-// Use in a cell
-final inventoryCell = Cell(
-  testRule: orderValidation,
-  receptor: Receptor((cell, pulse, {user}) {
-    // Only executed if validation passes
-    return pulse;
-  }),
+// 3. Integrate with the graph (e.g., via TestCell or Cell factory)
+final scoreCell = Cell.ingress&lt;int&gt;(
+  0,
+  testRule: pipeline
 );
 </code></pre>
-<h3 id="5-performance-considerations">5. Performance Considerations</h3>
+<h3 id="parameters">Parameters:</h3>
 <ul>
-<li><strong>Short-Circuit</strong>: If any rule returns <code>false</code>, validation stops immediately</li>
-<li><strong>Async Rules</strong>: Async rules suspend the pipeline, which may impact performance</li>
-<li><strong>Composition</strong>: Deeply nested chains may have overhead; keep them shallow</li>
-<li><strong>Shared Rules</strong>: Rules are stateless and can be shared across cells</li>
+<li><strong><code>C</code></strong>: <strong>The Host Environment.</strong> Binds the rule to a specific node
+context (usually a <a href="../cell_tissue/Cell-class.html">Cell</a> subclass), enabling type-safe interaction
+with the object being validated and its surrounding graph.</li>
 </ul>
-<h3 id="type-parameters">Type Parameters:</h3>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../cell_tissue/TestRule-class.html">TestRule</a> instance acting as a <strong>Reactive Integrity Gate</strong>.</p>
+<h3 id="see-also">See Also:</h3>
 <ul>
-<li><strong><code>C</code></strong>: The <strong>Host Environment</strong> type. This binds the rule to a
-specific node context, allowing for cross-field validation while
-ensuring type safety across the reactive graph.</li>
-</ul>
-<p>See also:</p>
-<ul>
-<li><a href="../cell_tissue/TestCell-class.html">TestCell</a>: The specialized policy engine that orchestrates rules.</li>
-<li><a href="../cell_tissue/TestActionRule-class.html">TestActionRule</a>: For validating imperative function execution.</li>
-<li><a href="../cell_tissue/TestLinkRule-class.html">TestLinkRule</a>: For validating graph topology changes.</li>
-<li><a href="../cell_tissue/TestPulseRule-class.html">TestPulseRule</a>: For validating incoming signals.</li>
+<li><a href="../cell_tissue/TestCell-class.html">TestCell</a>: The primary policy engine that orchestrates rules.</li>
+<li><a href="../cell_tissue/Cell-class.html">Cell</a>: For applying these rules to reactive state containers.</li>
+<li><a href="../cell_tissue/Modifiable-class.html">Modifiable</a>: For objects that support validation via these gates.</li>
 </ul>
 </section>
 
@@ -230,7 +168,8 @@ ensuring type safety across the reactive graph.</li>
           <span class="name"><a href="../cell_tissue/TestRule/TestRule.base.html">TestRule.base</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          The foundational base class for <strong>Metadata-Driven Validation Annotations</strong>.
+          The foundational constructor for <strong>Metadata-Driven Validation Annotations</strong>,
+enabling the declarative definition of business invariants.
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="TestRule.chain" class="callable">
@@ -241,10 +180,11 @@ ensuring type safety across the reactive graph.</li>
             <div class="constructor-modifier features">const</div>
         </dd>
         <dt id="TestRule.fromRecord" class="callable">
-          <span class="name"><a href="../cell_tissue/TestRule/TestRule.fromRecord.html">TestRule.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-_record"><span class="type-annotation">dynamic</span> <span class="parameter-name">_record</span></span>)</span>
+          <span class="name"><a href="../cell_tissue/TestRule/TestRule.fromRecord.html">TestRule.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
         </dt>
         <dd>
-          Reconstitutes a <a href="../cell_tissue/TestRule-class.html">TestRule</a> from a raw <strong>Flyweight Record</strong>.
+          Reconstitutes a <a href="../cell_tissue/TestRule-class.html">TestRule</a> from a raw <strong>Flyweight Record</strong>, facilitating
+the restoration of validation logic from a compressed state.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -391,7 +331,7 @@ ensuring type safety across the reactive graph.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

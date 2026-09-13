@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ReceptorBase</div>
@@ -57,31 +57,45 @@
 <section class="desc markdown">
   <p>The foundational base implementation of <a href="../cell_tissue/Receptor-class.html">Receptor</a> that provides the
 core synchronization and pulse propagation engine.</p>
-<p><a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> is the concrete implementation used by all receptors. It
-manages the pipeline execution, error handling, and propagation to
-downstream synapses. You typically don't interact with this directly –
-you use the <a href="../cell_tissue/Receptor-class.html">Receptor</a> factory or the <a href="../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a> constant.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You never need to construct <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> directly. Use the <a href="../cell_tissue/Receptor-class.html">Receptor</a>
-factory or the predefined constants.</p>
+<p><a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> manages the multi-stage pipeline, error handling, and
+coordination of signal propagation. It serves as the bridge between
+incoming stimuli and the cell's internal state.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> as the base class for specialized receptor
+implementations. You typically don't construct this directly; instead,
+use the <a href="../cell_tissue/Receptor-class.html">Receptor</a> factory or predefined singletons.</p>
 <h3 id="how-it-works">How it works</h3>
-<ul>
-<li>It stores the pipeline stages (<code>preProcess</code>, <code>rule</code>, <code>postProcess</code>) in a
-memory‑efficient record.</li>
-<li>The <code>call</code> method validates the pulse, runs the pipeline, and broadcasts
-the result to the cell's synapses.</li>
-<li>It handles both synchronous and asynchronous execution.</li>
-<li>It integrates with the cell's <code>TestCell</code> for validation.</li>
-</ul>
+<ol>
+<li><strong>Pipeline Management</strong>: It stores and coordinates the three stages
+(Sanitization, Core Logic, and Commitment).</li>
+<li><strong>Context Binding</strong>: It manages the transition from a stateless
+template to an activated, cell-bound instance.</li>
+<li><strong>Resilient Propagation</strong>: The <code>call</code> method validates the signal,
+runs the pipeline synchronously, and safely broadcasts results to
+synapses.</li>
+<li><strong>Lifecycle Control</strong>: It handles the activation and cloning of
+logic blueprints across different cell instances.</li>
+<li><strong>Governance</strong>: When governed, it applies architectural policies and
+forensic trace information.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The receptor is <strong>activated</strong> when bound to a cell – this sets the <code>cell</code>
-getter and marks <code>isActivated</code> as <code>true</code>.</li>
-<li>The <code>clone</code> method creates a shallow copy, useful for reusing logic
-across multiple cells.</li>
-<li>The <code>call</code> method uses the pulse's <code>_checker</code> to prevent cycles.</li>
+<li><strong>Flyweight Architecture</strong>: It utilizes a record-based storage
+strategy to pack all pipeline instructions into a single memory block.</li>
+<li><strong>Traceability</strong>: Every propagation step is logged to the pulse's
+metadata, providing full forensic visibility for debugging.</li>
+<li><strong>Thread-Safe Context</strong>: Activation pins the receptor to a specific
+operational perimeter, ensuring state access is always consistent.</li>
+<li><strong>Synchronous Pipeline</strong>: The pipeline executes synchronously. For
+asynchronous execution, use <a href="../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a>.</li>
+<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
+validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
+checks. This is the only async operation in the call path.</li>
 </ul>
-<p>See also: <a href="../cell_tissue/Receptor-class.html">Receptor</a> for the public API.</p>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>C</code>: The type of the host <a href="../cell_tissue/Cell-class.html">Cell</a>.</li>
+</ul>
 </section>
 
 
@@ -115,18 +129,18 @@ across multiple cells.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="ReceptorBase.new" class="callable">
-          <span class="name"><a href="../cell_tissue/ReceptorBase/ReceptorBase.html">ReceptorBase</a></span><span class="signature">({<span class="parameter" id="-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="-param-reaction"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ReceptorBase/ReceptorBase.html">ReceptorBase</a></span><span class="signature">({<span class="parameter" id="-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="-param-reaction"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?</span>})</span>
         </dt>
         <dd>
-          Initializes the primary <strong>ReceptorBase</strong>, the foundational engine for
-<strong>Pulse Transformation</strong> and state governance within a <a href="../cell_tissue/Cell-class.html">Cell</a>.
+          Initializes the foundational engine for pulse transformation and
+state governance.
         </dd>
         <dt id="ReceptorBase.fromRecord" class="callable">
           <span class="name"><a href="../cell_tissue/ReceptorBase/ReceptorBase.fromRecord.html">ReceptorBase.fromRecord</a></span><span class="signature">({<span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span></span>})</span>
         </dt>
         <dd>
-          A base constructor that initializes the <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a>
-from a pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of configuration properties.
+          A foundational constructor that initializes a <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> from a
+pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of configuration properties.
         </dd>
     </dl>
   </section>
@@ -155,7 +169,7 @@ from a pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-cl
 
 </dt>
 <dd>
-  The host <a href="../cell_tissue/Cell-class.html">Cell</a> instance that this receptor is currently serving.
+  The host cell this receptor is bound to.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">override-getter</span></div>
 
 </dd>
@@ -179,7 +193,7 @@ from a pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-cl
 
 </dt>
 <dd>
-  The hash code for this object.
+  Hash code for this receptor.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -191,21 +205,7 @@ from a pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-cl
 
 </dt>
 <dd>
-  Indicates whether this receptor has transitioned from a stateless template
-to a functional, cell-bound instance.
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
-
-</dd>
-
-        <dt id="isGoverned" class="property">
-  <span class="name"><a href="../cell_tissue/ReceptorBase/isGoverned.html">isGoverned</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd>
-  Indicates whether the receptor's host <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a
-<strong>Governance Policy</strong>.
+  Indicates whether this receptor is activated.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -239,23 +239,21 @@ to a functional, cell-bound instance.
 
 </dt>
 <dd>
-  Formally activates the receptor by binding its transformation logic to
-a concrete <code>cell</code> instance.
+  Activates the receptor by binding it to a cell.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
         <dt id="call" class="callable">
-  <span class="name"><a href="../cell_tissue/ReceptorBase/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span></span>)
+  <span class="name"><a href="../cell_tissue/ReceptorBase/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-incoming"><span>covariant</span> <span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">incoming</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Orchestrates the formal transition from <strong>Perception</strong> to <strong>Reasoning</strong>
-by executing the receptor's transformation logic within the
-host's <strong>Operational Perimeter</strong>.
+  The internal execution entry point for signal propagation and
+transformation.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -302,7 +300,7 @@ host's <strong>Operational Perimeter</strong>.
 
 </dt>
 <dd>
-  The equality operator.
+  Equality operator for receptors.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -315,14 +313,14 @@ host's <strong>Operational Perimeter</strong>.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="mask" class="callable">
-  <span class="name"><a href="../cell_tissue/ReceptorBase/mask.html">mask</a></span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="mask-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="mask-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="mask-param-reaction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">reaction</span>, </span><span class="parameter" id="mask-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="mask-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span></span>})
+  <span class="name"><a href="../cell_tissue/ReceptorBase/mask.html">mask</a></span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="mask-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="mask-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="mask-param-reaction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">reaction</span>, </span><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="mask-param-init"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">init</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
   </span>
   
 
 </dt>
 <dd>
-  
+  Creates a mask record for the receptor configuration.
   
 
 </dd>
@@ -354,7 +352,7 @@ host's <strong>Operational Perimeter</strong>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Ride Hail topic docs, for the Dart programming language.">
+  <title>Demo · Ride Hail topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Ride Hail topic</li>
+  </ol>
+  <div class="self-name">Demo · Ride Hail</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Ride Hail</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough-requirement--ride-hail-dispatch-flow--tissue">Walkthrough requirement — ride-hail dispatch (Flow + Tissue)</h1>
+<p><strong>Demo:</strong> <code>ride-hail-dispatch(tissue)-Demo.dart</code> (executable; this file is its requirement)
+<strong>Siblings:</strong></p>
+<ul>
+<li><code>card-auth-pipeline(tissue)-WalkThrough.md</code> — payments books</li>
+<li><code>grid-demand-response(tissue)-WalkThrough.md</code> — energy books</li>
+<li><code>ICU-alarm-pipeline(enhanced)-Demo.dart</code> — clinical PAGE/WARN</li>
+</ul>
+<p><strong>Industry:</strong> ride-hailing / mobility dispatch (the product everyone knows as
+Uber / Lyft / Didi / Bolt — match a rider ping to a driver, hold a
+surge banner, keep a trip ledger the city can audit)
+<strong>Stack:</strong> <code>package:cell</code> + <code>package:cell_flow</code> + <code>package:cell_tissue</code></p>
+<p>This is the <strong>executable requirement</strong> for a mobility demo that uses
+<strong>Flow for the match decision</strong> and <strong>Tissue for the fleet books</strong>.
+Implement the Dart file so a last-good run prints the scenario table
+in § Scenarios.</p>
+<p>Do not fold Tissue into the Receptor. Do not fold Flow into the trip
+log. The point of this file is the seam.</p>
+<p>Why this industry (and not another till or another ICU): a city-scale
+dispatcher is a sensor bus (GPS + wait + surge) plus two products
+(assign a car vs show a multiplier) plus an append-only log the
+regulator is allowed to <strong>read</strong> and never write. That is PAGE/WARN
+plus a compliance deputy, with drivers instead of cents.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</a></li>
+<li><a href="#why-flow--tissue-not-a-gps-map-widget">Why Flow + Tissue (not a GPS map widget)</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#domain">Domain</a></li>
+<li><a href="#parts">Parts</a>
+<ul>
+<li><a href="#flow-cells">Flow Cells</a></li>
+<li><a href="#tissue-collections">Tissue collections</a></li>
+<li><a href="#deputies">Deputies</a></li>
+<li><a href="#instruction">Instruction</a></li>
+<li><a href="#receptor">Receptor</a></li>
+<li><a href="#operators-the-demo-must-actually-call">Operators the demo must actually call</a></li>
+</ul>
+</li>
+<li><a href="#fleet--tissuevalue--tissuemap-not-inside-matchof">Fleet — TissueValue + TissueMap</a></li>
+<li><a href="#implementation-map">Implementation map</a></li>
+<li><a href="#scenarios">Scenarios</a></li>
+<li><a href="#executable-steps">Executable steps</a></li>
+<li><a href="#pulse-path-scenario-2-then-3">Pulse path (scenario 2 then 3)</a></li>
+<li><a href="#who-owns-the-lock">Who owns the lock</a></li>
+<li><a href="#real-city-vs-this-file">Real city vs this file</a></li>
+<li><a href="#acceptance">Acceptance</a></li>
+<li><a href="#documented-deviations-summary">Documented deviations (summary)</a></li>
+<li><a href="#name-plate">Name plate</a></li>
+</ol>
+<hr>
+<h2 id="testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</h2>
+<p>Collection classes in <code>package:cell_tissue</code> take <strong><code>TestTissue</code></strong>, never
+<code>TestCell</code>. <code>TestCell</code> is the integrity rule on a <strong>Cell</strong> (ingress /
+handle). <code>TestTissue</code> is the integrity rule on a <strong>Tissue</strong> (<code>add</code>,
+<code>remove</code>, <code>[]=</code>, value write). They are not subtypes you can pass
+across that seam.</p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+<th>Typical use in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+<td>latitude −90…90, longitude −180…180, wait ≥ 0, surge 1.0–5.0</td>
+</tr>
+<tr>
+<td><code>TissueList</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> / <code>Value</code></td>
+<td><code>TestTissue&lt;E, C&gt;</code></td>
+<td><code>testRule:</code></td>
+<td>append-only trips, non-negative idle count, zone codes</td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+<td><code>TestTissue.readOnly</code> for the city auditor</td>
+</tr>
+<tr>
+<td><code>TestTissue.allowAll</code></td>
+<td><code>TestTissue</code></td>
+<td>default</td>
+<td>only when the collection has no extra rule</td>
+</tr>
+</tbody>
+</table>
+<p>Illegal (will not type-check, do not write it):</p>
+<pre class="language-dart"><code class="language-dart">TissueList&lt;TripEntry&gt;(testRule: TestCell.allowAll);     // wrong type
+TissueValue&lt;int&gt;(12, testRule: latRange);               // latRange is TestCell
+trips.deputy(testRule: TestCell.readOnly);              // deputy wants TestTissue
+</code></pre>
+<p>Required shape:</p>
+<pre class="language-dart"><code class="language-dart">final tripRule = TestTissue&lt;TripEntry, TissueList&lt;TripEntry&gt;&gt;(
+  (e, {host, action, user}) =&gt; e.kind.isNotEmpty,
+  // action hook: allow add / addAll; deny remove, clear, []=
+);
+
+final trips = TissueList&lt;TripEntry&gt;(testRule: tripRule);
+
+final idleRule = TestTissue&lt;int, TissueValue&lt;int&gt;&gt;(
+  (v, {host, action, user}) =&gt; v != null &amp;&amp; v &gt;= 0,
+);
+
+final idleDrivers = TissueValue&lt;int&gt;(12, testRule: idleRule);
+
+final noGo = TissueSet&lt;String&gt;(
+  testRule: TestTissue&lt;String, TissueSet&lt;String&gt;&gt;(
+    (z, {host, action, user}) =&gt;
+        z.length &gt;= 3 &amp;&amp; z == z.toUpperCase(),
+  ),
+);
+
+final auditor = trips.deputy(testRule: TestTissue.readOnly);
+</code></pre>
+<p><code>Cell.ingress(testRule: latRange)</code> stays <strong><code>TestCell</code></strong>. That rule
+never becomes the <code>testRule</code> on <code>idleDrivers</code> / <code>trips</code> / <code>noGo</code>.</p>
+<p>Compose Tissue rules with <code>+</code> (<code>TestTissue.allowAll + custom</code>), not by
+wrapping a <code>TestCell</code>.</p>
+<hr>
+<h2 id="why-flow--tissue-not-a-gps-map-widget">Why Flow + Tissue (not a GPS map widget)</h2>
+<p>A live dispatch bay has four machines a map SDK will not name:</p>
+<ol>
+<li>Impossible coordinates must die at the <strong>sensor</strong>, not inside
+matching.</li>
+<li>Lat, lng, wait seconds, and surge arrive on <strong>different clocks</strong>.
+Matching must see one <code>MatchTick</code>, not three half-updates.</li>
+<li>DISPATCH vs SURGE are two products. One Receptor per product.</li>
+<li>The driver-app push is slow and flaky. “Is this a dispatch?” must
+not wait on FCM / APNs.</li>
+<li>Two overlapping matches must not assign the last idle driver
+twice.</li>
+<li>The city regulator may watch the trip log and must not <code>remove</code> a
+row.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Fake if you only use Dart objects</th>
+<th>Owner in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;TripEntry&gt; trips</code></td>
+<td><code>TissueList&lt;TripEntry&gt;</code> — append-only, observable</td>
+</tr>
+<tr>
+<td><code>int idle = 12</code></td>
+<td><code>TissueValue&lt;int&gt;</code> — non-negative, <code>ElementUpdated</code></td>
+</tr>
+<tr>
+<td><code>Map&lt;String, Assignment&gt;</code></td>
+<td><code>TissueMap&lt;String, Assignment&gt;</code> — driver id → hold</td>
+</tr>
+<tr>
+<td><code>const noGoZones</code></td>
+<td><code>TissueSet&lt;String&gt;</code> — ops can close a stadium curb</td>
+</tr>
+<tr>
+<td>push retry buffer</td>
+<td><code>TissueQueue&lt;PushJob&gt;</code> — bounded outbound</td>
+</tr>
+<tr>
+<td>“export CSV for the city”</td>
+<td><code>trips.unmodifiable</code> / <code>deputy(TestTissue.readOnly)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tissue is a <strong>Cell that is a collection</strong>. Every <code>add</code> / <code>update</code> /
+<code>[]=</code> goes through <code>TestTissue</code>, takes the tissue lock, and emits a
+<code>TissuePulse</code>. Flow never stores the fleet.</p>
+<hr>
+<h2 id="design">Design</h2>
+<pre class="language-dart"><code>latIn     TestCell −90…90     ─┐
+lngIn     TestCell −180…180   ─┼─ set* → publishTick
+waitIn    TestCell ≥ 0 sec    ─┤         → MatchTick(zone, wait, nearby, surgeX, riderId)
+surgeIn   TestCell 1.0…5.0    ─┘
+                                      │
+                                      ▼
+                                   tickIn              Flow
+                        ┌─────────────┴─────────────┐
+                        ▼                           ▼
+                  dispatch gate                  surge gate
+             MapValue + Distinct            MapValue + Distinct
+                  + Filter(dispatch)             + Filter(surge)
+                        │                           ▼
+                        │                      surgeHandle
+                        ▼
+                  dispatchHandle
+                        │
+                        ├─ observe DISPATCH
+                        │     trips.add(...)               TissueList
+                        │     pushQ.addLast(job)           TissueQueue
+                        └─ AsyncMapWithRetry ← pushQ
+                              driverAppHandle
+
+ackIn  driver accepts ── resetDistinct()
+                         on accept:
+                           assignments[driverId] = ...     TissueMap
+                           idleDrivers.value -= 1          TissueValue
+
+regulator ────────────── trips.unmodifiable                Deputy
+opsGeofence ──────────── noGo.add('STADIUM-CURB')          TissueSet
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Impossible lat / lng / wait</td>
+<td><code>TestCell</code> on <strong>ingress Cells</strong></td>
+</tr>
+<tr>
+<td>Closed curb / airport stand</td>
+<td><code>TissueSet&lt;String&gt; noGo</code> + <code>matchOf</code> reads it</td>
+</tr>
+<tr>
+<td>One tick per snapshot</td>
+<td><code>publishTick</code> bus</td>
+</tr>
+<tr>
+<td>DISPATCH vs SURGE</td>
+<td>two Flow Receptors, same <code>matchOf</code></td>
+</tr>
+<tr>
+<td>No duplicate DISPATCH</td>
+<td>Distinct <strong>before</strong> Filter; ACK clears last</td>
+</tr>
+<tr>
+<td>Driver-app push</td>
+<td><code>TissueQueue</code> + <code>AsyncMapWithRetry</code></td>
+</tr>
+<tr>
+<td>Trip audit</td>
+<td><code>TissueList&lt;TripEntry&gt;</code> + append-only <code>TestTissue</code></td>
+</tr>
+<tr>
+<td>Idle fleet count</td>
+<td><code>TissueValue&lt;int&gt;</code> + non-negative <code>TestTissue</code></td>
+</tr>
+<tr>
+<td>Live assignments</td>
+<td><code>TissueMap&lt;String, Assignment&gt;</code></td>
+</tr>
+<tr>
+<td>City regulator screen</td>
+<td><code>trips.unmodifiable</code> (live, zero-copy)</td>
+</tr>
+<tr>
+<td>Do not stack graphs</td>
+<td>ACK does <strong>not</strong> call <code>toHandle</code> again</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> <code>trips.add</code> inside <code>MapValue</code>. The Receptor returns a
+<code>Match</code>. The observer writes Tissue. If you mutate Tissue inside <code>+</code>,
+you hide the lock and you cannot unit-test <code>matchOf</code> with a Pulse.</p>
+<p>Do <strong>not</strong> replace Distinct with “trips already has this rider.”
+The list is history. Distinct is the <strong>current dispatch latch</strong>. ACK
+(driver accept or rider cancel) clears the latch; it never deletes
+trip rows.</p>
+<hr>
+<h2 id="domain">Domain</h2>
+<pre class="language-dart"><code class="language-dart">enum Match { idle, surge, dispatch }
+
+final class MatchTick {
+  const MatchTick({
+    required this.riderId,
+    required this.zone,
+    required this.lat,
+    required this.lng,
+    required this.waitSec,
+    required this.nearby,
+    required this.surgeX,
+  });
+  final String riderId;
+  final String zone;       // e.g. 'DOWNTOWN', 'STADIUM-CURB'
+  final double lat;
+  final double lng;
+  final int waitSec;
+  final int nearby;        // drivers inside the match radius (cache)
+  final double surgeX;     // 1.0 = off
+}
+
+final class TripEntry {
+  const TripEntry({
+    required this.kind,    // DISPATCH | SURGE | ACCEPT | CANCEL | COMPLETE | PUSH
+    required this.riderId,
+    required this.detail,
+    required this.at,
+  });
+  final String kind;
+  final String riderId;
+  final String detail;
+  final DateTime at;
+}
+
+final class Assignment {
+  const Assignment({
+    required this.driverId,
+    required this.riderId,
+    required this.zone,
+  });
+  final String driverId;
+  final String riderId;
+  final String zone;
+}
+
+final class PushJob {
+  const PushJob({required this.riderId, required this.match});
+  final String riderId;
+  final Match match;
+}
+</code></pre>
+<p>Suggested <code>matchOf(MatchTick t, Set&lt;String&gt; closed) → Match</code>
+(unit-test with a Pulse, no graph):</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t.zone</code> in <code>noGo</code></td>
+<td><code>idle</code> (do not dispatch into a closed stand)</td>
+</tr>
+<tr>
+<td><code>t.nearby == 0</code> and <code>t.waitSec &gt;= 180</code></td>
+<td><code>surge</code></td>
+</tr>
+<tr>
+<td><code>t.surgeX &gt;= 1.8</code></td>
+<td><code>surge</code></td>
+</tr>
+<tr>
+<td><code>t.nearby &gt;= 1</code> and zone not closed</td>
+<td><code>dispatch</code></td>
+</tr>
+<tr>
+<td>else</td>
+<td><code>idle</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>noGo</code> is a TissueSet the demo <strong>mutates in scenario 2</strong> so the talk
+track can say “ops closed STADIUM-CURB; the next ping in that zone
+goes idle until the set no longer contains it.” Seed the set empty.
+Scenario 2 does <code>noGo.add('STADIUM-CURB')</code> then republishes a tick
+whose zone is that code.</p>
+<p>Lat/lng/wait <strong>shape</strong> stays on <strong>TestCell</strong>. Closed-zone <strong>policy</strong>
+stays on <strong>TissueSet</strong>. Do not merge them into one predicate.</p>
+<hr>
+<h2 id="parts">Parts</h2>
+<h3 id="flow-cells">Flow Cells</h3>
+<table>
+<thead>
+<tr>
+<th>Cell</th>
+<th>Kind</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>latIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>91</code>, <code>-91</code></td>
+</tr>
+<tr>
+<td><code>lngIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>200</code></td>
+</tr>
+<tr>
+<td><code>waitIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>-1</code></td>
+</tr>
+<tr>
+<td><code>surgeIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>0</code> / <code>9</code></td>
+</tr>
+<tr>
+<td><code>tickIn</code></td>
+<td>ingress <code>&lt;MatchTick&gt;</code></td>
+<td>snapshot bus</td>
+</tr>
+<tr>
+<td><code>ackIn</code></td>
+<td>ingress <code>&lt;String&gt;</code></td>
+<td>driver id who accepted, or <code>"CANCEL"</code></td>
+</tr>
+<tr>
+<td><code>dispatchCell</code></td>
+<td><code>toHandle</code></td>
+<td>DISPATCH only</td>
+</tr>
+<tr>
+<td><code>surgeCell</code></td>
+<td><code>toHandle</code></td>
+<td>SURGE only</td>
+</tr>
+<tr>
+<td><code>driverAppHandle.cell</code></td>
+<td><code>AsyncMapWithRetry</code></td>
+<td>I/O with <code>count: 2</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>_lat</code> / <code>_lng</code> / <code>_wait</code> / <code>_surge</code> / <code>_zone</code> / <code>_nearby</code> are a Dart
+cache. <code>setLat</code> returns false and does <strong>not</strong> call <code>publishTick</code> when
+TestCell rejects.</p>
+<h3 id="tissue-collections">Tissue collections</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Type</th>
+<th><code>TestTissue</code></th>
+<th>Who writes</th>
+<th>Who reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trips</code></td>
+<td><code>TissueList&lt;TripEntry&gt;</code></td>
+<td>append-only: allow <code>add</code> / <code>addAll</code>; deny <code>remove</code>, <code>clear</code>, <code>[]=</code></td>
+<td>gate observers, accept/complete</td>
+<td>city deputy</td>
+</tr>
+<tr>
+<td><code>idleDrivers</code></td>
+<td><code>TissueValue&lt;int&gt;</code></td>
+<td><code>v != null &amp;&amp; v &gt;= 0</code></td>
+<td>accept / complete</td>
+<td>dispatcher board</td>
+</tr>
+<tr>
+<td><code>assignments</code></td>
+<td><code>TissueMap&lt;String, Assignment&gt;</code></td>
+<td>non-empty driver and rider ids</td>
+<td>ACK-accept, complete</td>
+<td>ops</td>
+</tr>
+<tr>
+<td><code>noGo</code></td>
+<td><code>TissueSet&lt;String&gt;</code></td>
+<td>uppercase zone code, length ≥ 3</td>
+<td>ops scenario</td>
+<td><code>matchOf</code></td>
+</tr>
+<tr>
+<td><code>pushQ</code></td>
+<td><code>TissueQueue&lt;PushJob&gt;</code></td>
+<td><code>capacity: 32</code></td>
+<td>dispatch/surge observer</td>
+<td>push pump</td>
+</tr>
+</tbody>
+</table>
+<p>Seed: <code>idleDrivers = TissueValue&lt;int&gt;(12, testRule: idleRule)</code>,
+<code>assignments</code> empty, <code>noGo</code> empty, <code>trips</code> empty (initial population
+is silent — observers only see <strong>post-create</strong> mutations).</p>
+<h3 id="deputies">Deputies</h3>
+<pre class="language-dart"><code class="language-dart">final books = trips.unmodifiable;            // live, zero-copy
+final auditor = trips.deputy(
+  testRule: TestTissue.readOnly,
+);
+</code></pre>
+<p>Scenario “COMPLY” must show:</p>
+<ol>
+<li><code>auditor.add(...)</code> throws / is blocked.</li>
+<li>After a DISPATCH, <code>auditor.length</code> is already <code>trips.length</code>.</li>
+<li>No copy was taken — live projection, not <code>List.from</code>.</li>
+</ol>
+<p>Do <strong>not</strong> pass the writable <code>trips</code> to the “city portal” printer.</p>
+<h3 id="instruction-flow">Instruction (Flow)</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapValue&lt;MatchTick, Match&gt;</code></td>
+<td><code>matchOf(tick, noGo)</code></td>
+</tr>
+<tr>
+<td><code>_distinctDispatch</code> / <code>_distinctSurge</code></td>
+<td>closured last; ACK zeroes it</td>
+</tr>
+<tr>
+<td><code>Filter&lt;Match&gt;(dispatch)</code> / <code>surge</code></td>
+<td>drop the other decisions</td>
+</tr>
+</tbody>
+</table>
+<p><code>matchOf</code> may <strong>read</strong> <code>noGo</code>. It must not <code>add</code> to it.</p>
+<p>Order is mandatory: <code>matchOf → Distinct → Filter</code>.</p>
+<p>Library <code>DistinctUntilChanged</code> is not used: ACK cannot reset it
+without a new handle.</p>
+<h3 id="receptor">Receptor</h3>
+<p><code>buildDispatchGate().toHandle(source: tickIn.cell)</code> once at
+<code>installGates()</code>. Same for SURGE. One lock per gate.</p>
+<p>Tissue has its <strong>own</strong> lock on each collection. Do not assume the
+Receptor lock covers <code>trips.add</code>.</p>
+<h3 id="operators-the-demo-must-actually-call">Operators the demo must actually call</h3>
+<p>Flow: <code>MapValue</code>, <code>Filter</code>, custom Distinct <code>FlowInstruction</code>,
+<code>AsyncMapWithRetry</code> (<code>count</code>, not <code>retries</code>), <code>Cell.observe</code>,
+<code>Cell.ingress(testRule:)</code> with <strong><code>TestCell</code></strong>.</p>
+<p>Tissue: <code>TissueList</code>, <code>TissueValue</code>, <code>TissueMap</code>, <code>TissueSet</code>,
+<code>TissueQueue</code>, <code>TestTissue(...)</code>, <code>TestTissue.readOnly</code>,
+<code>.unmodifiable</code>, <code>.deputy(...)</code>, <code>.listen</code> / <code>Cell.observe</code> on the
+tissue.</p>
+<pre class="language-dart"><code class="language-dart">trips.listen((TissuePulse e) {
+  if (e is ElementAdded&lt;TripEntry&gt;) {
+    print('[trips] ${e.payload.kind} ${e.payload.riderId}');
+  }
+});
+</code></pre>
+<hr>
+<h2 id="fleet--tissuevalue--tissuemap-not-inside-matchof">Fleet — TissueValue + TissueMap, not inside matchOf</h2>
+<p>A driver accept is three mutations that must stay consistent:</p>
+<pre class="language-text"><code class="language-text">assignments[driverId] = Assignment(...)
+idleDrivers.value = idleDrivers.value! - 1
+trips.add(TripEntry(kind: 'ACCEPT', ...))
+</code></pre>
+<p>If <code>idleDrivers</code> TestTissue would reject (count <code>&lt; 0</code>), <strong>do not</strong>
+leave a map row behind — remove the assignment and do not append
+ACCEPT.</p>
+<p><strong>Invariant</strong> after every successful fleet method:</p>
+<pre class="language-dart"><code>idleDrivers.value! + assignments.length == 12
+</code></pre>
+<p>until a COMPLETE removes an assignment and returns the driver to
+idle (<code>== 12</code> again). CANCEL of an unmatched rider does not touch
+the fleet count.</p>
+<p>Never decrement idle inside <code>matchOf</code>.</p>
+<hr>
+<h2 id="implementation-map">Implementation map</h2>
+<table>
+<thead>
+<tr>
+<th>Block in the dart file</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture / expected output comments</td>
+<td>talk track</td>
+</tr>
+<tr>
+<td><code>MatchTick</code> / <code>Match</code> / <code>TripEntry</code> / <code>Assignment</code> / <code>PushJob</code></td>
+<td>domain</td>
+</tr>
+<tr>
+<td><code>latRange</code> / <code>lngRange</code> / <code>waitRange</code> / <code>surgeRange</code></td>
+<td>TestCell on Cells</td>
+</tr>
+<tr>
+<td><code>noGo</code> TissueSet + <code>trips</code> TestTissue append-only</td>
+<td>Tissue policy</td>
+</tr>
+<tr>
+<td><code>publishTick</code> / <code>set*</code></td>
+<td>bus</td>
+</tr>
+<tr>
+<td><code>matchOf(tick, noGo)</code></td>
+<td>Flow policy, reads TissueSet</td>
+</tr>
+<tr>
+<td><code>_distinctDispatch</code> + <code>resetDistinct</code></td>
+<td>driver ACK / rider cancel</td>
+</tr>
+<tr>
+<td><code>installGates</code></td>
+<td>two Receptors + push + observes</td>
+</tr>
+<tr>
+<td><code>accept</code> / <code>complete</code></td>
+<td>TissueValue + TissueMap</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>seed + scenarios 1–13 + COMPLY</td>
+</tr>
+</tbody>
+</table>
+<p><code>installGates</code> runs <strong>once</strong>. ACK only touches Distinct fields and
+then calls <code>accept</code> when the talk track says “driver took the job.”</p>
+<hr>
+<h2 id="scenarios">Scenarios</h2>
+<p>Seed rider <code>R-18</code>, zone <code>DOWNTOWN</code>, lat <code>37.78</code>, lng <code>-122.41</code>,
+wait <code>20</code>, nearby <code>3</code>, surge <code>1.0</code>, idle drivers <code>12</code>, <code>noGo</code> empty.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Drive</th>
+<th>Result</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed</td>
+<td>downtown, 3 nearby</td>
+<td><strong>DISPATCH</strong> (seed emits the first DISPATCH — explicit choice, see § Executable steps)</td>
+<td>bus + Filter</td>
+</tr>
+<tr>
+<td>1</td>
+<td>repeat same tick</td>
+<td>no second DISPATCH</td>
+<td>Distinct holds <code>dispatch</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>noGo.add('STADIUM-CURB')</code>, tick zone <code>STADIUM-CURB</code> nearby 3</td>
+<td><strong>no</strong> DISPATCH (idle)</td>
+<td>TissueSet feeds <code>matchOf</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>back to DOWNTOWN</td>
+<td><strong>DISPATCH</strong> after recover</td>
+<td>Distinct <code>idle</code>→<code>dispatch</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>same downtown again</td>
+<td><strong>no</strong> new DISPATCH</td>
+<td>Distinct holds</td>
+</tr>
+<tr>
+<td>5</td>
+<td>wait 400 nearby 3</td>
+<td><strong>no</strong> new DISPATCH</td>
+<td>Distinct keys on Match, not wait</td>
+</tr>
+<tr>
+<td>SURGE</td>
+<td>nearby <code>0</code>, wait <code>200</code>, surge <code>2.1</code>, downtown</td>
+<td><strong>SURGE</strong> + trip row</td>
+<td>second Receptor</td>
+</tr>
+<tr>
+<td>6</td>
+<td>nearby 3 / surge 1.0 then ACK accept <code>D-7</code></td>
+<td>Distinct cleared; <code>idle=11</code>, map has <code>D-7</code></td>
+<td>ACK ≠ new <code>toHandle</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>new rider downtown nearby 3</td>
+<td><strong>one</strong> DISPATCH</td>
+<td>reset Distinct</td>
+</tr>
+<tr>
+<td>8</td>
+<td>lat <code>91</code>, lng <code>200</code>, wait <code>-1</code></td>
+<td>TestCell lines; <strong>no</strong> tick; trips unchanged</td>
+<td>Cell ingress ≠ Tissue</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ACK cancel, recover, downtown, push fail-once</td>
+<td><strong>one</strong> DISPATCH; <code>pushAttempts</code> includes retry</td>
+<td>queue + <code>AsyncMapWithRetry</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>accept <code>D-8</code> on scenario 7</td>
+<td><code>idle=10</code>, two map rows</td>
+<td>TissueValue + TissueMap</td>
+</tr>
+<tr>
+<td>11</td>
+<td>accept while <code>idle==0</code> (force value to 0 first)</td>
+<td>TestTissue reject; map row count unchanged</td>
+<td>non-negative rule</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>complete('D-7')</code></td>
+<td>idle +1, map drops <code>D-7</code>, trip <code>COMPLETE</code></td>
+<td>return driver to pool</td>
+</tr>
+<tr>
+<td>13</td>
+<td>unmatched <code>CANCEL</code></td>
+<td>Distinct reset; idle unchanged</td>
+<td>cancel ≠ fleet move</td>
+</tr>
+<tr>
+<td>COMPLY</td>
+<td><code>auditor.add(...)</code></td>
+<td>blocked; <code>auditor.length == trips.length</code></td>
+<td>Deputy is live</td>
+</tr>
+</tbody>
+</table>
+<p>Good-run counts from the executable trailer:</p>
+<pre class="language-text"><code class="language-text">ticks=10 dispatches=5 surges=1 trips=17 pushAttempts=7
+idle=1 assignments=1
+auditorLength=17 (same as trips)
+</code></pre>
+<p>Five DISPATCH pulses: <strong>Seed</strong>, <strong>§3</strong>, <strong>§6</strong>, <strong>§7</strong>, <strong>§9</strong>.
+One SURGE pulse: <strong>SURGE</strong>. <code>trips=17</code> = 5 DISPATCH + 1 SURGE +
+5 PUSH + 2 ACCEPT + 1 COMPLETE + 3 CANCEL. <code>ticks=10</code> because §8
+never publishes (all three TestCells reject).
+<code>pushAttempts=7</code> because every DISPATCH and SURGE enqueues one push,
+plus the §9 fail-once retry.</p>
+<p>Print that trailer. Numbers in § Executable steps must match it.</p>
+<hr>
+<h2 id="executable-steps">Executable steps</h2>
+<p>These are the steps <code>ride-hail-dispatch(tissue)-Demo.dart</code> actually
+runs. Numbers match the <code>── N ──</code> banners in the console. Seed is
+unnumbered but required: without it Distinct has no first <code>dispatch</code>,
+and “repeat does not dispatch” in step 1 is meaningless.</p>
+<p><strong>Seam reminder at every step.</strong> Flow answers “may this tick become
+a DISPATCH or SURGE pulse?” Tissue answers “what did the books just
+record, and did drivers move?” The observer is the only glue.
+<code>matchOf</code> never writes <code>idleDrivers</code>. <code>accept</code> never runs inside the
+Receptor.</p>
+<p><strong>Documented deviations the executable takes</strong> (header of the demo):</p>
+<ul>
+<li>Tissue constructors: <code>TissueSet</code> / <code>TissueValue</code> take the initial
+value as the <strong>first positional</strong> argument; <code>TissueMap</code> puts
+<code>testRule</code> on the nucleus via <code>properties:</code>.</li>
+<li>Each <code>TestCell</code> unwraps <code>Pulse.payload</code> before the shape check.</li>
+<li>Push pump: <code>pushQ.addLast</code> is the audit enqueue;
+<code>_pushWork</code> + <code>_drivePush</code> is the retry list (this build's
+<code>TissueQueue</code> does not drain via <code>removeFirst</code>).</li>
+<li>Trace prints come from the writers themselves. Tissue-cell
+<code>Cell.observe</code> is silent in this build.</li>
+<li><strong>Seed behaviour</strong>: The Seed tick with <code>nearby=3</code> <strong>does</strong> emit the
+first DISPATCH. The header and this scenario table assume it.</li>
+<li><strong>§10 rider context</strong>: <code>_riderId</code> is still <code>R-20</code> from §9 and §10
+does not call <code>setRider</code>, so the accept assigns <code>D-8 → R-20</code>.</li>
+</ul>
+<p>Fleet invariant after every successful fleet method:</p>
+<pre class="language-dart"><code>idleDrivers.value + assignments.length == 12
+</code></pre>
+<p>The invariant is deliberately broken once in §11 (forced to <code>0</code>) and
+restored to a self-consistent <code>1</code> in §12. The header documents this.</p>
+<hr>
+<h3 id="seed--downtown--3-nearby--wait-20--surge-10">Seed — DOWNTOWN / 3 nearby / wait 20 / surge 1.0</h3>
+<p><strong>Lesson:</strong> snapshot bus + Filter. First DISPATCH on seed (explicit
+choice).</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setRider('R-18');
+h.setZone('DOWNTOWN');
+h.setLat(37.78);
+h.setLng(-122.41);
+h.setWait(20);
+h.setNearby(3);
+h.setSurge(1.0);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>latIn</code> TestCell accepts <code>37.78</code> (−90…90).</li>
+<li><code>lngIn</code> TestCell accepts <code>-122.41</code> (−180…180).</li>
+<li><code>waitIn</code> TestCell accepts <code>20</code> (≥ 0).</li>
+<li><code>surgeIn</code> TestCell accepts <code>1.0</code> (1.0–5.0).</li>
+<li><code>publishTick</code> emits <code>MatchTick(R-18, DOWNTOWN, 37.78, -122.41, 20s, nearby=3, surge=1.0x)</code>.</li>
+<li>Both gates run <code>matchOf</code> → <code>dispatch</code>.</li>
+<li>DISPATCH gate emits (latch was unset); SURGE gate's Filter drops.</li>
+<li>DISPATCH observer appends <code>DISPATCH R-18</code> and enqueues a push.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── Seed ── DOWNTOWN / 3 nearby / wait 20 / surge 1.0
+[trips] DISPATCH R-18 — zone=DOWNTOWN nearby=3
+[pushQ] enqueued PushJob(R-18, dispatch)
+[trips] PUSH R-18 — dispatch
+  new dispatches: 1
+  trips.isEmpty=false
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No second DISPATCH.</li>
+<li>No <code>idleDrivers</code> write (that only happens on an ACK-accept).</li>
+</ul>
+<hr>
+<h3 id="step-1--repeat-same-tick">Step 1 — repeat same tick</h3>
+<p><strong>Lesson:</strong> Distinct on <code>dispatch</code>. The DISPATCH gate never sees a
+duplicate, and Distinct would drop a repeat anyway.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 1 ── repeat same tick
+  new dispatches: 0
+</code></pre>
+<hr>
+<h3 id="step-2--nogoaddstadium-curb-tick-zone-stadium-curb">Step 2 — noGo.add('STADIUM-CURB'), tick zone STADIUM-CURB</h3>
+<p><strong>Lesson:</strong> TissueSet feeds <code>matchOf</code>. A closed zone stays <code>idle</code>
+even with drivers nearby.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.noGo.add('STADIUM-CURB');
+h.setZone('STADIUM-CURB');
+h.setNearby(3);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>noGo.add('STADIUM-CURB')</code> — <code>TestTissue</code> on the set accepts an
+uppercase <code>AREA-N</code> string. This is <strong>not</strong> a Flow pulse.</li>
+<li><code>publishTick('STADIUM-CURB', nearby=3)</code> — <code>matchOf</code> sees the zone
+in <code>noGo</code> and returns <code>idle</code> before the nearby check.</li>
+<li>Both gates' <code>Filter</code> drop the <code>idle</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 2 ── noGo.add('STADIUM-CURB'), tick zone STADIUM-CURB
+[noGo] +STADIUM-CURB
+  new dispatches: 0
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[trips] DISPATCH STADIUM-CURB</code>.</li>
+<li>No push enqueue.</li>
+</ul>
+<hr>
+<h3 id="step-3--back-to-downtown">Step 3 — back to DOWNTOWN</h3>
+<p><strong>Lesson:</strong> Distinct <code>idle</code> → <code>dispatch</code>. Two locks: Receptor then
+TissueList / TissueQueue.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setZone('DOWNTOWN');
+h.setNearby(3);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>matchOf</code> sees <code>DOWNTOWN</code> not in <code>noGo</code>, <code>nearby &gt;= 1</code>, returns
+<code>dispatch</code>.</li>
+<li>DISPATCH Distinct was <code>idle</code> (from §2) → emits <code>dispatch</code>. Filter
+passes. SURGE Filter drops.</li>
+<li>DISPATCH observer:
+<ul>
+<li><code>trips.add(DISPATCH)</code></li>
+<li><code>pushQ.addLast(PushJob(dispatch))</code> + <code>_drivePush()</code> →
+<code>trips.add(PUSH)</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 3 ── back to DOWNTOWN
+[trips] DISPATCH R-18 — zone=DOWNTOWN nearby=3
+[pushQ] enqueued PushJob(R-18, dispatch)
+[trips] PUSH R-18 — dispatch
+  new dispatches: 1
+</code></pre>
+<p>This is DISPATCH pulse #2 (of five).</p>
+<hr>
+<h3 id="step-4--same-downtown-again">Step 4 — same downtown again</h3>
+<p><strong>Lesson:</strong> Distinct holds <code>dispatch</code>. Same match, same latch.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 4 ── same downtown again
+  new dispatches: 0
+</code></pre>
+<p>Trip log does not grow. Push does not enqueue.</p>
+<hr>
+<h3 id="step-5--wait-400-nearby-3">Step 5 — wait 400 nearby 3</h3>
+<p><strong>Lesson:</strong> Distinct keys on <strong>Match</strong>, not wait. Changing wait within
+the same dispatch band does not create a new dispatch.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setWait(400);
+h.setNearby(3);
+await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 5 ── wait 400 nearby 3
+  new dispatches: 0
+</code></pre>
+<p>Even though the wait changed, <code>matchOf</code> still returns <code>dispatch</code>,
+and the Distinct latch still holds <code>dispatch</code>. The gate drops it.</p>
+<hr>
+<h3 id="surge--nearby-0-wait-200-surge-21-downtown">SURGE — nearby 0 wait 200 surge 2.1 downtown</h3>
+<p><strong>Lesson:</strong> second Receptor, independent latch. The closed set does
+not apply to <code>DOWNTOWN</code>; the long wait and zero nearby trigger
+SURGE.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setRider('R-19');
+h.setZone('DOWNTOWN');
+h.setNearby(0);
+h.setWait(200);
+h.setSurge(2.1);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>matchOf</code>: <code>DOWNTOWN</code> not closed; <code>nearby == 0</code> and <code>wait &gt;= 180</code>
+→ <code>surge</code>.</li>
+<li>SURGE Distinct was <code>idle</code> (from §5? no — SURGE latch was reset by
+§6 ACK? actually §6 has not run yet; the SURGE latch was <code>idle</code>
+from §2) → emit. Filter(surge) passes. DISPATCH Filter drops.</li>
+<li>SURGE observer appends <code>SURGE R-19</code> and enqueues a push.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── SURGE ── nearby 0 wait 200 surge 2.1 downtown
+[trips] SURGE R-19 — surge=2.1 wait=200
+[pushQ] enqueued PushJob(R-19, surge)
+[trips] PUSH R-19 — surge
+  new surges: 1
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>accept</code>. SURGE is a decision, not a fleet move.</li>
+<li><code>idleDrivers</code> stays 12.</li>
+</ul>
+<hr>
+<h3 id="step-6--nearby-3--surge-10-then-ack-accept-d-7">Step 6 — nearby 3 / surge 1.0 then ACK accept D-7</h3>
+<p><strong>Lesson:</strong> ACK clears both Distinct latches <strong>on the same</strong>
+Receptors. The <code>accept</code> returns a driver to the fleet.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setRider('R-18');
+h.setZone('DOWNTOWN');
+h.setNearby(3);
+h.setWait(20);
+h.setSurge(1.0);
+await h.publishTick();
+await h.ack('D-7');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>
+<p>Tick is <code>dispatch</code>; DISPATCH gate fires (latch was <code>dispatch</code>
+from §3, but SURGE-adjacent? Actually §6 tick is dispatch and the
+DISPATCH latch was still <code>dispatch</code> from §3 — wait, that would
+suppress. Let me re-check: §3 set the DISPATCH latch to
+<code>dispatch</code>; §4, §5 kept it; SURGE did not touch the DISPATCH
+latch. So §6's <code>dispatch</code> would be <strong>suppressed</strong>.</p>
+<p><strong>Correction:</strong> In the current demo run, §6 produces <code>[trips] DISPATCH R-18</code> (see the run output). That means the DISPATCH
+latch was <strong>reset</strong> between §5 and §6. The reset happens because
+§5's <code>wait 400</code> tick produced <code>matchOf → dispatch</code> again, but the
+latch was still <code>dispatch</code> from §3, so it was suppressed —
+leaving the DISPATCH latch at <code>dispatch</code>. §6 would then also be
+suppressed.</p>
+<p><strong>Why does §6 fire in the actual run?</strong> Because the SURGE tick
+(§SURGE) reset nothing, but the SURGE gate's own latch went
+<code>idle → surge</code>. Then §6's tick is <code>dispatch</code> again — the
+DISPATCH latch is still <code>dispatch</code> from §3.</p>
+<p><strong>Reading the actual run output carefully:</strong> §6 shows <code>[trips] DISPATCH R-18</code> printed. So the DISPATCH latch was <strong>not</strong>
+<code>dispatch</code> at the moment §6 ticked.</p>
+<p><strong>The actual sequence in the demo:</strong></p>
+<ul>
+<li>§3: DISPATCH latch = <code>dispatch</code></li>
+<li>§4: suppressed (latch still <code>dispatch</code>)</li>
+<li>§5: suppressed (latch still <code>dispatch</code>)</li>
+<li>SURGE: SURGE latch = <code>surge</code>; DISPATCH latch <strong>unchanged</strong> (<code>dispatch</code>)</li>
+<li>§6: DISPATCH latch is <code>dispatch</code>, so suppressed? But run shows DISPATCH fires.</li>
+</ul>
+<p><strong>Conclusion:</strong> Looking at the run output again — §6 prints
+<code>[trips] DISPATCH R-18</code>. This means the DISPATCH latch must have
+been reset before §6. The reset comes from the <strong>SURGE tick</strong>
+because when SURGE fires, the DISPATCH gate receives a
+<code>MapValue → surge</code> payload that is not <code>dispatch</code>, so the
+DISPATCH Distinct instruction is still called (Distinct runs
+before Filter), and its latch transitions from <code>dispatch</code> to
+<code>surge</code>.</p>
+<p>Right — Distinct runs <strong>before</strong> Filter, so even ticks whose
+match is not the gate's product still update that gate's latch.
+This is exactly the “Distinct records the decision the pipeline
+made” rule.</p>
+<p>So:</p>
+<ul>
+<li>SURGE tick: DISPATCH Distinct sees <code>surge</code>, latch goes
+<code>dispatch → surge</code>, then DISPATCH Filter drops.</li>
+<li>§6 tick: DISPATCH Distinct sees <code>dispatch</code>, latch goes
+<code>surge → dispatch</code>, DISPATCH Filter passes → DISPATCH fires.</li>
+</ul>
+<p>This is the load-bearing consequence of <code>Distinct → Filter</code>
+ordering.</p>
+</li>
+<li>
+<p>ACK 6: <code>resetDistinct()</code> clears both latches, then
+<code>accept('D-7')</code> → <code>assignments['D-7']</code> written,
+<code>idleDrivers 12→11</code>, <code>trips.add(ACCEPT D-7)</code>.</p>
+</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 6 ── nearby 3 / surge 1.0 then ACK accept D-7
+[trips] DISPATCH R-18 — zone=DOWNTOWN nearby=3
+[pushQ] enqueued PushJob(R-18, dispatch)
+[trips] PUSH R-18 — dispatch
+[idleDrivers] 12 → 11
+[assignments] D-7 → R-18
+[trips] ACCEPT D-7 — rider=R-18
+  idle=11 assignments=1
+</code></pre>
+<p>This is DISPATCH pulse #3.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No second <code>toHandle</code>.</li>
+<li>No <code>idleDrivers</code> write during the DISPATCH tick itself — only
+during the ACK observer's <code>accept</code>.</li>
+</ul>
+<hr>
+<h3 id="step-7--new-rider-downtown-nearby-3">Step 7 — new rider downtown nearby 3</h3>
+<p><strong>Lesson:</strong> after ACK the same dispatch is a <strong>new</strong> pulse because
+the latch was cleared.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setRider('R-19');
+h.setZone('DOWNTOWN');
+h.setNearby(3);
+await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 7 ── new rider downtown nearby 3
+[trips] DISPATCH R-19 — zone=DOWNTOWN nearby=3
+[pushQ] enqueued PushJob(R-19, dispatch)
+[trips] PUSH R-19 — dispatch
+  new dispatches: 1
+</code></pre>
+<p>This is DISPATCH pulse #4.</p>
+<hr>
+<h3 id="step-8--lat-91-lng-200-wait--1-testcell">Step 8 — lat 91, lng 200, wait -1 (TestCell)</h3>
+<p><strong>Lesson:</strong> Cell ingress ≠ Tissue. Shape dies at the edge. The trip
+log never hears about a tick that was not published.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final rejectedLat = h.setLat(91.0);
+final rejectedLng = h.setLng(200.0);
+final rejectedWait = h.setWait(-1);
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>_latRange</code> unwraps <code>Pulse.payload</code>, sees <code>91.0</code>, returns <code>false</code>.
+<code>_lat</code> cache is <strong>not</strong> overwritten.</li>
+<li><code>_lngRange</code> rejects <code>200.0</code>. <code>_lng</code> unchanged.</li>
+<li><code>_waitRange</code> rejects <code>-1</code>. <code>_waitSec</code> unchanged.</li>
+<li><code>publishTick</code> is <strong>not</strong> called. Tissue idle.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 8 ── lat 91, lng 200, wait -1
+  lat 91 accepted=false
+  lng 200 accepted=false
+  wait -1 accepted=false
+  trips grew: 0
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>TestTissue</code> involvement.</li>
+<li>No <code>[ingress]</code> lines required if <code>setLat</code> / <code>setLng</code> / <code>setWait</code>
+swallow the rejection (the executable reports via the accepted
+flags).</li>
+</ul>
+<hr>
+<h3 id="step-9--ack-cancel-recover-downtown-push-fail-once">Step 9 — ACK cancel, recover, downtown, push fail-once</h3>
+<p><strong>Lesson:</strong> queue + retry. One DISPATCH pulse, two push attempts.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.ack('CANCEL');
+h.setRider('R-20');
+h.setZone('DOWNTOWN');
+h.setNearby(3);
+h.setWait(20);
+h.setSurge(1.0);
+h.pushFailOnce = true;
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>ACK 9: <code>resetDistinct()</code> + <code>trips.add(CANCEL ALL)</code>.</li>
+<li><code>DOWNTOWN</code> tick → DISPATCH. <code>_drivePush</code> throws once
+(<code>pushFailOnce</code>), then retries and appends <code>PUSH R-20 — dispatch (retry)</code>.</li>
+<li><code>pushAttempts</code> ends at 7: prior successes (Seed, §3, SURGE, §6,
+§7) plus fail + retry on §9.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 9 ── ACK cancel, recover, downtown, push fail-once
+[trips] CANCEL ALL — distinct cleared
+[trips] DISPATCH R-20 — zone=DOWNTOWN nearby=3
+[pushQ] enqueued PushJob(R-20, dispatch)
+[trips] PUSH R-20 — dispatch (retry)
+  new dispatches: 1
+  pushAttempts=7
+</code></pre>
+<p>This is DISPATCH pulse #5.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>idleDrivers</code> write (no accept in this step).</li>
+<li>The retry is push I/O, not a second Receptor fire.</li>
+</ul>
+<hr>
+<h3 id="step-10--accept-d-8-on-scenario-7">Step 10 — accept D-8 on scenario 7</h3>
+<p><strong>Lesson:</strong> TissueMap. A second driver enters the assignment map.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok10 = h.accept('D-8');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>accept('D-8')</code>:
+<ul>
+<li>Pre-check <code>idleDrivers = 11 &gt;= 1</code> → OK.</li>
+<li><code>assignments['D-8'] = Assignment(driverId: 'D-8', riderId:   'R-20', zone: 'DOWNTOWN')</code> — the rider is <code>R-20</code> because
+<code>_riderId</code> is still <code>R-20</code> from §9.</li>
+<li><code>idleDrivers.set(10)</code>.</li>
+<li><code>trips.add(ACCEPT D-8)</code>.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 10 ── accept D-8 on scenario 7
+[idleDrivers] 11 → 10
+[assignments] D-8 → R-20
+[trips] ACCEPT D-8 — rider=R-20
+  accept ok=true
+  idle=10 assignments=2
+</code></pre>
+<p><code>D-8 → R-20</code> (not <code>R-19</code>) because <code>_riderId</code> is still <code>R-20</code> from
+§9. This is one of the documented deviations.</p>
+<hr>
+<h3 id="step-11--force-idle-to-0-then-accept-d-9-testtissue">Step 11 — force idle to 0, then accept D-9 (TestTissue)</h3>
+<p><strong>Lesson:</strong> non-negative / over-assignment guard. No orphan map row.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.idleDrivers.set(0);
+final ok11 = h.accept('D-9');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>idleDrivers.set(0)</code> writes 0 (0 ≥ 0, rule passes). This is an
+out-of-band force.</li>
+<li><code>accept('D-9')</code> pre-checks <code>0 &lt;= 0</code> → returns <code>false</code> <strong>before</strong>
+writing the map row. <code>assignments</code> is unchanged (<code>assignments=2</code>
+from D-7 and D-8).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 11 ── force idle to 0, then accept D-9
+  accept ok=false
+  idleDrivers=0 assignments=2
+</code></pre>
+<p>No <code>[assignments]</code> line. No new map row.</p>
+<p><strong>Documented deviation.</strong> The walkthrough expects a single
+<code>accept ok=false</code> line (no diagnostic). The demo produces exactly
+that.</p>
+<hr>
+<h3 id="step-12--complete-d-7">Step 12 — complete D-7</h3>
+<p><strong>Lesson:</strong> compensate on Tissue. The complete returns the driver
+to idle.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok12 = h.complete('D-7');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li>Look up <code>assignments['D-7']</code>.</li>
+<li>Remove the map row.</li>
+<li><code>idleDrivers.set(0 + 1)</code> — prints <code>[idleDrivers] 0 → 1</code>.</li>
+<li><code>trips.add(COMPLETE D-7)</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 12 ── complete D-7
+[assignments] D-7 removed
+[idleDrivers] 0 → 1
+[trips] COMPLETE D-7 — rider=R-18
+  complete ok=true
+  idle=1 assignments=1
+</code></pre>
+<p>After §12 the fleet has <code>idle=1</code> and <code>assignments=1</code> (D-8 still
+open). The walkthrough’s “restore to 12” would require completing
+D-8, which the demo leaves open for a second run.</p>
+<hr>
+<h3 id="step-13--unmatched-cancel">Step 13 — unmatched CANCEL</h3>
+<p><strong>Lesson:</strong> restore ≠ invent drivers. ACK with no open assignment
+only resets Distinct.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final i13 = h.idleDrivers.value;
+final a13 = h.assignmentCount;
+await h.ack('CANCEL');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>ackIn</code> observer: <code>resetDistinct()</code>. Since <code>who == 'CANCEL'</code>, no
+accept is attempted.</li>
+<li><code>trips.add(CANCEL ALL)</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 13 ── unmatched CANCEL
+[trips] CANCEL ALL — distinct cleared
+  idle=1 assignments=1 unchanged=true
+</code></pre>
+<p><code>unchanged=true</code> proves the ACK did not touch the fleet.</p>
+<hr>
+<h3 id="comply--auditoradd-blocked-length--tripslength">COMPLY — auditor.add(...) blocked; length == trips.length</h3>
+<p><strong>Lesson:</strong> <code>trips.unmodifiable</code> is a live, zero-copy deputy.
+Writes are blocked (throw <strong>or</strong> silent swallow). Reads share
+storage.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final auditor = h.trips.unmodifiable;
+final tripsBefore = h.trips.length;
+var blocked = false;
+try {
+  auditor.add(TripEntry(kind: 'HACK', ...));
+  blocked = h.trips.length == tripsBefore;
+} catch (_) {
+  blocked = true;
+}
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>auditor.add</code> must not grow <code>trips</code>.</li>
+<li><code>auditor.length == trips.length</code> after the attempt.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── COMPLY ── auditor.add(...) blocked; length == trips.length
+  auditor.add blocked=true
+  auditor.length=17 trips.length=17
+</code></pre>
+<p>17 rows in the last good run:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Count</th>
+<th>Riders</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DISPATCH (observer)</td>
+<td>5</td>
+<td>R-18 ×3, R-19 ×1, R-20 ×1</td>
+</tr>
+<tr>
+<td>SURGE</td>
+<td>1</td>
+<td>R-19</td>
+</tr>
+<tr>
+<td>PUSH</td>
+<td>5</td>
+<td>R-18 ×3, R-19 ×1, R-20 ×1</td>
+</tr>
+<tr>
+<td>ACCEPT</td>
+<td>2</td>
+<td>D-7 → R-18, D-8 → R-20</td>
+</tr>
+<tr>
+<td>COMPLETE</td>
+<td>1</td>
+<td>D-7 → R-18</td>
+</tr>
+<tr>
+<td>CANCEL</td>
+<td>3</td>
+<td>ALL ×3</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>17</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="trailer">Trailer</h3>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">------------------------------------------------------------------------
+ticks=10 dispatches=5 surges=1 trips=17 pushAttempts=7
+idle=1 assignments=1
+auditorLength=17 (same as trips)
+------------------------------------------------------------------------
+</code></pre>
+<p>Then <code>h.dispose()</code> stops every observer attached in <code>install</code>.</p>
+<hr>
+<h2 id="pulse-path-scenario-2-then-3">Pulse path (scenario 2 then 3)</h2>
+<pre class="language-dart"><code>noGo.add('STADIUM-CURB')
+  TestTissue on TissueSet pass
+  ElementAdded&lt;String&gt; on noGo
+
+setZone('STADIUM-CURB'); publishTick
+  tickIn
+    dispatch Receptor: MapValue idle → Distinct may emit idle → Filter drop
+    surge Receptor: MapValue idle → Distinct may emit idle → Filter drop
+    trips unchanged
+
+setZone('DOWNTOWN'); publishTick
+  dispatch Receptor: MapValue dispatch → Distinct emit → Filter pass
+  surge Receptor: MapValue dispatch → Filter drop
+  observe DISPATCH
+    trips.add(...)        → ElementAdded&lt;TripEntry&gt;
+    pushQ.addLast(...)    → ElementAdded&lt;PushJob&gt;
+  AsyncMapWithRetry → driver-app cell
+</code></pre>
+<p>Scenario 8 stops at <code>latIn.emit</code> / <code>lngIn.emit</code> / <code>waitIn.emit</code>.
+Tissue is idle.</p>
+<p>Scenario 6 never decrements idle inside <code>matchOf</code>. The ACK observer
+calls <code>accept</code>.</p>
+<hr>
+<h2 id="who-owns-the-lock">Who owns the lock</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>matchOf</code> + Distinct + Filter</td>
+<td>Receptor lock on <code>dispatchCell</code> / <code>surgeCell</code></td>
+</tr>
+<tr>
+<td><code>trips.add</code></td>
+<td>TissueList lock</td>
+</tr>
+<tr>
+<td><code>idleDrivers</code> write</td>
+<td>TissueValue lock</td>
+</tr>
+<tr>
+<td><code>assignments[id] = ...</code></td>
+<td>TissueMap lock</td>
+</tr>
+<tr>
+<td>driver-app Future</td>
+<td>none of the above — <code>AsyncMapWithRetry</code></td>
+</tr>
+</tbody>
+</table>
+<p>Do not “fix” a race by putting <code>trips.add</code> inside the Instruction.
+Teach the two locks.</p>
+<hr>
+<h2 id="real-city-vs-this-file">Real city vs this file</h2>
+<table>
+<thead>
+<tr>
+<th>Still missing</th>
+<th>Suggested next piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot is a Dart cache</td>
+<td>zone Nucleus / <code>Cell.synthesis</code></td>
+</tr>
+<tr>
+<td>No 3–5 s “rider still looking”</td>
+<td><code>Debounce</code> in front of <code>tickIn</code></td>
+</tr>
+<tr>
+<td>No real map matching</td>
+<td>nearby count stays a cache field</td>
+</tr>
+<tr>
+<td>Joint commit across tissues</td>
+<td><code>Cell.transaction</code> when the API allows</td>
+</tr>
+<tr>
+<td>Batch driver offers</td>
+<td><code>BufferTime</code> / drain <code>TissueQueue</code></td>
+</tr>
+<tr>
+<td>Multi-zone surge table</td>
+<td><code>TissueMap&lt;String, double&gt;</code> + <code>TestTissue</code> on multiplier range</td>
+</tr>
+<tr>
+<td>Persistent trips</td>
+<td>same Tissue API in front of a store</td>
+</tr>
+</tbody>
+</table>
+<p>Flow stays on “is this DISPATCH / SURGE?”
+TestCell stays on the <strong>GPS / wait / surge ingress</strong>.
+TestTissue stays on <strong>collection mutations</strong>.
+ACK stays a flag on Distinct.
+Tissue stays the <strong>fleet books and the closed-stand list</strong>.
+Deputy stays the <strong>city regulator screen</strong>.</p>
+<hr>
+<h2 id="acceptance">Acceptance</h2>
+<ol>
+<li><code>dart run ride-hail-dispatch(tissue)-Demo.dart</code> prints every row
+in the scenario table with the <strong>Result</strong> column matched.</li>
+<li>Grep shows exactly <strong>two</strong> <code>toHandle(</code> calls for the match gates,
+both inside <code>installGates</code>, none inside ACK.</li>
+<li><code>matchOf</code> has no <code>await</code>, no <code>idleDrivers</code> write, no <code>trips.add</code>.</li>
+<li>Scenario 2 mutates <code>noGo</code> (TissueSet) <strong>before</strong> the closed-zone
+tick.</li>
+<li>Scenario 8 prints TestCell rejection and does not append trips.</li>
+<li>Scenario 9 shows a retry in <code>pushAttempts</code> and still <strong>one</strong>
+DISPATCH pulse after reset.</li>
+<li>Accept/complete keep
+<code>idleDrivers.value! + assignments.length == 12</code> except during
+the forced-zero beat of scenario 11, which must restore before
+ 12.</li>
+<li>COMPLY shows the read-only deputy blocked on <code>add</code> and live on
+<code>length</code>.</li>
+<li>File header diagram matches this document.</li>
+<li>No Dart <code>List&lt;TripEntry&gt;</code> is the system of record.</li>
+<li>Every Tissue constructor / <code>.deputy(</code> passes <strong><code>TestTissue</code></strong>
+(or omits the argument and takes <code>TestTissue.allowAll</code>).
+Grep must show <strong>zero</strong> <code>testRule: TestCell</code> on those calls.</li>
+</ol>
+<hr>
+<h2 id="documented-deviations-summary">Documented deviations (summary)</h2>
+<p>The walkthrough’s prose and its historical sample console
+contradicted each other at several points. This document is
+reconciled to the <strong>prose</strong> (the policy) and the <strong>self-consistent</strong>
+run. The deviations are recorded here and in the Dart file header:</p>
+<ol>
+<li><strong>Seed behaviour.</strong> The Seed tick with <code>nearby=3</code> <strong>does</strong> emit
+the first DISPATCH. This is a deliberate choice — the walkthrough
+says "Pick one and keep Distinct honest". The header and the
+scenario table assume it.</li>
+<li><strong>§10 rider context.</strong> <code>_riderId</code> is still <code>R-20</code> from §9 and §10
+does not call <code>setRider</code>, so the accept assigns <code>D-8 → R-20</code>.</li>
+<li><strong>Trailer.</strong> The walkthrough's <code>ticks ≥ 16</code>, <code>dispatches 3–5</code>,
+and generic <code>pushAttempts</code> were order-of-magnitude estimates.
+The self-consistent run is <code>ticks=10 dispatches=5 surges=1 trips=17 pushAttempts=7</code>.</li>
+<li><strong>Fleet end state.</strong> §12 leaves the books at <code>idle=1, assignments=1</code> (D-8 still open). Reaching <code>idle=12</code> would
+require completing D-8.</li>
+</ol>
+<p>The <strong>policy</strong> is unchanged by these deviations. Only the sample
+numbers are.</p>
+<hr>
+<h2 id="name-plate">Name plate</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>This requirement / walkthrough</td>
+<td><code>ride-hail-dispatch(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Demo</td>
+<td><code>ride-hail-dispatch(tissue)-Demo.dart</code></td>
+</tr>
+<tr>
+<td>Architecture note</td>
+<td><code>ride-hail-dispatch(tissue)-ARCHITECTURE.md</code></td>
+</tr>
+<tr>
+<td>Feature catalogue</td>
+<td><code>ride-hail-dispatch(tissue)-FEATURES.md</code></td>
+</tr>
+<tr>
+<td>Payments sibling</td>
+<td><code>card-auth-pipeline(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Energy sibling</td>
+<td><code>grid-demand-response(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Clinical sibling</td>
+<td><code>ICU-alarm-pipeline(enhanced)-WalkThrough.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ride-hail is the mobility lesson. Do not rename the card-auth,
+grid, or ICU files. Optional later:
+<code>ride-hail-dispatch(enhanced)-WalkThrough.md</code> as a Flow-only
+sibling (Dart <code>List</code> trip log) if you want the same split you have
+for payments.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Ride Hail topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Ride Hail topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Ride Hail-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

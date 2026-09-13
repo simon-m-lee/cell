@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">async property</li>
   </ol>
@@ -75,15 +75,15 @@
   <p>Returns an asynchronous interface for this queue.</p>
 <p>Since this queue is unmodifiable, the returned <a href="../../cell_tissue/ModifiableQueueAsync-class.html">ModifiableQueueAsync</a>
 instance will reject or ignore any attempts to modify the underlying data.</p>
-<p>Returns:
-A <code>_UnmodifiableModifiableQueueAsync</code> instance.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <code>_UnmodifiableModifiableQueueAsync</code> instance.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-ModifiableQueueAsync&lt;E&gt; get async =&gt; const _UnmodifiableModifiableQueueAsync();</code></pre>
+ModifiableQueueAsync&lt;E&gt; get async =&gt; _UnmodifiableModifiableQueueAsync&lt;E&gt;();</code></pre>
 </section>
 
   </section>
@@ -113,7 +113,7 @@ ModifiableQueueAsync&lt;E&gt; get async =&gt; const _UnmodifiableModifiableQueue
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">shell property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/TissueEventShell-class.html">TissueEventShell</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
       get
       <span class="name ">shell</span>
@@ -67,16 +72,19 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns a defensive shell that hides the event’s payload.</p>
+  <p>Returns a defensive shell that hides the event's payload.</p>
 <p>Even though this event is already unmodifiable, the shell adds an
 extra layer of protection by forcing the receiver to authenticate
 before revealing the payload.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/TissueEventShell-class.html">TissueEventShell</a> that gates access to the event.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventShell&lt;E&gt; get shell =&gt; TissueEventShell&lt;E&gt;._(this);</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+TissueEventShell&lt;E&gt; get shell =&gt; TissueEventShell&lt;E&gt;._(this);</code></pre>
 </section>
 
   </section>
@@ -106,7 +114,7 @@ before revealing the payload.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

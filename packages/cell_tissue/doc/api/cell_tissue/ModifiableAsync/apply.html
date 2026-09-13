@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableAsync-class.html">ModifiableAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">apply method</li>
   </ol>
@@ -55,10 +55,15 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
-<span class="name ">apply</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span></li>
-<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span></li>
-<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span></li>
-</ol>])
+<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
+<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
+</ol>})
 
       
 
@@ -82,12 +87,18 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future apply(Function function, List? positionalArguments, [Map&lt;Symbol, dynamic&gt;? namedArguments]) async {
+  <pre class="language-dart"><code class="language-dart">Future apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+  ApplyTransactionScope? tx,
+  Function? compensate,
+  List? compensatePositional,
+  Map&lt;Symbol, dynamic&gt;? compensateNamed,
+  Cell? compensateCell,
+  }) async {
 
   final lock = _cell._nucleus.lock;
   return lock != null
-      ? lock.synchronized(() =&gt; _cell.apply(function, positionalArguments, namedArguments))
-      : Future(() =&gt; _cell.apply(function, positionalArguments, namedArguments));
+      ? lock.synchronized(() =&gt; _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments))
+      : Future(() =&gt; _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments));
 }</code></pre>
 </section>
 
@@ -116,7 +127,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

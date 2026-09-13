@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueListMixin-mixin.html">TissueListMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">removeLast method</li>
   </ol>
@@ -68,8 +68,8 @@
     
 <section class="desc markdown">
   <p>Removes the last element of the list and returns it.</p>
-<p>Returns:
-The removed element.</p>
+<h3 id="returns">Returns:</h3>
+<p>The removed element.</p>
 </section>
 
 
@@ -77,7 +77,13 @@ The removed element.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-E removeLast() =&gt; apply(removeLast, null).values.first.first;</code></pre>
+E removeLast() {
+  final result = apply(removeLast);
+  if (result == null) {
+    throw UnsupportedError(&#39;Unmodifiable operation&#39;);
+  }
+  return result as E;
+}</code></pre>
 </section>
 
 
@@ -105,7 +111,7 @@ E removeLast() =&gt; apply(removeLast, null).values.first.first;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

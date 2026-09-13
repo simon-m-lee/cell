@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Deputy-mixin.html">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -83,7 +83,7 @@ cell is already a deputy, it forwards to the principal's unmodifiable view.</p>
 <pre class="language-dart"><code class="language-dart">final cell = ValueCell&lt;int&gt;(value: 42);
 final readOnly = cell.unmodifiable;
 print(readOnly.value); // 42
-// readOnly.trigger(100); // Not available on read-only view
+// readOnly.emit(100); // Not available on read-only view
 </code></pre>
 </section>
 
@@ -121,7 +121,7 @@ C get unmodifiable =&gt; (_nucleus.bind as C).unmodifiable as C;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

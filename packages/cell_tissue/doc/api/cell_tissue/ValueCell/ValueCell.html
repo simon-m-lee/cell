@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueCell.new constructor</li>
   </ol>
@@ -59,7 +59,7 @@
 <li><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
 </ol>})?, </span></li>
-<li><span class="parameter" id="-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
 <li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
 <li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
@@ -71,10 +71,10 @@
 <section class="desc markdown">
   <p>Initializes a new primary <code>ValueCell</code> – the standard state atom.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You typically use <a href="../../cell_tissue/Cell/value.html">Cell.value</a> instead of this constructor directly.</p>
+<p>You typically use <a href="../../cell_tissue/Cell/state.html">Cell.state</a> instead of this constructor directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It creates a <code>ValueNucleus</code> with the given parameters, then seeds the
-initial <code>value</code> directly into the <code>Box</code> (bypassing the transform).</p>
+initial <code>state</code> directly into the <code>Box</code> (bypassing the transform).</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
 <li>If you provide a custom <code>receptor</code> without a <code>transform</code>, you must
@@ -86,60 +86,19 @@ changes, this cell automatically receives a pulse.</li>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>transform</code>: <strong>The Reactive Brain.</strong> An optional functional unit
-that defines the cell's "metabolism." It intercepts incoming stimuli,
-performing sanitization, complex mapping, or type-safe transitions.
-If <code>transform</code> returns <code>null</code>, the update is treated as a "noop" and
-discarded; otherwise, the resulting <a href="../../cell_tissue/Pulse-class.html">Pulse</a> is passed to the
-commitment phase.</li>
-<li><code>value</code>: <strong>The Initial Seed.</strong> An optional value of type <code>V?</code> that
+that defines the cell's "metabolism."</li>
+<li><code>initial</code>: <strong>The Initial Seed.</strong> An optional value of type <code>V?</code> that
 establishes the cell's foundational state. This value is written
-directly to the internal <a href="../../cell_tissue/Box-class.html">Box</a> during the construction phase,
-effectively setting the "Known Good" baseline before the cell
-begins processing external signals or reactive waves.</li>
+directly to the internal <a href="../../cell_tissue/Box-class.html">Box</a> during the construction phase.</li>
 <li><code>bind</code>: <strong>The Upstream Anchor.</strong> An optional principal <a href="../../cell_tissue/Cell-class.html">Cell</a> that this
-instance "watches" (observes). When the <code>bind</code> cell evolves, it
-automatically triggers this cell's <code>transform</code> pipeline, passing
-the principal's latest state as the <code>bind</code> parameter. This is the
-primary mechanism for creating <strong>Dependent State</strong> and maintaining
-referential integrity across the graph.</li>
-<li><code>context</code>: <strong>The Operational Scope.</strong> Defines the semantic metadata
-and environmental "Tier" (defaulting to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>) in which
-this cell operates. It governs auditing, AI-driven behavioral
-gating (PII, GDPR), and synchronization boundaries within the
-wider application ecosystem.</li>
-<li><code>receptor</code>: <strong>The Low-Level Gateway.</strong> The underlying <a href="../../cell_tissue/Receptor-class.html">Receptor</a> logic
-responsible for ingesting signals. While typically managed
-automatically by the <code>transform</code> pipeline, providing a custom
-receptor allows for advanced behavioral overrides.
-<strong>Critical Operational Safety</strong>:
-<ul>
-<li>If a custom receptor is provided, it must manually integrate the
-<a href="../../cell_tissue/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> into its execution chain. This rule
-handles the final <strong>Metabolic Assimilation</strong>: validating the
-transduced value against the <code>testRule</code>, committing it to the
-physical <a href="../../cell_tissue/Box-class.html">Box</a>, and triggering the secretion of the update.</li>
-<li><strong>Recommended Pattern</strong>: Instead of manual configuration, use the
-<a href="../../cell_tissue/ValueCell/receptor.html">ValueCell.receptor</a> static factory to synthesize a receptor
-that is pre-integrated with the framework's commitment and
-persistence protocols.</li>
-</ul>
-</li>
-<li><code>testRule</code>: <strong>The Immune System.</strong> A compositional <a href="../../cell_tissue/TestRule-class.html">TestRule</a>
-(defaulting to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>) used to validate proposed state
-changes. It acts as a final gatekeeper, ensuring that new values
-satisfy domain constraints and security restrictions before they
-are committed to the cell's storage.</li>
+instance "watches".</li>
+<li><code>context</code>: <strong>The Operational Scope.</strong> Defaults to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>.</li>
+<li><code>receptor</code>: <strong>The Low-Level Gateway.</strong> The underlying <a href="../../cell_tissue/Receptor-class.html">Receptor</a> logic.</li>
+<li><code>testRule</code>: <strong>The Immune System.</strong> A compositional <a href="../../cell_tissue/TestCell-class.html">TestCell</a>
+(defaulting to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>).</li>
 <li><code>synapses</code>: <strong>The Propagation Engine.</strong> Controls how this cell
-communicates with downstream dependents. By default (<a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a>),
-it will broadcast signals whenever its internal state changes.
-This can be configured with <a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a> to manage temporal
-behaviors like debouncing, throttling, or batching.</li>
+communicates with downstream dependents (<a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> by default).</li>
 </ul>
-<h3 id="implementation-detail">Implementation Detail:</h3>
-<p>This constructor delegates to <a href="../../cell_tissue/ValueCell/ValueCell.fromNucleus.html">ValueCell.fromNucleus</a>. Internally, it
-initializes a <a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> which ensures the <code>transform</code> logic is
-paired with the <a href="../../cell_tissue/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> receptor. This creates the
-"Validated Commitment" flow: Input -&gt; Transform -&gt; Validate -&gt; Persist.</p>
 </section>
 
 
@@ -148,7 +107,7 @@ paired with the <a href="../../cell_tissue/ValueCell/postProcessRule.html">Value
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ValueCell({
   Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user, Cell? bind})? transform,
-  V? value,
+  V? initial,
 
   Cell? bind,
   Context context = Context.system,
@@ -164,7 +123,7 @@ paired with the <a href="../../cell_tissue/ValueCell/postProcessRule.html">Value
         receptor: receptor,
         testRule: testRule,
         synapses: synapses
-    ), value: value
+    ), initial: initial
 );</code></pre>
 </section>
 
@@ -193,7 +152,7 @@ paired with the <a href="../../cell_tissue/ValueCell/postProcessRule.html">Value
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

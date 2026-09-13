@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueContainer-class.html">TissueContainer<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">init method</li>
   </ol>
@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype">I</span>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span>
 <span class="name ">init</span>(<wbr>[<ol class="parameter-list single-line"> <li><span class="parameter" id="init-param-initialization"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialization</span></span></li>
 </ol>])
 
@@ -78,21 +78,21 @@ bootstrapping.</p>
 construction or when the collection is first used.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li>It processes the optional <code>initialisation</code> payload, which can be a raw
+<li>It processes the optional <code>initialization</code> payload, which can be a raw
 <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>, a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>, or a scalar value depending on the <a href="../../cell_tissue/TissueContainer/store.html">store</a> type <code>I</code>.</li>
 <li>It invokes the <code>_init</code> closure defined in the container's <code>_type</code> strategy.</li>
 <li>The <a href="../../cell_tissue/TissueContainer/store.html">store</a> is assigned exactly once; subsequent calls are no‑ops.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The <code>initialisation</code> parameter is polymorphic – it can be an <code>Iterable</code>,
+<li>The <code>initialization</code> parameter is polymorphic – it can be an <code>Iterable</code>,
 a <code>Map</code>, or a single value, depending on the storage strategy.</li>
 <li>If the store was already initialised (e.g., by the <a href="../../cell_tissue/TissueContainer/iterator.html">iterator</a> lazy path),
 this method safely returns the existing instance.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>initialisation</code>: Optional data used to populate the collection.</li>
+<li><code>initialization</code>: Optional data used to populate the collection.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
 <p>The newly allocated and populated <a href="../../cell_tissue/TissueContainer/store.html">store</a> instance of type <code>I</code>.</p>
@@ -103,8 +103,12 @@ this method safely returns the existing instance.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-I init([initialization]) {
-  return store = _init&lt;E&gt;(initialization);
+init([initialization]) {
+  try {
+    return store;
+  } catch (_) {
+    return store = _init&lt;E&gt;(initialization);
+  }
 }</code></pre>
 </section>
 
@@ -133,7 +137,7 @@ I init([initialization]) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

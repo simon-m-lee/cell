@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Modifiable class</li>
   </ol>
   <div class="self-name">Modifiable</div>
@@ -57,50 +57,52 @@
   <p>A specialized architectural marker and base interface for objects that support
 controlled mutation through the framework's dynamic command pattern.</p>
 <p><a href="../cell_tissue/Modifiable-class.html">Modifiable</a> serves as a foundational component of the cell's security
-and reactive architecture. In a system where data flow is primarily
-unidirectional and reactive, <a href="../cell_tissue/Modifiable-class.html">Modifiable</a> defines the formal contract for
-"Mutation Entry Points"—specific methods or operations permitted to
-alter the state, configuration, or structural topology of a <a href="../cell_tissue/Cell-class.html">Cell</a>.</p>
-<h3 id="core-philosophy-controlled-mutation">Core Philosophy: Controlled Mutation</h3>
-<p>The framework discourages direct, unvalidated field manipulation to maintain
-graph integrity. Instead, any object implementing or inheriting from
-<a href="../cell_tissue/Modifiable-class.html">Modifiable</a> is expected to adhere to the following triad:</p>
-<ol>
-<li><strong>Whitelisted Operations</strong>: The object must explicitly identify which
-functions are capable of modifying its internal state. This is typically
-exposed via the <code>modifiable</code> getter in subclasses.</li>
-<li><strong>Enforced Validation</strong>: Every mutation request is subjected to
-    gatekeeping logic. By integrating with a <a href="../cell_tissue/TestCell-class.html">TestCell</a>, the object
-    ensures that the caller possesses the appropriate authority to
-    perform the requested change.</li>
-<li><strong>Synchronized Access</strong>: All state transitions must occur within
-an atomic synchronization domain (usually governed by a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>).
-This ensures that the reactive graph remains consistent and free
-from "torn states" during concurrent updates.</li>
-</ol>
-<h3 id="architectural-role">Architectural Role:</h3>
+and reactive architecture, defining the formal contract for <strong>Mutation
+Entry Points</strong>—specific operations permitted to alter the state or
+structural topology of a node.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Command Pattern Support</strong>: Works in tandem with the <a href="../cell_tissue/Cell/apply.html">Cell.apply</a>
-method to facilitate a decoupled, reflection-like execution gateway.
-This allows components to trigger actions on a node without having
-compile-time knowledge of its concrete type.</li>
-<li><strong>Type Safety &amp; Intent</strong>: Provides a clear type-safe boundary to
-distinguish between read-only views (Unmodifiable projections) and
-active, mutable components of the reactive ecosystem.</li>
-<li><strong>Proxying &amp; Deputization</strong>: Acts as the functional base for
-<a href="../cell_tissue/Cell/deputy.html">Cell.deputy</a> and other proxy objects. It provides the infrastructure
-needed for a deputy to intercept calls, perform additional security
-checks, and then safely delegate to the principal object.</li>
+<li><strong>Custom Components</strong>: Use when building custom reactive nodes that
+require internal state changes without exposing public mutable fields.</li>
+<li><strong>Access Control</strong>: Use to define the boundary between a mutable
+principal and its read-only views or deputies.</li>
+<li><strong>Whitelisting</strong>: Use to explicitly define which internal methods are
+safe to trigger from external reactive stimuli.</li>
 </ul>
-<h3 id="implementation-strategy">Implementation Strategy:</h3>
-<p>While <a href="../cell_tissue/Modifiable-class.html">Modifiable</a> is often used as a marker, its primary power is
-realized in subclasses (like <code>CellBase</code> or <code>TissueBase</code>) that
-implement the <code>apply</code> logic.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Command Pattern</strong>: Works with <a href="../cell_tissue/Cell/apply.html">Cell.apply</a> to facilitate a decoupled
+execution gateway, allowing actions to be emitted on a node without
+compile-time knowledge of its concrete type.</li>
+<li><strong>Whitelisting</strong>: Subclasses explicitly register a map of permitted
+methods. Only these "Whitelisted Operations" can be triggered via
+the command gateway.</li>
+<li><strong>Integrity Gating</strong>: Every mutation request is validated by a
+<a href="../cell_tissue/TestCell-class.html">TestCell</a> to ensure the caller has sufficient authority.</li>
+<li><strong>Atomicity</strong>: All state transitions are automatically wrapped in a
+synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to prevent "torn states" in high-frequency
+reactive waves.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Mutable Instances</strong>: Return a populated whitelist of member functions.</li>
-<li><strong>Unmodifiable Instances</strong>: Typically return an empty whitelist,
-effectively shuttering the mutation gateway while allowing the
-object to remain a first-class member of the reactive graph.</li>
+<li><strong>Zero-Cost Immutability</strong>: By returning an empty whitelist, an
+object becomes effectively immutable while remaining a first-class
+member of the reactive graph.</li>
+<li><strong>Proxying Infrastructure</strong>: It provides the base logic needed for
+<a href="../cell_tissue/Cell/deputy.html">Cell.deputy</a> to intercept and delegate calls safely.</li>
+<li><strong>Flyweight Architecture</strong>: The use of a <code>const</code> constructor allows
+the system to manage unmodifiable views with minimal heap pressure.</li>
+<li><strong>State Isolation</strong>: Subclasses are responsible for ensuring that
+modifications trigger the appropriate reactive pulses to maintain graph
+consistency.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Cell/apply.html">Cell.apply</a>: The primary method for executing commands on a
+<a href="../cell_tissue/Modifiable-class.html">Modifiable</a> instance.</li>
+<li><a href="../cell_tissue/TestCell-class.html">TestCell</a>: The security validator for mutation requests.</li>
+<li><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>: The blueprint that often manages the state targeted by
+these modifications.</li>
 </ul>
 </section>
 
@@ -234,7 +236,7 @@ object to remain a first-class member of the reactive graph.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

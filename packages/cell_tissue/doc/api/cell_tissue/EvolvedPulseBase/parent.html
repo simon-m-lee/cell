@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedPulseBase-class.html">EvolvedPulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">parent property</li>
   </ol>
@@ -64,7 +64,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+      <span class="returntype"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>
       get
       <span class="name ">parent</span>
       <div class="features"><span class="feature">override</span></div>
@@ -74,18 +74,19 @@
 <section class="desc markdown">
   <p>The immediate causal ancestor of this pulse in the processing chain.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You rarely need this directly – it's mostly for debugging or when you
-need to trace a pulse's evolution.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>Every time you call <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a>, the new pulse links back to the old one
-via this property. It forms a chain that you can walk up to see the
-entire history.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The parent chain is immutable – once set, it never changes.</li>
-<li>For the root pulse (the original), <a href="../../cell_tissue/EvolvedPulseBase/parent.html">parent</a> is not <code>null</code>.</li>
-<li>The parent is resolved by walking up the chain – it's not duplicated.</li>
+<li><strong>Walking History</strong>: You rarely need this directly — it's mostly for debugging or when you
+need to walk a pulse's evolution history manually.</li>
+<li>Debugging to see what a pulse evolved from.</li>
+<li>Building custom tracing or visualisation tools.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Every call to <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a> creates a new pulse that links back to the old one
+via this property. This forms a chain you can traverse to see the entire
+transformation history.</p>
+<h3 id="nonobvious-the-chain-is-immutable">Non‑obvious: the chain is immutable</h3>
+<p>Once set, <a href="../../cell_tissue/EvolvedPulseBase/parent.html">parent</a> never changes. For the root pulse (the original),
+<a href="../../cell_tissue/EvolvedPulseBase/parent.html">parent</a> is <code>null</code>. The chain is resolved by walking up — never duplicated.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final evolved = root.evolve(PulseContext(reason: 'test'), step: 'step1');
 print(evolved.parent); // root
@@ -96,7 +97,7 @@ print(evolved.parent); // root
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Pulse&lt;P&gt; get parent =&gt; _parent!;</code></pre>
+Pulse get parent =&gt; _parent!;</code></pre>
 </section>
 
   </section>
@@ -126,7 +127,7 @@ Pulse&lt;P&gt; get parent =&gt; _parent!;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

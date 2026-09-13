@@ -120,6 +120,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
     TestTissue<E,TissueSet<E>> testRule,
     Synapses synapses,
     bool identitySet,
+    EphemeralPolicy? ephemeralPolicy,
     Record? user
   }) = _TissueSetNucleus<E,TissueSet<E>>;
 
@@ -186,6 +187,8 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
     TestTissue<E,TissueSet<E>>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     TissueSetNucleus<E>? override,
     required TissueSetNucleus<E> principal
   }) = _TissueSetNucleus<E,TissueSet<E>>.evolve;
@@ -241,6 +244,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
 
     Container? container,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     forceLock = false,
     TissueSetNucleusBase<E,C>? principal
   }) {
@@ -249,9 +253,10 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
       final local = TissueNucleusBase.local<E,Set<E>,C>(
         container: container,
         bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        ephemeralPolicy: ephemeralPolicy,
       );
       return _TissueSetNucleus<E,C>.fromRecord(
-          (mask: local, principal: principal)
+          (local: local, principal: principal)
       );
     }
 
@@ -263,6 +268,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
         synapses: synapses ?? Synapses.enabled,
         identitySet: container == Container.identitySet,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock
     );
 
@@ -358,7 +364,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
 /// - Internally, it uses a [TissueSetNucleus] to govern behaviour and a
 ///   [Container] for physical storage.
 /// - Every mutation (e.g., `add`, `remove`, `clear`) goes through a validation
-///   pipeline ([testRule]) and emits a [TissueEvent].
+///   pipeline ([testRule]) and emits a [TissuePulse].
 /// - The set is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, etc.) that share the same storage.

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueSetNucleusBase-class.html">TissueSetNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueSetNucleusBase.new constructor</li>
   </ol>
@@ -60,6 +60,7 @@
 <li><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestTissue.allowAll</span>, </span></li>
 <li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
 <li><span class="parameter" id="-param-identitySet"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">identitySet</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
 </ol>})
@@ -68,14 +69,13 @@
 <section class="desc markdown">
   <p><strong>Primary Constructor</strong> – defines the immutable behaviour and storage
 strategy for a reactive set.</p>
-<h3 id="who-should-call-this">Who should call this</h3>
+<h3 id="when-to-use">When to use</h3>
 <p><strong>Internal framework use only.</strong> This constructor is <code>public</code> only so
 that concrete subclasses (like <code>_TissueSetNucleus</code>) can invoke it via
 <code>super()</code>. <strong>Application code should never call this directly.</strong></p>
 <p>If you need a nucleus, use <a href="../../cell_tissue/TissueSetNucleus/create.html">TissueSetNucleus.create</a> to create one
 from scratch, or <a href="../../cell_tissue/TissueSetNucleus/TissueSetNucleus.evolve.html">TissueSetNucleus.evolve</a> to derive one from an
 existing principal.</p>
-<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
 <p>You are writing a custom set implementation that extends
 <code>TissueSetNucleusBase</code> and need to pass configuration up to the base.</p>
 <h3 id="how-it-works">How it works</h3>
@@ -139,6 +139,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
   super.testRule,
   super.synapses,
   bool identitySet = false,
+  super.ephemeralPolicy,
   super.forceLock,
   super.user,
 }) : super(container: identitySet ? Container.identitySet : Container.set);</code></pre>
@@ -169,7 +170,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

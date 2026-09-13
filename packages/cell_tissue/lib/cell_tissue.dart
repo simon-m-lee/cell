@@ -44,7 +44,7 @@
 /// When you mutate a tissue (e.g., `list.add(42)`), the operation:
 /// 1. Passes through the [TestTissue] validation gate.
 /// 2. Is applied atomically to the physical storage.
-/// 3. Emits a [TissueEvent] (e.g., `ElementAddedEvent`).
+/// 3. Emits a [TissuePulse] (e.g., `ElementAddedEvent`).
 /// 4. Propagates the event through the collection’s [Synapses] to all
 ///    downstream observers.
 ///
@@ -66,7 +66,7 @@
 ///   `addAll`), each element is validated individually. Invalid elements are
 ///   silently skipped – they do **not** cause the entire operation to fail.
 /// - **Initial population is silent**: When you create a tissue with initial
-///   elements (e.g., `TissueList([1, 2, 3])`), no [TissueEvent] is emitted.
+///   elements (e.g., `TissueList([1, 2, 3])`), no [TissuePulse] is emitted.
 ///   Observers only see events for mutations that happen *after* creation.
 /// - **Bounded queues**: For [TissueQueue], setting a `capacity` creates a
 ///   circular buffer – when the queue is full, adding a new element drops the
@@ -112,33 +112,62 @@
 // ignore: unnecessary_library_name
 library cell_tissue;
 
+// -----------------------------------------------------------------------------
+// Dependencies
+// -----------------------------------------------------------------------------
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
+/// External package dependencies.
 import 'package:cell/cell.dart';
+
+// -----------------------------------------------------------------------------
+// Public Exports
+// -----------------------------------------------------------------------------
+
+/// Re-exporting core cell primitives to ensure consumers have access to
+/// foundational types like [Cell], [Pulse], and [Synapses].
 export 'package:cell/cell.dart';
+
+// -----------------------------------------------------------------------------
+// Core Interface Parts
+// -----------------------------------------------------------------------------
 
 part 'src/tissue.dart';
 part 'src/tissue_nucleus.dart';
 part 'src/tissue_container.dart';
-part 'src/tissue_event.dart';
+part 'src/tissue_pulse.dart';
 part 'src/tissue_receptor.dart';
+part 'src/test_tissue.dart';
+
+// -----------------------------------------------------------------------------
+// Collection Implementations
+// -----------------------------------------------------------------------------
+
 part 'src/tissue_set.dart';
 part 'src/tissue_list.dart';
 part 'src/tissue_queue.dart';
 part 'src/tissue_value.dart';
 part 'src/tissue_map.dart';
-part 'src/test_tissue.dart';
 
+// -----------------------------------------------------------------------------
+// Internal Logic Parts
+// -----------------------------------------------------------------------------
+
+/// Private implementation details, evolved transformation logic, and
+/// non-public helper classes.
 part 'src/internal/tissue.dart';
 part 'src/internal/tissue_nucleus.dart';
 part 'src/internal/tissue_container.dart';
-part 'src/internal/tissue_event.dart';
+part 'src/internal/tissue_pulse.dart';
 part 'src/internal/tissue_receptor.dart';
+part 'src/internal/test_tissue.dart';
+
+// Internal collection logic
 part 'src/internal/tissue_set.dart';
 part 'src/internal/tissue_list.dart';
 part 'src/internal/tissue_queue.dart';
 part 'src/internal/tissue_value.dart';
 part 'src/internal/tissue_map.dart';
-part 'src/internal/test_tissue.dart';

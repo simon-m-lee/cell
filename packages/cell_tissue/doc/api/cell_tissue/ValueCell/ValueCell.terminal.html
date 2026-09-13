@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueCell.terminal constructor</li>
   </ol>
@@ -59,7 +59,7 @@
 <li><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
 </ol>})?, </span></li>
-<li><span class="parameter" id="terminal-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="terminal-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
 <li><span class="parameter" id="terminal-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="terminal-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
 <li><span class="parameter" id="terminal-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
@@ -77,8 +77,8 @@ avoid unnecessary propagation.</p>
 <p>It's just like a normal <code>ValueCell</code> but with <code>Synapses.disabled</code>.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final counter = ValueCell.terminal&lt;int&gt;(
-  value: 0,
-  transform: (host, input, {user}) =&gt; Pulse(host.value + 1),
+  state: 0,
+  transform: (host, input, {user}) =&gt; Pulse(host.state + 1),
 );
 // No observers will be notified of changes
 </code></pre>
@@ -90,14 +90,15 @@ avoid unnecessary propagation.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ValueCell.terminal({
   Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user, Cell? bind})? transform,
-  V? value,
+  V? initial,
 
   Cell? bind,
   Context context = Context.system,
   Receptor receptor = Receptor.passThrough,
   TestCell testRule = TestCell.allowAll,
 }) : this(synapses: Synapses.disabled,
-    transform: transform, bind: bind, context: context, receptor: receptor, testRule: testRule
+    transform: transform, bind: bind, context: context, receptor: receptor, testRule: testRule,
+    initial: initial
 );</code></pre>
 </section>
 
@@ -126,7 +127,7 @@ avoid unnecessary propagation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

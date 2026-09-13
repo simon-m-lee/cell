@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Natural-Language topic docs, for the Dart programming language.">
+  <title>Demo · Natural-Language topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Natural-Language topic</li>
+  </ol>
+  <div class="self-name">Demo · Natural-Language</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Natural-Language</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough-requirement--nl-instruction--tissueset-flow--tissue">Walkthrough requirement — NL instruction → TissueSet (Flow + Tissue)</h1>
+<p><strong>Demo:</strong> <code>nl-instruction-tissue-set-Demo.dart</code> (executable; this file is its requirement)
+<strong>Siblings:</strong></p>
+<ul>
+<li><code>ride-hail-dispatch(tissue)-WalkThrough.md</code> — mobility books</li>
+<li><code>card-auth-pipeline(tissue)-WalkThrough.md</code> — payments books</li>
+<li><code>grid-demand-response(tissue)-WalkThrough.md</code> — energy books</li>
+<li><code>ICU-alarm-pipeline(enhanced)-Demo.dart</code> — clinical PAGE/WARN</li>
+</ul>
+<p><strong>Industry:</strong> natural-language command surface for a reactive set
+(the product everyone knows as a chatbot driving an in-memory
+collection — the operator writes an English sentence, a model
+chooses a verb from a closed list, the framework executes the verb
+against a governed <code>TissueSet&lt;int&gt;</code>)
+<strong>Stack:</strong> <code>package:cell</code> + <code>package:cell_flow</code> + <code>package:cell_tissue</code></p>
+<p>This is the <strong>executable requirement</strong> for a demo that uses
+<strong>Flow for the natural-language interpretation</strong> and <strong>Tissue for
+the membership set</strong>. Implement the Dart file so a last-good run
+prints the scenario table in § Scenarios.</p>
+<p>Do not fold Tissue into the interpreter. Do not fold the
+interpreter into the dispatch instruction. The point of this file
+is the seam.</p>
+<p>Why this industry: a natural-language command surface is a
+string bus (a sentence from an operator) plus a closed verb list
+(a model chooses one verb) plus a governed set (the mutation is
+validated and observable). That is the same shape as ride-hail
+dispatch, with a sentence instead of a <code>MatchTick</code> and a
+<code>TissueSet&lt;int&gt;</code> instead of a <code>TissueList&lt;TripEntry&gt;</code>.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</a></li>
+<li><a href="#why-flow--tissue-not-a-hand-rolled-parser">Why Flow + Tissue (not a hand-rolled parser)</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#domain">Domain</a></li>
+<li><a href="#parts">Parts</a></li>
+</ol>
+<ul>
+<li><a href="#flow-cells">Flow Cells</a></li>
+<li><a href="#tissue-collections">Tissue collections</a></li>
+<li><a href="#deputies">Deputies</a></li>
+<li><a href="#instruction">Instruction</a></li>
+<li><a href="#receptor">Receptor</a></li>
+<li><a href="#operators-the-demo-must-actually-call">Operators the demo must actually call</a></li>
+</ul>
+<ol start="6">
+<li><a href="#dispatch--pure-instruction-not-a-tissue-mutation">Dispatch — pure instruction, not a Tissue mutation</a></li>
+<li><a href="#implementation-map">Implementation map</a></li>
+<li><a href="#scenarios">Scenarios</a></li>
+<li><a href="#executable-steps">Executable steps</a></li>
+<li><a href="#pulse-path-scenario-6-then-7">Pulse path (scenario 6 then 7)</a></li>
+<li><a href="#who-owns-the-lock">Who owns the lock</a></li>
+<li><a href="#real-product-vs-this-file">Real product vs this file</a></li>
+<li><a href="#acceptance">Acceptance</a></li>
+<li><a href="#documented-deviations-summary">Documented deviations (summary)</a></li>
+<li><a href="#name-plate">Name plate</a></li>
+</ol>
+<hr>
+<h2 id="testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</h2>
+<p>Collection classes in <code>package:cell_tissue</code> take <strong><code>TestTissue</code></strong>,
+never <code>TestCell</code>. <code>TestCell</code> is the integrity rule on a <strong>Cell</strong>
+(ingress / handle). <code>TestTissue</code> is the integrity rule on a
+<strong>Tissue</strong> (<code>add</code>, <code>remove</code>, <code>[]=</code>, value write). They are not
+subtypes you can pass across that seam.</p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+<th>Typical use in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+<td>sentence shape: non-empty, ≤ 200 chars</td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;int&gt;</code></td>
+<td><code>TestTissue&lt;int, TissueSet&lt;int&gt;&gt;</code></td>
+<td><code>testRule:</code></td>
+<td>element shape: <code>&gt;= 0</code></td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+<td><code>TestTissue.readOnly</code> for the auditor view</td>
+</tr>
+<tr>
+<td><code>TestTissue.allowAll</code></td>
+<td><code>TestTissue</code></td>
+<td>default</td>
+<td>only when the collection has no extra rule</td>
+</tr>
+</tbody>
+</table>
+<p>Illegal (will not type-check, do not write it):</p>
+<pre class="language-dart"><code class="language-dart">TissueSet&lt;int&gt;(testRule: TestCell.allowAll);   // wrong type
+TissueSet&lt;int&gt;(const &lt;int&gt;[], _commandShape);  // _commandShape is TestCell
+auditor = tags.deputy(testRule: TestCell.readOnly);  // deputy wants TestTissue
+</code></pre>
+<p>Required shape:</p>
+<pre class="language-dart"><code class="language-dart">final elementRule = TestTissue&lt;int, TissueSet&lt;int&gt;&gt;(
+  (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &gt;= 0,
+);
+
+final tags = TissueSet&lt;int&gt;(const &lt;int&gt;[], testRule: elementRule);
+
+final auditor = tags.unmodifiable;
+</code></pre>
+<p><code>Cell.ingress&lt;String&gt;(testRule: _commandShape)</code> stays
+<strong><code>TestCell</code></strong>. That rule never becomes the <code>testRule</code> on <code>tags</code>.</p>
+<p>Compose Tissue rules with <code>+</code> (<code>TestTissue.allowAll + custom</code>),
+not by wrapping a <code>TestCell</code>.</p>
+<hr>
+<h2 id="why-flow--tissue-not-a-hand-rolled-parser">Why Flow + Tissue (not a hand-rolled parser)</h2>
+<p>A natural-language command surface has four machines a hand-rolled
+<code>switch</code> on <code>String.contains(...)</code> will not name:</p>
+<ol>
+<li>A malformed sentence must die at the <strong>ingress</strong>, not inside the
+verb dispatcher.</li>
+<li>The model is a <strong>non-deterministic</strong> producer; its reply must be
+parsed into a <strong>closed</strong> verb list before anything is executed.</li>
+<li>A verb that mutates <code>tags</code> must go through <code>TissueSet.modifiable</code>
+and the collection's <code>TestTissue</code>, not around them.</li>
+<li>The regulator may watch the set and must not <code>add</code> a row.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Fake if you only use Dart objects</th>
+<th>Owner in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>final tags = &lt;int&gt;{}</code></td>
+<td><code>TissueSet&lt;int&gt;</code> — observable, validated</td>
+</tr>
+<tr>
+<td><code>switch (sentence) { case 'add ...': ... }</code></td>
+<td><code>AiTissueCommand</code> interpreter + <code>TissueCommand</code></td>
+</tr>
+<tr>
+<td><code>tags.add(n)</code> directly in the parser</td>
+<td><code>_runDispatch</code> checks <code>modifiable</code> first</td>
+</tr>
+<tr>
+<td>“export the set for the auditor”</td>
+<td><code>tags.unmodifiable</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tissue is a <strong>Cell that is a collection</strong>. Every <code>add</code> / <code>remove</code> /
+<code>clear</code> goes through <code>TestTissue</code>, takes the tissue lock, and emits
+a <code>TissuePulse</code>. Flow never stores the set. The interpreter never
+mutates the set.</p>
+<hr>
+<h2 id="design">Design</h2>
+<pre class="language-dart"><code>commandIn   TestCell non-empty ≤ 200  ─┐
+   │                                   │
+   ▼                                   │
+AiTissueCommand&lt;String&gt;                │   Flow
+   │  interpreter.complete(text:)      │   (I/O only here)
+   ▼                                   │
+Pulse&lt;TissueCommand&gt; | Pulse&lt;Reject&gt;   │
+   │                                   │
+   ▼                                   │
+Filter&lt;Object&gt;                         │
+   │  drops Reject; counts both        │
+   ▼                                   │
+MapValue&lt;Object, TissueCommand&gt;        │
+   │  _runDispatch(cmd)                │
+   ▼                                   │
+TissueSet&lt;int&gt;.modifiable              │   Tissue
+   │  + TestTissue elementRule         │
+   ▼                                   │
+ElementAdded&lt;int&gt; | ElementRemoved&lt;int&gt;┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Malformed sentence</td>
+<td><code>TestCell</code> on <code>commandIn</code></td>
+</tr>
+<tr>
+<td>Closed verb list</td>
+<td><code>verbByName</code> in <code>ai_tissue_command_domain.dart</code></td>
+</tr>
+<tr>
+<td>Model I/O</td>
+<td><code>HttpInterpreter</code> / <code>StubInterpreter</code></td>
+</tr>
+<tr>
+<td>Reply → <code>TissueCommand</code></td>
+<td><code>AiTissueCommand</code></td>
+</tr>
+<tr>
+<td>Drop <code>Reject</code></td>
+<td><code>Filter&lt;Object&gt;</code></td>
+</tr>
+<tr>
+<td>Execute verb against the set</td>
+<td><code>_runDispatch</code></td>
+</tr>
+<tr>
+<td>Allow / deny a verb</td>
+<td><code>TissueSet.modifiable.contains(tearOff)</code></td>
+</tr>
+<tr>
+<td>Allow / deny an element</td>
+<td><code>TestTissue&lt;int, TissueSet&lt;int&gt;&gt;</code> on <code>tags</code></td>
+</tr>
+<tr>
+<td>Read-only auditor view</td>
+<td><code>tags.unmodifiable</code></td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> <code>tags.add</code> inside the interpreter. The interpreter
+returns a <code>TissueCommand</code>. <code>_runDispatch</code> writes Tissue. If you
+mutate Tissue inside the interpreter, you hide the lock and you
+cannot test the interpreter against a fixed table.</p>
+<p>Do <strong>not</strong> replace <code>modifiable</code> with a hand-rolled verb whitelist.
+The whitelist is the collection's public contract. The interpreter
+must not bypass it.</p>
+<hr>
+<h2 id="domain">Domain</h2>
+<pre class="language-dart"><code class="language-dart">enum TissueVerb { add, addAll, remove, removeAll, clear,
+                  retainAll, removeWhere, retainWhere }
+
+final class TissueCommand {
+  const TissueCommand({
+    required this.verb,
+    required this.args,
+    required this.confidence,
+    required this.source,
+  });
+  final TissueVerb verb;
+  final List&lt;Object?&gt; args;
+  final double confidence;
+  final String source;
+  bool get ok =&gt; true;
+}
+
+final class Reject {
+  const Reject({required this.source, required this.reason});
+  final String source;
+  final String reason;
+  bool get ok =&gt; false;
+}
+
+typedef InterpreterReply = ({TissueCommand? command, Reject? reject});
+</code></pre>
+<p>Suggested verb → arg shape (the dispatch instruction relies on
+this):</p>
+<table>
+<thead>
+<tr>
+<th>Verb</th>
+<th>Args shape</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add</code></td>
+<td><code>[int]</code></td>
+<td><code>[3]</code></td>
+</tr>
+<tr>
+<td><code>addAll</code></td>
+<td><code>[[int, ...]]</code></td>
+<td><code>[[4, 5]]</code></td>
+</tr>
+<tr>
+<td><code>remove</code></td>
+<td><code>[int]</code></td>
+<td><code>[3]</code></td>
+</tr>
+<tr>
+<td><code>removeAll</code></td>
+<td><code>[[int, ...]]</code></td>
+<td><code>[[4, 5]]</code></td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td><code>[]</code></td>
+<td><code>[]</code></td>
+</tr>
+<tr>
+<td><code>retainAll</code></td>
+<td><code>[[int, ...]]</code></td>
+<td><code>[[4, 5]]</code></td>
+</tr>
+<tr>
+<td><code>removeWhere</code></td>
+<td><em>(predicate — not driven)</em></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>retainWhere</code></td>
+<td><em>(predicate — not driven)</em></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><code>removeWhere</code> / <code>retainWhere</code> are listed on <code>modifiable</code> but the
+demo does not drive them from the model, because the model cannot
+safely produce a predicate. The dispatch instruction rejects them
+if the model ever returns one.</p>
+<hr>
+<h2 id="parts">Parts</h2>
+<h3 id="flow-cells">Flow Cells</h3>
+<table>
+<thead>
+<tr>
+<th>Cell</th>
+<th>Kind</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commandIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject empty / &gt; 200 chars</td>
+</tr>
+<tr>
+<td><code>interpreted.cell</code></td>
+<td><code>AiTissueCommand.toHandle</code></td>
+<td>sentence → <code>TissueCommand</code> or <code>Reject</code></td>
+</tr>
+<tr>
+<td><code>dispatchedCell</code></td>
+<td><code>MapValue</code> over the filter</td>
+<td><code>TissueCommand</code> → tissue mutation</td>
+</tr>
+</tbody>
+</table>
+<p>The interpreter runs as a single <code>AiTissueCommand&lt;String&gt;</code>
+instruction. The <code>.toHandle(source: commandIn.cell)</code> call is the
+only place the instruction is materialised.</p>
+<h3 id="tissue-collections">Tissue collections</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Type</th>
+<th><code>TestTissue</code></th>
+<th>Who writes</th>
+<th>Who reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tags</code></td>
+<td><code>TissueSet&lt;int&gt;</code></td>
+<td>element shape: <code>&gt;= 0</code></td>
+<td><code>_runDispatch</code></td>
+<td><code>main</code> trailer</td>
+</tr>
+<tr>
+<td><code>auditor</code></td>
+<td><code>TissueSet&lt;int&gt;.unmodifiable</code></td>
+<td><code>TestTissue.readOnly</code></td>
+<td>—</td>
+<td>scenario 8</td>
+</tr>
+</tbody>
+</table>
+<p>Seed: <code>tags</code> empty. Initial population is silent — observers only
+see <strong>post-create</strong> mutations.</p>
+<h3 id="deputies">Deputies</h3>
+<pre class="language-dart"><code class="language-dart">final auditor = tags.unmodifiable;
+</code></pre>
+<p>Scenario 8 swaps the dispatch host to <code>auditor</code> before <code>say('add 3')</code>.
+<code>_runDispatch</code> then calls <code>auditor.modifiable.contains(add)</code> which
+is <code>false</code>, so the mutation is denied <strong>before</strong> the tissue lock is
+taken. The trip log is untouched.</p>
+<p>In this build <code>.unmodifiable</code> captures the set at install time, so
+<code>auditorLength=0</code> in the trailer. Scenario 8 still verifies the
+seam because <code>auditor.modifiable</code> is empty regardless of the
+captured snapshot.</p>
+<p>Do <strong>not</strong> pass the writable <code>tags</code> to the auditor view.</p>
+<h3 id="instruction-flow">Instruction (Flow)</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AiTissueCommand&lt;String&gt;</code></td>
+<td>the interpreter instruction (imported)</td>
+</tr>
+<tr>
+<td><code>Filter&lt;Object&gt;</code></td>
+<td>drop <code>Reject</code>; count both classifications</td>
+</tr>
+<tr>
+<td><code>MapValue&lt;Object, TissueCommand&gt;</code></td>
+<td>call <code>_runDispatch(cmd)</code>; return <code>cmd</code></td>
+</tr>
+</tbody>
+</table>
+<p>Order is mandatory: <code>AiTissueCommand → Filter → MapValue</code>.</p>
+<p>Do not put a <code>Distinct</code> before <code>Filter</code>. The user may legitimately
+say <code>add 1</code> twice in a row. The set deduplicates on the Tissue
+side.</p>
+<h3 id="receptor">Receptor</h3>
+<p><code>AiTissueCommand&lt;String&gt;(...).toHandle(source: commandIn.cell)</code>
+once at <code>install()</code>. That is one <code>toHandle</code> call. The dispatch
+stage's <code>MapValue</code> materialises its own handle internally; the
+demo keeps <code>dispatchedCell</code> for symmetry but does not call
+<code>toHandle</code> on it again.</p>
+<p>Tissue has its <strong>own</strong> lock on <code>tags</code>. Do not assume the Receptor
+lock covers <code>tags.add</code>.</p>
+<h3 id="operators-the-demo-must-actually-call">Operators the demo must actually call</h3>
+<p>Flow: <code>Cell.ingress(testRule:)</code> with <strong><code>TestCell</code></strong>,
+<code>AiTissueCommand.toHandle</code>, <code>Filter&lt;Object&gt;</code>, <code>MapValue&lt;Object, TissueCommand&gt;</code>.</p>
+<p>Tissue: <code>TissueSet</code>, <code>TestTissue(...)</code>, <code>.unmodifiable</code>,
+<code>.modifiable</code>, <code>Box&lt;TissueSet&lt;int&gt;&gt;</code> for the swappable host.</p>
+<pre class="language-dart"><code class="language-dart">final host = _dispatchHost.value;
+if (!host.modifiable.contains(tearOff)) {
+  print('[dispatch] ${cmd.verb.name} denied (not in modifiable)');
+  return;
+}
+</code></pre>
+<hr>
+<h2 id="dispatch--pure-instruction-not-a-tissue-mutation">Dispatch — pure instruction, not a Tissue mutation</h2>
+<p>The dispatch stage runs as a <code>MapValue</code> over the filter's output:</p>
+<pre class="language-dart"><code class="language-dart">dispatchedHandle = Flow.map&lt;Object, TissueCommand&gt;(
+  filtered.cell,
+  project: (v) {
+    final cmd = v as TissueCommand;
+    _runDispatch(cmd);
+    return cmd;
+  },
+);
+</code></pre>
+<p><code>_runDispatch</code> does <strong>three</strong> things and nothing else:</p>
+<ol>
+<li>Look up the tear-off in the registry.</li>
+<li>Check <code>host.modifiable.contains(tearOff)</code>.</li>
+<li>Call the tear-off.</li>
+</ol>
+<p>No Tissue lock is taken by the dispatch stage. The lock is taken
+by the tear-off itself, inside <code>TissueSet.add</code> (etc.).</p>
+<p>The host is a <code>Box&lt;TissueSet&lt;int&gt;&gt;</code>, so scenario 8 can swap it to
+<code>auditor</code> before <code>say(...)</code> and back after. That is the only
+mechanism the demo uses to point the dispatch at a different set.</p>
+<p>Never call <code>tags.add</code> in the interpreter. The interpreter is Flow.
+The dispatch instruction is Flow. Only <code>_runDispatch</code> writes
+Tissue, and only after the <code>modifiable</code> gate passes.</p>
+<hr>
+<h2 id="implementation-map">Implementation map</h2>
+<table>
+<thead>
+<tr>
+<th>Block in the dart file</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header comment</td>
+<td>talk track</td>
+</tr>
+<tr>
+<td><code>NlTissueHarness</code></td>
+<td>mode selection, install, say, host swap</td>
+</tr>
+<tr>
+<td><code>_selectHarness</code></td>
+<td><code>--config</code> / <code>--live</code> / offline precedence</td>
+</tr>
+<tr>
+<td><code>_runDispatch</code></td>
+<td>the pure dispatch switch</td>
+</tr>
+<tr>
+<td><code>_registry</code></td>
+<td>verb → tear-off map</td>
+</tr>
+<tr>
+<td><code>_elementRule</code> / <code>_commandShape</code></td>
+<td>the two rule kinds</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>seed + scenarios 1–12 + trailer</td>
+</tr>
+<tr>
+<td><code>ai_tissue_command.dart</code></td>
+<td><code>AiTissueCommand</code>, <code>TissueCommand</code>, <code>Reject</code></td>
+</tr>
+<tr>
+<td><code>ai_tissue_command_domain.dart</code></td>
+<td><code>Interpreter</code>, <code>HttpInterpreter</code>, <code>StubInterpreter</code>, <code>TrafficLog</code>, <code>AiConfig</code></td>
+</tr>
+</tbody>
+</table>
+<p>The traffic logging is owned by the interpreter port. The demo
+prints nothing about the exchange itself; the header's § What This
+File Prints lists the log's output shape.</p>
+<p><code>install()</code> runs <strong>once</strong>. <code>say(...)</code> is a thin wrapper over
+<code>commandIn.emit(...)</code> with a five-turn event-loop drain so the
+interpreter round trip completes before the scenario's assertions
+print.</p>
+<hr>
+<h2 id="scenarios">Scenarios</h2>
+<p>Seed: <code>tags</code> empty, <code>auditor</code> empty, interpreter ready.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Drive</th>
+<th>Result</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed</td>
+<td><em>(no sentence)</em></td>
+<td><code>tags.isEmpty=true</code></td>
+<td>bus armed</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>add 1 to the tissue</code></td>
+<td><code>contains(1)=true length=1</code></td>
+<td>interpreter + dispatch + Tissue</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>please insert 1</code></td>
+<td><code>contains(1)=true grew=false</code></td>
+<td>duplicate suppressed by Tissue</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>add 2 to the tissue</code></td>
+<td><code>tags={1, 2}</code></td>
+<td>second add</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>remove 1</code></td>
+<td><code>tags={2}</code></td>
+<td>remove</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>clear the set</code></td>
+<td><code>tags={}</code></td>
+<td>clear</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>hack the nucleus</code></td>
+<td><code>dispatched=false tags={}</code></td>
+<td>model rejects; nothing crosses the seam</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>add -1</code></td>
+<td><code>tags={}</code></td>
+<td>TestTissue rejects <code>-1</code> at the tissue boundary</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>add 3</code> (auditor host)</td>
+<td><code>tags={}</code></td>
+<td><code>.modifiable</code> empty → dispatch denied</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>addAll 4 5</code></td>
+<td><code>tags={4, 5}</code></td>
+<td>multi-arg verb</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>add 6</code> (timeout injected)</td>
+<td><code>dispatched=false tags={4, 5}</code></td>
+<td>interpreter timeout propagates as a <code>Reject</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>""</code> then <code>"x" * 201</code></td>
+<td><code>empty accepted=false oversized accepted=false interpret ran=false</code></td>
+<td><code>TestCell</code> rejects at ingress</td>
+</tr>
+<tr>
+<td>12</td>
+<td><em>(optional stub swap)</em></td>
+<td>skipped</td>
+<td>extension hook</td>
+</tr>
+<tr>
+<td>Trailer</td>
+<td>—</td>
+<td><code>commands=8 interpreted=6 dispatched=5 rejected=2</code> (see below)</td>
+<td>counters</td>
+</tr>
+</tbody>
+</table>
+<p>Good-run counters from the executable trailer:</p>
+<pre class="language-text"><code class="language-text">commands=8 interpreted=6 dispatched=5 rejected=2
+</code></pre>
+<p><code>commands=8</code> because scenarios 1–10 each call <code>say(...)</code> once,
+scenario 11 calls <code>say(...)</code> twice, and scenario 8's <code>say(...)</code> is
+still counted even though its dispatch is denied. Offline, the
+stub classifies <code>hack the nucleus</code> as a <code>Reject</code>, contributing 1
+to <code>rejected</code>; the timeout in scenario 10 contributes the second
+<code>Reject</code>.</p>
+<p><code>interpreted=6</code> and <code>dispatched=5</code> differ because scenario 8's
+<code>TissueCommand</code> reaches the interpreter but its dispatch is denied
+at the <code>modifiable</code> gate. The counter increments in the filter,
+not in the dispatch.</p>
+<p>The trailer also prints:</p>
+<pre class="language-text"><code class="language-text">tags={4, 5} auditorLength=0 (snapshot at install; not live)
+</code></pre>
+<p><code>auditorLength=0</code> because <code>.unmodifiable</code> is a snapshot in this
+build. The COMPLY-style scenario is scenario 8, which checks the
+dispatch seam via <code>auditor.modifiable</code>, not via <code>auditor.length</code>.</p>
+<hr>
+<h2 id="executable-steps">Executable steps</h2>
+<p>These are the steps <code>nl-instruction-tissue-set-Demo.dart</code> actually
+runs. Numbers match the <code>── N ──</code> banners in the console.</p>
+<p><strong>Seam reminder at every step.</strong> Flow answers “which verb did the
+sentence name?” Tissue answers “did the set accept the mutation?”
+The <code>Filter</code> and <code>MapValue</code> are the only glue. <code>_runDispatch</code>
+never takes a Tissue lock; the tear-off does.</p>
+<p><strong>Documented deviations the executable takes</strong> (header of the
+demo):</p>
+<ul>
+<li>Tissue constructors: <code>TissueSet</code> takes the initial <code>Iterable</code> as
+the <strong>first positional</strong> argument, with <code>testRule:</code> as a named
+argument.</li>
+<li>Two <code>toHandle</code> calls only: one for <code>interpreted</code>, one inside
+<code>MapValue</code> for <code>dispatchedCell</code>.</li>
+<li>Trace prints come from the writers themselves.</li>
+<li><code>removeWhere</code> / <code>retainWhere</code> are listed on <code>modifiable</code> but not
+driven.</li>
+<li><code>.unmodifiable</code> is a snapshot in this build.</li>
+<li>Offline default; live HTTP requires <code>--live</code> or <code>--config</code>.</li>
+<li>Full traffic logging is preserved.</li>
+<li>Scenario 10 uses <code>injectTimeoutOnce</code> in both offline and live
+modes.</li>
+<li>The system prompt is printed in full the first time, then
+truncated.</li>
+<li>The harness holds both the <code>AiTissueCommand</code> instruction and the
+handle returned by <code>.toHandle(...)</code>.</li>
+<li><code>--config</code> builds the interpreter via <code>AiConfig.fromJsonFile</code>;
+env vars are not consulted when a config is supplied.</li>
+<li>Mode selection is packaged in <code>_selectHarness</code>, so <code>main</code>
+assigns to <code>h</code> exactly once.</li>
+</ul>
+<hr>
+<h3 id="seed--empty-tissueset-interpret--dispatch-armed">Seed — empty TissueSet; interpret + dispatch armed</h3>
+<p><strong>Lesson:</strong> the bus is wired, the interpreter port is live, and
+nothing has mutated yet.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.install();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>tags = TissueSet&lt;int&gt;(const &lt;int&gt;[], testRule: _elementRule)</code>.</li>
+<li><code>auditor = tags.unmodifiable</code>.</li>
+<li><code>_dispatchHost = Box&lt;TissueSet&lt;int&gt;&gt;(tags)</code>.</li>
+<li><code>commandIn = Cell.ingress&lt;String&gt;(testRule: _commandShape)</code>.</li>
+<li><code>interpretedInstruction = AiTissueCommand&lt;String&gt;(...)</code>.</li>
+<li><code>interpreted = interpretedInstruction.toHandle(source: commandIn.cell)</code>.</li>
+<li><code>filtered = Flow.filter&lt;Object&gt;(interpreted.cell, test: ...)</code>.</li>
+<li><code>dispatchedHandle = Flow.map&lt;Object, TissueCommand&gt;(filtered.cell, project: ...)</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── Seed ── empty TissueSet; interpret + dispatch armed
+  tags.isEmpty=true
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[dispatch]</code> lines.</li>
+<li>No <code>[tags]</code> lines.</li>
+</ul>
+<hr>
+<h3 id="step-1--add-1-to-the-tissue">Step 1 — add 1 to the tissue</h3>
+<p><strong>Lesson:</strong> sentence → verb → Tissue mutation. The full pipeline
+runs end to end.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('add 1 to the tissue');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>commandIn.emit('add 1 to the tissue')</code> — <code>_commandShape</code>
+accepts (non-empty, ≤ 200).</li>
+<li><code>AiTissueCommand</code> calls <code>interpreter.complete(text: ...)</code>.</li>
+<li>The stub classifies the sentence as <code>add 1</code>. The instruction
+fires <code>future!(Pulse&lt;TissueCommand&gt;(...))</code>.</li>
+<li>The filter sees a <code>TissueCommand</code>. <code>interpretedCount++</code>. The
+pulse passes.</li>
+<li><code>MapValue</code> calls <code>_runDispatch(cmd)</code>. The tear-off is looked up,
+<code>tags.modifiable.contains(add)</code> is <code>true</code>, <code>tags.add(1)</code> runs.</li>
+<li><code>TissueSet.add</code> takes the Tissue lock, runs <code>_elementRule</code>,
+writes the container, emits <code>ElementAdded&lt;int&gt;</code>.</li>
+<li><code>dispatchedCount++</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 1 ── add 1 to the tissue
+[dispatch] add(1) allowed
+[tags] +1
+  contains(1)=true length=1
+</code></pre>
+<p>Plus the interpreter's traffic log for the <code>complete(...)</code> call
+(prompt, request, response, parsed).</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[trips]</code> line — this demo has no trip log.</li>
+<li>No <code>TestTissue</code> rejection — <code>1 &gt;= 0</code>.</li>
+</ul>
+<hr>
+<h3 id="step-2--please-insert-1">Step 2 — please insert 1</h3>
+<p><strong>Lesson:</strong> the set deduplicates. A second <code>add 1</code> reaches
+<code>TissueSet.add</code>, the container rejects the duplicate, and no new
+<code>ElementAdded&lt;int&gt;</code> is emitted.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final len2 = h.tags.length;
+await h.say('please insert 1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>Same path as step 1.</li>
+<li><code>TissueSet.add(1)</code> runs <code>_elementRule</code> (passes) but the
+underlying <code>Set&lt;int&gt;</code> already contains <code>1</code>, so no <code>ElementAdded</code>
+is emitted.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 2 ── please insert 1
+[dispatch] add(1) allowed
+  contains(1)=true grew=false
+</code></pre>
+<p><code>grew=false</code> is the key assertion: the tear-off ran, the rule
+passed, and the set still rejected the duplicate.</p>
+<hr>
+<h3 id="step-3--add-2-to-the-tissue">Step 3 — add 2 to the tissue</h3>
+<p><strong>Lesson:</strong> second distinct element.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('add 2 to the tissue');
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 3 ── add 2 to the tissue
+[dispatch] add(2) allowed
+[tags] +2
+  tags={1, 2}
+</code></pre>
+<hr>
+<h3 id="step-4--remove-1">Step 4 — remove 1</h3>
+<p><strong>Lesson:</strong> the remove tear-off runs through the same gates.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('remove 1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>_runDispatch</code> looks up <code>tags.remove</code>, checks <code>modifiable</code>,
+calls <code>tags.remove(1)</code>.</li>
+<li><code>TissueSet.remove</code> takes the Tissue lock, emits
+<code>ElementRemoved&lt;int&gt;</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 4 ── remove 1
+[dispatch] remove(1) allowed
+[tags] -1
+  tags={2}
+</code></pre>
+<hr>
+<h3 id="step-5--clear-the-set">Step 5 — clear the set</h3>
+<p><strong>Lesson:</strong> zero-arg verb. The stub’s classifier produces
+<code>args: []</code>; <code>_runDispatch</code> calls <code>tags.clear()</code>.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('clear the set');
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 5 ── clear the set
+[dispatch] clear() allowed
+[tags] cleared
+  tags={}
+</code></pre>
+<hr>
+<h3 id="step-6--hack-the-nucleus">Step 6 — hack the nucleus</h3>
+<p><strong>Lesson:</strong> the model refuses. Nothing crosses the seam.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('hack the nucleus');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>commandIn.emit('hack the nucleus')</code> — accepted by <code>_commandShape</code>.</li>
+<li><code>AiTissueCommand</code> calls the stub. The stub returns
+<code>Reject(source: 'hack the nucleus', reason: 'no-permitted-verb')</code>.</li>
+<li>The instruction fires <code>future!(Pulse&lt;Reject&gt;(...))</code>.</li>
+<li>The filter sees a <code>Reject</code>. <code>rejectedCount++</code>. Returns <code>false</code>.</li>
+<li>The pulse is dropped. No <code>[dispatch]</code> line. No <code>[tags]</code> line.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 6 ── hack the nucleus
+  dispatched=false tags={}
+</code></pre>
+<p>Plus the interpreter's traffic log for the <code>complete(...)</code> call,
+which includes a <code>REFUSED</code> block with the reason.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[dispatch]</code> line.</li>
+<li>No <code>[tags]</code> line.</li>
+</ul>
+<hr>
+<h3 id="step-7--add--1">Step 7 — add -1</h3>
+<p><strong>Lesson:</strong> the sentence is valid; the model returns a valid
+<code>TissueCommand</code>; the dispatch runs; the <strong>Tissue rule</strong> rejects the
+element.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('add -1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>AiTissueCommand</code> returns <code>TissueCommand(add, args: [-1])</code>.</li>
+<li>The filter passes. <code>interpretedCount++</code>.</li>
+<li><code>_runDispatch</code> calls <code>tags.add(-1)</code>.</li>
+<li><code>_elementRule</code> returns <code>false</code> for <code>-1</code>. The <code>TissueSet</code>
+rejects the write. No <code>ElementAdded&lt;int&gt;</code> is emitted. The
+container is unchanged.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 7 ── add -1
+[dispatch] add(-1) allowed
+[tags] reject -1
+  tags={}
+</code></pre>
+<p>The <code>[dispatch] add(-1) allowed</code> line is printed by
+<code>_runDispatch</code> because the <code>modifiable</code> gate passed. The
+<code>[tags] reject -1</code> line is printed by the writer after the rule
+returned <code>false</code>.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[tags] +(-1)</code> line — the rule rejected.</li>
+</ul>
+<hr>
+<h3 id="step-8--add-3-via-auditor">Step 8 — add 3 via auditor</h3>
+<p><strong>Lesson:</strong> the deputy’s <code>modifiable</code> is empty. The dispatch is
+denied <strong>before</strong> the tissue lock is taken.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.useAuditorHost();
+await h.say('add 3');
+h.useMutableHost();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>_dispatchHost.value = auditor</code>.</li>
+<li><code>AiTissueCommand</code> returns <code>TissueCommand(add, args: [3])</code>.</li>
+<li>The filter passes. <code>interpretedCount++</code>.</li>
+<li><code>_runDispatch</code> looks up the tear-off, checks
+<code>auditor.modifiable.contains(add)</code> — <code>false</code> — and prints the
+denied line.</li>
+<li><strong>No</strong> <code>tags.add(3)</code>. <code>dispatchedCount</code> does <strong>not</strong> increment.</li>
+<li><code>_dispatchHost.value = tags</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 8 ── add 3 via auditor
+[dispatch] add(3) denied (not in modifiable)
+  tags={}
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[tags] +3</code> line.</li>
+<li><code>dispatchedCount</code> is unchanged.</li>
+</ul>
+<hr>
+<h3 id="step-9--addall-4-5">Step 9 — addAll 4 5</h3>
+<p><strong>Lesson:</strong> multi-arg verb. The stub returns <code>args: [[4, 5]]</code>;
+<code>_runDispatch</code> unwraps once and calls <code>tags.addAll([4, 5])</code>.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.say('addAll 4 5');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>_runDispatch</code> calls <code>tags.addAll([4, 5])</code>.</li>
+<li><code>TissueSet.addAll</code> runs <code>_elementRule</code> per element, writes both,
+emits a batch <code>ElementAdded&lt;int&gt;</code> (or two — implementation
+dependent; the console prints both <code>[tags] +4</code> and <code>[tags] +5</code>).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 9 ── addAll 4 5
+[dispatch] addAll([4, 5]) allowed
+[tags] +4
+[tags] +5
+  tags={4, 5}
+</code></pre>
+<hr>
+<h3 id="step-10--interpreter-timeout">Step 10 — interpreter timeout</h3>
+<p><strong>Lesson:</strong> a transport failure is a <code>Reject</code>. The dispatch stage
+never runs.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final before10 = h.dispatchedCount;
+h.interpretedInstruction.injectTimeoutOnce();
+await h.say('add 6');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>injectTimeoutOnce</code> marks the interpreter for a one-shot throw.</li>
+<li><code>say('add 6')</code> emits the sentence. The interpreter's
+<code>complete(...)</code> throws.</li>
+<li><code>AiTissueCommand</code> catches the throw, invokes its <code>onError</code>
+handler (which routes to the interpreter's <code>TrafficLog</code>), and
+emits no pulse.</li>
+<li>The filter sees no pulse. <code>dispatchedCount</code> unchanged.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 10 ── interpreter timeout
+  dispatched=false tags={4, 5}
+</code></pre>
+<p>Plus the interpreter's traffic log, which includes an <code>ERROR</code>
+block.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[dispatch] add(6) allowed</code> line.</li>
+<li>No <code>[tags] +6</code> line.</li>
+</ul>
+<hr>
+<h3 id="step-11--empty-and-oversized">Step 11 — empty and oversized</h3>
+<p><strong>Lesson:</strong> <code>TestCell</code> on the ingress. A malformed sentence dies at
+the edge. The interpreter never runs.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final before11 = h.tags.length;
+final emptyOk = await h.say('');
+final oversizedOk = await h.say('x' * 201);
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>commandIn.emit('')</code> — <code>_commandShape</code> rejects (empty). <code>say</code>
+returns <code>false</code> without incrementing <code>commands</code>.</li>
+<li><code>commandIn.emit('x' * 201)</code> — <code>_commandShape</code> rejects (&gt; 200).
+<code>say</code> returns <code>false</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 11 ── empty and oversized
+  empty accepted=false
+  oversized accepted=false
+  interpret ran=false
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No traffic log for either sentence.</li>
+<li>No <code>[dispatch]</code> line.</li>
+</ul>
+<hr>
+<h3 id="step-12--optional-swap-the-stub">Step 12 — (optional) swap the stub</h3>
+<p><strong>Lesson:</strong> extension hook.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">// skipped — no live interpreter
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 12 ── (optional) swap the stub
+  skipped (no live interpreter)
+</code></pre>
+<hr>
+<h3 id="trailer">Trailer</h3>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">-------------------------------------------------------------
+commands=8 interpreted=6 dispatched=5 rejected=2
+tags={4, 5} auditorLength=0 (snapshot at install; not live)
+-------------------------------------------------------------
+</code></pre>
+<p>Then <code>h.dispose()</code> closes the HTTP client (if live) and stops
+anything the harness opened. In offline mode <code>dispose()</code> is a
+no-op.</p>
+<hr>
+<h2 id="pulse-path-scenario-6-then-7">Pulse path (scenario 6 then 7)</h2>
+<pre class="language-dart"><code>say('hack the nucleus')
+  commandIn.emit
+    _commandShape: pass
+    AiTissueCommand.complete: stub returns Reject
+    future!(Pulse&lt;Reject&gt;)
+  Filter&lt;Object&gt;: Reject → rejectedCount++ → drop
+  tags unchanged
+
+say('add -1')
+  commandIn.emit
+    _commandShape: pass
+    AiTissueCommand.complete: stub returns TissueCommand(add, [-1])
+    future!(Pulse&lt;TissueCommand&gt;)
+  Filter&lt;Object&gt;: TissueCommand → interpretedCount++ → pass
+  MapValue: _runDispatch → tags.add(-1)
+    TissueSet.modifiable.contains(add): pass
+    TissueSet.add(-1)
+      _elementRule: fail
+      container unchanged
+      no ElementAdded
+  tags unchanged
+</code></pre>
+<p>Scenario 11 stops at <code>commandIn.emit</code>. The interpreter is idle.
+Tissue is idle.</p>
+<p>Scenario 10 stops between <code>commandIn.emit</code> and
+<code>AiTissueCommand.complete</code>. The <code>onError</code> handler runs; no pulse
+crosses the seam.</p>
+<hr>
+<h2 id="who-owns-the-lock">Who owns the lock</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commandIn.emit</code></td>
+<td>ingress Cell lock</td>
+</tr>
+<tr>
+<td><code>AiTissueCommand.complete</code></td>
+<td>instruction's own execution; no Tissue lock</td>
+</tr>
+<tr>
+<td><code>_runDispatch</code></td>
+<td>none — pure switch on <code>modifiable</code></td>
+</tr>
+<tr>
+<td><code>tags.add</code> / <code>tags.remove</code> / <code>tags.clear</code></td>
+<td>TissueSet lock</td>
+</tr>
+<tr>
+<td><code>auditor.modifiable.contains(...)</code></td>
+<td>none — read-only</td>
+</tr>
+</tbody>
+</table>
+<p>Do not “fix” a race by putting <code>tags.add</code> inside the interpreter.
+Teach the two locks.</p>
+<hr>
+<h2 id="real-product-vs-this-file">Real product vs this file</h2>
+<table>
+<thead>
+<tr>
+<th>Still missing</th>
+<th>Suggested next piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Real LLM streaming</td>
+<td><code>HttpInterpreter</code> with <code>stream: true</code></td>
+</tr>
+<tr>
+<td>Multi-turn conversation</td>
+<td>A second <code>Cell.ingress</code> for the reply, and a <code>Synthesis</code> to keep context</td>
+</tr>
+<tr>
+<td>Argument type coercion</td>
+<td>A <code>TestTissue</code> on <code>TissueCommand</code> before the dispatch</td>
+</tr>
+<tr>
+<td>Approval queue for high-risk verbs</td>
+<td>A <code>TissueQueue&lt;TissueCommand&gt;</code> and a second consumer</td>
+</tr>
+<tr>
+<td>Persistent audit of commands</td>
+<td>A <code>TissueList&lt;TissueCommand&gt;</code> alongside <code>tags</code></td>
+</tr>
+<tr>
+<td>Rate limiting per operator</td>
+<td>A <code>TestTissue</code> on <code>tags</code> keyed on a sliding window</td>
+</tr>
+<tr>
+<td>Verb composition (<code>add 3 then remove 1</code>)</td>
+<td>A <code>Synthesis</code> over the interpreter output</td>
+</tr>
+<tr>
+<td>Multi-model fallback</td>
+<td>A <code>Synthesis</code> over two interpreters</td>
+</tr>
+<tr>
+<td>Sandboxed execution</td>
+<td>A <code>TissueSet&lt;int&gt;.unmodifiable</code> host (see scenario 8)</td>
+</tr>
+</tbody>
+</table>
+<p>Flow stays on “which verb did the sentence name?”
+TestCell stays on the <strong>sentence ingress</strong>.
+TestTissue stays on <strong>collection mutations</strong>.
+<code>modifiable</code> stays the <strong>dispatch whitelist</strong>.
+Tissue stays the <strong>membership set</strong>.
+Deputy stays the <strong>auditor view</strong>.</p>
+<hr>
+<h2 id="acceptance">Acceptance</h2>
+<ol>
+<li><code>dart run nl-instruction-tissue-set-Demo.dart</code> prints every row
+in the scenario table with the <strong>Result</strong> column matched.</li>
+<li>Grep shows exactly <strong>one</strong> explicit <code>toHandle(</code> call on
+<code>AiTissueCommand</code>, inside <code>install()</code>; the dispatch stage's
+<code>MapValue</code> does not need a hand-written <code>toHandle</code>.</li>
+<li><code>_runDispatch</code> contains no <code>await</code>, no <code>tags.add</code> before the
+<code>modifiable</code> gate, and no direct write to <code>tags</code> other than the
+tear-off call.</li>
+<li>Scenario 6 prints <code>dispatched=false</code> and does not touch <code>tags</code>.</li>
+<li>Scenario 7 prints <code>[dispatch] add(-1) allowed</code> <strong>and</strong>
+<code>[tags] reject -1</code>, and <code>tags</code> is unchanged.</li>
+<li>Scenario 8 prints <code>[dispatch] add(3) denied (not in modifiable)</code>
+and <code>tags</code> is unchanged.</li>
+<li>Scenario 10 prints <code>dispatched=false</code> and does not touch
+<code>tags</code>.</li>
+<li>Scenario 11 prints <code>empty accepted=false</code>,
+<code>oversized accepted=false</code>, and <code>interpret ran=false</code>.</li>
+<li>Every <code>TissueSet</code> / <code>.unmodifiable</code> call passes
+<strong><code>TestTissue</code></strong> (or omits the argument and takes
+<code>TestTissue.allowAll</code>). Grep must show <strong>zero</strong>
+<code>testRule: TestCell</code> on those calls.</li>
+<li>The trailer's counters match
+<code>commands=8 interpreted=6 dispatched=5 rejected=2</code>.</li>
+<li><code>auditorLength=0</code> in the trailer, with the deviation note
+printed.</li>
+<li><code>--live</code> without <code>AI_ENDPOINT</code> / <code>AI_API_KEY</code> falls back to
+offline and prints a diagnostic.</li>
+<li><code>--config &lt;path&gt;</code> reads only the file; env vars are not
+consulted.</li>
+<li>Full traffic logging is preserved offline and live.</li>
+<li><code>dispose()</code> is called in a <code>finally</code> block.</li>
+</ol>
+<hr>
+<h2 id="documented-deviations-summary">Documented deviations (summary)</h2>
+<ol>
+<li><strong>Seed behaviour.</strong> No sentence is published on seed. The Seed
+banner only reports <code>tags.isEmpty=true</code>.</li>
+<li><strong><code>auditorLength=0</code>.</strong> <code>.unmodifiable</code> is a snapshot in this
+build. Scenario 8 still verifies the dispatch seam via
+<code>auditor.modifiable</code>.</li>
+<li><strong>Trailer counters.</strong> <code>commands=8 interpreted=6 dispatched=5 rejected=2</code>. The gap between <code>interpreted</code> and <code>dispatched</code>
+is scenario 8's denial at the <code>modifiable</code> gate.</li>
+<li><strong><code>removeWhere</code> / <code>retainWhere</code>.</strong> Listed on <code>modifiable</code> but
+not driven. The dispatch instruction rejects them if the model
+returns one.</li>
+<li><strong>Timeout injection.</strong> Uses <code>injectTimeoutOnce</code> in both offline
+and live modes so scenario 10 stays deterministic.</li>
+<li><strong>Config precedence.</strong> <code>--config</code> wins over <code>--live</code>; env vars
+are not consulted when a config is supplied.</li>
+</ol>
+<p>The <strong>policy</strong> is unchanged by these deviations. Only the sample
+numbers are.</p>
+<hr>
+<h2 id="name-plate">Name plate</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>This requirement / walkthrough</td>
+<td><code>nl-instruction-tissue-set-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Demo</td>
+<td><code>nl-instruction-tissue-set-Demo.dart</code></td>
+</tr>
+<tr>
+<td>Instruction module</td>
+<td><code>ai_tissue_command.dart</code></td>
+</tr>
+<tr>
+<td>Domain module</td>
+<td><code>ai_tissue_command_domain.dart</code></td>
+</tr>
+<tr>
+<td>Mobility sibling</td>
+<td><code>ride-hail-dispatch(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Payments sibling</td>
+<td><code>card-auth-pipeline(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Energy sibling</td>
+<td><code>grid-demand-response(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Clinical sibling</td>
+<td><code>ICU-alarm-pipeline(enhanced)-WalkThrough.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>NL-instruction → TissueSet is the command-surface lesson. The
+seam is the same as every sibling: Flow decides, Tissue records,
+one <code>observe</code> glues the two, and <code>modifiable</code> is the collection's
+public contract.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Natural-Language topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Natural-Language topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Natural-Language-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

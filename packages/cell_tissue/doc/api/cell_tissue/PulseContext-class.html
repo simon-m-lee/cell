@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">PulseContext class</li>
   </ol>
   <div class="self-name">PulseContext</div>
@@ -58,9 +58,10 @@
 <p><a href="../cell_tissue/PulseContext-class.html">PulseContext</a> serves as the telemetric anchor for a stimulus, tracking its
 historical lineage, reasoning justification, and priority as it propagates
 through the <strong>Switching Fabric</strong>.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely create a <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> directly. Instead, use one of the
-specialised factories:</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You rarely create a <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> directly. Instead, use one of the
+specialised factories:
 <ul>
 <li><a href="../cell_tissue/PulseContext/PulseContext.userAction.html">PulseContext.userAction</a> – for human‑initiated actions.</li>
 <li><a href="../cell_tissue/PulseContext/PulseContext.aiInference.html">PulseContext.aiInference</a> – for AI‑generated signals.</li>
@@ -70,12 +71,13 @@ specialised factories:</p>
 <li><a href="../cell_tissue/PulseContext/PulseContext.instruction.html">PulseContext.instruction</a> – for administrative commands.</li>
 <li>And many more – see the factories below.</li>
 </ul>
-<p>If none of these fit, you can use the general constructor with named
-parameters (actor, reason, priority, etc.).</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> whenever you need to attach provenance metadata to a
+</li>
+<li>If none of these fit, you can use the general constructor with named
+parameters (actor, reason, priority, etc.).</li>
+<li>Use <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> whenever you need to attach provenance metadata to a
 pulse – e.g., to record who triggered it, why, and with what priority.
-This is essential for auditing, debugging, and security enforcement.</p>
+This is essential for auditing, debugging, and security enforcement.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li><a href="../cell_tissue/PulseContext-class.html">PulseContext</a> extends <a href="../cell_tissue/ContextBase-class.html">ContextBase</a>, so it supports <strong>prototype
@@ -377,6 +379,18 @@ of the context.
 
 </dd>
 
+        <dt id="identity" class="property inherited">
+  <span class="name"><a href="../cell_tissue/ContextBase/identity.html">identity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The unique instance name or specific label assigned to this context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="integrity" class="property">
   <span class="name"><a href="../cell_tissue/PulseContext/integrity.html">integrity</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
@@ -574,6 +588,19 @@ organizational hierarchy.
 
 </dd>
 
+        <dt id="type" class="property inherited">
+  <span class="name"><a href="../cell_tissue/ContextBase/type.html">type</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The categorical archetype or "Kind" of functional operation this context
+represents.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="version" class="property inherited">
   <span class="name"><a href="../cell_tissue/ContextBase/version.html">version</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
@@ -733,7 +760,7 @@ telemetric templates for standard internal operations.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

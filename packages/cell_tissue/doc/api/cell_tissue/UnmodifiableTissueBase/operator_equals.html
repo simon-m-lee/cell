@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueBase-class.html">UnmodifiableTissueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">operator == method</li>
   </ol>
@@ -77,6 +77,24 @@
 <li>The <code>other</code> object is an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> and its contents match the
 internal container of this tissue.</li>
 </ol>
+<h3 id="when-to-use">When to use</h3>
+<p>This operator is called automatically when comparing tissues for equality.
+You rarely need to invoke it directly.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>First checks if the objects are identical (same instance).</li>
+<li>If <code>other</code> is a mutable <a href="../../cell_tissue/Tissue-class.html">Tissue</a> that this unmodifiable view mirrors,
+returns <code>true</code>.</li>
+<li>If <code>other</code> is an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>, delegates to the underlying container's
+equality logic.</li>
+<li>Otherwise, returns <code>false</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>other</code>: The object to compare with this unmodifiable tissue.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the tissues are equal; <code>false</code> otherwise.</p>
 </section>
 
 
@@ -128,7 +146,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

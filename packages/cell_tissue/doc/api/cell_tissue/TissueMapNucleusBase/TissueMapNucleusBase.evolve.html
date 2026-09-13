@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueMapNucleusBase-class.html">TissueMapNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueMapNucleusBase.evolve constructor</li>
   </ol>
@@ -62,12 +62,11 @@
 <section class="desc markdown">
   <p><strong>Evolution Constructor</strong> – creates a specialised deputy nucleus by
 extending an existing <code>principal</code>.</p>
-<h3 id="who-should-call-this">Who should call this</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>This constructor is part of the <strong>internal deputy machinery</strong>. While it
 is <code>public</code>, it is intended to be called only by the framework when
 you invoke <code>deputy()</code> on a <a href="../../cell_tissue/TissueMap-class.html">TissueMap</a>. <strong>Application code should use
 <code>TissueMap.deputy()</code> or <a href="../../cell_tissue/TissueMapNucleus/TissueMapNucleus.evolve.html">TissueMapNucleus.evolve</a> instead.</strong></p>
-<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
 <p>You are building a custom deputy implementation and need to control
 exactly how a child nucleus inherits from its principal.</p>
 <h3 id="how-it-works">How it works</h3>
@@ -154,7 +153,7 @@ inherited from the principal or taken from <code>override</code>).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

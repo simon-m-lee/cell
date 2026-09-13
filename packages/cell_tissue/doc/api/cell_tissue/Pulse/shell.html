@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">shell property</li>
   </ol>
@@ -67,23 +67,27 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns a <strong>Defensive Proxy</strong> of this pulse, encapsulated in a <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a>.</p>
+  <p>Returns a <strong>Defensive Proxy</strong> of this pulse for untrusted receivers.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to send a pulse to an untrusted component – the
-shell forces the receiver to authenticate itself before the payload is
-revealed.</p>
+<ul>
+<li><strong>Untrusted Receivers</strong>: Use this when you need to send a pulse to an untrusted component — a UI
+widget, an external logger, or a third‑party plugin. The shell forces the
+receiver to authenticate before the payload is revealed.</li>
+<li>Sending pulses to untrusted components.</li>
+<li>Protecting sensitive payloads from unauthorised access.</li>
+<li>Zero‑trust propagation scenarios.</li>
+<li>When you want the receiver to authenticate before seeing the data.</li>
+<li>External APIs, loggers, or UI widgets that shouldn't see raw data.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>The shell wraps the pulse and hides its payload. Any attempt to access
-the payload must go through <code>scrutinize</code>, which forces the receiver to
+the payload must go through <a href="../../cell_tissue/Pulse/scrutinize.html">scrutinize</a>, which forces the receiver to
 prove its identity and clearance.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>The shell is read‑only and cannot be evolved.</li>
-<li>It's the primary mechanism for zero‑trust propagation in the framework.</li>
-</ul>
+<h3 id="nonobvious-the-shell-is-readonly-and-immutable">Non‑obvious: the shell is read‑only and immutable</h3>
+<p>You can't evolve a shell or change its metadata. It's a terminal,
+read‑only view designed for safe distribution.</p>
 <h3 id="returns">Returns:</h3>
-<p>A terminal, read-only <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a> that gates access to this pulse's
-internal data until <strong>Reciprocal Authorization</strong> is satisfied.</p>
+<p>A <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a> that gates access until <strong>Reciprocal Authorization</strong> is satisfied.</p>
 </section>
 
     
@@ -119,7 +123,7 @@ internal data until <strong>Reciprocal Authorization</strong> is satisfied.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

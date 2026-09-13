@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueListNucleusBase-class.html">TissueListNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueListNucleusBase.fromRecord const constructor</li>
   </ol>
@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">TissueListNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span>, </span></li>
-</ol>})
+      <span class="name ">TissueListNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span></li>
+</ol>)
     </section>
     
 <section class="desc markdown">
@@ -63,8 +63,11 @@
 pre‑packed property record.</p>
 <p>This constructor is designed for framework internals and performance‑
 critical scenarios where the configuration record has already been
-computed or deserialised.</p>
-<h3 id="where-to-start">Where to start</h3>
+computed or deserialize.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Only if you are extending the framework and have a raw <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>
+containing a valid nucleus configuration. For everyday use, stick
+to the primary constructor or the <a href="../../cell_tissue/TissueList-class.html">TissueList</a> factories.</p>
 <p>You will almost never call this directly. It is used by the framework
 when:</p>
 <ul>
@@ -73,10 +76,6 @@ when:</p>
 <li>Internal evolution (deputy creation) where the local record is
 already resolved.</li>
 </ul>
-<h3 id="when-to-use">When to use</h3>
-<p>Only if you are extending the framework and have a raw <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>
-containing a valid nucleus configuration. For everyday use, stick
-to the primary constructor or the <a href="../../cell_tissue/TissueList-class.html">TissueList</a> factories.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The provided <code>record</code> is directly assigned to the internal storage.</li>
@@ -111,7 +110,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TissueListNucleusBase.fromRecord({super.record}) : super.fromRecord();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TissueListNucleusBase.fromRecord(super.record) : super.fromRecord();</code></pre>
 </section>
 
 
@@ -139,7 +138,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

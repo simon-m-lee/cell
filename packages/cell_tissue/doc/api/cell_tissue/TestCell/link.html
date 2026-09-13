@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestCell-class.html">TestCell<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">link method</li>
   </ol>
@@ -84,7 +84,7 @@ when <a href="../../cell_tissue/Synapses/link.html">Synapses.link</a> is called.
 <li>It collects all <a href="../../cell_tissue/TestLinkRule-class.html">TestLinkRule</a>s in the chain.</li>
 <li>Each rule is given the candidate link and the host.</li>
 <li>If any rule returns <code>false</code>, the link is rejected.</li>
-<li>If all pass, it delegates to the <code>_parent</code>.</li>
+<li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -178,7 +178,7 @@ FutureOr&lt;bool&gt; link(covariant Cell link, {required C host}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

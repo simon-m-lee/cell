@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -60,7 +60,7 @@
     </ol>
   </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
-<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-pulse"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span></span></li>
+<span class="name ">call</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="call-param-incoming"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">incoming</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -68,30 +68,57 @@
     </section>
     
 <section class="desc markdown">
-  <p>Orchestrates the formal transition from <strong>Perception</strong> to <strong>Reasoning</strong>
-by executing the receptor's transformation logic within the
-host's <strong>Operational Perimeter</strong>.</p>
+  <p>The internal execution entry point for signal propagation and
+transformation.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You don't call this directly – the framework invokes it when a pulse
-arrives at the cell. It's the core method that processes the pulse.</p>
+<p>This method is the primary driver of the receptor's operational logic.
+It is invoked automatically by the framework when a <a href="../../cell_tissue/Pulse-class.html">Pulse</a> arrives
+at the cell boundary. Manual invocation is recommended only for:</p>
+<ul>
+<li><strong>Testing</strong>: Verifying the integration of validation and transformation
+logic.</li>
+<li><strong>Custom Propagation</strong>: Building specialized reactive engines that
+orchestrate their own pulse timing.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The method:</p>
 <ol>
-<li>Checks if the pulse is a shell (defensive proxy); if so, performs
-the mutual authorization handshake.</li>
-<li>Validates the pulse against the cell's <a href="../../cell_tissue/TestCell-class.html">TestCell</a>.</li>
-<li>Executes the receptor's pipeline (<code>preProcess</code> → <code>rule</code> → <code>postProcess</code>).</li>
-<li>Returns the transformed pulse or <code>null</code>.</li>
+<li><strong>Proxy Scrutiny</strong>: Performs a security handshake if the incoming
+pulse is a defensive proxy (<a href="../../cell_tissue/Shell-class.html">Shell</a>).</li>
+<li><strong>Cycle Prevention</strong>: Verifies that the pulse hasn't already been
+processed by this cell to prevent infinite recursive loops.</li>
+<li><strong>Governance</strong>: If the cell is governed, it applies architectural
+policies and appends forensic trace information to the pulse.</li>
+<li><strong>Validation</strong>: Invokes the host cell's internal validation logic
+to ensure the pulse complies with all operational invariants.</li>
+<li><strong>Transformation Pipeline</strong>: Executes the sequential logic stages
+(sanitization, core logic, commitment) synchronously.</li>
+<li><strong>Broadcast</strong>: If successful, the resulting pulse is automatically
+propagated to all downstream synapses.</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The method handles both synchronous and asynchronous execution via
-<code>FutureOr</code>.</li>
-<li>If the pulse is invalidated or the cell is invalidated, the call
-returns <code>null</code>.</li>
-<li>The pipeline is wrapped in error boundaries; exceptions are caught
-and reported via the pulse's <code>onError</code> callback.</li>
+<li><strong>Safety Shield</strong>: The entire call stack is protected by a resilience
+boundary. Exceptions are caught and logged to the pulse's forensic
+trace, and the signal is safely terminated (<code>null</code>) to protect graph
+stability.</li>
+<li><strong>Synchronous Execution</strong>: The method executes synchronously and
+returns the result immediately. For asynchronous execution, use
+<a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a>.</li>
+<li><strong>Auditability</strong>: In governed mode, every execution step is recorded,
+providing a complete audit trail of how data flowed through the graph.</li>
+<li><strong>Short-circuiting</strong>: Signal propagation is aborted immediately if
+the cell is invalidated, validation fails, or a transformation
+stage returns <code>null</code>.</li>
+<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
+validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
+checks. This is the only async operation in the call path.</li>
 </ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>incoming</code>: The incoming pulse to process.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the signal was terminated.</p>
 </section>
 
 
@@ -99,72 +126,39 @@ and reported via the pulse's <code>onError</code> callback.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;Pulse?&gt; call(covariant PulseBase pulse) {
+FutureOr&lt;Pulse?&gt; call(covariant Pulse incoming) {
+  assert(isActivated,
+  &#39;Receptor call failed: The receptor must be activated before it can process pulses. &#39;
+      &#39;Verify that the host cell has been properly initialized and is not in a disposed state.&#39;);
+  &#47;&#47; assert(!cell.isInvalidated,
+  &#47;&#47; &#39;Receptor call failed: The [cell] the receptor is activated with is in a disposed state.&#39;);
+  assert(!incoming.isInvalidated,
+  &#39;Receptor call failed: The [incoming] pulse is in a disposed state.&#39;);
 
-  if (pulse is Shell) {
-    return pulse.scrutinize(this, null);
+  if (incoming is Shell) {
+    return incoming.scrutinize(this, null);
   }
 
-  if (!isActivated || !pulse._checker.add(cell)) return null;
-
-  FutureOr&lt;Pulse?&gt; proceed() {
-
-    if (isGoverned) {
-      if (cell.isInvalidated || pulse.isInvalidated) return null;
-
-      final ephemeralPolicy = (cell._nucleus as NucleusBase)._ephemeralPolicy;
-      if (ephemeralPolicy != null) {
-        ephemeralPolicy(pulse, cell: cell);
-        if (pulse.isInvalidated) return null;
-      }
-
-      if (pulse.isGoverned) {
-
-        if (pulse.isInvalidated) return null;
-
-        final pulseEphemeralPolicy = pulse.policy;
-        if (pulseEphemeralPolicy != null) {
-          pulseEphemeralPolicy._onPulseComplete(pulse, cell: cell);
-          if (pulse.isInvalidated) return null;
-        }
-
-        final step = cell.context is DeputyContext
-            ? (cell.context as DeputyContext).role ?? cell.toString()
-            : cell.toString();
-
-        pulse = pulse.withStep(step) as PulseBase;
-      }
-
-    }
-
-    final result = _onPulseReceived(pulse);
-
-    if (result is Future&lt;PulseBase?&gt;) {
-      return result.then((pulse) {
-        if (pulse == null) return null;
-        final nucleus = cell._nucleus as NucleusBase;
-        nucleus._propagate(pulse);
-        return pulse;
-      });
-    }
-
-    &#47;&#47; Synchronous Path: Immediate propagation within the current call stack.
-    if (result != null) {
-      final nucleus = cell._nucleus as NucleusBase;
-      nucleus._propagate(result);
-    }
-    return result;
+  if (incoming.isInvalidated) {
+    return null;
   }
 
-  final validation = cell.validate(pulse, host: cell);
+  assert(incoming is PulseBase,
+  &#39;Receptor call failed: The [incoming] pulse is not implemented from PulseBase.&#39;);
+
+  if (!(incoming as PulseBase)._checker.add(cell)) {
+    print(&#39;DEBUG receptor: checker add false&#39;);
+    return null;
+  }
+
+  final validation = cell.validate(incoming, host: cell);
   if (validation is Future&lt;bool&gt;) {
-    return validation.then((isValid) =&gt; isValid ? proceed() : null);
+    return validation.then((isValid) =&gt; isValid ? _proceed(incoming) : null);
   } else if (!validation) {
     return null;
   }
 
-  return proceed();
-
+  return _proceed(incoming);
 }</code></pre>
 </section>
 
@@ -193,7 +187,7 @@ FutureOr&lt;Pulse?&gt; call(covariant PulseBase pulse) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

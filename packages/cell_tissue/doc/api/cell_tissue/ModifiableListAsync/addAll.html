@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">addAll method</li>
   </ol>
@@ -63,26 +63,18 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously adds all <code>elements</code> from the given iterable to the end of the list.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/addAll.html">TissueList.addAll</a>. The <code>Future</code> completes successfully if all
-elements are added. If any element fails validation, the behavior regarding
-partial additions depends on the underlying <code>TissueList</code>'s <code>apply</code> logic.
-The <code>Future</code> will complete with an error if the overall operation fails.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>elements</code>: An <code>Iterable&lt;E&gt;</code> of elements to add.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously appends all <code>elements</code> to the end of this list.</p>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>This operation is treated as an atomic batch. If multiple elements are
+valid, they are bundled into a single <a href="../../cell_tissue/TissuePulse/batch.html">TissuePulse.batch</a>, ensuring
+observers receive one forensic update for the entire set of additions.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addAll(Iterable&lt;E&gt; elements) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.addAll(elements));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; addAll(Iterable&lt;E&gt; elements) =&gt; Future&lt;void&gt;(() =&gt; _tissue.addAll(elements));</code></pre>
 </section>
 
 
@@ -110,7 +102,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

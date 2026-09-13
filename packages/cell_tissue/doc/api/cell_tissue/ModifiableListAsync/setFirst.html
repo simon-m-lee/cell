@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">setFirst method</li>
   </ol>
@@ -63,25 +63,24 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously sets the first element of the list to <code>value</code>.</p>
-<p>Wraps <a href="../../cell_tissue/TissueList/setFirst.html">TissueList.setFirst</a>. The <code>Future</code> completes successfully if the
-list is not empty, modifiable, and the operation allowAll validation.
-Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>value</code>: The new value for the first element.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously replaces the element at <code>index</code> with <code>value</code>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when performing reactive updates from an asynchronous context
+where you must ensure the list mutation is fully committed before
+proceeding.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Wraps the synchronous <code>setValueAt</code> call. The returned <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> resolves
+only after the mutation has cleared the tissue's internal validation
+and the resulting <a href="../../cell_tissue/Pulse-class.html">Pulse</a> has finished propagating to all <a href="../../cell_tissue/Receptor-class.html">Receptor</a>s.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that resolves once the forensic causal chain is complete.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setFirst(E value) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.setFirst(value));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setFirst(E value) =&gt; Future&lt;void&gt;(() =&gt; _tissue.setFirst(value));</code></pre>
 </section>
 
 
@@ -109,7 +108,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

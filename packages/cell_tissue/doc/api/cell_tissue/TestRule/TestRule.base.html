@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
     <li class="self-crumb">TestRule.base const constructor</li>
   </ol>
@@ -58,36 +58,74 @@
     </section>
     
 <section class="desc markdown">
-  <p>The foundational base class for <strong>Metadata-Driven Validation Annotations</strong>.</p>
-<p>Classes extending <a href="../../cell_tissue/TestRule-class.html">TestRule</a> (such as <a href="../../cell_tissue/ValueRange-class.html">ValueRange</a>, <a href="../../cell_tissue/EntryPattern-class.html">EntryPattern</a>, and <a href="../../cell_tissue/Values-class.html">Values</a>)
-allow for the declarative definition of <strong>Business Invariants</strong> directly on
-class fields. This enables the framework to automate data sanitization,
-schema generation, and UI state management.</p>
-<h3 id="1-developer-ergonomics--human-legibility">1. Developer Ergonomics &amp; Human Legibility</h3>
-<p>Developers use annotations to declare constraints declaratively:</p>
-<pre class="language-dart"><code class="language-dart">class User {
-  @ValueRange(min: 0, max: 120)
-  final int age;
+  <p>The foundational constructor for <strong>Metadata-Driven Validation Annotations</strong>,
+enabling the declarative definition of business invariants.</p>
+<p><a href="../../cell_tissue/TestRule/TestRule.base.html">TestRule.base</a> provides the structural anchoring required for classes
+(such as <a href="../../cell_tissue/ValueRange-class.html">ValueRange</a>, <a href="../../cell_tissue/EntryPattern-class.html">EntryPattern</a>, and <a href="../../cell_tissue/Values-class.html">Values</a>) to be used as
+Dart annotations. This allows integrity rules to be embedded directly
+into the data schema rather than being injected at runtime.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Annotation Definition</strong>: Use as the super-constructor for custom
+validation classes intended for use as <code>@Annotation</code> markers.</li>
+<li><strong>Static Schema Mapping</strong>: Use to define structural constraints on
+POJOs or data models that will be wrapped in cells.</li>
+<li><strong>Declarative Validation</strong>: When you want validation logic to be
+discoverable via reflection/introspection for UI or API generation.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Annotation Reification</strong>: It initializes the internal <code>_record</code>
+to an empty unit <code>()</code>. This marks the instance as a stateless
+metadata node.</li>
+<li><strong>Structural Blueprinting</strong>: When the framework encounters these
+annotations on a class member, it automatically synthesizes them
+into the reactive graph's validation layer.</li>
+<li><strong>Stateless Logic</strong>: Subclasses typically provide concrete validation
+logic by overriding the <a href="../../cell_tissue/TestRule/call.html">call</a> method, while relying on <code>base</code> for
+type safety within the governance system.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Statelessness</strong>: Rules extending <code>base</code> should remain strictly
+stateless. They rely purely on the input value and metadata,
+making them safe for global caching and concurrent access.</li>
+<li><strong>Zero-Cost Metadata</strong>: Because it is a <code>const</code> constructor,
+annotation-based rules do not incur runtime overhead unless they are
+explicitly evaluated.</li>
+<li><strong>Visibility</strong>: Annotations are visible to external tools (like code
+generators or documentation engines) that might not have access to
+the runtime reactive graph.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class MaxLength extends TestRule&lt;Never&gt; {
+  final int length;
+  const MaxLength(this.length) : super.base();
 
-  @EntryPattern(pattern: r'^[^@]+@[^@]+\.[^@]+$')
-  final String email;
-
-  @MaxLength(50)
-  final String name;
-
-  @Values(['admin', 'editor', 'viewer'])
-  final String role;
+  @override
+  bool call(dynamic val, {Never? host, dynamic arguments}) =&gt;
+      val is String &amp;&amp; val.length &lt;= length;
 }
+
+// Usage in a data model
+class User {
+  @MaxLength(20)
+  final String username;
+  User(this.username);
+}
+
+
+### Parameters:
+(None)
+
+### Returns:
+A [TestRule] instance acting as a Metadata Blueprint.
+
+### See Also:
+* [TestRule]: The primary constructor for functional validation rules.
+* [ValueRange]: A standard implementation for numerical constraints.
+* [EntryPattern]: A standard implementation for string regex validation.
 </code></pre>
-<h3 id="2-architectural-role-structural-constraints">2. Architectural Role: Structural Constraints</h3>
-<p>As an annotation, a <a href="../../cell_tissue/TestRule-class.html">TestRule</a> serves as a <strong>Static Blueprint</strong> for data
-integrity. It ensures that any <a href="../../cell_tissue/Pulse-class.html">Pulse</a> payload entering a <a href="../../cell_tissue/Cell-class.html">Cell</a> adheres
-to the formal constraints defined in the source code before the state
-transition is committed.</p>
-<h3 id="3-se-patterns-stateless-validation">3. SE Patterns: Stateless Validation</h3>
-<p>Most annotation-based rules extend <code>TestRule&lt;Never&gt;</code>, indicating they are
-<strong>Stateless Validators</strong>. They rely purely on the value of the input <code>object</code>
-and do not require access to a <code>host</code> container or external state variables.</p>
 </section>
 
 
@@ -122,7 +160,7 @@ and do not require access to a <code>host</code> container or external state var
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

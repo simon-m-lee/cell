@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">cell property</li>
   </ol>
@@ -67,15 +67,9 @@
       </section>
       
 <section class="desc markdown">
-  <p>The host <a href="../../cell_tissue/Cell-class.html">Cell</a> instance that this receptor is currently serving.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>You rarely need this directly – the framework uses it internally to
-provide cell context to the receptor logic.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This getter is only valid when <a href="../../cell_tissue/ReceptorBase/isActivated.html">isActivated</a> is <code>true</code>.</li>
-<li>Accessing it on a template receptor throws an error.</li>
-</ul>
+  <p>The host cell this receptor is bound to.</p>
+<p>This field is set when <a href="../../cell_tissue/ReceptorBase/activate.html">activate</a> is called.
+Accessing it before activation throws a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>.</p>
 </section>
 
       
@@ -111,7 +105,7 @@ late final C cell;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -33,6 +33,7 @@ class _TissueQueueNucleus<E,C extends TissueQueue<E>> extends TissueQueueNucleus
     super.testRule,
     super.synapses,
 
+    super.ephemeralPolicy,
     super.forceLock,
     super.user,
   }) : super();
@@ -46,17 +47,19 @@ class _TissueQueueNucleus<E,C extends TissueQueue<E>> extends TissueQueueNucleus
     TestTissue<E,C>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     bool forceLock = true,
 
     TissueQueueNucleus<E>? override,
     required super.principal
   }) : super.evolve(
       override: override ?? _TissueQueueNucleus<E,C>.fromRecord(
-          TissueNucleusBase.local<E,Queue<E>,C>(
+          (local: TissueNucleusBase.local<E,Queue<E>,C>(
               bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock,
-              container: Container.queue,
+              ephemeralPolicy: ephemeralPolicy,
               others: capacity != null ? (capacity: capacity) : null
-          ))
+          )))
   );
 
   _TissueQueueNucleus.fromRecord(super.record) : super.fromRecord();
@@ -77,6 +80,7 @@ class _TissueQueueNucleus<E,C extends TissueQueue<E>> extends TissueQueueNucleus
   /// A new [TissueQueueNucleusBase] instance with identical behavioural logic.
   @override
   TissueQueueNucleusBase<E,C> get clone {
+    final p = principal;
     return TissueQueueNucleus.create<E,C>(
       container: containerType,
       context: context,
@@ -86,6 +90,10 @@ class _TissueQueueNucleus<E,C extends TissueQueue<E>> extends TissueQueueNucleus
       user: user,
       forceLock: false,
       capacity: capacity != -1 ? capacity : null,
+      ephemeralPolicy: _hostedEphemeralPolicy,
+      // A deputy clone must keep the principal chain and bind.
+      bind: p != null ? bind : null,
+      principal: p == null ? null : this,
     );
   }
 
@@ -226,6 +234,7 @@ abstract class TissueQueueNucleusBase<E,C extends TissueQueue<E>>
     super.testRule,
     super.synapses,
 
+    super.ephemeralPolicy,
     super.forceLock,
     super.user,
 
@@ -404,7 +413,7 @@ abstract class TissueQueueNucleusBase<E,C extends TissueQueue<E>>
   /// - Defaults to [Container.queue].
   @override
   Container get containerType {
-    return get<Container>(() => record.mask.inhertiable.container, fallback: () => principal?.containerType, orElse: Container.queue);
+    return get<Container>(() => record.local.inheritable.container, fallback: () => principal?.containerType, orElse: Container.queue);
   }
 
   /// The maximum element threshold (capacity) for this queue.
@@ -430,7 +439,7 @@ abstract class TissueQueueNucleusBase<E,C extends TissueQueue<E>>
   ///   one, depending on the specific `TissueQueue` implementation.
   /// - A value of `-1` means unbounded (no limit).
   @override
-  int get capacity => get<int>(() => record.mask.others.capacity, fallback: () => principal?.capacity, orElse: -1);
+  int get capacity => get<int>(() => record.local.others.capacity, fallback: () => principal?.capacity, orElse: -1);
 
 }
 
@@ -537,18 +546,18 @@ class _TissueQueue<E,C extends TissueQueue<E>> extends TissueQueueBase<E,C> {
 /// - Every structural change (adding to either end, removing, clearing) is:
 ///   1. Validated against the [TestTissue] rules.
 ///   2. Applied atomically to the [Container] (a `Queue<E>`).
-///   3. Dispatched as a [TissueEvent] to all observers.
+///   3. Dispatched as a [TissuePulse] to all observers.
 /// - The underlying storage is a Dart `Queue<E>` with O(1) head/tail operations.
 ///
 /// ### Non‑obvious
 /// - **The `apply` Gateway**: All mutations are funnelled through `apply`.
 ///   This is a security boundary – deputies override `modifiable` to return
 ///   an empty set, rejecting any mutation attempt.
-/// - **Capacity enforcement**: The [capacity] is enforced by the container's
+/// - **Capacity enforcement**: The `capacity` is enforced by the container's
 ///   `_queueAdd` logic – when the queue is full, adding a new element drops
 ///   the oldest (circular buffer behaviour).
 /// - **Member‑level bubbling**: If the queue contains [Cell] elements, they
-///   are automatically linked, so internal changes trigger [ElementUpdatedEvent]s.
+///   are automatically linked, so internal changes trigger [ElementUpdated]s.
 ///
 /// ### Example (Internal Usage)
 /// While you never instantiate this directly, understanding it helps you
@@ -601,7 +610,7 @@ abstract class TissueQueueBase<E,C extends TissueQueue<E>>
   /// 4. **Automatic linking**: Any element that implements [Cell] is
   ///    automatically linked to the queue's [Synapses]. This enables
   ///    **member‑level bubbling** – when a child cell changes, the queue
-  ///    emits a corresponding [TissueEvent] so that observers of the queue
+  ///    emits a corresponding [TissuePulse] so that observers of the queue
   ///    are notified.
   /// 5. **Capacity enforcement**: If the queue has a bounded capacity, the
   ///    ingestion respects it – if the initial elements exceed the capacity,
@@ -617,7 +626,7 @@ abstract class TissueQueueBase<E,C extends TissueQueue<E>>
   ///   individual element during ingestion. If some elements are invalid, they
   ///   are silently dropped – no event is emitted for rejected elements.
   /// - **Initial state is silent**: The initial population does **not**
-  ///   trigger any [TissueEvent] pulses. Observers see the populated queue as
+  ///   trigger any [TissuePulse] pulses. Observers see the populated queue as
   ///   if it had always been that way. Events are only emitted for mutations
   ///   that happen *after* construction.
   /// - **Linking is idempotent**: If the same [Cell] appears multiple times
@@ -702,11 +711,10 @@ class _TissueQueueDeputy<E,C extends TissueQueue<E>> extends _TissueQueue<E,C> w
 
   _TissueQueueDeputy._(TissueQueueBase<E,C> bind, {Context context = Context.system, TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})
       : super.fromNucleus(_TissueQueueNucleus<E,C>.evolve(
-      override: _TissueQueueNucleus<E,C>(
-        bind: bind,
-        testRule: bind._nucleus.testRule + testRule,
-        synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
-      ),
+      bind: bind,
+      testRule: bind._nucleus.testRule + testRule,
+      synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
+      ephemeralPolicy: ephemeralPolicy,
       principal: bind._nucleus)
   );
 
@@ -764,7 +772,11 @@ class _UnmodifiableTissueQueue<E,C extends TissueQueue<E>> extends UnmodifiableT
       : super(nucleus as TissueQueueNucleusBase<E,C>);
   @override
   FutureOr<TissueQueue<E>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueQueueDeputy<E,C>._(this as TissueQueueBase<E,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    final bind = _nucleus.bind;
+    if (bind is TissueQueueBase<E, C>) {
+      return _TissueQueueDeputy<E,C>._(bind, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    }
+    return this;
   }
 
   @override
@@ -833,6 +845,9 @@ abstract class UnmodifiableTissueQueueBase<E,C extends TissueQueue<E>>
   @override
   TissueQueueNucleusBase<E,C> get _nucleus => super._nucleus as TissueQueueNucleusBase<E,C>;
 
+  @override
+  Iterable<Function> get modifiable => <Function>{};
+
   /// Initializes a new [UnmodifiableTissueQueueBase] instance, anchoring
   /// a read‑only reactive queue (Double‑Ended Buffer) to its behavioral and
   /// structural blueprint.
@@ -879,11 +894,8 @@ abstract class UnmodifiableTissueQueueBase<E,C extends TissueQueue<E>>
   ///   dedicated high‑performance storage container for this specific instance.
   UnmodifiableTissueQueueBase(
       TissueQueueNucleusBase<E,C> super.nucleus, {
-        super.unmodifiableElement, Iterable<E>? elements}) : super(elements: elements) {
-    final container = get<Container?>(() => _nucleus.record.mask.container, orElse: null);
-    if (container != null && elements != null) {
-      _nucleus.container.store.addAll(elements);
-    }
+        super.unmodifiableElement, super.elements}) {
+    // Initial population is performed by TissueBase via `elements`.
   }
 
   /// Returns this instance, as it is already unmodifiable.
@@ -901,7 +913,7 @@ abstract class UnmodifiableTissueQueueBase<E,C extends TissueQueue<E>>
   /// ### Returns:
   ///   A [_UnmodifiableModifiableQueueAsync] instance.
   @override
-  ModifiableQueueAsync<E> get async => const _UnmodifiableModifiableQueueAsync();
+  ModifiableQueueAsync<E> get async => _UnmodifiableModifiableQueueAsync<E>();
 
   @override
   TestTissue<E,C> get validate => _nucleus.testRule;
@@ -945,7 +957,7 @@ abstract class UnmodifiableTissueQueueBase<E,C extends TissueQueue<E>>
 ///   strategy, which drops the oldest element when the queue is full
 ///   (circular buffer behaviour).
 mixin TissueQueueMixin<E,C extends TissueQueue<E>>
-// on TissueBase<E,Queue<E>,C>
+on TissueBase<E,Queue<E>,C>
 implements TissueQueue<E> {
 
   @override
@@ -956,8 +968,11 @@ implements TissueQueue<E> {
   Iterable<Function> get modifiable => <Function>{
     add,
     addAll,
+    addFirst,
+    addLast,
     clear,
     remove,
+    removeFirst,
     removeWhere,
     retainWhere,
     removeLast,
@@ -990,13 +1005,26 @@ implements TissueQueue<E> {
   void clear() => apply(clear);
 
   @override
-  bool remove(Object? object) => apply(remove, positionalArguments: [object]).isNotEmpty;
+  bool remove(Object? object) =>
+      (apply(remove, positionalArguments: [object])?.isNotEmpty) ?? false;
 
   @override
-  E removeFirst() => apply(removeFirst).values.first.first;
+  E removeFirst() {
+    final result = apply(removeFirst);
+    if (result == null) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+    return (result as ElementRemoved<E>).payload as E;
+  }
 
   @override
-  E removeLast() => apply(removeLast).values.first.first;
+  E removeLast() {
+    final result = apply(removeLast);
+    if (result == null) {
+      throw UnsupportedError('Unmodifiable operation');
+    }
+    return (result as ElementRemoved<E>).payload as E;
+  }
 
   @override
   void removeWhere(bool Function(E element) test) => apply(removeWhere, positionalArguments: [test]);
@@ -1006,13 +1034,13 @@ implements TissueQueue<E> {
 
   //
 
-  ElementAddedEvent<E>? _add(E value, {bool notification = true, Tissue<E>? deputy}) {
-    ElementAddedEvent<E>? event;
+  ElementAdded<E>? _add(E value, {bool notification = true, Tissue<E>? deputy}) {
+    ElementAdded<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(add)) {
       if (validate.action(add, host: this, arguments: (positionalArguments: [value], namedArguments: null)) == true) {
         if (validate.element(value, host: this, action: add) == true && _nucleus.container.add(this,value)) {
-          event = ElementAddedEvent<E>._(source: deputy ?? this, payload: value);
+          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1022,8 +1050,8 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementAddedEvent<E>? _addFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
-    ElementAddedEvent<E>? event;
+  ElementAdded<E>? _addFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
+    ElementAdded<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(addFirst)) {
       if (validate.action(addFirst, host: this, arguments: (positionalArguments: [value], namedArguments: null)) == true) {
@@ -1034,7 +1062,7 @@ implements TissueQueue<E> {
             _nucleus.synapses.link(value, downstreamCell: this);
           }
 
-          event = ElementAddedEvent<E>._(source: deputy ?? this, payload: value);
+          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1044,8 +1072,8 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementAddedEvent<E>? _addLast(E value, {bool notification = true, Tissue<E>? deputy}) {
-    ElementAddedEvent<E>? event;
+  ElementAdded<E>? _addLast(E value, {bool notification = true, Tissue<E>? deputy}) {
+    ElementAdded<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(addLast)) {
       if (validate.action(addLast, host: this, arguments: (positionalArguments: [value], namedArguments: null)) == true) {
@@ -1056,7 +1084,7 @@ implements TissueQueue<E> {
             _nucleus.synapses.link(value, downstreamCell: this);
           }
 
-          event = ElementAddedEvent<E>._(source: deputy ?? this, payload: value);
+          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1066,16 +1094,16 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementAddedEvent<Iterable<E>>? _addAll(Iterable<E> elements, {bool notification = true, Tissue<E>? deputy}) {
-    ElementAddedEvent<Iterable<E>>? event;
+  ElementAdded<Iterable<E>>? _addAll(Iterable<E> elements, {bool notification = true, Tissue<E>? deputy}) {
+    ElementAdded<Iterable<E>>? event;
 
     if (this is! Unmodifiable && modifiable.contains(addAll)) {
       if (validate.action(addAll, host: this, arguments: (positionalArguments: [elements], namedArguments: null)) == true) {
         final adds = elements.where((e) => validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: add) == true);
-        final added = adds.where((e) => _nucleus.container.add(this,e));
+        final added = adds.where((e) => _nucleus.container.add(this,e)).toList();
         if (added.isNotEmpty) {
-          event = ElementAddedEvent<Iterable<E>>._(source: deputy ?? this, payload: added.toList(growable: false));
-          if (notification) {
+          event = ElementAdded<Iterable<E>>._(source: deputy ?? this, payload: added);
+          if (notification && added.length == 1) {
             _nucleus.receptor(event);
           }
         }
@@ -1084,15 +1112,15 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<Iterable<E>>? _clear({bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<Iterable<E>>? event;
+  ElementRemoved<Iterable<E>>? _clear({bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<Iterable<E>>? event;
 
     if (this is! Unmodifiable && modifiable.contains(clear)) {
       if (validate.action(clear, host: this) == true) {
-        final removes = _nucleus.container.where((e) => validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true);
-        final removed = removes.where((e) => _nucleus.container.remove(this,e));
+        final removes = _nucleus.container.where((e) => validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this,e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemovedEvent<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
+          event = ElementRemoved<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1102,14 +1130,20 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<E>? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<E>? event;
+  ElementRemoved<E>? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(remove)) {
       if (object != null && validate.action(remove, host: this, arguments: (positionalArguments: [object], namedArguments: null)) == true) {
-        final e = firstWhere((e) => e == object);
+        E? e;
+        for (final candidate in _nucleus.container.store) {
+          if (candidate == object) {
+            e = candidate;
+            break;
+          }
+        }
         if (e != null && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true && _nucleus.container.remove(this,e)) {
-          event = ElementRemovedEvent<E>._(source: deputy ?? this, payload: e);
+          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1119,17 +1153,17 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<E>? _removeFirst({bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<E>? event;
+  ElementRemoved<E>? _removeFirst({bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<E>? event;
 
-    if (this is! Unmodifiable && modifiable.contains(removeLast)) {
+    if (this is! Unmodifiable && modifiable.contains(removeFirst)) {
       if (validate.action(removeFirst, host: this) == true) {
-        final e = _nucleus.container.last;
+        final e = _nucleus.container.first;
         if (validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: removeFirst) == true && _nucleus.container.remove(this, _nucleus.container.store.firstWhere((i) => e == i))) {
           if (e is Cell && !_nucleus.container.contains(e)) {
             _nucleus.synapses.unlink(e,downstreamCell: this);
           }
-          event = ElementRemovedEvent<E>._(source: deputy ?? this, payload: e);
+          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1139,8 +1173,8 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<E>? _removeLast({bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<E>? event;
+  ElementRemoved<E>? _removeLast({bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(removeLast)) {
       if (validate.action(removeLast, host: this) == true) {
@@ -1149,7 +1183,7 @@ implements TissueQueue<E> {
           if (e is Cell && !_nucleus.container.contains(e)) {
             _nucleus.synapses.unlink(e,downstreamCell: this);
           }
-          event = ElementRemovedEvent<E>._(source: deputy ?? this, payload: e);
+          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1159,15 +1193,15 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<Iterable<E>>? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<Iterable<E>>? event;
+  ElementRemoved<Iterable<E>>? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<Iterable<E>>? event;
 
     if (this is! Unmodifiable && modifiable.contains(removeWhere)) {
       if (validate.action(removeWhere, host: this, arguments: (positionalArguments: [test], namedArguments: null)) == true) {
-        final removes = _nucleus.container.where((e) => test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true);
-        final removed = removes.where((e) => _nucleus.container.remove(this,e));
+        final removes = _nucleus.container.where((e) => test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this,e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemovedEvent<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
+          event = ElementRemoved<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1177,15 +1211,15 @@ implements TissueQueue<E> {
     return event;
   }
 
-  ElementRemovedEvent<Iterable<E>>? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<Iterable<E>>? event;
+  ElementRemoved<Iterable<E>>? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<Iterable<E>>? event;
 
     if (this is! Unmodifiable && modifiable.contains(retainWhere)) {
       if (validate.action(retainWhere, host: this, arguments: (positionalArguments: [test], namedArguments: null)) == true) {
-        final removes = _nucleus.container.where((e) => !test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true);
-        final removed = removes.where((e) => _nucleus.container.remove(this,e));
+        final removes = _nucleus.container.where((e) => !test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this,e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemovedEvent<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
+          event = ElementRemoved<Iterable<E>>._(source: deputy ?? this, payload: removed.toList(growable: false));
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1204,6 +1238,12 @@ implements TissueQueue<E> {
     Map<Symbol, dynamic>? compensateNamed,
     Cell? compensateCell,
   }) {
+
+    if (tx != null) {
+      return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
+          tx: tx, compensate: compensate, compensatePositional: compensatePositional, compensateNamed: compensateNamed, compensateCell: compensateCell
+      );
+    }
 
     if (validate.action(function, host: this, arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)) == true) {
 
@@ -1351,9 +1391,7 @@ class ModifiableQueueAsync<E> extends TissueModifiableAsync<E,TissueQueue<E>> {
   /// ### Returns:
   ///   A [Future<void>] that completes after the operation is attempted.
   ///   If the operation is unsupported by the specific underlying queue or this async wrapper,
-  Future<void> addFirst(E value) {
-    return Future<void>(() => throw UnsupportedError('Unmodifiable operation'));
-  }
+  Future<void> addFirst(E value) => Future<void>(() => _tissue.addFirst(value));
 
 
   /// Asynchronously adds the [value] to the end of the associated [TissueQueue].
@@ -1367,9 +1405,7 @@ class ModifiableQueueAsync<E> extends TissueModifiableAsync<E,TissueQueue<E>> {
   ///
   /// ### Returns:
   ///   A [Future<void>] that completes after the operation is attempted.
-  Future<void> addLast(E value) {
-    return Future<void>(() => throw UnsupportedError('Unmodifiable operation'));
-  }
+  Future<void> addLast(E value) => Future<void>(() => _tissue.addLast(value));
 
   /// Asynchronously removes all elements from the associated [TissueQueue].
   ///
@@ -1408,7 +1444,7 @@ class ModifiableQueueAsync<E> extends TissueModifiableAsync<E,TissueQueue<E>> {
   ///   async wrapper. If it were a modifiable wrapper, the Future could complete with a
   ///   [StateError] if the underlying queue is empty.
   Future<E> removeFirst() {
-    return Future<E>(() => throw UnsupportedError('Unmodifiable operation'));
+    return Future<E>(() => _tissue.removeFirst());
   }
 
   /// Asynchronously removes and returns the last element of the associated [TissueQueue].

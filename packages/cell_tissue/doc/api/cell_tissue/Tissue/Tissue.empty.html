@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">Tissue.empty factory constructor</li>
   </ol>
@@ -70,6 +70,18 @@ for <strong>Lazy Initialization</strong> and <strong>Late-Binding</strong> scena
 <code>cell_tissue</code> ecosystem. It facilitates the creation of a "Placeholder"
 reactive node—a container that possesses identity, governance (rules),
 and synchronization, but currently holds no physical state.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../cell_tissue/Tissue/Tissue.empty.html">empty</a> when you need a tissue node that exists in the reactive graph
+but will be populated later – e.g., for a collection that is bound to a
+<code>Future</code> result or a placeholder for data that loads asynchronously.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>A tissue node is created with the specified <code>context</code>, <code>receptor</code>,
+<code>testRule</code>, and <code>synapses</code>.</li>
+<li>No elements are stored – the container is empty.</li>
+<li>The node is fully reactive and can be observed or linked to.</li>
+<li>The node can be populated later via <code>add</code>, <code>addAll</code>, or <code>setAll</code>.</li>
+</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>bind</code>: Optional. A <a href="../../cell_tissue/Cell-class.html">Cell</a> to which this tissue's lifecycle or
@@ -77,9 +89,10 @@ upstream synchronization is tethered.</li>
 <li><code>context</code>: The operational environment (defaults to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).
 Determines priority and security authority for future signals.</li>
 <li><code>receptor</code>: A <a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> defining how the collection
-will handle future mutation signals (defaults to <code>passThrough</code>).</li>
+will handle future mutation signals (defaults to
+<a href="../../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a>).</li>
 <li><code>testRule</code>: A <a href="../../cell_tissue/TestTissue-class.html">TestTissue</a> validator acting as the gatekeeper
-for all future membership changes (defaults to <code>allowAll</code>).</li>
+for all future membership changes (defaults to <a href="../../cell_tissue/TestTissue/allowAll-constant.html">TestTissue.allowAll</a>).</li>
 <li><code>synapses</code>: Configuration for pulse propagation and child-linking.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
@@ -135,7 +148,7 @@ participation in the reactive graph.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">clear method</li>
   </ol>
@@ -62,22 +62,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes all elements from the list.
-The length of the list becomes zero.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/clear.html">TissueList.clear</a>. The <code>Future</code> completes successfully if the list
-is modifiable and the clear operation is permitted by any specific validation rules.
-Otherwise, it completes with an error (e.g., <code>UnsupportedError</code>).</p>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously removes all elements from this list.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Triggers a <code>clear</code> command. All current elements are logically removed,
+and a termination event is propagated through the tissue's receptor.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; clear() async {
-  return Future&lt;void&gt;(() =&gt; _tissue.clear());
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; clear() =&gt; Future&lt;void&gt;(() =&gt; _tissue.clear());</code></pre>
 </section>
 
 
@@ -105,7 +100,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -48,9 +48,6 @@ class _PassThroughTissueReceptor implements TissueReceptor<Never,Never> {
     return pulse;
   }
 
-  @override
-  bool get isGoverned => false;
-
 }
 
 /// Internal implementation of [TissueReceptor] for generic tissues.
@@ -84,10 +81,9 @@ class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E,C> {
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
     dynamic Function()? user,
-    bool isGoverned = false,
   }) : this.fromRecord(record: ReceptorBase.mask(
       instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-      reaction: reaction, user: user, init: init, isGoverned: isGoverned
+      reaction: reaction, user: user, init: init
   ));
 
   _TissueReceptor.fromRecord({super.record}) :_record = record, super.fromRecord();
@@ -179,41 +175,36 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
   /// `super()`. **Application code should never call this directly.**
   ///
   /// If you need a receptor, use [TissueReceptor] (for a single‑rule receptor)
-  /// or [TissueReceptor.from] (for a multi‑stage pipeline). For the default
+  /// or `TissueReceptor.from` (for a multi‑stage pipeline). For the default
   /// behaviour, simply omit the `receptor` parameter when creating a tissue.
   ///
   /// You are writing a custom tissue implementation that needs to override
   /// the default receptor behaviour.
   ///
   /// ### How it works
-  /// 1. The [rule], [preProcess], and [postProcess] parameters define the
+  /// 1. The `rule`, `preProcess`, and `postProcess` parameters define the
   ///    multi‑stage pipeline:
   ///    - `preProcess`: runs first (e.g., sanitization, logging).
   ///    - `rule`: the core transformation logic.
   ///    - `postProcess`: runs last (e.g., validation, commitment).
-  /// 2. The [reaction] parameter is a simplified functional form – if provided,
+  /// 2. The `reaction` parameter is a simplified functional form – if provided,
   ///    it is wrapped into a [Instruction] internally.
-  /// 3. The [isGoverned] flag indicates whether the receptor is governed by
-  ///    a security context (used internally).
-  /// 4. The pipeline is stored in a memory‑optimised record using bitmasking.
+  /// 3. The pipeline is stored in a memory‑optimised record using bitmasking.
   ///
   /// ### Non‑obvious
-  /// - The [receptor] is automatically cloned if it is already activated
+  /// - The `receptor` is automatically cloned if it is already activated
   ///   (bound to another cell), ensuring that each nucleus starts with a
   ///   clean logic instance.
-  /// - If [rule] is `null`, the receptor behaves like `passThrough` for that stage.
-  /// - The [user] parameter is passed to the rule functions and can be used
+  /// - If `rule` is `null`, the receptor behaves like `passThrough` for that stage.
+  /// - The `user` parameter is passed to the rule functions and can be used
   ///   for configuration, but it's not part of the pulse's context.
   ///
   /// ### Parameters:
-  /// - [rule]: The primary [Instruction] defining the core transformation logic.
-  /// - [preProcess]: Optional [Instruction] for early‑stage filtering or logging.
-  /// - [postProcess]: Optional [Instruction] for late‑stage commitment.
-  /// - [reaction]: A simplified functional alternative to [rule].
-  /// - [user]: Optional metadata passed to the rule functions.
-  /// - [isGoverned]: Internal flag indicating governance context.
-  TissueReceptorBase({super.instruction, super.preProcess, super.postProcess, super.reaction, super.user, super.isGoverned}) : super();
-
+  /// - `rule`: The primary [Instruction] defining the core transformation logic.
+  /// - `preProcess`: Optional [Instruction] for early‑stage filtering or logging.
+  /// - `postProcess`: Optional [Instruction] for late‑stage commitment.
+  /// - `reaction`: A simplified functional alternative to `rule`.
+  /// - `user`: Optional metadata passed to the rule functions.
   /// **Low‑level Record Constructor** – instantiates a receptor from a
   /// pre‑packed property record.
   ///
@@ -271,7 +262,7 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
   /// ### How it works
   /// 1. **Activation Check**: If the receptor is not activated (bound to a
   ///    tissue), it returns `null` – no processing occurs.
-  /// 2. **Tissue‑Aware Processing**: If the pulse is a [TissueEvent] (a
+  /// 2. **Tissue‑Aware Processing**: If the pulse is a [TissuePulse] (a
   ///    structural event like addition or removal), it passes the event to
   ///    the internal `_tissueStack` method.
   /// 3. **Implicit Synchronisation**: `_tissueStack` checks if the pulse
@@ -332,17 +323,17 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
 /// it automatically whenever a pulse arrives from a bound principal.
 ///
 /// ### How it works
-/// 1. When a [TissueEvent] arrives, the mixin checks whether the event's
+/// 1. When a [TissuePulse] arrives, the mixin checks whether the event's
 ///    `source` is the local tissue itself. If yes, the event originated here –
 ///    no synchronisation is needed, and the event is passed through unchanged.
 /// 2. If the event came from a different source (typically the `bind`
 ///    principal), the mixin applies the structural deltas to the local
 ///    [TissueContainer]:
-///    - [ElementAddedEvent] → adds the element(s) to the local container.
-///    - [ElementRemovedEvent] → removes the element(s) from the local container.
-///    - [ValueChangedEvent] → updates the value in the local container.
-/// 3. The mixin recursively flattens [CollectiveTissueEvent]s and follows
-///    [EvolvedTissueEvent] chains, processing every nested event.
+///    - [ElementAdded] → adds the element(s) to the local container.
+///    - [ElementRemoved] → removes the element(s) from the local container.
+///    - [ElementUpdated] → updates the value in the local container.
+/// 3. The mixin recursively flattens [CollectiveTissuePulse]s and follows
+///    [EvolvedTissuePulse] chains, processing every nested event.
 /// 4. If some operations fail (e.g., due to validation rules or capacity
 ///    limits on the deputy), it tracks a `partial` flag and returns a new
 ///    event that reflects **only** the successfully applied changes.
@@ -427,42 +418,42 @@ mixin _TissueReceptorBaseStack {
     out = tissue is Unmodifiable ? event.unmodifiable : event;
 
     if (!identical(event.source, tissue)) {
-      List<TissueEvent<E>>? events;
+      List<TissuePulse<E>>? events;
 
       final container = tissue._nucleus.container;
       bool partial = false;
 
-      void process(TissueEvent event) {
+      void process(TissuePulse event) {
         final payload = event.payload;
 
-        if (event is ElementAddedEvent<E>) {
+        if (event is ElementAdded<E>) {
           if (payload != null) {
             if (container.add(tissue, payload)) {
-              (events ??= <TissueEvent<E>>[]).add(event);
+              (events ??= <TissuePulse<E>>[]).add(event);
             } else {
               partial = true;
             }
           }
         }
 
-        else if (event is ElementRemovedEvent<E>) {
+        else if (event is ElementRemoved<E>) {
           if (payload != null) {
             if (container.remove(tissue, payload)) {
-              (events ??= <TissueEvent<E>>[]).add(event);
+              (events ??= <TissuePulse<E>>[]).add(event);
             } else {
               partial = true;
             }
           }
         }
 
-        else if (event is ValueChangedEvent) {
-          if (payload is ValueChangedRecord) {
+        else if (event is ElementUpdated) {
+          if (payload is ElementUpdatedRecord) {
             final e = payload.value;
             if (container.contains(payload.value)) {
-              (events ??= <TissueEvent<E>>[]).add(event as TissueEvent<E>);
+              (events ??= <TissuePulse<E>>[]).add(event as TissuePulse<E>);
             } else {
               if (container.add(tissue, e)) {
-                (events ??= <TissueEvent<E>>[]).add(ElementAddedEvent<E>._(payload: e as E));
+                (events ??= <TissuePulse<E>>[]).add(ElementAdded<E>._(payload: e as E));
               } else {
                 partial = true;
               }
@@ -472,14 +463,9 @@ mixin _TissueReceptorBaseStack {
 
       }
 
-      void processType(TissueEvent event) {
-        if (event is CollectiveTissueEvent) {
-          for (final TissueEvent e in event.payload) {
-            processType(e);
-          }
-        } else if (event is EvolvedTissueEvent) {
-          final e = event.last;
-          if (e is TissueEvent) {
+      void processType(TissuePulse event) {
+        if (event is CollectiveTissuePulse) {
+          for (final TissuePulse e in event.payload) {
             processType(e);
           }
         } else {
@@ -490,10 +476,14 @@ mixin _TissueReceptorBaseStack {
       processType(event);
 
       if (partial) {
-        if (events!.length == 1) {
-          return events!.first as TissueEventBase;
+        final applied = events;
+        if (applied == null || applied.isEmpty) {
+          return null;
         }
-        return TissueEvent.batch<E>(events!) as TissueEventBase<E>;
+        if (applied.length == 1) {
+          return applied.first as TissueEventBase;
+        }
+        return TissuePulse.batch<E>(applied) as TissueEventBase;
       }
       return event;
     }

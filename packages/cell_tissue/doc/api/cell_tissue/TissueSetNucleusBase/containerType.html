@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueSetNucleusBase-class.html">TissueSetNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">containerType property</li>
   </ol>
@@ -93,7 +93,7 @@ into an identity‑based one.</li>
   <pre class="language-dart"><code class="language-dart">@override
 Container get containerType {
   return get&lt;Container&gt;(
-          () =&gt; record.mask.inhertiable.container,
+          () =&gt; record.local.inheritable.container,
       fallback: () =&gt; principal?.containerType,
       orElse: Container.set);
 }</code></pre>
@@ -126,7 +126,7 @@ Container get containerType {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

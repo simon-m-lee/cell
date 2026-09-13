@@ -121,6 +121,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
     TissueReceptor<E,TissueQueue<E>> receptor,
     TestTissue<E,TissueQueue<E>> testRule,
     Synapses synapses,
+    EphemeralPolicy? ephemeralPolicy,
     Record? user
   }) = _TissueQueueNucleus<E,TissueQueue<E>>;
 
@@ -192,6 +193,8 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
     TestTissue<E, TissueQueue<E>>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     TissueQueueNucleus<E>? override,
     required TissueQueueNucleus<E> principal
   }) = _TissueQueueNucleus<E,TissueQueue<E>>.evolve;
@@ -251,6 +254,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 
     Container? container,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     forceLock = false,
     TissueQueueNucleusBase<E,C>? principal
   }) {
@@ -259,10 +263,11 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
       final local = TissueNucleusBase.local<E,Queue<E>,C>(
           container: container,
           bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+          ephemeralPolicy: ephemeralPolicy,
           others: capacity != null ? (capacity: capacity) : null
       );
       return _TissueQueueNucleus<E,C>.fromRecord(
-          (mask: local, principal: principal)
+          (local: local, principal: principal)
       );
     }
 
@@ -275,6 +280,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
         testRule: testRule ?? TestTissue.allowAll,
         synapses: synapses ?? Synapses.enabled,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock
     );
 
@@ -399,7 +405,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// - Internally, it uses a [TissueQueueNucleus] to govern behaviour and a
 ///   [Container.queue] for physical storage (a Dart `Queue<E>`).
 /// - Every mutation (e.g., `add`, `addFirst`, `removeLast`, `clear`) goes
-///   through a validation pipeline ([testRule]) and emits a [TissueEvent].
+///   through a validation pipeline ([testRule]) and emits a [TissuePulse].
 /// - The queue is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, bounded sub‑queues, etc.) that share the same storage.

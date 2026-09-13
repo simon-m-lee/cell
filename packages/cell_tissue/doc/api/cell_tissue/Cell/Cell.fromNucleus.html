@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">Cell.fromNucleus factory constructor</li>
   </ol>
@@ -59,53 +59,92 @@
     </section>
     
 <section class="desc markdown">
-  <p>Activates a live <a href="../../cell_tissue/Cell-class.html">Cell</a> instance from a pre-configured <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>.</p>
+  <p>Activates a live <a href="../../cell_tissue/Cell-class.html">Cell</a> instance from a pre-configured <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> blueprint.</p>
 <p>This factory serves as the primary <strong>Node Hydration Engine</strong> for the
 framework. It allows for the direct instantiation of a reactive node
 from an existing property record, providing precise architectural control
 over the node's behavioral logic, synchronization domain, and structural
 identity.</p>
-<h3 id="purpose--architectural-role">Purpose &amp; Architectural Role:</h3>
-<p>The fundamental purpose of <a href="../../cell_tissue/Cell/Cell.fromNucleus.html">fromNucleus</a> is to facilitate <strong>Explicit Node
-Activation</strong> and <strong>State Restoration</strong>. Within the framework's memory-efficient
-architecture, the <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> acts as the "Static Configuration" (logic, rules,
-and identity), while the <a href="../../cell_tissue/Cell-class.html">Cell</a> acts as the "Live Instance" (the active,
-stateful node).</p>
-<p>This constructor is essential for:</p>
-<ol>
-<li><strong>Relational Reconstitution</strong>: Reconstructing a graph node from a
-serialized or persisted property set while ensuring it adheres to
-the original's behavioral contract.</li>
-<li><strong>Prototype-Based Instantiation</strong>: Working in tandem with
-<a href="../../cell_tissue/Nucleus/clone.html">Nucleus.clone</a> or <code>Nucleus.evolve</code> to create new graph nodes that
-replicate or shadow a specific configuration.</li>
-<li><strong>Dependency Injection</strong>: Allowing the framework or advanced providers
-to inject a fully-formed property record—including a specific
-synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> and <a href="../../cell_tissue/Synapses-class.html">Synapses</a> configuration—directly into
-a new node.</li>
-</ol>
-<h3 id="the-proxy-pattern--inheritance">The Proxy Pattern &amp; Inheritance:</h3>
-<p>This factory is the underlying mechanism for the <strong>Proxy Pattern</strong>. When a
-<a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> is extended (creating a child configuration with localized
-overrides), this factory "activates" that extension into a live proxy.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you need to reconstruct a cell from a persisted or
+serialized nucleus, clone an existing cell's behavior with a fresh
+state, or when you are building framework-level infrastructure that
+requires explicit control over the activation process. Most application
+code should use the simpler <a href="../../cell_tissue/Cell-class.html">Cell</a> factory.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>The factory takes a pre-configured <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> and activates it by
+binding it to a new live cell instance. If the nucleus is already
+activated (bound to another cell), it is automatically cloned to
+prevent state sharing conflicts. The resulting cell inherits all
+properties from the nucleus: <a href="../../cell_tissue/Receptor-class.html">Receptor</a> logic, <a href="../../cell_tissue/TestCell-class.html">TestCell</a> rules,
+<a href="../../cell_tissue/Context-class.html">Context</a>, <a href="../../cell_tissue/Synapses-class.html">Synapses</a> configuration, and synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</p>
+<h3 id="the-proxy-pattern--inheritance">The Proxy Pattern &amp; Inheritance</h3>
+<p>This factory is the underlying mechanism for the <strong>Proxy Pattern</strong>.
+When a <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> is extended via <a href="../../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>, this factory
+"activates" that extension into a live proxy:</p>
 <ul>
-<li>The resulting cell shares the <strong>Physical Data Source</strong> (and potentially
-the <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>) of its principal but operates under the specific <a href="../../cell_tissue/Context-class.html">Context</a>
-and <a href="../../cell_tissue/TestCell-class.html">TestCell</a> rules defined in the provided nucleus.</li>
-<li>This allows for the creation of multiple specialized "Views" of the
-same underlying data source, each with different permissions or
-execution priorities.</li>
+<li>The resulting cell shares the <strong>Physical Data Source</strong> (and
+potentially the <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>) of its principal but operates under the
+specific <a href="../../cell_tissue/Context-class.html">Context</a> and <a href="../../cell_tissue/TestCell-class.html">TestCell</a> rules defined in the provided
+nucleus.</li>
+<li>This allows for the creation of multiple specialized "Views" of
+the same underlying data source, each with different permissions
+or execution priorities.</li>
 </ul>
-<h3 id="synchronization--atomic-integrity">Synchronization &amp; Atomic Integrity:</h3>
+<h3 id="synchronization--atomic-integrity">Synchronization &amp; Atomic Integrity</h3>
 <p>The resulting instance inherits the optional synchronization domain
 (the <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>) defined within the nucleus. If a lock is provided, it
 ensures that the cell enters the <strong>Directed Acyclic Graph (DAG)</strong>
 as a thread-safe, atomically consistent node. This mechanism
 allows developers to group multiple cells into a single
 <strong>Atomic Transaction Domain</strong> by sharing a common lock.</p>
-<h3 id="human-developer-usage">Human Developer Usage</h3>
-<p>This factory is primarily used by framework internals and advanced
-developers. Most developers should use the simpler <a href="../../cell_tissue/Cell-class.html">Cell</a> factory.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>If the provided nucleus is already activated, it is <strong>automatically
+cloned</strong> to prevent state sharing conflicts between cells.</li>
+<li>After hydration, the cell automatically links to any <code>bind</code> cell
+specified in the nucleus, establishing its position in the reactive
+graph. If linking fails, the cell still initialises to maintain
+graph availability.</li>
+<li>The nucleus's <a href="../../cell_tissue/Synapses-class.html">Synapses</a> configuration is inherited as-is; if
+<code>Synapses.enabled</code> is set, a fresh registry is created per cell.</li>
+<li>The <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> is inherited from the nucleus; if the nucleus uses a
+shared lock, multiple cells can operate in the same atomic domain.</li>
+</ul>
+<h3 id="example-hydrating-from-a-pre-configured-nucleus">Example: Hydrating from a Pre-configured Nucleus</h3>
+<pre class="language-dart"><code class="language-dart">// Define a reusable nucleus blueprint.
+final authNucleus = Nucleus(
+  context: Context.module('Auth'),
+  receptor: Receptor((cell, pulse, {user}) {
+    final token = pulse.payload as String;
+    return Pulse(token.isNotEmpty ? 'Valid' : 'Invalid');
+  }),
+  testRule: TestCell((value, {host, ...}) =&gt; value is String),
+);
+
+// Activate multiple cells from the same blueprint.
+final authCell1 = Cell.fromNucleus(authNucleus);
+final authCell2 = Cell.fromNucleus(authNucleus.clone);
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>nucleus</code>: <strong>Required.</strong> The <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> instance that serves as the
+<strong>Static Blueprint</strong> for the cell. This defines the node's <a href="../../cell_tissue/Receptor-class.html">Receptor</a>
+logic, <a href="../../cell_tissue/TestCell-class.html">TestCell</a> rules, <a href="../../cell_tissue/Context-class.html">Context</a>, <a href="../../cell_tissue/Synapses-class.html">Synapses</a> configuration, and
+optional synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A fully hydrated <a href="../../cell_tissue/Cell-class.html">Cell</a> instance that is integrated into the reactive
+ecosystem, ready to process pulses and notify observers.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> – The immutable blueprint that defines cell behavior.</li>
+<li><a href="../../cell_tissue/Nucleus/clone.html">Nucleus.clone</a> – For creating a detached copy of a nucleus.</li>
+<li><a href="../../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a> – For extending a nucleus with localized overrides.</li>
+<li><a href="../../cell_tissue/Cell/deputy.html">Cell.deputy</a> – For creating restricted views of a cell.</li>
+<li><a href="../../cell_tissue/Cell/Cell.governed.html">Cell.governed</a> – For explicit governance configuration.</li>
+<li><a href="../../cell_tissue/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a> – The entry point for this factory.</li>
+</ul>
 </section>
 
 
@@ -141,7 +180,7 @@ developers. Most developers should use the simpler <a href="../../cell_tissue/Ce
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

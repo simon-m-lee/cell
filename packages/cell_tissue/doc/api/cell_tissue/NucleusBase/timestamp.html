@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">timestamp property</li>
   </ol>
@@ -83,7 +83,15 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-DateTime get timestamp =&gt; record.timestamp;</code></pre>
+DateTime get timestamp {
+  final raw = get&lt;dynamic&gt;(
+    () =&gt; record.timestamp,
+    fallback: () =&gt; record.local.timestamp,
+  );
+  if (raw is DateTime) return raw;
+  if (raw is int) return DateTime.fromMillisecondsSinceEpoch(raw);
+  throw StateError(&#39;Nucleus timestamp is missing&#39;);
+}</code></pre>
 </section>
 
   </section>
@@ -113,7 +121,7 @@ DateTime get timestamp =&gt; record.timestamp;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

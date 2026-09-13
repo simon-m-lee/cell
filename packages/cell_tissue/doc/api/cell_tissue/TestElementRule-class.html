@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TestElementRule<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TestElementRule</div>
@@ -62,15 +62,14 @@ While general rules might govern a collection's lifecycle or global capabilities
 this rule focuses exclusively on the "Ingress and Egress" of data points,
 acting as an <strong>Integrity Barrier</strong> that protects the consistency of the
 collection's internal state.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely need to use <a href="../cell_tissue/TestElementRule-class.html">TestElementRule</a> directly. Instead, use the
-<a href="../cell_tissue/TestTissue-class.html">TestTissue</a> constructor, which accepts a rule function and automatically
-wraps it in the appropriate element‑specific logic. This class is exposed
-primarily for advanced composition or when building custom policy layers.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use this when you need to validate elements based on their value, state,
 or relationship to the host collection, and you want to separate that
 logic from action or pulse validation.</p>
+<p>You rarely need to use <a href="../cell_tissue/TestElementRule-class.html">TestElementRule</a> directly. Instead, use the
+<a href="../cell_tissue/TestTissue-class.html">TestTissue</a> constructor, which accepts a rule function and automatically
+wraps it in the appropriate element‑specific logic. This class is exposed
+primarily for advanced composition or when building custom policy layers.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The rule is attached to a collection via <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> and evaluated
@@ -108,7 +107,7 @@ you might allow a value in a <code>contains</code> check but forbid it in an <co
 <ul>
 <li><a href="../cell_tissue/TestTissue-class.html">TestTissue</a> – the main policy engine that uses this rule.</li>
 <li><a href="../cell_tissue/TestActionRule-class.html">TestActionRule</a> – for validating the action itself.</li>
-<li><a href="../cell_tissue/TestPulseRule-class.html">TestPulseRule</a> – for validating incoming signals.</li>
+<li><code>TestInstruction</code> – for validating incoming signals.</li>
 </ul>
 </section>
 
@@ -309,7 +308,7 @@ a structural transition within the host <a href="../cell_tissue/Tissue-class.htm
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">ReceptorBase.fromRecord constructor</li>
   </ol>
@@ -59,58 +59,39 @@
     </section>
     
 <section class="desc markdown">
-  <p>A base constructor that initializes the <a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase</a>
-from a pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of configuration properties.</p>
-<p>This constructor serves as the foundational initialization point for the
-entire receptor hierarchy. By utilizing Dart's positional and named
-Record fields, it allows for a highly memory-efficient way to store
-optional transformation logic, validation rules, and metadata without the
-overhead of maintaining multiple individual fields in the class structure.</p>
-<h3 id="purpose">Purpose:</h3>
-<p>The primary purpose of this constructor is to facilitate <strong>Property
-Resolution Efficiency</strong>. In a large-scale reactive graph, thousands of
-receptors may be instantiated. Storing their operational configuration
-(such as transformation functions or global filters) in a single Record
-allows the framework to resolve these values using optimized access
-patterns, while ensuring the receptor remains a compile-time
-constant (<code>const</code>).</p>
-<h3 id="architectural-role">Architectural Role:</h3>
-<ul>
-<li><strong>Configuration Storage</strong>: It acts as the final destination for
-operational data gathered by higher-level factory constructors. This
-decouples the public API of the receptor from its internal storage
-mechanism.</li>
-<li><strong>Immutability Guarantee</strong>: By accepting a Record, it ensures
-that once a receptor's strategy is defined at construction, it cannot
-be evolved at runtime. This preserves the deterministic nature of the
-reactive pulse chain, which is critical for debugging and state
-consistency.</li>
-<li><strong>Extensibility</strong>: It provides a unified hook for specialized subclasses
-(like those for collections) to pass varying sets of parameters—such as
-interceptors, master rules, or security context—in a format that
-integrates seamlessly with the framework's property resolution system.</li>
-</ul>
-<h3 id="memory--performance-optimization">Memory &amp; Performance Optimization:</h3>
-<p>Using a Record-based initialization significantly reduces the memory
-footprint of each receptor. In standard class architectures, every
-instance allocates space for every field, even if they are null. This
-constructor allows the instance to only "carry" the properties that were
-actually provided, which is vital when composing deep chains of receptors
-and synapses.</p>
-<h3 id="logic-flow">Logic Flow:</h3>
+  <p>A foundational constructor that initializes a <a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> from a
+pre-compiled <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> of configuration properties.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This constructor serves as the primary initialization anchor for the entire
+receptor hierarchy. You typically don't use it directly; it is designed
+to be invoked by public factories to efficiently store the operational
+strategy gathered during the construction phase.</p>
+<h3 id="how-it-works">How it works</h3>
 <ol>
-<li>A public constructor (e.g., <a href="../../cell_tissue/ReceptorBase/ReceptorBase.html">ReceptorBase.new</a> or a factory) assembles
-the relevant rules and metadata into a Record.</li>
-<li>This constructor receives that Record and anchors it to the instance.</li>
-<li>During a pulse broadcast (via <a href="../../cell_tissue/ReceptorBase/call.html">call</a>), the receptor resolves the
-necessary functions from this configuration bundle to execute the
-transformation pipeline.</li>
+<li><strong>Configuration Anchoring</strong>: It receives a compact <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing
+the transformation logic, validation rules, and metadata.</li>
+<li><strong>Property Resolution</strong>: During signal propagation, the receptor
+resolves its operational logic from this unified bundle.</li>
+<li><strong>Architectural Decoupling</strong>: It separates the public-facing API from
+the internal storage mechanism, ensuring the framework can optimize
+memory usage without impacting user code.</li>
 </ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Flyweight Strategy</strong>: Unlike standard field-based architectures,
+Record-based storage ensures that instances only allocate memory for
+the properties they actually use. This significantly reduces the
+heap footprint in graphs with millions of reactive nodes.</li>
+<li><strong>Const Support</strong>: This initialization pattern allows receptors to be
+defined as <code>const</code>, enabling the compiler to deduplicate identical
+logic units across the entire application.</li>
+<li><strong>Immutability</strong>: By anchoring a pre-compiled record, the receptor
+guarantees that its behavior is fixed at construction, preserving
+the deterministic consistency of the reactive pulse chain.</li>
+</ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>record</code>: A <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing the operational configuration of
-the receptor. This typically includes the primary transformation logic,
-pre-processing rules, and any associated user metadata.</li>
+<li><code>record</code>: The optimized configuration bundle for the receptor.</li>
 </ul>
 </section>
 
@@ -146,7 +127,7 @@ pre-processing rules, and any associated user metadata.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

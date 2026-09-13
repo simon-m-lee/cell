@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueContainer-class.html">ValueContainer<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">iterator property</li>
   </ol>
@@ -73,12 +73,14 @@
     
 <section class="desc markdown">
   <p>Returns an iterator that yields exactly zero or one elements.</p>
-<p><strong>Behavior</strong>:</p>
+<h3 id="how-it-works">How it works</h3>
 <ul>
 <li>If <a href="../../cell_tissue/ValueContainer/value.html">value</a> is <code>null</code>, returns an empty iterator.</li>
 <li>If <a href="../../cell_tissue/ValueContainer/value.html">value</a> is present, returns an iterator that yields the <a href="../../cell_tissue/ValueContainer/value.html">value</a>
 exactly once and then terminates.</li>
 </ul>
+<h3 id="returns">Returns:</h3>
+<p>An iterator over the contained value, or an empty iterator if <code>null</code>.</p>
 </section>
 
     
@@ -115,7 +117,7 @@ Iterator&lt;V&gt; get iterator =&gt; value != null ? [value as V].iterator : Ite
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

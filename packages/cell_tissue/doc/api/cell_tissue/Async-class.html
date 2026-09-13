@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Async<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">Async</div>
@@ -55,55 +55,69 @@
 
     
 <section class="desc markdown">
-  <p><a href="../cell_tissue/Async-class.html">Async</a> is a foundational marker interface and architectural contract used
-to identify the <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> of a specific
-core component <code>C</code>.</p>
-<p>In the <code>cell.core</code> framework, most primary entities (like <code>Cell</code>, <code>Box</code>,
-or <code>Synapses</code>) operate in a synchronous reactive domain to ensure
-immediate propagation and low latency. However, to interact with these
-entities from asynchronous contexts—such as the Dart Event Loop,
-background Workers, or high-concurrency triggers—a specialized
-"Async Handle" is required.</p>
-<h3 id="architectural-role-the-concurrency-bridge">Architectural Role: The Concurrency Bridge</h3>
-<p><a href="../cell_tissue/Async-class.html">Async</a> serves as the base for all <code>*Async</code> variants (e.g., <code>ValueCellAsync</code>).
-It indicates that the implementing class provides
-a <strong>Thread-Safe, Future-based API</strong> for the underlying synchronous
-component <code>C</code>.</p>
+  <p>A foundational marker interface and architectural contract representing
+an <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> for a core component <code>C</code>.</p>
+<p>In the reactive fabric, <a href="../cell_tissue/Async-class.html">Async</a> serves as the primary <strong>Concurrency Bridge</strong>,
+providing a thread-safe, <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based gateway between the synchronous
+reactive domain and the asynchronous environment (such as the Dart Event Loop
+or background execution tiers).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Contextual Transition</strong>: When you need to interact with synchronous nodes
+(like <a href="../cell_tissue/Cell-class.html">Cell</a> or <a href="../cell_tissue/Box-class.html">Box</a>) from within <code>async</code> functions or external event handlers.</li>
+<li><strong>Concurrency Safety</strong>: To ensure that state inspection or mutation does not
+interfere with a "Reactive Wave" currently in progress.</li>
+<li><strong>External Drivers</strong>: When updating reactive state from non-reactive sources,
+such as network sockets, timers, or user input events.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Serialized Access</strong>: Implementations of <a href="../cell_tissue/Async-class.html">Async</a> typically wrap
-calls to the principal component <code>C</code> using a synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.
-This ensures that asynchronous "Reads" or "Writes" do not occur
-while a synchronous "Reactive Wave" is in progress.</li>
-<li><strong>Non-Blocking Interface</strong>: While the principal <code>C</code> might throw
-errors or return <code>false</code> if a lock is held, the <a href="../cell_tissue/Async-class.html">Async</a> variant
-will <code>await</code> the lock, providing a smoother developer experience for
-long-running or high-contention tasks.</li>
-<li><strong>Logical Linking</strong>: The generic type parameter <code>C</code> explicitly
-defines the <strong>Principal Identity</strong>. For every <code>Async&lt;C&gt;</code>, there is
-a strictly coupled synchronous instance of type <code>C</code>.</li>
+<li><strong>Temporal Serialization</strong>: Implementations typically wrap the principal
+component <code>C</code> using a synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This ensures that "Out-of-Band"
+asynchronous requests are queued until the synchronous graph stabilizes.</li>
+<li><strong>Logical Linking</strong>: Establishes a strict 1:1 coupling with a synchronous
+principal. For every <code>Async&lt;C&gt;</code>, there is exactly one underlying instance
+ of type <code>C</code> that holds the actual state and logic.</li>
+<li><strong>Non-Blocking Orchestration</strong>: Unlike the synchronous principal which
+requires immediate availability, the <a href="../cell_tissue/Async-class.html">Async</a> handle utilizes <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>
+semantics to <code>await</code> authority, providing a resilient developer experience
+under high contention.</li>
 </ol>
-<h3 id="design-pattern-proxy--controller">Design Pattern: Proxy &amp; Controller</h3>
-<p>This interface is part of the <strong>"Principal vs. Controller"</strong> pattern.
-The Principal (<code>C</code>) owns the data and the reactive logic, while the
-<a href="../cell_tissue/Async-class.html">Async</a> implementation manages the <strong>temporal access</strong> to that data.</p>
-<h3 id="usage-example">Usage Example:</h3>
-<pre class="language-dart"><code class="language-dart">// A synchronous ValueCell
-final count = ValueCell&lt;int&gt;(value: 0);
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Principal Dominance</strong>: The synchronous component <code>C</code> remains the "Source
+of Truth." The <a href="../cell_tissue/Async-class.html">Async</a> handle is purely an <strong>Access Coordinator</strong>.</li>
+<li><strong>Event Loop Integration</strong>: By returning <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>s, it allows the Dart VM
+to perform other tasks while the reactive graph processes a wave, preventing
+UI jank or thread blocking.</li>
+<li><strong>Locking Latency</strong>: While providing safety, using the <a href="../cell_tissue/Async-class.html">Async</a> proxy
+introduces the minor overhead of lock acquisition and asynchronous
+scheduling compared to direct synchronous access.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// A synchronous ValueCell (The Principal)
+final count = ValueCell&lt;int&gt;(state: 0);
 
-// Its asynchronous counterpart (which implements Async&lt;ValueCell&lt;int&gt;&gt;)
+// Its asynchronous handle (The Proxy)
 final Async&lt;ValueCell&lt;int&gt;&gt; controller = count.async;
 
-// Interacting via the Async contract
-void updateScore() async {
-  // The async handle ensures we wait for any ongoing transformations
-  final current = await (controller as ValueCellAsync).value;
-  print('Consistent value: $current');
+void performSafeUpdate() async {
+  // The async handle ensures we wait for graph stability before reading
+  final current = await (controller as ValueCellAsync&lt;int&gt;).state;
+  print('Atomic state: $current');
 }
 </code></pre>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
-<li><code>C</code>: The type of the <strong>Principal Component</strong> being managed. This
-is usually a subtype of <a href="../cell_tissue/Cell-class.html">Cell</a>, <a href="../cell_tissue/Box-class.html">Box</a>, or another core framework entity.</li>
+<li><strong><code>C</code></strong>: <strong>The Principal Identity.</strong> The type of the core framework
+component (usually a subtype of <a href="../cell_tissue/Cell-class.html">Cell</a> or <a href="../cell_tissue/Box-class.html">Box</a>) being managed by
+this proxy.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The underlying primitive used to serialize access.</li>
+<li><a href="../cell_tissue/Cell/async.html">Cell.async</a>: The standard entry point for obtaining an async handle.</li>
+<li><a href="../cell_tissue/Unmodifiable-class.html">Unmodifiable</a>: For a different type of proxy focused on read-only access.</li>
 </ul>
 </section>
 
@@ -254,7 +268,7 @@ is usually a subtype of <a href="../cell_tissue/Cell-class.html">Cell</a>, <a hr
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

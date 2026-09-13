@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">OpenCell class</li>
   </ol>
   <div class="self-name">OpenCell</div>
@@ -110,7 +110,7 @@ pulses must pass validation.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="OpenCell.new" class="callable">
-          <span class="name"><a href="../cell_tissue/OpenCell/OpenCell.html">OpenCell</a></span><span class="signature">({<span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/OpenCell/OpenCell.html">OpenCell</a></span><span class="signature">({<span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span></span>})</span>
         </dt>
         <dd>
           Creates a standard open cell.
@@ -150,8 +150,8 @@ pulses must pass validation.</p>
 
 </dt>
 <dd class="inherited">
-  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the security tier, execution priority,
-and administrative authority of this <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -175,8 +175,8 @@ and administrative authority of this <a href="../cell_tissue/Cell-class.html">Ce
 
 </dt>
 <dd class="inherited">
-  Indicates whether this <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
-that oversees its operational boundaries, security constraints, and administrative metadata.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -201,8 +201,8 @@ sequence and is currently in the process of being neutralized.
 
 </dt>
 <dd class="inherited">
-  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
-within the reactive graph.
+  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -214,8 +214,8 @@ within the reactive graph.
 
 </dt>
 <dd class="inherited">
-  Defines the exhaustive whitelist of functions and commands that are
-permitted to be executed on this node via the dynamic <a href="../cell_tissue/Cell/apply.html">apply</a> method.
+  Defines the exhaustive whitelist of functions and commands authorized for
+execution on this node via the dynamic <a href="../cell_tissue/Cell/apply.html">apply</a> method.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -251,8 +251,8 @@ permitted to be executed on this node via the dynamic <a href="../cell_tissue/Ce
 
 </dt>
 <dd class="inherited">
-  The primary structural gatekeeper and validation rule governing this cell's
-integrity and security.
+  The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -267,7 +267,7 @@ integrity and security.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/Cell/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -291,6 +291,33 @@ integrity and security.
 providing a scoped and governed interface to the underlying reactive
 node while preserving its native <strong>Open</strong> capabilities.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="emit" class="callable">
+  <span class="name"><a href="../cell_tissue/OpenCell/emit.html">emit</a></span><span class="signature">(<wbr><span class="parameter" id="emit-param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Injects a <a href="../cell_tissue/Pulse-class.html">Pulse</a> into the cell for processing and distribution,
+supporting <strong>Hybrid Convergence</strong> (Sync/Async).
+  
+
+</dd>
+
+        <dt id="ingest" class="callable">
+  <span class="name"><a href="../cell_tissue/OpenCell/ingest.html">ingest</a></span><span class="signature">(<wbr><span class="parameter" id="ingest-param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="ingest-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
 
 </dd>
 
@@ -318,20 +345,6 @@ supporting <strong>Hybrid Convergence</strong> (Sync/Async).
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
   <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="receptor" class="callable">
-  <span class="name"><a href="../cell_tissue/OpenCell/receptor.html">receptor</a></span><span class="signature">(<wbr><span class="parameter" id="receptor-param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Injects a <a href="../cell_tissue/Pulse-class.html">Pulse</a> into the cell for processing and distribution,
-supporting <strong>Hybrid Convergence</strong> (Sync/Async).
-  
 
 </dd>
 
@@ -377,7 +390,7 @@ supporting <strong>Hybrid Convergence</strong> (Sync/Async).
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="perform" class="callable">
-  <span class="name"><a href="../cell_tissue/OpenCell/perform.html">perform</a></span><span class="signature">(<wbr><span class="parameter" id="perform-param-on"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span><span class="parameter" id="perform-param-perform"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span> <span class="parameter-name">perform</span>(<span class="parameter" id="param-on"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="perform-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="perform-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="perform-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
+  <span class="name"><a href="../cell_tissue/OpenCell/perform.html">perform</a></span><span class="signature">(<wbr><span class="parameter" id="perform-param-source"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="perform-param-perform"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">perform</span>(<span class="parameter" id="param-on"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">on</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="perform-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="perform-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="perform-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_tissue/OpenCell-class.html">OpenCell</a></span>
   </span>
   
@@ -417,7 +430,7 @@ to be executed upon the ingestion of an external <a href="../cell_tissue/Pulse-c
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

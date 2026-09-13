@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Mandate.html">Mandate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">evolvable property</li>
   </ol>
@@ -67,32 +67,46 @@
       </section>
       
 <section class="desc markdown">
-  <p>Indicates whether this <strong>Mandate Dimension</strong> is a structural invariant
-or a dynamic operational attribute.</p>
+  <p>Indicates whether this <strong>Mandate Dimension</strong> is a structural invariant  /// or a dynamic operational attribute.</p>
 <p>In the framework's <strong>Blueprint Synthesis</strong> model, the <a href="../../cell_tissue/Mandate/evolvable.html">evolvable</a> flag
-determines the "rigidity" of a governance pillar during a
-<a href="../../cell_tissue/DeputyContext/evolve.html">DeputyContext.evolve</a> or <a href="../../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a> operation:</p>
+determines the "rigidity" of a governance pillar during specialized
+state transitions such as <a href="../../cell_tissue/DeputyContext/evolve.html">DeputyContext.evolve</a> or <a href="../../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This property is used internally by the framework to control the
+<strong>Policy Cascading</strong> behavior. It distinguishes between the fixed,
+immutable identity of a deputy and its adjustable mission parameters
+that can be specialized for sub-tasks.</p>
+<h3 id="how-it-works">How it works</h3>
 <ul>
-<li><strong>False (Static Pillar)</strong>: The dimension is a structural invariant
-and must be inherited exactly from the principal. These anchors
-form the deputy's <strong>Causal Identity</strong> (e.g., <a href="../../cell_tissue/Mandate.html">Mandate.role</a>,
+<li><strong>Static Pillar (<a href="../../cell_tissue/Mandate/evolvable.html">evolvable</a> is <code>false</code>)</strong>: The dimension is a
+structural invariant that must be inherited exactly from the principal.
+These anchors form the deputy's <strong>Causal Identity</strong> (e.g., <a href="../../cell_tissue/Mandate.html">Mandate.role</a>,
 <a href="../../cell_tissue/Mandate.html">Mandate.authority</a>).</li>
-<li><strong>True (Fluid Boundary)</strong>: The dimension can be uniquely redefined
-or specialized within a downstream sub-mission. These boundaries
-reflect the <strong>Current Operational Scope</strong> (e.g., <a href="../../cell_tissue/Mandate.html">Mandate.constraints</a>,
-<a href="../../cell_tissue/Mandate.html">Mandate.lease</a>, <a href="../../cell_tissue/Mandate.html">Mandate.justification</a>).</li>
+<li><strong>Fluid Boundary (<a href="../../cell_tissue/Mandate/evolvable.html">evolvable</a> is <code>true</code>)</strong>: The dimension can be
+uniquely redefined or specialized within a downstream sub-mission.
+These reflect the <strong>Current Operational Scope</strong> (e.g., <a href="../../cell_tissue/Mandate.html">Mandate.constraints</a>,
+<a href="../../cell_tissue/Mandate.html">Mandate.justification</a>).</li>
 </ul>
-<h3 id="1-architectural-role-policy-cascading">1. Architectural Role: Policy Cascading</h3>
-<p>This property governs the behavior of the <a href="../../cell_tissue/Mandate/evolve.html">evolve</a> mechanism. When a
-<a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a> is specialized for a sub-task, the framework filters
-the ontology based on this flag to ensure that core power—the
-"Static Pillars" of authority—cannot be expanded or "evolved away"
-by a delegate.</p>
-<h3 id="2-developer-ergonomics">2. Developer Ergonomics</h3>
-<p>This flag helps developers understand which mandate aspects can be
-customized. Human developers typically interact with the pre-configured
-<a href="../../cell_tissue/Mandate.html">Mandate</a> enum values where this flag is hard-coded to maintain
-<strong>Ontological Purity</strong>.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Power Capping</strong>: The <a href="../../cell_tissue/Mandate/evolve.html">evolve</a> mechanism filters the ontology using
+this flag to ensure that core power (Static Pillars) cannot be
+expanded or "evolved away" by a delegate.</li>
+<li><strong>Ontological Purity</strong>: Human developers typically interact with
+pre-configured <a href="../../cell_tissue/Mandate.html">Mandate</a> enum values where this flag is hard-coded
+to maintain a consistent and secure governance model.</li>
+<li><strong>Integrity Enforcement</strong>: During mission synthesis, the framework
+ignores any evolution requests targeting a non-evolvable dimension,
+preserving the integrity of the original mandate.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/DeputyContext/evolve.html">DeputyContext.evolve</a>: For the primary mechanism that utilizes this flag.</li>
+<li><a href="../../cell_tissue/Mandate/evolve.html">Mandate.evolve</a>: For the static utility that filters dimensions based
+on this property.</li>
+<li><a href="../../cell_tissue/GovernanceEntry-class.html">GovernanceEntry</a>: For the data structure used to represent these
+dimensions in the graph.</li>
+</ul>
 </section>
 
       
@@ -128,7 +142,7 @@ final bool evolvable;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

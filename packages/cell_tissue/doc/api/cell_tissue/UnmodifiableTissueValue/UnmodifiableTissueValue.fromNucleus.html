@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueValue.fromNucleus factory constructor</li>
   </ol>
@@ -63,7 +63,7 @@
 <section class="desc markdown">
   <p>A low‑level architectural factory for materializing an
 <a href="../../cell_tissue/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a> directly from a pre‑constructed
-reactive blueprint (<code>nucleus</code>).</p>
+reactive blueprint (<code>properties</code>).</p>
 <p>This constructor is the primary <strong>Materialization Hook</strong> used when the
 behavioural identity—including security rules, execution context, and
 synchronisation domain—has already been synthesised (e.g., via
@@ -80,7 +80,7 @@ or serialisation scenarios.</p>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>nucleus</code>: The pre‑configured read‑only blueprint.</li>
+<li><code>properties</code>: The pre‑configured read‑only blueprint.</li>
 <li><code>unmodifiableElement</code>: If <code>true</code>, child cells are projected as
 unmodifiable deputies.</li>
 <li><code>value</code>: Optional initial data.</li>
@@ -129,7 +129,7 @@ final readOnlyValue = UnmodifiableTissueValue.fromNucleus(readOnlyNucleus);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

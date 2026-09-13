@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">setRange method</li>
   </ol>
@@ -57,7 +57,7 @@
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
 <span class="name ">setRange</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="setRange-param-start"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span></li>
 <li><span class="parameter" id="setRange-param-end"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">end</span>, </span></li>
-<li><span class="parameter" id="setRange-param-newContents"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">newContents</span>, [</span></li>
+<li><span class="parameter" id="setRange-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span>, [</span></li>
 <li><span class="parameter" id="setRange-param-skipCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">skipCount</span> = <span class="default-value">0</span>, </span></li>
 </ol>])
 
@@ -66,29 +66,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously writes some elements of <code>newContents</code> into a range of this list.
-Copies the objects of <code>newContents</code>, skipping <code>skipCount</code> objects first, into the
-range from <code>start</code> (inclusive) to <code>end</code> (exclusive) of this list.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/setRange.html">TissueList.setRange</a>. The <code>Future</code> completes successfully if the
-operation is permitted. Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>start</code>: The inclusive start index of the range to write to.</li>
-<li><code>end</code>: The exclusive end index of the range to write to.</li>
-<li><code>newContents</code>: An <code>Iterable&lt;E&gt;</code> providing the source elements.</li>
-<li><code>skipCount</code>: (Optional) The number of elements to skip from the beginning of <code>newContents</code>. Defaults to 0.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously overwrites a specific range with elements from <code>iterable</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setRange(int start, int end, Iterable&lt;E&gt; newContents, [int skipCount = 0]) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.setRange(start, end, newContents, skipCount));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setRange(int start, int end, Iterable&lt;E&gt; iterable, [int skipCount = 0]) =&gt;
+    Future&lt;void&gt;(() =&gt; _tissue.setRange(start, end, iterable, skipCount));</code></pre>
 </section>
 
 
@@ -116,7 +102,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

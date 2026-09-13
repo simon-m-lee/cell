@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -99,6 +99,12 @@ multiple observers.</li>
 void call(covariant P pulse) {
 
   if (isEmpty &amp;&amp; pulse is PulseBase) {
+    if (_policy?.strategy == PropagationStrategy.persistent) {
+      final buffer = _buffer;
+      if (buffer != null) {
+        buffer..clear()..add(pulse);
+      }
+    }
     final box = pulse._branches;
     if (box != null) {
       box.value = box.value! - 1;
@@ -178,6 +184,7 @@ void call(covariant P pulse) {
       if (buffer != null) {
         buffer..clear()..add(p);
       }
+      _broadcast(p);
       break;
 
   }
@@ -209,7 +216,7 @@ void call(covariant P pulse) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">TissueEventBase.new constructor</li>
   </ol>
@@ -66,7 +66,7 @@
 <li><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span></li>
 <li><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span></li>
 <li><span class="parameter" id="-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">pulse</span>, </span></li>
-<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
 <li><span class="parameter" id="-param-scrutinize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">scrutinize</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
 </ol>})
@@ -76,7 +76,7 @@
   <p>Primary constructor for a tissue event.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>This is used by concrete event types (like <code>ElementAddedEvent</code>) to
-initialise their base fields. You don’t call it directly.</p>
+initialise their base fields. You don't call it directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>All parameters are optional and default to <code>null</code>. The framework
 uses bitmasking to store only non‑default values, minimising memory
@@ -121,7 +121,7 @@ authentication challenge to the event.</p>
   Function? onProgress, &#47;&#47; void Function(TissueEvent event, Cell cell, {String? message})? onProgress,
 
   Pulse&lt;E&gt;? pulse,
-  TissueEvent&lt;E&gt;? parent,
+  TissuePulse&lt;E&gt;? parent,
 
   Function? scrutinize, &#47;&#47; FutureOr&lt;Pulse?&gt; Function(TissueReceptor receptor)? scrutinize,
   dynamic user
@@ -175,7 +175,7 @@ authentication challenge to the event.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Mandate<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
   </ol>
   <div class="self-name">Mandate</div>
@@ -60,7 +60,7 @@
     
 <section class="desc markdown">
   <p>Defines the <strong>Capability Profile and Authorization Scope</strong> for a <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You rarely need to interact with <a href="../cell_tissue/Mandate.html">Mandate</a> directly. Use the <a href="../cell_tissue/DeputyContext-class.html">DeputyContext</a>
 factories like <code>DeputyContext.observer</code>, <code>DeputyContext.delegate</code>, etc.
 Those factories set the mandate dimensions for you.</p>
@@ -219,7 +219,7 @@ a simulation without affecting production state.</p>
 <li><code>shared</code>: direct live execution.</li>
 <li><code>scoped</code>: restricted to a domain.</li>
 <li><code>restricted</code>: zero‑trust filtering.</li>
-<li><code>sandboxed</code>: virtualised, no side‑effects.</li>
+<li><code>sandboxed</code>: virtualized, no side‑effects.</li>
 <li><code>total</code>: air‑gapped, only ingests.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
@@ -351,41 +351,6 @@ tasks.</li>
     </div>
 </dd>
 
-            <dt id="lease" class="constant">
-    <span class="name ">lease</span>
-  <span class="signature">&#8594; const <a href="../cell_tissue/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  <p>The <strong>Temporal Validity</strong> and life-expectancy of the <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>'s
-delegated authority.</p>
-<p><strong>Type</strong>: <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>
-<strong>Mutability</strong>: <strong>Fluid Boundary</strong> (Evolvable)</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this to set a time‑to‑live (TTL) for a deputy – e.g., a temporary
-task that should self‑destruct after a few minutes.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The framework checks the lease against the creation timestamp. If the
-duration has elapsed, any pulse from the deputy is neutralised.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is evolvable – a deputy can shorten its own lease for child tasks.</li>
-<li>The lease is checked at each hop; expired deputies are automatically
-disconnected.</li>
-</ul>
-<h3 id="examples">Examples</h3>
-<ul>
-<li><code>Duration(minutes: 5)</code> – short‑lived maintenance task.</li>
-<li><code>Duration(seconds: 30)</code> – emergency intervention with tight expiry.</li>
-</ul>
-  
-
-    <div>
-      <span class="signature"><code>const Mandate&lt;Duration&gt;(true)</code></span>
-    </div>
-</dd>
-
             <dt id="justification" class="constant">
     <span class="name ">justification</span>
   <span class="signature">&#8594; const <a href="../cell_tissue/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
@@ -471,8 +436,7 @@ phase. If a pulse would exceed a limit, it's neutralised.</p>
 
 </dt>
 <dd>
-  Indicates whether this <strong>Mandate Dimension</strong> is a structural invariant
-or a dynamic operational attribute.
+  Indicates whether this <strong>Mandate Dimension</strong> is a structural invariant  /// or a dynamic operational attribute.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -690,7 +654,7 @@ fluid dimensions of the <a href="../cell_tissue/Mandate.html">Mandate</a> ontolo
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

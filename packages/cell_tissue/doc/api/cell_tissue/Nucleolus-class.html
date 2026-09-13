@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Nucleolus class</li>
   </ol>
   <div class="self-name">Nucleolus</div>
@@ -55,34 +55,51 @@
     
 <section class="desc markdown">
   <p>A specialized, terminal implementation of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract representing
-the framework's "zero-state."</p>
-<p><a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> is the canonical, immutable representation of a <strong>Blueprint</strong> that
-contains no custom configurations, no external dependencies, and no ancestral
-inheritance. It serves as the ultimate <strong>Ontological Root</strong> in the system's
-property hierarchy.</p>
-<h3 id="1-architectural-role-the-terminal-node">1. Architectural Role: The Terminal Node</h3>
-<p>In the framework's <strong>Scene-Driven Ontology</strong>, every property resolution chain
-must have a definitive end. <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> acts as that terminus:</p>
+the framework's "zero-state" and <strong>Ontological Root</strong>.</p>
+<p><a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> serves as the canonical, immutable representation of a blueprint
+that contains no custom configurations, no external dependencies, and no
+ancestral inheritance. It defines the floor of the property resolution system.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Heritage Boundary</strong>: In the hierarchical property lookup system, every
-inheritance chain eventually terminates at a <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> (typically
-accessed via the <a href="../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a> factory).</li>
-<li><strong>Default Provider</strong>: It explicitly implements the framework's baseline
-<strong>Software Engineering Defaults</strong> for all core pillars (e.g., <a href="../cell_tissue/Context/system-constant.html">Context.system</a>,
-<a href="../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>, <a href="../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>).</li>
-<li><strong>Static Preservation</strong>: As a <code>const</code> class, only a single instance of
-<a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> exists in memory regardless of how many cells reference it,
-eliminating allocation overhead for standard, unconfigured nodes.</li>
+<li><strong>Root of Inheritance</strong>: Use as the terminal ancestor in any <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>
+inheritance chain to stop recursive property walks.</li>
+<li><strong>Default Initialization</strong>: Use to represent a cell with framework-standard
+behavior (e.g., <a href="../cell_tissue/Context/system-constant.html">Context.system</a>, <a href="../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>).</li>
+<li><strong>Memory Optimization</strong>: Use to avoid heap allocation for nodes that do
+not require specialized configuration.</li>
 </ul>
-<h3 id="3-hybrid-convergence-constant-time-resolution">3. Hybrid Convergence: Constant-Time Resolution</h3>
-<p>This class is a key enabler of <strong>Hybrid Convergence</strong> by ensuring that
-property resolution never results in an infinite loop or an undefined state.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Terminal Boundary</strong>: Implements the end-of-chain logic by returning
+<code>null</code> for the <a href="../cell_tissue/Nucleolus/principal.html">principal</a> property.</li>
+<li><strong>Static Provisioning</strong>: Hard-codes framework baseline defaults for all
+governance pillars (<a href="../cell_tissue/Nucleolus/context.html">context</a>, <a href="../cell_tissue/Nucleolus/receptor.html">receptor</a>, <a href="../cell_tissue/Nucleolus/testRule.html">testRule</a>, etc.).</li>
+<li><strong>Flyweight Reification</strong>: As a <code>const</code> class, it allows the entire
+reactive fabric to share a single instance for every unconfigured node.</li>
+<li><strong>Zero-State Blueprint</strong>: Its internal record is a constant empty unit <code>()</code>,
+satisfying the structural contract of <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a> without runtime overhead.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Terminal Lineage</strong>: The <a href="../cell_tissue/Nucleolus/principal.html">principal</a> property always returns <code>null</code>,
-effectively stopping recursive property lookups at native speeds.</li>
-<li><strong>Zero-State Safety</strong>: Its internal <code>record</code> (the <strong>Blueprint Signature</strong>)
-is a constant empty shape, satisfying the structural requirements of
-the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> interface without requiring dynamic heap allocation.</li>
+<li><strong>Activation Resistance</strong>: The <code>activate()</code> method always returns <code>false</code>
+because the nucleolus represents an immutable blueprint, not a dynamic
+operational state.</li>
+<li><strong>Constant-Time Resolution</strong>: Property access on this class is O(1)
+native speed, as it bypasses record-masking logic entirely.</li>
+<li><strong>Ontological Purity</strong>: It provides the "naked" state of a reactive node,
+devoid of any metadata, ad-hoc user records, or egress synapses.</li>
+<li><strong>Immutable Integrity</strong>: Being transitively immutable, it ensures that
+the global defaults of the system cannot be altered at runtime.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<p>(None)</p>
+<h3 id="returns">Returns:</h3>
+<p>A terminal <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> instance representing the framework's zero-state.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a>: The standard factory for obtaining this terminal root.</li>
+<li><a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a>: The property-aware base class for all blueprints.</li>
+<li><a href="../cell_tissue/Context/system-constant.html">Context.system</a>: The default authority level provided by this node.</li>
 </ul>
 </section>
 
@@ -178,8 +195,8 @@ with an independent synchronization domain.
 
 </dt>
 <dd>
-  The operational tier and execution environment assigned to the <a href="../cell_tissue/Cell-class.html">Cell</a>
-associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -228,7 +245,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd class="inherited">
-  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -240,8 +258,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd>
-  Indicates whether the associated <a href="../cell_tissue/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -329,8 +347,8 @@ observers of this <code>Cell</code>.
 
 </dt>
 <dd>
-  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <code>Cell</code>.
+  The active <a href="../cell_tissue/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -458,7 +476,7 @@ custom property extensions for the associated <a href="../cell_tissue/Cell-class
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

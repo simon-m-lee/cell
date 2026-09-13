@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">PropagationStrategy enum</li>
   </ol>
   <div class="self-name">PropagationStrategy</div>
@@ -66,8 +66,9 @@ of how a stimulus (a <a href="../cell_tissue/Pulse-class.html">Pulse</a>) travel
 <a href="../cell_tissue/Synapses-class.html">Synapses</a> to downstream observers. By selecting a strategy, developers
 can optimise for latency, throughput, or stability, essentially defining
 the "metabolic rate" of specific branches in the reactive graph.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You typically set a strategy via a <a href="../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a> when creating synapses:</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You typically set a strategy via a <a href="../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a> when creating synapses:
 <pre class="language-dart"><code class="language-dart">final synapses = Synapses(
   policy: PropagationPolicy(
     strategy: PropagationStrategy.debounced,
@@ -75,14 +76,14 @@ the "metabolic rate" of specific branches in the reactive graph.</p>
   ),
 );
 </code></pre>
-<p>Choose the strategy that matches your use case – most common are
+Choose the strategy that matches your use case – most common are
 <code>immediate</code> (default), <code>debounced</code> (for user input), and <code>throttled</code>
-(for rate‑limiting).</p>
-<h3 id="when-to-use">When to use</h3>
-<ul>
+(for rate‑limiting).</li>
 <li><strong>immediate</strong>: For critical state updates that must be synchronous.</li>
 <li><strong>async</strong>: To break deep recursion or offload to the event loop.</li>
 <li><strong>debounced</strong>: For search‑as‑you‑type, where only the final value matters.</li>
+</ul>
+<ul>
 <li><strong>throttled</strong>: For rate‑limiting high‑frequency events (e.g., scroll).</li>
 <li><strong>batched</strong>: For aggregating multiple updates into one (e.g., logging).</li>
 <li><strong>audit</strong>: To get the latest value at a fixed interval.</li>
@@ -366,6 +367,11 @@ defined by <code>throttleTime</code>.</li>
 monitoring systems where "no change" is just as important as "change."</li>
 <li><strong>Trade-off</strong>: Can result in redundant broadcasts if the state
 hasn't changed, and misses high-frequency fluctuations.</li>
+<li><strong>Non‑obvious</strong>: The heartbeat rebroadcasts the <em>first</em> pulse
+captured when the timer starts. The pulse cycle checker then
+drops later ticks of that same instance, so observers typically
+see one delivery. Unlinking the last observer cancels the
+<a href="https://api.flutter.dev/flutter/dart-async/Timer/Timer.periodic.html">Timer.periodic</a> so it does not leak.</li>
 </ul>
   
 
@@ -614,7 +620,7 @@ need to "catch up" to the current system state.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

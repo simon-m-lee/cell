@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Context-class.html">Context</a></li>
     <li class="self-crumb">system constant</li>
   </ol>
@@ -62,40 +62,60 @@
       </section>
       
 <section class="desc markdown">
-  <p>The canonical root context for the entire framework, acting as the
-<strong>Terminal Ancestor</strong> in the system's <strong>Prototype-based Inheritance</strong> model.</p>
-<p>In the framework's architecture, <a href="../../cell_tissue/Context/system-constant.html">system</a> serves as the ultimate fallback
-for all ontological lookups. It defines the global "Safe Mode" and default
-operational parameters for any <a href="../../cell_tissue/Cell-class.html">Cell</a> that has not been specialized into
-a specific domain.</p>
-<h3 id="developer-ergonomics--human-legibility">Developer Ergonomics &amp; Human Legibility</h3>
-<p>This is the default context used when no explicit context is provided:</p>
-<pre class="language-dart"><code class="language-dart">// Default context for all cells
-final cell = Cell(); // context = Context.system
-
-// Safe default for most applications
-final context = Context.system;
-print(context.domains); // null
-print(context.constraints); // null
-</code></pre>
-<h3 id="1-architectural-role-global-baseline--fallback">1. Architectural Role: Global Baseline &amp; Fallback</h3>
-<p>Every <a href="../../cell_tissue/Context-class.html">Context</a> eventually descends from <a href="../../cell_tissue/Context/system-constant.html">system</a>. It ensures that
-even in an unconfigured or embryonic state, a node possesses:</p>
+  <p>The canonical root context and <strong>Terminal Ancestor</strong> of the reactive fabric's
+governance model.</p>
+<p><a href="../../cell_tissue/Context/system-constant.html">system</a> serves as the ultimate fallback for all ontological lookups,
+defining the global "Safe Mode" and default operational parameters for any
+<a href="../../cell_tissue/Cell-class.html">Cell</a> that has not been explicitly specialized.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Baseline Security</strong>: Minimal <a href="../../cell_tissue/Ontology.html">Ontology.constraints</a> that permit
-standard framework operations while maintaining fundamental
-integrity.</li>
-<li><strong>Default Domains</strong>: Categorization under the core system domain
-to ensure the node is visible to the framework's diagnostic and
-auditing layers.</li>
-<li><strong>Standard Governance</strong>: Inherited <a href="../../cell_tissue/Mandate.html">Mandate</a> and <a href="../../cell_tissue/Clearance.html">Clearance</a>
-defaults to prevent "Authority Vacuum" errors during a pulse
-transmission.</li>
+<li><strong>Default Initialization</strong>: Used automatically by the framework when no
+explicit context is provided to a <code>Cell</code> factory.</li>
+<li><strong>Baseline Security</strong>: When you need a node to operate with minimal,
+framework-standard authority and global visibility.</li>
+<li><strong>Generic Logic</strong>: For infrastructure or utility cells that do not
+belong to a specific business domain.</li>
 </ul>
-<h3 id="2-hybrid-convergence-zero-cost-system-access">2. Hybrid Convergence: Zero-Cost System Access</h3>
-<p>As a <code>static const</code>, the <a href="../../cell_tissue/Context/system-constant.html">system</a> context is pre-compiled and shared
-across all reactive nodes. This supports <strong>Hybrid Convergence</strong> by
-providing a zero-cost path for permission checks.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Prototype-based Inheritance</strong>: Acts as the root node of the
+contextual graph. Any lookup that fails in a specialized context
+cascades up to <a href="../../cell_tissue/Context/system-constant.html">system</a>.</li>
+<li><strong>Global Baseline</strong>: Enforces minimal <a href="../../cell_tissue/Ontology.html">Ontology.constraints</a> and
+<a href="../../cell_tissue/Mandate.html">Mandate</a> defaults to prevent "Authority Vacuum" errors during
+pulse transmission.</li>
+<li><strong>Hybrid Convergence</strong>: As a <code>static const</code>, it provides a
+pre-compiled, zero-cost path for metadata resolution and security
+checks across the entire reactive wave.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Immutable Anchor</strong>: Unlike specialized contexts, <a href="../../cell_tissue/Context/system-constant.html">system</a> cannot be
+fully evolved into a different identity; it defines the shared
+reality of the system.</li>
+<li><strong>Visibility</strong>: Nodes under the <a href="../../cell_tissue/Context/system-constant.html">system</a> context are visible to all
+diagnostic and auditing layers by default.</li>
+<li><strong>Zero-Cost Access</strong>: Because it is shared across all nodes, it
+incurs no heap pressure regardless of the graph size.</li>
+</ul>
+<h3 id="example-implicit-vs-explicit-system-context">Example: Implicit vs. Explicit System Context</h3>
+<pre class="language-dart"><code class="language-dart">// Implicitly uses Context.system
+final defaultCell = Cell.ingress(0);
+
+// Explicitly referencing for configuration
+final loggerCell = Cell.ingress(
+  'Log entry',
+  context: Context.system,
+);
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<p>The singleton <a href="../../cell_tissue/Context-class.html">Context</a> instance representing the framework's <strong>Root Authority</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Context/Context.module.html">Context.module</a>: For application-level business logic.</li>
+<li><a href="../../cell_tissue/Context/Context.core.html">Context.core</a>: For infrastructure-level components.</li>
+<li><a href="../../cell_tissue/Ontology.html">Ontology</a>: For the underlying metadata dimensions.</li>
+</ul>
 </section>
 
       
@@ -130,7 +150,7 @@ providing a zero-cost path for permission checks.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">AsyncSynapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">AsyncSynapses</div>
@@ -60,12 +60,13 @@ signal distribution.</p>
 reactive network. It allows <a href="../cell_tissue/Pulse-class.html">Pulse</a> stimuli to be broadcast across
 asynchronous boundaries, ensuring that high‑latency downstream
 transformations do not block the primary execution thread.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You obtain an instance via <code>synapses.async</code>:</p>
-<pre class="language-dart"><code class="language-dart">final asyncSynapses = cell._nucleus.synapses.async;
-</code></pre>
 <h3 id="when-to-use">When to use</h3>
 <ul>
+<li>You obtain an instance via <code>synapses.async</code>:
+<pre class="language-dart"><code class="language-dart">
+final asyncSynapses = cell._nucleus.synapses.async;
+</code></pre>
+</li>
 <li>When you are in an asynchronous context and need to broadcast without
 blocking.</li>
 <li>When you want to wait for the entire propagation to complete
@@ -286,7 +287,9 @@ signal distribution.
 
 </dt>
 <dd>
-  Asynchronously broadcasts a pulse to all downstream observers.
+  The primary execution entry point for the <strong>Signal Distribution Network</strong>,
+responsible for ingesting, filtering, and propagating pulses to all
+registered downstream observers.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -684,7 +687,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

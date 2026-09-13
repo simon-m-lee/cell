@@ -1,6 +1,6 @@
 # Walkthrough requirement — card auth pipeline (Flow + Tissue)
 
-**Suggested demo:** `card-auth-pipeline(tissue)-Demo.dart`  
+**Demo:** `card-auth-pipeline(tissue)-Demo.dart` (executable; this file is its requirement)  
 **Siblings:**  
 - `card-auth-pipeline(enhanced)-WalkThrough.md` — Flow only, Dart `List` ledger  
 - `ICU-alarm-pipeline(enhanced)-Demo.dart` — same gate shape, clinical payload  
@@ -14,6 +14,88 @@ Dart file so a last-good run prints the scenario table in § Scenarios.
 
 Do not fold Tissue into the Receptor. Do not fold Flow into the ledger.
 The point of this file is the seam.
+
+---
+
+## Contents
+
+1. [TestCell vs TestTissue (do not swap)](#testcell-vs-testtissue-do-not-swap)
+2. [Why Flow + Tissue (not Flow alone)](#why-flow--tissue-not-flow-alone)
+3. [Design](#design)
+4. [Domain](#domain)
+5. [Parts](#parts)
+   - [Flow Cells](#flow-cells-same-as-the-enhanced-walkthrough)
+   - [Tissue collections](#tissue-collections-this-demos-new-surface)
+   - [Deputies](#deputies)
+   - [Instruction](#instruction-flow-unchanged-contract)
+   - [Receptor](#receptor)
+   - [Operators the demo must actually call](#operators-the-demo-must-actually-call)
+6. [Money — TissueValue + TissueMap](#money--tissuevalue--tissuemap-not-celltransaction)
+7. [Implementation map](#implementation-map)
+8. [Scenarios (what the last good run must show)](#scenarios-what-the-last-good-run-must-show)
+9. [Executable steps (Seed + 1–13 + STEP-UP + COMPLY)](#executable-steps-seed--113--step-up--comply)
+10. [Pulse path (scenario 2)](#pulse-path-scenario-2)
+11. [Who owns the lock](#who-owns-the-lock)
+12. [Real rail vs this file](#real-rail-vs-this-file)
+13. [Acceptance](#acceptance-the-demo-is-done-when)
+14. [Name plate](#name-plate)
+
+---
+
+## TestCell vs TestTissue (do not swap)
+
+Collection classes in `package:cell_tissue` take **`TestTissue`**, never
+`TestCell`. `TestCell` is the integrity rule on a **Cell** (ingress /
+handle). `TestTissue` is the integrity rule on a **Tissue** (`add`,
+`remove`, `[]=`, value write). They are not subtypes you can pass
+across that seam.
+
+| Host | Rule type | Parameter | Typical use in this demo |
+|---|---|---|---|
+| `Cell.ingress` / `toHandle` | `TestCell` | `testRule:` | amount 1–250_000¢, MCC shape |
+| `TissueList` / `Set` / `Map` / `Queue` / `Value` | `TestTissue<E, C>` | `testRule:` | append-only ledger, non-negative cents, 4-digit blocklist |
+| `tissue.deputy(...)` | `TestTissue` | `testRule:` | `TestTissue.readOnly` for compliance |
+| `TestTissue.allowAll` | `TestTissue` | default | only when the collection has no extra rule |
+
+Illegal (will not type-check, do not write it):
+
+```dart
+TissueList<LedgerEntry>(testRule: TestCell.allowAll);        // wrong type
+TissueValue<int>(250000, testRule: amountRange);            // amountRange is TestCell
+ledger.deputy(testRule: TestCell.readOnly);                 // deputy wants TestTissue
+```
+
+Required shape:
+
+```dart
+final ledgerRule = TestTissue<LedgerEntry, TissueList<LedgerEntry>>(
+  (e, {host, action, user}) => e.kind.isNotEmpty,
+  // action hook: allow add / addAll; deny remove, clear, []=
+);
+
+final ledger = TissueList<LedgerEntry>(testRule: ledgerRule);
+
+final centsRule = TestTissue<int, TissueValue<int>>(
+  (v, {host, action, user}) => v != null && v >= 0,
+);
+
+final available = TissueValue<int>(250000, testRule: centsRule);
+
+final mccBlock = TissueSet<String>(
+  testRule: TestTissue<String, TissueSet<String>>(
+    (mcc, {host, action, user}) =>
+        mcc.length == 4 && int.tryParse(mcc) != null,
+  ),
+);
+
+final auditor = ledger.deputy(testRule: TestTissue.readOnly);
+```
+
+`Cell.ingress(testRule: amountRange)` stays **`TestCell`**. That rule
+never becomes the `testRule` on `available` / `ledger` / `mccBlock`.
+
+Compose Tissue rules with `+` (`TestTissue.allowAll + custom`), not by
+wrapping a `TestCell`.
 
 ---
 
@@ -210,9 +292,12 @@ TestCell rejects.
 | `mccBlock` | `TissueSet<String>` | 4-digit MCC string | ops scenario | `riskOf` |
 | `issuerQ` | `TissueQueue<IssuerJob>` | `capacity: 32` | decline/step-up observer | issuer pump |
 
-Seed: `available = TissueValue<int>(250000)`, `held = TissueValue<int>(0)`,
-`holdsMap` empty, `mccBlock` empty, `ledger` empty (initial population
-is silent — observers only see **post-create** mutations).
+Seed with **TestTissue on every collection** (see constructors above).
+`available = TissueValue<int>(250000, testRule: centsRule)`,
+`held = TissueValue<int>(0, testRule: centsRule)`,
+`holdsMap` / `mccBlock` / `ledger` / `issuerQ` each constructed with
+their `TestTissue`, not `TestCell`. Initial population is silent —
+observers only see **post-create** mutations.
 
 ### Deputies
 
@@ -364,17 +449,651 @@ amount `7200`, MCC `5411`, velocity `0`, `mccBlock` empty.
 | 13 | new 10000 hold then `voidHold` | available back to `190000`, ledger `VOID` | compensate on Tissue |
 | COMPLY | `auditor.add(...)` | blocked; `auditor.length == ledger.length` | Deputy / `unmodifiable` is live |
 
-Good-run counts (risk half): attempts ≥ 18, declines 4, step-ups ≥ 1,
-ledger rows ≥ 7 from risk+ACK plus HOLD/CAPTURE/VOID. `issuerAttempts`
-can be 5 if the first network call throws.
-
-Print a trailer:
+Good-run counts from the executable trailer:
 
 ```text
-attempts=… declines=… stepUps=… ledger=… issuerAttempts=…
-available=190000 held=0 openHolds=0
-auditorLength=… (same as ledger)
+attempts=13 declines=4 stepUps=2 ledger=17 issuerAttempts=5
+available=190000 held=0 openHolds=0 captured=60000
+auditorLength=17 (same as ledger)
+invariant available+held+captured = 250000 (expected 250000)
 ```
+
+Four DECLINE pulses: scenarios **2**, **3b**, **7**, **9b**.
+Two STEP-UP pulses: **SU-1** and **H-1**. Ledger 17 is
+DECLINE/ISSUER/ACK/HOLD/CAPTURE/VOID rows only — Seed and approve
+attempts never append. `issuerAttempts=5` because scenario 9
+fails the first issuer call and retries.
+
+Print that trailer. Numbers in § Executable steps must match it.
+
+---
+
+## Executable steps (Seed + 1–13 + STEP-UP + COMPLY)
+
+These are the steps `card-auth-pipeline(tissue)-Demo.dart` actually
+runs. Numbers match the `── N ──` banners in the console. Seed is
+unnumbered but required: without it Distinct has no first
+`approve`, and “repeat does not decline” in step 1 is meaningless.
+
+**Seam reminder at every step.** Flow answers “may this attempt
+become a DECLINE or STEP-UP pulse?” Tissue answers “what did the
+books just record, and did money move?” The observer is the only
+glue. `riskOf` never writes `available`. `placeHold` never runs
+inside the Receptor.
+
+**Documented deviations the executable takes** (header of the demo):
+
+- Tissue constructors: `TissueSet` / `TissueValue` take the initial
+  value as the **first positional** argument; `TissueMap` puts
+  `testRule` on the nucleus via `properties:`.
+- Each `TestCell` unwraps `Pulse.payload` before the shape check.
+- Issuer pump: `issuerQ.addLast` is the audit enqueue;
+  `_issuerWork` + `_driveIssuer` is the retry list (this build’s
+  `TissueQueue` does not drain via `removeFirst`).
+- Trace prints come from the writers themselves. Tissue-cell
+  `Cell.observe` is silent in this build.
+
+Money invariant after every successful money method:
+
+```
+available.value + held.value + capturedCents == 250000
+```
+
+---
+
+### Seed — 7200 / 5411 / present / vel 0
+
+**Lesson:** snapshot bus + Filter. Initial Tissue population is
+silent.
+
+**Drive**
+
+```dart
+h.setAmount(7200);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: 'SEED');
+```
+
+**What fires**
+
+- `amountIn` TestCell accepts `7200` (1..250_000¢).
+- `mccIn` TestCell accepts `'5411'` (exactly 4 digits).
+- `publishAttempt` emits `AuthAttempt(SEED, 7200¢, 5411, present)`.
+- Both gates run `riskOf` → `approve`. Distinct records `approve`.
+  Filter(decline) and Filter(stepUp) both drop.
+- Ledger is still empty: Seed does not append, and the initial
+  `available=250000` / `held=0` writes were constructor-time
+  (observers never saw them).
+
+**Must print**
+
+```text
+── Seed ── 7200 / 5411 / present / vel 0
+  ledger.isEmpty=true
+```
+
+**Must not happen**
+
+- No `[ledger] DECLINE` / `STEP-UP`.
+- No issuer enqueue.
+- No money movement.
+
+---
+
+### Step 1 — repeat 7200 / 5411
+
+**Lesson:** Distinct on `approve`. The DECLINE gate never sees
+`approve` as a fireable decision, and Distinct would drop a
+repeat anyway.
+
+**Drive**
+
+```dart
+await h.publishAttempt(authId: '1');
+```
+
+**What fires**
+
+- Same snapshot as Seed. `riskOf` → `approve` again.
+- `_distinctDecline` / `_distinctStepUp` already hold `approve`
+  → both return `null`.
+- `h.declines` does not increment.
+
+**Must print**
+
+```text
+── 1 ── repeat 7200 / 5411
+  new declines: 0
+```
+
+---
+
+### Step 2 — ops adds 7995, then MCC 7995 CNP 7200
+
+**Lesson:** TissueSet feeds `riskOf`. The DECLINE observer is the
+audit trail. Two locks: Receptor then TissueList / TissueQueue.
+
+**Drive**
+
+```dart
+h.mccBlock.add('7995');
+h.setAmount(7200);
+h.setMcc('7995');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '2');
+```
+
+**What fires**
+
+1. `mccBlock.add('7995')` — `TestTissue` on the set accepts a
+   4-digit MCC. This is **not** a Flow pulse.
+2. `publishAttempt('2')` — CNP + blocked MCC → `riskOf` =
+   `decline`.
+3. DECLINE Distinct was `approve` → emits `decline`. Filter
+   passes. STEP-UP Filter drops.
+4. DECLINE observer: `ledger.add(DECLINE 2)`,
+   `issuerQ.addLast(IssuerJob(2, decline))`, `_driveIssuer`.
+5. Issuer pump succeeds on the first try → `ledger.add(ISSUER 2)`.
+
+**Must print**
+
+```text
+── 2 ── mccBlock.add('7995'), then MCC 7995 CNP 7200
+[mccBlock] +7995
+[ledger] DECLINE 2 — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(2, decline)
+[ledger] ISSUER 2 — decline
+  new declines: 1
+  issuerQ.length=1
+```
+
+**Must not happen**
+
+- No `available` / `held` write. Decline does not move money.
+- No second `toHandle`.
+
+---
+
+### Step 3 — grocery+present then 7995 CNP again
+
+**Lesson:** Distinct `approve` → `decline`. Recovering to grocery
+present is what lets the next blocked CNP fire again.
+
+**Drive**
+
+```dart
+h.setAmount(7200);
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: '3a');
+h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '3b');
+```
+
+**What fires**
+
+- `3a` grocery present → `approve`. DECLINE Distinct moves off
+  `decline` to `approve` (Filter still drops approve).
+- `3b` 7995 CNP → `decline`. Distinct `approve` → `decline` →
+  emit. Observer appends DECLINE 3b + ISSUER 3b.
+
+**Must print**
+
+```text
+── 3 ── grocery+present then 7995 CNP again
+[ledger] DECLINE 3b — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(3b, decline)
+[ledger] ISSUER 3b — decline
+  new declines: 1
+```
+
+`3a` itself must not print a DECLINE row.
+
+---
+
+### Step 4 — 7995 again (should not re-decline)
+
+**Lesson:** Distinct holds `decline`. Same decision, same latch.
+
+**Drive**
+
+```dart
+await h.publishAttempt(authId: '4');
+```
+
+**Must print**
+
+```text
+── 4 ── 7995 again (should not re-decline)
+  new declines: 0
+```
+
+Ledger does not grow. Issuer does not enqueue.
+
+---
+
+### Step 5 — 200000 on 7995
+
+**Lesson:** Distinct keys on **Decision**, not amount. Raising
+cents does not create a new decline while the latch is still
+`decline`.
+
+**Drive**
+
+```dart
+h.setAmount(200000);
+await h.publishAttempt(authId: '5');
+```
+
+**Must print**
+
+```text
+── 5 ── 200000 on 7995
+  new declines: 0
+```
+
+Even though 200000 CNP would also be `stepUp` on an unblocked MCC,
+7995 + CNP is still `decline` first in `riskOf`. The STEP-UP gate
+never sees it.
+
+---
+
+### STEP-UP — 60000 CNP 5411
+
+**Lesson:** second Receptor, independent Distinct. Blocklist does
+not apply to 5411.
+
+**Drive**
+
+```dart
+h.setAmount(60000);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: 'SU-1');
+```
+
+**What fires**
+
+- `riskOf`: 5411 not in `mccBlock`; amount ≥ 50_000 and CNP →
+  `stepUp`.
+- STEP-UP Distinct was `approve` (from earlier grocery) → emit.
+  Filter(stepUp) passes. DECLINE Filter drops.
+- STEP-UP observer appends `STEP-UP SU-1`. No issuer job (this
+  demo only enqueues on DECLINE).
+
+**Must print**
+
+```text
+── STEP-UP ── 60000 CNP 5411
+[ledger] STEP-UP SU-1 — amount=60000¢ CNP
+  new step-ups: 1
+```
+
+**Must not happen**
+
+- No `placeHold` here. STEP-UP is a decision, not a debit.
+- `available` stays 250000.
+
+---
+
+### Step 6 — 7200 / 5411 present then ACK
+
+**Lesson:** ACK clears both Distinct latches on the **same**
+Receptors. No money yet.
+
+**Drive**
+
+```dart
+h.setAmount(7200);
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: '6');
+await h.ack('6');
+```
+
+**What fires**
+
+- Attempt 6 is `approve` — both Filters drop.
+- `ackIn` observer: `resetDistinct()` zeroes `_lastDecline` and
+  `_lastStepUp`, then appends `ACK 6`.
+
+**Must print**
+
+```text
+── 6 ── 7200 / 5411 present then ACK
+[ledger] ACK 6 — distinct cleared
+  available=250000 held=0
+```
+
+ACK is **not** `toHandle` again. A second handle would double
+every later DECLINE.
+
+---
+
+### Step 7 — 7995 CNP 7200
+
+**Lesson:** after ACK the same decline is a **new** pulse.
+
+**Drive**
+
+```dart
+h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '7');
+```
+
+**Must print**
+
+```text
+── 7 ── 7995 CNP 7200
+[ledger] DECLINE 7 — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(7, decline)
+[ledger] ISSUER 7 — decline
+  new declines: 1
+```
+
+This is DECLINE pulse #3 (2, 3b, 7).
+
+---
+
+### Step 8 — amount -1, MCC `"99"` (TestCell)
+
+**Lesson:** Cell ingress ≠ Tissue. Shape dies at the edge. The
+ledger never hears about a pulse that was not published.
+
+**Drive**
+
+```dart
+final rejectedAmount = h.setAmount(-1);
+final rejectedMcc = h.setMcc('99');
+```
+
+**What fires**
+
+- `_amountShape` unwraps `Pulse.payload`, sees `-1`, returns
+  `false`. `_amount` cache is **not** overwritten.
+- `_mccShapeRule` rejects `"99"` (not 4 digits). `_mcc` stays
+  `'7995'`.
+- `publishAttempt` is **not** called. Tissue idle.
+
+**Must print**
+
+```text
+── 8 ── amount -1, MCC "99"
+  amount -1 accepted=false
+  mcc "99" accepted=false
+  ledger grew: 0
+```
+
+**Must not happen**
+
+- No `TestTissue` involvement.
+- No `[ingress]` lines required if `setAmount` / `setMcc` swallow
+  the rejection (the executable reports via the accepted flags).
+
+---
+
+### Step 9 — ACK, recover, 7995, issuer fail-once
+
+**Lesson:** queue + retry. One DECLINE pulse, two issuer attempts.
+
+**Drive**
+
+```dart
+await h.ack('9-pre');
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+h.setAmount(7200);
+await h.publishAttempt(authId: '9a');
+h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+h.issuerFailOnce = true;
+await h.publishAttempt(authId: '9b');
+```
+
+**What fires**
+
+- ACK 9-pre clears Distinct again.
+- `9a` grocery present → approve (resets latch to approve).
+- `9b` 7995 CNP → DECLINE 9b + enqueue. `_driveIssuer` throws
+  once (`issuerFailOnce`), then retries and appends
+  `ISSUER 9b — decline (retry)`.
+- `issuerAttempts` ends at 5: prior successful issuer calls
+  (2, 3b, 7) plus fail + retry on 9b.
+
+**Must print**
+
+```text
+── 9 ── ACK, recover, 7995, issuer fail-once
+[ledger] ACK 9-pre — distinct cleared
+[ledger] DECLINE 9b — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(9b, decline)
+[ledger] ISSUER 9b — decline (retry)
+  new declines: 1
+  issuerAttempts=5
+```
+
+DECLINE pulse count for this step is **1**. The retry is issuer
+I/O, not a second Receptor fire.
+
+---
+
+### Step 10 — STEP-UP 60000, ACK as approve, placeHold
+
+**Lesson:** TissueValue + TissueMap. Decision and debit are
+separate moments.
+
+**Drive**
+
+```dart
+h.setAmount(60000);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: 'H-1');
+await h.ack('H-1');
+final ok10 = h.placeHold('H-1', 60000, 'M-4419');
+```
+
+**What fires**
+
+- `riskOf` → `stepUp` (60000 CNP 5411). STEP-UP observer appends
+  `STEP-UP H-1`.
+- ACK clears Distinct and appends `ACK H-1`.
+- `placeHold` v1 protocol:
+  1. NSF check: 250000 ≥ 60000.
+  2. `holdsMap['H-1'] = Hold(...)`.
+  3. `available.set(190000)` — print `[available]`.
+  4. `held.set(60000)` — print `[held]`.
+  5. `ledger.add(HOLD H-1)`.
+
+**Must print**
+
+```text
+── 10 ── STEP-UP 60000, ACK as approve, placeHold
+[ledger] STEP-UP H-1 — amount=60000¢ CNP
+[ledger] ACK H-1 — distinct cleared
+[available] 250000 → 190000
+[held] 0 → 60000
+[ledger] HOLD H-1 — 60000¢
+  placeHold ok=true
+  available=190000 held=60000 openHolds=1
+```
+
+Invariant: 190000 + 60000 + 0 = 250000.
+
+**Must not happen**
+
+- `riskOf` must not call `placeHold`.
+- `available` must not move during the STEP-UP pulse itself —
+  only inside `placeHold` after ACK.
+
+---
+
+### Step 11 — placeHold(200000) while 10 is open (NSF)
+
+**Lesson:** non-negative / NSF guard. No orphan map row.
+
+**Drive**
+
+```dart
+final ok11 = h.placeHold('H-2', 200000, 'M-4419');
+```
+
+**What fires**
+
+- `available` is 190000 < 200000 → `placeHold` returns `false`
+  **before** writing the map.
+- `openHolds` stays 1 (`H-1` only).
+
+**Must print**
+
+```text
+── 11 ── placeHold(200000) while 10 is open
+  placeHold ok=false openHolds stayed=true
+```
+
+No `[available]`, no `[held]`, no `HOLD H-2` row.
+
+---
+
+### Step 12 — capture the 60000 hold
+
+**Lesson:** capture ≠ second debit. Cents leave `held` into
+`capturedCents`. `available` does not move.
+
+**Drive**
+
+```dart
+final ok12 = h.capture('H-1');
+```
+
+**What fires**
+
+1. Look up `holdsMap['H-1']`.
+2. Remove the map row.
+3. `held.set(0)` — print `[held] 60000 → 0`.
+4. `capturedCents += 60000`.
+5. `ledger.add(CAPTURE H-1)`.
+
+**Must print**
+
+```text
+── 12 ── capture the 60000 hold
+[held] 60000 → 0
+[ledger] CAPTURE H-1 — 60000¢
+  capture ok=true
+  available=190000 held=0 openHolds=0 captured=60000
+```
+
+Invariant: 190000 + 0 + 60000 = 250000.
+
+---
+
+### Step 13 — new 10000 hold then voidHold
+
+**Lesson:** compensate on Tissue. Void returns cents from `held`
+to `available`. Sale was never captured.
+
+**Drive**
+
+```dart
+final ok13a = h.placeHold('H-3', 10000, 'M-4419');
+final ok13b = h.voidHold('H-3');
+```
+
+**What fires**
+
+- `placeHold('H-3', 10000)`:
+  - `[available] 190000 → 180000`
+  - `[held] 0 → 10000`
+  - `[ledger] HOLD H-3 — 10000¢`
+- `voidHold('H-3')`:
+  - remove map row
+  - `[held] 10000 → 0`
+  - `[available] 180000 → 190000`
+  - `[ledger] VOID H-3 — 10000¢`
+  - `capturedCents` unchanged at 60000
+
+**Must print**
+
+```text
+── 13 ── new 10000 hold then voidHold
+[available] 190000 → 180000
+[held] 0 → 10000
+[ledger] HOLD H-3 — 10000¢
+[held] 10000 → 0
+[available] 180000 → 190000
+[ledger] VOID H-3 — 10000¢
+  placeHold ok=true voidHold ok=true
+  available=190000 held=0 openHolds=0
+```
+
+Invariant: 190000 + 0 + 60000 = 250000.
+
+---
+
+### COMPLY — auditor.add blocked; length == ledger.length
+
+**Lesson:** `ledger.unmodifiable` is a live, zero-copy deputy.
+Writes are blocked (throw **or** silent swallow). Reads share
+storage.
+
+**Drive**
+
+```dart
+final auditor = h.ledger.unmodifiable;
+final ledgerBefore = h.ledger.length;
+auditor.add(LedgerEntry(kind: 'HACK', ...));
+blocked = h.ledger.length == ledgerBefore; // or catch
+```
+
+**What fires**
+
+- `auditor.add` must not grow `ledger`.
+- `auditor.length == ledger.length` after the attempt (17).
+
+**Must print**
+
+```text
+── COMPLY ── auditor.add(...) blocked; length == ledger.length
+  auditor.add blocked=true
+  auditor.length=17 ledger.length=17
+```
+
+17 rows in the last good run:
+
+| Kind | Count | Auth ids |
+|---|---|---|
+| DECLINE | 4 | 2, 3b, 7, 9b |
+| ISSUER | 4 | same four |
+| STEP-UP | 2 | SU-1, H-1 |
+| ACK | 3 | 6, 9-pre, H-1 |
+| HOLD | 2 | H-1, H-3 |
+| CAPTURE | 1 | H-1 |
+| VOID | 1 | H-3 |
+
+---
+
+### Trailer
+
+**Must print**
+
+```text
+------------------------------------------------------------------------
+attempts=13 declines=4 stepUps=2 ledger=17 issuerAttempts=5
+available=190000 held=0 openHolds=0 captured=60000
+auditorLength=17 (same as ledger)
+invariant available+held+captured = 250000 (expected 250000)
+------------------------------------------------------------------------
+```
+
+Then `h.dispose()` stops every observer attached in `install`.
 
 ---
 
@@ -427,7 +1146,7 @@ Teach the two locks.
 | No 10–15 s “finger on glass” | `Debounce` / `Throttle` in front of `attemptIn` |
 | Joint commit across tissues | `Cell.transaction` spanning TissueValues when the API allows |
 | Settlement batch | `BufferTime` overnight **or** drain `TissueQueue` on a timer |
-| Multi-currency | TestCell on ISO-4217 + FX `TissueMap` |
+| Multi-currency | `TestCell` on ISO-4217 **ingress**; `TestTissue` on the FX `TissueMap` |
 | Scheme STIP / partial auth | third Receptor + extra Decision |
 | Persistent books | same Tissue API in front of a store; demo stays in-process |
 
@@ -458,6 +1177,10 @@ Deputy stays the **compliance screen**.
 9. File header diagram matches this document.
 10. No Dart `List<LedgerEntry>` is the system of record. A local
     `List` used only to format the trailer is allowed.
+11. Every `TissueList` / `TissueSet` / `TissueMap` / `TissueQueue` /
+    `TissueValue` / `.deputy(` constructed in the demo passes
+    `TestTissue` (or omits the argument and takes `TestTissue.allowAll`).
+    Grep must show **zero** `testRule: TestCell` on those calls.
 
 ---
 
@@ -466,7 +1189,7 @@ Deputy stays the **compliance screen**.
 | Artifact | Name |
 |---|---|
 | This requirement / walkthrough | `card-auth-pipeline(tissue)-WalkThrough.md` |
-| Demo to implement next | `card-auth-pipeline(tissue)-Demo.dart` |
+| Working demo | `card-auth-pipeline(tissue)-Demo.dart` |
 | Flow-only sibling (already written) | `card-auth-pipeline(enhanced)-WalkThrough.md` |
 
 Same pairing style as `ICU-alarm-pipeline(enhanced)-*`.

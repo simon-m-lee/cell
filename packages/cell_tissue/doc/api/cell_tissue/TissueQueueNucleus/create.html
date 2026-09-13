@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueQueueNucleus-class.html">TissueQueueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">create&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt; static method</li>
   </ol>
@@ -63,6 +63,7 @@
 <li><span class="parameter" id="create-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
 <li><span class="parameter" id="create-param-container"><span class="type-annotation"><a href="../../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span></li>
 <li><span class="parameter" id="create-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="create-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="create-param-forceLock"><span class="type-annotation">dynamic</span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="create-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
@@ -133,18 +134,20 @@ tissue types.</p>
 
   Container? container,
   Record? user,
+  EphemeralPolicy? ephemeralPolicy,
   forceLock = false,
   TissueQueueNucleusBase&lt;E,C&gt;? principal
 }) {
 
   if (principal != null) {
     final local = TissueNucleusBase.local&lt;E,Queue&lt;E&gt;,C&gt;(
-      container: container,
-      bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
-      others: capacity != null ? (capacity: capacity) : null
+        container: container,
+        bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        ephemeralPolicy: ephemeralPolicy,
+        others: capacity != null ? (capacity: capacity) : null
     );
     return _TissueQueueNucleus&lt;E,C&gt;.fromRecord(
-        record: (mask: local, principal: principal)
+        (local: local, principal: principal)
     );
   }
 
@@ -157,6 +160,7 @@ tissue types.</p>
       testRule: testRule ?? TestTissue.allowAll,
       synapses: synapses ?? Synapses.enabled,
       user: user,
+      ephemeralPolicy: ephemeralPolicy,
       forceLock: forceLock
   );
 
@@ -188,7 +192,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

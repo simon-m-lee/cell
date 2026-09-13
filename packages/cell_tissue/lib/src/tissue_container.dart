@@ -108,7 +108,7 @@ class ValueContainer<V> extends IterableBase<V> {
 /// - The same container class can power diverse collection types (Lists,
 ///   Sets, Maps, Queues) by swapping the strategy.
 /// - When a [Cell] is added to the container, it automatically establishes a
-///   reactive [link] between the element and the owning [Tissue]. This enables
+///   reactive `link` between the element and the owning [Tissue]. This enables
 ///   "Member‑Level Bubbling," where changes inside a nested cell trigger the
 ///   principal collection's observers.
 /// - Operations are designed to be invoked within the synchronisation [Lock]
@@ -178,7 +178,7 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
   /// of whether the underlying storage is a specialized Map-view, a singleton
   /// value, or a standard list, it can always be traversed and projected through
   /// the [Tissue] interface.
-  late final I store;
+  late final dynamic store;
 
   final _Container _type;
 
@@ -204,7 +204,7 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
   /// ### Returns:
   /// An iterator over the elements in the store.
   @override
-  Iterator<E> get iterator => store.iterator;
+  Iterator<E> get iterator => (store as Iterable).map((e) => e as E).iterator;
 
   /// Commits the initial state and allocates the physical [store] for the tissue.
   ///
@@ -218,25 +218,29 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
   /// construction or when the collection is first used.
   ///
   /// ### How it works
-  /// - It processes the optional [initialisation] payload, which can be a raw
+  /// - It processes the optional [initialization] payload, which can be a raw
   ///   [Iterable], a [Map], or a scalar value depending on the [store] type [I].
   /// - It invokes the `_init` closure defined in the container's [_type] strategy.
   /// - The [store] is assigned exactly once; subsequent calls are no‑ops.
   ///
   /// ### Non‑obvious
-  /// - The [initialisation] parameter is polymorphic – it can be an `Iterable`,
+  /// - The [initialization] parameter is polymorphic – it can be an `Iterable`,
   ///   a `Map`, or a single value, depending on the storage strategy.
   /// - If the store was already initialised (e.g., by the [iterator] lazy path),
   ///   this method safely returns the existing instance.
   ///
   /// ### Parameters:
-  /// - [initialisation]: Optional data used to populate the collection.
+  /// - [initialization]: Optional data used to populate the collection.
   ///
   /// ### Returns:
   /// The newly allocated and populated [store] instance of type [I].
   @override
-  I init([initialization]) {
-    return store = _init<E>(initialization);
+  init([initialization]) {
+    try {
+      return store;
+    } catch (_) {
+      return store = _init<E>(initialization);
+    }
   }
 
   /// Attempts to physically insert an element [e] into the underlying [store]
@@ -331,6 +335,53 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
 
   /// Gets the remove function from the configured [_type].
   Function get _remove => _type._remove;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    final s = store;
+    if (other is TissueContainer) {
+      return _contentEquals(s, other.store);
+    }
+    if (other is Iterable) {
+      return _contentEquals(s, other);
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => _contentHash(store);
+
+  static bool _contentEquals(Iterable a, Iterable b) {
+    if (identical(a, b)) {
+      return true;
+    }
+    final ia = a.iterator;
+    final ib = b.iterator;
+    while (true) {
+      final hasA = ia.moveNext();
+      final hasB = ib.moveNext();
+      if (hasA != hasB) {
+        return false;
+      }
+      if (!hasA) {
+        return true;
+      }
+      if (ia.current != ib.current) {
+        return false;
+      }
+    }
+  }
+
+  static int _contentHash(Iterable s) {
+    var hash = 0x1fffffff;
+    for (final element in s) {
+      hash = (hash * 31 + element.hashCode) & 0x3fffffff;
+    }
+    return hash;
+  }
 
   @override
   String toString() => 'TissueContainer[$I]: $store';
@@ -620,11 +671,11 @@ abstract interface class Container {
   ///
   /// ### How it works
   /// - Delegates to the strategy's `create` function.
-  /// - The [initialisation] parameter is passed along.
+  /// - The [initialization] parameter is passed along.
   ///
   /// ### Returns:
   /// The newly allocated storage instance.
-  init([initialization]);
+  Iterable init([dynamic initialization]);
 
   /// Attempts to physically insert an element [e] into the underlying storage.
   ///
@@ -744,8 +795,8 @@ abstract interface class Container {
   // Iterable
   static Iterable<E> _iterableCreate <E>([Iterable? elements]) {
     return elements != null
-        ? Iterable<E>.generate(elements.length, (i) => elements.elementAt(i))
-        : Iterable<E>.empty();
+        ? List<E>.of(elements as Iterable<E>)
+        : <E>[];
   }
   static bool _iterableAdd <E>(Tissue<E> tissue, Iterable<E> store, E e) => false;
   static bool _iterableRemove <E>(Tissue<E> tissue, Iterable<E> store, E e) => false;
@@ -816,40 +867,30 @@ abstract interface class Container {
   }
 
   // Map
-  // ignore: strict_top_level_inference
-  static Map<K,V> _mapCreate <K,V>([init]) {
-    if (init is Map<K,V>) {
-      return Map<K,V>.of(init);
-    } else if (init is Iterable<MapEntry<K,V>>) {
-      return Map<K,V>.fromEntries(init);
+  static MapStore<Object?,V> _mapCreate <V>([dynamic init]) {
+    if (init is Map) {
+      return MapStore<Object?,V>(Map<Object?,V>.fromEntries(
+          init.entries.map((e) => MapEntry<Object?,V>(e.key, e.value as V))));
+    } else if (init is Iterable<MapEntry>) {
+      return MapStore<Object?,V>(Map<Object?,V>.fromEntries(
+          init.cast<MapEntry>().map((e) => MapEntry<Object?,V>(e.key, e.value as V))));
     }
-    return <K,V>{};
+    return MapStore<Object?,V>(<Object?,V>{});
   }
 
-  // ignore: strict_top_level_inference
-  static Map<K,V> _identityMapCreate <K,V>([init]) {
-    if (init is Map<K,V>) {
-      return init;
-    } else if (init is Iterable<MapEntry<K,V>>) {
-      return Map<K,V>.identity()..addEntries(init);
+  static MapStore<Object?,V> _identityMapCreate <V>([dynamic init]) {
+    final map = Map<Object?,V>.identity();
+    if (init is Map) {
+      map.addEntries(init.entries.map((e) => MapEntry<Object?,V>(e.key, e.value as V)));
+    } else if (init is Iterable<MapEntry>) {
+      map.addEntries(init.cast<MapEntry>().map((e) => MapEntry<Object?,V>(e.key, e.value as V)));
     }
-    return Map<K,V>.identity();
+    return MapStore<Object?,V>(map);
   }
 
-  static bool _mapAdd <K,V>(TissueMap<K,V> tissue, Map<K,V> container, V v) {
-    if (v is K && !container.containsKey(v)) {
-      container[v] = v;
-      return true;
-    }
-    return false;
-  }
+  static bool _mapAdd <V>(Tissue<V> tissue, MapStore<Object?,V> container, V v) => false;
 
-  static bool _mapRemove <K,V>(TissueMap<K,V> tissue, Map<K,V> container, V v) {
-    if (v is K && container[v] == v) {
-      container.remove(v);
-      return true;
-    }
-    return false;
-  }
+  static bool _mapRemove <V>(Tissue<V> tissue, MapStore<Object?,V> container, V v) => false;
 
 }
+

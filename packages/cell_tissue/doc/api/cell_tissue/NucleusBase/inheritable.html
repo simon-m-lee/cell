@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">inheritable property</li>
   </ol>
@@ -87,7 +87,7 @@ record that can be shared across multiple nuclei.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 InheritableHandle get inheritable {
-  return (bind: bind, context: context, receptor: receptor, testRule: testRule, ephemeralPolicy: _ephemeralPolicy);
+  return (bind: bind, context: context, receptor: receptor, testRule: testRule, ephemeralPolicy: _hostedEphemeralPolicy);
 }</code></pre>
 </section>
 
@@ -118,7 +118,7 @@ InheritableHandle get inheritable {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableMapAsync-class.html">ModifiableMapAsync<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">update method</li>
   </ol>
@@ -67,23 +67,14 @@
     
 <section class="desc markdown">
   <p>Asynchronously updates the value associated with <code>key</code>.</p>
-<p>This method wraps the synchronous <code>_tissue.update(key, update, ifAbsent: ifAbsent)</code>
-call in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.
-If <code>key</code> is present, its value is replaced by the result of calling <code>update</code> with the old value.
-If <code>key</code> is not present and <code>ifAbsent</code> is provided, <code>ifAbsent</code> is called and its result is
-inserted into the map.
-If <code>key</code> is not present and <code>ifAbsent</code> is not provided, a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> (or similar, depending on
-the underlying map implementation) is typically thrown by the synchronous operation, which
-would cause the Future to complete with an error.</p>
-<p>Parameters:</p>
+<h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>key</code>: The key whose associated value is to be updated.</li>
 <li><code>update</code>: A function that computes the new value from the old value.</li>
-<li><code>ifAbsent</code>: Optional. A function that computes a value if <code>key</code> is not present.
-If provided and <code>key</code> is absent, the result of <code>ifAbsent</code> is added to the map.</li>
+<li><code>ifAbsent</code>: Optional. A function that computes a value if <code>key</code> is not present.</li>
 </ul>
-<p>Returns:
-A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;V&gt;</a> that completes with the new value associated with <code>key</code>.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;V&gt;</a> that completes with the new value associated with <code>key</code>.</p>
 </section>
 
 
@@ -120,7 +111,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&l
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

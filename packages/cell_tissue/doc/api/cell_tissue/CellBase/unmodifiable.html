@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CellBase-class.html">CellBase</a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -77,28 +77,57 @@
 Encapsulation</strong> architecture. It implements the <strong>Deputy Pattern</strong>,
 providing a mechanism to expose a cell's state and reactivity to
 downstream observers while strictly prohibiting the authority to
-trigger state transitions or structural modifications.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to give read‑only access to a cell – e.g. to a
-UI widget, a logger, or an external plugin.</p>
-<h3 id="how-it-works">How it works</h3>
+emit state transitions or structural modifications.</p>
+<h3 id="relationship-with-modifiable">Relationship with <a href="../../cell_tissue/CellBase/modifiable.html">modifiable</a></h3>
+<p>There is a direct inverse relationship between these two members:</p>
 <ul>
-<li>Returns a deputy with <code>testRule = TestCell.readOnly</code> (blocks mutations).</li>
-<li>The deputy shares the same state, lock, and synapses as the principal.</li>
+<li><strong><a href="../../cell_tissue/CellBase/modifiable.html">modifiable</a></strong>: Represents the <strong>Capability Manifest</strong>—the whitelist
+of functions authorized to mutate the cell via <a href="../../cell_tissue/CellBase/apply.html">apply</a>.</li>
+<li><strong><a href="../../cell_tissue/CellBase/unmodifiable.html">unmodifiable</a></strong>: Returns a new <a href="../../cell_tissue/Cell-class.html">Cell</a> handle where the <a href="../../cell_tissue/CellBase/modifiable.html">modifiable</a>
+list is effectively <strong>shadowed and emptied</strong>. Even if the principal
+cell defines authorized mutations, the deputy produced by this getter
+strips away that authority, ensuring <a href="../../cell_tissue/CellBase/apply.html">apply</a> will always fail.</li>
 </ul>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this to follow the <strong>Principle of Least Privilege</strong>. Pass an
+<code>unmodifiable</code> handle to UI components, logging services, or external
+plugins that need to react to state changes but should never be allowed
+to trigger them.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Integrity Gate Override</strong>: The deputy is initialized with
+<a href="../../cell_tissue/TestCell/readOnly-constant.html">TestCell.readOnly</a>, which automatically rejects all incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a>s.</li>
+<li><strong>State Sharing</strong>: The deputy shares the exact same underlying state,
+lock, and <a href="../../cell_tissue/Synapses-class.html">Synapses</a> as the principal cell, ensuring zero-latency
+reactivity without memory duplication.</li>
+<li><strong>Capability Stripping</strong>: The deputy’s <a href="../../cell_tissue/CellBase/modifiable.html">modifiable</a> getter is
+hardcoded to return an empty iterable, removing all entry points for
+the dynamic command pattern.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The deputy's <code>apply</code> method is disabled (modifiable is empty).</li>
-<li>It is still reactive – changes to the principal are reflected.</li>
+<li><strong>Identity Logic</strong>: While the deputy is a different object instance, it
+maintains logical identity with the principal for structural comparisons.</li>
+<li><strong>Reactivity Flow</strong>: The deputy remains a fully functional reactive
+node; it simply acts as an "Egress-Only" valve in the topology.</li>
 </ul>
-<h3 id="example-read-only-ui-view">Example: Read-Only UI View</h3>
-<pre class="language-dart"><code class="language-dart">final dataCell = Cell.value&lt;int&gt;(value: 42);
-final readOnly = dataCell.unmodifiable;
-MyWidget(data: readOnly);
+<h3 id="example-encapsulating-domain-logic">Example: Encapsulating Domain Logic</h3>
+<pre class="language-dart"><code class="language-dart">class UserAccount {
+  // The internal, private state that allows mutations
+  final Cell&lt;int&gt; _balance = Cell.state(value: 100);
+
+  // Expose only the unmodifiable deputy to the UI
+  Cell&lt;int&gt; get balance =&gt; _balance.unmodifiable;
+
+  void deposit(int amount) {
+    // Only the owner of the private _balance can call apply
+    _balance.apply((val) =&gt; val + amount);
+  }
+}
 </code></pre>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> instance representing a read-only projection of the current
-  node, effectively disabling all mutating operations.</p>
+node, with a nullified <a href="../../cell_tissue/CellBase/modifiable.html">modifiable</a> manifest.</p>
 </section>
 
     
@@ -135,7 +164,7 @@ Cell get unmodifiable =&gt; this;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

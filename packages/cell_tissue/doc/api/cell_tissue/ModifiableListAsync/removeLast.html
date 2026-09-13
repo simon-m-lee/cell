@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">removeLast method</li>
   </ol>
@@ -62,24 +62,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes and returns the last element of this list.
-The list must be non-empty and modifiable.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/removeLast.html">TissueList.removeLast</a>. The <code>Future</code> completes with the removed element
-if successful. Otherwise, it completes with an error.</p>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.
-  Similar to <code>removeAt</code>, the current wrapper returns <code>Future&lt;void&gt;</code>.</p>
+  <p>Asynchronously removes and returns the last element in the list.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeLast() async {
-  &#47;&#47; Original code returns Future&lt;void&gt;. If Future&lt;E&gt; is desired for the removed element:
-  &#47;&#47; return Future&lt;E&gt;(() =&gt; _tissue.removeLast());
-  return Future&lt;void&gt;(() =&gt; _tissue.removeLast());
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeLast() =&gt; Future&lt;void&gt;(() =&gt; _tissue.removeLast());</code></pre>
 </section>
 
 
@@ -107,7 +97,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">TissueMapNucleus.evolve factory constructor</li>
   </ol>
@@ -59,6 +59,7 @@
 <li><span class="parameter" id="evolve-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../cell_tissue/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span></li>
 <li><span class="parameter" id="evolve-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter"><a href="../../cell_tissue/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span></li>
 <li><span class="parameter" id="evolve-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span></li>
+<li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-override"><span class="type-annotation"><a href="../../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">override</span>, </span></li>
 <li><span class="parameter" id="evolve-param-principal"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/TissueMapNucleus-class.html">TissueMapNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
@@ -131,6 +132,8 @@ behavioral layer over the <code>principal</code>.</p>
   TestTissue&lt;V,TissueMap&lt;K, V&gt;&gt;? testRule,
   Synapses? synapses,
 
+  EphemeralPolicy? ephemeralPolicy,
+
   TissueMapNucleus&lt;K,V&gt;? override,
   required TissueMapNucleus&lt;K,V&gt; principal
 }) = _TissueMapNucleus&lt;K,V,TissueMap&lt;K,V&gt;&gt;.evolve;</code></pre>
@@ -161,7 +164,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

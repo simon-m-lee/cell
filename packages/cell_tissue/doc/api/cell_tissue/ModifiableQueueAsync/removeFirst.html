@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableQueueAsync-class.html">ModifiableQueueAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">removeFirst method</li>
   </ol>
@@ -66,8 +66,8 @@
 <p>The provided code snippet for this method within the <code>ModifiableQueueAsync</code> class
 shows it throwing an <code>UnsupportedError</code>. A typical modifiable implementation would wrap
 <code>_tissue.removeFirst()</code>, which itself would throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the queue is empty.</p>
-<p>Returns:
-A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the front of the queue.
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;E&gt;</a> that completes with the element removed from the front of the queue.
   It will complete with an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> if the operation is not supported by this
   async wrapper. If it were a modifiable wrapper, the Future could complete with a
   <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if the underlying queue is empty.</p>
@@ -78,7 +78,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&l
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;E&gt; removeFirst() {
-  return Future&lt;E&gt;(() =&gt; throw UnsupportedError(&#39;Unmodifiable operation&#39;));
+  return Future&lt;E&gt;(() =&gt; _tissue.removeFirst());
 }</code></pre>
 </section>
 
@@ -107,7 +107,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&l
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

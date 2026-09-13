@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">cell property</li>
   </ol>
@@ -69,13 +69,22 @@
 <section class="desc markdown">
   <p>The host <a href="../../cell_tissue/Cell-class.html">Cell</a> instance that this receptor is currently serving.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You rarely need this directly – the framework uses it internally to
-provide cell context to the receptor logic.</p>
+<p>This is the primary way for transformation logic to access <strong>Host
+Context</strong>. Use it inside custom instructions to read the current
+state of the cell or to access its metadata.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>It returns a reference to the <a href="../../cell_tissue/Cell-class.html">Cell</a> that successfully called
+<a href="../../cell_tissue/Receptor/activate.html">activate</a> on this receptor.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>This getter is only valid when <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a> is <code>true</code>.</li>
-<li>Accessing it on a template receptor throws an error.</li>
+<li><strong>Late-Bound Property</strong>: Accessing this getter before <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a>
+is <code>true</code> will throw a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a>.</li>
+<li><strong>Type Integrity</strong>: The returned cell is guaranteed to match the
+generic type <code>C</code> specified during the receptor's construction,
+ensuring compile-time safety for host-specific logic.</li>
 </ul>
+<h3 id="returns">Returns:</h3>
+<p>The host cell instance.</p>
 </section>
 
     
@@ -111,7 +120,7 @@ provide cell context to the receptor logic.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

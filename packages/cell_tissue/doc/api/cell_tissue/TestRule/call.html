@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -71,69 +71,68 @@
 Enforcement</strong> and <strong>Integrity Gate</strong> resolution. It evaluates a stimulus
 (<code>object</code>)—typically a <code>payload</code> or a state transition—against the
 governing invariants.</p>
-<h3 id="developer-ergonomics--human-legibility">Developer Ergonomics &amp; Human Legibility</h3>
-<p>Developers typically don't call this directly. The framework invokes it
-automatically during validation. However, it can be called manually for
-testing:</p>
-<pre class="language-dart"><code class="language-dart">final rule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  return object &gt; 0;
-});
-
-final result = await rule.call(5); // true
-final result2 = await rule.call(-1); // false
-</code></pre>
-<h3 id="1-hybrid-convergence-syncasync-orchestration">1. Hybrid Convergence: Sync/Async Orchestration</h3>
-<p>To support high-performance reactive waves alongside complex security
-checks (like database lookups or remote authority verification), the
-method returns <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>:</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Synchronous Path</strong>: For standard invariants (e.g., range checks),
-it returns <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> immediately, allowing the reactive wave to
-complete within the current call stack at <strong>Native Speed</strong>.</li>
-<li><strong>Asynchronous Path</strong>: For I/O-bound logic, it returns a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>,
-safely suspending the node's <strong>Conactive Lock</strong> until validation
-is complete.</li>
+<li><strong>Framework Orchestration</strong>: Automatically invoked by the <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> or
+<a href="../../cell_tissue/TestCell-class.html">TestCell</a> whenever a state update is proposed.</li>
+<li><strong>Unit Testing</strong>: Manually trigger validation logic to verify business
+rules in isolation without mounting a full reactive graph.</li>
+<li><strong>Custom Validation</strong>: Invoke within custom <a href="../../cell_tissue/Modifiable-class.html">Modifiable</a> implementations
+to gate internal state transitions.</li>
 </ul>
-<h3 id="2-operational-pipeline">2. Operational Pipeline</h3>
+<h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Predicate Evaluation</strong>: Executes the primary validation logic.
-If the result is a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, the method transitions into
-an asynchronous mode for the remainder of the validation.</li>
-<li><strong>Short-Circuit Logic</strong>: If this rule is part of a composite chain,
-execution halts immediately if any segment returns <code>false</code>.</li>
-<li><strong>Fail-Safe Resilience</strong>: To ensure <strong>Operational Resilience</strong>,
-unhandled exceptions within a validator are caught and treated as
-<code>true</code> (Pass). This prevents a faulty validator from paralyzing
-the <strong>System</strong>.</li>
-<li><strong>Hierarchical Delegation</strong>: If all local conditions pass, the
-evaluation is delegated to the parent ancestor in the inheritance chain.</li>
+<li><strong>Predicate Evaluation</strong>: Executes the primary validation logic. If
+defined as a composite, it evaluates the local rule first.</li>
+<li><strong>Short-Circuit Logic</strong>: If this rule is part of a pipeline (via <code>+</code>),
+execution stops immediately if any segment returns <code>false</code>.</li>
+<li><strong>Hierarchical Delegation</strong>: If local checks pass, the evaluation is
+propagated to the parent ancestor in the inheritance chain, ensuring
+global invariants are maintained.</li>
+<li><strong>Hybrid Convergence</strong>: Supports <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a>. Synchronous checks
+complete at native speed, while asynchronous checks (e.g., DB lookups)
+safely suspend the reactive wave until completion.</li>
 </ol>
-<h3 id="3-example-testing-validation">3. Example: Testing Validation</h3>
-<pre class="language-dart"><code class="language-dart">final rule = TestRule&lt;int&gt;((object, {host, arguments, user}) {
-  return object &gt;= 0 &amp;&amp; object &lt;= 100;
-});
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fail-Safe Resilience</strong>: Unhandled exceptions within a validator are
+caught by the framework and treated as a <strong>Pass</strong> (<code>true</code>) to prevent
+a single faulty rule from paralyzing the reactive system.</li>
+<li><strong>Execution Context</strong>: The <code>host</code> and <code>arguments</code> parameters provide
+causal metadata, allowing rules to make decisions based on <em>who</em> or
+<em>what</em> triggered the update.</li>
+<li><strong>Atomicity</strong>: When called via a <a href="../../cell_tissue/Cell-class.html">Cell</a>, this method is automatically
+protected by the node's conactive lock.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ageRule = TestRule&lt;int&gt;((val, {host, arguments, user}) =&gt; val &gt;= 18);
 
-// Sync test
-expect(await rule.call(50), isTrue);
-expect(await rule.call(150), isFalse);
+// Synchronous manual check
+final canEnter = await ageRule.call(21); // returns true
 
-// Async test
-final asyncRule = TestRule&lt;int&gt;((object, {host, arguments, user}) async {
-  await Future.delayed(Duration.zero);
-  return object &gt;= 0;
+// Asynchronous check (e.g., verifying against a database)
+final userRule = TestRule&lt;String&gt;((name, {host, arguments, user}) async {
+  return await db.userExists(name);
 });
-expect(await asyncRule.call(5), isTrue);
+final exists = await userRule.call('Simon');
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>object</code>: The data, action, or payload being validated.</li>
-<li><code>host</code>: The host environment (typically a <a href="../../cell_tissue/Cell-class.html">Cell</a>) providing
-context for cross-field validation.</li>
-<li><code>arguments</code>: Optional metadata or execution parameters from the <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+<li><code>object</code>: <strong>The Stimulus.</strong> The data, payload, or proposed state change
+being validated.</li>
+<li><code>host</code>: <strong>The Operational Authority.</strong> The <a href="../../cell_tissue/Cell-class.html">Cell</a> or container that
+owns the state being modified.</li>
+<li><code>arguments</code>: <strong>Forensic Metadata.</strong> Optional context or payload details
+derived from the original <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p><code>true</code> if all validation criteria are met; <code>false</code> if the operation
-is rejected by policy.</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr&lt;bool&gt;</a> where <code>true</code> indicates the operation is <strong>Accepted</strong>
+by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/TestRule/TestRule.chain.html">TestRule.chain</a>: For building multi-stage validation pipelines.</li>
+<li><a href="../../cell_tissue/TestCell-class.html">TestCell</a>: The primary engine for applying these rules to cells.</li>
+</ul>
 </section>
 
 
@@ -203,7 +202,7 @@ is rejected by policy.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

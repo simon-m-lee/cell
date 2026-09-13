@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">EvolvedPulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">EvolvedPulseBase</div>
@@ -55,47 +55,38 @@
 
     
 <section class="desc markdown">
-  <p>The abstract base class for an <strong>Evolved Pulse</strong> – a pulse that has been
-derived from a previous pulse through a transformation step.</p>
-<p>An Evolved Pulse is created via the <a href="../cell_tissue/PulseBase/evolve.html">evolve</a> method and represents a
-causal chain where each pulse links back to its <a href="../cell_tissue/EvolvedPulseBase/parent.html">parent</a>. This is
-distinct from a <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> (created by <code>+</code> or <code>Pulse.batch</code>) which
-is a flat bundle of independent pulses.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You never create this directly. Use <a href="../cell_tissue/Pulse/evolve.html">Pulse.evolve</a> or <a href="../cell_tissue/PulseBase/withStep.html">withStep</a>.
-This class exists to provide the abstract contract for evolved pulses.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>This class is used internally when you call <a href="../cell_tissue/PulseBase/evolve.html">evolve</a> or <a href="../cell_tissue/PulseBase/withStep.html">withStep</a>.
-You never instantiate it directly.</p>
+  <p>The abstract base class for <a href="../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> implementations.</p>
+<p>An <a href="../cell_tissue/EvolvedPulseBase-class.html">EvolvedPulseBase</a> is the internal engine that builds causal chains.
+Each evolved pulse links back to its parent, preserving the signal's
+lineage without duplicating data. This is how the framework maintains
+full provenance with minimal memory overhead.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li>The evolved pulse establishes a parent-child relationship with its
-<a href="../cell_tissue/EvolvedPulseBase/parent.html">parent</a> pulse.</li>
-<li>The <a href="../cell_tissue/PulseBase/payload.html">payload</a> is inherited from the root.</li>
-<li>The <a href="../cell_tissue/EvolvedPulseBase/isComposite.html">isComposite</a> property returns <code>true</code>.</li>
-<li>The <a href="../cell_tissue/PulseBase/trace.html">trace</a> accumulates steps from all ancestors.</li>
-<li>The <code>branches</code> counter tracks completion for callback firing.</li>
+<li>Extends <code>_Pulse</code> and implements <a href="../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a>.</li>
+<li>Overrides <code>isComposite</code> to return <code>true</code>, marking this as a chain.</li>
+<li>Provides the <code>parent</code> getter that returns the immediate ancestor.</li>
+<li>Builds a flattened list of all pulses in the chain for iteration.</li>
+<li>The payload is inherited from the last pulse in the chain.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>Unlike a <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>, an Evolved Pulse preserves causal lineage:
-<code>evolved.parent == previousPulse</code> and <code>evolved.root == previousPulse.root</code>.</li>
-<li>The <code>trace</code> includes steps from all pulses in the chain.</li>
-<li>When you call <a href="../cell_tissue/PulseBase/evolve.html">evolve</a> on an evolved pulse, it creates a new evolved
-pulse with the updated context/step, preserving the parent-child
-relationships.</li>
-</ul>
-<h3 id="example-internal">Example (Internal)</h3>
-<pre class="language-dart"><code class="language-dart">final root = Pulse&lt;int&gt;(42);
-final evolved = root.evolve(step: 'validation');
-// evolved.parent == root
-// evolved.payload == 42
+<h3 id="nonobvious-evolution-is-not-mutation">Non‑obvious: evolution is not mutation</h3>
+<p>When you call <a href="../cell_tissue/Pulse/evolve.html">Pulse.evolve</a>, you get a <em>new</em> pulse that points to the old
+one. The old pulse is still there — unchanged, available for reference.
+This is why you can trace the entire lineage without copying data.</p>
+<h3 id="nonobvious-payload-is-inherited-not-copied">Non‑obvious: payload is inherited, not copied</h3>
+<p>The <code>payload</code> getter returns the payload of the last pulse in the chain.
+The data is inherited from the root — it's never duplicated. This is why
+causal chains are memory‑efficient even when they're dozens of steps long.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// You never create this directly — the framework does it for you:
+final root = Pulse(42);
+final evolved = root.withStep('validation');
+// evolved is an EvolvedPulseBase instance
 </code></pre>
 <p>See also:</p>
 <ul>
 <li><a href="../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> – the public interface.</li>
-<li><a href="../cell_tissue/Pulse/evolve.html">Pulse.evolve</a> – the method that creates Evolved Pulses.</li>
-<li><a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> – the flat bundle created by <code>+</code> or <code>Pulse.batch</code>.</li>
+<li><a href="../cell_tissue/Pulse/evolve.html">Pulse.evolve</a> – the method that creates evolved pulses.</li>
+<li><a href="../cell_tissue/Pulse/withStep.html">Pulse.withStep</a> – a convenience wrapper around <a href="../cell_tissue/PulseBase/evolve.html">evolve</a>.</li>
 </ul>
 </section>
 
@@ -123,6 +114,11 @@ final evolved = root.evolve(step: 'validation');
 
 
         
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../cell_tissue/PulseExtension.html">PulseExtension</a></li>
+      <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
+  </ul></dd>
         
 
 
@@ -134,10 +130,10 @@ final evolved = root.evolve(step: 'validation');
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="EvolvedPulseBase.new" class="callable">
-          <span class="name"><a href="../cell_tissue/EvolvedPulseBase/EvolvedPulseBase.html">EvolvedPulseBase</a></span><span class="signature">({<span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-onComplete"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onComplete</span>, </span><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span><span class="parameter" id="-param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>?</span> <span class="parameter-name">parent</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/EvolvedPulseBase/EvolvedPulseBase.html">EvolvedPulseBase</a></span><span class="signature">({<span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-onComplete"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onComplete</span>, </span><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span><span class="parameter" id="-param-pulse"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">parent</span></span>})</span>
         </dt>
         <dd>
-          Creates a Composite Pulse with the given parameters.
+          Creates a new evolved pulse that extends a causal chain.
         </dd>
     </dl>
   </section>
@@ -190,7 +186,7 @@ final evolved = root.evolve(step: 'validation');
 
 </dt>
 <dd>
-  Indicates whether this pulse is a <strong>Multi-Message Bundle</strong> (Composite).
+  Indicates whether this pulse is a multi-message bundle (a collection).
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -214,8 +210,7 @@ final evolved = root.evolve(step: 'validation');
 
 </dt>
 <dd class="inherited">
-  Indicates whether this pulse is subject to a <strong>Governance Policy</strong> that
-regulates its transmission and processing.
+  Indicates whether this pulse is subject to explicit governance.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -227,8 +222,7 @@ regulates its transmission and processing.
 
 </dt>
 <dd class="inherited">
-  Indicates whether this message has reached its <strong>Terminal Lifecycle State</strong>
-and is no longer valid for processing.
+  Indicates whether this message has reached its terminal lifecycle state.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -245,15 +239,15 @@ and is no longer valid for processing.
 
 </dd>
 
-        <dt id="iterator" class="property inherited">
+        <dt id="iterator" class="property">
   <span class="name"><a href="../cell_tissue/EvolvedPulseBase/iterator.html">iterator</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterator-class.html">Iterator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span>&gt;</span></span>
   
 
 </dt>
-<dd class="inherited">
-  Returns an iterator over the sub‑pulses contained in this pulse.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+<dd>
+  Returns an iterator over the sub‑pulses in this pulse.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -283,7 +277,7 @@ and is no longer valid for processing.
 
         <dt id="parent" class="property">
   <span class="name"><a href="../cell_tissue/EvolvedPulseBase/parent.html">parent</a></span>
-  <span class="signature">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>
   
 
 </dt>
@@ -293,15 +287,15 @@ and is no longer valid for processing.
 
 </dd>
 
-        <dt id="payload" class="property inherited">
-  <span class="name"><a href="../cell_tissue/PulseBase/payload.html">payload</a></span>
+        <dt id="payload" class="property">
+  <span class="name"><a href="../cell_tissue/EvolvedPulseBase/payload.html">payload</a></span>
   <span class="signature">&#8594; P?</span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   Main payload.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -312,8 +306,7 @@ and is no longer valid for processing.
 
 </dt>
 <dd class="inherited">
-  The <strong>Lifecycle Governance Policy</strong> defining the operational boundaries
-and expiration constraints of this <a href="../cell_tissue/Pulse-class.html">Pulse</a>.
+  The lifecycle governance policy for this pulse.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -325,7 +318,7 @@ and expiration constraints of this <a href="../cell_tissue/Pulse-class.html">Pul
 
 </dt>
 <dd class="inherited">
-  The execution priority of this pulse (0-100, higher = more urgent).
+  The execution priority of this pulse (0‑100, higher = more urgent).
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -337,7 +330,7 @@ and expiration constraints of this <a href="../cell_tissue/Pulse-class.html">Pul
 
 </dt>
 <dd class="inherited">
-  The primordial ancestor that initiated this entire message lineage.
+  The primordial ancestor that initiated this pulse's causal lineage.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -361,7 +354,7 @@ and expiration constraints of this <a href="../cell_tissue/Pulse-class.html">Pul
 
 </dt>
 <dd class="inherited">
-  Returns a <strong>Defensive Proxy</strong> of this pulse, encapsulated in a <a href="../cell_tissue/PulseShell-class.html">PulseShell</a>.
+  Returns a <strong>Defensive Proxy</strong> of this pulse for untrusted receivers.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -433,8 +426,8 @@ and expiration constraints of this <a href="../cell_tissue/Pulse-class.html">Pul
 
 </dt>
 <dd class="inherited">
-  Returns a <strong>Read-Only Projection</strong> of this pulse, ensuring structural
-and data integrity.
+  Returns a read‑only projection of this pulse, ensuring structural and
+payload-level finality for the current propagation hop.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -444,7 +437,7 @@ and data integrity.
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -461,6 +454,58 @@ and data integrity.
 
 </dd>
 
+        <dt id="attach" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseExtension/attach.html">attach</a></span><span class="signature">(<wbr><span class="parameter" id="attach-param-context"><span class="type-annotation">dynamic</span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseExtension.html">PulseExtension</a> extension</span>
+      </p>
+  Returns a new version of this pulse with updated <code>context</code> metadata.
+  
+
+</dd>
+
+        <dt id="attach" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/attach.html">attach</a></span><span class="signature">(<wbr><span class="parameter" id="attach-param-context"><span class="type-annotation">dynamic</span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Returns a new collection of pulses, each with the provided <code>context</code>
+metadata attached.
+  
+
+</dd>
+
+        <dt id="batch" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/batch.html">batch</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Aggregates multiple signals into a single, flat <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>.
+  
+
+</dd>
+
         <dt id="cast" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span></span>
@@ -474,6 +519,23 @@ and data integrity.
 
 </dd>
 
+        <dt id="cast" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseExtension/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseExtension.html">PulseExtension</a> extension</span>
+      </p>
+  Re-casts the pulse payload to type <code>T</code> while maintaining causal history.
+  
+
+</dd>
+
         <dt id="compareTo" class="callable inherited">
   <span class="name"><a href="../cell_tissue/PulseBase/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -482,7 +544,7 @@ and data integrity.
 
 </dt>
 <dd class="inherited">
-  Compares this <a href="../cell_tissue/Pulse-class.html">Pulse</a> with another to determine their <strong>Causal and Temporal Order</strong>.
+  Compares this pulse with another to determine relative execution precedence.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -534,8 +596,7 @@ and data integrity.
 
 </dt>
 <dd class="inherited">
-  Creates a derived version of this pulse, adapted for the next stage of
-the processing chain.
+  Creates a derived version of this pulse for the next processing stage.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -563,6 +624,24 @@ the processing chain.
 <dd class="inherited">
   The first element that satisfies the given predicate <code>test</code>.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="flatten" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/flatten.html">flatten</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Recursively flattens any nested <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> structures into a
+sequence of simple pulses.
+  
 
 </dd>
 
@@ -633,15 +712,15 @@ element of the collection with an existing value
 </dd>
 
         <dt id="lineage" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/PulseBase/lineage.html">lineage</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="lineage-param-fieldGetter"><span class="type-annotation">dynamic</span> <span class="parameter-name">fieldGetter</span>, {</span><span class="parameter" id="lineage-param-fromPolicy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">fromPolicy</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span>
+  <span class="name"><a href="../cell_tissue/PulseBase/lineage.html">lineage</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="lineage-param-arg"><span class="type-annotation"><a href="../cell_tissue/LineageArgument.html">LineageArgument</a></span> <span class="parameter-name">arg</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Traverses the dependency chain to reconstruct the complete <strong>Execution Trace</strong>
-of the current signal.
+  Traverses the causal chain from the root ancestor to this pulse to
+reconstruct a historical timeline of values.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -656,6 +735,42 @@ of the current signal.
 <dd class="inherited">
   The current elements of this iterable modified by <code>toElement</code>.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="map" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseExtension/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-mapper"><span class="type-annotation">T</span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-payload"><span class="type-annotation">P</span> <span class="parameter-name">payload</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseExtension.html">PulseExtension</a> extension</span>
+      </p>
+  Transforms the payload of this pulse into a new type <code>T</code> while preserving
+its causal history.
+  
+
+</dd>
+
+        <dt id="mapEach" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/mapEach.html">mapEach</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapEach-param-mapper"><span class="type-annotation">T</span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-payload"><span class="type-annotation">dynamic</span> <span class="parameter-name">payload</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Transforms the payload of every pulse in the collection while
+preserving their individual causal traces.
+  
 
 </dd>
 
@@ -694,8 +809,7 @@ of the collection using the provided function.
 
 </dt>
 <dd class="inherited">
-  Scrutinizes the <a href="../cell_tissue/Receptor-class.html">Receptor</a> to determine if it possesses the necessary
-<a href="../cell_tissue/Context-class.html">Context</a> and <a href="../cell_tissue/PulseBase/isGoverned.html">isGoverned</a> status to process this pulse.
+  Challenges a receptor to prove it has the authority to see this pulse.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -765,6 +879,24 @@ of the collection using the provided function.
 
 </dd>
 
+        <dt id="tap" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseExtension/tap.html">tap</a></span><span class="signature">(<wbr><span class="parameter" id="tap-param-action"><span class="type-annotation">void</span> <span class="parameter-name">action</span>(<span class="parameter" id="param-payload"><span class="type-annotation">P</span> <span class="parameter-name">payload</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseExtension.html">PulseExtension</a> extension</span>
+      </p>
+  Executes a side-effect <code>action</code> using the current <a href="../cell_tissue/Pulse/payload.html">payload</a> and returns
+this pulse instance.
+  
+
+</dd>
+
         <dt id="toList" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/toList.html">toList</a></span><span class="signature">(<wbr>{<span class="parameter" id="toList-param-growable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">growable</span> = <span class="default-value">true</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
@@ -791,16 +923,16 @@ of the collection using the provided function.
 
 </dd>
 
-        <dt id="toString" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/PulseBase/toString.html">toString</a></span><span class="signature">(<wbr>)
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../cell_tissue/EvolvedPulseBase/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   A string representation of this object.
-  <div class="features"><span class="feature">inherited</span></div>
+  
 
 </dd>
 
@@ -831,6 +963,24 @@ predicate <code>test</code>.
 
 </dd>
 
+        <dt id="withStep" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/withStep.html">withStep</a></span><span class="signature">(<wbr><span class="parameter" id="withStep-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">step</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Appends a diagnostic stage to the causal trace of every pulse in this
+collection.
+  
+
+</dd>
+
         <dt id="withStep" class="callable inherited">
   <span class="name"><a href="../cell_tissue/PulseBase/withStep.html">withStep</a></span><span class="signature">(<wbr><span class="parameter" id="withStep-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">step</span></span>)
     <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>
@@ -839,7 +989,8 @@ predicate <code>test</code>.
 
 </dt>
 <dd class="inherited">
-  Adds a step to the pulse's causal trace and returns a new pulse.
+  Appends a diagnostic stage to the pulse's causal trace without branching
+the causal chain.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -860,7 +1011,7 @@ predicate <code>test</code>.
 
 </dt>
 <dd class="inherited">
-  
+  Combines this pulse and <code>other</code> into a composite <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -907,7 +1058,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

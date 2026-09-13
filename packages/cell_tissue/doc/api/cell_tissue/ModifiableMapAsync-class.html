@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ModifiableMapAsync<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ModifiableMapAsync</div>
@@ -59,10 +59,6 @@
 mutation methods of a <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>. This class is essential for scenarios
 where map modifications need to be offloaded to the event loop or handled
 within an <code>async/await</code> workflow.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You never construct this directly. It is returned by the <code>async</code> getter
-on any <a href="../cell_tissue/TissueMap-class.html">TissueMap</a> (e.g., <code>myMap.async</code>). Use it when you need to
-perform asynchronous mutations.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You are in an <code>async</code> context (e.g., a network callback) and need to
@@ -70,6 +66,9 @@ wait for the mutation to be fully processed.</li>
 <li>You want to avoid blocking the UI thread during a batch of updates.</li>
 <li>The mutation involves I/O or other asynchronous side‑effects.</li>
 </ul>
+<p>You never construct this directly. It is returned by the <code>async</code> getter
+on any <a href="../cell_tissue/TissueMap-class.html">TissueMap</a> (e.g., <code>myMap.async</code>). Use it when you need to
+perform asynchronous mutations.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It wraps the synchronous mutation methods (like <code>add</code>, <code>clear</code>, etc.)
@@ -96,7 +95,6 @@ print('Entry added and all observers notified.');
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
 <li><code>K</code>: The type of keys in the map.</li>
-<li><code>V</code>: The type of values in the map.</li>
 <li><code>V</code>: The type of values in the map.</li>
 </ul>
 </section>
@@ -187,7 +185,7 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Asynchronously adds all entries from the given <code>other</code> map to the associated <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
+  Asynchronously adds all entries from the given <code>other</code> map.
   
 
 </dd>
@@ -200,13 +198,13 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Adds all entries from the given <code>newEntries</code> iterable to <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
+  Adds all entries from the given <code>newEntries</code> iterable.
   
 
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
   </span>
   
@@ -226,7 +224,7 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Asynchronously removes all entries from the associated <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
+  Asynchronously removes all entries from the map.
   
 
 </dd>
@@ -265,7 +263,7 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Asynchronously removes <code>key</code> and its associated value from the associated <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
+  Asynchronously removes <code>key</code> and its associated value.
   
 
 </dd>
@@ -278,7 +276,7 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Asynchronously removes all entries from the associated <a href="../cell_tissue/TissueMap-class.html">TissueMap</a> that satisfy the given <code>predicate</code>.
+  Asynchronously removes all entries that satisfy the given <code>predicate</code>.
   
 
 </dd>
@@ -317,7 +315,7 @@ print('Entry added and all observers notified.');
 
 </dt>
 <dd>
-  Asynchronously updates all values in the associated <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
+  Asynchronously updates all values in the map.
   
 
 </dd>
@@ -372,7 +370,7 @@ print('Entry added and all observers notified.');
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

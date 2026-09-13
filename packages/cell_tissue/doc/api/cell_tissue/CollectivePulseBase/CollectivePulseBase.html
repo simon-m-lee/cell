@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectivePulseBase-class.html">CollectivePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">CollectivePulseBase.new constructor</li>
   </ol>
@@ -65,7 +65,7 @@
 <li><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span></li>
 <li><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span></li>
 <li><span class="parameter" id="-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">pulse</span>, </span></li>
-<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">parent</span>, </span></li>
+<li><span class="parameter" id="-param-parent"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">parent</span>, </span></li>
 <li><span class="parameter" id="-param-scrutinize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span> <span class="parameter-name">scrutinize</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span></span></li>
 </ol>)?, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
@@ -74,25 +74,54 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a Collective Pulse with the given <code>pulses</code> collection.</p>
+  <p>Creates a new collective pulse that bundles multiple individual pulses.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>Accepts an iterable of pulses to bundle.</li>
+<li>Passes all metadata (policy, context, type, etc.) to the superclass.</li>
+<li>Increments the <code>_branches</code> counter to track completion of all
+sub‑pulses.</li>
+<li>The resulting collective is a single unit that moves through the
+graph atomically.</li>
+</ul>
+<h3 id="nonobvious-the-branch-counter-is-critical-for-completion">Non‑obvious: the branch counter is critical for completion</h3>
+<p>The <code>_branches</code> counter is incremented here. Each sub‑pulse
+decrements the counter when it completes. When the counter reaches
+zero, the collective's completion callback fires. This is how the
+framework knows when a composite pulse is fully processed.</p>
+<h3 id="nonobvious-metadata-is-applied-to-the-collective-not-subpulses">Non‑obvious: metadata is applied to the collective, not sub‑pulses</h3>
+<p>The <code>policy</code>, <code>context</code>, <code>type</code>, and other metadata are applied to the
+collective as a whole, not to individual sub‑pulses. Each sub‑pulse
+retains its own metadata.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>pulses</code>: The collection of pulses to bundle together.</li>
-<li><code>policy</code>: Optional lifecycle governance policy.</li>
-<li><code>type</code>: Optional semantic type tag for routing.</li>
-<li><code>context</code>: Optional pulse context for provenance.</li>
-<li><code>timestamp</code>: Optional creation timestamp.</li>
+<li><code>pulses</code>: The individual pulses to bundle into a collective.</li>
+<li><code>policy</code>: Optional lifecycle policy for the collective (TTL, hop limit).</li>
+<li><code>type</code>: Optional semantic tag for the collective.</li>
+<li><code>context</code>: Optional provenance context for the collective.</li>
+<li><code>timestamp</code>: Optional creation time (defaults to now).</li>
 <li><code>source</code>: Optional originating cell.</li>
-<li><code>step</code>: Optional audit step description.</li>
-<li><code>onComplete</code>: Optional completion callback.</li>
-<li><code>onError</code>: Optional error callback.</li>
-<li><code>onProgress</code>: Optional progress callback.</li>
-<li><code>pulse</code>: Optional associated pulse.</li>
-<li><code>parent</code>: Optional parent pulse for causal chain.</li>
-<li><code>scrutinize</code>: Optional custom scrutiny function.</li>
-<li><code>user</code>: Optional user metadata.</li>
-<li><code>priority</code>: Optional scheduling priority.</li>
+<li><code>step</code>: Optional trace step for the collective.</li>
+<li><code>onComplete</code>: Called when all sub‑pulses complete.</li>
+<li><code>onError</code>: Called if any sub‑pulse fails.</li>
+<li><code>onProgress</code>: Called during processing.</li>
+<li><code>pulse</code>: Optional sub‑pulse to append (for evolution).</li>
+<li><code>parent</code>: Optional parent pulse (for causal chains).</li>
+<li><code>scrutinize</code>: Optional authorization challenge function.</li>
+<li><code>user</code>: Optional user‑defined metadata.</li>
+<li><code>priority</code>: Optional urgency (overrides individual priorities).</li>
 </ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_tissue/CollectivePulseBase-class.html">CollectivePulseBase</a> instance that bundles all the provided
+pulses into a single atomic unit.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Internal usage — you never write this directly:
+final collective = CollectivePulseBase(
+  pulses: [pulse1, pulse2],
+  type: 'batch_update',
+  onComplete: (Pulse p) =&gt;. print('Batch complete'),
+);
+</code></pre>
 </section>
 
 
@@ -148,7 +177,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueQueueNucleusBase.fromRecord const constructor</li>
   </ol>
@@ -54,19 +54,18 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">TissueQueueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span>, </span></li>
-</ol>})
+      <span class="name ">TissueQueueNucleusBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span></li>
+</ol>)
     </section>
     
 <section class="desc markdown">
   <p><strong>Low‑level Record Constructor</strong> – instantiates a nucleus from a
 pre‑packed property record.</p>
-<h3 id="who-should-call-this">Who should call this</h3>
+<h3 id="when-to-use">When to use</h3>
 <p><strong>Strictly internal framework use only.</strong> This constructor bypasses
 all parameter validation and default‑value logic. It is designed for
 performance‑critical paths like cloning and state restoration.
 <strong>Application code must never call this.</strong></p>
-<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
 <ul>
 <li>When implementing <code>clone</code> or <code>evolve</code> in a custom nucleus subclass.</li>
 <li>When restoring a nucleus from a serialised state where the record
@@ -108,7 +107,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TissueQueueNucleusBase.fromRecord({super.record}) : super.fromRecord();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TissueQueueNucleusBase.fromRecord(super.record) : super.fromRecord();</code></pre>
 </section>
 
 
@@ -136,7 +135,7 @@ Dart <code>Record</code> containing all nucleus fields.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

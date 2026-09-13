@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">NucleusSimplest typedef</li>
   </ol>
   <div class="self-name">NucleusSimplest</div>
@@ -61,33 +61,53 @@
 
     
 <section class="desc markdown">
-  <p>A type alias representing the most primitive, zero-overhead implementation
-of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract.</p>
-<p><a href="../cell_tissue/NucleusSimplest.html">NucleusSimplest</a> points directly to <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a>, which is a specialized
-constant class used by the framework to represent a nucleus with no
-custom configuration, no extensions, and no principal inheritance.</p>
-<h3 id="architectural-role">Architectural Role:</h3>
+  <p>A semantic type alias representing the framework's <strong>Zero-Overhead Root</strong>
+and the terminal ancestor of all reactive blueprints.</p>
+<p><a href="../cell_tissue/NucleusSimplest.html">NucleusSimplest</a> acts as the formal bridge to <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a>, providing a
+stable type signature for the most primitive, unconfigured state of a
+reactive node. It serves as the baseline for the <strong>Structural Flyweight
+Pattern</strong>, ensuring that default cells do not incur unique memory costs.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Root of Inheritance</strong>: It serves as the terminal node in any <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>
-inheritance chain (the <code>principal</code> of all root-level nuclei).</li>
-<li><strong>Memory Efficiency</strong>: Because it maps to a <code>const</code> <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a>, it
-ensures that cells requiring only default framework behavior do not
-allocate unique memory for their property storage.</li>
-<li><strong>Semantic Clarity</strong>: While <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> is the implementation detail,
-<a href="../cell_tissue/NucleusSimplest.html">NucleusSimplest</a> provides a clear semantic indication that the
-associated cell is using the "simplest" possible configuration
-(e.g., <a href="../cell_tissue/Context/system-constant.html">Context.system</a>, <a href="../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>, and <a href="../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>).</li>
+<li><strong>Root of Inheritance</strong>: Used as the terminal <code>principal</code> in any
+<a href="../cell_tissue/Nucleus-class.html">Nucleus</a> hierarchy to stop recursive property lookups.</li>
+<li><strong>Default Allocation</strong>: Used automatically by <a href="../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a> when a
+cell requires framework-standard behavior without custom overrides.</li>
+<li><strong>Semantic Tagging</strong>: Use when you need to explicitly denote that a
+component operates under the system's baseline governance model
+(e.g., <a href="../cell_tissue/Context/system-constant.html">Context.system</a>, <a href="../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>).</li>
 </ul>
-<h3 id="characteristics">Characteristics:</h3>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Structural Alias</strong>: Maps directly to the <a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a> constant class,
+linking the alias to a transitively immutable singleton.</li>
+<li><strong>Terminal Boundary</strong>: Because the underlying implementation returns
+<code>null</code> for its principal, this type marks the functional end of any
+reactive property walk.</li>
+<li><strong>Flyweight Reification</strong>: It enables the framework to share a single
+pre-compiled memory address for every "simplest" node in the graph.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Immutable</strong>: As a constant implementation, its properties cannot be
-modified.</li>
-<li><strong>Stateless</strong>: It does not store any unique <a href="../cell_tissue/Cell-class.html">Cell</a> bindings or
-<a href="../cell_tissue/Synapses-class.html">Synapses</a> observers.</li>
-<li><strong>Non-Extensible</strong>: It contains no <code>extensions</code> record and cannot
-carry ad-hoc metadata.</li>
+<li><strong>Statelessness</strong>: A nucleus of this type contains no local
+bindings (<code>Cell.bind</code>) or egress synapses, ensuring it consumes
+minimal resources even in massive dependency graphs.</li>
+<li><strong>Constant-Time Resolution</strong>: Property access on this type bypasses
+the record-masking logic used in <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a>, achieving native
+O(1) resolution speed.</li>
+<li><strong>Structural Purity</strong>: It represents a "Naked Blueprint" devoid of
+ad-hoc metadata, user-defined records, or specialized locks.</li>
 </ul>
-<p>Typically accessed via the <a href="../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a> factory constructor.</p>
+<h3 id="parameters">Parameters:</h3>
+<p>(None)</p>
+<h3 id="returns">Returns:</h3>
+<p>A type handle for the framework's <strong>Terminal Blueprint</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Nucleolus-class.html">Nucleolus</a>: The concrete implementation of this primitive type.</li>
+<li><a href="../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a>: The standard factory for obtaining this root.</li>
+<li><a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a>: The property-aware base for all blueprints.</li>
+</ul>
 </section>
 
     
@@ -119,7 +139,7 @@ carry ad-hoc metadata.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

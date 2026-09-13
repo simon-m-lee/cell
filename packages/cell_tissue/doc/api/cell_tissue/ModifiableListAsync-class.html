@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ModifiableListAsync</div>
@@ -61,10 +61,6 @@ where list modifications need to be offloaded to the event loop or handled
 within an <code>async/await</code> workflow, ensuring that reactive updates do not
 block the main execution thread or trigger synchronous side‑effects
 prematurely.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You never construct this directly. It is returned by the <code>async</code> getter
-on any <a href="../cell_tissue/TissueList-class.html">TissueList</a> (e.g., <code>myList.async</code>). Use it when you need to
-perform asynchronous mutations.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You are in an <code>async</code> context (e.g., a network callback) and need to
@@ -72,6 +68,9 @@ wait for the mutation to be fully processed.</li>
 <li>You want to avoid blocking the UI thread during a batch of updates.</li>
 <li>The mutation involves I/O or other asynchronous side‑effects.</li>
 </ul>
+<p>You never construct this directly. It is returned by the <code>async</code> getter
+on any <a href="../cell_tissue/TissueList-class.html">TissueList</a> (e.g., <code>myList.async</code>). Use it when you need to
+perform asynchronous mutations.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It wraps the synchronous mutation methods (like <code>add</code>, <code>removeAt</code>,
@@ -99,14 +98,6 @@ the common <code>apply</code> method for dynamic command execution.</li>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;();
 await list.async.add(42);
 print('Item added and all observers notified.');
-</code></pre>
-<h3 id="example-batch-operations">Example: Batch operations</h3>
-<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;String&gt;();
-await Future.wait([
-  list.async.add('A'),
-  list.async.add('B'),
-  list.async.add('C'),
-]);
 </code></pre>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
@@ -152,7 +143,7 @@ await Future.wait([
           <span class="name"><a href="../cell_tissue/ModifiableListAsync/ModifiableListAsync.html">ModifiableListAsync</a></span><span class="signature">(<span class="parameter" id="-param-tissue"><span class="type-annotation"><a href="../cell_tissue/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">tissue</span></span>)</span>
         </dt>
         <dd>
-          An asynchronous facade for performing reactive mutation operations on a <a href="../cell_tissue/TissueList-class.html">TissueList</a>.
+          Creates an asynchronous callable wrapper for a <a href="../cell_tissue/TissueList-class.html">TissueList</a>.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -204,7 +195,7 @@ await Future.wait([
 
 </dt>
 <dd>
-  Asynchronously adds <code>element</code> to the end of the list.
+  Asynchronously appends <code>element</code> to the end of this list.
   
 
 </dd>
@@ -217,13 +208,13 @@ await Future.wait([
 
 </dt>
 <dd>
-  Asynchronously adds all <code>elements</code> from the given iterable to the end of the list.
+  Asynchronously appends all <code>elements</code> to the end of this list.
   
 
 </dd>
 
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/ModifiableAsync/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a></span>
   </span>
   
@@ -243,8 +234,7 @@ await Future.wait([
 
 </dt>
 <dd>
-  Asynchronously removes all elements from the list.
-The length of the list becomes zero.
+  Asynchronously removes all elements from this list.
   
 
 </dd>
@@ -257,7 +247,7 @@ The length of the list becomes zero.
 
 </dt>
 <dd>
-  Asynchronously overwrites a range of elements in this list with <code>fillValue</code>.
+  Asynchronously overwrites a range of elements with <code>fillValue</code>.
   
 
 </dd>
@@ -270,22 +260,20 @@ The length of the list becomes zero.
 
 </dt>
 <dd>
-  Asynchronously inserts <code>element</code> at position <code>index</code> in this list.
-This increases the length of the list by one and moves all later elements down.
+  Asynchronously inserts <code>element</code> at the specified <code>index</code>.
   
 
 </dd>
 
         <dt id="insertAll" class="callable">
-  <span class="name"><a href="../cell_tissue/ModifiableListAsync/insertAll.html">insertAll</a></span><span class="signature">(<wbr><span class="parameter" id="insertAll-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="insertAll-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">elements</span></span>)
+  <span class="name"><a href="../cell_tissue/ModifiableListAsync/insertAll.html">insertAll</a></span><span class="signature">(<wbr><span class="parameter" id="insertAll-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="insertAll-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Asynchronously inserts all elements of <code>elements</code> at position <code>index</code> in this list.
-This increases the length of the list by the length of <code>elements</code> and moves all later elements down.
+  Asynchronously inserts all <code>iterable</code> elements at <code>index</code>.
   
 
 </dd>
@@ -312,7 +300,6 @@ This increases the length of the list by the length of <code>elements</code> and
 </dt>
 <dd>
   Asynchronously removes the first occurrence of <code>element</code> from this list.
-Returns <code>true</code> if <code>element</code> was removed, <code>false</code> otherwise.
   
 
 </dd>
@@ -325,8 +312,7 @@ Returns <code>true</code> if <code>element</code> was removed, <code>false</code
 
 </dt>
 <dd>
-  Asynchronously removes the element at position <code>index</code> from this list.
-This reduces the length of the list by one and moves all later elements down.
+  Asynchronously removes the element at <code>index</code>.
   
 
 </dd>
@@ -339,8 +325,7 @@ This reduces the length of the list by one and moves all later elements down.
 
 </dt>
 <dd>
-  Asynchronously removes and returns the last element of this list.
-The list must be non-empty and modifiable.
+  Asynchronously removes and returns the last element in the list.
   
 
 </dd>
@@ -353,9 +338,7 @@ The list must be non-empty and modifiable.
 
 </dt>
 <dd>
-  Asynchronously removes a range of elements from the list.
-Removes the elements with positions greater than or equal to <code>start</code> and less than <code>end</code>.
-This reduces the list's length by <code>end - start</code>.
+  Asynchronously removes a range of elements.
   
 
 </dd>
@@ -368,7 +351,7 @@ This reduces the list's length by <code>end - start</code>.
 
 </dt>
 <dd>
-  Asynchronously removes all elements from this list that satisfy the given <code>test</code>.
+  Asynchronously removes all elements that satisfy the <code>test</code> predicate.
   
 
 </dd>
@@ -381,9 +364,7 @@ This reduces the list's length by <code>end - start</code>.
 
 </dt>
 <dd>
-  Asynchronously replaces a range of elements with the elements of <code>newContents</code>.
-Removes the objects in the range from <code>start</code> to <code>end</code>, then inserts the elements
-of <code>newContents</code> at <code>start</code>.
+  Asynchronously replaces a range of elements with <code>newContents</code>.
   
 
 </dd>
@@ -396,23 +377,20 @@ of <code>newContents</code> at <code>start</code>.
 
 </dt>
 <dd>
-  Asynchronously removes all elements from this list that do not satisfy the given <code>test</code>.
+  Asynchronously removes all elements that do not satisfy <code>test</code>.
   
 
 </dd>
 
         <dt id="setAll" class="callable">
-  <span class="name"><a href="../cell_tissue/ModifiableListAsync/setAll.html">setAll</a></span><span class="signature">(<wbr><span class="parameter" id="setAll-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="setAll-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">elements</span></span>)
+  <span class="name"><a href="../cell_tissue/ModifiableListAsync/setAll.html">setAll</a></span><span class="signature">(<wbr><span class="parameter" id="setAll-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="setAll-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Asynchronously writes the elements of <code>elements</code> into this list, starting at position <code>index</code>.
-This operation does not increase the length of the list.
-The <code>index</code> must be non-negative and no greater than <code>length</code>.
-The <code>elements</code> iterable must not have more elements than what can fit from <code>index</code> to <code>length</code>.
+  Asynchronously overwrites elements starting at <code>index</code> with <code>iterable</code>.
   
 
 </dd>
@@ -425,22 +403,20 @@ The <code>elements</code> iterable must not have more elements than what can fit
 
 </dt>
 <dd>
-  Asynchronously sets the first element of the list to <code>value</code>.
+  Asynchronously replaces the element at <code>index</code> with <code>value</code>.
   
 
 </dd>
 
         <dt id="setRange" class="callable">
-  <span class="name"><a href="../cell_tissue/ModifiableListAsync/setRange.html">setRange</a></span><span class="signature">(<wbr><span class="parameter" id="setRange-param-start"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="setRange-param-end"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">end</span>, </span><span class="parameter" id="setRange-param-newContents"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">newContents</span>, [</span><span class="parameter" id="setRange-param-skipCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">skipCount</span> = <span class="default-value">0</span></span>])
+  <span class="name"><a href="../cell_tissue/ModifiableListAsync/setRange.html">setRange</a></span><span class="signature">(<wbr><span class="parameter" id="setRange-param-start"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="setRange-param-end"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">end</span>, </span><span class="parameter" id="setRange-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">iterable</span>, [</span><span class="parameter" id="setRange-param-skipCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">skipCount</span> = <span class="default-value">0</span></span>])
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Asynchronously writes some elements of <code>newContents</code> into a range of this list.
-Copies the objects of <code>newContents</code>, skipping <code>skipCount</code> objects first, into the
-range from <code>start</code> (inclusive) to <code>end</code> (exclusive) of this list.
+  Asynchronously overwrites a specific range with elements from <code>iterable</code>.
   
 
 </dd>
@@ -466,7 +442,7 @@ range from <code>start</code> (inclusive) to <code>end</code> (exclusive) of thi
 
 </dt>
 <dd>
-  Asynchronously shuffles the elements of this list randomly.
+  Asynchronously shuffles the elements of this list.
   
 
 </dd>
@@ -479,8 +455,7 @@ range from <code>start</code> (inclusive) to <code>end</code> (exclusive) of thi
 
 </dt>
 <dd>
-  Asynchronously sorts this list according to the order specified by the <code>compare</code> function.
-If <code>compare</code> is omitted, it uses the natural ordering of the elements (requires <code>E</code> to be <code>Comparable</code>).
+  Asynchronously sorts the list according to <code>compare</code>.
   
 
 </dd>
@@ -548,7 +523,7 @@ If <code>compare</code> is omitted, it uses the natural ordering of the elements
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

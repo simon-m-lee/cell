@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">CollectivePulse.from factory constructor</li>
   </ol>
@@ -54,16 +54,48 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CollectivePulse&lt;<wbr><span class="type-parameter">P</span>&gt;.from</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="from-param-pulses"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">pulses</span></span></li>
-</ol>)
+      <span class="name ">CollectivePulse&lt;<wbr><span class="type-parameter">P</span>&gt;.from</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="from-param-pulses"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">pulses</span>, {</span></li>
+<li><span class="parameter" id="from-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="from-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="from-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
+<li><span class="parameter" id="from-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
+</ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a collective pulse from a list of individual pulses.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Bundling Pulses</strong>: Use this factory when you have a list of pulses that should travel
+together as a single atomic unit.</li>
+<li>You already have a list of pulses and want to bundle them.</li>
+<li>You need to apply common metadata to multiple pulses.</li>
+<li>You want to batch pulses from different sources.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The pulses are bundled into a <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>. Each sub‑pulse retains
+its own identity, trace, and callbacks. The collective's metadata (type,
+source, priority, step) is applied to the bundle as a whole.</p>
+<h3 id="nonobvious-the-collectives-payload-is-the-iterable">Non‑obvious: the collective's payload is the iterable</h3>
+<p>The <a href="../../cell_tissue/CollectivePulse/payload.html">payload</a> of the collective is the iterable of pulses itself — not
+a combined value. To access the individual pulses, iterate over the payload.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulses</code>: The individual pulses to bundle.</li>
+<li><code>type</code>: Optional semantic tag for the bundle.</li>
+<li><code>source</code>: Optional originating cell.</li>
+<li><code>priority</code>: Optional urgency (overrides individual priorities).</li>
+<li><code>step</code>: Optional trace step for the bundle.</li>
+</ul>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory CollectivePulse.from(Iterable&lt;Pulse&lt;P&gt;&gt; pulses) = _CollectivePulse&lt;P&gt;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory CollectivePulse.from(Iterable&lt;Pulse&lt;P&gt;&gt; pulses,
+    {String? type, Cell? source, int? priority, String? step})
+= _CollectivePulse&lt;P&gt;;</code></pre>
 </section>
 
 
@@ -91,7 +123,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
       get
       <span class="name ">unmodifiable</span>
@@ -67,13 +72,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns this projection – it’s already unmodifiable.</p>
+  <p>Returns this projection – it's already unmodifiable.</p>
+<h3 id="returns">Returns:</h3>
+<p>This same unmodifiable event.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventBase&lt;E&gt; get unmodifiable =&gt; this;</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+TissueEventBase&lt;E&gt; get unmodifiable =&gt; this;</code></pre>
 </section>
 
   </section>
@@ -103,7 +111,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

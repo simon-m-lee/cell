@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueNucleus.new constructor</li>
   </ol>
@@ -73,7 +73,7 @@
   <p>Initializes a new primary <code>ValueNucleus</code> – the blueprint for a stateful
 cell.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You almost never call this directly – <a href="../../cell_tissue/Cell/value.html">Cell.value</a> does it for you.</p>
+<p>You almost never call this directly – <a href="../../cell_tissue/Cell/state.html">Cell.state</a> does it for you.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>It allocates a <code>Box&lt;V&gt;</code> for storage, sets up a transformation
 pipeline from the <code>transform</code> function, and integrates the commitment
@@ -81,7 +81,7 @@ rule. If you provide a custom <code>receptor</code>, you must manually include
 <code>ValueCell.postProcessRule</code> to persist state.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The initial <code>value</code> is written directly to the Box, bypassing the
+<li>The initial <code>state</code> is written directly to the Box, bypassing the
 transform – it's considered a trusted seed.</li>
 <li>If <code>transform</code> is provided, it overrides the <code>receptor</code> parameter.</li>
 </ul>
@@ -120,13 +120,13 @@ traits carried by the nucleus blueprint.</li>
 
   Record? user,
   bool forceLock = true
-}) : this._(record: (
+}) : this._((
 local: NucleusBase.mask(
     bind: bind, context: context, testRule: testRule, synapses: synapses,
     forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy,
     receptor: transform != null
-        ? Receptor.from(rule: PulseRule&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V&gt;&gt;((host, input, {user}) =&gt; transform(host, input, user: user)), postProcess: ValueCell.postProcessRule)
-        : receptor == Receptor.passThrough ? Receptor.from(postProcess: ValueCell.postProcessRule)  : receptor,
+        ? Receptor.pipeline(instruction: Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V&gt;&gt;((pulse, {cell, user, delayPropagation, token}) =&gt; transform(cell!, pulse, user: user)), postProcess: ValueCell.postProcessRule)
+        : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
     others: (value: Box&lt;V&gt;())
 )
 )
@@ -158,7 +158,7 @@ local: NucleusBase.mask(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueMapBase-class.html">TissueMapBase<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueMapBase.from constructor</li>
   </ol>
@@ -62,7 +62,7 @@
 <section class="desc markdown">
   <p>Creates a <a href="../../cell_tissue/TissueMapBase-class.html">TissueMapBase</a> from an existing <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>, optionally with
 custom <code>properties</code>.</p>
-<p>Parameters:</p>
+<h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>map</code>: The source map data.</li>
 <li><code>properties</code>: Optional nucleus configuration.</li>
@@ -75,7 +75,7 @@ custom <code>properties</code>.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TissueMapBase.from(Map&lt;K,V&gt; map, {TissueMapNucleusBase&lt;K,V,C&gt;? properties})
     : super(properties ?? _TissueMapNucleus&lt;K,V,C&gt;()) {
-  _nucleus.container.init(map);
+  _nucleus.container.store.addEntries(map.entries);
   for (var v in values) {
     if (v is Cell) {
       _nucleus.synapses.link(v, downstreamCell: this);
@@ -109,7 +109,7 @@ custom <code>properties</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

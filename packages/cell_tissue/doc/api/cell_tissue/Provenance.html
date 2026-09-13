@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> enum</li>
   </ol>
   <div class="self-name">Provenance</div>
@@ -61,21 +61,23 @@
 <section class="desc markdown">
   <p>Defines the <strong>Causal Accountability, Audit Trail, and Operational Intent</strong>
 of a <a href="../cell_tissue/Pulse-class.html">Pulse</a>.</p>
-<p>In the Switching Fabric, <a href="../cell_tissue/Provenance.html">Provenance</a> documents the transient lifecycle
-of a signal. While <a href="../cell_tissue/Ontology.html">Ontology</a> describes the "Static Scene" (what a node is),
-<a href="../cell_tissue/Provenance.html">Provenance</a> provides the dynamic <strong>Chain of Custody</strong> (who, why, and how)
-for every stimulus traversing the reactive tissue.</p>
+<p><a href="../cell_tissue/Provenance.html">Provenance</a> documents the transient lifecycle of a signal. While <a href="../cell_tissue/Ontology.html">Ontology</a>
+describes the "Static Scene" (what a node is), <a href="../cell_tissue/Provenance.html">Provenance</a> provides the dynamic
+<strong>Chain of Custody</strong> (who, why, and how) for every stimulus traversing the
+reactive tissue.</p>
 <p>This metadata is utilised by the <strong>Policy Enforcement Point (PEP)</strong> to
 perform <strong>Capability-Based Access Control (CBAC)</strong> and ensure
 <strong>Execution Traceability</strong>.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely interact with <a href="../cell_tissue/Provenance.html">Provenance</a> directly. Instead, use the
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You rarely interact with <a href="../cell_tissue/Provenance.html">Provenance</a> directly. Instead, use the
 <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> factories like <code>PulseContext.userAction</code>,
 <code>PulseContext.aiInference</code>, or <code>PulseContext.regulated</code>. These factories
-populate the relevant provenance dimensions for you.</p>
-<p>If you need a custom pulse context, you can create one with the
+populate the relevant provenance dimensions for you.</li>
+<li>If you need a custom pulse context, you can create one with the
 <a href="../cell_tissue/PulseContext-class.html">PulseContext</a> constructor, passing the appropriate dimensions manually.
-But in most cases, the pre‑defined factories are sufficient.</p>
+But in most cases, the pre‑defined factories are sufficient.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>Each <a href="../cell_tissue/Provenance.html">Provenance</a> dimension is a typed key that holds a value of type <code>V</code>.</li>
@@ -811,7 +813,7 @@ fluid dimensions of the <a href="../cell_tissue/Provenance.html">Provenance</a> 
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -130,6 +130,7 @@ abstract interface class TissueNucleus<E> implements Nucleus {
     TestTissue<E,Tissue<E>> testRule,
     Synapses synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
     Record? user
   }) = _TissueNucleus<E,Iterable<E>,Tissue<E>>;
 
@@ -200,6 +201,8 @@ abstract interface class TissueNucleus<E> implements Nucleus {
     TissueReceptor<E,Tissue<E>>? receptor,
     TestTissue<E,Tissue<E>>? testRule,
     Synapses? synapses,
+
+    EphemeralPolicy? ephemeralPolicy,
 
     TissueNucleus<E>? override,
     required TissueNucleus<E> principal
@@ -300,14 +303,16 @@ abstract interface class TissueNucleus<E> implements Nucleus {
 
     bool forceLock = false,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     TissueNucleusBase<E,I,C>? principal
   }) {
     final local = TissueNucleusBase.local<E,I,C>(
       bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses,
       container: container, forceLock: forceLock, user: user,
+      ephemeralPolicy: ephemeralPolicy,
     );
     return _TissueNucleus<E,I,C>.fromRecord(
-        principal != null ?  (mask: local, principal: principal) : (mask: local)
+        principal != null ?  (local: local, principal: principal) : (local: local)
     );
   }
 
@@ -317,7 +322,7 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// In the framework's reactive architecture, the receptor acts as the
   /// primary **Command Engine** and input interceptor. When a mutation is
   /// requested (e.g., adding an element to a list or clearing a set), a
-  /// [TissueEvent] pulse is dispatched to this receptor.
+  /// [TissuePulse] pulse is dispatched to this receptor.
   ///
   /// ### When to use
   /// Read this to understand how the tissue processes mutations. This is

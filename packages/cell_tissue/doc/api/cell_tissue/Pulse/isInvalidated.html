@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">isInvalidated property</li>
   </ol>
@@ -67,11 +67,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this message has reached its <strong>Terminal Lifecycle State</strong>
-and is no longer valid for processing.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Check this before processing a pulse to ensure it's still valid –
+  <p>Indicates whether this message has reached its terminal lifecycle state.</p>
+<h3 id="where-to-start">Where to start</h3>
+<p>Check this before processing a pulse to ensure it's still valid —
 especially if it has a <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>Before processing a pulse to ensure it's valid.</li>
+<li>In custom receptors to skip stale signals.</li>
+<li>Debugging expired pulses.</li>
+<li>Conditional logic based on pulse validity.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>A pulse becomes invalid if its TTL expires or it exceeds its hop limit.
 The framework checks this automatically, but you can also check manually.</p>
@@ -117,7 +123,7 @@ The framework checks this automatically, but you can also check manually.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

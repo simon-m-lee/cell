@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">create&lt;<wbr><span class="type-parameter">V</span>&gt; static method</li>
   </ol>
@@ -56,7 +56,7 @@
       
 <span class="returntype"><a href="../../cell_tissue/StateHandle.html">StateHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
 <span class="name ">create</span>&lt;<wbr><span class="type-parameter">V</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="create-param-nucleus"><span class="type-annotation"><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span></li>
-<li><span class="parameter" id="create-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="create-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
 </ol>})
 
       
@@ -64,14 +64,47 @@
     </section>
     
 <section class="desc markdown">
-  <p>A high‑level static factory that builds a <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a> and its update
-handles in one step – used internally by <a href="../../cell_tissue/Cell/value.html">Cell.value</a>.</p>
+  <p>A high-level static factory that synthesizes a <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a> and its
+operational <a href="../../cell_tissue/StateHandle.html">StateHandle</a> in a single atomic operation.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You don't call this directly – <a href="../../cell_tissue/Cell/value.html">Cell.value</a> does it for you.</p>
+<ul>
+<li><strong>Internal Engine</strong>: The primary factory behind <a href="../../cell_tissue/Cell/state.html">Cell.state</a>. You rarely
+need to call this directly.</li>
+<li><strong>Custom Abstractions</strong>: Use this when building specialized <a href="../../cell_tissue/Cell-class.html">Cell</a>
+types that require manual <a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> hydration.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>It creates the cell from the nucleus, then returns a <a href="../../cell_tissue/StateHandle.html">StateHandle</a>
-with the cell and its update functions (<code>trigger</code>, <code>triggerAsync</code>,
-<code>ingest</code>).</p>
+<ol>
+<li><strong>Hydration</strong>: Instantiates a <a href="../../cell_tissue/ValueCell-class.html">ValueCell</a> from the <code>nucleus</code> blueprint.</li>
+<li><strong>Seeding</strong>: Writes the <code>initial</code> value directly to storage, bypassing
+the transformation pipeline.</li>
+<li><strong>Handle Synthesis</strong>: Creates a suite of closures (<code>update</code>,
+<code>updateAsync</code>, <code>ingest</code>) that bridge imperative calls to the cell's
+internal <a href="../../cell_tissue/Receptor-class.html">Receptor</a>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Instance Binding</strong>: Handles are permanently bound to the specific
+cell instance; they cannot be reassigned or used with other cells.</li>
+<li><strong>Graph Stabilization</strong>: The <code>ingest</code> handle defaults to
+<code>serializedCompletion: true</code>, meaning the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> only resolves once
+the <em>entire</em> downstream reactive chain has settled.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>nucleus</code>: The blueprint defining the cell's identity and logic.</li>
+<li><code>initial</code>: An optional initial state to seed the cell's storage. This
+bypasses the transformation pipeline and is applied immediately.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/StateHandle.html">StateHandle</a> containing the <code>cell</code> and its associated mutation
+primitives (<code>update</code>, <code>updateAsync</code>, and <code>ingest</code>).</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Cell/state.html">Cell.state</a>: The standard application-level API for state creation.</li>
+<li><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a>: The underlying blueprint used to configure this factory.</li>
+<li><strong>How-To</strong>: See <code>guide/HowTo-Start.md</code> for a guide on state management.</li>
+</ul>
 </section>
 
 
@@ -79,8 +112,8 @@ with the cell and its update functions (<code>trigger</code>, <code>triggerAsync
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; create&lt;V&gt;(
-    ValueNucleus&lt;V&gt; nucleus, {V? value}) {
-  final cell = ValueCell&lt;V&gt;.fromNucleus(nucleus, value: value);
+    ValueNucleus&lt;V&gt; nucleus, {V? initial}) {
+  final cell = ValueCell&lt;V&gt;.fromNucleus(nucleus, initial: initial);
   final valueCellAsync = ValueCellAsync&lt;V&gt;(cell);
   final receptor = nucleus.receptor;
 
@@ -88,7 +121,7 @@ with the cell and its update functions (<code>trigger</code>, <code>triggerAsync
     return receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
 
-  return (cell: cell, trigger: cell._trigger, triggerAsync: valueCellAsync._trigger, ingest: ingest);
+  return (cell: cell, update: cell._emit, updateAsync: valueCellAsync._emit, ingest: ingest);
 }</code></pre>
 </section>
 
@@ -117,7 +150,7 @@ with the cell and its update functions (<code>trigger</code>, <code>triggerAsync
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

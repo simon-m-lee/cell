@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/SynapsesBase-class.html">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">mask static method</li>
   </ol>
@@ -72,16 +72,30 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Record mask({PropagationPolicy? policy, required Iterable downstreams, FilterRule? filter, Function? relay}) {
 
-  final buffer = policy != null &amp;&amp; [PropagationStrategy.batched, PropagationStrategy.buffered]
-      .any((s) =&gt; s == policy.strategy) ? QueueList&lt;Pulse&gt;() : null;
+  final buffer = policy != null &amp;&amp; const [
+    PropagationStrategy.batched,
+    PropagationStrategy.buffered,
+    PropagationStrategy.audit,
+    PropagationStrategy.persistent,
+    PropagationStrategy.throttled,
+    PropagationStrategy.debounced,
+  ].contains(policy.strategy) ? QueueList&lt;PulseBase&gt;() : null;
 
-  final timerBox = policy != null &amp;&amp; [PropagationStrategy.debounced, PropagationStrategy.buffered, PropagationStrategy.throttled]
-      .any((s) =&gt; s == policy.strategy) ? Box&lt;Timer&gt;() : null;
+  final timerBox = policy != null &amp;&amp; const [
+    PropagationStrategy.debounced,
+    PropagationStrategy.buffered,
+    PropagationStrategy.throttled,
+    PropagationStrategy.audit,
+    PropagationStrategy.debounceLeading,
+    PropagationStrategy.exhaust,
+    PropagationStrategy.sample,
+    PropagationStrategy.resilient,
+  ].contains(policy.strategy) ? Box&lt;Timer&gt;() : null;
 
   final mask = (
       (policy != null   ? 1 : 0) |
       (filter != null   ? 2 : 0) |
-      (buffer != null ? 4 : 0) |
+      (buffer != null   ? 4 : 0) |
       (timerBox != null ? 8 : 0) |
       (relay != null ? 16 : 0)
   );
@@ -151,7 +165,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

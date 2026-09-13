@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -109,26 +109,26 @@ should not call it directly.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void call(dynamic object, {required C cell, dynamic arguments}) {
-  if (isInvalidated) return;
+if (isInvalidated) return;
 
-  &#47;&#47; Initialize TTL timer on the first interaction if configured
-  if (duration != null &amp;&amp; _ttlTimer == null) {
-    _ttlTimer = Timer(duration!, () =&gt; _triggerReclamation(cell));
-  }
+&#47;&#47; Initialize TTL timer on the first interaction if configured
+if (duration != null &amp;&amp; _ttlTimer == null) {
+_ttlTimer = Timer(duration!, () =&gt; _triggerReclamation(cell));
+}
 
-  final onEvent = get&lt;Function&gt;(() =&gt; _record.onEvent);
-  final handle = onEvent(object, cell: cell, policy: this, user: _user);
+final onEvent = get&lt;Function&gt;(() =&gt; _record.onEvent);
+final handle = onEvent(object, cell: cell, policy: this, user: _user, arguments: arguments);
 
-  if (handle.events &gt;= 0) {
-    _record.events.value = handle.events;
+if (handle.events &gt;= 0) {
+_record.events.value = handle.events;
 
-    &#47;&#47; Check against Event Limit
-    final limit = eventLimit;
-    if (limit != null &amp;&amp; handle.events &gt;= limit) {
-      _triggerReclamation(cell);
-      dispose();
-    }
-  }
+&#47;&#47; Check against Event Limit
+final limit = eventLimit;
+if (limit != null &amp;&amp; handle.events &gt;= limit) {
+_triggerReclamation(cell);
+dispose();
+}
+}
 }</code></pre>
 </section>
 
@@ -157,7 +157,7 @@ should not call it directly.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

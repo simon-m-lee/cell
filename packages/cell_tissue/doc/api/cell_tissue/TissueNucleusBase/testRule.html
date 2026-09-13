@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">testRule property</li>
   </ol>
@@ -121,7 +121,7 @@ print(list.validate); // the TestTissue instance
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 TestTissue&lt;E,C&gt; get testRule {
-  return get&lt;TestTissue&lt;E,C&gt;&gt;(() =&gt; record.mask.testRule, fallback: () =&gt; principal?.testRule, orElse: TestTissue.allowAll);
+  return get&lt;TestTissue&lt;E,C&gt;&gt;(() =&gt; record.local.inheritable.testRule, fallback: () =&gt; principal?.testRule, orElse: TestTissue.allowAll);
 }</code></pre>
 </section>
 
@@ -152,7 +152,7 @@ TestTissue&lt;E,C&gt; get testRule {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">postProcessRule property</li>
   </ol>
@@ -55,14 +55,14 @@
     
       <section class="multi-line-signature">
         
-        <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>
+        <a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>
         <span class="name ">postProcessRule</span>
         <div class="features"><span class="feature">getter/setter pair</span></div>
 
       </section>
       
 <section class="desc markdown">
-  <p>A static, reusable <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> that commits a validated pulse to the
+  <p>A static, reusable <a href="../../cell_tissue/Instruction-class.html">Instruction</a> that commits a validated pulse to the
 cell's <code>Box</code>.</p>
 <p>This is the "commitment stage" of the pipeline. It's used internally
 by <code>ValueCell</code> and <code>ValueNucleus</code>. You don't need to call it directly.</p>
@@ -71,10 +71,10 @@ by <code>ValueCell</code> and <code>ValueNucleus</code>. You don't need to call 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static PulseRule postProcessRule =
-PulseRule&lt;ValueCell,Pulse,Pulse&gt;((host, input, {user}) {
-  host._nucleus.value.value = input.payload;
-  return input;
+  <pre class="language-dart"><code class="language-dart">static Instruction postProcessRule =
+Instruction&lt;ValueCell,Pulse,Pulse&gt;((pulse, {cell, user}) {
+  cell!._nucleus.state.value = pulse.payload;
+  return pulse;
 });</code></pre>
 </section>
 
@@ -104,7 +104,7 @@ PulseRule&lt;ValueCell,Pulse,Pulse&gt;((host, input, {user}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

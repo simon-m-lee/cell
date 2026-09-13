@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">remove method</li>
   </ol>
@@ -63,26 +63,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes the first occurrence of <code>element</code> from this list.
-Returns <code>true</code> if <code>element</code> was removed, <code>false</code> otherwise.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/remove.html">TissueList.remove</a>. The <code>Future</code> completes with the boolean result
-if the operation is permitted and the list is modifiable.
-Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>element</code>: The element to remove.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;bool&gt;</code> indicating whether the element was removed.</p>
+  <p>Asynchronously removes the first occurrence of <code>element</code> from this list.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> that completes with <code>true</code> if <code>element</code> was in the list
+and was successfully removed, and <code>false</code> otherwise.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; remove(Object? element) async {
-  return Future&lt;bool&gt;(() =&gt; _tissue.remove(element));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;bool&gt; remove(Object? element) =&gt; Future&lt;bool&gt;(() =&gt; _tissue.remove(element));</code></pre>
 </section>
 
 
@@ -110,7 +101,7 @@ A <code>Future&lt;bool&gt;</code> indicating whether the element was removed.</p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Fintech Pipeline topic docs, for the Dart programming language.">
+  <title>Demo · Fintech Pipeline topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Fintech Pipeline topic</li>
+  </ol>
+  <div class="self-name">Demo · Fintech Pipeline</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Fintech Pipeline</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough-requirement--card-auth-pipeline-flow--tissue">Walkthrough requirement — card auth pipeline (Flow + Tissue)</h1>
+<p><strong>Demo:</strong> <code>card-auth-pipeline(tissue)-Demo.dart</code> (executable; this file is its requirement)<br>
+<strong>Siblings:</strong></p>
+<ul>
+<li><code>card-auth-pipeline(enhanced)-WalkThrough.md</code> — Flow only, Dart <code>List</code> ledger</li>
+<li><code>ICU-alarm-pipeline(enhanced)-Demo.dart</code> — same gate shape, clinical payload</li>
+</ul>
+<p><strong>Industry:</strong> card / e-com authorization, risk hold, available-balance ledger, compliance view<br>
+<strong>Stack:</strong> <code>package:cell</code> + <code>package:cell_flow</code> + <code>package:cell_tissue</code></p>
+<p>This is the <strong>executable requirement</strong> for a fintech demo that uses
+<strong>Flow for the decision</strong> and <strong>Tissue for the books</strong>. Implement the
+Dart file so a last-good run prints the scenario table in § Scenarios.</p>
+<p>Do not fold Tissue into the Receptor. Do not fold Flow into the ledger.
+The point of this file is the seam.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</a></li>
+<li><a href="#why-flow--tissue-not-flow-alone">Why Flow + Tissue (not Flow alone)</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#domain">Domain</a></li>
+<li><a href="#parts">Parts</a>
+<ul>
+<li><a href="#flow-cells-same-as-the-enhanced-walkthrough">Flow Cells</a></li>
+<li><a href="#tissue-collections-this-demos-new-surface">Tissue collections</a></li>
+<li><a href="#deputies">Deputies</a></li>
+<li><a href="#instruction-flow-unchanged-contract">Instruction</a></li>
+<li><a href="#receptor">Receptor</a></li>
+<li><a href="#operators-the-demo-must-actually-call">Operators the demo must actually call</a></li>
+</ul>
+</li>
+<li><a href="#money--tissuevalue--tissuemap-not-celltransaction">Money — TissueValue + TissueMap</a></li>
+<li><a href="#implementation-map">Implementation map</a></li>
+<li><a href="#scenarios-what-the-last-good-run-must-show">Scenarios (what the last good run must show)</a></li>
+<li><a href="#executable-steps-seed--113--step-up--comply">Executable steps (Seed + 1–13 + STEP-UP + COMPLY)</a></li>
+<li><a href="#pulse-path-scenario-2">Pulse path (scenario 2)</a></li>
+<li><a href="#who-owns-the-lock">Who owns the lock</a></li>
+<li><a href="#real-rail-vs-this-file">Real rail vs this file</a></li>
+<li><a href="#acceptance-the-demo-is-done-when">Acceptance</a></li>
+<li><a href="#name-plate">Name plate</a></li>
+</ol>
+<hr>
+<h2 id="testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</h2>
+<p>Collection classes in <code>package:cell_tissue</code> take <strong><code>TestTissue</code></strong>, never
+<code>TestCell</code>. <code>TestCell</code> is the integrity rule on a <strong>Cell</strong> (ingress /
+handle). <code>TestTissue</code> is the integrity rule on a <strong>Tissue</strong> (<code>add</code>,
+<code>remove</code>, <code>[]=</code>, value write). They are not subtypes you can pass
+across that seam.</p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+<th>Typical use in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+<td>amount 1–250_000¢, MCC shape</td>
+</tr>
+<tr>
+<td><code>TissueList</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> / <code>Value</code></td>
+<td><code>TestTissue&lt;E, C&gt;</code></td>
+<td><code>testRule:</code></td>
+<td>append-only ledger, non-negative cents, 4-digit blocklist</td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+<td><code>TestTissue.readOnly</code> for compliance</td>
+</tr>
+<tr>
+<td><code>TestTissue.allowAll</code></td>
+<td><code>TestTissue</code></td>
+<td>default</td>
+<td>only when the collection has no extra rule</td>
+</tr>
+</tbody>
+</table>
+<p>Illegal (will not type-check, do not write it):</p>
+<pre class="language-dart"><code class="language-dart">TissueList&lt;LedgerEntry&gt;(testRule: TestCell.allowAll);        // wrong type
+TissueValue&lt;int&gt;(250000, testRule: amountRange);            // amountRange is TestCell
+ledger.deputy(testRule: TestCell.readOnly);                 // deputy wants TestTissue
+</code></pre>
+<p>Required shape:</p>
+<pre class="language-dart"><code class="language-dart">final ledgerRule = TestTissue&lt;LedgerEntry, TissueList&lt;LedgerEntry&gt;&gt;(
+  (e, {host, action, user}) =&gt; e.kind.isNotEmpty,
+  // action hook: allow add / addAll; deny remove, clear, []=
+);
+
+final ledger = TissueList&lt;LedgerEntry&gt;(testRule: ledgerRule);
+
+final centsRule = TestTissue&lt;int, TissueValue&lt;int&gt;&gt;(
+  (v, {host, action, user}) =&gt; v != null &amp;&amp; v &gt;= 0,
+);
+
+final available = TissueValue&lt;int&gt;(250000, testRule: centsRule);
+
+final mccBlock = TissueSet&lt;String&gt;(
+  testRule: TestTissue&lt;String, TissueSet&lt;String&gt;&gt;(
+    (mcc, {host, action, user}) =&gt;
+        mcc.length == 4 &amp;&amp; int.tryParse(mcc) != null,
+  ),
+);
+
+final auditor = ledger.deputy(testRule: TestTissue.readOnly);
+</code></pre>
+<p><code>Cell.ingress(testRule: amountRange)</code> stays <strong><code>TestCell</code></strong>. That rule
+never becomes the <code>testRule</code> on <code>available</code> / <code>ledger</code> / <code>mccBlock</code>.</p>
+<p>Compose Tissue rules with <code>+</code> (<code>TestTissue.allowAll + custom</code>), not by
+wrapping a <code>TestCell</code>.</p>
+<hr>
+<h2 id="why-flow--tissue-not-flow-alone">Why Flow + Tissue (not Flow alone)</h2>
+<p>The enhanced Flow walkthrough already owns:</p>
+<ul>
+<li>TestCell on amount / MCC ingress</li>
+<li>one <code>AuthAttempt</code> snapshot bus</li>
+<li>DECLINE vs STEP-UP as two Receptors</li>
+<li>Distinct-before-Filter and ACK that resets Distinct <strong>on the same handle</strong></li>
+<li><code>AsyncMapWithRetry</code> off the graph for the issuer</li>
+</ul>
+<p>What it still fakes with Dart objects:</p>
+<table>
+<thead>
+<tr>
+<th>Fake in the Flow-only demo</th>
+<th>Real owner in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;LedgerEntry&gt; ledger</code></td>
+<td><code>TissueList&lt;LedgerEntry&gt;</code> — append-only, observable</td>
+</tr>
+<tr>
+<td><code>Cell.state&lt;int&gt; available / holds</code></td>
+<td><code>TissueValue&lt;int&gt;</code> — validated cents, <code>ElementUpdated</code></td>
+</tr>
+<tr>
+<td>open-hold table in a Map</td>
+<td><code>TissueMap&lt;String, Hold&gt;</code> — keyed by auth id</td>
+</tr>
+<tr>
+<td>MCC blocklist <code>const</code></td>
+<td><code>TissueSet&lt;String&gt;</code> — ops can add a code without redeploy</td>
+</tr>
+<tr>
+<td>issuer retry buffer</td>
+<td><code>TissueQueue&lt;IssuerJob&gt;</code> — bounded outbound</td>
+</tr>
+<tr>
+<td>“print the ledger for audit”</td>
+<td><code>ledger.unmodifiable</code> / <code>deputy(testRule: TestTissue.readOnly)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tissue is a <strong>Cell that is a collection</strong>. Every <code>add</code> / <code>update</code> /
+<code>[]=</code> goes through <code>TestTissue</code>, takes the tissue lock, and emits a
+<code>TissuePulse</code> (<code>ElementAdded</code>, <code>ElementRemoved</code>, <code>ElementUpdated</code>).
+That is the audit trail. Flow never stores money.</p>
+<hr>
+<h2 id="design">Design</h2>
+<pre class="language-dart"><code>amountIn   TestCell 1–250_000¢  ─┐
+mccIn      TestCell 4-digit MCC ─┼─ set* → publishAttempt
+velocityIn                      ─┤         → AuthAttempt(...)
+presentIn                       ─┘
+                                      │
+                                      ▼
+                                 attemptIn          Flow
+                        ┌─────────────┴─────────────┐
+                        ▼                           ▼
+                  decline gate                 stepUp gate
+             MapValue + Distinct            MapValue + Distinct
+                  + Filter(decline)              + Filter(stepUp)
+                        │                           ▼
+                        │                      stepUpHandle
+                        ▼
+                  declineHandle
+                        │
+                        ├─ observe DECLINE
+                        │     ledger.add(...)              TissueList
+                        │     issuerQ.addLast(job)         TissueQueue
+                        └─ AsyncMapWithRetry ← issuerQ
+                              issuerHandle
+
+ackIn  3DS / analyst ── resetDistinct()
+                         on approve-after-ACK:
+                           holdsMap[authId] = Hold(...)    TissueMap
+                           available.value -= cents        TissueValue
+                           held.value     += cents         TissueValue
+
+compliance ──────────── ledger.unmodifiable                Deputy
+opsBlocklist ────────── mccBlock.add('7995')               TissueSet
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Impossible amount / MCC <strong>shape</strong></td>
+<td><code>TestCell</code> on ingress Cells</td>
+</tr>
+<tr>
+<td>Blocked MCC <strong>policy</strong></td>
+<td><code>TissueSet&lt;String&gt; mccBlock</code> + <code>riskOf</code> reads it</td>
+</tr>
+<tr>
+<td>One attempt per tick</td>
+<td><code>publishAttempt</code> bus</td>
+</tr>
+<tr>
+<td>DECLINE vs STEP-UP</td>
+<td>two Flow Receptors, same <code>riskOf</code></td>
+</tr>
+<tr>
+<td>No duplicate DECLINE</td>
+<td>Distinct <strong>before</strong> Filter; ACK clears last</td>
+</tr>
+<tr>
+<td>Issuer I/O</td>
+<td><code>TissueQueue</code> + <code>AsyncMapWithRetry</code></td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td><code>TissueList&lt;LedgerEntry&gt;</code> + <code>TestTissue</code> append-only</td>
+</tr>
+<tr>
+<td>Available / held cents</td>
+<td>two <code>TissueValue&lt;int&gt;</code> + non-negative <code>TestTissue</code></td>
+</tr>
+<tr>
+<td>Open authorizations</td>
+<td><code>TissueMap&lt;String, Hold&gt;</code></td>
+</tr>
+<tr>
+<td>Compliance screen</td>
+<td><code>ledger.unmodifiable</code> (live, zero-copy)</td>
+</tr>
+<tr>
+<td>Do not stack graphs</td>
+<td>ACK does <strong>not</strong> call <code>toHandle</code> again</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> <code>ledger.add</code> inside <code>MapValue</code>. The Receptor returns a
+<code>Decision</code>. The observer writes Tissue. If you mutate Tissue inside
+<code>+</code>, you hide the lock and you cannot unit-test <code>riskOf</code> with a Pulse.</p>
+<p>Do <strong>not</strong> replace Distinct with “ledger already has this attempt.”
+The ledger is history. Distinct is the <strong>current alarm latch</strong>. ACK
+clears the latch; it never deletes ledger rows.</p>
+<hr>
+<h2 id="domain">Domain</h2>
+<pre class="language-dart"><code class="language-dart">enum Decision { none, approve, stepUp, decline }
+
+enum Presentment { cardPresent, cardNotPresent }
+
+final class AuthAttempt {
+  const AuthAttempt({
+    required this.authId,
+    required this.mid,
+    required this.amountCents,
+    required this.mcc,
+    required this.velocity,
+    required this.presentment,
+  });
+  final String authId;
+  final String mid;
+  final int amountCents;
+  final String mcc;
+  final int velocity;
+  final Presentment presentment;
+}
+
+final class LedgerEntry {
+  const LedgerEntry({
+    required this.kind, // DECLINE | STEP-UP | APPROVE | ACK | HOLD | CAPTURE | VOID | ISSUER
+    required this.authId,
+    required this.detail,
+    required this.at,
+  });
+  final String kind;
+  final String authId;
+  final String detail;
+  final DateTime at;
+}
+
+final class Hold {
+  const Hold({
+    required this.authId,
+    required this.amountCents,
+    required this.mid,
+  });
+  final String authId;
+  final int amountCents;
+  final String mid;
+}
+
+final class IssuerJob {
+  const IssuerJob({required this.authId, required this.decision});
+  final String authId;
+  final Decision decision;
+}
+</code></pre>
+<p>Suggested <code>riskOf(AuthAttempt a, Set&lt;String&gt; blocked) → Decision</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a.mcc</code> in <code>mccBlock</code> and CNP</td>
+<td><code>decline</code></td>
+</tr>
+<tr>
+<td><code>a.velocity &gt;= 5</code></td>
+<td><code>decline</code></td>
+</tr>
+<tr>
+<td><code>a.amountCents &gt;= 50_000</code> and CNP</td>
+<td><code>stepUp</code></td>
+</tr>
+<tr>
+<td><code>a.amountCents &gt;= 100_000</code></td>
+<td><code>stepUp</code></td>
+</tr>
+<tr>
+<td>else</td>
+<td><code>approve</code> (both gates Filter this away; Distinct sees it as reset fuel)</td>
+</tr>
+</tbody>
+</table>
+<p><code>mccBlock</code> is a TissueSet the demo <strong>mutates in scenario 2</strong> so the
+talk track can say “ops listed 7995; the next CNP grocery-looking
+attempt is still grocery until the set contains 7995.” Seed the set
+empty. Scenario 2 does <code>mccBlock.add('7995')</code> then republishes.</p>
+<p>Amount bounds (1…250_000) stay on <strong>TestCell</strong>. Blocklist membership
+stays on <strong>TissueSet</strong>. Do not merge them into one predicate.</p>
+<hr>
+<h2 id="parts">Parts</h2>
+<h3 id="flow-cells-same-as-the-enhanced-walkthrough">Flow Cells (same as the enhanced walkthrough)</h3>
+<table>
+<thead>
+<tr>
+<th>Cell</th>
+<th>Kind</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>amountIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>0</code>, <code>-1</code>, <code>1_000_000_000</code></td>
+</tr>
+<tr>
+<td><code>mccIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>"99"</code>, <code>"ABCD"</code></td>
+</tr>
+<tr>
+<td><code>velocityIn</code> / <code>presentIn</code></td>
+<td>ingress</td>
+<td>cache fields</td>
+</tr>
+<tr>
+<td><code>attemptIn</code></td>
+<td>ingress <code>&lt;AuthAttempt&gt;</code></td>
+<td>snapshot bus</td>
+</tr>
+<tr>
+<td><code>ackIn</code></td>
+<td>ingress <code>&lt;String&gt;</code></td>
+<td>who cleared 3DS / analyst (<code>authId</code> or <code>"ALL"</code>)</td>
+</tr>
+<tr>
+<td><code>declineHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>DECLINE only</td>
+</tr>
+<tr>
+<td><code>stepUpHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>STEP-UP only</td>
+</tr>
+<tr>
+<td><code>issuerHandle.cell</code></td>
+<td><code>AsyncMapWithRetry</code></td>
+<td>I/O with <code>count: 2</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>_amount</code> / <code>_mcc</code> / <code>_velocity</code> / <code>_present</code> remain a Dart cache.
+<code>setAmount</code> returns false and does <strong>not</strong> call <code>publishAttempt</code> when
+TestCell rejects.</p>
+<h3 id="tissue-collections-this-demos-new-surface">Tissue collections (this demo’s new surface)</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Type</th>
+<th><code>TestTissue</code></th>
+<th>Who writes</th>
+<th>Who reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ledger</code></td>
+<td><code>TissueList&lt;LedgerEntry&gt;</code></td>
+<td>append-only: allow <code>add</code> / <code>addAll</code>; deny <code>remove</code>, <code>clear</code>, <code>[]=</code></td>
+<td>gate observers, hold/capture</td>
+<td>compliance deputy</td>
+</tr>
+<tr>
+<td><code>available</code></td>
+<td><code>TissueValue&lt;int&gt;</code></td>
+<td><code>v != null &amp;&amp; v &gt;= 0</code></td>
+<td>hold / capture / void</td>
+<td>till, risk talk-track</td>
+</tr>
+<tr>
+<td><code>held</code></td>
+<td><code>TissueValue&lt;int&gt;</code></td>
+<td><code>v != null &amp;&amp; v &gt;= 0</code></td>
+<td>hold / capture / void</td>
+<td>till</td>
+</tr>
+<tr>
+<td><code>holdsMap</code></td>
+<td><code>TissueMap&lt;String, Hold&gt;</code></td>
+<td>value cents <code>&gt; 0</code>; key non-empty</td>
+<td>ACK-approve, capture, void</td>
+<td>settlement</td>
+</tr>
+<tr>
+<td><code>mccBlock</code></td>
+<td><code>TissueSet&lt;String&gt;</code></td>
+<td>4-digit MCC string</td>
+<td>ops scenario</td>
+<td><code>riskOf</code></td>
+</tr>
+<tr>
+<td><code>issuerQ</code></td>
+<td><code>TissueQueue&lt;IssuerJob&gt;</code></td>
+<td><code>capacity: 32</code></td>
+<td>decline/step-up observer</td>
+<td>issuer pump</td>
+</tr>
+</tbody>
+</table>
+<p>Seed with <strong>TestTissue on every collection</strong> (see constructors above).
+<code>available = TissueValue&lt;int&gt;(250000, testRule: centsRule)</code>,
+<code>held = TissueValue&lt;int&gt;(0, testRule: centsRule)</code>,
+<code>holdsMap</code> / <code>mccBlock</code> / <code>ledger</code> / <code>issuerQ</code> each constructed with
+their <code>TestTissue</code>, not <code>TestCell</code>. Initial population is silent —
+observers only see <strong>post-create</strong> mutations.</p>
+<h3 id="deputies">Deputies</h3>
+<pre class="language-dart"><code class="language-dart">final books = ledger.unmodifiable;           // live, zero-copy
+final auditor = ledger.deputy(
+  testRule: TestTissue.readOnly,
+);
+</code></pre>
+<p>Scenario “compliance” must show:</p>
+<ol>
+<li><code>auditor.add(...)</code> throws / is blocked.</li>
+<li>After a DECLINE, <code>auditor.length</code> is already <code>ledger.length</code>.</li>
+<li>No copy was taken — <code>identical</code> storage is the lesson, not a
+<code>List.from</code>.</li>
+</ol>
+<p>Do <strong>not</strong> pass the writable <code>ledger</code> to the “UI” printer. Print from
+<code>books</code> / <code>auditor</code> so the talk track has a reason to mention Deputy.</p>
+<h3 id="instruction-flow-unchanged-contract">Instruction (Flow, unchanged contract)</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapValue&lt;AuthAttempt, Decision&gt;</code></td>
+<td><code>riskOf(attempt, mccBlock.toSet())</code></td>
+</tr>
+<tr>
+<td><code>_distinctDecline</code> / <code>_distinctStepUp</code></td>
+<td>closured last; ACK zeroes it</td>
+</tr>
+<tr>
+<td><code>Filter&lt;Decision&gt;(decline)</code> / <code>stepUp</code></td>
+<td>drop the other decisions</td>
+</tr>
+</tbody>
+</table>
+<p><code>riskOf</code> may <strong>read</strong> <code>mccBlock</code>. It must not <code>add</code> to it.</p>
+<p>Order is mandatory: <code>riskOf → Distinct → Filter</code>.</p>
+<p>Library <code>DistinctUntilChanged</code> is not used: ACK cannot reset it
+without a new handle.</p>
+<h3 id="receptor">Receptor</h3>
+<p><code>buildDeclineGate().toHandle(source: attemptIn.cell)</code> once at
+<code>installGates()</code>. Same for STEP-UP. One lock per gate.</p>
+<p>Tissue has its <strong>own</strong> lock on each collection. Do not assume the
+Receptor lock covers <code>ledger.add</code>. That is why the observer does the
+write: two locks, two owners, two talk-track sentences.</p>
+<h3 id="operators-the-demo-must-actually-call">Operators the demo must actually call</h3>
+<p>Flow: <code>MapValue</code>, <code>Filter</code>, custom Distinct <code>FlowInstruction</code>,
+<code>AsyncMapWithRetry</code> (<code>count</code>, not <code>retries</code>), <code>Cell.observe</code>,
+<code>Cell.ingress(testRule:)</code>.</p>
+<p>Tissue: <code>TissueList.of</code> / <code>TissueList()</code>, <code>TissueValue</code>, <code>TissueMap</code>,
+<code>TissueSet</code>, <code>TissueQueue</code>, <code>TestTissue(...)</code>, <code>TestTissue.readOnly</code>,
+<code>.unmodifiable</code>, <code>.deputy(...)</code>, <code>.listen</code> / <code>Cell.observe</code> on the
+tissue (tissues <strong>are</strong> Cells).</p>
+<p>Prefer observing Tissue with:</p>
+<pre class="language-dart"><code class="language-dart">ledger.listen((TissuePulse e) {
+  if (e is ElementAdded&lt;LedgerEntry&gt;) {
+    print('[ledger] ${e.payload.kind} ${e.payload.authId}');
+  }
+});
+</code></pre>
+<p>and values with <code>ElementUpdated</code> (payload is <code>ElementUpdatedRecord</code>).
+If the demo harness only has <code>Cell.observe</code>, that is acceptable —
+print <code>pulse.payload</code> and tag <code>[available]</code> / <code>[held]</code>.</p>
+<hr>
+<h2 id="money--tissuevalue--tissuemap-not-celltransaction">Money — TissueValue + TissueMap, not Cell.transaction</h2>
+<p>The Flow-only doc used <code>Cell.transaction</code> because <code>Cell.state</code> has no
+collection pulse. Here the books <strong>are</strong> tissues. A hold is three
+mutations that must stay consistent:</p>
+<pre class="language-text"><code class="language-text">holdsMap[authId] = Hold(...)
+available.value = available.value! - cents
+held.value      = held.value! + cents
+ledger.add(LedgerEntry(kind: 'HOLD', ...))
+</code></pre>
+<p><strong>v1 requirement (must implement):</strong> perform the three writes in one
+dart <code>Future</code> on the ACK/approve observer. If <code>available</code> TestTissue
+rejects (would go negative), <strong>do not</strong> leave a map row behind —
+remove the map entry and do not append HOLD.</p>
+<p><strong>v1 invariant after every successful money method:</strong></p>
+<pre class="language-dart"><code>available.value! + held.value! + capturedCents == 250000
+</code></pre>
+<p><code>capturedCents</code> is a running int in the harness (consumed sales).
+After a void, <code>capturedCents</code> is unchanged and the cents return
+<code>held → available</code>.</p>
+<p><strong>v2 (optional, do not block the demo):</strong> wrap the three writes in
+<code>Cell.transaction</code> <strong>and</strong> Tissue updates if the running cell_tissue
+build exposes a joint commit. If it does not, stay on the v1
+try/compensate in the observer and say so in the file header.</p>
+<p>Never debit inside <code>riskOf</code>.</p>
+<hr>
+<h2 id="implementation-map">Implementation map</h2>
+<table>
+<thead>
+<tr>
+<th>Block in the dart file</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture / expected output comments</td>
+<td>talk track</td>
+</tr>
+<tr>
+<td><code>AuthAttempt</code> / <code>Decision</code> / <code>LedgerEntry</code> / <code>Hold</code> / <code>IssuerJob</code></td>
+<td>domain</td>
+</tr>
+<tr>
+<td><code>amountRange</code> / <code>mccShape</code></td>
+<td>TestCell on Cells</td>
+</tr>
+<tr>
+<td><code>mccBlock</code> TissueSet + <code>ledger</code> TestTissue append-only</td>
+<td>Tissue policy</td>
+</tr>
+<tr>
+<td><code>publishAttempt</code> / <code>set*</code></td>
+<td>bus</td>
+</tr>
+<tr>
+<td><code>riskOf(attempt, mccBlock)</code></td>
+<td>Flow policy, reads TissueSet</td>
+</tr>
+<tr>
+<td><code>_distinctDecline</code> + <code>resetDistinct</code></td>
+<td>ACK / 3DS</td>
+</tr>
+<tr>
+<td><code>installGates</code></td>
+<td>two Receptors + issuer + observes</td>
+</tr>
+<tr>
+<td><code>placeHold</code> / <code>capture</code> / <code>voidHold</code></td>
+<td>TissueValue + TissueMap</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>seed + scenarios 1–13</td>
+</tr>
+</tbody>
+</table>
+<p><code>installGates</code> runs <strong>once</strong>. ACK only touches Distinct fields and
+then calls <code>placeHold</code> when the talk track says “approve after 3DS.”</p>
+<hr>
+<h2 id="scenarios-what-the-last-good-run-must-show">Scenarios (what the last good run must show)</h2>
+<p>Seed merchant <code>M-4419</code>, <code>available=250000</code>, <code>held=0</code>, card-present,
+amount <code>7200</code>, MCC <code>5411</code>, velocity <code>0</code>, <code>mccBlock</code> empty.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Drive</th>
+<th>Result</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed</td>
+<td>7200 / 5411 / present / vel 0</td>
+<td>one attempt, <strong>no</strong> DECLINE, ledger still empty</td>
+<td>bus + Filter; initial Tissue is silent</td>
+</tr>
+<tr>
+<td>1</td>
+<td>repeat 7200 / 5411</td>
+<td>no DECLINE</td>
+<td>Distinct on <code>approve</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>mccBlock.add('7995')</code>, then MCC 7995 CNP 7200</td>
+<td><strong>DECLINE</strong> + <code>ElementAdded</code> on ledger + <code>issuerQ.addLast</code></td>
+<td>TissueSet feeds <code>riskOf</code>; list pulse is the audit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>grocery+present then 7995 CNP again</td>
+<td><strong>DECLINE</strong> after recover</td>
+<td>Distinct <code>none</code>→<code>decline</code></td>
+</tr>
+<tr>
+<td>4–5</td>
+<td>7995 again, then 200000 on 7995</td>
+<td><strong>no</strong> new DECLINE</td>
+<td>Distinct holds; ledger does <strong>not</strong> grow</td>
+</tr>
+<tr>
+<td>STEP-UP</td>
+<td>60000 CNP 5411</td>
+<td><strong>STEP-UP</strong> + ledger row</td>
+<td>second Receptor; blocklist does not apply to 5411</td>
+</tr>
+<tr>
+<td>6</td>
+<td>7200 / 5411 present then ACK</td>
+<td>Distinct cleared; no money yet</td>
+<td>ACK ≠ new <code>toHandle</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>7995 CNP 7200</td>
+<td><strong>one</strong> DECLINE</td>
+<td>reset Distinct</td>
+</tr>
+<tr>
+<td>8</td>
+<td>amount <code>-1</code>, MCC <code>"99"</code></td>
+<td>TestCell lines; <strong>no</strong> attempt; ledger unchanged</td>
+<td>Cell ingress ≠ Tissue</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ACK, recover, 7995, issuer fail-once</td>
+<td><strong>one</strong> DECLINE; <code>issuerAttempts</code> includes retry</td>
+<td>queue + <code>AsyncMapWithRetry</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>STEP-UP 60000, ACK as approve, <code>placeHold</code></td>
+<td><code>available=190000</code>, <code>held=60000</code>, <code>holdsMap</code> has one row, ledger <code>HOLD</code></td>
+<td>TissueValue + TissueMap</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>placeHold(200000)</code> while 10 is open</td>
+<td>NSF / TestTissue reject; map row count stays 1</td>
+<td>non-negative rule</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>capture</code> the 60000 hold</td>
+<td><code>held=0</code>, <code>available=190000</code>, map empty, ledger <code>CAPTURE</code></td>
+<td>capture ≠ second debit</td>
+</tr>
+<tr>
+<td>13</td>
+<td>new 10000 hold then <code>voidHold</code></td>
+<td>available back to <code>190000</code>, ledger <code>VOID</code></td>
+<td>compensate on Tissue</td>
+</tr>
+<tr>
+<td>COMPLY</td>
+<td><code>auditor.add(...)</code></td>
+<td>blocked; <code>auditor.length == ledger.length</code></td>
+<td>Deputy / <code>unmodifiable</code> is live</td>
+</tr>
+</tbody>
+</table>
+<p>Good-run counts from the executable trailer:</p>
+<pre class="language-text"><code class="language-text">attempts=13 declines=4 stepUps=2 ledger=17 issuerAttempts=5
+available=190000 held=0 openHolds=0 captured=60000
+auditorLength=17 (same as ledger)
+invariant available+held+captured = 250000 (expected 250000)
+</code></pre>
+<p>Four DECLINE pulses: scenarios <strong>2</strong>, <strong>3b</strong>, <strong>7</strong>, <strong>9b</strong>.
+Two STEP-UP pulses: <strong>SU-1</strong> and <strong>H-1</strong>. Ledger 17 is
+DECLINE/ISSUER/ACK/HOLD/CAPTURE/VOID rows only — Seed and approve
+attempts never append. <code>issuerAttempts=5</code> because scenario 9
+fails the first issuer call and retries.</p>
+<p>Print that trailer. Numbers in § Executable steps must match it.</p>
+<hr>
+<h2 id="executable-steps-seed--113--step-up--comply">Executable steps (Seed + 1–13 + STEP-UP + COMPLY)</h2>
+<p>These are the steps <code>card-auth-pipeline(tissue)-Demo.dart</code> actually
+runs. Numbers match the <code>── N ──</code> banners in the console. Seed is
+unnumbered but required: without it Distinct has no first
+<code>approve</code>, and “repeat does not decline” in step 1 is meaningless.</p>
+<p><strong>Seam reminder at every step.</strong> Flow answers “may this attempt
+become a DECLINE or STEP-UP pulse?” Tissue answers “what did the
+books just record, and did money move?” The observer is the only
+glue. <code>riskOf</code> never writes <code>available</code>. <code>placeHold</code> never runs
+inside the Receptor.</p>
+<p><strong>Documented deviations the executable takes</strong> (header of the demo):</p>
+<ul>
+<li>Tissue constructors: <code>TissueSet</code> / <code>TissueValue</code> take the initial
+value as the <strong>first positional</strong> argument; <code>TissueMap</code> puts
+<code>testRule</code> on the nucleus via <code>properties:</code>.</li>
+<li>Each <code>TestCell</code> unwraps <code>Pulse.payload</code> before the shape check.</li>
+<li>Issuer pump: <code>issuerQ.addLast</code> is the audit enqueue;
+<code>_issuerWork</code> + <code>_driveIssuer</code> is the retry list (this build’s
+<code>TissueQueue</code> does not drain via <code>removeFirst</code>).</li>
+<li>Trace prints come from the writers themselves. Tissue-cell
+<code>Cell.observe</code> is silent in this build.</li>
+</ul>
+<p>Money invariant after every successful money method:</p>
+<pre class="language-dart"><code>available.value + held.value + capturedCents == 250000
+</code></pre>
+<hr>
+<h3 id="seed--7200--5411--present--vel-0">Seed — 7200 / 5411 / present / vel 0</h3>
+<p><strong>Lesson:</strong> snapshot bus + Filter. Initial Tissue population is
+silent.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(7200);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: 'SEED');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>amountIn</code> TestCell accepts <code>7200</code> (1..250_000¢).</li>
+<li><code>mccIn</code> TestCell accepts <code>'5411'</code> (exactly 4 digits).</li>
+<li><code>publishAttempt</code> emits <code>AuthAttempt(SEED, 7200¢, 5411, present)</code>.</li>
+<li>Both gates run <code>riskOf</code> → <code>approve</code>. Distinct records <code>approve</code>.
+Filter(decline) and Filter(stepUp) both drop.</li>
+<li>Ledger is still empty: Seed does not append, and the initial
+<code>available=250000</code> / <code>held=0</code> writes were constructor-time
+(observers never saw them).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── Seed ── 7200 / 5411 / present / vel 0
+  ledger.isEmpty=true
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[ledger] DECLINE</code> / <code>STEP-UP</code>.</li>
+<li>No issuer enqueue.</li>
+<li>No money movement.</li>
+</ul>
+<hr>
+<h3 id="step-1--repeat-7200--5411">Step 1 — repeat 7200 / 5411</h3>
+<p><strong>Lesson:</strong> Distinct on <code>approve</code>. The DECLINE gate never sees
+<code>approve</code> as a fireable decision, and Distinct would drop a
+repeat anyway.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishAttempt(authId: '1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>Same snapshot as Seed. <code>riskOf</code> → <code>approve</code> again.</li>
+<li><code>_distinctDecline</code> / <code>_distinctStepUp</code> already hold <code>approve</code>
+→ both return <code>null</code>.</li>
+<li><code>h.declines</code> does not increment.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 1 ── repeat 7200 / 5411
+  new declines: 0
+</code></pre>
+<hr>
+<h3 id="step-2--ops-adds-7995-then-mcc-7995-cnp-7200">Step 2 — ops adds 7995, then MCC 7995 CNP 7200</h3>
+<p><strong>Lesson:</strong> TissueSet feeds <code>riskOf</code>. The DECLINE observer is the
+audit trail. Two locks: Receptor then TissueList / TissueQueue.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.mccBlock.add('7995');
+h.setAmount(7200);
+h.setMcc('7995');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '2');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>mccBlock.add('7995')</code> — <code>TestTissue</code> on the set accepts a
+4-digit MCC. This is <strong>not</strong> a Flow pulse.</li>
+<li><code>publishAttempt('2')</code> — CNP + blocked MCC → <code>riskOf</code> =
+<code>decline</code>.</li>
+<li>DECLINE Distinct was <code>approve</code> → emits <code>decline</code>. Filter
+passes. STEP-UP Filter drops.</li>
+<li>DECLINE observer: <code>ledger.add(DECLINE 2)</code>,
+<code>issuerQ.addLast(IssuerJob(2, decline))</code>, <code>_driveIssuer</code>.</li>
+<li>Issuer pump succeeds on the first try → <code>ledger.add(ISSUER 2)</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 2 ── mccBlock.add('7995'), then MCC 7995 CNP 7200
+[mccBlock] +7995
+[ledger] DECLINE 2 — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(2, decline)
+[ledger] ISSUER 2 — decline
+  new declines: 1
+  issuerQ.length=1
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>available</code> / <code>held</code> write. Decline does not move money.</li>
+<li>No second <code>toHandle</code>.</li>
+</ul>
+<hr>
+<h3 id="step-3--grocerypresent-then-7995-cnp-again">Step 3 — grocery+present then 7995 CNP again</h3>
+<p><strong>Lesson:</strong> Distinct <code>approve</code> → <code>decline</code>. Recovering to grocery
+present is what lets the next blocked CNP fire again.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(7200);
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: '3a');
+h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '3b');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>3a</code> grocery present → <code>approve</code>. DECLINE Distinct moves off
+<code>decline</code> to <code>approve</code> (Filter still drops approve).</li>
+<li><code>3b</code> 7995 CNP → <code>decline</code>. Distinct <code>approve</code> → <code>decline</code> →
+emit. Observer appends DECLINE 3b + ISSUER 3b.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 3 ── grocery+present then 7995 CNP again
+[ledger] DECLINE 3b — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(3b, decline)
+[ledger] ISSUER 3b — decline
+  new declines: 1
+</code></pre>
+<p><code>3a</code> itself must not print a DECLINE row.</p>
+<hr>
+<h3 id="step-4--7995-again-should-not-re-decline">Step 4 — 7995 again (should not re-decline)</h3>
+<p><strong>Lesson:</strong> Distinct holds <code>decline</code>. Same decision, same latch.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishAttempt(authId: '4');
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 4 ── 7995 again (should not re-decline)
+  new declines: 0
+</code></pre>
+<p>Ledger does not grow. Issuer does not enqueue.</p>
+<hr>
+<h3 id="step-5--200000-on-7995">Step 5 — 200000 on 7995</h3>
+<p><strong>Lesson:</strong> Distinct keys on <strong>Decision</strong>, not amount. Raising
+cents does not create a new decline while the latch is still
+<code>decline</code>.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(200000);
+await h.publishAttempt(authId: '5');
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 5 ── 200000 on 7995
+  new declines: 0
+</code></pre>
+<p>Even though 200000 CNP would also be <code>stepUp</code> on an unblocked MCC,
+7995 + CNP is still <code>decline</code> first in <code>riskOf</code>. The STEP-UP gate
+never sees it.</p>
+<hr>
+<h3 id="step-up--60000-cnp-5411">STEP-UP — 60000 CNP 5411</h3>
+<p><strong>Lesson:</strong> second Receptor, independent Distinct. Blocklist does
+not apply to 5411.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(60000);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: 'SU-1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>riskOf</code>: 5411 not in <code>mccBlock</code>; amount ≥ 50_000 and CNP →
+<code>stepUp</code>.</li>
+<li>STEP-UP Distinct was <code>approve</code> (from earlier grocery) → emit.
+Filter(stepUp) passes. DECLINE Filter drops.</li>
+<li>STEP-UP observer appends <code>STEP-UP SU-1</code>. No issuer job (this
+demo only enqueues on DECLINE).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── STEP-UP ── 60000 CNP 5411
+[ledger] STEP-UP SU-1 — amount=60000¢ CNP
+  new step-ups: 1
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>placeHold</code> here. STEP-UP is a decision, not a debit.</li>
+<li><code>available</code> stays 250000.</li>
+</ul>
+<hr>
+<h3 id="step-6--7200--5411-present-then-ack">Step 6 — 7200 / 5411 present then ACK</h3>
+<p><strong>Lesson:</strong> ACK clears both Distinct latches on the <strong>same</strong>
+Receptors. No money yet.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(7200);
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+await h.publishAttempt(authId: '6');
+await h.ack('6');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>Attempt 6 is <code>approve</code> — both Filters drop.</li>
+<li><code>ackIn</code> observer: <code>resetDistinct()</code> zeroes <code>_lastDecline</code> and
+<code>_lastStepUp</code>, then appends <code>ACK 6</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 6 ── 7200 / 5411 present then ACK
+[ledger] ACK 6 — distinct cleared
+  available=250000 held=0
+</code></pre>
+<p>ACK is <strong>not</strong> <code>toHandle</code> again. A second handle would double
+every later DECLINE.</p>
+<hr>
+<h3 id="step-7--7995-cnp-7200">Step 7 — 7995 CNP 7200</h3>
+<p><strong>Lesson:</strong> after ACK the same decline is a <strong>new</strong> pulse.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: '7');
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 7 ── 7995 CNP 7200
+[ledger] DECLINE 7 — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(7, decline)
+[ledger] ISSUER 7 — decline
+  new declines: 1
+</code></pre>
+<p>This is DECLINE pulse #3 (2, 3b, 7).</p>
+<hr>
+<h3 id="step-8--amount--1-mcc-99-testcell">Step 8 — amount -1, MCC <code>"99"</code> (TestCell)</h3>
+<p><strong>Lesson:</strong> Cell ingress ≠ Tissue. Shape dies at the edge. The
+ledger never hears about a pulse that was not published.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final rejectedAmount = h.setAmount(-1);
+final rejectedMcc = h.setMcc('99');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>_amountShape</code> unwraps <code>Pulse.payload</code>, sees <code>-1</code>, returns
+<code>false</code>. <code>_amount</code> cache is <strong>not</strong> overwritten.</li>
+<li><code>_mccShapeRule</code> rejects <code>"99"</code> (not 4 digits). <code>_mcc</code> stays
+<code>'7995'</code>.</li>
+<li><code>publishAttempt</code> is <strong>not</strong> called. Tissue idle.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 8 ── amount -1, MCC "99"
+  amount -1 accepted=false
+  mcc "99" accepted=false
+  ledger grew: 0
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>TestTissue</code> involvement.</li>
+<li>No <code>[ingress]</code> lines required if <code>setAmount</code> / <code>setMcc</code> swallow
+the rejection (the executable reports via the accepted flags).</li>
+</ul>
+<hr>
+<h3 id="step-9--ack-recover-7995-issuer-fail-once">Step 9 — ACK, recover, 7995, issuer fail-once</h3>
+<p><strong>Lesson:</strong> queue + retry. One DECLINE pulse, two issuer attempts.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.ack('9-pre');
+h.setMcc('5411');
+h.setPresent(Presentment.cardPresent);
+h.setAmount(7200);
+await h.publishAttempt(authId: '9a');
+h.setMcc('7995');
+h.setPresent(Presentment.cardNotPresent);
+h.issuerFailOnce = true;
+await h.publishAttempt(authId: '9b');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>ACK 9-pre clears Distinct again.</li>
+<li><code>9a</code> grocery present → approve (resets latch to approve).</li>
+<li><code>9b</code> 7995 CNP → DECLINE 9b + enqueue. <code>_driveIssuer</code> throws
+once (<code>issuerFailOnce</code>), then retries and appends
+<code>ISSUER 9b — decline (retry)</code>.</li>
+<li><code>issuerAttempts</code> ends at 5: prior successful issuer calls
+(2, 3b, 7) plus fail + retry on 9b.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 9 ── ACK, recover, 7995, issuer fail-once
+[ledger] ACK 9-pre — distinct cleared
+[ledger] DECLINE 9b — mcc=7995 amount=7200¢
+[issuerQ] enqueued IssuerJob(9b, decline)
+[ledger] ISSUER 9b — decline (retry)
+  new declines: 1
+  issuerAttempts=5
+</code></pre>
+<p>DECLINE pulse count for this step is <strong>1</strong>. The retry is issuer
+I/O, not a second Receptor fire.</p>
+<hr>
+<h3 id="step-10--step-up-60000-ack-as-approve-placehold">Step 10 — STEP-UP 60000, ACK as approve, placeHold</h3>
+<p><strong>Lesson:</strong> TissueValue + TissueMap. Decision and debit are
+separate moments.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setAmount(60000);
+h.setMcc('5411');
+h.setVelocity(0);
+h.setPresent(Presentment.cardNotPresent);
+await h.publishAttempt(authId: 'H-1');
+await h.ack('H-1');
+final ok10 = h.placeHold('H-1', 60000, 'M-4419');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>riskOf</code> → <code>stepUp</code> (60000 CNP 5411). STEP-UP observer appends
+<code>STEP-UP H-1</code>.</li>
+<li>ACK clears Distinct and appends <code>ACK H-1</code>.</li>
+<li><code>placeHold</code> v1 protocol:
+<ol>
+<li>NSF check: 250000 ≥ 60000.</li>
+<li><code>holdsMap['H-1'] = Hold(...)</code>.</li>
+<li><code>available.set(190000)</code> — print <code>[available]</code>.</li>
+<li><code>held.set(60000)</code> — print <code>[held]</code>.</li>
+<li><code>ledger.add(HOLD H-1)</code>.</li>
+</ol>
+</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 10 ── STEP-UP 60000, ACK as approve, placeHold
+[ledger] STEP-UP H-1 — amount=60000¢ CNP
+[ledger] ACK H-1 — distinct cleared
+[available] 250000 → 190000
+[held] 0 → 60000
+[ledger] HOLD H-1 — 60000¢
+  placeHold ok=true
+  available=190000 held=60000 openHolds=1
+</code></pre>
+<p>Invariant: 190000 + 60000 + 0 = 250000.</p>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li><code>riskOf</code> must not call <code>placeHold</code>.</li>
+<li><code>available</code> must not move during the STEP-UP pulse itself —
+only inside <code>placeHold</code> after ACK.</li>
+</ul>
+<hr>
+<h3 id="step-11--placehold200000-while-10-is-open-nsf">Step 11 — placeHold(200000) while 10 is open (NSF)</h3>
+<p><strong>Lesson:</strong> non-negative / NSF guard. No orphan map row.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok11 = h.placeHold('H-2', 200000, 'M-4419');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>available</code> is 190000 &lt; 200000 → <code>placeHold</code> returns <code>false</code>
+<strong>before</strong> writing the map.</li>
+<li><code>openHolds</code> stays 1 (<code>H-1</code> only).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 11 ── placeHold(200000) while 10 is open
+  placeHold ok=false openHolds stayed=true
+</code></pre>
+<p>No <code>[available]</code>, no <code>[held]</code>, no <code>HOLD H-2</code> row.</p>
+<hr>
+<h3 id="step-12--capture-the-60000-hold">Step 12 — capture the 60000 hold</h3>
+<p><strong>Lesson:</strong> capture ≠ second debit. Cents leave <code>held</code> into
+<code>capturedCents</code>. <code>available</code> does not move.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok12 = h.capture('H-1');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li>Look up <code>holdsMap['H-1']</code>.</li>
+<li>Remove the map row.</li>
+<li><code>held.set(0)</code> — print <code>[held] 60000 → 0</code>.</li>
+<li><code>capturedCents += 60000</code>.</li>
+<li><code>ledger.add(CAPTURE H-1)</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 12 ── capture the 60000 hold
+[held] 60000 → 0
+[ledger] CAPTURE H-1 — 60000¢
+  capture ok=true
+  available=190000 held=0 openHolds=0 captured=60000
+</code></pre>
+<p>Invariant: 190000 + 0 + 60000 = 250000.</p>
+<hr>
+<h3 id="step-13--new-10000-hold-then-voidhold">Step 13 — new 10000 hold then voidHold</h3>
+<p><strong>Lesson:</strong> compensate on Tissue. Void returns cents from <code>held</code>
+to <code>available</code>. Sale was never captured.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok13a = h.placeHold('H-3', 10000, 'M-4419');
+final ok13b = h.voidHold('H-3');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>placeHold('H-3', 10000)</code>:
+<ul>
+<li><code>[available] 190000 → 180000</code></li>
+<li><code>[held] 0 → 10000</code></li>
+<li><code>[ledger] HOLD H-3 — 10000¢</code></li>
+</ul>
+</li>
+<li><code>voidHold('H-3')</code>:
+<ul>
+<li>remove map row</li>
+<li><code>[held] 10000 → 0</code></li>
+<li><code>[available] 180000 → 190000</code></li>
+<li><code>[ledger] VOID H-3 — 10000¢</code></li>
+<li><code>capturedCents</code> unchanged at 60000</li>
+</ul>
+</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 13 ── new 10000 hold then voidHold
+[available] 190000 → 180000
+[held] 0 → 10000
+[ledger] HOLD H-3 — 10000¢
+[held] 10000 → 0
+[available] 180000 → 190000
+[ledger] VOID H-3 — 10000¢
+  placeHold ok=true voidHold ok=true
+  available=190000 held=0 openHolds=0
+</code></pre>
+<p>Invariant: 190000 + 0 + 60000 = 250000.</p>
+<hr>
+<h3 id="comply--auditoradd-blocked-length--ledgerlength">COMPLY — auditor.add blocked; length == ledger.length</h3>
+<p><strong>Lesson:</strong> <code>ledger.unmodifiable</code> is a live, zero-copy deputy.
+Writes are blocked (throw <strong>or</strong> silent swallow). Reads share
+storage.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final auditor = h.ledger.unmodifiable;
+final ledgerBefore = h.ledger.length;
+auditor.add(LedgerEntry(kind: 'HACK', ...));
+blocked = h.ledger.length == ledgerBefore; // or catch
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>auditor.add</code> must not grow <code>ledger</code>.</li>
+<li><code>auditor.length == ledger.length</code> after the attempt (17).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── COMPLY ── auditor.add(...) blocked; length == ledger.length
+  auditor.add blocked=true
+  auditor.length=17 ledger.length=17
+</code></pre>
+<p>17 rows in the last good run:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Count</th>
+<th>Auth ids</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DECLINE</td>
+<td>4</td>
+<td>2, 3b, 7, 9b</td>
+</tr>
+<tr>
+<td>ISSUER</td>
+<td>4</td>
+<td>same four</td>
+</tr>
+<tr>
+<td>STEP-UP</td>
+<td>2</td>
+<td>SU-1, H-1</td>
+</tr>
+<tr>
+<td>ACK</td>
+<td>3</td>
+<td>6, 9-pre, H-1</td>
+</tr>
+<tr>
+<td>HOLD</td>
+<td>2</td>
+<td>H-1, H-3</td>
+</tr>
+<tr>
+<td>CAPTURE</td>
+<td>1</td>
+<td>H-1</td>
+</tr>
+<tr>
+<td>VOID</td>
+<td>1</td>
+<td>H-3</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="trailer">Trailer</h3>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">------------------------------------------------------------------------
+attempts=13 declines=4 stepUps=2 ledger=17 issuerAttempts=5
+available=190000 held=0 openHolds=0 captured=60000
+auditorLength=17 (same as ledger)
+invariant available+held+captured = 250000 (expected 250000)
+------------------------------------------------------------------------
+</code></pre>
+<p>Then <code>h.dispose()</code> stops every observer attached in <code>install</code>.</p>
+<hr>
+<h2 id="pulse-path-scenario-2">Pulse path (scenario 2)</h2>
+<pre class="language-dart"><code>mccBlock.add('7995')
+  TestTissue on TissueSet pass
+  ElementAdded&lt;String&gt; on mccBlock
+
+setMcc('7995'); setPresent(cardNotPresent); setAmount(7200)
+  mccIn.emit — TestCell pass
+  publishAttempt → attemptIn
+    decline Receptor: MapValue decline → Distinct emit → Filter pass
+    stepUp Receptor: Filter drop
+    observe DECLINE
+      ledger.add(...)           → ElementAdded&lt;LedgerEntry&gt;
+      issuerQ.addLast(...)      → ElementAdded&lt;IssuerJob&gt;
+    AsyncMapWithRetry → issuer cell
+</code></pre>
+<p>Scenario 8 stops at <code>amountIn.emit</code> / <code>mccIn.emit</code>. Tissue is idle.</p>
+<p>Scenario 10 never enters <code>riskOf</code> for the debit. The ACK observer
+calls <code>placeHold</code>. If you debit inside <code>riskOf</code>, two STEP-UPs before
+ACK will steal the balance twice.</p>
+<hr>
+<h2 id="who-owns-the-lock">Who owns the lock</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>riskOf</code> + Distinct + Filter</td>
+<td>Receptor lock on <code>declineHandle</code> / <code>stepUpHandle</code></td>
+</tr>
+<tr>
+<td><code>ledger.add</code></td>
+<td>TissueList lock</td>
+</tr>
+<tr>
+<td><code>available</code> / <code>held</code> write</td>
+<td>that TissueValue lock</td>
+</tr>
+<tr>
+<td><code>holdsMap[id] = ...</code></td>
+<td>TissueMap lock</td>
+</tr>
+<tr>
+<td>issuer Future</td>
+<td>none of the above — <code>AsyncMapWithRetry</code></td>
+</tr>
+</tbody>
+</table>
+<p>Do not “fix” a race by putting <code>ledger.add</code> inside the Instruction.
+Teach the two locks.</p>
+<hr>
+<h2 id="real-rail-vs-this-file">Real rail vs this file</h2>
+<table>
+<thead>
+<tr>
+<th>Still missing</th>
+<th>Suggested next piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot is a Dart cache</td>
+<td>merchant Nucleus / <code>Cell.synthesis</code></td>
+</tr>
+<tr>
+<td>No 10–15 s “finger on glass”</td>
+<td><code>Debounce</code> / <code>Throttle</code> in front of <code>attemptIn</code></td>
+</tr>
+<tr>
+<td>Joint commit across tissues</td>
+<td><code>Cell.transaction</code> spanning TissueValues when the API allows</td>
+</tr>
+<tr>
+<td>Settlement batch</td>
+<td><code>BufferTime</code> overnight <strong>or</strong> drain <code>TissueQueue</code> on a timer</td>
+</tr>
+<tr>
+<td>Multi-currency</td>
+<td><code>TestCell</code> on ISO-4217 <strong>ingress</strong>; <code>TestTissue</code> on the FX <code>TissueMap</code></td>
+</tr>
+<tr>
+<td>Scheme STIP / partial auth</td>
+<td>third Receptor + extra Decision</td>
+</tr>
+<tr>
+<td>Persistent books</td>
+<td>same Tissue API in front of a store; demo stays in-process</td>
+</tr>
+</tbody>
+</table>
+<p>Flow stays on “is this DECLINE / STEP-UP?”<br>
+TestCell stays on the <strong>amount / MCC ingress</strong>.<br>
+TestTissue stays on <strong>collection mutations</strong>.<br>
+ACK stays a flag on Distinct.<br>
+Tissue stays the <strong>books and the blocklist</strong>.<br>
+Deputy stays the <strong>compliance screen</strong>.</p>
+<hr>
+<h2 id="acceptance-the-demo-is-done-when">Acceptance (the demo is done when)</h2>
+<ol>
+<li><code>dart run card-auth-pipeline(tissue)-Demo.dart</code> prints every row
+in the scenario table with the <strong>Result</strong> column matched.</li>
+<li>Grep shows exactly <strong>two</strong> <code>toHandle(</code> calls for the risk gates,
+both inside <code>installGates</code>, none inside ACK.</li>
+<li><code>riskOf</code> has no <code>await</code>, no <code>available</code> write, no <code>ledger.add</code>.</li>
+<li>Scenario 2 mutates <code>mccBlock</code> (TissueSet) <strong>before</strong> the decline.</li>
+<li>Scenario 8 prints TestCell rejection and does not append ledger.</li>
+<li>Scenario 9 shows a retry in <code>issuerAttempts</code> and still <strong>one</strong>
+DECLINE pulse.</li>
+<li>Scenarios 10–13 keep
+<code>available + held + capturedCents == 250000</code>.</li>
+<li>COMPLY shows the read-only deputy blocked on <code>add</code> and live on
+<code>length</code>.</li>
+<li>File header diagram matches this document.</li>
+<li>No Dart <code>List&lt;LedgerEntry&gt;</code> is the system of record. A local
+<code>List</code> used only to format the trailer is allowed.</li>
+<li>Every <code>TissueList</code> / <code>TissueSet</code> / <code>TissueMap</code> / <code>TissueQueue</code> /
+<code>TissueValue</code> / <code>.deputy(</code> constructed in the demo passes
+<code>TestTissue</code> (or omits the argument and takes <code>TestTissue.allowAll</code>).
+Grep must show <strong>zero</strong> <code>testRule: TestCell</code> on those calls.</li>
+</ol>
+<hr>
+<h2 id="name-plate">Name plate</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>This requirement / walkthrough</td>
+<td><code>card-auth-pipeline(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Working demo</td>
+<td><code>card-auth-pipeline(tissue)-Demo.dart</code></td>
+</tr>
+<tr>
+<td>Flow-only sibling (already written)</td>
+<td><code>card-auth-pipeline(enhanced)-WalkThrough.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Same pairing style as <code>ICU-alarm-pipeline(enhanced)-*</code>.
+Keep the Flow-only filename. This file is the Tissue lesson, not a
+rename of the Receptor lesson.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Fintech Pipeline topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Fintech Pipeline topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Fintech Pipeline-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">Cell.new factory constructor</li>
   </ol>
@@ -63,36 +63,45 @@
     
 <section class="desc markdown">
   <p>Creates a standard, stateful <a href="../../cell_tissue/Cell-class.html">Cell</a> instance—the foundational execution
-node of the reactive <strong>Switching Fabric</strong>.</p>
+node of the reactive network.</p>
 <p>This factory is the primary <strong>Human-Centric</strong> entry point for the framework.
 It assembles the cell's <strong>Architectural Nucleus</strong> with sensible defaults,
 allowing developers to focus on business logic without the overhead of
-explicit governance configuration.</p>
+explicit governance or security configuration.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need a basic reactive node that processes pulses
-without persistent state. Most applications will use <a href="../../cell_tissue/Cell/value.html">Cell.value</a> or
-<a href="../../cell_tissue/Cell/ingress.html">Cell.ingress</a> instead; this constructor is a fallback for custom
-relays or stateless processors.</p>
+<p>Use this when you need a basic reactive node that processes pulses,
+transforms data, or acts as a relay in a larger topology. While most
+applications will use specialized factories like <a href="../../cell_tissue/Cell/state.html">Cell.state</a> or
+<a href="../../cell_tissue/Cell/ingress.html">Cell.ingress</a>, this constructor remains the most flexible way to
+define custom stateless or stateful processors.</p>
 <h3 id="how-it-works">How it works</h3>
+<p>The factory wraps the provided parameters into an internal <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a>,
+which acts as the cell's "DNA":</p>
 <ul>
-<li><code>bind</code>: Links to an upstream cell – this cell will automatically
-receive pulses from it.</li>
-<li><code>receptor</code>: Defines how incoming pulses are transformed.
-Defaults to <a href="../../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a> (no transformation).</li>
-<li><code>testRule</code>: Validation gate for incoming pulses.
-Defaults to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a> (no restrictions).</li>
-<li><code>synapses</code>: Controls who receives this cell's outgoing pulses.
-Defaults to <a href="../../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> (broadcasts to all observers).</li>
+<li><strong>Ingress Link</strong>: Via <code>bind</code>, the cell establishes a dependency on an
+upstream source, automatically subscribing to its pulses.</li>
+<li><strong>Transformation Pipeline</strong>: The <code>receptor</code> defines the business logic
+invoked whenever a pulse arrives.</li>
+<li><strong>Integrity Gate</strong>: The <code>testRule</code> acts as a security membrane,
+validating data before it reaches the receptor.</li>
+<li><strong>Egress Network</strong>: The <code>synapses</code> determine how the resulting update
+is broadcast to downstream observers.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
-<p>The <code>receptor</code> and <code>testRule</code> are shared across deputies unless
-overridden. If you need different behavior for a restricted view,
-use <a href="../../cell_tissue/Cell/deputy.html">deputy</a> instead of creating a separate cell.</p>
-<h3 id="example-reactive-counter">Example: Reactive Counter</h3>
-<pre class="language-dart"><code class="language-dart">final counter = Cell(
+<ul>
+<li><strong>Flyweight Logic</strong>: By default, a cell created here uses
+<a href="../../cell_tissue/DeputyContext/system-constant.html">DeputyContext.system</a>. This means it operates with root-level
+authority unless explicitly attenuated later via <a href="../../cell_tissue/Cell/deputy.html">Cell.deputy</a>.</li>
+<li><strong>Receptor Defaults</strong>: If no <code>receptor</code> is provided, it defaults to
+<a href="../../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>, effectively creating a transparent "Relay Node."</li>
+</ul>
+<h3 id="example-a-reactive-transformation-node">Example: A Reactive Transformation Node</h3>
+<pre class="language-dart"><code class="language-dart">// A cell that converts strings to uppercase
+final upperCell = Cell&lt;String&gt;(
+  bind: inputCell,
   receptor: Receptor((cell, pulse, {user}) {
-    final current = cell.state as int? ?? 0;
-    return Pulse(current + 1);
+    final input = pulse.payload as String;
+    return Pulse(input.toUpperCase());
   }),
 );
 </code></pre>
@@ -110,12 +119,6 @@ sanitize state changes. Defaults to <a href="../../cell_tissue/TestCell/allowAll
 <h3 id="returns">Returns:</h3>
 <p>A live <a href="../../cell_tissue/Cell-class.html">Cell</a> instance integrated into the reactive ecosystem,
 ready to observe, transform, and broadcast signals.</p>
-<p>See also:</p>
-<ul>
-<li><a href="../../cell_tissue/Cell/Cell.governed.html">Cell.governed</a>: For explicit governance, lifecycle policies, and
-atomic isolation.</li>
-<li><a href="../../cell_tissue/Cell/deputy.html">Cell.deputy</a>: For creating capability-gated proxies of existing cells.</li>
-</ul>
 </section>
 
 
@@ -155,7 +158,7 @@ atomic isolation.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

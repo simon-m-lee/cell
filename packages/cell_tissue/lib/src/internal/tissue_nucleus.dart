@@ -18,6 +18,7 @@ class _TissueNucleus<E,I extends Iterable<E>, C extends Tissue<E>> extends Tissu
     super.testRule = TestTissue.allowAll,
     super.synapses = Synapses.enabled,
 
+    super.ephemeralPolicy,
     super.forceLock,
     super.user,
     Container? container,
@@ -32,23 +33,27 @@ class _TissueNucleus<E,I extends Iterable<E>, C extends Tissue<E>> extends Tissu
     TestTissue<E,C>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     bool forceLock = true,
 
     TissueNucleus<E>? override,
     required super.principal
   }) : super.evolve(
       override: override ?? _TissueNucleus<E,I,C>.fromRecord(
-          TissueNucleusBase.local(
+          (local: TissueNucleusBase.local(
               container: container,
               bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses,
-              forceLock: forceLock
-          ))
+              forceLock: forceLock,
+              ephemeralPolicy: ephemeralPolicy
+          )))
   );
 
   _TissueNucleus.fromRecord(super.record) : super.fromRecord();
 
   @override
   TissueNucleusBase<E,I,C> get clone {
+    final p = principal;
     return TissueNucleus.create<E,I,C>(
       container: containerType,
       context: context,
@@ -56,7 +61,13 @@ class _TissueNucleus<E,I extends Iterable<E>, C extends Tissue<E>> extends Tissu
       testRule: testRule,
       synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
       user: user,
-      forceLock: false
+      forceLock: false,
+      ephemeralPolicy: _hostedEphemeralPolicy,
+      // A deputy clone must keep the principal chain (so equality walks to
+      // the same root) and the upstream bind (so apply/unmodifiable forward
+      // to the principal). Root clones stay independent.
+      bind: p != null ? bind : null,
+      principal: p == null ? null : this,
     );
   }
 
@@ -173,7 +184,11 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// ```
   ///
   /// ### Parameters:
-  /// - [ephemeralPolicy]: Optional lifecycle policy (TTL/event limit).
+  /// - [ephemeralPolicy]: Optional lifecycle policy (TTL/event limit). The
+  ///   policy is **hosted** in this nucleus, making any tissue built from it
+  ///   governed (`isGoverned == true`). If omitted, the tissue can still
+  ///   inherit governance from an upstream [bind] (see [Nucleus.isGoverned]):
+  ///   a hosted policy always overrides an upstream one.
   /// - [container]: The physical storage template. If `null`, a default
   ///   container for type [I] is resolved.
   /// - [bind]: Optional upstream [Cell] – the collection will automatically
@@ -203,7 +218,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
     Record? others
 
   }) : super.fromRecord(
-      (local<E,I,C>(
+      (local: local<E,I,C>(
           container: container,
           bind: bind,
           context: context,
@@ -212,7 +227,8 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           synapses: synapses,
           forceLock: forceLock,
           user: user,
-          others: others
+          others: others,
+          ephemeralPolicy: ephemeralPolicy
       ))
   );
 
@@ -322,6 +338,17 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
     required TissueNucleus<E> super.principal
   }) : super.evolve();
 
+  /// The [EphemeralPolicy] hosted by this nucleus or by an ancestor in the
+  /// [principal] chain. Unlike the effective policy resolution, this does not
+  /// walk the upstream [bind]; it is used to preserve the hosted policy when a
+  /// nucleus is cloned or rebuilt.
+  EphemeralPolicy? get _hostedEphemeralPolicy {
+    return get<EphemeralPolicy?>(() => record.local.inheritable.ephemeralPolicy,
+        fallback: () => (principal as TissueNucleusBase?)?._hostedEphemeralPolicy,
+        orElse: null
+    );
+  }
+
   /// Generates a memory‑optimised [Record] containing the structural "local"
   /// property state of a reactive tissue's [Nucleus].
   ///
@@ -381,7 +408,8 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
     bool forceLock = false,
 
     Record? user,
-    dynamic others
+    dynamic others,
+    EphemeralPolicy? ephemeralPolicy
   }) {
 
     if (synapses == Synapses.enabled) {
@@ -396,7 +424,8 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
         (context != null && context != Context.system        ? 1 : 0) |
         (receptor != null && receptor != TissueReceptor.passThrough ? 2 : 0 ) |
         (testRule != null && testRule != TestTissue.allowAll      ? 4 : 0) |
-        (container != null && container != Container.create<E,I>()  ? 8 : 0)
+        (container != null && container != Container.create<E,I>()  ? 8 : 0) |
+        (ephemeralPolicy != null                                   ? 16 : 0)
     );
 
     final inheritable = switch (inheritableMask) {
@@ -416,6 +445,22 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       13 => (context: context, testRule: testRule, container: container),
       14 => (receptor: receptor, testRule: testRule, container: container),
       15 => (context: context, receptor: receptor, testRule: testRule, container: container),
+      16 => (ephemeralPolicy: ephemeralPolicy),
+      17 => (ephemeralPolicy: ephemeralPolicy, context: context),
+      18 => (ephemeralPolicy: ephemeralPolicy, receptor: receptor),
+      19 => (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor),
+      20 => (ephemeralPolicy: ephemeralPolicy, testRule: testRule),
+      21 => (ephemeralPolicy: ephemeralPolicy, context: context, testRule: testRule),
+      22 => (ephemeralPolicy: ephemeralPolicy, receptor: receptor, testRule: testRule),
+      23 => (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, testRule: testRule),
+      24 => (ephemeralPolicy: ephemeralPolicy, container: container),
+      25 => (ephemeralPolicy: ephemeralPolicy, context: context, container: container),
+      26 => (ephemeralPolicy: ephemeralPolicy, receptor: receptor, container: container),
+      27 => (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, container: container),
+      28 => (ephemeralPolicy: ephemeralPolicy, testRule: testRule, container: container),
+      29 => (ephemeralPolicy: ephemeralPolicy, context: context, testRule: testRule, container: container),
+      30 => (ephemeralPolicy: ephemeralPolicy, receptor: receptor, testRule: testRule, container: container),
+      31 => (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, testRule: testRule, container: container),
       _ => ()
     };
 
@@ -669,7 +714,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// The resolved [TissueContainer<E, I>] associated with this property set.
   @override
   TissueContainer<E,I> get container {
-    return get<TissueContainer<E,I>>(() => record.mask.container, fallback: () => principal?.container);
+    return get<TissueContainer<E,I>>(() => record.local.container, fallback: () => principal?.container);
   }
 
   /// The physical storage strategy (e.g., List, Set, Map, Queue) used by this
@@ -689,7 +734,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// - Defaults to [Container.create<E, I>()] if not set.
   @override
   Container get containerType {
-    return get<Container>(() => record.mask.inhertiable.container, fallback: () => principal?.containerType, orElse: Container.create<E,I>());
+    return get<Container>(() => record.local.inheritable.container, fallback: () => principal?.containerType, orElse: Container.create<E,I>());
   }
 
   /// The [TestTissue] validation logic used to guard the integrity and
@@ -741,7 +786,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// The resolved [TestTissue<E, C>] providing the validation logic.
   @override
   TestTissue<E,C> get testRule {
-    return get<TestTissue<E,C>>(() => record.mask.testRule, fallback: () => principal?.testRule, orElse: TestTissue.allowAll);
+    return get<TestTissue<E,C>>(() => record.local.inheritable.testRule, fallback: () => principal?.testRule, orElse: TestTissue.allowAll);
   }
 
   /// The [TissueReceptor] responsible for processing mutation signals and
@@ -749,7 +794,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///
   /// The [receptor] is the functional heart of the tissue's reactive cycle.
   /// It acts as a specialised "reducer" or "command handler" that intercepts
-  /// incoming [TissueEvent] signals (such as `add`, `remove`, or `clear`)
+  /// incoming [TissuePulse] signals (such as `add`, `remove`, or `clear`)
   /// and translates them into concrete operations on the underlying [container].
   ///
   /// ### Where to start
@@ -788,7 +833,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// The resolved [TissueReceptor<E, C>] configured for this collection.
   @override
   TissueReceptor<E,C> get receptor {
-    return get<TissueReceptor<E,C>>(() => record.mask.inheritable.receptor, fallback: () => principal?.receptor, orElse: TissueReceptor.passThrough);
+    return get<TissueReceptor<E,C>>(() => record.local.inheritable.receptor, fallback: () => principal?.receptor, orElse: TissueReceptor.passThrough);
   }
 
 }
@@ -844,6 +889,9 @@ class TissueNucleusNever extends Nucleolus implements TissueNucleusBase<Never,Ne
   /// references across the system point to the same memory location,
   /// optimizing identity checks and reducing GC pressure.
   const TissueNucleusNever();
+
+  @override
+  EphemeralPolicy? get _hostedEphemeralPolicy => null;
 
   @override
   TissueNucleusBase<Never,Never,Never>? get principal => null;

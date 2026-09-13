@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">withStep method</li>
   </ol>
@@ -54,6 +54,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
 <span class="returntype"><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
 <span class="name ">withStep</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withStep-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">step</span></span></li>
 </ol>)
@@ -65,17 +70,29 @@
 <section class="desc markdown">
   <p>A convenience wrapper around <a href="../../cell_tissue/TissueEventBase/evolve.html">evolve</a> that only adds a step to the trace.</p>
 <p>This is the most common way to record a processing milestone.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You want to add a breadcrumb to the event's audit trail.</li>
+<li>You don't need to change the context or attach a pulse.</li>
+</ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final processed = event.withStep('transformation');
 </code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>step</code>: The step description to add to the trace.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a> with the updated trace.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventBase&lt;E&gt; withStep(String step) {
-  return _TissueEvent&lt;E&gt;(
+  <pre class="language-dart"><code class="language-dart">@override
+TissueEventBase&lt;E&gt; withStep(String step) {
+  return _TissuePulse&lt;E&gt;(
     step: step,
     parent: this,
   );
@@ -107,7 +124,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

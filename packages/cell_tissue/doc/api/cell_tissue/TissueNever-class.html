@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TissueNever class</li>
   </ol>
   <div class="self-name">TissueNever</div>
@@ -61,16 +61,15 @@ the <code>cell_tissue</code> ecosystem. It is designed to represent a collection
 conceptually "never" contains data, providing a type‑safe way to handle empty
 states without resorting to <code>null</code> checks or allocating unnecessary physical
 buffers.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You never construct this directly. It is returned by factory methods like
-<code>Tissue.empty()</code> when the framework detects that the configuration is the
-simplest possible (no bind, no validation, disabled synapses). You can treat
-it as a regular <code>Tissue</code> – it implements all the methods, they just do nothing.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>This class is used internally as a performance optimisation. You might
 encounter it when you call <code>Tissue.empty()</code> with default parameters, or when
 a <code>Tissue</code> is created with no elements and no custom rules. It's safe to
 use anywhere a <code>Tissue</code> is expected.</p>
+<p>You never construct this directly. It is returned by factory methods like
+<code>Tissue.empty()</code> when the framework detects that the configuration is the
+simplest possible (no bind, no validation, disabled synapses). You can treat
+it as a regular <code>Tissue</code> – it implements all the methods, they just do nothing.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It is a <code>const</code> singleton – all empty, immutable tissues share the same
@@ -170,8 +169,8 @@ empty.add(1); // no effect, returns false silently
 
 </dt>
 <dd>
-  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the security tier, execution priority,
-and administrative authority of this <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -219,8 +218,8 @@ and administrative authority of this <a href="../cell_tissue/Cell-class.html">Ce
 
 </dt>
 <dd>
-  Indicates whether this <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
-that oversees its operational boundaries, security constraints, and administrative metadata.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -257,8 +256,8 @@ sequence and is currently in the process of being neutralized.
 
 </dt>
 <dd>
-  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
-within the reactive graph.
+  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -382,7 +381,7 @@ within the reactive graph.
 </dd>
 
         <dt id="apply" class="callable">
-  <span class="name"><a href="../cell_tissue/TissueNever/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/TissueNever/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -738,7 +737,7 @@ predicate <code>test</code>.
 
 </dt>
 <dd>
-  
+  Combines this empty tissue with another tissue.
   
 
 </dd>
@@ -785,7 +784,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

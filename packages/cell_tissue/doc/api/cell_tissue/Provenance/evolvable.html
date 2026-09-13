@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Provenance.html">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">evolvable property</li>
   </ol>
@@ -69,24 +69,58 @@
 <section class="desc markdown">
   <p>Indicates whether this <strong>Provenance Dimension</strong> is a structural
 invariant or a dynamic operational attribute.</p>
-<p>In the framework's <strong>Blueprint Synthesis</strong> model, the <code>evolvable</code> flag
+<p>In the framework's <strong>Blueprint Synthesis</strong> model, the <a href="../../cell_tissue/Provenance/evolvable.html">evolvable</a> flag
 determines the "rigidity" of a signal's metadata during a
 <a href="../../cell_tissue/PulseContext/evolve.html">PulseContext.evolve</a> operation. It separates the pulse's immutable
 identity from its mutable mission.</p>
-<h3 id="1-static-pillars-evolvable-false">1. Static Pillars (<code>evolvable: false</code>)</h3>
-<p>Dimensions marked as non‑evolvable are structural invariants. They
-constitute the <strong>Causal Trace</strong> and must be inherited exactly from the
-source. Any attempt to modify these via <a href="../../cell_tissue/Provenance/evolve.html">evolve</a> is ignored.</p>
-<h3 id="2-fluid-boundaries-evolvable-true">2. Fluid Boundaries (<code>evolvable: true</code>)</h3>
-<p>Dimensions marked as evolvable represent the <strong>Operational Intent</strong>.
-These can be refined as a pulse propagates through different cells.</p>
-<h3 id="3-architectural-role-mutual-authorization-and-invariant-enforcement">3. Architectural Role: Mutual Authorization and Invariant Enforcement</h3>
-<p>During validation, a receptor evaluates this flag to enforce
-<strong>Capability‑Based Access Control (CBAC)</strong>.</p>
-<h3 id="developer-ergonomics">Developer Ergonomics</h3>
-<p>This is a low‑level governance property. Human developers interact with
-the pre‑configured <a href="../../cell_tissue/Provenance.html">Provenance</a> enum values and do not need to manage
-this flag manually.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This property is used internally by the <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> engine during
+<strong>Ontological Specialization</strong>. It identifies dimensions that constitute
+the pulse's core identity vs. those that represent current operational intent.</p>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><strong>Static Pillars (<a href="../../cell_tissue/Provenance/evolvable.html">evolvable</a> is <code>false</code>)</strong>: These are structural
+invariants (e.g., <a href="../../cell_tissue/Provenance.html">Provenance.traceId</a>, <a href="../../cell_tissue/Provenance.html">Provenance.actor</a>). They
+must be inherited exactly from the source. The <a href="../../cell_tissue/PulseContext/evolve.html">PulseContext.evolve</a>
+logic explicitly ignores overrides for these keys to maintain trace integrity.</li>
+<li><strong>Fluid Boundaries (<a href="../../cell_tissue/Provenance/evolvable.html">evolvable</a> is <code>true</code>)</strong>: These are operational
+attributes (e.g., <a href="../../cell_tissue/Provenance.html">Provenance.priority</a>, <a href="../../cell_tissue/Provenance.html">Provenance.reason</a>). They
+can be redefined or specialized to reflect the specific task a cell
+is performing as a pulse propagates.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Security Invariant</strong>: Prevents "metadata tampering" downstream. A
+pulse's compliance tier or causal actor cannot be downgraded or spoofed
+via evolution once the pulse is in flight.</li>
+<li><strong>Flyweight Optimization</strong>: Evolution logic uses this flag to pre-filter
+update maps, minimizing the overhead of record synthesis during
+high-frequency reactive waves.</li>
+<li><strong>Integrity Enforcement</strong>: The framework ensures that capability-based
+access checks are anchored in non-evolvable dimensions, preventing
+accidental authority elevation.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Overriding a Static Pillar is ignored:
+// (Provenance.actor.evolvable is false)
+final evolved = context.evolve((dim) =&gt;
+  dim == Provenance.actor ? 'malicious_actor' : null
+);
+// Result: evolved.actor is still the original verified identity.
+
+// Overriding a Fluid Boundary is accepted:
+// (Provenance.priority.evolvable is true)
+final emergency = context.evolve((dim) =&gt;
+  dim == Provenance.priority ? 100 : null
+);
+// Result: emergency.priority reflects the elevation.
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/PulseContext/evolve.html">PulseContext.evolve</a>: The primary operation governed by this flag.</li>
+<li><a href="../../cell_tissue/Provenance/evolve.html">Provenance.evolve</a>: The utility that synthesizes specialized extensions.</li>
+<li><a href="../../cell_tissue/GovernanceEntry-class.html">GovernanceEntry</a>: The underlying record pairing keys with policies.</li>
+</ul>
 </section>
 
       
@@ -122,7 +156,7 @@ final bool evolvable;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

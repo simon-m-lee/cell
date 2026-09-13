@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TestCell<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TestCell</div>
@@ -63,7 +63,7 @@
 <li><strong>Pulse processing</strong> (<a href="../cell_tissue/TestPulseRule-class.html">TestPulseRule</a>)</li>
 </ul>
 <p>You compose individual rules into a single policy using the <code>+</code> operator.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>Most of the time you don't need to build a <a href="../cell_tissue/TestCell-class.html">TestCell</a> from scratch.
 Start with one of the predefined policies:</p>
 <ul>
@@ -76,7 +76,6 @@ then compose with others:</p>
 final hasPermission = TestCell&lt;Cell&gt;((_, {host, ...}) =&gt; host.context.hasRole('admin'));
 final policy = isPositive + hasPermission;
 </code></pre>
-<h3 id="when-to-use">When to use</h3>
 <p>Use <a href="../cell_tissue/TestCell-class.html">TestCell</a> whenever you need to enforce business rules, security
 boundaries, or data integrity on a cell. The framework uses it internally
 for every validation, but you can supply your own when creating a cell:</p>
@@ -116,6 +115,10 @@ final policy = rangeRule + actionRule + linkRule + pulseRule;
 <li><a href="../cell_tissue/TestLinkRule-class.html">TestLinkRule</a> for link‑specific validation.</li>
 <li><a href="../cell_tissue/TestPulseRule-class.html">TestPulseRule</a> for pulse‑specific validation.</li>
 <li><a href="../cell_tissue/TestRule-class.html">TestRule</a> for the base validation contract.</li>
+</ul>
+<ul>
+<li><strong>HowTo</strong>: See <code>guide/HowTo-TestCell.md</code> for a guide on implementing
+custom validation policies and integrity gates.</li>
 </ul>
 </section>
 
@@ -397,7 +400,7 @@ using the <strong>Compositional Algebra</strong> of the framework.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

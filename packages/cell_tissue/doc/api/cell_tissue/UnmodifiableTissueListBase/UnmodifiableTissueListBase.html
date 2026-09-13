@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueListBase-class.html">UnmodifiableTissueListBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueListBase.new constructor</li>
   </ol>
@@ -114,11 +114,8 @@ with a known immutable set.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueListBase(
     TissueListNucleusBase&lt;E,C&gt; super.properties, {
-      super.unmodifiableElement, Iterable&lt;E&gt;? elements}) : super(elements: elements) {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
-  if (container != null &amp;&amp; elements != null) {
-    _nucleus.container.store.addAll(elements);
-  }
+      super.unmodifiableElement, super.elements}) {
+  &#47;&#47; Initial population is performed by TissueBase via `elements`.
 }</code></pre>
 </section>
 
@@ -147,7 +144,7 @@ with a known immutable set.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

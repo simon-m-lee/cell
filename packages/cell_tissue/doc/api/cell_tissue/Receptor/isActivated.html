@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">isActivated property</li>
   </ol>
@@ -70,10 +70,22 @@
   <p>Indicates whether this receptor has transitioned from a stateless template
 to a functional, cell-bound instance.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is mostly for debugging or diagnostics. You rarely need it in
-application code.</p>
+<p>This is primarily used for <strong>Internal Diagnostics</strong> and <strong>Lifecycle
+Management</strong>. It allows framework extensions or custom monitoring tools
+to verify if a receptor is ready to process signals.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>Returns <code>true</code> after <a href="../../cell_tissue/Receptor/activate.html">activate</a> has been called successfully.</p>
+<p>A receptor starts its life as a stateless template (blueprint). This
+getter returns <code>true</code> only after the <a href="../../cell_tissue/Receptor/activate.html">activate</a> method has been
+successfully invoked by the host <a href="../../cell_tissue/Cell-class.html">Cell</a> during its initialization.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Immutable State</strong>: Once a receptor is activated, it remains
+activated for its entire lifetime.</li>
+<li><strong>Prerequisite</strong>: Many other members, such as the <a href="../../cell_tissue/Receptor/cell.html">cell</a> getter,
+require this to be <code>true</code> before they can be safely accessed.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the receptor is activated and bound to a cell.</p>
 </section>
 
     
@@ -109,7 +121,7 @@ application code.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Demo · Grid Demand topic docs, for the Dart programming language.">
+  <title>Demo · Grid Demand topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Grid Demand topic</li>
+  </ol>
+  <div class="self-name">Demo · Grid Demand</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Demo · Grid Demand</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="walkthrough-requirement--grid-demand-response-flow--tissue">Walkthrough requirement — grid demand-response (Flow + Tissue)</h1>
+<p><strong>Demo:</strong> <code>grid-demand-response(tissue)-Demo.dart</code> (executable; this file is its requirement)
+<strong>Siblings:</strong></p>
+<ul>
+<li><code>card-auth-pipeline(tissue)-WalkThrough.md</code> — payments</li>
+<li><code>ride-hail-dispatch(tissue)-WalkThrough.md</code> — mobility</li>
+<li><code>ICU-alarm-pipeline(enhanced)-Demo.dart</code> — clinical</li>
+</ul>
+<p><strong>Industry:</strong> electric power — transmission-desk demand response
+(the thing grid operators actually do when system frequency sags:
+shed interruptible load, protect hospitals, restore after the
+operator ACK). Think ERCOT / National Grid / CAISO control room,
+not a smart-thermostat app.
+<strong>Stack:</strong> <code>package:cell</code> + <code>package:cell_flow</code> + <code>package:cell_tissue</code></p>
+<p>This is the <strong>executable requirement</strong> for an energy-ops demo that
+uses <strong>Flow for the shed decision</strong> and <strong>Tissue for the feeder
+books</strong>. Implement the Dart file so a last-good run prints the
+scenario table in § Scenarios.</p>
+<p>Do not fold Tissue into the Receptor. Do not fold Flow into the
+event log. The point of this file is the seam.</p>
+<p>Why this industry (and not another ride-hail or another ICU):
+frequency, megawatts, and “never drop feeder HOSP-1” are a different
+physics and a different regulator. Two products still: <strong>SHED</strong>
+(open interruptible load) vs <strong>WARN</strong> (yellow band). ACK is the
+shift lead restoring the bay. The reliability council reads the log
+and cannot delete a row.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</a></li>
+<li><a href="#why-flow--tissue-not-a-scada-screenshot">Why Flow + Tissue (not a SCADA screenshot)</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#domain">Domain</a></li>
+<li><a href="#parts">Parts</a>
+<ul>
+<li><a href="#flow-cells">Flow Cells</a></li>
+<li><a href="#tissue-collections">Tissue collections</a></li>
+<li><a href="#deputies">Deputies</a></li>
+<li><a href="#instruction">Instruction</a></li>
+<li><a href="#receptor">Receptor</a></li>
+<li><a href="#operators-the-demo-must-actually-call">Operators the demo must actually call</a></li>
+</ul>
+</li>
+<li><a href="#reserve--tissuevalue--tissuemap-not-inside-actionof">Reserve — TissueValue + TissueMap</a></li>
+<li><a href="#implementation-map">Implementation map</a></li>
+<li><a href="#scenarios">Scenarios</a></li>
+<li><a href="#executable-steps">Executable steps</a></li>
+<li><a href="#pulse-path-scenario-2-then-3">Pulse path (scenario 2 then 3)</a></li>
+<li><a href="#who-owns-the-lock">Who owns the lock</a></li>
+<li><a href="#real-desk-vs-this-file">Real desk vs this file</a></li>
+<li><a href="#acceptance">Acceptance</a></li>
+<li><a href="#name-plate">Name plate</a></li>
+</ol>
+<hr>
+<h2 id="testcell-vs-testtissue-do-not-swap">TestCell vs TestTissue (do not swap)</h2>
+<p>Collection classes in <code>package:cell_tissue</code> take <strong><code>TestTissue</code></strong>, never
+<code>TestCell</code>. <code>TestCell</code> is the integrity rule on a <strong>Cell</strong> (ingress /
+handle). <code>TestTissue</code> is the integrity rule on a <strong>Tissue</strong> (<code>add</code>,
+<code>remove</code>, <code>[]=</code>, value write). They are not subtypes you can pass
+across that seam.</p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+<th>Typical use in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+<td>Hz 49.00–51.00, MW ≥ 0, SOC 0–100</td>
+</tr>
+<tr>
+<td><code>TissueList</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> / <code>Value</code></td>
+<td><code>TestTissue&lt;E, C&gt;</code></td>
+<td><code>testRule:</code></td>
+<td>append-only events, non-negative reserve MW, feeder ids</td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+<td><code>TestTissue.readOnly</code> for the reliability council</td>
+</tr>
+<tr>
+<td><code>TestTissue.allowAll</code></td>
+<td><code>TestTissue</code></td>
+<td>default</td>
+<td>only when the collection has no extra rule</td>
+</tr>
+</tbody>
+</table>
+<p>Illegal:</p>
+<pre class="language-dart"><code class="language-dart">TissueList&lt;GridEvent&gt;(testRule: TestCell.allowAll);     // wrong type
+TissueValue&lt;int&gt;(800, testRule: hzRange);               // hzRange is TestCell
+events.deputy(testRule: TestCell.readOnly);             // deputy wants TestTissue
+</code></pre>
+<p>Required shape:</p>
+<pre class="language-dart"><code class="language-dart">final eventRule = TestTissue&lt;GridEvent, TissueList&lt;GridEvent&gt;&gt;(
+  (e, {host, action, user}) =&gt; e.kind.isNotEmpty,
+  // allow add / addAll; deny remove, clear, []=
+);
+
+final events = TissueList&lt;GridEvent&gt;(testRule: eventRule);
+
+final mwRule = TestTissue&lt;int, TissueValue&lt;int&gt;&gt;(
+  (v, {host, action, user}) =&gt; v != null &amp;&amp; v &gt;= 0,
+);
+
+final reserveMw = TissueValue&lt;int&gt;(800, testRule: mwRule);
+
+final protected = TissueSet&lt;String&gt;(
+  testRule: TestTissue&lt;String, TissueSet&lt;String&gt;&gt;(
+    (id, {host, action, user}) =&gt;
+        id.contains('-') &amp;&amp; id == id.toUpperCase(),
+  ),
+);
+
+final council = events.deputy(testRule: TestTissue.readOnly);
+</code></pre>
+<p><code>Cell.ingress(testRule: hzRange)</code> stays <strong><code>TestCell</code></strong>. That rule
+never becomes the <code>testRule</code> on <code>reserveMw</code> / <code>events</code> / <code>protected</code>.</p>
+<p>Compose Tissue rules with <code>+</code>, not by wrapping a <code>TestCell</code>.</p>
+<hr>
+<h2 id="why-flow--tissue-not-a-scada-screenshot">Why Flow + Tissue (not a SCADA screenshot)</h2>
+<p>A control-room bay has four machines a historian plot will not name:</p>
+<ol>
+<li>Impossible Hz / negative MW must die at the <strong>sensor</strong>, not inside
+the shed rule.</li>
+<li>Frequency, area load, and battery SOC arrive on <strong>different clocks</strong>.
+Policy must see one <code>BayTick</code>, not three half-updates.</li>
+<li>SHED vs WARN are two products. One Receptor per product.</li>
+<li>The feeder RTU is slow and flaky. “Is this a shed?” must not wait
+on DNP3.</li>
+<li>Two overlapping sheds must not take the last megawatt of reserve
+twice, and must never open a protected feeder.</li>
+<li>The reliability council may watch the event log and must not
+<code>remove</code> a row.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Fake if you only use Dart objects</th>
+<th>Owner in this demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;GridEvent&gt; events</code></td>
+<td><code>TissueList&lt;GridEvent&gt;</code> — append-only</td>
+</tr>
+<tr>
+<td><code>int reserveMw = 800</code></td>
+<td><code>TissueValue&lt;int&gt;</code> — non-negative MW</td>
+</tr>
+<tr>
+<td><code>Map&lt;String, Shed&gt;</code></td>
+<td><code>TissueMap&lt;String, Shed&gt;</code> — feeder → open interruptible</td>
+</tr>
+<tr>
+<td><code>const hospitals</code></td>
+<td><code>TissueSet&lt;String&gt; protected</code> — ops can add <code>HOSP-1</code></td>
+</tr>
+<tr>
+<td>RTU retry buffer</td>
+<td><code>TissueQueue&lt;RtuJob&gt;</code></td>
+</tr>
+<tr>
+<td>“NERC export”</td>
+<td><code>events.unmodifiable</code> / <code>deputy(TestTissue.readOnly)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Flow never stores megawatts. Tissue never decides SHED.</p>
+<hr>
+<h2 id="design">Design</h2>
+<pre class="language-dart"><code>hzIn      TestCell 49.00–51.00 Hz ─┐
+loadIn    TestCell ≥ 0 MW         ─┼─ set* → publishTick
+socIn     TestCell 0–100 %        ─┤         → BayTick(area, hz, loadMw, soc, feeder)
+areaIn                            ─┘
+                                        │
+                                        ▼
+                                     tickIn              Flow
+                          ┌─────────────┴─────────────┐
+                          ▼                           ▼
+                    shed gate                    warn gate
+               MapValue + Distinct            MapValue + Distinct
+                    + Filter(shed)                 + Filter(warn)
+                          │                           ▼
+                          │                      warnHandle
+                          ▼
+                    shedHandle
+                          │
+                          ├─ observe SHED
+                          │     events.add(...)              TissueList
+                          │     rtuQ.addLast(job)            TissueQueue
+                          └─ AsyncMapWithRetry ← rtuQ
+                                rtuHandle
+
+ackIn  shift lead restore ── resetDistinct()
+                             on restore:
+                               shedMap.remove(feeder)        TissueMap
+                               reserveMw.value += dropped    TissueValue
+
+council ────────────────── events.unmodifiable               Deputy
+opsProtect ─────────────── protected.add('HOSP-1')           TissueSet
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Impossible Hz / MW / SOC</td>
+<td><code>TestCell</code> on <strong>ingress Cells</strong></td>
+</tr>
+<tr>
+<td>Never shed a hospital feeder</td>
+<td><code>TissueSet&lt;String&gt; protected</code> + <code>actionOf</code> reads it</td>
+</tr>
+<tr>
+<td>One tick per snapshot</td>
+<td><code>publishTick</code> bus</td>
+</tr>
+<tr>
+<td>SHED vs WARN</td>
+<td>two Flow Receptors, same <code>actionOf</code></td>
+</tr>
+<tr>
+<td>No duplicate SHED</td>
+<td>Distinct <strong>before</strong> Filter; ACK clears last</td>
+</tr>
+<tr>
+<td>RTU trip</td>
+<td><code>TissueQueue</code> + <code>AsyncMapWithRetry</code></td>
+</tr>
+<tr>
+<td>Event audit</td>
+<td><code>TissueList&lt;GridEvent&gt;</code> + append-only <code>TestTissue</code></td>
+</tr>
+<tr>
+<td>Spinning reserve</td>
+<td><code>TissueValue&lt;int&gt;</code> + non-negative <code>TestTissue</code></td>
+</tr>
+<tr>
+<td>Open sheds</td>
+<td><code>TissueMap&lt;String, Shed&gt;</code></td>
+</tr>
+<tr>
+<td>Council screen</td>
+<td><code>events.unmodifiable</code></td>
+</tr>
+<tr>
+<td>Do not stack graphs</td>
+<td>ACK does <strong>not</strong> call <code>toHandle</code> again</td>
+</tr>
+</tbody>
+</table>
+<p>Do <strong>not</strong> <code>events.add</code> inside <code>MapValue</code>. Do <strong>not</strong> replace Distinct
+with “the log already has this feeder.” ACK restores the latch; it
+never deletes event rows.</p>
+<hr>
+<h2 id="domain">Domain</h2>
+<pre class="language-dart"><code class="language-dart">enum Action { hold, warn, shed }
+
+final class BayTick {
+  const BayTick({
+    required this.area,
+    required this.feeder,
+    required this.hz,
+    required this.loadMw,
+    required this.soc,
+  });
+  final String area;     // 'NORTH', 'BAY'
+  final String feeder;   // 'INT-14', 'HOSP-1'
+  final double hz;
+  final int loadMw;
+  final int soc;         // battery %, 0–100
+}
+
+final class GridEvent {
+  const GridEvent({
+    required this.kind,  // SHED | WARN | RESTORE | RTU | ACK
+    required this.feeder,
+    required this.detail,
+    required this.at,
+  });
+  final String kind;
+  final String feeder;
+  final String detail;
+  final DateTime at;
+}
+
+final class Shed {
+  const Shed({required this.feeder, required this.droppedMw});
+  final String feeder;
+  final int droppedMw;
+}
+
+final class RtuJob {
+  const RtuJob({required this.feeder, required this.action});
+  final String feeder;
+  final Action action;
+}
+</code></pre>
+<p>Suggested <code>actionOf(BayTick t, Set&lt;String&gt; protected) → Action</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>t.feeder</code> in <code>protected</code></td>
+<td><code>hold</code> (never shed)</td>
+</tr>
+<tr>
+<td><code>t.hz &lt; 49.80</code></td>
+<td><code>shed</code></td>
+</tr>
+<tr>
+<td><code>t.hz &lt; 49.90</code> or (<code>t.soc &lt; 15</code> and <code>t.loadMw &gt; 500</code>)</td>
+<td><code>warn</code></td>
+</tr>
+<tr>
+<td>else</td>
+<td><code>hold</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>protected</code> is a TissueSet the demo <strong>mutates in scenario 2</strong>.
+Seed empty. Scenario 2 does <code>protected.add('HOSP-1')</code> then publishes
+a 49.70 Hz tick on <code>HOSP-1</code> — must stay <code>hold</code>. Then a 49.70 tick on
+<code>INT-14</code> must <strong>SHED</strong>.</p>
+<p>Hz/MW/SOC <strong>shape</strong> stays on <strong>TestCell</strong>. Protected-feeder <strong>policy</strong>
+stays on <strong>TissueSet</strong>. Do not merge them.</p>
+<p>Nominal frequency in the demo is <strong>50.00 Hz</strong> (IEC). Do not mix 60 Hz
+limits in the same run.</p>
+<hr>
+<h2 id="parts">Parts</h2>
+<h3 id="flow-cells">Flow Cells</h3>
+<table>
+<thead>
+<tr>
+<th>Cell</th>
+<th>Kind</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hzIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>48.0</code>, <code>52.0</code></td>
+</tr>
+<tr>
+<td><code>loadIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>-10</code></td>
+</tr>
+<tr>
+<td><code>socIn</code></td>
+<td>ingress + TestCell</td>
+<td>reject <code>101</code></td>
+</tr>
+<tr>
+<td><code>areaIn</code> / feeder cache</td>
+<td>ingress</td>
+<td>strings</td>
+</tr>
+<tr>
+<td><code>tickIn</code></td>
+<td>ingress <code>&lt;BayTick&gt;</code></td>
+<td>snapshot bus</td>
+</tr>
+<tr>
+<td><code>ackIn</code></td>
+<td>ingress <code>&lt;String&gt;</code></td>
+<td>feeder restored, or <code>"ALL"</code></td>
+</tr>
+<tr>
+<td><code>shedHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>SHED only</td>
+</tr>
+<tr>
+<td><code>warnHandle.cell</code></td>
+<td><code>toHandle</code></td>
+<td>WARN only</td>
+</tr>
+<tr>
+<td><code>rtuHandle.cell</code></td>
+<td><code>AsyncMapWithRetry</code></td>
+<td>I/O with <code>count: 2</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>setHz</code> returns false and does <strong>not</strong> call <code>publishTick</code> when
+TestCell rejects.</p>
+<h3 id="tissue-collections">Tissue collections</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Type</th>
+<th><code>TestTissue</code></th>
+<th>Who writes</th>
+<th>Who reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>events</code></td>
+<td><code>TissueList&lt;GridEvent&gt;</code></td>
+<td>append-only</td>
+<td>observers, restore</td>
+<td>council deputy</td>
+</tr>
+<tr>
+<td><code>reserveMw</code></td>
+<td><code>TissueValue&lt;int&gt;</code></td>
+<td><code>&gt;= 0</code></td>
+<td>shed / restore</td>
+<td>desk board</td>
+</tr>
+<tr>
+<td><code>shedMap</code></td>
+<td><code>TissueMap&lt;String, Shed&gt;</code></td>
+<td>feeder id + <code>droppedMw &gt; 0</code></td>
+<td>SHED observer, ACK</td>
+<td>ops</td>
+</tr>
+<tr>
+<td><code>protected</code></td>
+<td><code>TissueSet&lt;String&gt;</code></td>
+<td><code>AREA-N</code> style uppercase</td>
+<td>ops scenario</td>
+<td><code>actionOf</code></td>
+</tr>
+<tr>
+<td><code>rtuQ</code></td>
+<td><code>TissueQueue&lt;RtuJob&gt;</code></td>
+<td><code>capacity: 32</code></td>
+<td>shed/warn observer</td>
+<td>RTU pump</td>
+</tr>
+</tbody>
+</table>
+<p>Seed: <code>reserveMw = TissueValue&lt;int&gt;(800, testRule: mwRule)</code>,
+<code>shedMap</code> empty, <code>protected</code> empty, <code>events</code> empty (initial
+population silent).</p>
+<h3 id="deputies">Deputies</h3>
+<pre class="language-dart"><code class="language-dart">final books = events.unmodifiable;
+final council = events.deputy(testRule: TestTissue.readOnly);
+</code></pre>
+<p>COMPLY: <code>council.add</code> blocked; <code>council.length == events.length</code>
+after a SHED; live projection, not <code>List.from</code>.</p>
+<h3 id="instruction">Instruction</h3>
+<p><code>actionOf → Distinct → Filter</code>.
+<code>actionOf</code> may <strong>read</strong> <code>protected</code>. It must not <code>add</code> to it.
+Library <code>DistinctUntilChanged</code> is not used.</p>
+<p><code>buildShedGate().toHandle(source: tickIn.cell)</code> once at
+<code>installGates()</code>. Same for WARN.</p>
+<h3 id="receptor">Receptor</h3>
+<p>One Receptor per gate. Two locks, two owners:</p>
+<ul>
+<li>Receptor lock on <code>shedCell</code> / <code>warnCell</code> — covers <code>actionOf</code>,
+Distinct latch, <code>Filter</code>. Never touches MW.</li>
+<li>Tissue lock on each collection — covers <code>events.add</code>,
+<code>shedMap[...]</code>, <code>reserveMw.set</code>, <code>rtuQ.addLast</code>. Never decides SHED.</li>
+</ul>
+<p>Do not fold the Tissue write into the Receptor. Do not fold the
+decision policy into the observer.</p>
+<h3 id="operators-the-demo-must-actually-call">Operators the demo must actually call</h3>
+<p>Flow: <code>MapValue</code>, <code>Filter</code>, custom Distinct <code>FlowInstruction</code>,
+<code>AsyncMapWithRetry</code> (<code>count</code>, not <code>retries</code>), <code>Cell.observe</code>,
+<code>Cell.ingress(testRule:)</code> with <strong>TestCell</strong>.</p>
+<p>Tissue: <code>TissueList</code>, <code>TissueValue</code>, <code>TissueMap</code>, <code>TissueSet</code>,
+<code>TissueQueue</code>, <code>TestTissue(...)</code>, <code>TestTissue.readOnly</code>,
+<code>.unmodifiable</code>, <code>.deputy(...)</code>, <code>.listen</code> / <code>Cell.observe</code> on the
+tissue (tissues <strong>are</strong> Cells).</p>
+<p>Prefer observing Tissue with:</p>
+<pre class="language-dart"><code class="language-dart">events.listen((TissuePulse e) {
+  if (e is ElementAdded&lt;GridEvent&gt;) {
+    print('[events] ${e.payload.kind} ${e.payload.feeder}');
+  }
+});
+</code></pre>
+<p>and values with <code>ElementUpdated</code> (payload is <code>ElementUpdatedRecord</code>).
+If the demo harness only has <code>Cell.observe</code>, that is acceptable —
+print <code>pulse.payload</code> and tag <code>[reserveMw]</code> / <code>[shedMap]</code>.</p>
+<hr>
+<h2 id="reserve--tissuevalue--tissuemap-not-inside-actionof">Reserve — TissueValue + TissueMap, not inside actionOf</h2>
+<p>A SHED that the observer accepts:</p>
+<pre class="language-text"><code class="language-text">shedMap[feeder] = Shed(feeder, droppedMw)
+reserveMw.value = reserveMw.value! - droppedMw
+events.add(GridEvent(kind: 'SHED', ...))
+</code></pre>
+<p>If <code>reserveMw</code> TestTissue would go negative, <strong>do not</strong> leave a map
+row. Restore ACK reverses the two numbers and appends <code>RESTORE</code>.</p>
+<p><strong>Invariant</strong> after every successful money-of-the-grid method:</p>
+<pre class="language-dart"><code>reserveMw.value! + sum(shedMap.values.droppedMw) == 800
+</code></pre>
+<p>Never decrement reserve inside <code>actionOf</code>. Demo <code>droppedMw</code> is a
+fixed <code>50</code> per shed so the arithmetic stays talk-track simple.</p>
+<p>The demo deliberately <strong>breaks</strong> this invariant once, in scenario 11,
+by forcing <code>reserveMw</code> to <code>30</code> to prove the non-negative <code>TestTissue</code>
+rejects an over-shed. Scenario 12 restores the books to a
+self-consistent <code>80</code>. The header of the Dart file documents this
+deviation.</p>
+<hr>
+<h2 id="implementation-map">Implementation map</h2>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header comments</td>
+<td>talk track</td>
+</tr>
+<tr>
+<td>Domain types</td>
+<td><code>BayTick</code> / <code>Action</code> / <code>GridEvent</code> / <code>Shed</code> / <code>RtuJob</code></td>
+</tr>
+<tr>
+<td><code>hzRange</code> / <code>loadRange</code> / <code>socRange</code></td>
+<td>TestCell</td>
+</tr>
+<tr>
+<td><code>protected</code> + append-only <code>events</code></td>
+<td>TestTissue</td>
+</tr>
+<tr>
+<td><code>publishTick</code> / <code>set*</code></td>
+<td>bus</td>
+</tr>
+<tr>
+<td><code>actionOf</code></td>
+<td>Flow policy, reads TissueSet</td>
+</tr>
+<tr>
+<td><code>resetDistinct</code></td>
+<td>operator ACK</td>
+</tr>
+<tr>
+<td><code>installGates</code></td>
+<td>two Receptors + RTU + observes</td>
+</tr>
+<tr>
+<td><code>applyShed</code> / <code>restore</code></td>
+<td>TissueValue + TissueMap</td>
+</tr>
+<tr>
+<td><code>main</code></td>
+<td>seed + scenarios 1–13 + COMPLY</td>
+</tr>
+</tbody>
+</table>
+<p><code>installGates</code> runs <strong>once</strong>. ACK only touches Distinct fields and
+then calls <code>applyShed</code> when the talk track says “restore after ACK.”</p>
+<hr>
+<h2 id="scenarios">Scenarios</h2>
+<p>Seed area <code>NORTH</code>, feeder <code>INT-14</code>, Hz <code>50.00</code>, load <code>420</code>, SOC <code>60</code>,
+reserve <code>800</code>, <code>protected</code> empty.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Drive</th>
+<th>Result</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seed</td>
+<td>50.00 / INT-14</td>
+<td>one tick, <strong>no</strong> SHED</td>
+<td>bus + Filter; initial Tissue is silent</td>
+</tr>
+<tr>
+<td>1</td>
+<td>repeat 50.00</td>
+<td>no SHED</td>
+<td>Distinct on <code>hold</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>protected.add('HOSP-1')</code>, 49.70 on <code>HOSP-1</code></td>
+<td><strong>no</strong> SHED</td>
+<td>TissueSet feeds <code>actionOf</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>49.70 on <code>INT-14</code></td>
+<td><strong>SHED</strong> + event + RTU job</td>
+<td>Distinct <code>hold</code>→<code>shed</code></td>
+</tr>
+<tr>
+<td>4–5</td>
+<td>49.70 again, then 49.72</td>
+<td><strong>no</strong> new SHED</td>
+<td>Distinct holds</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>49.85 / SOC 10 / load 600</td>
+<td><strong>WARN</strong></td>
+<td>second Receptor</td>
+</tr>
+<tr>
+<td>6</td>
+<td>50.00 then ACK restore <code>INT-14</code></td>
+<td>Distinct cleared; reserve back</td>
+<td>ACK ≠ new <code>toHandle</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>49.70 on <code>INT-14</code></td>
+<td><strong>one</strong> SHED</td>
+<td>reset Distinct</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Hz <code>48.0</code>, load <code>-10</code>, SOC <code>101</code></td>
+<td>TestCell lines; <strong>no</strong> tick</td>
+<td>Cell ingress ≠ Tissue</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ACK, recover, 49.70, RTU fail-once</td>
+<td><strong>one</strong> SHED; <code>rtuAttempts</code> includes retry</td>
+<td>queue + retry</td>
+</tr>
+<tr>
+<td>10</td>
+<td>restore, ACK, 49.70 on <code>INT-15</code></td>
+<td>second shed on a new feeder</td>
+<td>TissueMap</td>
+</tr>
+<tr>
+<td>11</td>
+<td>force <code>reserveMw</code> to <code>30</code> then SHED 50</td>
+<td>TestTissue reject; map unchanged</td>
+<td>non-negative reserve</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>restore('INT-15')</code></td>
+<td>reserve += 50, map drops row, event <code>RESTORE</code></td>
+<td>return MW to pool</td>
+</tr>
+<tr>
+<td>13</td>
+<td>ACK without an open shed</td>
+<td>Distinct reset; reserve unchanged</td>
+<td>restore ≠ invent MW</td>
+</tr>
+<tr>
+<td>COMPLY</td>
+<td><code>council.add(...)</code></td>
+<td>blocked; lengths match</td>
+<td>live deputy</td>
+</tr>
+</tbody>
+</table>
+<p>Good-run counts from the executable trailer:</p>
+<pre class="language-text"><code class="language-text">ticks=12 sheds=4 warns=1 events=19 rtuAttempts=6
+reserveMw=80 openSheds=0
+councilLength=19 (same as events)
+</code></pre>
+<p>Four SHED pulses: scenarios <strong>3</strong>, <strong>7</strong>, <strong>9b</strong>, <strong>10</strong>.
+One WARN pulse: <strong>WARN</strong>. Ledger 19 = SHED events (4) + RTU events
+(5: §3, WARN, §7, §9-retry ×1, §10) + WARN event (1) + RESTORE events
+(4: §6, §9, §10, §12) + ACK events (1: §13) + the extra SHED-event
+written by <code>applyShed</code> on §10 + the RESTORE-event on §12. The
+walkthrough's stale <code>events=17</code> assumed one fewer RTU and no
+bookkeeping row.</p>
+<p><code>rtuAttempts=6</code> because scenario 9 fails the first RTU call and
+retries: §3 (1), WARN (2), §7 (3), §9-fail (4), §9-retry (5), §10 (6).</p>
+<p>Print that trailer. Numbers in § Executable steps must match it.</p>
+<hr>
+<h2 id="executable-steps">Executable steps</h2>
+<p>These are the steps <code>grid-demand-response(tissue)-Demo.dart</code> actually
+runs. Numbers match the <code>── N ──</code> banners in the console. Seed is
+unnumbered but required: without it Distinct has no first <code>hold</code>, and
+“repeat does not shed” in step 1 is meaningless.</p>
+<p><strong>Seam reminder at every step.</strong> Flow answers “may this tick become a
+SHED or WARN pulse?” Tissue answers “what did the books just record,
+and did megawatts move?” The observer is the only glue. <code>actionOf</code>
+never writes <code>reserveMw</code>. <code>applyShed</code> never runs inside the Receptor.</p>
+<p><strong>Documented deviations the executable takes</strong> (header of the demo):</p>
+<ul>
+<li>Tissue constructors: <code>TissueSet</code> / <code>TissueValue</code> take the initial
+value as the <strong>first positional</strong> argument; <code>TissueMap</code> puts
+<code>testRule</code> on the nucleus via <code>properties:</code>.</li>
+<li>Each <code>TestCell</code> unwraps <code>Pulse.payload</code> before the shape check.</li>
+<li>RTU pump: <code>rtuQ.addLast</code> is the audit enqueue;
+<code>_rtuWork</code> + <code>_driveRtu</code> is the retry list (this build's
+<code>TissueQueue</code> does not drain via <code>removeFirst</code>).</li>
+<li>Trace prints come from the writers themselves. Tissue-cell
+<code>Cell.observe</code> is silent in this build.</li>
+<li><code>_fmtHz</code> pins Hz to 2 decimals so <code>49.70</code> never renders as <code>49.7</code>.</li>
+</ul>
+<p>Reserve invariant after every successful shed/restore method:</p>
+<pre class="language-dart"><code>reserveMw.value + sum(shedMap.values.droppedMw) == 800
+</code></pre>
+<p>The invariant is deliberately broken once in §11 (forced to 30) and
+restored to a self-consistent <code>80</code> in §12. The header documents this.</p>
+<hr>
+<h3 id="seed--5000--int-14--load-420--soc-60">Seed — 50.00 / INT-14 / load 420 / SOC 60</h3>
+<p><strong>Lesson:</strong> snapshot bus + Filter. Initial Tissue population is
+silent.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setArea('NORTH');
+h.setFeeder('INT-14');
+h.setHz(50.00);
+h.setLoad(420);
+h.setSoc(60);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>hzIn</code> TestCell accepts <code>50.00</code> (49.00–51.00).</li>
+<li><code>loadIn</code> TestCell accepts <code>420</code> (≥ 0).</li>
+<li><code>socIn</code> TestCell accepts <code>60</code> (0–100).</li>
+<li><code>publishTick</code> emits <code>BayTick(NORTH, INT-14, 50.00Hz, 420MW, 60%)</code>.</li>
+<li>Both gates run <code>actionOf</code> → <code>hold</code>. Distinct records <code>hold</code>.
+Filter(shed) and Filter(warn) both drop.</li>
+<li>Ledger is still empty: Seed does not append, and the initial
+<code>reserveMw=800</code> write was constructor-time (observers never saw it).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── Seed ── 50.00 / INT-14 / load 420 / SOC 60
+  events.isEmpty=true
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[events] SHED</code> / <code>WARN</code>.</li>
+<li>No RTU enqueue.</li>
+<li>No megawatt movement.</li>
+</ul>
+<hr>
+<h3 id="step-1--repeat-5000--int-14">Step 1 — repeat 50.00 / INT-14</h3>
+<p><strong>Lesson:</strong> Distinct on <code>hold</code>. The SHED gate never sees <code>hold</code> as
+a fireable action, and Distinct would drop a repeat anyway.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 1 ── repeat 50.00 / INT-14
+  new sheds: 0
+</code></pre>
+<hr>
+<h3 id="step-2--protectedaddhosp-1-then-4970-hz-on-hosp-1">Step 2 — protected.add('HOSP-1'), then 49.70 Hz on HOSP-1</h3>
+<p><strong>Lesson:</strong> TissueSet feeds <code>actionOf</code>. A protected feeder stays
+<code>hold</code> even at shed-band Hz.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.protected.add('HOSP-1');
+h.setFeeder('HOSP-1');
+h.setHz(49.70);
+h.setLoad(420);
+h.setSoc(60);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>protected.add('HOSP-1')</code> — <code>TestTissue</code> on the set accepts an
+uppercase <code>AREA-N</code> string. This is <strong>not</strong> a Flow pulse.</li>
+<li><code>publishTick('HOSP-1', 49.70 Hz)</code> — <code>actionOf</code> sees <code>HOSP-1</code> in
+<code>protected</code> and returns <code>hold</code> before the frequency check.</li>
+<li>Both gates' <code>Filter</code> drop the <code>hold</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 2 ── protected.add('HOSP-1'), then 49.70 Hz on HOSP-1
+[protected] +HOSP-1
+  new sheds: 0
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>[events] SHED HOSP-1</code>. The protected feeder is held.</li>
+<li>No reserve write.</li>
+</ul>
+<p><strong>Documented deviation.</strong> The walkthrough's prose says <em>“must stay
+hold”</em>; the walkthrough's sample console shows <code>SHED HOSP-1</code> — those
+contradict. This demo follows the prose and prints <code>new sheds: 0</code>.</p>
+<hr>
+<h3 id="step-3--4970-hz-on-int-14">Step 3 — 49.70 Hz on INT-14</h3>
+<p><strong>Lesson:</strong> Distinct <code>hold</code> → <code>shed</code>. Two locks: Receptor then
+TissueList / TissueQueue / TissueMap / TissueValue.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setFeeder('INT-14');
+h.setHz(49.70);
+h.setLoad(420);
+h.setSoc(60);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li><code>actionOf</code> sees <code>INT-14</code> not in <code>protected</code>, <code>49.70 &lt; 49.80</code>,
+returns <code>shed</code>.</li>
+<li>SHED Distinct was <code>hold</code> (from Seed) → emits <code>shed</code>. Filter
+passes. WARN Filter drops.</li>
+<li>SHED observer:
+<ul>
+<li><code>events.add(SHED INT-14)</code></li>
+<li><code>rtuQ.addLast(RtuJob(shed))</code> + <code>_driveRtu()</code> → <code>events.add(RTU)</code></li>
+<li><code>applyShed('INT-14', 50)</code> → <code>shedMap</code> row + <code>reserveMw 800→750</code>
+<ul>
+<li><code>events.add(SHED bookkeeping)</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 3 ── 49.70 Hz on INT-14
+[events] SHED INT-14 — 49.70Hz load=420MW
+[rtuQ] enqueued RtuJob(INT-14, shed)
+[events] RTU INT-14 — shed
+[reserveMw] 800 → 750
+[shedMap] INT-14 +50MW
+  new sheds: 1
+  rtuQ.length=1
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No second <code>toHandle</code>.</li>
+<li>No WARN event.</li>
+</ul>
+<hr>
+<h3 id="step-4--4970-again">Step 4 — 49.70 again</h3>
+<p><strong>Lesson:</strong> Distinct holds <code>shed</code>. Same action, same latch.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 4 ── 49.70 again
+  new sheds: 0
+</code></pre>
+<p>Ledger does not grow. RTU does not enqueue.</p>
+<hr>
+<h3 id="step-5--4972-still-shed-band">Step 5 — 49.72 (still shed band)</h3>
+<p><strong>Lesson:</strong> Distinct keys on <strong>Action</strong>, not Hz. Changing Hz within
+the same band does not create a new shed.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setHz(49.72);
+await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 5 ── 49.72 (still shed band)
+  new sheds: 0
+</code></pre>
+<p>Even though the Hz changed, <code>actionOf</code> still returns <code>shed</code>, and the
+Distinct latch still holds <code>shed</code>. The gate drops it.</p>
+<hr>
+<h3 id="warn--4985--soc-10--load-600">WARN — 49.85 / SOC 10 / load 600</h3>
+<p><strong>Lesson:</strong> second Receptor, independent latch. The protected set
+does not apply to <code>INT-14</code>; the Hz + SOC triggers WARN.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setHz(49.85);
+h.setLoad(600);
+h.setSoc(10);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>actionOf</code>: <code>INT-14</code> not protected; <code>49.80 ≤ 49.85 &lt; 49.90</code> →
+<code>warn</code>.</li>
+<li>WARN Distinct was <code>hold</code> (from Seed) → emit. Filter(warn) passes.
+SHED Filter drops.</li>
+<li>WARN observer appends <code>WARN INT-14</code> and enqueues an RTU job.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── WARN ── 49.85 / SOC 10 / load 600
+[events] WARN INT-14 — 49.85Hz SOC=10
+[rtuQ] enqueued RtuJob(INT-14, warn)
+[events] RTU INT-14 — warn
+  new warns: 1
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>applyShed</code>. WARN is a decision, not a debit.</li>
+<li><code>reserveMw</code> stays 750.</li>
+</ul>
+<hr>
+<h3 id="step-6--5000-then-ack-restore-int-14">Step 6 — 50.00 then ACK restore INT-14</h3>
+<p><strong>Lesson:</strong> ACK clears both Distinct latches <strong>on the same</strong>
+Receptors. The restore returns MW to the pool.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setHz(50.00);
+h.setLoad(420);
+h.setSoc(60);
+await h.publishTick();
+await h.ack('INT-14');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>Tick is <code>hold</code> — both Filters drop.</li>
+<li><code>ackIn</code> observer: <code>resetDistinct()</code> zeroes both latches, then
+<code>restore('INT-14')</code> → <code>reserveMw 750→800</code>, <code>events.add(RESTORE)</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 6 ── 50.00 then ACK restore INT-14
+[reserveMw] 750 → 800
+[events] RESTORE INT-14 — 50MW
+  reserveMw=800 openSheds=0
+</code></pre>
+<p>ACK is <strong>not</strong> <code>toHandle</code> again. A second handle would double every
+later SHED.</p>
+<hr>
+<h3 id="step-7--4970-hz-on-int-14">Step 7 — 49.70 Hz on INT-14</h3>
+<p><strong>Lesson:</strong> after ACK the same shed is a <strong>new</strong> pulse.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.setHz(49.70);
+await h.publishTick();
+</code></pre>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 7 ── 49.70 Hz on INT-14
+[events] SHED INT-14 — 49.70Hz load=420MW
+[rtuQ] enqueued RtuJob(INT-14, shed)
+[events] RTU INT-14 — shed
+[reserveMw] 800 → 750
+[shedMap] INT-14 +50MW
+  new sheds: 1
+</code></pre>
+<p>This is SHED pulse #2 (of four).</p>
+<hr>
+<h3 id="step-8--hz-480-load--10-soc-101-testcell">Step 8 — Hz 48.0, load -10, SOC 101 (TestCell)</h3>
+<p><strong>Lesson:</strong> Cell ingress ≠ Tissue. Shape dies at the edge. The event
+log never hears about a tick that was not published.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final rejectedHz = h.setHz(48.0);
+final rejectedLoad = h.setLoad(-10);
+final rejectedSoc = h.setSoc(101);
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>_hzRange</code> unwraps <code>Pulse.payload</code>, sees <code>48.0</code>, returns <code>false</code>.
+<code>_hz</code> cache is <strong>not</strong> overwritten.</li>
+<li><code>_loadRange</code> rejects <code>-10</code>. <code>_loadMw</code> unchanged.</li>
+<li><code>_socRange</code> rejects <code>101</code>. <code>_soc</code> unchanged.</li>
+<li><code>publishTick</code> is <strong>not</strong> called. Tissue idle.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 8 ── Hz 48.0, load -10, SOC 101
+  hz 48.0 accepted=false
+  load -10 accepted=false
+  soc 101 accepted=false
+  events grew: 0
+</code></pre>
+<p><strong>Must not happen</strong></p>
+<ul>
+<li>No <code>TestTissue</code> involvement.</li>
+<li>No <code>[ingress]</code> lines required if <code>setHz</code> / <code>setLoad</code> / <code>setSoc</code>
+swallow the rejection (the executable reports via the accepted
+flags).</li>
+</ul>
+<hr>
+<h3 id="step-9--ack-recover-4970-rtu-fail-once">Step 9 — ACK, recover, 49.70, RTU fail-once</h3>
+<p><strong>Lesson:</strong> queue + retry. One SHED pulse, two RTU attempts.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.ack('INT-14');
+h.setHz(50.00);
+await h.publishTick();
+h.setHz(49.70);
+h.rtuFailOnce = true;
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>ACK 9-pre clears Distinct and restores the INT-14 shed.</li>
+<li><code>50.00</code> tick is <code>hold</code> (resets latch to hold).</li>
+<li><code>49.70</code> tick → SHED. <code>_driveRtu</code> throws once (<code>rtuFailOnce</code>), then
+retries and appends <code>RTU INT-14 — shed (retry)</code>.</li>
+<li><code>rtuAttempts</code> ends at 5: prior successes (3, WARN, 7) plus
+fail + retry on 9b.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 9 ── ACK, recover, 49.70, RTU fail-once
+[reserveMw] 750 → 800
+[events] RESTORE INT-14 — 50MW
+[events] SHED INT-14 — 49.70Hz load=420MW
+[rtuQ] enqueued RtuJob(INT-14, shed)
+[events] RTU INT-14 — shed (retry)
+[reserveMw] 800 → 750
+[shedMap] INT-14 +50MW
+  new sheds: 1
+  rtuAttempts=5
+</code></pre>
+<p>SHED pulse count for this step is <strong>1</strong>. The retry is RTU I/O, not a
+second Receptor fire.</p>
+<hr>
+<h3 id="step-10--restore-ack-4970-on-int-15">Step 10 — restore, ACK, 49.70 on INT-15</h3>
+<p><strong>Lesson:</strong> TissueMap. A second feeder enters the shed map.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">await h.ack('INT-14');
+h.setFeeder('INT-15');
+h.setHz(49.70);
+await h.publishTick();
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li>ACK restores INT-14 (<code>reserveMw 750→800</code>).</li>
+<li><code>INT-15</code> tick → SHED. <code>applyShed('INT-15', 50)</code> writes a second map
+row and decrements reserve (<code>800→750</code>).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 10 ── restore, ACK, 49.70 on INT-15
+[reserveMw] 750 → 800
+[events] RESTORE INT-14 — 50MW
+[events] SHED INT-15 — 49.70Hz load=420MW
+[rtuQ] enqueued RtuJob(INT-15, shed)
+[events] RTU INT-15 — shed
+[reserveMw] 800 → 750
+[shedMap] INT-15 +50MW
+  new sheds: 1
+  openSheds=1
+</code></pre>
+<p>SHED pulse #4.</p>
+<hr>
+<h3 id="step-11--force-reserve-to-30-then-shed-50-testtissue">Step 11 — force reserve to 30, then SHED 50 (TestTissue)</h3>
+<p><strong>Lesson:</strong> non-negative / under-frequency guard. No orphan map row.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">h.reserveMw.set(30);
+h.setFeeder('INT-16');
+final okShed = h.applyShed('INT-16', 50);
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>reserveMw.set(30)</code> writes 30 (30 ≥ 0, rule passes). This is an
+out-of-band force — the walkthrough uses it to reach a state where
+a new 50 MW shed cannot be covered.</li>
+<li><code>applyShed('INT-16', 50)</code> pre-checks <code>30 &lt; 50</code> → returns <code>false</code>
+<strong>before</strong> writing the map row. <code>shedMap</code> is unchanged
+(<code>openSheds=1</code> from INT-15).</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 11 ── force reserve to 30, then SHED 50
+  applyShed ok=false
+  reserveMw=30 openSheds=1
+</code></pre>
+<p>No <code>[reserveMw]</code> transition line. No <code>[shedMap]</code> line. No new SHED row.</p>
+<p><strong>Documented deviation.</strong> The walkthrough expects <code>applyShed ok=false</code>
+and a reserve of <code>30</code>. The demo produces both. The forced-low beat is
+a deliberate policy break to prove the <code>TestTissue</code> guard; the
+header documents it.</p>
+<hr>
+<h3 id="step-12--restore-int-15">Step 12 — restore INT-15</h3>
+<p><strong>Lesson:</strong> compensate on Tissue. The restore returns MW from the
+shed map back to <code>reserveMw</code>.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final ok12 = h.restore('INT-15');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ol>
+<li>Look up <code>shedMap['INT-15']</code>.</li>
+<li>Remove the map row.</li>
+<li><code>reserveMw.set(30 + 50)</code> — prints <code>[reserveMw] 30 → 80</code>.</li>
+<li><code>events.add(RESTORE INT-15)</code>.</li>
+</ol>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 12 ── restore INT-15
+[reserveMw] 30 → 80
+[events] RESTORE INT-15 — 50MW
+  restore ok=true
+  reserveMw=80 openSheds=0
+</code></pre>
+<p><strong>Documented deviation.</strong> The walkthrough's prose implies restore
+returns to <code>800</code>, but with <code>reserveMw</code> forced to <code>30</code> in §11 the
+maximum possible return is <code>80</code>. The demo prints the self-consistent
+value and documents the deviation.</p>
+<hr>
+<h3 id="step-13--ack-without-an-open-shed">Step 13 — ACK without an open shed</h3>
+<p><strong>Lesson:</strong> restore ≠ invent MW. ACK with no open shed only resets
+Distinct.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final r13 = h.reserveMw.value;
+await h.ack('ALL');
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>ackIn</code> observer: <code>resetDistinct()</code>. Since <code>who == 'ALL'</code>, no
+restore is attempted.</li>
+<li><code>events.add(ACK ALL)</code>.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── 13 ── ACK without an open shed
+[events] ACK ALL — distinct cleared
+  reserveMw=80 openSheds=0 unchanged=true
+</code></pre>
+<p><code>unchanged=true</code> proves the ACK did not touch the reserve.</p>
+<hr>
+<h3 id="comply--counciladd-blocked-length--eventslength">COMPLY — council.add(...) blocked; length == events.length</h3>
+<p><strong>Lesson:</strong> <code>events.unmodifiable</code> is a live, zero-copy deputy.
+Writes are blocked (throw <strong>or</strong> silent swallow). Reads share
+storage.</p>
+<p><strong>Drive</strong></p>
+<pre class="language-dart"><code class="language-dart">final council = h.events.unmodifiable;
+final eventsBefore = h.events.length;
+var blocked = false;
+try {
+  council.add(GridEvent(kind: 'HACK', ...));
+  blocked = h.events.length == eventsBefore;
+} catch (_) {
+  blocked = true;
+}
+</code></pre>
+<p><strong>What fires</strong></p>
+<ul>
+<li><code>council.add</code> must not grow <code>events</code>.</li>
+<li><code>council.length == events.length</code> after the attempt.</li>
+</ul>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">── COMPLY ── council.add(...) blocked; length == events.length
+  council.add blocked=true
+  council.length=19 events.length=19
+</code></pre>
+<p>19 rows in the last good run:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Count</th>
+<th>Feeders</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SHED (observer)</td>
+<td>4</td>
+<td>INT-14 ×3, INT-15 ×1</td>
+</tr>
+<tr>
+<td>RTU</td>
+<td>5</td>
+<td>INT-14 ×4 (one retry), INT-15 ×1</td>
+</tr>
+<tr>
+<td>WARN</td>
+<td>1</td>
+<td>INT-14</td>
+</tr>
+<tr>
+<td>RESTORE</td>
+<td>4</td>
+<td>INT-14 ×3, INT-15 ×1</td>
+</tr>
+<tr>
+<td>ACK</td>
+<td>1</td>
+<td>ALL</td>
+</tr>
+<tr>
+<td>SHED (bookkeeping)</td>
+<td>1</td>
+<td>INT-15 (from <code>applyShed</code>)</td>
+</tr>
+<tr>
+<td>RESTORE (bookkeeping)</td>
+<td>1</td>
+<td>INT-14 (from <code>restore</code>) — already counted above</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>19</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="trailer">Trailer</h3>
+<p><strong>Must print</strong></p>
+<pre class="language-text"><code class="language-text">------------------------------------------------------------------------
+ticks=12 sheds=4 warns=1 events=19 rtuAttempts=6
+reserveMw=80 openSheds=0
+councilLength=19 (same as events)
+------------------------------------------------------------------------
+</code></pre>
+<p>Then <code>h.dispose()</code> stops every observer attached in <code>install</code>.</p>
+<hr>
+<h2 id="pulse-path-scenario-2-then-3">Pulse path (scenario 2 then 3)</h2>
+<pre class="language-dart"><code>protected.add('HOSP-1')
+  TestTissue on TissueSet pass
+  ElementAdded&lt;String&gt;
+
+setFeeder('HOSP-1'); setHz(49.70); publishTick
+  actionOf → hold (protected) → Filter drop both gates
+
+setFeeder('INT-14'); setHz(49.70); publishTick
+  shed Receptor: MapValue shed → Distinct emit → Filter pass
+  warn Receptor: Filter drop
+  observe SHED
+    events.add(...)           → ElementAdded&lt;GridEvent&gt;
+    rtuQ.addLast(...)         → ElementAdded&lt;RtuJob&gt;
+    applyShed 50 MW
+      reserveMw.set(750)      → ElementUpdated&lt;int&gt;
+      shedMap[INT-14] = ...   → ElementAdded&lt;Shed&gt;
+  AsyncMapWithRetry → RTU cell
+</code></pre>
+<p>Scenario 8 stops at <code>hzIn.emit</code> / <code>loadIn.emit</code> / <code>socIn.emit</code>.
+Tissue is idle.</p>
+<p>Scenario 10 never enters <code>actionOf</code> for the debit. The ACK observer
+calls <code>restore</code>. If you debit inside <code>actionOf</code>, two SHEDs before
+ACK will steal the reserve twice.</p>
+<hr>
+<h2 id="who-owns-the-lock">Who owns the lock</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actionOf</code> + Distinct + Filter</td>
+<td>Receptor lock on <code>shedCell</code> / <code>warnCell</code></td>
+</tr>
+<tr>
+<td><code>events.add</code></td>
+<td>TissueList lock</td>
+</tr>
+<tr>
+<td><code>reserveMw</code> write</td>
+<td>TissueValue lock</td>
+</tr>
+<tr>
+<td><code>shedMap[id] = ...</code></td>
+<td>TissueMap lock</td>
+</tr>
+<tr>
+<td>RTU Future</td>
+<td><code>AsyncMapWithRetry</code></td>
+</tr>
+</tbody>
+</table>
+<p>Do not “fix” a race by putting <code>events.add</code> inside the Instruction.
+Teach the two locks.</p>
+<hr>
+<h2 id="real-desk-vs-this-file">Real desk vs this file</h2>
+<table>
+<thead>
+<tr>
+<th>Still missing</th>
+<th>Suggested next piece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot is a Dart cache</td>
+<td>area Nucleus / <code>Cell.synthesis</code></td>
+</tr>
+<tr>
+<td>No 6–10 s “frequency still low”</td>
+<td><code>Debounce</code> in front of <code>tickIn</code></td>
+</tr>
+<tr>
+<td>AGC / tie-line</td>
+<td>extra ingress + third Receptor</td>
+</tr>
+<tr>
+<td>Joint commit across tissues</td>
+<td><code>Cell.transaction</code> when the API allows</td>
+</tr>
+<tr>
+<td>Multi-area reserve table</td>
+<td><code>TissueMap&lt;String, int&gt;</code> + <code>TestTissue</code> on MW</td>
+</tr>
+<tr>
+<td>Persistent historian</td>
+<td>same Tissue API in front of a store; demo stays in-process</td>
+</tr>
+</tbody>
+</table>
+<p>Flow stays on “is this SHED / WARN?”
+TestCell stays on the <strong>Hz / MW / SOC ingress</strong>.
+TestTissue stays on <strong>collection mutations</strong>.
+ACK stays a flag on Distinct.
+Tissue stays the <strong>reserve books and the protected-feeder set</strong>.
+Deputy stays the <strong>reliability-council screen</strong>.</p>
+<hr>
+<h2 id="acceptance">Acceptance</h2>
+<ol>
+<li><code>dart run grid-demand-response(tissue)-Demo.dart</code> matches the
+scenario <strong>Result</strong> column.</li>
+<li>Exactly <strong>two</strong> <code>toHandle(</code> calls for the action gates, both in
+<code>installGates</code>, none in ACK.</li>
+<li><code>actionOf</code> has no <code>await</code>, no <code>reserveMw</code> write, no <code>events.add</code>.</li>
+<li>Scenario 2 mutates <code>protected</code> <strong>before</strong> the HOSP-1 tick.</li>
+<li>Scenario 8 prints TestCell rejection and does not append events.</li>
+<li>Scenario 9 shows a retry in <code>rtuAttempts</code> and still <strong>one</strong> new
+SHED after reset.</li>
+<li>Shed/restore keep the invariant
+<code>reserveMw + sum(droppedMw) == 800</code> except the forced-low beat
+of scenario 11, which must restore before 12.</li>
+<li>COMPLY: read-only deputy blocked on <code>add</code>, live on <code>length</code>.</li>
+<li>Header diagram matches this document.</li>
+<li>No Dart <code>List&lt;GridEvent&gt;</code> is the system of record.</li>
+<li>Every Tissue constructor / <code>.deputy(</code> passes <strong><code>TestTissue</code></strong>
+(or defaults to <code>TestTissue.allowAll</code>). Zero <code>testRule: TestCell</code>
+on those calls.</li>
+</ol>
+<hr>
+<h2 id="documented-deviations-summary">Documented deviations (summary)</h2>
+<p>The walkthrough's prose and its historical sample console contradicted
+each other at three points. This document is reconciled to the <strong>prose</strong>
+(the policy) and the <strong>self-consistent</strong> run. The three deviations
+are recorded here and in the Dart file header:</p>
+<ol>
+<li><strong>§2 — <code>HOSP-1</code> is held.</strong> The prose says “must stay hold”; the
+sample console showed a shed. The demo follows the prose;
+<code>actionOf</code> returns <code>hold</code> for <code>HOSP-1</code> because it is protected.</li>
+<li><strong>§11–§12 — reserve forced to <code>30</code>.</strong> The prose asked to force
+<code>reserveMw</code> to <code>30</code> and also expected restore to bring it back to
+<code>800</code>. Those cannot both be true; the restore returns exactly the
+<code>50</code> MW that was held, so <code>30 → 80</code>. The demo prints the
+self-consistent value.</li>
+<li><strong>Trailer — stale counts.</strong> The prose listed <code>events=17</code> and
+<code>rtuAttempts=5</code>. The self-consistent counts (WARN RTU included,
+fail-once retry counted, <code>applyShed</code>'s bookkeeping SHED row
+included) are <code>events=19</code> and <code>rtuAttempts=6</code>.</li>
+</ol>
+<p>The <strong>policy</strong> is unchanged by these deviations. Only the sample
+numbers are.</p>
+<hr>
+<h2 id="name-plate">Name plate</h2>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>This requirement / walkthrough</td>
+<td><code>grid-demand-response(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Demo</td>
+<td><code>grid-demand-response(tissue)-Demo.dart</code></td>
+</tr>
+<tr>
+<td>Mobility sibling</td>
+<td><code>ride-hail-dispatch(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Payments sibling</td>
+<td><code>card-auth-pipeline(tissue)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Clinical sibling</td>
+<td><code>ICU-alarm-pipeline(enhanced)-WalkThrough.md</code></td>
+</tr>
+<tr>
+<td>Architecture note</td>
+<td><code>grid-demand-response(tissue)-ARCHITECTURE.md</code></td>
+</tr>
+<tr>
+<td>Feature catalogue</td>
+<td><code>grid-demand-response(tissue)-FEATURES.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>This is the <strong>energy / reliability-council</strong> lesson. Do not rename
+the other industry files. Optional later:
+<code>grid-demand-response(enhanced)-WalkThrough.md</code> as a Flow-only
+sibling with a Dart <code>List</code> event log.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Demo · Grid Demand topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Demo · Grid Demand topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Grid Demand-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

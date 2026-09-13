@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">Tissue.fromNucleus factory constructor</li>
   </ol>
@@ -71,6 +71,13 @@ instantiate with different data – e.g., a "ValidatedUserList" blueprint.</p>
 <li>This is the primary way to instantiate <strong>deputies</strong> – restricted views
 that share the same nucleus but apply different rules.</li>
 </ul>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>nucleus</code>: The pre‑configured <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> blueprint.</li>
+<li><code>elements</code>: Optional initial data to populate the collection.</li>
+</ul>
+<h3 id="returns">Returns</h3>
+<p>A <a href="../../cell_tissue/Tissue-class.html">Tissue</a> instance governed by the provided nucleus.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final nucleus = TissueNucleus.create&lt;int&gt;(
   testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0),
@@ -112,7 +119,7 @@ final list = Tissue.fromNucleus(nucleus, elements: [1, 2, 3]);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

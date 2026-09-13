@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissue-class.html">UnmodifiableTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissue.fromNucleus factory constructor</li>
   </ol>
@@ -62,11 +62,6 @@
     
 <section class="desc markdown">
   <p>Instantiates an unmodifiable tissue from a pre‑built reactive blueprint.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>This is an advanced, low‑level factory. You typically use the simpler
-<a href="../../cell_tissue/UnmodifiableTissue-class.html">UnmodifiableTissue</a> factory or the <code>.unmodifiable</code> getter instead.
-Use this only when you already have a custom <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> that you
-want to materialise as a read‑only collection.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You have a reusable nucleus configuration (e.g., from a cache or a
@@ -77,6 +72,10 @@ transformed via <code>.evolve</code>.</li>
 <li>You need to restore an unmodifiable collection from a serialised state
 where the nucleus is already reconstructed.</li>
 </ul>
+<p>This is an advanced, low‑level factory. You typically use the simpler
+<a href="../../cell_tissue/UnmodifiableTissue-class.html">UnmodifiableTissue</a> factory or the <code>.unmodifiable</code> getter instead.
+Use this only when you already have a custom <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> that you
+want to materialise as a read‑only collection.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The factory takes a <a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus</a> that <strong>must</strong> be configured with a
@@ -112,7 +111,7 @@ final readOnly = UnmodifiableTissue.fromNucleus(
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>nucleus</code>: The pre‑configured blueprint that governs the collection’s
+<li><code>nucleus</code>: The pre‑configured blueprint that governs the collection's
 behaviour, storage, and context.</li>
 <li><code>unmodifiableElement</code>: If <code>true</code> (default), child cells are projected
 as unmodifiable when accessed.</li>
@@ -155,7 +154,7 @@ as unmodifiable when accessed.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

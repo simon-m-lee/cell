@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">clone property</li>
   </ol>
@@ -69,18 +69,37 @@
 <section class="desc markdown">
   <p>Returns a shallow, unactivated copy of the current <a href="../../cell_tissue/Receptor-class.html">Receptor</a>.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You rarely need this – the framework uses it internally when you create
-a cell from an already‑activated nucleus. Use it if you need to reuse
-the same logic on multiple cells.</p>
+<p>Use this when you need to duplicate a receptor's transformation logic for
+a different cell. While the framework handles this automatically during
+cell creation, manual cloning is useful for:</p>
+<ul>
+<li><strong>Graph Prototyping</strong>: Creating variations of a signal path from a
+common base template.</li>
+<li><strong>Dynamic Receptors</strong>: Replicating a complex pipeline to be bound to
+multiple ephemeral cells.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The clone copies the rules and metadata but clears any cell binding.
-The clone is in the template state (<a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a> is <code>false</code>).</p>
+<ol>
+<li>It creates a new receptor instance that shares the same underlying
+instruction set and user metadata.</li>
+<li>The resulting object is a <strong>Stateless Template</strong> – it is not bound
+to any cell, and <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a> returns <code>false</code>.</li>
+<li>Activating the clone binds it to a specific <a href="../../cell_tissue/Cell-class.html">Cell</a> instance without
+affecting the original receptor's state.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The clone is a new object, so activating it won't affect the original.</li>
-<li>This is essential for sharing a receptor definition across many cells
-without cross‑contamination.</li>
+<li><strong>Isolation</strong>: The clone is a distinct object. Activating the original
+or changing its configuration will not impact the cloned instance.</li>
+<li><strong>Shallow Efficiency</strong>: It copies references to the instructions.
+Because instructions are flyweights, this operation is extremely fast
+ and memory-efficient.</li>
+<li><strong>Nucleus Integrity</strong>: This method is the mechanical key to how a
+single nucleus can spawn multiple independent cell instances, each
+maintaining its own private operational perimeter.</li>
 </ul>
+<h3 id="returns">Returns:</h3>
+<p>A new unactivated <a href="../../cell_tissue/Receptor-class.html">Receptor</a> instance with the same logic.</p>
 </section>
 
     
@@ -116,7 +135,7 @@ without cross‑contamination.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

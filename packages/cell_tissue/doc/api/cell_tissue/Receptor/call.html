@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call abstract method</li>
   </ol>
@@ -63,30 +63,54 @@
     </section>
     
 <section class="desc markdown">
-  <p>Orchestrates the formal transition from <strong>Perception</strong> to <strong>Reasoning</strong>
-by executing the receptor's transformation logic within the
-host's <strong>Operational Perimeter</strong>.</p>
+  <p>Orchestrates the formal transition of a signal from <strong>Perception</strong> to
+<strong>Reasoning</strong> by executing the transformation pipeline.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You don't call this directly – the framework invokes it when a pulse
-arrives at the cell. It's the core method that processes the pulse.</p>
+<p>This is the central execution entry point for receptor logic. You rarely
+call this method directly in application code, as the framework invokes
+it automatically when a <a href="../../cell_tissue/Pulse-class.html">Pulse</a> arrives at the cell's boundary.</p>
+<p>Manual invocation is primarily used for:</p>
+<ul>
+<li><strong>Testing</strong>: Verifying a receptor's transformation or filtering logic
+in isolation.</li>
+<li><strong>Middleware</strong>: Manually triggering cell updates from specialized
+event sources.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The method:</p>
 <ol>
-<li>Checks if the pulse is a shell (defensive proxy); if so, performs
-the mutual authorization handshake.</li>
-<li>Validates the pulse against the cell's <a href="../../cell_tissue/TestCell-class.html">TestCell</a>.</li>
-<li>Executes the receptor's pipeline (<code>preProcess</code> → <code>rule</code> → <code>postProcess</code>).</li>
-<li>Returns the transformed pulse or <code>null</code>.</li>
+<li><strong>Handshake</strong>: It performs an authorization handshake if the incoming
+pulse is a defensive proxy (shell).</li>
+<li><strong>Validation</strong>: It validates the pulse against the host cell's
+governance policies and invariants.</li>
+<li><strong>Pipeline Execution</strong>: It sequentially executes the internal stages
+(e.g., <code>preProcess</code> → <code>instruction</code> → <code>postProcess</code>).</li>
+<li><strong>Result</strong>: It returns the final transformed <a href="../../cell_tissue/Pulse-class.html">Pulse</a> to be committed
+to state, or <code>null</code> if the signal was dropped/filtered.</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The method handles both synchronous and asynchronous execution via
-<code>FutureOr</code>.</li>
-<li>If the pulse is invalidated or the cell is invalidated, the call
-returns <code>null</code>.</li>
-<li>The pipeline is wrapped in error boundaries; exceptions are caught
-and reported via the pulse's <code>onError</code> callback.</li>
+<li><strong>Operational Perimeter</strong>: The execution is bound to the host cell's
+context. Accessing state or context during the call is guaranteed to
+be consistent with the cell's current operational phase.</li>
+<li><strong>Resilience</strong>: The entire execution is shielded. Exceptions are
+caught, logged to the pulse's forensic metadata, and the signal is
+terminated (<code>null</code>) to protect graph stability.</li>
+<li><strong>Synchronous Execution</strong>: The method executes synchronously and
+returns the result immediately. For asynchronous execution, use
+<a href="../../cell_tissue/Receptor/async.html">Receptor.async</a>.</li>
+<li><strong>Short-circuiting</strong>: If the host cell is invalidated or the signal
+fails a security check, the method returns <code>null</code> immediately without
+running the transformation logic.</li>
+<li><strong>Validation Async Support</strong>: While the pipeline is synchronous,
+validation can return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future&lt;bool&gt;</a> for asynchronous validation
+checks. This is the only async operation in the call path.</li>
 </ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: The incoming pulse to process.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The transformed pulse, or <code>null</code> if the signal was terminated.</p>
 </section>
 
 
@@ -121,7 +145,7 @@ and reported via the pulse's <code>onError</code> callback.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">NucleusBase class</li>
   </ol>
   <div class="self-name">NucleusBase</div>
@@ -61,9 +61,9 @@ a memory-optimized storage engine for reactive cell properties.</p>
 management system. It implements the <strong>Flyweight</strong> and <strong>Prototype</strong> patterns
 by utilizing Dart <strong>Records</strong> and <strong>Bitmask Optimization</strong> to store only
 the specific properties that deviate from framework defaults.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You rarely interact with this directly – it's the base class for all nuclei.
-Use <a href="../cell_tissue/Cell-class.html">Cell</a> or <a href="../cell_tissue/Cell/value.html">Cell.value</a> factories; they handle nuclei for you.</p>
+Use <a href="../cell_tissue/Cell-class.html">Cell</a> or <a href="../cell_tissue/Cell/state.html">Cell.state</a> factories; they handle nuclei for you.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It stores cell configuration (context, receptor, testRule, etc.) in a
@@ -128,11 +128,11 @@ tiered property storage for a reactive <a href="../cell_tissue/Cell-class.html">
 support hierarchical property inheritance and contextual overrides.
         </dd>
         <dt id="NucleusBase.fromRecord" class="callable">
-          <span class="name"><a href="../cell_tissue/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a></span><span class="signature">({<span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
         </dt>
         <dd>
-          Creates a <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a> instance directly from a pre-defined and immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>,
-bypassing standard parameter-based validation and bitmask optimization.
+          Reconstitutes a <a href="../cell_tissue/NucleusBase-class.html">NucleusBase</a> from a raw <strong>Flyweight Record</strong>, facilitating
+the restoration of architectural blueprints from a compressed state.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -188,8 +188,8 @@ with an independent synchronization domain.
 
 </dt>
 <dd>
-  The operational tier and execution environment assigned to the <a href="../cell_tissue/Cell-class.html">Cell</a>
-associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -238,7 +238,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd>
-  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -250,8 +251,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd>
-  Indicates whether the associated <a href="../cell_tissue/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -339,8 +340,8 @@ observers of this <code>Cell</code>.
 
 </dt>
 <dd>
-  The <strong>Policy Guard</strong> and integrity engine responsible for governing state
-mutations and operational permissions for the associated <code>Cell</code>.
+  The active <a href="../cell_tissue/TestCell-class.html">TestCell</a> integrity gate that governs and validates all state
+transitions for this node.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -487,7 +488,7 @@ fundamental state and behavior definition for a <a href="../cell_tissue/Nucleus-
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

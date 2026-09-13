@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseShell-class.html">PulseShell<span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">payload property</li>
   </ol>
@@ -72,21 +72,28 @@
     </section>
     
 <section class="desc markdown">
-  <p>The primary data or instruction payload carried by this signal.</p>
+  <p>The primary data or instruction carried by this signal.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Read this to get the data that was sent – it's the whole point of a pulse.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The payload is resolved by walking up the <code>_parent</code> chain to the root
-pulse. This means evolved pulses don't duplicate the payload – they
-inherit it from their ancestor, saving memory.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>For composite pulses (created with <code>+</code>), this returns the payload of
-the first pulse in the bundle. To access individual payloads, iterate
-over the composite.</li>
-<li>The payload is immutable – you can't change it; you create a new pulse
-with <a href="../../cell_tissue/PulseShell/evolve.html">evolve</a> if you need a different payload.</li>
+<li>This is the reason the pulse exists — the actual data you want to send.
+Read it to get the signal's content.</li>
+<li>Reading the signal's content.</li>
+<li>Extracting data for processing.</li>
+<li>Inspecting what a pulse carries.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The payload is resolved by walking up the parent chain. Evolved pulses
+inherit their payload from their root — they don't duplicate it.</p>
+<h3 id="nonobvious-payload-is-inherited-not-copied">Non‑obvious: payload is inherited, not copied</h3>
+<p>For an evolved pulse, <code>payload</code> returns the root's payload. This is why
+causal chains are memory‑efficient — no data is duplicated.</p>
+<h3 id="nonobvious-collective-pulses-have-a-collective-payload">Non‑obvious: collective pulses have a collective payload</h3>
+<p>For a <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>, <code>payload</code> returns an <code>Iterable</code> of all sub‑pulses.
+To access individual payloads, iterate over the collective's payload:</p>
+<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
+  print(p.payload);
+}
+</code></pre>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;String&gt;('Hello');
 print(pulse.payload); // 'Hello'
@@ -127,7 +134,7 @@ P? get payload =&gt; null;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

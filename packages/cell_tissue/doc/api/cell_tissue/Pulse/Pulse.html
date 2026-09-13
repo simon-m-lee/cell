@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">Pulse.new factory constructor</li>
   </ol>
@@ -54,37 +54,51 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;</span>(<wbr>[<ol class="parameter-list single-line"> <li><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span></span></li>
-</ol>])
+      <span class="name ">Pulse&lt;<wbr><span class="type-parameter">P</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, {</span></li>
+<li><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span></li>
+<li><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Creates a baseline <strong>Pulse</strong> instance, the primary data carrier used to
-initiate state updates and trigger system reactions.</p>
+  <p>Creates a simple, ungoverned pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this for most signals – it's the default constructor for a reason.
-It's lightweight, efficient, and covers 90% of use cases.</p>
+<ul>
+<li><strong>Simple Propagation</strong>: Use this for simple signals that don't need explicit governance (TTL,
+audit, or custom provenance). For governed pulses, use <a href="../../cell_tissue/Pulse/Pulse.governed.html">Pulse.governed</a>.</li>
+<li>Simple data transfer without governance requirements.</li>
+<li>Signals that don't need TTL or hop limits.</li>
+<li>Quick prototypes or tests.</li>
+<li>When you don't need audit-level logging.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>You provide a <code>payload</code> (the data), and the framework wraps it into an
-immutable, traceable signal. A timestamp is automatically recorded.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;(42);
-</code></pre>
+<p>The pulse is created with the given <code>payload</code>, optional <code>type</code>, <code>source</code>,
+<code>priority</code>, and <code>step</code>. It inherits the default <a href="../../cell_tissue/PulseContext/system-constant.html">PulseContext.system</a>.</p>
+<h3 id="nonobvious-ungoverned-pulses-are-still-trackable">Non‑obvious: ungoverned pulses are still trackable</h3>
+<p>Even without explicit governance, all pulses carry a timestamp and trace.
+They're still part of the causal graph — they just don't have TTL or
+hop limits.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>payload</code>: <strong>The Message Content.</strong> The primary data or instruction
-payload to be processed by handlers.</li>
+<li><code>payload</code>: The data carried by the pulse.</li>
+<li><code>type</code>: Optional semantic tag for routing.</li>
+<li><code>source</code>: Optional originating cell.</li>
+<li><code>priority</code>: Urgency (defaults to <a href="../../cell_tissue/Pulse/defaultPriority.html">defaultPriority</a>).</li>
+<li><code>step</code>: Optional trace step (like an initial breadcrumb).</li>
 </ul>
-<h3 id="returns">Returns:</h3>
-<p>A singular <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance ready for propagation through the reactive
-network.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse('Hello', type: 'message', priority: 60);
+</code></pre>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Pulse([P? payload]) =&gt; _Pulse&lt;P&gt;(payload: payload);</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory Pulse(P? payload, {String? type, Cell? source, int? priority, String? step})
+=&gt; _Pulse&lt;P&gt;(payload: payload, type: type, source: source, priority: priority, step: step);</code></pre>
 </section>
 
 
@@ -112,7 +126,7 @@ network.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

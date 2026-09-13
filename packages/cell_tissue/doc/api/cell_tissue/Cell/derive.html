@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">derive&lt;<wbr><span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt; static method</li>
   </ol>
@@ -55,13 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>
-<span class="name ">derive</span>&lt;<wbr><span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="derive-param-bind"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">bind</span>, </span></li>
-<li><span class="parameter" id="derive-param-transform"><span>required</span> <span class="type-annotation">O</span> <span class="parameter-name">transform</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span></li>
+<span class="name ">derive</span>&lt;<wbr><span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="derive-param-source"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="derive-param-project"><span>required</span> <span class="type-annotation">O?</span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span></li>
 </ol>), </span></li>
-<li><span class="parameter" id="derive-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
-<li><span class="parameter" id="derive-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
-<li><span class="parameter" id="derive-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
-<li><span class="parameter" id="derive-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       
@@ -69,49 +65,75 @@
     </section>
     
 <section class="desc markdown">
-  <p>Synthesizes a <strong>Derived Cell</strong>—a functional node that performs a
-pure, deterministic transformation on an upstream source.</p>
-<p>The <a href="../../cell_tissue/Cell/derive.html">derive</a> factory is the framework's primary implementation of the
-<strong>Map Pattern</strong>. It creates a reactive link between a source cell (<code>bind</code>)
-and a new output state, ensuring that every mutation in the parent is
-immediately reflected as a functionally derived pulse in the child.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need a read‑only projection or transformation of
-another cell's data – e.g. formatting a user name, computing a derived
-value, or converting between types.</p>
-<h3 id="how-it-works">How it works</h3>
+  <p>Synthesizes a new <a href="../../cell_tissue/Cell-class.html">Cell</a> that acts as a <strong>Reactive Projection</strong> (or View)
+of an existing source cell.</p>
+<p>This factory implements the <strong>Derivation Pattern</strong>, which is the primary
+mechanism for creating functional data pipelines within the reactive graph.
+Unlike a standard <a href="../../cell_tissue/Cell-class.html">Cell</a>, a derived cell does not hold independent state;
+its existence is purely defined by the transformation of stimuli arriving
+from its <code>source</code>.</p>
+<h3 id="architectural-significance-the-transformation-valve">Architectural Significance: The Transformation Valve</h3>
+<p>A critical feature of this implementation is the support for <strong>Nullable
+Projections</strong>. By allowing the <code>project</code> function to return <code>null</code>, the
+framework enables an implicit <strong>Valve Pattern</strong>:</p>
 <ul>
-<li><code>bind</code>: the source cell.</li>
-<li><code>transform</code>: a pure function that takes the source pulse and returns
-a new pulse of a different type.</li>
-<li>The derived cell automatically updates whenever the source changes.</li>
+<li><strong>Transformation</strong>: Converting data from type <code>I</code> to type <code>O</code>.</li>
+<li><strong>Suppression</strong>: If the projection returns <code>null</code>, the incoming signal
+is neutralized. No state update occurs, and no downstream notifications
+are dispatched.</li>
 </ul>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Computed Properties</strong>: Creating a view of a model (e.g., deriving a
+<code>fullName</code> cell from a <code>user</code> cell).</li>
+<li><strong>Reactive Filtering</strong>: Suppressing updates that do not meet specific
+business criteria (e.g., only propagating pulses where <code>amount &gt; 0</code>).</li>
+<li><strong>Type Adaptation</strong>: Bridging two disparate domains by converting
+low-level signals into high-level domain pulses.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Ingress Binding</strong>: The new cell is automatically bound to the <code>source</code>.</li>
+<li><strong>Execution Gate</strong>: When the <code>source</code> emits an <code>I</code> pulse, the <code>project</code>
+logic is invoked within the cell's transformation pipeline.</li>
+<li><strong>Null Handling</strong>: If <code>project</code> returns <code>null</code>, the pipeline terminates
+immediately. If it returns a pulse of type <code>O</code>, the signal continues
+its lineage to downstream observers.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
-<p>The derived cell does not store state; it's a stateless transform.
-If you need to store the result, use <a href="../../cell_tissue/Cell/value.html">Cell.value</a> with <code>bind</code> instead.</p>
-<h3 id="example-data-transformation">Example: Data Transformation</h3>
-<pre class="language-dart"><code class="language-dart">final raw = Cell.ingress&lt;Map&lt;String, dynamic&gt;&gt;().cell;
-final user = Cell.derive&lt;Map&lt;String, dynamic&gt;, User&gt;(
-  bind: raw,
-  transform: (input) =&gt; Pulse(User.fromJson(input.payload)),
+<ul>
+<li><strong>Stateless Nature</strong>: A derived cell does not possess its own <a href="../../cell_tissue/Box-class.html">Box</a> or
+persistent storage. It is a functional transformer that operates lazily;
+it only synthesizes a value when a stimulus flows through from the <code>source</code>.</li>
+<li><strong>Causal Integrity</strong>: To maintain the <strong>Chain of Evidence</strong>, the
+<code>project</code> function should return a pulse created via <code>input.evolve()</code>.
+This preserves the <strong>Contextual Lineage</strong>, allowing the framework to
+trace the resulting signal back to its primordial root for debugging
+and security auditing.</li>
+<li><strong>The Valve Pattern</strong>: Returning <code>null</code> is the framework's idiomatic way
+to implement <strong>Signal Neutralization</strong>. This stops the propagation
+immediately, ensuring that downstream observers are never notified
+of irrelevant or unauthorized state transitions.</li>
+</ul>
+<h3 id="example-transforming-and-filtering">Example: Transforming and Filtering</h3>
+<pre class="language-dart"><code class="language-dart">// Derives a count, but only pulses if the text is not empty
+final countCell = Cell.derive&lt;StringPulse, IntPulse&gt;(
+  source: textInputCell,
+  project: (input) {
+    if (input.payload.isEmpty) return null; // Valve: Signal neutralized
+    return Pulse(input.payload.length);    // Transformation
+  },
 );
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: <strong>The Ingress Source.</strong> The principal <a href="../../cell_tissue/Cell-class.html">Cell</a> to be observed.</li>
-<li><code>transform</code>: <strong>The Derivation Logic.</strong> A pure function that maps the
-input pulse <code>I</code> to the output pulse <code>O</code>.</li>
-<li><code>context</code>: <strong>Operational Authority.</strong> Defines the <strong>Authority Tier</strong>
-(defaults to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
-<li><code>testRule</code>: <strong>Integrity Gate.</strong> A validator (<a href="../../cell_tissue/TestCell-class.html">TestCell</a>) that ensures
-the derived result satisfies the scene's ontological constraints.</li>
-<li><code>synapses</code>: <strong>Egress Network.</strong> Configures the <strong>Signal Distribution Hub</strong>
-for downstream observers.</li>
-<li><code>forceLock</code>: If <code>true</code>, ensures the creation of an <strong>Atomic
-Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
+<li><code>source</code>: The upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> providing the raw signal.</li>
+<li><code>project</code>: The <strong>Projection Logic.</strong> A pure function that maps the
+input pulse to an output pulse. Return <code>null</code> to suppress the signal.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> that represents a functionally derived projection of its source.</p>
+<p>A new <a href="../../cell_tissue/Cell-class.html">Cell</a> instance representing the reactive projection of the <code>source</code>.
+{@category Core 16 Operators}</p>
 </section>
 
 
@@ -119,15 +141,21 @@ Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentati
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Cell derive&lt;I extends Pulse, O extends Pulse&gt;({
-  required Cell bind,
-  required O Function(I input) transform,
-  Context context = Context.system,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  bool forceLock = false,
+  required Cell source,
+  required O? Function(I input) project,
 }) {
-  final receptor = _Receptor(reaction: (pulse, cell, {user}) =&gt; transform(pulse as I));
-  return Cell.governed(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock);
+  &#47;&#47; Implementation links the receptor to the projection logic
+  return Cell(
+    bind: source,
+    receptor: Receptor((cell, pulse, {user}) {
+      try {
+        return project(pulse as I);
+      } catch (e) {
+        &#47;&#47; Internal integrity check for type mismatch
+        return null;
+      }
+    }),
+  );
 }</code></pre>
 </section>
 
@@ -156,7 +184,7 @@ Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentati
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

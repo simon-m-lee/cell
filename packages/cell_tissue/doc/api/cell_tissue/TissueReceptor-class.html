@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TissueReceptor<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TissueReceptor</div>
@@ -61,23 +61,8 @@ pulse evolution and state synchronisation within a <a href="../cell_tissue/Tissu
 <p>A <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> acts as the <strong>Reactive Gateway</strong> and <strong>Input Logic Controller</strong>
 for a collection‑based cell (e.g., <a href="../cell_tissue/TissueList-class.html">TissueList</a>, <a href="../cell_tissue/TissueSet-class.html">TissueSet</a>, <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>).
 It sits at the intersection of incoming <a href="../cell_tissue/Synapses-class.html">Synapses</a> and the internal <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a>,
-serving as the arbiter that decides how external <a href="../cell_tissue/Pulse-class.html">Pulse</a>s – primarily <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a>s –
+serving as the arbiter that decides how external <a href="../cell_tissue/Pulse-class.html">Pulse</a>s – primarily <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a>s –
 should modify the local state and how they should be projected downstream.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>Most of the time, you don't need to define a custom receptor. The default
-<a href="../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a> does exactly what you expect: it mirrors
-structural changes from a principal into the local collection. Use it
-whenever you're building a standard reactive list, set, map, or queue.</p>
-<p>When you do need custom behaviour, start with the primary constructor:</p>
-<pre class="language-dart"><code class="language-dart">final receptor = TissueReceptor&lt;String, TissueList&lt;String&gt;&gt;(
-  (tissue, pulse, {user}) {
-    // your transformation logic here
-    return pulse;
-  },
-);
-</code></pre>
-<p>For more complex pipelines, use <a href="../cell_tissue/TissueReceptor/TissueReceptor.from.html">TissueReceptor.from</a> to combine
-pre‑process, core rule, and post‑process stages.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Use a custom <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> when you need to:</p>
 <ul>
@@ -90,11 +75,25 @@ a deputy.</li>
 addition into a domain event).</li>
 <li>Suppress certain pulses entirely (by returning <code>null</code>).</li>
 </ul>
+<p>Most of the time, you don't need to define a custom receptor. The default
+<a href="../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a> does exactly what you expect: it mirrors
+structural changes from a principal into the local collection. Use it
+whenever you're building a standard reactive list, set, map, or queue.</p>
+<p>When you do need custom behaviour, start with the primary constructor:</p>
+<pre class="language-dart"><code class="language-dart">final receptor = TissueReceptor&lt;String, TissueList&lt;String&gt;&gt;(
+  (tissue, pulse, {user}) {
+    // your transformation logic here
+    return pulse;
+  },
+);
+</code></pre>
+<p>For more complex pipelines, use <a href="../cell_tissue/TissueReceptor/TissueReceptor.pipeline.html">TissueReceptor.pipeline</a> to combine
+pre‑process, core rule, and post‑process stages.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li>A receptor is a functional wrapper around one or more <a href="../cell_tissue/PulseRule-class.html">PulseRule</a>s.</li>
-<li>When a pulse arrives (typically a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a>), the receptor first
-checks if the pulse originates from a bound principal (via <code>bind</code>).
+<li>A receptor is a functional wrapper around one or more <a href="../cell_tissue/Instruction-class.html">Instruction</a>s.</li>
+<li>When a pulse arrives (typically a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a>), the receptor first
+checks if the pulse originates from a bound principal (via <code>Cell.bind</code>).
 If so, it automatically updates the local <a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> to mirror
 the principal's state (this is the "synchronisation" phase).</li>
 <li>Then it applies the user‑provided transformation pipeline:
@@ -131,13 +130,13 @@ error path.</li>
 );
 </code></pre>
 <h3 id="example-validated-pipeline-with-logging">Example: Validated pipeline with logging</h3>
-<pre class="language-dart"><code class="language-dart">final validatedReceptor = TissueReceptor.from(
-  preProcess: PulseRule((tissue, input, {user}) {
+<pre class="language-dart"><code class="language-dart">final validatedReceptor = TissueReceptor.pipeline(
+  preProcess: Instruction((tissue, input, {user}) {
     print("Incoming: $input");
     return input;
   }),
-  rule: PulseRule((tissue, input, {user}) =&gt; Pulse(input.payload * 2)),
-  postProcess: PulseRule((tissue, input, {user}) {
+  rule: Instruction((tissue, input, {user}) =&gt; Pulse(input.payload * 2)),
+  postProcess: Instruction((tissue, input, {user}) {
     return (input.payload &lt; 100) ? input : null;
   }),
 );
@@ -159,10 +158,10 @@ collection's specific APIs.</li>
 </ul>
 <p>See also:</p>
 <ul>
-<li><a href="../cell_tissue/PulseRule-class.html">PulseRule</a> – the building block for transformation logic.</li>
+<li><a href="../cell_tissue/Instruction-class.html">Instruction</a> – the building block for transformation logic.</li>
 <li><a href="../cell_tissue/TissueReceptor/passThrough-constant.html">TissueReceptor.passThrough</a> – the default, no‑op receptor.</li>
-<li><a href="../cell_tissue/TissueReceptor/TissueReceptor.from.html">TissueReceptor.from</a> – for multi‑stage pipelines.</li>
-<li><a href="../cell_tissue/TissueReceptor/transform.html">TissueReceptor.transform</a> – for strongly‑typed type conversions.</li>
+<li><a href="../cell_tissue/TissueReceptor/TissueReceptor.pipeline.html">TissueReceptor.pipeline</a> – for multi‑stage pipelines.</li>
+<li><a href="../cell_tissue/TissueReceptor/TissueReceptor.instruction.html">TissueReceptor.instruction</a> – for reusable instruction-based logic.</li>
 </ul>
 </section>
 
@@ -197,19 +196,26 @@ collection's specific APIs.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="TissueReceptor.new" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueReceptor/TissueReceptor.html">TissueReceptor</a></span><span class="signature">(<span class="parameter" id="-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span> <span class="parameter-name">rule</span>(<span class="parameter" id="param-tissue"><span class="type-annotation">C</span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/TissueReceptor/TissueReceptor.html">TissueReceptor</a></span><span class="signature">(<span class="parameter" id="-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">instruction</span>(<span class="parameter" id="param-tissue"><span class="type-annotation">C</span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>)</span>
         </dt>
         <dd>
           The primary factory constructor for creating a <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> with a
 single transformation rule.
             <div class="constructor-modifier features">factory</div>
         </dd>
-        <dt id="TissueReceptor.from" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueReceptor/TissueReceptor.from.html">TissueReceptor.from</a></span><span class="signature">({<span class="parameter" id="from-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="from-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="from-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span></span>})</span>
+        <dt id="TissueReceptor.instruction" class="callable">
+          <span class="name"><a href="../cell_tissue/TissueReceptor/TissueReceptor.instruction.html">TissueReceptor.instruction</a></span><span class="signature">(<span class="parameter" id="instruction-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> <span class="parameter-name">instruction</span>, {</span><span class="parameter" id="instruction-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
         </dt>
         <dd>
-          The advanced compositional factory for creating a <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> with
-a multi‑stage processing pipeline.
+          Creates a <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> from a pre-defined <a href="../cell_tissue/Instruction-class.html">Instruction</a>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="TissueReceptor.pipeline" class="callable">
+          <span class="name"><a href="../cell_tissue/TissueReceptor/TissueReceptor.pipeline.html">TissueReceptor.pipeline</a></span><span class="signature">({<span class="parameter" id="pipeline-param-instruction"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span><span class="parameter" id="pipeline-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="pipeline-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="pipeline-param-reaction"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="pipeline-param-init"><span class="type-annotation">void</span> <span class="parameter-name">init</span>()?, </span><span class="parameter" id="pipeline-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>()?</span>})</span>
+        </dt>
+        <dd>
+          The advanced compositional factory for creating a multi-stage processing
+pipeline.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -283,19 +289,6 @@ to a functional, cell-bound instance.
 
 </dd>
 
-        <dt id="isGoverned" class="property inherited">
-  <span class="name"><a href="../cell_tissue/Receptor/isGoverned.html">isGoverned</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Indicates whether the receptor's host <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a
-<strong>Governance Policy</strong>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
@@ -339,9 +332,8 @@ a concrete <code>cell</code> instance.
 
 </dt>
 <dd class="inherited">
-  Orchestrates the formal transition from <strong>Perception</strong> to <strong>Reasoning</strong>
-by executing the receptor's transformation logic within the
-host's <strong>Operational Perimeter</strong>.
+  Orchestrates the formal transition of a signal from <strong>Perception</strong> to
+<strong>Reasoning</strong> by executing the transformation pipeline.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -397,25 +389,6 @@ host's <strong>Operational Perimeter</strong>.
   </section>
     
     
-  <section class="summary offset-anchor" id="static-methods">
-    <h2>Static Methods</h2>
-    <dl class="callables">
-        <dt id="transform" class="callable">
-  <span class="name"><a href="../cell_tissue/TissueReceptor/transform.html">transform</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="transform-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">O?</span>&gt;</span></span> <span class="parameter-name">rule</span>(<span class="parameter" id="param-tissue"><span class="type-annotation">C</span> <span class="parameter-name">tissue</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), {</span><span class="parameter" id="transform-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})
-    <span class="returntype parameter">&#8594; <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span>
-  </span>
-  
-
-</dt>
-<dd>
-  A static convenience factory that creates a type‑safe <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a>
-specialised for transforming signals from one specific type to another.
-  <div class="features"><span class="feature">override</span></div>
-
-</dd>
-
-    </dl>
-  </section>
     
 
   <section class="summary offset-anchor" id="constants">
@@ -459,7 +432,7 @@ standardised pulse propagation and structural state synchronisation.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedPulseBase-class.html">EvolvedPulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -72,24 +72,51 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns a <strong>Read-Only Projection</strong> of this pulse, ensuring structural
-and data integrity.</p>
+  <p>Returns a read‑only projection of this pulse, ensuring structural and
+payload-level finality for the current propagation hop.</p>
+<p>Use this method to stabilize a signal before it crosses architectural
+boundaries, such as passing data to UI components, external logging
+systems, or downstream <a href="../../cell_tissue/Receptor-class.html">Receptor</a> chains that should not modify the
+current state.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this before handing a pulse to untrusted code – e.g., logging,
-external APIs, or UI components. It prevents tampering.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The unmodifiable view disables <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a> and <a href="../../cell_tissue/PulseBase/withStep.html">withStep</a>. Any attempt to
-change the pulse will throw an error. The payload remains readable.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>This is recursive – <code>_parent</code>, <a href="../../cell_tissue/PulseBase/root.html">root</a>, and <a href="../../cell_tissue/PulseBase/source.html">source</a> are also projected
-as unmodifiable.</li>
-<li>The underlying data is not copied – it's a protective wrapper.</li>
+<li><strong>Receptor Protection</strong>: A <a href="../../cell_tissue/Receptor-class.html">Receptor</a> can call <code>.unmodifiable</code> before
+returning a pulse to ensure that downstream consumers cannot mutate
+the payload or the context of this specific instance.</li>
+<li><strong>Cell Payload Safety</strong>: If the <a href="../../cell_tissue/EvolvedPulseBase/payload.html">payload</a> is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, this prevents
+downstream logic from calling setters on that cell while still
+allowing them to observe its values.</li>
+<li><strong>Archiving</strong>: Ensuring a pulse stored in a history buffer or audit
+log cannot be retroactively altered.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Privilege Attenuation</strong>: If the <a href="../../cell_tissue/EvolvedPulseBase/payload.html">payload</a> is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, the returned
+pulse automatically projects it as an attenuated deputy (via <a href="../../cell_tissue/Cell/unmodifiable.html">Cell.unmodifiable</a>).
+This strips mutation capabilities (<a href="../../cell_tissue/Cell/modifiable.html">Cell.modifiable</a>) while preserving
+reactivity, ensuring downstream consumers can observe but not alter state.</li>
+<li><strong>Recursive Provenance Locking</strong>: To maintain a tamper-proof <strong>Chain of
+Evidence</strong>, the entire causal lineage—including the <code>parent</code>, <code>root</code>,
+and <code>source</code> properties—is recursively projected as unmodifiable views.</li>
+<li><strong>Structural Finality</strong>: The pulse envelope (metadata, context, and trace)
+is effectively sealed. This creates an <strong>Integrity Gate</strong> that prevents
+any modification to the current hop's record during the remainder of
+the propagation cycle.</li>
+</ol>
+<h3 id="nonobvious-evolution-is-still-permitted">Non‑obvious: Evolution is still permitted</h3>
+<p>Being "unmodifiable" does not terminate the causal chain. You can still
+call <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a> or <a href="../../cell_tissue/PulseBase/withStep.html">withStep</a> on an unmodifiable pulse. Doing so creates
+a <strong>new, modifiable</strong> pulse instance that targets this unmodifiable
+pulse as its parent. This allows the signal to continue its journey
+while ensuring the historical record of this specific hop remains pristine.</p>
+<h3 id="nonobvious-cells-remain-reactive">Non‑obvious: Cells remain reactive</h3>
+<p>Converting a <a href="../../cell_tissue/Cell-class.html">Cell</a> payload to its unmodifiable form only prevents
+<strong>setting</strong> its value. The cell remains reactive; observers will still
+receive updates if the original source cell changes.</p>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final immutable = pulse.unmodifiable;
-// immutable.evolve(...); // Throws
-logToExternalSystem(immutable); // Safe
+<pre class="language-dart"><code class="language-dart">// But you can still evolve the lineage
+final next = protected.withStep('forwarded');
+print(next.parent == protected); // true
 </code></pre>
 </section>
 
@@ -127,7 +154,7 @@ PulseBase&lt;P&gt; get unmodifiable =&gt; UnmodifiablePulse&lt;P&gt;(this) as Pu
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

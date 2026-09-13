@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseShell-class.html">PulseShell<span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">source property</li>
   </ol>
@@ -72,11 +72,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>The specific component or system node where this <a href="../../cell_tissue/Pulse-class.html">Pulse</a> lineage
-originated.</p>
+  <p>The cell that originally emitted this pulse's lineage.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Read this to know which cell originally sent the pulse – useful for
-debugging, auditing, or loop prevention.</p>
+<ul>
+<li><strong>Origin Tracking</strong>: Read this to know which cell originally sent the pulse — useful for
+debugging, auditing, or loop prevention.</li>
+<li>Debugging to trace the origin of a signal.</li>
+<li>Auditing to know where a change came from.</li>
+<li>Loop prevention (avoiding cycles).</li>
+<li>Understanding the source of a signal.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>The source is set when the root pulse is created and inherited by all
 derived pulses. It never changes.</p>
@@ -116,7 +121,7 @@ Cell? get source =&gt; _kernal.source;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

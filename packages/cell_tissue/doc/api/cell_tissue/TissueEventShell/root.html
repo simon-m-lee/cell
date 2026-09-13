@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventShell-class.html">TissueEventShell<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">root property</li>
   </ol>
@@ -64,7 +64,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
+      <span class="returntype"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
       get
       <span class="name ">root</span>
       <div class="features"><span class="feature">override</span></div>
@@ -72,23 +72,54 @@
     </section>
     
 <section class="desc markdown">
-  <p>The primordial ancestor that initiated this entire message lineage.</p>
+  <p>The primordial ancestor that initiated this pulse's causal lineage.</p>
+<p>The root represents the "ground truth" of a signal before any
+transformations, metadata evolutions, or diagnostic steps were applied.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to jump to the very start of the causal chain –
-e.g., for root cause analysis or intent preservation.</p>
+<ul>
+<li><strong>Root Cause Analysis</strong>: Use this to trace a signal back to its point
+of origin during debugging or forensic auditing.</li>
+<li><strong>Intent Preservation</strong>: Access the root when you need to verify the
+original, unmodified payload or context that started a propagation
+event.</li>
+<li><strong>Lineage Correlation</strong>: Identifying if two different pulses in the
+graph share the same starting point.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The root is the original pulse that started the chain. It's immutable
-and never changes, even as you evolve the pulse.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>For the original pulse, <code>pulse.root == pulse</code>. For any derived pulse,
-<code>pulse.root</code> points back to that original.</p>
+<p>The <a href="../../cell_tissue/TissueEventShell/root.html">root</a> is established when the first pulse in a chain is constructed.
+Every subsequent evolution (via <a href="../../cell_tissue/TissueEventShell/evolve.html">evolve</a>, <a href="../../cell_tissue/TissueEventShell/withStep.html">withStep</a>, or <a href="https://api.flutter.dev/flutter/dart-core/Iterable/map.html">map</a>) inherits
+this reference. It is immutable and persists throughout the entire
+lifecycle of the signal.</p>
+<h3 id="nonobvious-roots-are-not-aware-of-descendants">Non‑obvious: Roots are not aware of descendants</h3>
+<p>Causal tracking in the cell graph is <strong>backwards-looking</strong>. A pulse knows
+its parent, but a parent does not know its children.</p>
+<p>Consequently, calling <code>root.trace</code> (or any lineage inspection) will only
+show the history of the root itself—which is typically empty. It will
+<strong>not</strong> show the steps or transformations added by descendants. To see
+the "complete story" of a signal's evolution, you must inspect the
+latest pulse in the chain.</p>
+<h3 id="nonobvious-self-referential-roots">Non‑obvious: Self-referential roots</h3>
+<p>For an original pulse (the start of a chain), <code>pulse.root</code> returns the
+pulse itself. For any evolved pulse, <code>pulse.root</code> points back to that
+first instance.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final original = Pulse&lt;int&gt;(1);
+final evolved = original
+  .withStep('sanitized')
+  .withStep('validated');
+
+print(evolved.trace);  // ['sanitized', 'validated']
+print(original.trace); // [] (The root doesn't know about future steps)
+
+print(identical(evolved.root, original)); // true
+</code></pre>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissueEvent&lt;E&gt; get root =&gt; this;</code></pre>
+TissuePulse&lt;E&gt; get root =&gt; this;</code></pre>
 </section>
 
   </section>
@@ -118,7 +149,7 @@ TissueEvent&lt;E&gt; get root =&gt; this;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

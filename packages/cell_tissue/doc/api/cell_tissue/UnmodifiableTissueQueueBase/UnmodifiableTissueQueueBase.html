@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueQueueBase.new constructor</li>
   </ol>
@@ -69,37 +69,32 @@ unmodifiable queue hierarchy. It bridges the gap between the
 <a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a> configuration and the live reactive
 infrastructure, ensuring that the queue enters the graph with an
 established "Read-Only" barrier.</p>
-<h3 id="purpose--architectural-role">Purpose &amp; Architectural Role:</h3>
-<p>The fundamental purpose of this constructor is to <strong>Hydrate a Fixed
-Reactive Node</strong>. Within the reactive ecosystem, an unmodifiable
-queue is not merely a static collection; it is a node in a <strong>Directed
-Acyclic Graph (DAG)</strong> that must maintain its integrity while allowing
-high‑performance, double‑ended observation.</p>
-<p>This constructor facilitates:</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is an internal constructor. You don't call it directly. It is
+invoked by the unmodifiable queue factories.</p>
+<h3 id="how-it-works">How it works</h3>
 <ol>
 <li><strong>Logic Activation</strong>: It binds the provided property record to the
 queue instance, activating the synchronization lock and execution
-context required for "Conactive" (Concurrent + Reactive) operations.</li>
+context required for reactive operations.</li>
 <li><strong>Immutability Enforcement</strong>: It prepares the instance to strictly
-prohibit structural changes, ensuring that any attempt to evolve
-the queue via standard methods (like <code>addFirst</code> or <code>removeLast</code>)
-is intercepted and denied.</li>
-<li><strong>Recursive Safety (<code>unmodifiableElement</code>)</strong>: It establishes the
-policy for deep immutability. If enabled, the queue ensures that
-member elements that are themselves reactive cells are accessed
-only as read‑only deputies.</li>
+prohibit structural changes, ensuring that any attempt to mutate
+the queue is intercepted and denied.</li>
+<li><strong>Recursive Safety</strong>: The <code>unmodifiableElement</code> flag establishes
+the policy for deep immutability. If enabled, member elements that
+are themselves reactive cells are accessed only as read‑only deputies.</li>
+<li><strong>Pre‑computed Storage</strong>: If <code>elements</code> are provided, the constructor
+creates a dedicated storage container, bypassing lazy projection
+logic for optimal iteration speed.</li>
 </ol>
-<h3 id="performance--optimization-elements">Performance &amp; Optimization (<code>elements</code>):</h3>
-<p>A critical feature of this constructor is its support for <strong>Pre‑computed
-Storage</strong>.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>If <code>elements</code> are provided, the constructor triggers the creation of
-a specialized, dedicated storage container for the instance.</li>
-<li><strong>Efficiency Gain</strong>: In the <strong>Deputy Pattern</strong> (created via <code>.view</code>),
-providing pre‑resolved unmodifiable proxies of member cells allows
-this constructor to bypass "Lazy Projection" logic. This significantly
-optimizes iteration speed ($O(1)$ per access) for high‑frequency
-read operations in the UI layer.</li>
+<li>The view has its own <a href="../../cell_tissue/Synapses-class.html">Synapses</a> registry, so observers attached to
+the view are independent of those on the source.</li>
+<li>The <code>unmodifiableElement</code> flag affects deep immutability only – the
+queue itself is always read‑only regardless of this flag.</li>
+<li>Pre‑resolved unmodifiable proxies of member cells optimise iteration
+speed for high‑frequency read operations in the UI layer.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -119,11 +114,8 @@ dedicated high‑performance storage container for this specific instance.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueQueueBase(
     TissueQueueNucleusBase&lt;E,C&gt; super.nucleus, {
-      super.unmodifiableElement, Iterable&lt;E&gt;? elements}) : super(elements: elements) {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
-  if (container != null &amp;&amp; elements != null) {
-    _nucleus.container.store.addAll(elements);
-  }
+      super.unmodifiableElement, super.elements}) {
+  &#47;&#47; Initial population is performed by TissueBase via `elements`.
 }</code></pre>
 </section>
 
@@ -152,7 +144,7 @@ dedicated high‑performance storage container for this specific instance.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

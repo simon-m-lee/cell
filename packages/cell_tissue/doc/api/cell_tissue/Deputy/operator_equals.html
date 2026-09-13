@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Deputy-mixin.html">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">operator == method</li>
   </ol>
@@ -91,18 +91,9 @@ final set = {cell, deputy}; // Only one entry (identity-based)
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool operator ==(Object other) {
-  if (identical(this, other)) {
-    return true;
-  }
-  if (other is Deputy) {
-    &#47;&#47; Two deputies are equal if they represent the same underlying cell
-    return identical(_nucleus.bind, other._nucleus.bind);
-  }
-  if (other is Cell) {
-    &#47;&#47; A deputy is equal to a cell if it is a proxy for that specific cell
-    return identical(other._nucleus.bind, other);
-  }
-  return false;
+  if (identical(this, other)) return true;
+  if (other is! Cell) return false;
+  return _nucleus == other._nucleus;
 }</code></pre>
 </section>
 
@@ -131,7 +122,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

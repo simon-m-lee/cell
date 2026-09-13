@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">context property</li>
   </ol>
@@ -67,11 +67,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>The operational tier and security authority under which this <a href="../../cell_tissue/Pulse-class.html">Pulse</a>
-propagates.</p>
+  <p>The operational tier and security authority under which this pulse propagates.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Read this to understand the pulse's authority – e.g., who sent it,
-why, and with what clearance. The framework uses it for validation.</p>
+<ul>
+<li><strong>Security &amp; Provenance</strong>: Read this to understand the pulse's authority
+— who sent it, why, and with what clearance. The framework uses it for
+validation and auditing.</li>
+<li>Validating a pulse's authority in a custom receptor.</li>
+<li>Auditing who sent a signal.</li>
+<li>Checking clearance before processing sensitive data.</li>
+<li>Understanding the provenance of a signal.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>The context carries actor, reason, sensitivity, and compliance metadata.
 It's resolved by walking up the parent chain if not explicitly set.</p>
@@ -120,7 +126,7 @@ It's resolved by walking up the parent chain if not explicitly set.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

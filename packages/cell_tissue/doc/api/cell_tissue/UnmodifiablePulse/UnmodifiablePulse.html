@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiablePulse-class.html">UnmodifiablePulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiablePulse.new factory constructor</li>
   </ol>
@@ -59,21 +59,27 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <strong>Read-Only projection</strong> of an existing pulse.</p>
+  <p>Creates a read‑only projection of an existing pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You typically use <a href="../../cell_tissue/Pulse/unmodifiable.html">Pulse.unmodifiable</a> instead of calling this directly.
+<ul>
+<li><strong>Explicit Stabilization</strong>: You typically use <a href="../../cell_tissue/Pulse/unmodifiable.html">Pulse.unmodifiable</a> instead of calling this directly.
 This factory exists for cases where you need to explicitly create an
-unmodifiable wrapper.</p>
+unmodifiable wrapper — for example, in custom serialisation logic.</li>
+<li>Custom serialisation logic.</li>
+<li>Framework extensions.</li>
+<li>Advanced use cases where you need explicit control.</li>
+<li>When you want to create an unmodifiable wrapper manually.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>It wraps the source pulse in a protective layer that blocks all
 evolutionary methods.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>source</code>: The original <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance to be stabilized and protected.</li>
+<li><code>source</code>: The original <a href="../../cell_tissue/Pulse-class.html">Pulse</a> to be stabilised and protected.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>An <code>UnmodifiablePulse</code> that preserves the original data but blocks
-any further changes to its envelope or lineage.</p>
+<p>An <a href="../../cell_tissue/UnmodifiablePulse-class.html">UnmodifiablePulse</a> that preserves the original data but blocks any
+further changes to its envelope or lineage.</p>
 </section>
 
 
@@ -108,7 +114,7 @@ any further changes to its envelope or lineage.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

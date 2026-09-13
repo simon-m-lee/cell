@@ -10,7 +10,7 @@ part of '../cell_tissue.dart';
 /// A [TissueReceptor] acts as the **Reactive Gateway** and **Input Logic Controller**
 /// for a collection‑based cell (e.g., [TissueList], [TissueSet], [TissueMap]).
 /// It sits at the intersection of incoming [Synapses] and the internal [TissueContainer],
-/// serving as the arbiter that decides how external [Pulse]s – primarily [TissueEvent]s –
+/// serving as the arbiter that decides how external [Pulse]s – primarily [TissuePulse]s –
 /// should modify the local state and how they should be projected downstream.
 ///
 /// ### When to use
@@ -39,13 +39,13 @@ part of '../cell_tissue.dart';
 /// );
 /// ```
 ///
-/// For more complex pipelines, use [TissueReceptor.from] to combine
+/// For more complex pipelines, use [TissueReceptor.pipeline] to combine
 /// pre‑process, core rule, and post‑process stages.
 ///
 /// ### How it works
 /// - A receptor is a functional wrapper around one or more [Instruction]s.
-/// - When a pulse arrives (typically a [TissueEvent]), the receptor first
-///   checks if the pulse originates from a bound principal (via [bind]).
+/// - When a pulse arrives (typically a [TissuePulse]), the receptor first
+///   checks if the pulse originates from a bound principal (via [Cell.bind]).
 ///   If so, it automatically updates the local [TissueContainer] to mirror
 ///   the principal's state (this is the "synchronisation" phase).
 /// - Then it applies the user‑provided transformation pipeline:
@@ -84,7 +84,7 @@ part of '../cell_tissue.dart';
 ///
 /// ### Example: Validated pipeline with logging
 /// ```dart
-/// final validatedReceptor = TissueReceptor.from(
+/// final validatedReceptor = TissueReceptor.pipeline(
 ///   preProcess: Instruction((tissue, input, {user}) {
 ///     print("Incoming: $input");
 ///     return input;
@@ -115,8 +115,8 @@ part of '../cell_tissue.dart';
 /// See also:
 /// - [Instruction] – the building block for transformation logic.
 /// - [TissueReceptor.passThrough] – the default, no‑op receptor.
-/// - [TissueReceptor.from] – for multi‑stage pipelines.
-/// - [TissueReceptor.transform] – for strongly‑typed type conversions.
+/// - [TissueReceptor.pipeline] – for multi‑stage pipelines.
+/// - [TissueReceptor.instruction] – for reusable instruction-based logic.
 abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Receptor<C> {
 
   /// The default, singleton implementation of [TissueReceptor] providing
@@ -186,101 +186,110 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
   /// ```
   ///
   /// ### Parameters:
-  /// - [rule]: The transformation logic. Receives the tissue, the pulse, and
-  ///   optional `user` data; returns a new pulse or `null` to drop it.
-  /// - [user]: Optional arbitrary data passed to the rule function.
+  /// - [instruction]: The transformation logic. Receives the tissue, the pulse,
+  ///   and optional `user` data; returns a new pulse or `null` to drop it.
   factory TissueReceptor(Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
-    return _TissueReceptor<C>(instruction: Instruction<C,Pulse,Pulse>((pulse, {C? cell, future, token, dynamic user}) {
-      return instruction.call(cell!, pulse, user: user);
+    return _TissueReceptor<E,C>(instruction: Instruction<C,Pulse,Pulse>((pulse, {C? cell, future, token, dynamic user}) {
+      return instruction(cell!, pulse, user: user);
     }));
   }
-  // factory TissueReceptor(FutureOr<Pulse?> Function(C tissue, Pulse pulse, {dynamic user}) rule, {dynamic user}) {
-  //   return _TissueReceptor<E,C>(instruction: Instruction<C,Pulse,Pulse>((cell, pulse, {dynamic user}) => rule(cell, pulse, user: user), user: user));
-  // }
 
-  /// The advanced compositional factory for creating a [TissueReceptor] with
-  /// a multi‑stage processing pipeline.
+  /// Creates a [TissueReceptor] from a pre-defined [Instruction].
   ///
   /// ### When to use
-  /// Use this when you need to separate concerns: e.g., logging before
-  /// transformation, then post‑validation. It's a three‑stage pipeline:
-  /// `preProcess` → `rule` → `postProcess`.
+  /// Use this when you have reusable logic already encapsulated in an
+  /// [Instruction] object. This is the best choice for:
+  /// - **Shared Logic**: Applying the same transformation across multiple tissues.
+  /// - **Rule Composition**: Using complex pipelines built with the `+` operator.
+  /// - **Modular Design**: Separating business rules from tissue architecture.
   ///
   /// ### How it works
-  /// - You provide up to three [Instruction]s:
-  ///   - `preProcess`: runs first (e.g., for sanitisation or logging).
-  ///   - `rule`: the core transformation logic.
-  ///   - `postProcess`: runs last (e.g., for validation or commitment).
-  /// - If any stage returns `null`, the pipeline stops and no further stages
-  ///   run.
-  /// - The stages are executed sequentially; the output of one becomes the
-  ///   input of the next.
-  ///
-  /// ### Non‑obvious
-  /// - The stages are optional – you can provide only the ones you need.
-  /// - This is the recommended way to separate validation from business logic.
-  /// - For `ValueCell` tissues, the `postProcess` stage is often used to
-  ///   commit the new value to the underlying [Box].
-  ///
-  /// ### Example: Validated Pipeline
-  /// ```dart
-  /// final validatedReceptor = TissueReceptor.from(
-  ///   preProcess: Instruction((tissue, input, {user}) {
-  ///     print("Incoming: $input");
-  ///     return input;
-  ///   }),
-  ///   rule: Instruction((tissue, input, {user}) => Pulse(input.payload * 2)),
-  ///   postProcess: Instruction((tissue, input, {user}) {
-  ///     return (input.payload < 100) ? input : null;
-  ///   }),
-  /// );
-  /// ```
+  /// - It wraps the provided [instruction] into the receptor's execution path.
+  /// - If [user] metadata is provided, it is stored at the receptor level and
+  ///   passed to the instruction during every invocation.
+  /// - The receptor inherits the transformation, filtering, and error handling
+  ///   behavior defined in the instruction.
   ///
   /// ### Parameters:
-  /// - [rule]: The central [Instruction] defining the main transformation logic.
-  /// - [preProcess]: Optional [Instruction] executed before the main logic.
-  /// - [postProcess]: Optional [Instruction] executed after the main logic.
-  factory TissueReceptor.from({Instruction? instruction, Instruction? preProcess, Instruction? postProcess})
-  = _TissueReceptor<E,C>;
-
-  /// A static convenience factory that creates a type‑safe [TissueReceptor]
-  /// specialised for transforming signals from one specific type to another.
-  ///
-  /// ### When to use
-  /// Use this when you have a strongly‑typed transformation that maps one
-  /// pulse type to another (e.g., `TissueEvent<String>` to `Pulse<int>`).
-  /// It's more explicit and type‑safe than the generic constructor.
-  ///
-  /// ### How it works
-  /// - You provide a [Instruction] that is typed with the exact input and output
-  ///   types.
-  /// - The receptor will only accept pulses of type [I] and will produce
-  ///   pulses of type [O].
-  ///
-  /// ### Non‑obvious
-  /// - This is just a convenience wrapper around the primary constructor.
-  /// - It provides better static analysis and code completion.
+  /// - [instruction]: The logic unit to use for pulse processing.
+  /// - [user]: Optional metadata passed to the instruction during execution.
   ///
   /// ### Example
   /// ```dart
-  /// final lengthReceptor = TissueReceptor.transform<MyTissue, TissueEvent<String>, Pulse<int>>(
-  ///   Instruction((tissue, input, {user}) {
-  ///     final text = input.payload;
-  ///     return text != null ? Pulse(text.length) : null;
-  ///   })
+  /// // Define a reusable instruction
+  /// final auditor = Instruction<Cell, Pulse, Pulse>((p, {cell, user}) {
+  ///   print('Audit [${user}]: ${p.payload}');
+  ///   return p;
+  /// });
+  ///
+  /// // Bind it to a receptor
+  /// final receptor = TissueReceptor.instruction(auditor, user: 'SecurityLog');
+  /// ```
+  factory TissueReceptor.instruction(Instruction<C,Pulse,Pulse> instruction, {dynamic user}) {
+    return _TissueReceptor<E,C>(instruction: instruction, user: user);
+  }
+
+  /// The advanced compositional factory for creating a multi-stage processing
+  /// pipeline.
+  ///
+  /// ### When to use
+  /// Use this when you need to enforce a clear separation of concerns within
+  /// a tissue's transformation logic. It is the standard tool for building
+  /// robust signal processing chains that require:
+  /// - **Sanitization**: Cleaning or normalizing data in [preProcess] before
+  ///   it reaches core logic.
+  /// - **Business Logic**: Performing the primary transformation in the
+  ///   central [instruction].
+  /// - **Validation**: Enforcing invariants in [postProcess] before the state
+  ///   is committed.
+  ///
+  /// ### How it works
+  /// - The receptor executes the stages in strict sequential order:
+  ///   `preProcess` → `instruction` → `postProcess`.
+  /// - The output of one stage becomes the input of the next.
+  /// - If any stage returns `null`, the pipeline short‑circuits immediately.
+  /// - Each stage is independently shielded; an error in one stage is logged,
+  ///   and the pipeline recovers to the last valid state.
+  ///
+  /// ### Non‑obvious
+  /// - All stages are optional. If a stage is omitted, the pulse passes
+  ///   through that layer unchanged.
+  /// - The [reaction] parameter is a simplified functional alternative to
+  ///   [instruction].
+  /// - The [init] parameter runs once when the receptor is first activated.
+  ///
+  /// ### Parameters:
+  /// - [instruction]: The core transformation logic (the "Reasoning" phase).
+  /// - [preProcess]: Logic executed before the core (e.g., sanitization).
+  /// - [postProcess]: Logic executed after the core (e.g., final validation).
+  /// - [reaction]: A simplified transform used instead of an instruction chain.
+  /// - [init]: Runs once when the receptor is activated on a tissue.
+  /// - [user]: Factory for per-invocation metadata passed to pipeline stages.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final secureReceptor = TissueReceptor.pipeline(
+  ///   preProcess: Instruction((p, {cell, user}) => Pulse(p.payload.trim())),
+  ///   instruction: Instruction((p, {cell, user}) => Pulse(p.payload.toUpperCase())),
+  ///   postProcess: Instruction((p, {cell, user}) => p.payload.length > 5 ? p : null),
   /// );
   /// ```
-  ///
-  /// ### Type Parameters:
-  /// - [E]: The element type of the tissue.
-  /// - [C]: The concrete tissue type.
-  /// - [I]: The expected type of the incoming [Pulse].
-  /// - [O]: The type of the [Pulse] resulting from the transformation.
-  static TissueReceptor<E,C> transform<E,C extends Tissue<E>,O extends Pulse>(
-      FutureOr<O?> Function(C tissue, TissueEvent pulse, {dynamic user}) rule, {
-        dynamic user
-      }) {
-    return _TissueReceptor<E,C>(instruction: Instruction<C,TissueEvent,O>(rule));
+  factory TissueReceptor.pipeline({
+    Instruction? instruction,
+    Instruction? preProcess,
+    Instruction? postProcess,
+    Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
+    void Function()? init,
+    dynamic Function()? user,
+  }) {
+    return _TissueReceptor<E,C>(
+      instruction: instruction,
+      preProcess: preProcess,
+      postProcess: postProcess,
+      reaction: reaction,
+      init: init,
+      user: user,
+    );
   }
 
   /// Returns a shallow, immutable copy of this [TissueReceptor],

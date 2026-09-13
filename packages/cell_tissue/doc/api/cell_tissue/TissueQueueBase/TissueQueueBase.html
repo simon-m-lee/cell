@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueQueueBase-class.html">TissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueQueueBase.new constructor</li>
   </ol>
@@ -62,38 +62,37 @@
 <section class="desc markdown">
   <p>The primary constructor for a reactive double‑ended queue, responsible for
 materialising a live <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a> instance from its behavioural blueprint.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You never call this constructor directly. It is invoked by the framework
 when you use the <a href="../../cell_tissue/TissueQueue-class.html">TissueQueue</a>, <a href="../../cell_tissue/TissueQueue/TissueQueue.of.html">TissueQueue.of</a>, or <a href="../../cell_tissue/TissueQueue/TissueQueue.fromNucleus.html">TissueQueue.fromNucleus</a>
 factories. The constructor is the engine that takes a <a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a>
 (the immutable DNA) and brings it to life with an optional initial set of
 elements.</p>
-<h3 id="when-to-use-as-a-developer">When to use (as a developer)</h3>
 <p>You don't. This is an internal constructor. But understanding it helps
 you trust that queue creation is atomic, valid, and fully reactive from
 the very first element.</p>
 <h3 id="how-it-works">How it works</h3>
 <ol>
 <li><strong>Blueprint binding</strong>: It receives a <a href="../../cell_tissue/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a> that
-holds the queue’s capacity, security rules (<a href="../../cell_tissue/TestTissue-class.html">TestTissue</a>), command
+holds the queue's capacity, security rules (<a href="../../cell_tissue/TestTissue-class.html">TestTissue</a>), command
 processor (<a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a>), and execution context. This nucleus is
 the "DNA" of the queue – it governs every mutation.</li>
 <li><strong>Atomic ingestion</strong>: If an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <code>elements</code> is provided, they
 are ingested into the physical storage (a <code>Queue&lt;E&gt;</code>) <strong>atomically</strong>
-under the nucleus’s synchronisation lock. This ensures that no
+under the nucleus's synchronisation lock. This ensures that no
 observer can see a partially populated queue during construction.</li>
-<li><strong>Validation</strong>: Each element is validated against the nucleus’s
+<li><strong>Validation</strong>: Each element is validated against the nucleus's
 <code>testRule</code> before it is added. If an element fails validation, it is
 <strong>not</strong> added – the queue will contain only the valid elements from
 the initial collection.</li>
 <li><strong>Automatic linking</strong>: Any element that implements <a href="../../cell_tissue/Cell-class.html">Cell</a> is
-automatically linked to the queue’s <a href="../../cell_tissue/Synapses-class.html">Synapses</a>. This enables
+automatically linked to the queue's <a href="../../cell_tissue/Synapses-class.html">Synapses</a>. This enables
 <strong>member‑level bubbling</strong> – when a child cell changes, the queue
-emits a corresponding <a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a> so that observers of the queue
+emits a corresponding <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a> so that observers of the queue
 are notified.</li>
 <li><strong>Capacity enforcement</strong>: If the queue has a bounded capacity, the
 ingestion respects it – if the initial elements exceed the capacity,
-the behaviour depends on the container’s <code>_queueAdd</code> strategy
+the behaviour depends on the container's <code>_queueAdd</code> strategy
 (typically dropping the oldest elements to make room).</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
@@ -106,7 +105,7 @@ lock or observer registry.</li>
 individual element during ingestion. If some elements are invalid, they
 are silently dropped – no event is emitted for rejected elements.</li>
 <li><strong>Initial state is silent</strong>: The initial population does <strong>not</strong>
-trigger any <a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a> pulses. Observers see the populated queue as
+trigger any <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a> pulses. Observers see the populated queue as
 if it had always been that way. Events are only emitted for mutations
 that happen <em>after</em> construction.</li>
 <li><strong>Linking is idempotent</strong>: If the same <a href="../../cell_tissue/Cell-class.html">Cell</a> appears multiple times
@@ -120,7 +119,7 @@ dropped elements during initialisation.</li>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: <strong>Required</strong>. The immutable blueprint that defines the
-queue’s capacity, governance, and reactive behaviour.</li>
+queue's capacity, governance, and reactive behaviour.</li>
 <li><code>elements</code>: Optional initial elements to populate the queue. Each
 element is validated and linked if it is a <a href="../../cell_tissue/Cell-class.html">Cell</a>.</li>
 </ul>
@@ -170,7 +169,7 @@ final queue = TissueQueueBase&lt;int, TissueQueue&lt;int&gt;&gt;(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

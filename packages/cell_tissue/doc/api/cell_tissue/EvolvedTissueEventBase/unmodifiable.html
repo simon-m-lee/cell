@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">unmodifiable property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
       get
       <span class="name ">unmodifiable</span>
@@ -67,31 +72,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns a <strong>Read-Only Projection</strong> of this pulse, ensuring structural
-and data integrity.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this before handing a pulse to untrusted code – e.g., logging,
-external APIs, or UI components. It prevents tampering.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The unmodifiable view disables <a href="../../cell_tissue/EvolvedTissueEventBase/evolve.html">evolve</a> and <a href="../../cell_tissue/EvolvedTissueEventBase/withStep.html">withStep</a>. Any attempt to
-change the pulse will throw an error. The payload remains readable.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is recursive – <code>_parent</code>, <a href="../../cell_tissue/EvolvedTissueEventBase/root.html">root</a>, and <a href="../../cell_tissue/EvolvedTissueEventBase/source.html">source</a> are also projected
-as unmodifiable.</li>
-<li>The underlying data is not copied – it's a protective wrapper.</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final immutable = pulse.unmodifiable;
-// immutable.evolve(...); // Throws
-logToExternalSystem(immutable); // Safe
-</code></pre>
+  <p>Returns a read‑only projection of this event.</p>
+<h3 id="returns">Returns:</h3>
+<p>An <a href="../../cell_tissue/UnmodifiableTissuePulse-class.html">UnmodifiableTissuePulse</a> that blocks further evolution.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventBase&lt;E&gt; get unmodifiable {
+  <pre class="language-dart"><code class="language-dart">@override
+TissueEventBase&lt;E&gt; get unmodifiable {
   return _UnmodifiableTissueEvent&lt;E&gt;(this as TissueEventBase&lt;E&gt;) as TissueEventBase&lt;E&gt;;
 }</code></pre>
 </section>
@@ -123,7 +113,7 @@ logToExternalSystem(immutable); // Safe
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

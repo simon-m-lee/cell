@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Nucleus-class.html">Nucleus</a></li>
     <li class="self-crumb">create&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt; static method</li>
   </ol>
@@ -137,7 +137,7 @@ specified reactive node.</p>
   if (principal != null) {
     final local = NucleusBase.mask(bind: bind, context: context, receptor: receptor,
       testRule: testRule, synapses: synapses, forceLock: forceLock, user: user);
-    return _Nucleus.fromRecord(record: (mask: local, principal: principal));
+    return _Nucleus.fromRecord((local: local, principal: principal));
   }
   return _Nucleus(
     bind: bind,
@@ -176,7 +176,7 @@ specified reactive node.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

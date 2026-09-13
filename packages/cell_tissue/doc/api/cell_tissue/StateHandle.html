@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">StateHandle&lt;<wbr><span class="type-parameter">V</span>&gt; typedef</li>
   </ol>
   <div class="self-name">StateHandle</div>
@@ -54,7 +54,7 @@
     <section class="multi-line-signature">
         
   
-<span class="name ">StateHandle</span>&lt;<wbr><span class="type-parameter">V</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)</span>
+<span class="name ">StateHandle</span>&lt;<wbr><span class="type-parameter">V</span>&gt; = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">updateAsync</span>}</span>)</span>
 
 
     </section>
@@ -64,11 +64,11 @@
   <p>A management record that bundles a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> with its imperative update
 functions — the standard way to create and interact with a state atom.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You get this from <a href="../cell_tissue/Cell/value.html">Cell.value</a>. It gives you:</p>
+<p>You get this from <a href="../cell_tissue/Cell/state.html">Cell.state</a>. It gives you:</p>
 <ul>
 <li><code>cell</code>: the reactive state container (read‑only observation).</li>
-<li><code>trigger</code>: a synchronous function to update the state.</li>
-<li><code>triggerAsync</code>: an asynchronous, lock‑protected version of <code>trigger</code>.</li>
+<li><code>update</code>: a synchronous function to update the state.</li>
+<li><code>updateAsync</code>: an asynchronous, lock‑protected version of <code>update</code>.</li>
 <li><code>ingest</code>: a low‑level entry point for full <a href="../cell_tissue/Pulse-class.html">Pulse</a> injection.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
@@ -81,7 +81,7 @@ write.</p>
 <li><code>ingest</code> with <code>serializedCompletion: true</code> waits for the entire graph
 to stabilise before the Future completes – useful for sequential
 reasoning steps.</li>
-<li><code>triggerAsync</code> queues the mutation through the cell's <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, so it's
+<li><code>updateAsync</code> queues the mutation through the cell's <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, so it's
 safe even under high concurrency.</li>
 </ul>
 <h3 id="type-parameters">Type Parameters:</h3>
@@ -97,13 +97,13 @@ safe even under high concurrency.</li>
   &#47;&#47;&#47; The persistent, observable reactive node.
   ValueCell&lt;V&gt; cell,
 
-  &#47;&#47;&#47; Synchronously triggers a state transition.
+  &#47;&#47;&#47; Synchronously emits a state transition.
   &#47;&#47;&#47; Returns `true` if the value was successfully committed.
-  bool Function(V? value) trigger,
+  bool Function(V? value) update,
 
-  &#47;&#47;&#47; Asynchronously triggers a state transition, ensuring atomic
+  &#47;&#47;&#47; Asynchronously emits a state transition, ensuring atomic
   &#47;&#47;&#47; serialization through the cell&#39;s synchronization lock.
-  Future&lt;bool&gt; Function(V? value) triggerAsync,
+  Future&lt;bool&gt; Function(V? value) updateAsync,
 
   &#47;&#47;&#47; The primary ingress handle for direct signal orchestration.
   &#47;&#47;&#47;
@@ -136,7 +136,7 @@ safe even under high concurrency.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

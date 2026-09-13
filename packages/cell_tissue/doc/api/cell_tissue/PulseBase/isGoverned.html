@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseBase-class.html">PulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">isGoverned property</li>
   </ol>
@@ -72,19 +72,33 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this pulse is subject to a <strong>Governance Policy</strong> that
-regulates its transmission and processing.</p>
+  <p>Indicates whether this pulse is subject to explicit governance.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is mostly informational – you might use it to conditionally apply
-stricter handling.</p>
+<ul>
+<li><strong>Governance Awareness</strong>: This is mostly informational — you might use it to conditionally apply
+stricter handling in custom code.</li>
+<li>Conditional logic based on governance status.</li>
+<li>Debugging to know if a pulse has a context or policy.</li>
+<li>Applying stricter handling to governed pulses.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>A pulse is governed if it was created with <a href="../../cell_tissue/Pulse/Pulse.governed.html">Pulse.governed</a> and carries
-explicit authority metadata.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">if (pulse.isGoverned) {
-  print('This signal is subject to architectural laws.');
-}
-</code></pre>
+<p>A pulse is governed if it was created with a non‑default <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>
+and/or a <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>. The <code>isGoverned</code> flag is set in the
+record at construction time and resolved by walking up the parent chain
+if not found locally.</p>
+<h3 id="nonobvious-governance-is-determined-by-context-or-policy">Non‑obvious: governance is determined by Context or Policy</h3>
+<p>A pulse is considered governed when either:</p>
+<ul>
+<li>A non‑default <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> is provided (e.g., with actor, reason,
+sensitivity, or compliance metadata).</li>
+<li>A <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> is provided (TTL, hop limit, or callbacks).</li>
+</ul>
+<p>Governed pulses undergo additional validation, TTL checks, and auditing
+during propagation. Ungoverned pulses are lightweight and bypass these
+checks.</p>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if the pulse has explicit governance (Context or Policy),
+<code>false</code> otherwise.</p>
 </section>
 
     
@@ -92,8 +106,14 @@ explicit authority metadata.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool get isGoverned {
-  return get&lt;bool&gt;(() =&gt; _record.root.isGoverned,
-      fallback: () =&gt; _pulse?.isGoverned ?? _parent?.isGoverned,
+  return get&lt;bool&gt;(() {
+    if (_record.root.primary.isGoverned == false) {
+      return _parent?.isGoverned ?? false;
+    } else {
+      return true;
+    }
+  },
+      fallback: () =&gt; _parent?.isGoverned,
       orElse: false
   );
 }</code></pre>
@@ -126,7 +146,7 @@ bool get isGoverned {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

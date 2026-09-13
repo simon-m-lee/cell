@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableValueCell-class.html">UnmodifiableValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">value property</li>
   </ol>
@@ -74,8 +74,8 @@
 <section class="desc markdown">
   <p>Retrieves the current state, projecting any nested <code>Cell</code> as
 unmodifiable.</p>
-<p>This ensures deep immutability – if the value is itself a <code>Cell</code>, it
-returns <code>value.unmodifiable</code>.</p>
+<p>This ensures deep immutability – if the state is itself a <code>Cell</code>, it
+returns <code>state.unmodifiable</code>.</p>
 </section>
 
     
@@ -83,13 +83,13 @@ returns <code>value.unmodifiable</code>.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 V? get value {
-  final value = _nucleus.value.value;
-  if (value != null) {
-    if (value is Cell) {
-      return value.unmodifiable as V?;
+  final state = _nucleus.state.value;
+  if (state != null) {
+    if (state is Cell) {
+      return state.unmodifiable as V?;
     }
   }
-  return value;
+  return state;
 }</code></pre>
 </section>
 
@@ -120,7 +120,7 @@ V? get value {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

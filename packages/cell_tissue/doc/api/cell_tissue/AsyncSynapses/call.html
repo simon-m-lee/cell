@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/AsyncSynapses-class.html">AsyncSynapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>, <span class="type-parameter">L extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -68,33 +68,63 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously broadcasts a pulse to all downstream observers.</p>
+  <p>The primary execution entry point for the <strong>Signal Distribution Network</strong>,
+responsible for ingesting, filtering, and propagating pulses to all
+registered downstream observers.</p>
+<p>In the framework's architecture, the <code>call</code> method acts as the <strong>Egress
+Gateway</strong>. It sits at the boundary between a cell's internal logic and
+its external dependents, ensuring that signal propagation adheres to
+defined timing policies and structural invariants.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this method to inject a pulse into the distribution network
-without blocking the caller.</p>
+<p>This method is called internally by the <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> whenever a cell
+completes its transformation logic. You rarely invoke this directly
+unless building custom <a href="../../cell_tissue/Synapses-class.html">Synapses</a> implementations or low-level
+orchestration tools.</p>
 <h3 id="how-it-works">How it works</h3>
-<ul>
-<li>The pulse is queued into an internal thread‑safe buffer.</li>
-<li>A background worker processes the queue sequentially.</li>
-<li>The worker applies the filter, then dispatches to observers.</li>
-<li>The <code>serializedCompletion</code> flag determines whether to wait for
-completion.</li>
-</ul>
+<ol>
+<li><strong>Graph Integrity</strong>: If the cell has no observers, it decrements the
+shared branch counter to signal that this path in the <strong>Directed
+Acyclic Graph (DAG)</strong> has reached a dead end.</li>
+<li><strong>Pre-Egress Filtering</strong>: Applies the <a href="../../cell_tissue/FilterRule-class.html">FilterRule</a> (if any). This
+allows the cell to redact, transform, or suppress pulses specifically
+for its observers without affecting its own internal state.</li>
+<li><strong>Protocol Selection</strong>: Inspects the <a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a> to determine
+the delivery strategy (e.g., <a href="../../cell_tissue/PropagationStrategy.html">PropagationStrategy.debounced</a>,
+<a href="../../cell_tissue/PropagationStrategy.html">PropagationStrategy.batched</a>).</li>
+<li><strong>Dispatch</strong>: Forwards the pulse to the corresponding internal
+handler (like <code>_debounced</code> or <code>_batched</code>) which manages timers,
+buffers, and final delivery.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The worker ensures that pulses are processed in order.</li>
-<li>If the policy is <code>persistent</code>, the last pulse is stored for new
-observers.</li>
-<li>The method returns as soon as the pulse is queued when
-<code>serializedCompletion</code> is <code>false</code>.</li>
+<li><strong>Early Termination</strong>: If the filter returns <code>null</code>, propagation
+terminates immediately for <em>all</em> observers, effectively acting as a
+centralized "Output Valve."</li>
+<li><strong>Branch Synchronization</strong>: The branch counter logic ensures that
+complex graph updates involving multiple paths can detect when the
+entire reactive wave has settled.</li>
+<li><strong>Causal Provenance</strong>: Propagation strategies like <code>debounced</code> or
+<code>throttled</code> preserve the original pulse's forensic metadata, even
+though delivery is delayed.</li>
+<li><strong>Empty Optimization</strong>: If a cell has no listeners, it quickly
+short-circuits to avoid unnecessary filtering or strategy overhead.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>pulse</code>: The pulse to broadcast.</li>
+<li><code>pulse</code>: <strong>The Stimulus.</strong> The <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance to be distributed.
+It contains the payload, source context, and forensic lineage.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that completes when the pulse is queued (or fully processed,
-depending on the flag).</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that completes once the pulse has been accepted into the
+propagation fabric. Note that for asynchronous strategies (like debounce),
+the future completes once the <em>timer is scheduled</em>, not necessarily
+when the signal reaches the observers.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/PropagationStrategy.html">PropagationStrategy</a>: For the various delivery timing models.</li>
+<li><a href="../../cell_tissue/FilterRule-class.html">FilterRule</a>: For intercepting pulses at the egress boundary.</li>
+<li><a href="../../cell_tissue/Synapses/link.html">Synapses.link</a>: For managing the set of downstream observers.</li>
+</ul>
 </section>
 
 
@@ -183,6 +213,7 @@ Future&lt;void&gt; call(covariant P pulse) async {
       if (buffer != null) {
         buffer..clear()..add(p);
       }
+      await _broadcast(p);
       break;
   }
 
@@ -214,7 +245,7 @@ Future&lt;void&gt; call(covariant P pulse) async {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

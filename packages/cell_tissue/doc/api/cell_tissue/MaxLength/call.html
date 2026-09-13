@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/MaxLength-class.html">MaxLength</a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -96,30 +96,20 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 FutureOr&lt;bool&gt; call(object, {dynamic host, arguments}) {
-  bool result = true;
+  if (hostLength != null &amp;&amp; host is Iterable &amp;&amp; host.length &gt; hostLength!) {
+    return false;
+  }
 
-  &#47;&#47; Host length constraint
-  if (hostLength != null &amp;&amp; host is Iterable) {
-    if (host.length &gt; hostLength!) {
-      result = false;
+  if (length != _maxInt) {
+    if (object is Iterable) {
+      return object.length &lt;= length;
+    }
+    if (object is String) {
+      return object.length &lt;= length;
     }
   }
 
-  &#47;&#47; Direct object length constraint
-  else if (object is Iterable) {
-    result = object.length &lt;= length;
-  }
-
-  else if (object is String) {
-    result = object.length &lt;= length;
-  }
-
-  &#47;&#47; If the object is not a String or Iterable, the rule does not apply.
-  else {
-    result = true;
-  }
-
-  return result;
+  return true;
 }</code></pre>
 </section>
 
@@ -148,7 +138,7 @@ FutureOr&lt;bool&gt; call(object, {dynamic host, arguments}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">Tissue</div>
@@ -52,6 +52,15 @@
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
     <a href="https://dart.dev/language/class-modifiers#interface" class="feature feature-interface" title="This class can only be implemented (not extended or mixed in).">interface</a>
  
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
 </h1></div>
 
     
@@ -92,15 +101,15 @@ provenance metadata.</li>
 <ul>
 <li>A <strong><a href="../cell_tissue/Container-class.html">Container</a></strong> – the physical storage (e.g., a <code>List</code>, <code>Set</code>, <code>Map</code>).</li>
 <li>A <strong><a href="../cell_tissue/TissueNucleus-class.html">TissueNucleus</a></strong> – an immutable blueprint that defines the
-collection’s validation rules, transformation logic, and propagation
+collection's validation rules, transformation logic, and propagation
 behaviour.</li>
 </ul>
 <p>When you mutate a tissue (e.g., <code>list.add(42)</code>), the operation:</p>
 <ol>
 <li>Passes through the <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> validation gate.</li>
 <li>Is applied atomically to the physical storage under a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
-<li>Emits a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> (e.g., <code>ElementAddedEvent</code>).</li>
-<li>Propagates the event through the collection’s <a href="../cell_tissue/Synapses-class.html">Synapses</a> to all
+<li>Emits a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> (e.g., <code>ElementAddedEvent</code>).</li>
+<li>Propagates the event through the collection's <a href="../cell_tissue/Synapses-class.html">Synapses</a> to all
 downstream observers.</li>
 </ol>
 <p>This is the same reactive pipeline you know from <a href="../cell_tissue/Cell-class.html">Cell</a>, extended to
@@ -108,7 +117,7 @@ collections.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
 <li><strong>Initial population is silent</strong>: When you create a tissue with initial
-elements (e.g., <code>TissueList([1, 2, 3])</code>), <strong>no</strong> <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> is emitted.
+elements (e.g., <code>TissueList([1, 2, 3])</code>), <strong>no</strong> <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> is emitted.
 Observers only see events for mutations that happen <em>after</em> creation.</li>
 <li><strong>Deputies are zero‑copy</strong>: Calling <code>.deputy()</code> or <code>.unmodifiable</code> on a
 tissue creates a new view that shares the <strong>same</strong> physical storage.
@@ -117,7 +126,7 @@ No data is duplicated – changes to the source are immediately visible.</li>
 a snapshot</strong>. It stays in sync with the source indefinitely.</li>
 <li><strong>Deep immutability</strong>: If <code>unmodifiableElement</code> is <code>true</code> (the default
 in factories), any child <a href="../cell_tissue/Cell-class.html">Cell</a> elements are automatically projected as
-their <code>.unmodifiable</code> deputies – no “side‑door” mutations.</li>
+their <code>.unmodifiable</code> deputies – no "side‑door" mutations.</li>
 <li><strong>Validation per element</strong>: When you add multiple elements via
 <code>addAll</code>, each element is validated individually. Invalid ones are
 silently skipped – they do <strong>not</strong> fail the entire operation.</li>
@@ -162,7 +171,7 @@ print(readOnly.length); // 4 – the view is live!
 for the concrete collection types.</li>
 <li><a href="../cell_tissue/TestTissue-class.html">TestTissue</a> for custom validation rules.</li>
 <li><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> for custom mutation processing.</li>
-<li><a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> for the change events emitted by tissues.</li>
+<li><a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> for the change events emitted by tissues.</li>
 </ul>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
@@ -203,6 +212,7 @@ for the concrete collection types.</li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/FutureIterable.html">FutureIterable</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/IterableExtensions.html">IterableExtensions</a></li>
       <li><a href="https://api.flutter.dev/flutter/dart-core/NullableIterableExtensions.html">NullableIterableExtensions</a></li>
+      <li><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></li>
   </ul></dd>
         
 
@@ -359,8 +369,7 @@ of this collection.
 
 </dt>
 <dd>
-  Indicates whether this tissue is governed (has a non‑default context,
-testRule, or receptor).
+  Indicates whether this tissue is governed.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -586,14 +595,14 @@ downstream observers and does not broadcast pulses.
 </dd>
 
         <dt id="apply" class="callable">
-  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/Tissue/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
 
 </dt>
 <dd>
-  Executes a whitelisted function on this tissue via the command gateway.
+  Executes a governed mutation on this tissue through the command gateway.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -611,6 +620,41 @@ downstream observers and does not broadcast pulses.
         provided by the <a href="https://api.flutter.dev/flutter/dart-core/EnumByName.html">EnumByName</a> extension</span>
       </p>
   Creates a map from the names of enum values to the values.
+  
+
+</dd>
+
+        <dt id="attach" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/attach.html">attach</a></span><span class="signature">(<wbr><span class="parameter" id="attach-param-context"><span class="type-annotation">dynamic</span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Returns a new collection of pulses, each with the provided <code>context</code>
+metadata attached.
+  
+
+</dd>
+
+        <dt id="batch" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/batch.html">batch</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Aggregates multiple signals into a single, flat <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>.
   
 
 </dd>
@@ -741,6 +785,24 @@ providing a scoped, authoritative interface to the underlying state.
 
 </dd>
 
+        <dt id="flatten" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/flatten.html">flatten</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Recursively flattens any nested <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> structures into a
+sequence of simple pulses.
+  
+
+</dd>
+
         <dt id="fold" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Iterable/fold.html">fold</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="fold-param-initialValue"><span class="type-annotation">T</span> <span class="parameter-name">initialValue</span>, </span><span class="parameter" id="fold-param-combine"><span class="type-annotation">T</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-previousValue"><span class="type-annotation">T</span> <span class="parameter-name">previousValue</span>, </span><span class="parameter" id="param-element"><span class="type-annotation">E</span> <span class="parameter-name">element</span></span>)</span>)
     <span class="returntype parameter">&#8594; T</span>
@@ -817,6 +879,24 @@ element of the collection with an existing value
 <dd class="inherited">
   The current elements of this iterable modified by <code>toElement</code>.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mapEach" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/mapEach.html">mapEach</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapEach-param-mapper"><span class="type-annotation">T</span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-payload"><span class="type-annotation">dynamic</span> <span class="parameter-name">payload</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Transforms the payload of every pulse in the collection while
+preserving their individual causal traces.
+  
 
 </dd>
 
@@ -978,6 +1058,24 @@ predicate <code>test</code>.
 
 </dd>
 
+        <dt id="withStep" class="callable">
+  <span class="name"><a href="../cell_tissue/PulseIterableExtension/withStep.html">withStep</a></span><span class="signature">(<wbr><span class="parameter" id="withStep-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">step</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>,
+        provided by the <a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a> extension</span>
+      </p>
+  Appends a diagnostic stage to the causal trace of every pulse in this
+collection.
+  
+
+</dd>
+
     </dl>
   </section>
     
@@ -1047,7 +1145,7 @@ its internal implementation types and storage.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

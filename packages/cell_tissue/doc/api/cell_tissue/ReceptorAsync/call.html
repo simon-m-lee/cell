@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -55,8 +55,11 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, {</span></li>
+<span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-incoming"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">incoming</span>, {</span></li>
 <li><span class="parameter" id="call-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="call-param-hook"><span class="type-annotation">void</span> <span class="parameter-name">hook</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-input"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, </span></li>
+<li><span class="parameter" id="param-result"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+</ol>})?, </span></li>
 </ol>})
 
       
@@ -64,85 +67,136 @@
     </section>
     
 <section class="desc markdown">
-  <p>Processes a pulse asynchronously.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this method to inject a pulse into the receptor without blocking.</p>
-<h3 id="how-it-works">How it works</h3>
+  <p>Injects a pulse into the receptor's transformation pipeline
+asynchronously.</p>
+<h3 id="when-to-use">When to use:</h3>
 <ul>
-<li>The pulse is added to an internal queue.</li>
-<li>A background worker drains the queue sequentially.</li>
-<li>If <code>serializedCompletion</code> is <code>true</code>, the returned Future waits for the
-entire propagation wave to complete; otherwise, it resolves as soon as
-the pulse is queued.</li>
+<li><strong>Event Integration</strong>: The primary method for triggering cell updates
+from asynchronous code blocks, network responses, or timers.</li>
+<li><strong>Causal Sequencing</strong>: When you need to ensure multiple updates are
+processed in the exact order they were triggered.</li>
+<li><strong>Testing</strong>: Using the <code>hook</code> to intercept transformation results
+without affecting the production graph.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
+<h3 id="how-it-works">How it works:</h3>
+<ol>
+<li><strong>Handshake</strong>: Resolves reciprocal authorization if the pulse is a
+defensive proxy (<a href="../../cell_tissue/Shell-class.html">Shell</a>).</li>
+<li><strong>Validation</strong>: Checks for cycles and cell validity before queueing.</li>
+<li><strong>Queueing</strong>: Places the pulse into a FIFO execution queue.</li>
+<li><strong>Sequential Processing</strong>: A worker drains the queue one-by-one,
+ensuring atomic execution within the cell's perimeter.
+If <code>serializedCompletion</code> is <code>true</code> (the default), the returned
+<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes after this pulse has been processed. If <code>false</code>,
+it completes once the pulse is queued.</li>
+</ol>
+<h3 id="design-note-result-propagation">Design Note: Result Propagation</h3>
+<p>The <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> returned by this method handles <strong>lifecycle synchronization</strong>
+(ensuring the pulse has been accepted into the queue) rather than
+<strong>result retrieval</strong>.
+Because a <a href="../../cell_tissue/Receptor-class.html">Receptor</a> is an internal component of a <a href="../../cell_tissue/Cell-class.html">Cell</a> within a
+reactive network, the transformed result is automatically propagated
+to the cell's <a href="../../cell_tissue/Synapses-class.html">Synapses</a> for broadcast. To capture the result, attach
+an observer, bind a downstream cell, or use the <code>hook</code> parameter.</p>
+<h3 id="nonobvious">Non‑obvious:</h3>
 <ul>
-<li>The <code>serializedCompletion</code> parameter affects <strong>causal consistency</strong>.
-Use <code>true</code> when order and completion matter; <code>false</code> for fire‑and‑forget.</li>
-<li>The worker is thread‑safe and uses the cell's lock.</li>
-<li>If the pulse is a shell, it performs the reciprocal handshake before
-queueing.</li>
+<li><strong>Lock Acquisition</strong>: The method respects the host cell's
+synchronization lock; if the cell is busy with a transaction, the
+async worker will wait until the lock is released.</li>
+<li><strong>Serialized vs fire-and-forget</strong>: With <code>serializedCompletion</code> <code>true</code>,
+<code>await call(...)</code> waits until this pulse has been processed. With
+<code>false</code>, it only waits for the queue entry.</li>
+<li><strong>Testing Hook</strong>: The <code>hook</code> callback is invoked <em>immediately</em> after
+transformation but <em>before</em> the pulse is passed to <a href="../../cell_tissue/Synapses-class.html">Synapses</a>.</li>
+<li><strong>Error Handling</strong>: Exceptions within the transformation pipeline are
+captured and logged; the background worker continues to the next
+pulse in the queue to prevent graph deadlocks.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>pulse</code>: The incoming pulse.</li>
-<li><code>serializedCompletion</code>: If <code>true</code>, waits for full propagation; if
-<code>false</code>, returns immediately after queueing.</li>
+<li><code>incoming</code>: The data signal to be processed.</li>
+<li><code>serializedCompletion</code>: If <code>true</code>, the internal worker waits for
+downstream propagation to finish before processing the next pulse
+in the queue.</li>
+<li><code>hook</code>: <strong>Testing Hook.</strong> An optional callback invoked after
+transformation. It provides access to the original <code>input</code> pulse
+and the resulting <code>result</code> pulse (which may be <code>null</code> if filtered).</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A Future that completes when the pulse is queued (or fully processed,
-depending on <code>serializedCompletion</code>).</p>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that completes once the pulse has been processed when
+<code>serializedCompletion</code> is <code>true</code>, or once it has been queued otherwise.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Receptor/async.html">Receptor.async</a>: The standard way to obtain this handle.</li>
+<li><a href="../../cell_tissue/Cell/txApply.html">Cell.txApply</a>: For wrapping multiple async updates in a transaction.</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; call(PulseBase pulse, {bool serializedCompletion = true}) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; call(Pulse incoming, {bool serializedCompletion = true, void Function({Pulse? result, required Pulse input})? hook}) async {
 
-  if (pulse is Shell) {
-    return pulse.scrutinize(_receptor, null, {#serializedCompletion: serializedCompletion});
+  if (incoming is Shell) {
+    incoming.scrutinize(_receptor, null, {#serializedCompletion: serializedCompletion});
+    return;
   }
 
+  var pulse = incoming as PulseBase;
   final cell = _receptor.cell;
-
   if (await pulse._checker.async.add(cell) == false) {
     return;
   }
 
-  if (serializedCompletion == false) {
-    &#47;&#47; pulse = pulse.evolve(context: PulseContext(others: {&#39;system#serializedCompletion&#39;: false}));
-    pulse = _Pulse(parent: pulse, user: {#serializedCompletion: false});
+  if (serializedCompletion == false || hook != null) {
+    final user = {
+      if (hook != null) #hook: hook,
+      if (serializedCompletion) #serializedCompletion: serializedCompletion,
+    };
+    pulse = _Pulse(parent: pulse, user: user);
   }
 
   await _queue.add(pulse);
 
-  if (!_unawaitedLock.canLock) {
-    return;
-  }
-
-  unawaited(_unawaitedLock.synchronized(() async {
-    PulseBase? out;
+  Future&lt;void&gt; drain() =&gt; _unawaitedLock.synchronized(() async {
+    Pulse? out;
 
     while (await _queue.isNotEmpty) {
       final p = await _queue.removeFirst();
 
       bool wait = true;
+      Function? hook;
       final user = p._user;
-      if (user != null &amp;&amp; user.containsKey(#serializedCompletion)) {
-        wait = false;
+      if (user != null) {
+        if (user.containsKey(#serializedCompletion)) {
+          wait = false;
+        }
+        if (user.containsKey(#hook)) {
+          hook = user[#hook] as Function?;
+        }
       }
+
+      final validation = cell.validate.call(pulse, host: cell);
+      final passed = validation is Future&lt;bool&gt; ? await validation : validation;
+      if (!passed) return;
 
       final lock = cell._nucleus.lock;
       if (lock != null) {
         out = await lock.synchronized(() async {
-          final result = _receptor._onPulseReceived(p);
-          return (result is Future&lt;PulseBase?&gt;) ? await result : result;
+          return _receptor._proceed(p);
         });
       } else {
-        final result = _receptor._onPulseReceived(p);
-        out = (result is Future&lt;PulseBase?&gt;) ? await result : result;
+        final result = _receptor._proceed(p);
+        if (result is Future&lt;Pulse?&gt;) {
+          out = await result;
+        } else {
+          out = result;
+        }
       }
+
+      final hookFn = hook as void Function({Pulse? result, required Pulse input})?;
+      hookFn?.call(result: out, input: p);
 
       if (out != null) {
         final synapses = cell._nucleus.synapses;
@@ -156,9 +210,16 @@ depending on <code>serializedCompletion</code>).</p>
       } else {
         p._complete();
       }
-
     }
-  }));
+  });
+
+  &#47;&#47; StateHandle &#47; IngressHandle document that serializedCompletion waits
+  &#47;&#47; until this pulse has been processed, not merely queued.
+  if (serializedCompletion) {
+    await drain();
+  } else if (_unawaitedLock.canLock) {
+    unawaited(drain());
+  }
 }</code></pre>
 </section>
 
@@ -187,7 +248,7 @@ depending on <code>serializedCompletion</code>).</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

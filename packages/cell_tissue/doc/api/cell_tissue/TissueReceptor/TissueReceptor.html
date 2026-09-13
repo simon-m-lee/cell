@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueReceptor.new factory constructor</li>
   </ol>
@@ -54,12 +54,11 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TissueReceptor&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-rule"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span></span> <span class="parameter-name">rule</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-tissue"><span class="type-annotation">C</span> <span class="parameter-name">tissue</span>, </span></li>
-<li><span class="parameter" id="param-input"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span></li>
+      <span class="name ">TissueReceptor&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-instruction"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">instruction</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-tissue"><span class="type-annotation">C</span> <span class="parameter-name">tissue</span>, </span></li>
+<li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span></li>
 <li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
-</ol>}), {</span></li>
-<li><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
-</ol>})
+</ol>})</span></li>
+</ol>)
     </section>
     
 <section class="desc markdown">
@@ -76,7 +75,7 @@ at a tissue. Most custom logic fits here.</p>
 and optional <code>user</code> data.</li>
 <li>The function can return a modified pulse (to propagate) or <code>null</code> (to
 drop it).</li>
-<li>The framework wraps this function into a <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> internally.</li>
+<li>The framework wraps this function into a <a href="../../cell_tissue/Instruction-class.html">Instruction</a> internally.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -96,9 +95,8 @@ and the receptor returns <code>null</code> (drops the pulse).</li>
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>rule</code>: The transformation logic. Receives the tissue, the pulse, and
-optional <code>user</code> data; returns a new pulse or <code>null</code> to drop it.</li>
-<li><code>user</code>: Optional arbitrary data passed to the rule function.</li>
+<li><code>instruction</code>: The transformation logic. Receives the tissue, the pulse,
+and optional <code>user</code> data; returns a new pulse or <code>null</code> to drop it.</li>
 </ul>
 </section>
 
@@ -106,8 +104,10 @@ optional <code>user</code> data; returns a new pulse or <code>null</code> to dro
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueReceptor(FutureOr&lt;Pulse?&gt; Function(C tissue, Pulse input, {dynamic user}) rule, {dynamic user}) {
-  return _TissueReceptor&lt;E,C&gt;(rule: PulseRule&lt;C,Pulse,Pulse&gt;((cell, pulse, {dynamic user}) =&gt; rule(cell, pulse, user: user), user: user));
+  <pre class="language-dart"><code class="language-dart">factory TissueReceptor(Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
+  return _TissueReceptor&lt;E,C&gt;(instruction: Instruction&lt;C,Pulse,Pulse&gt;((pulse, {C? cell, future, token, dynamic user}) {
+    return instruction(cell!, pulse, user: user);
+  }));
 }</code></pre>
 </section>
 
@@ -136,7 +136,7 @@ optional <code>user</code> data; returns a new pulse or <code>null</code> to dro
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

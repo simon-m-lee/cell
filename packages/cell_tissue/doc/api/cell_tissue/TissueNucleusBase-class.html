@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TissueNucleusBase</div>
@@ -179,7 +179,7 @@ strategy for a reactive collection.
 extending an existing <code>principal</code>.
         </dd>
         <dt id="TissueNucleusBase.fromRecord" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueNucleusBase/TissueNucleusBase.fromRecord.html">TissueNucleusBase.fromRecord</a></span><span class="signature">({<span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/TissueNucleusBase/TissueNucleusBase.fromRecord.html">TissueNucleusBase.fromRecord</a></span><span class="signature">(<span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span>)</span>
         </dt>
         <dd>
           <strong>Low‑level Record Constructor</strong> – instantiates a nucleus from a
@@ -265,8 +265,8 @@ collection.
 
 </dt>
 <dd class="inherited">
-  The operational tier and execution environment assigned to the <a href="../cell_tissue/Cell-class.html">Cell</a>
-associated with this <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -315,7 +315,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd class="inherited">
-  Indicates whether this nucleus is subject to a <strong>Governance Policy</strong>.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -327,8 +328,8 @@ shared behavioral configuration for this <a href="../cell_tissue/Nucleus-class.h
 
 </dt>
 <dd class="inherited">
-  Indicates whether the associated <a href="../cell_tissue/Cell-class.html">Cell</a> has been formally invalidated
-and neutralized by its <strong>Lifecycle Governance Policy</strong>.
+  Indicates whether this node has reached the end of its <strong>Functional Lifecycle</strong>
+and is no longer capable of processing pulses or maintaining state.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -524,7 +525,7 @@ custom property extensions for the associated <a href="../cell_tissue/Cell-class
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="local" class="callable">
-  <span class="name"><a href="../cell_tissue/TissueNucleusBase/local.html">local</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="local-param-container"><span class="type-annotation"><a href="../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="local-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="local-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="local-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="local-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="local-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="local-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="local-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="local-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span></span>})
+  <span class="name"><a href="../cell_tissue/TissueNucleusBase/local.html">local</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="local-param-container"><span class="type-annotation"><a href="../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="local-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="local-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="local-param-receptor"><span class="type-annotation"><a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="local-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="local-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="local-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="local-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="local-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="local-param-ephemeralPolicy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
   </span>
   
@@ -564,7 +565,7 @@ property state of a reactive tissue's <a href="../cell_tissue/Nucleus-class.html
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

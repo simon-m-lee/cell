@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueSetBase-class.html">UnmodifiableTissueSetBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueSetBase.new constructor</li>
   </ol>
@@ -63,12 +63,11 @@
 <section class="desc markdown">
   <p>The internal constructor that materialises a read‑only, live view of a
 reactive set.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You never call this constructor directly. It is invoked by the framework
 when you write <code>mySet.unmodifiable</code>, or when you use one of the
 specialised factories (<code>UnmodifiableTissueSet</code>, <code>UnmodifiableTissueSet.view</code>,
 or <code>UnmodifiableTissueSet.fromNucleus</code>).</p>
-<h3 id="when-to-use-as-a-developer">When to use (as a developer)</h3>
 <p>You don't. This is an internal constructor. But understanding it helps
 you trust that <code>.unmodifiable</code> is cheap (zero‑copy), live, and deeply
 safe.</p>
@@ -76,7 +75,7 @@ safe.</p>
 <ol>
 <li><strong>Logic activation</strong>: It receives a <a href="../../cell_tissue/TissueSetNucleusBase-class.html">TissueSetNucleusBase</a> (the
 immutable blueprint) and binds it to the new view instance. The
-nucleus holds the set’s structural strategy (<code>identitySet</code>), its
+nucleus holds the set's structural strategy (<code>identitySet</code>), its
 synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, and its governance rules.</li>
 <li><strong>Immutability enforcement</strong>: The <code>modifiable</code> getter is overridden
 to return an empty set – any mutation attempt is intercepted and
@@ -84,7 +83,7 @@ rejected by the <code>apply</code> gateway.</li>
 <li><strong>Deep immutability (<code>unmodifiableElement</code>)</strong>: If this flag is
 <code>true</code>, any element that is itself a <a href="../../cell_tissue/Cell-class.html">Cell</a> is automatically
 projected as its <code>.unmodifiable</code> deputy when you access it through
-this view. This prevents “side‑door” mutations via nested mutable
+this view. This prevents "side‑door" mutations via nested mutable
 cells.</li>
 <li><strong>Pre‑computed storage (<code>elements</code>)</strong>: If you provide an optional
 iterable of <code>elements</code>, they are added directly to the underlying
@@ -107,11 +106,11 @@ so <code>elements</code> is typically <code>null</code> to avoid overwriting.</l
 is a behaviour of the view itself. It is applied during iteration
 and element access.</li>
 <li>If you pass <code>elements</code> that contain <a href="../../cell_tissue/Cell-class.html">Cell</a>s, they are <strong>not</strong>
-automatically linked to the view’s synapses unless the
+automatically linked to the view's synapses unless the
 <code>unmodifiableElement</code> flag is <code>true</code>. This is because the view is
 read‑only – it only reflects changes, it does not propagate them.</li>
 <li>The constructor does <strong>not</strong> emit any pulses – the view is considered
-“hydrated” and ready for observation.</li>
+"hydrated" and ready for observation.</li>
 </ul>
 <h3 id="example-internal-usage--how-the-framework-creates-a-view">Example (internal usage – how the framework creates a view)</h3>
 <pre class="language-dart"><code class="language-dart">// When you write source.unmodifiable, the framework does something like:
@@ -125,7 +124,7 @@ final readOnly = UnmodifiableTissueSetBase&lt;int, TissueSet&lt;int&gt;&gt;(
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>nucleus</code>: <strong>Required</strong>. The immutable blueprint that defines the set’s
+<li><code>nucleus</code>: <strong>Required</strong>. The immutable blueprint that defines the set's
 behaviour, storage strategy, and governance. It is typically the same
 nucleus as the source set.</li>
 <li><code>unmodifiableElement</code>: If <code>true</code>, any <a href="../../cell_tissue/Cell-class.html">Cell</a> element accessed through
@@ -142,12 +141,8 @@ during iteration.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueSetBase(
-    TissueSetNucleusBase&lt;E,C&gt; super.nucleus, {super.unmodifiableElement, Iterable&lt;E&gt;? elements})
-    : super(elements: elements) {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
-  if (container != null &amp;&amp; elements != null) {
-    _nucleus.container.store.addAll(elements);
-  }
+    TissueSetNucleusBase&lt;E,C&gt; super.nucleus, {super.unmodifiableElement, super.elements}) {
+  &#47;&#47; Initial population is performed by TissueBase via `elements`.
 }</code></pre>
 </section>
 
@@ -176,7 +171,7 @@ during iteration.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

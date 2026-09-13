@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseShell-class.html">PulseShell<span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">type property</li>
   </ol>
@@ -72,14 +72,19 @@
     </section>
     
 <section class="desc markdown">
-  <p>A semantic identifier representing the <strong>Functional Category or Intent</strong>
-of the pulse.</p>
+  <p>A semantic identifier representing the category or intent of the pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this to tag pulses by type – e.g., 'user_login', 'system_heartbeat',
-'data_update'. It's useful for routing and filtering.</p>
+<ul>
+<li>Use this to tag pulses by type — 'user_login', 'system_heartbeat',
+'data_update'. It's useful for routing and filtering in hubs and valves.</li>
+<li>Routing pulses to specific handlers in a hub.</li>
+<li>Filtering pulses in a valve.</li>
+<li>Categorising signals for monitoring.</li>
+<li>Pattern matching in custom receptors.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>The type is resolved by walking up the parent chain if not overridden.
-It's like a semantic tag that travels with the pulse.</p>
+It's a semantic tag that travels with the pulse.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;String&gt;(
   payload: 'New Email',
@@ -127,7 +132,7 @@ String? get type =&gt; _kernal.type;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

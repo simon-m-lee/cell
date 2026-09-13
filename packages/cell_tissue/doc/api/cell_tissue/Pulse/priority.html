@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">priority property</li>
   </ol>
@@ -67,20 +67,26 @@
     </section>
     
 <section class="desc markdown">
-  <p>The execution priority of this pulse (0-100, higher = more urgent).</p>
+  <p>The execution priority of this pulse (0‑100, higher = more urgent).</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Set this when you need a pulse to jump the queue – e.g., for emergency
-signals or user‑facing interactions that demand low latency.</p>
+<ul>
+<li><strong>Execution Scheduling</strong>: Set this when you need a pulse to jump the queue — for emergency signals
+or user‑facing interactions that demand low latency.</li>
+<li>User‑facing interactions needing low latency.</li>
+<li>Emergency signals that must preempt others.</li>
+<li>Background tasks that can wait.</li>
+<li>Critical system operations.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The framework's dispatcher uses this value to prioritise signals.
-Higher priority pulses are processed before lower priority ones.</p>
+<p>The framework's dispatcher uses this to prioritise signals. Higher
+priority pulses are processed before lower priority ones.</p>
 <h3 id="priority-tiers-recommended">Priority Tiers (recommended)</h3>
 <ul>
-<li><strong>0-20</strong>: Background (telemetry, maintenance)</li>
-<li><strong>21-50</strong>: Routine (standard operations)</li>
-<li><strong>51-80</strong>: High (user interactions)</li>
-<li><strong>81-95</strong>: Critical (system safety)</li>
-<li><strong>96-100</strong>: Emergency (system recovery)</li>
+<li><strong>0‑20</strong>: Background (telemetry, maintenance)</li>
+<li><strong>21‑50</strong>: Routine (standard operations)</li>
+<li><strong>51‑80</strong>: High (user interactions)</li>
+<li><strong>81‑95</strong>: Critical (system safety)</li>
+<li><strong>96‑100</strong>: Emergency (system recovery)</li>
 </ul>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final urgent = Pulse.governed&lt;int&gt;(
@@ -123,7 +129,7 @@ Higher priority pulses are processed before lower priority ones.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

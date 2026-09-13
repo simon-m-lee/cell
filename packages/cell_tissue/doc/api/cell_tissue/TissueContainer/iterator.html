@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueContainer-class.html">TissueContainer<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">iterator property</li>
   </ol>
@@ -73,16 +73,19 @@
     
 <section class="desc markdown">
   <p>Returns an iterator over the elements in the <a href="../../cell_tissue/TissueContainer/store.html">store</a>.</p>
+<h3 id="how-it-works">How it works</h3>
 <p>If the <a href="../../cell_tissue/TissueContainer/store.html">store</a> has not yet been initialised (which can happen if neither <code>init</code>
 nor <code>iterator</code> has been called before), this getter will trigger its
 initialisation by calling <code>_type._init&lt;E&gt;()</code>.</p>
+<h3 id="returns">Returns:</h3>
+<p>An iterator over the elements in the store.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Iterator&lt;E&gt; get iterator =&gt; store.iterator;</code></pre>
+Iterator&lt;E&gt; get iterator =&gt; (store as Iterable).map((e) =&gt; e as E).iterator;</code></pre>
 </section>
 
   </section>
@@ -112,7 +115,7 @@ Iterator&lt;E&gt; get iterator =&gt; store.iterator;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseShell-class.html">PulseShell<span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">scrutinize method</li>
   </ol>
@@ -70,29 +70,37 @@
     </section>
     
 <section class="desc markdown">
-  <p>Scrutinizes the <a href="../../cell_tissue/Receptor-class.html">Receptor</a> to determine if it possesses the necessary
-<a href="../../cell_tissue/Context-class.html">Context</a> and <a href="../../cell_tissue/PulseShell/isGoverned.html">isGoverned</a> status to process this pulse.</p>
+  <p>Challenges a receptor to prove it has the authority to see this pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You rarely call this directly – the framework uses it internally during
-the Inverted Gate handshake. It's the mechanism that lets a pulse
-challenge a receptor before revealing its payload.</p>
+<ul>
+<li><strong>Security Handshake</strong>: You rarely call this directly — the framework uses it internally during
+the reciprocal handshake. It's the mechanism that lets a pulse challenge
+a receptor before revealing its payload.</li>
+<li>Custom authorization logic.</li>
+<li>Testing or debugging the handshake.</li>
+<li>Advanced security scenarios.</li>
+<li>When you need to implement a custom <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a>.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The receptor must "submit" itself to the pulse. The pulse then examines
-the receptor's host cell, its governed status, and its context. If the
+<p>The receptor must "submit" itself to the pulse. The pulse examines the
+receptor's host cell, its governed status, and its context. If the
 receptor passes scrutiny, the pulse unlocks and returns its kernel
-(payload). If not, it returns <code>null</code> – the signal is neutralised.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>This is a <strong>reciprocal handshake</strong> – both the pulse and the receptor
-validate each other. It's not a one‑way permission check.</p>
+(payload). If not, it returns <code>null</code> — the signal is neutralised.</p>
+<h3 id="nonobvious-the-handshake-is-reciprocal">Non‑obvious: the handshake is reciprocal</h3>
+<p>This is <strong>not</strong> a one‑way permission check. Both the pulse and the
+receptor validate each other. A pulse can refuse to reveal its payload
+to a receptor it doesn't trust.</p>
+<h3 id="nonobvious-this-is-how-pulseshell-works">Non‑obvious: this is how <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a> works</h3>
+<p>A <a href="../../cell_tissue/PulseShell-class.html">PulseShell</a> is a defensive proxy that wraps a pulse and forces any
+receiver to go through this scrutiny process before accessing the payload.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>receptor</code>: The entity requesting access to the pulse's internal state.</li>
-<li><code>positionalArguments</code>: Contextual data provided by the <a href="../../cell_tissue/Receptor-class.html">Receptor</a> to
-satisfy the pulse's scrutiny logic.</li>
-<li><code>namedArguments</code>: Additional named parameters for the handshake.</li>
+<li><code>positionalArguments</code>: Contextual data for the handshake.</li>
+<li><code>namedArguments</code>: Additional named parameters (e.g., <code>serializedCompletion</code>).</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>The internal kernel if authorized; <code>null</code> if neutralised.</p>
+<p>The internal kernel if authorised; <code>null</code> if neutralised.</p>
 </section>
 
 
@@ -138,7 +146,7 @@ dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map&
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

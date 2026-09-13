@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">FinalBox<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">FinalBox</div>
@@ -54,67 +54,70 @@
 
     
 <section class="desc markdown">
-  <p>A specialized, write-once container that provides a thread-safe, immutable
+  <p>A specialized, write-once container providing a thread-safe, immutable
 anchor for state that is initialized after construction.</p>
-<p>In the reactive framework, <a href="../cell_tissue/FinalBox-class.html">FinalBox</a> implements the <strong>Late-Binding
-Immutability</strong> pattern. It allows the system to define a property within
-a <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> or <strong>Static Configuration</strong> as "pending," ensuring that once
-the value is eventually committed, it remains strictly constant for the
-remainder of the node's lifecycle.</p>
-<h3 id="1-architectural-role-late-bound-constants">1. Architectural Role: Late-Bound Constants</h3>
-<p>Within the <code>cell_core</code> ecosystem, many components—such as specialized
-<strong>Receptor</strong> logic, unique <a href="../cell_tissue/Cell-class.html">Cell</a> identifiers, or structural <strong>Blueprints</strong>—
-cannot be determined at the exact moment of the node's instantiation.
-<a href="../cell_tissue/FinalBox-class.html">FinalBox</a> solves this by:</p>
+<p><a href="../cell_tissue/FinalBox-class.html">FinalBox</a> implements the <strong>Late-Binding Immutability</strong> pattern, allowing
+the system to define properties within a <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> or static configuration
+as "pending." It ensures that once the value is eventually committed,
+it remains strictly constant for the remainder of the node's lifecycle.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Placeholder Integrity</strong>: Acting as a stable pointer within an
-otherwise immutable record while the actual data is being computed
-or injected.</li>
-<li><strong>The Write-Once Contract</strong>: Utilizing Dart's <code>late final</code> semantics
-to enforce that any attempt to re-initialize or evolve the value
-after its first assignment results in a runtime error.</li>
-<li><strong>State Crystallization</strong>: Ensuring that once a node's <strong>Source of
-Truth</strong> is established, it cannot be tampered with, preserving the
-long-term integrity of the reactive graph.</li>
+<li><strong>Late-Bound Constants</strong>: When a property within an immutable <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>
+or record cannot be determined at instantiation (e.g., unique identifiers,
+specialized receptor logic).</li>
+<li><strong>Dependency Injection</strong>: Storing upstream <a href="../cell_tissue/Cell-class.html">Cell</a> references that are
+resolved during the node's activation or <strong>Ingress Gateway</strong> sequence.</li>
+<li><strong>Identity Anchoring</strong>: Holding a unique system-wide identifier or
+cryptographic hash generated during the first <a href="../cell_tissue/Pulse-class.html">Pulse</a> ingestion.</li>
+<li><strong>One-Time Computations</strong>: Wrapping the result of expensive architectural
+setups that must remain constant for the node's lifecycle.</li>
 </ul>
-<h3 id="2-functional-mechanics-initialization-governance">2. Functional Mechanics: Initialization Governance</h3>
-<p>Unlike a standard <a href="../cell_tissue/Box-class.html">Box</a>, which acts as a mutable bridge, <a href="../cell_tissue/FinalBox-class.html">FinalBox</a>
-governs the transition from a <strong>Stateless Blueprint</strong> to a
-<strong>Crystallized Instance</strong>:</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Placeholder Integrity</strong>: Provides a stable pointer within an immutable
+structure while the actual data is pending.</li>
+<li><strong>Late-Binding Immutability</strong>: Utilizes Dart's <code>late final</code> semantics to
+allow a single assignment after construction.</li>
+<li><strong>State Crystallization</strong>: Once assigned, the value becomes strictly
+immutable, enforcing a write-once contract.</li>
+<li><strong>Hydration Sequence</strong>: Typically initialized during the framework's
+activation phase, bridging the gap between a stateless blueprint and
+a crystallized instance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Hydration Sequence</strong>: It is ideal for properties that depend on
-the node's activation status. The value can be set during the
-<strong>Ingress</strong> sequence and locked immediately thereafter.</li>
-<li><strong>Memory Stability</strong>: Because the container itself is a final object
-within the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a>, it maintains the framework's <strong>Flyweight
-Pattern</strong> requirements while allowing for flexible, multi-stage
-initialization.</li>
+<li><strong>Flyweight Strategy</strong>: As a final object within a <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> record, it
+supports memory-efficient sharing of structural metadata while allowing
+per-instance constant initialization.</li>
+<li><strong>Runtime Enforcement</strong>: Attempting to re-initialize the box or evolve
+its value after the first assignment triggers a runtime error, acting
+as an internal <strong>Integrity Gate</strong>.</li>
+<li><strong>Synchronized Access</strong>: Like a standard box, it provides a <a href="../cell_tissue/SyncBox-class.html">SyncBox</a>
+proxy via the <a href="../cell_tissue/FinalBox/async.html">async</a> property for thread-safe initialization from
+background tasks.</li>
+<li><strong>Nullable Support</strong>: The internal <a href="../cell_tissue/FinalBox/value.html">value</a> is nullable by design,
+allowing the "crystallized" state to be a null constant if required.</li>
 </ul>
-<h3 id="3-use-cases-in-the-conactive-engine">3. Use Cases in the Conactive Engine</h3>
-<ul>
-<li><strong>Dependency Injection</strong>: Storing an upstream <a href="../cell_tissue/Cell-class.html">Cell</a> reference that
-is resolved asynchronously or through a factory method.</li>
-<li><strong>One-Time Computations</strong>: Wrapping the result of an expensive
-architectural setup (like a complex policy guard chain) that
-should be cached permanently.</li>
-<li><strong>Identity Anchoring</strong>: Holding a unique cryptographic hash or
-system-wide identifier generated at the moment of a node's
-first <a href="../cell_tissue/Pulse-class.html">Pulse</a> ingestion.</li>
-</ul>
-<h3 id="example-usage">Example Usage:</h3>
+<h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">// Defined within an immutable nucleus record
 final config = (id: FinalBox&lt;String&gt;(), category: 'Secure');
 
 // Initialization (allowed exactly once)
-config.id.value = 'NODE_7741';
+config.id.state = 'NODE_7741';
 
-// Subsequent attempts to modify will throw
-// config.id.value = 'NODE_8888'; // Late initialization error
+// Subsequent attempts to modify will throw a LateInitializationError
+// config.id.state = 'NODE_8888';
 </code></pre>
-<p>See also:</p>
+<h3 id="parameters">Parameters</h3>
+<p>(None)</p>
+<h3 id="returns">Returns</h3>
+<p>A <a href="../cell_tissue/FinalBox-class.html">FinalBox</a> instance representing a <strong>Write-Once State Anchor</strong>.</p>
+<h3 id="see-also">See Also:</h3>
 <ul>
-<li><a href="../cell_tissue/Box-class.html">Box</a>: The standard mutable variant for shifting state.</li>
-<li><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>: The structural container that utilizes boxes for state storage.</li>
+<li><a href="../cell_tissue/Box-class.html">Box</a>: The standard mutable variant for evolving state.</li>
+<li><a href="../cell_tissue/SyncBox-class.html">SyncBox</a>: The synchronized proxy for asynchronous initialization.</li>
+<li><a href="../cell_tissue/Nucleus-class.html">Nucleus</a>: The structural container that typically utilizes boxes for
+state storage.</li>
 </ul>
 </section>
 
@@ -148,7 +151,7 @@ config.id.value = 'NODE_7741';
           <span class="name"><a href="../cell_tissue/FinalBox/FinalBox.html">FinalBox</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          Creates a <a href="../cell_tissue/FinalBox-class.html">FinalBox</a> without an initial value. The <a href="../cell_tissue/FinalBox/value.html">value</a> must be set exactly
+          Creates a <a href="../cell_tissue/FinalBox-class.html">FinalBox</a> without an initial state. The <a href="../cell_tissue/FinalBox/value.html">value</a> must be set exactly
 once before it is read.
         </dd>
     </dl>
@@ -203,7 +206,7 @@ asynchronous access to the underlying state.
 
 </dt>
 <dd>
-  The immutable value held by this container, initialized late.
+  The immutable state value held by this container, initialized late.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">override</span></div>
 
 </dd>
@@ -293,7 +296,7 @@ asynchronous access to the underlying state.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

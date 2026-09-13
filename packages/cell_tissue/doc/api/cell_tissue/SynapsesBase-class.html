@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">SynapsesBase<span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">SynapsesBase</div>
@@ -62,18 +62,18 @@ hierarchical filtering, and graph topology management. It is the primary
 component responsible for the <strong>Conactive</strong> (Concurrent + Reactive)
 propagation of stimuli from a source cell to its downstream observers,
 maintaining strict memory efficiency and transactional integrity.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely need to work with <code>SynapsesBase</code> directly – you typically
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You rarely need to work with <code>SynapsesBase</code> directly – you typically
 interact with a synapses instance via the <code>synapses</code> property of a cell.
-However, if you're building custom cells, you might instantiate it:</p>
+However, if you're building custom cells, you might instantiate it:
 <pre class="language-dart"><code class="language-dart">final synapses = Synapses(
   policy: myPolicy,
   downstreams: [observer1, observer2],
   filter: myFilter,
 );
 </code></pre>
-<h3 id="when-to-use">When to use</h3>
-<ul>
+</li>
 <li>You need to attach observers to a cell.</li>
 <li>You need to control how pulses are filtered or transformed before
 reaching observers.</li>
@@ -740,7 +740,7 @@ predicate <code>test</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

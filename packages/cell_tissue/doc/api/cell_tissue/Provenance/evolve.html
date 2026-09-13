@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Provenance.html">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">evolve static method</li>
   </ol>
@@ -71,13 +71,14 @@ It filters the provenance dimensions, allowing only those marked as
 <a href="../../cell_tissue/Provenance/evolvable.html">evolvable</a> to be processed by the provided <code>resolver</code>. This ensures that
 a pulse's immutable identity (static pillars) cannot be accidentally
 changed during evolution.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You don't call this directly. It's an internal utility used by
-<a href="../../cell_tissue/PulseContext/evolve.html">PulseContext.evolve</a> to refine a context without altering its core
-identity. Your day‑to‑day interaction is through <code>context.evolve()</code>.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Only if you're implementing a custom context evolution mechanism.
-For most code, the <code>PulseContext.evolve</code> method is the correct entry point.</p>
+<ul>
+<li>You don't call this directly. It's an internal utility used by
+<a href="../../cell_tissue/PulseContext/evolve.html">PulseContext.evolve</a> to refine a context without altering its core
+identity. Your day‑to‑day interaction is through <code>context.evolve()</code>.</li>
+<li>Only if you're implementing a custom context evolution mechanism.
+For most code, the <code>PulseContext.evolve</code> method is the correct entry point.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The method iterates only over <a href="../../cell_tissue/Provenance.html">Provenance</a> dimensions where
@@ -160,7 +161,7 @@ entries used to form an evolved pulse context.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

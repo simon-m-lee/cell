@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">CycleChecker class</li>
   </ol>
   <div class="self-name">CycleChecker</div>
@@ -54,29 +54,65 @@
 
     
 <section class="desc markdown">
-  <p>A utility for <strong>Circular Dependency Detection</strong> within the reactive graph.</p>
-<p>The <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> is a traversal guard used during the propagation of a
-<a href="../cell_tissue/Pulse-class.html">Pulse</a>. Its primary responsibility is to track the set of reactive nodes
-(<a href="../cell_tissue/Cell-class.html">Cell</a>s) that have already participated in a specific execution wave,
-ensuring that the system remains a <strong>Directed Acyclic Graph (DAG)</strong> and
-preventing infinite recursion.</p>
-<h3 id="1-architectural-role-graph-integrity">1. Architectural Role: Graph Integrity</h3>
-<p>In a complex reactive network, nodes often have interdependent relationships.
-Without a cycle detection mechanism, a change in <code>Cell A</code> that triggers
-<code>Cell B</code>, which in turn triggers <code>Cell A</code>, would result in a stack overflow.</p>
+  <p>A specialized <strong>Traversal Guard</strong> and <strong>Topology Validator</strong>, responsible for
+preventing infinite recursion and ensuring the reactive graph remains a
+<strong>Directed Acyclic Graph (DAG)</strong> during signal propagation.</p>
+<p><a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> acts as the "Short-Term Memory" of a reactive wave. It tracks
+the path of a <a href="../cell_tissue/Pulse-class.html">Pulse</a> as it traverses through various nodes, identifying
+and halting any attempts to re-enter a node that has already participated
+in the current execution cycle.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Path Tracking</strong>: It maintains a transient set of "visited" nodes for
-the duration of a single pulse propagation.</li>
-<li><strong>Traversal Guarding</strong>: Every <a href="../cell_tissue/Receptor-class.html">Receptor</a> uses this checker before
-executing its transformation pipeline. if a node is already present in
-the set, the propagation is halted for that specific branch.</li>
+<li><strong>Graph Integrity</strong>: Use whenever a signal propagates through a network
+where complex, interdependent relationships might lead to circular triggers.</li>
+<li><strong>Stack Protection</strong>: Use to prevent <code>StackOverflowError</code> in deeply
+nested or recursively defined reactive structures.</li>
+<li><strong>Traversal Auditing</strong>: Use during debugging to trace the causal path
+of a specific stimulus.</li>
 </ul>
-<h3 id="2-thread-safety--concurrency">2. Thread Safety &amp; Concurrency</h3>
-<p>While the standard <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> is optimized for synchronous, single-threaded
-execution, it provides a <a href="../cell_tissue/SyncCycleChecker-class.html">SyncCycleChecker</a> (via the <code>async</code> getter) for
-<strong>Cross-Thread Synchronization</strong>. This utilizes an atomic <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to ensure
-that visited sets remain consistent when a pulse spans across asynchronous
-boundaries.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Registry Synthesis</strong>: Maintains a transient set of <a href="../cell_tissue/Cell-class.html">Cell</a> identities
+representing the "Visited Nodes" of the current propagation wave.</li>
+<li><strong>Causal Registration</strong>: Before a <a href="../cell_tissue/Receptor-class.html">Receptor</a> processes a pulse, it
+registers itself via the <a href="../cell_tissue/CycleChecker/add.html">add</a> method.</li>
+<li><strong>Conflict Detection</strong>: If the registration fails (node already visited),
+a <strong>Circular Dependency</strong> is identified.</li>
+<li><strong>Graceful Termination</strong>: Instead of crashing, the system suppresses
+further propagation along the offending branch, allowing the rest of
+the graph to settle normally.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Identity-Based</strong>: Tracking is performed using referential identity of
+the <a href="../cell_tissue/Cell-class.html">Cell</a> instances, not their values or states.</li>
+<li><strong>Single-Wave Lifecycle</strong>: Instances are intended to be ephemeral, typically
+mapping 1:1 with the lifespan of a single <a href="../cell_tissue/Pulse-class.html">Pulse</a> wave.</li>
+<li><strong>Concurrency Bridge</strong>: While optimized for synchronous execution, it
+seamlessly transitions to thread-safe mode via the <a href="../cell_tissue/CycleChecker/async.html">async</a> property
+(<a href="../cell_tissue/SyncCycleChecker-class.html">SyncCycleChecker</a>) when crossing asynchronous boundaries.</li>
+<li><strong>Zero-Overhead for Linear Paths</strong>: The internal <code>_visited</code> set is highly
+optimized for small collections, minimizing the latency penalty for
+most propagation paths.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">void propagate(Pulse pulse, Cell node) {
+  // Check for cycles before processing
+  if (!pulse.checker.add(node)) {
+    print('Cycle detected at $node; halting branch.');
+    return;
+  }
+
+  // Safe to proceed with transformation
+  node.process(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/SyncCycleChecker-class.html">SyncCycleChecker</a>: The synchronized counterpart for asynchronous flows.</li>
+<li><a href="../cell_tissue/Pulse-class.html">Pulse</a>: The stimulus that carries the checker through the graph.</li>
+<li><a href="../cell_tissue/Receptor-class.html">Receptor</a>: The primary component that implements this guard.</li>
+</ul>
 </section>
 
 
@@ -173,6 +209,19 @@ asynchronous propagation waves.
 
 </dd>
 
+        <dt id="tickPolicy" class="callable">
+  <span class="name"><a href="../cell_tissue/CycleChecker/tickPolicy.html">tickPolicy</a></span><span class="signature">(<wbr><span class="parameter" id="tickPolicy-param-policy"><span class="type-annotation"><a href="../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">policy</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Registers <code>policy</code> for the current stimulus wave.
+  
+
+</dd>
+
         <dt id="toString" class="callable inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -236,7 +285,7 @@ asynchronous propagation waves.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

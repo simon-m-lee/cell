@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">receptor property</li>
   </ol>
@@ -76,7 +76,7 @@
 orchestrating state updates for the reactive collection.</p>
 <p>The <a href="../../cell_tissue/TissueNucleusBase/receptor.html">receptor</a> is the functional heart of the tissue's reactive cycle.
 It acts as a specialised "reducer" or "command handler" that intercepts
-incoming <a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a> signals (such as <code>add</code>, <code>remove</code>, or <code>clear</code>)
+incoming <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a> signals (such as <code>add</code>, <code>remove</code>, or <code>clear</code>)
 and translates them into concrete operations on the underlying <a href="../../cell_tissue/TissueNucleusBase/container.html">container</a>.</p>
 <h3 id="where-to-start">Where to start</h3>
 <p>You rarely need to read this directly. The receptor is set when you
@@ -117,7 +117,7 @@ unless explicitly overridden.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 TissueReceptor&lt;E,C&gt; get receptor {
-  return get&lt;TissueReceptor&lt;E,C&gt;&gt;(() =&gt; record.mask.inheritable.receptor, fallback: () =&gt; principal?.receptor, orElse: TissueReceptor.passThrough);
+  return get&lt;TissueReceptor&lt;E,C&gt;&gt;(() =&gt; record.local.inheritable.receptor, fallback: () =&gt; principal?.receptor, orElse: TissueReceptor.passThrough);
 }</code></pre>
 </section>
 
@@ -148,7 +148,7 @@ TissueReceptor&lt;E,C&gt; get receptor {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

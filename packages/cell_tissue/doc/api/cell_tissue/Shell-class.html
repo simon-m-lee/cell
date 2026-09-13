@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Shell<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">Shell</div>
@@ -56,35 +56,81 @@
 
     
 <section class="desc markdown">
-  <p>Defines a <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> for framework entities.</p>
-<p>A <a href="../cell_tissue/Shell-class.html">Shell</a> acts as a <strong>Defensive Proxy</strong> around a core object (such as a <a href="../cell_tissue/Pulse-class.html">Pulse</a>),
-facilitating the <strong>Ingress Phase</strong> of the framework's <strong>Reactive Update Cycle</strong>.</p>
-<p>It allows external entities, particularly <a href="../cell_tissue/Receptor-class.html">Receptor</a>s, to interact with a
-projection of the underlying data without gaining direct access to the
-internal kernel or triggering permanent state mutations until they have
-been formally authorized via a <strong>Reciprocal Handshake</strong>.</p>
-<h3 id="1-architectural-role-the-authorization-challenge">1. Architectural Role: The Authorization Challenge</h3>
-<p>Within the reactive fabric, a <a href="../cell_tissue/Shell-class.html">Shell</a> is used to implement <strong>Bidirectional
-Mutual Authorization</strong>. Instead of a consumer simply reading data, the
-<a href="../cell_tissue/Shell-class.html">Shell</a> enforces a <strong>Reciprocal Handshake</strong>:</p>
+  <p>A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.</p>
+<p><a href="../cell_tissue/Shell-class.html">Shell</a> acts as the primary mechanism for the <strong>Reciprocal Handshake</strong>,
+wrapping a core kernel (such as a <a href="../cell_tissue/Pulse-class.html">Pulse</a>) to facilitate the <strong>Ingress Phase</strong>
+of the reactive update cycle. It ensures that sensitive internal state is
+only released to consumers that satisfy specific security invariants, acting
+as a portable <strong>Integrity Gate</strong> across the switching fabric.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Policy Enforcement</strong>: The shell ensures that interactions with the
-underlying object adhere to current <strong>Capability-Based Access Control (CBAC)</strong>
-constraints and <a href="../cell_tissue/TestCell-class.html">TestCell</a> sets.</li>
-<li><strong>Capability Attenuation &amp; Redaction</strong>: It provides a screened view
-of the object, allowing for data to be masked or neutralized if the
-observer lacks sufficient <a href="../cell_tissue/Clearance.html">Clearance</a>.</li>
+<li><strong>Capability-Based Access Control (CBAC)</strong>: When you need to gate access
+to a signal's payload based on the identity or authority of the target node.</li>
+<li><strong>Capability Attenuation</strong>: Providing a redacted or masked view of an
+object to prevent domain violations during traversal.</li>
+<li><strong>Authorization Challenges</strong>: Enforcing business invariants by requiring a
+formal challenge-response before a stimulus is allowed to affect state.</li>
+<li><strong>Signal Projection</strong>: Creating transient, read-only views of core
+framework entities to be shared across the <strong>Egress Gateway</strong> without
+exposing the mutable kernel.</li>
 </ul>
-<h3 id="2-functional-mechanics-the-validation-phase">2. Functional Mechanics: The Validation Phase</h3>
-<p>The <a href="../cell_tissue/Shell-class.html">Shell</a> implementation typically delegates to a "Kernel" (the core state)
-but gates all access through the <a href="../cell_tissue/Shell/scrutinize.html">scrutinize</a> method. This ensures that the
-entity remains <strong>Immutable</strong> and <strong>Governed</strong> during its traversal through
-the switching fabric, preventing <strong>Domain Violations</strong> or unauthorized
-state mutations.</p>
-<h3 id="type-parameters">Type Parameters:</h3>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Authorization Challenge</strong>: The shell wraps a kernel and requires the
+caller (the <code>T</code> authority) to invoke <a href="../cell_tissue/Shell/scrutinize.html">scrutinize</a>, passing their own
+identity or authority tokens.</li>
+<li><strong>Reciprocal Handshake</strong>: The shell evaluates the caller's credentials
+against the kernel's internal security policy and contextual requirements.</li>
+<li><strong>Dynamic Projection</strong>: Based on the result of the scrutiny, the shell
+either returns the internal kernel (<strong>AUTHORIZED</strong>), a filtered version,
+or <code>null</code> (<strong>NEUTRALIZED</strong>).</li>
+<li><strong>Causal Provenance Preservation</strong>: The shell maintains the identity
+and lineage of the underlying object, ensuring metadata (trace,
+timestamp, context) is preserved throughout the handshake.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><code>T</code>: The type of the object being scrutinized or the specific subtype
-of consumer (like a <a href="../cell_tissue/Receptor-class.html">Receptor</a>) that this shell is designed to challenge.</li>
+<li><strong>Flyweight Strategy</strong>: Many implementations (like <a href="../cell_tissue/PulseShell-class.html">PulseShell</a>) utilize
+<code>const</code> constructors and shared storage to minimize heap pressure
+during high-frequency propagation waves.</li>
+<li><strong>Fail-Closed Design</strong>: If the scrutiny process fails or is bypassed,
+the shell remains opaque, preventing unauthorized leak of the internal
+cytoplasm.</li>
+<li><strong>Identity Transparency</strong>: The shell does not replace the identity of the
+underlying stimulus but acts as a perceptual lens through which the
+stimulus is viewed by specific consumers.</li>
+<li><strong>Structural Blueprint</strong>: It defines the zero-cost anchoring for
+defensive proxies, allowing security protocols to be embedded directly
+into the signal propagation logic.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">class SecureShell&lt;P&gt; implements Shell&lt;Cell&gt; {
+  final Pulse&lt;P&gt; _kernel;
+  const SecureShell(this._kernel);
+
+  @override
+  dynamic scrutinize(Cell host, List? args, [Map&lt;Symbol, dynamic&gt;? named]) {
+    // Only authorize nodes with matching security context
+    if (host.context.clearance &gt;= _kernel.context.priority) {
+      return _kernel;
+    }
+    return null; // Neutralized
+  }
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><strong><code>T</code></strong>: <strong>The Target Authority.</strong> The type of entity (usually a <a href="../cell_tissue/Cell-class.html">Cell</a>
+or <a href="../cell_tissue/Receptor-class.html">Receptor</a>) that this shell is designed to challenge and authorize.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../cell_tissue/Shell-class.html">Shell</a> instance acting as a <strong>Defensive Gateway</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/PulseShell-class.html">PulseShell</a>: The standard implementation for reactive signals.</li>
+<li><a href="../cell_tissue/Receptor-class.html">Receptor</a>: The primary consumer that interacts with these shells.</li>
+<li><a href="../cell_tissue/TestRule-class.html">TestRule</a>: Often used within scrutiny logic to enforce business invariants.</li>
 </ul>
 </section>
 
@@ -238,7 +284,7 @@ version of the data compatible with the caller's authorization scope and intent.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

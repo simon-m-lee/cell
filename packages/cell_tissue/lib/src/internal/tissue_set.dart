@@ -30,6 +30,7 @@ class _TissueSetNucleus<E,C extends TissueSet<E>> extends TissueSetNucleusBase<E
     super.testRule,
     super.synapses,
 
+    super.ephemeralPolicy,
     super.identitySet,
     super.forceLock,
     super.user
@@ -42,6 +43,8 @@ class _TissueSetNucleus<E,C extends TissueSet<E>> extends TissueSetNucleusBase<E
     TestTissue<E,C>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     bool identitySet = false,
     bool forceLock = true,
 
@@ -49,9 +52,10 @@ class _TissueSetNucleus<E,C extends TissueSet<E>> extends TissueSetNucleusBase<E
     required super.principal
   }) : super.evolve(
       override: override ?? _TissueSetNucleus<E,C>.fromRecord(
-          TissueNucleusBase.local<E,Set<E>,C>(
-              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock
-          )
+          (local: TissueNucleusBase.local<E,Set<E>,C>(
+              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock,
+              ephemeralPolicy: ephemeralPolicy
+          ))
       )
   );
 
@@ -73,6 +77,7 @@ class _TissueSetNucleus<E,C extends TissueSet<E>> extends TissueSetNucleusBase<E
   /// A new [TissueSetNucleusBase] instance with identical behavioural logic.
   @override
   TissueSetNucleusBase<E,C> get clone {
+    final p = principal;
     return TissueSetNucleus.create<E,C>(
         container: containerType,
         context: context,
@@ -80,7 +85,11 @@ class _TissueSetNucleus<E,C extends TissueSet<E>> extends TissueSetNucleusBase<E
         testRule: testRule,
         synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
         user: user,
-        forceLock: false
+        forceLock: false,
+        ephemeralPolicy: _hostedEphemeralPolicy,
+        // A deputy clone must keep the principal chain and bind.
+        bind: p != null ? bind : null,
+        principal: p == null ? null : this,
     );
   }
 
@@ -210,6 +219,7 @@ abstract class TissueSetNucleusBase<E,C extends TissueSet<E>>
     super.testRule,
     super.synapses,
     bool identitySet = false,
+    super.ephemeralPolicy,
     super.forceLock,
     super.user,
   }) : super(container: identitySet ? Container.identitySet : Container.set);
@@ -385,7 +395,7 @@ abstract class TissueSetNucleusBase<E,C extends TissueSet<E>>
   @override
   Container get containerType {
     return get<Container>(
-            () => record.mask.inhertiable.container,
+            () => record.local.inheritable.container,
         fallback: () => principal?.containerType,
         orElse: Container.set);
   }
@@ -493,7 +503,7 @@ class _TissueSet<E,C extends TissueSet<E>> extends TissueSetBase<E,C> {
 ///   structural change is:
 ///   1. Validated against the [TestTissue] rules.
 ///   2. Applied atomically to the [Container].
-///   3. Dispatched as a [TissueEvent] to all observers.
+///   3. Dispatched as a [TissuePulse] to all observers.
 /// - The underlying storage is a Dart `Set<E>` with uniqueness defined by
 ///   the `identitySet` flag.
 ///
@@ -507,7 +517,7 @@ class _TissueSet<E,C extends TissueSet<E>> extends TissueSetBase<E,C> {
 /// - **Uniqueness Strategy**: The `identitySet` flag is fixed at creation.
 ///   A deputy cannot change a value‑based set into an identity‑based one.
 /// - **Member‑level bubbling**: If the set contains [Cell] elements, they
-///   are automatically linked, so internal changes trigger [ElementUpdatedEvent]s.
+///   are automatically linked, so internal changes trigger [ElementUpdated]s.
 ///
 /// ### Example (Internal Usage)
 /// While you never instantiate this directly, understanding it helps you
@@ -557,6 +567,8 @@ abstract class TissueSetBase<E,C extends TissueSet<E>>
     remove,
     removeAll,
     removeWhere,
+    retainAll,
+    retainWhere,
     // ...super.modifiable
   };
 
@@ -619,6 +631,7 @@ class _TissueSetDeputy<E, C extends TissueSet<E>> extends _TissueSet<E, C>
     context: context,
     testRule: testRule,
     synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
+    ephemeralPolicy: ephemeralPolicy,
     principal: bind._nucleus,
   ));
 
@@ -684,7 +697,11 @@ class _UnmodifiableTissueSet<E,C extends TissueSet<E>> extends UnmodifiableTissu
 
   @override
   FutureOr<TissueSet<E>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueSetDeputy<E,C>._(this as TissueSetBase<E,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    final bind = _nucleus.bind;
+    if (bind is TissueSetBase<E, C>) {
+      return _TissueSetDeputy<E,C>._(bind, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    }
+    return this;
   }
 
   @override
@@ -834,12 +851,8 @@ abstract class UnmodifiableTissueSetBase<E,C extends TissueSet<E>>
   ///   container. This is an optimisation to avoid lazy projection overhead
   ///   during iteration.
   UnmodifiableTissueSetBase(
-      TissueSetNucleusBase<E,C> super.nucleus, {super.unmodifiableElement, Iterable<E>? elements})
-      : super(elements: elements) {
-    final container = get<Container?>(() => _nucleus.record.mask.container, orElse: null);
-    if (container != null && elements != null) {
-      _nucleus.container.store.addAll(elements);
-    }
+      TissueSetNucleusBase<E,C> super.nucleus, {super.unmodifiableElement, super.elements}) {
+    // Initial population is performed by TissueBase via `elements`.
   }
 
   /// Returns a collection of functions that are permitted to modify this set.
@@ -862,7 +875,7 @@ abstract class UnmodifiableTissueSetBase<E,C extends TissueSet<E>>
   /// prohibits asynchronous modifications, maintaining consistency with
   /// the synchronous API.
   @override
-  ModifiableSetAsync<E> get async => const _UnmodifiableModifiableSetAsync();
+  ModifiableSetAsync<E> get async => _UnmodifiableModifiableSetAsync<E>();
 
 }
 
@@ -905,7 +918,7 @@ abstract class UnmodifiableTissueSetBase<E,C extends TissueSet<E>>
 /// - The `lookup` method is O(n) – it iterates through the entire set to
 ///   find an equivalent element. For large sets, consider using the
 ///   underlying container's direct lookup if available.
-mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
+mixin TissueSetMixin<E,C extends TissueSet<E>> on TissueBase<E,Set<E>, C> implements TissueSet<E> {
   /// Provides access to the specific property container for sets.
   ///
   /// This must be implemented by the consuming class to provide the
@@ -951,7 +964,8 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
   /// This operation is reactive. It uses [apply] to route the request through
   /// validation and signaling logic. Returns `true` if the element was added.
   @override
-  bool add(E element) => apply(add, positionalArguments: [element]).isNotEmpty;
+  bool add(E element) =>
+      (apply(add, positionalArguments: [element])?.isNotEmpty) ?? false;
 
   /// Adds all [elements] to the set.
   ///
@@ -968,7 +982,8 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
   ///
   /// Returns `true` if the object was present and successfully removed.
   @override
-  bool remove(Object? object) => apply(remove, positionalArguments: [object]).isNotEmpty;
+  bool remove(Object? object) =>
+      (apply(remove, positionalArguments: [object])?.isNotEmpty) ?? false;
 
   /// Removes all elements that satisfy [test].
   @override
@@ -989,11 +1004,11 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
   // Internal Reactive Implementations (prefixed with _)
   // These handle the actual logic and pulse dispatching.
 
-  TissueEvent? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
-    ElementAddedEvent<E>? event;
+  TissuePulse? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
+    ElementAdded<E>? event;
     if (this is! Unmodifiable && modifiable.contains(add)) {
       if (validate.element(element, host: this, action: add) == true && _nucleus.container.add(this,element)) {
-        event = ElementAddedEvent<E>._(source: deputy ?? this, payload: element);
+        event = ElementAdded<E>._(source: deputy ?? this, payload: element);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1002,17 +1017,17 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return event;
   }
 
-  TissueEvent? _addAll(Iterable<E> elements, {bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _addAll(Iterable<E> elements, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
     if (this is! Unmodifiable && modifiable.contains(addAll)) {
-      final events = <ElementAddedEvent<E>>[];
+      final events = <ElementAdded<E>>[];
       final adds = elements.where((e) => validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: add) == true);
       final added = adds.where((e) => _nucleus.container.add(this,e));
       if (added.isNotEmpty) {
         for (var e in added) {
-          events.add(ElementAddedEvent<E>._(source: deputy ?? this, payload: e));
+          events.add(ElementAdded<E>._(source: deputy ?? this, payload: e));
         }
-        result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1021,17 +1036,17 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return result;
   }
 
-  TissueEvent? _clear({bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _clear({bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
     if (this is! Unmodifiable && modifiable.contains(clear)) {
-      final events = <ElementRemovedEvent<E>>[];
-      final removes = _nucleus.container.where((e) => validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true);
+      final events = <ElementRemoved<E>>[];
+      final removes = _nucleus.container.where((e) => validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true).toList();
       final removed = removes.where((e) => _nucleus.container.remove(this,e));
       if (removed.isNotEmpty) {
         for (var e in removed) {
-          events.add(ElementRemovedEvent<E>._(source: deputy ?? this, payload: e));
+          events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
         }
-        result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1040,12 +1055,12 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return result;
   }
 
-  TissueEvent? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemovedEvent<E>? event;
+  TissuePulse? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
+    ElementRemoved<E>? event;
     if (this is! Unmodifiable && modifiable.contains(remove)) {
       final e = lookup(object);
       if (e != null && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true && _nucleus.container.remove(this,e)) {
-        event = ElementRemovedEvent<E>._(source: deputy ?? this, payload: e);
+        event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1054,18 +1069,18 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return event;
   }
 
-  TissueEvent? _removeAll(Iterable<Object?> objects, {bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _removeAll(Iterable<Object?> objects, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
     if (this is! Unmodifiable && modifiable.contains(removeAll)) {
       if (_nucleus.container.isNotEmpty) {
-        final events = <ElementRemovedEvent<E>>[];
+        final events = <ElementRemoved<E>>[];
         final removes = objects.map((o) => lookup(o)).where((e) => e != null && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true);
         final removed = removes.where((e) => _nucleus.container.remove(this,e as E));
         if (removed.isNotEmpty) {
           for (var e in removed) {
-            events.add(ElementRemovedEvent<E>._(source: deputy ?? this, payload: e));
+            events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
           }
-          result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+          result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(result);
           }
@@ -1075,19 +1090,19 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return result;
   }
 
-  TissueEvent? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
 
     if (this is! Unmodifiable && modifiable.contains(removeWhere)) {
       if (_nucleus.container.isNotEmpty) {
-        final events = <ElementRemovedEvent<E>>[];
-        final removes = _nucleus.container.where((e) => test(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true);
+        final events = <ElementRemoved<E>>[];
+        final removes = _nucleus.container.where((e) => test(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true).toList();
         final removed = removes.where((e) => _nucleus.container.remove(this,e));
         if (removed.isNotEmpty) {
           for (var e in removed) {
-            events.add(ElementRemovedEvent<E>._(source: deputy ?? this, payload: e));
+            events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
           }
-          result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+          result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(result);
           }
@@ -1097,20 +1112,20 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return result;
   }
 
-  TissueEvent? _retainAll(Iterable<Object?> objects, {bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _retainAll(Iterable<Object?> objects, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
 
     if (this is! Unmodifiable && modifiable.contains(retainAll)) {
       if (_nucleus.container.isNotEmpty) {
-        final events = <ElementRemovedEvent<E>>[];
+        final events = <ElementRemoved<E>>[];
         final retains = objects.map((o) => lookup(o)).where((e) => e != null).cast<E>();
-        final removes = _nucleus.container.where((e) => !retains.contains(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true);
+        final removes = _nucleus.container.where((e) => !retains.contains(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true).toList();
         final removed = removes.where((e) => _nucleus.container.remove(this,e));
         if (removed.isNotEmpty) {
           for (var e in removed) {
-            events.add(ElementRemovedEvent<E>._(source: deputy ?? this, payload: e));
+            events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
           }
-          result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+          result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(result);
           }
@@ -1120,19 +1135,19 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     return result;
   }
 
-  TissueEvent? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    TissueEvent? result;
+  TissuePulse? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? result;
 
     if (this is! Unmodifiable && modifiable.contains(retainWhere)) {
       if (_nucleus.container.isNotEmpty) {
-        final events = <ElementRemovedEvent<E>>[];
-        final removes = _nucleus.container.where((e) => !test(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true);
+        final events = <ElementRemoved<E>>[];
+        final removes = _nucleus.container.where((e) => !test(e) && validate.element(e, host: deputy is TissueSet<E> ? deputy : this, action: remove) == true).toList();
         final removed = removes.where((e) => _nucleus.container.remove(this,e));
         if (removed.isNotEmpty) {
           for (var e in removed) {
-            events.add(ElementRemovedEvent<E>._(source: deputy ?? this, payload: e));
+            events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
           }
-          result = events.length == 1 ? events.first : TissueEvent.batch<E>(events);
+          result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(result);
           }
@@ -1150,6 +1165,11 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
     Map<Symbol, dynamic>? compensateNamed,
     Cell? compensateCell,
   }) {
+    if (tx != null) {
+      return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
+          tx: tx, compensate: compensate, compensatePositional: compensatePositional, compensateNamed: compensateNamed, compensateCell: compensateCell
+      );
+    }
 
     if (modifiable.contains(function)) {
       try {
@@ -1184,7 +1204,7 @@ mixin TissueSetMixin<E,C extends TissueSet<E>> implements TissueSet<E> {
         }} catch (_) {}
       return null;
     }
-    return Function.apply(function, positionalArguments, namedArguments);
+    return null;
   }
 
 }

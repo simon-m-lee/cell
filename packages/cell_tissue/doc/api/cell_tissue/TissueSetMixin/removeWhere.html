@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueSetMixin-mixin.html">TissueSetMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueSet&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">removeWhere method</li>
   </ol>
@@ -77,7 +77,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void removeWhere(bool Function(E element) test) =&gt; apply(removeWhere, [test]);</code></pre>
+void removeWhere(bool Function(E element) test) =&gt; apply(removeWhere, positionalArguments: [test]);</code></pre>
 </section>
 
 
@@ -105,7 +105,7 @@ void removeWhere(bool Function(E element) test) =&gt; apply(removeWhere, [test])
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

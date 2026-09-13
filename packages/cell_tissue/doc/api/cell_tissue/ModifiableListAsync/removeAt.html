@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">removeAt method</li>
   </ol>
@@ -63,33 +63,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously removes the element at position <code>index</code> from this list.
-This reduces the length of the list by one and moves all later elements down.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/removeAt.html">TissueList.removeAt</a>. The <code>Future</code> completes with the removed element
-if the operation is successful. Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>index</code>: The index of the element to remove.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.
-  Note: Unlike <code>List.removeAt</code> which returns <code>E</code>, this async version for <code>TissueList</code>
-  has <code>Future&lt;void&gt;</code>. If the removed element is needed, it should be retrieved before removal
-  or the underlying synchronous <code>_tissue.removeAt(index)</code> could be wrapped differently
-  if the <code>apply</code> mechanism's <code>TissuePost</code> could convey this.
-  The current implementation matches the other <code>Future&lt;void&gt;</code> modification methods.</p>
+  <p>Asynchronously removes the element at <code>index</code>.</p>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> that resolves once the element is removed and the
+<a href="../../cell_tissue/ElementRemoved-class.html">ElementRemoved</a> event has propagated.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeAt(int index) async {
-  &#47;&#47; Original code returns Future&lt;void&gt;. If Future&lt;E&gt; is desired for the removed element:
-  &#47;&#47; return Future&lt;E&gt;(() =&gt; _tissue.removeAt(index));
-  &#47;&#47; However, this might deviate from the pattern of void futures for modifications.
-  return Future&lt;void&gt;(() =&gt; _tissue.removeAt(index));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; removeAt(int index) =&gt; Future&lt;void&gt;(() =&gt; _tissue.removeAt(index));</code></pre>
 </section>
 
 
@@ -117,7 +101,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">sanitized&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt; static method</li>
   </ol>
@@ -55,8 +55,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>
-<span class="name ">sanitized</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="sanitized-param-bind"><span>required</span> <span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">bind</span>, </span></li>
-<li><span class="parameter" id="sanitized-param-redactor"><span>required</span> <span class="type-annotation">P</span> <span class="parameter-name">redactor</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+<span class="name ">sanitized</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="sanitized-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="sanitized-param-redact"><span>required</span> <span class="type-annotation">P</span> <span class="parameter-name">redact</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
 </ol>), </span></li>
 <li><span class="parameter" id="sanitized-param-minSensitivity"><span class="type-annotation"><a href="../../cell_tissue/Sensitivity.html">Sensitivity</a></span> <span class="parameter-name">minSensitivity</span> = <span class="default-value">Sensitivity.confidential</span>, </span></li>
 </ol>})
@@ -66,64 +66,99 @@
     </section>
     
 <section class="desc markdown">
-  <p>Synthesizes a <strong>Sanitized Cell</strong>—a security-hardened node that
-automatically redacts <a href="../../cell_tissue/Pulse-class.html">Pulse</a> payloads based on <a href="../../cell_tissue/Sensitivity.html">Sensitivity</a> and <strong>Compliance</strong>.</p>
-<p>The <code>sanitized</code> factory acts as a <strong>Sovereign Privacy Guard</strong> within the
-reactive graph. It ensures that sensitive data—such as PII or credentials—
-is programmatically stripped or masked before it propagates to less
-secure layers of the tissue.</p>
+  <p>Synthesizes a <strong>Privacy Guard</strong>—a security-hardened node that
+automatically modifies <a href="../../cell_tissue/Pulse-class.html">Pulse</a> payloads based on their <a href="../../cell_tissue/Sensitivity.html">Sensitivity</a>
+and compliance mandates.</p>
+<p>The <a href="../../cell_tissue/Cell/sanitized.html">sanitized</a> factory acts as a sovereign privacy gate within the
+reactive network. It ensures that sensitive data—such as PII,
+credentials, or internal secrets—is programmatically stripped or
+masked before it propagates to less secure layers of the system.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to automatically redact sensitive information
-(PII, secrets) before it reaches observers that shouldn't see it.</p>
-<h3 id="how-it-works">How it works</h3>
+<p>Use this factory to establish a "Clean Room" boundary. It allows
+high-sensitivity data to flow through the core of your application
+while ensuring that UI components or loggers only receive safe,
+redacted versions of that information.</p>
 <ul>
-<li><code>bind</code>: the upstream cell containing sensitive data.</li>
-<li><code>redactor</code>: a function that takes the sensitive pulse and returns a
-redacted version.</li>
-<li><code>minSensitivity</code>: the threshold at which redaction is applied.
-Pulses with sensitivity equal or higher will be redacted.</li>
+<li><strong>PII Masking</strong>: Hiding parts of an email or phone number in UI views.</li>
+<li><strong>Credential Stripping</strong>: Removing API keys or tokens before pulses
+reach a telemetry or logging observer.</li>
+<li><strong>Compliance Enforcement</strong>: Automatically applying GDPR or HIPAA
+redaction rules based on the signal's metadata.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The cell establishes a link to the <code>source</code> source.</li>
+<li>It inspects the <a href="../../cell_tissue/Sensitivity.html">Sensitivity</a> level of every incoming pulse.</li>
+<li>If the sensitivity meets or exceeds the <code>minSensitivity</code> threshold,
+the <code>redact</code> logic is applied.</li>
+<li>The "cleansed" pulse is then propagated to downstream observers.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
-<p>The redaction happens at the egress point – only outgoing pulses are
-sanitised. The original cell remains intact.</p>
-<h3 id="example-pii-redaction">Example: PII Redaction</h3>
-<pre class="language-dart"><code class="language-dart">final raw = Cell.ingress&lt;UserData&gt;().cell;
-final sanitized = Cell.sanitized&lt;UserData&gt;(
-  bind: raw,
-  redactor: (pulse) =&gt; Pulse(pulse.payload.copyWith(email: '***')),
+<ul>
+<li><strong>Targeted Sanitization</strong>: Redaction happens during the propagation
+phase; the original source cell remains completely intact and
+retains the raw data for authorized internal use.</li>
+<li><strong>Causal Integrity</strong>: Redacted pulses are generated as <code>EvolvedPulse</code>
+instances. This means they preserve their forensic history, allowing
+auditors to see <em>when</em> and <em>why</em> a value was sanitized.</li>
+<li><strong>Compliance Defaults</strong>: If a pulse lacks sensitivity metadata, it
+is treated as <a href="../../cell_tissue/Sensitivity.html">Sensitivity.public</a> and bypasses redaction unless
+configured otherwise.</li>
+</ul>
+<h3 id="example-email-masking">Example: Email Masking</h3>
+<pre class="language-dart"><code class="language-dart">final userView = Cell.sanitized&lt;UserPulse&gt;(
+  source: internalUserStore,
+  redact: (pulse) =&gt; Pulse(
+    pulse.payload.copyWith(email: "auth***@domain.com"),
+    type: 'ui.safe_view'
+  ),
+  minSensitivity: Sensitivity.confidential,
 );
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>bind</code>: <strong>The Ingress Source.</strong> The upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> containing the raw,
+<li><code>source</code>: <strong>The Ingress Source.</strong> The upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> containing the raw,
 potentially sensitive data.</li>
-<li><code>redactor</code>: <strong>The Sanitization Logic.</strong> A function that takes the
-sensitive pulse and returns a redacted/masked version.</li>
-<li><code>minSensitivity</code>: <strong>The Trigger Threshold.</strong> The <a href="../../cell_tissue/Sensitivity.html">Sensitivity</a> level
-at which redaction is enforced (defaults to <a href="../../cell_tissue/Sensitivity.html">Sensitivity.confidential</a>).</li>
+<li><code>redact</code>: <strong>The Sanitization Logic.</strong> A function that takes the
+sensitive pulse and returns a masked or redacted version.</li>
+<li><code>minSensitivity</code>: <strong>The Enforcement Threshold.</strong> The <a href="../../cell_tissue/Sensitivity.html">Sensitivity</a>
+level at which redaction is triggered (defaults to
+<a href="../../cell_tissue/Sensitivity.html">Sensitivity.confidential</a>).</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> that serves as a secure, privacy-aware filter for its source.</p>
+<p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> instance acting as a <strong>Privacy-Aware Filter</strong>. It propagates
+original signals until the sensitivity threshold is met, at which
+point it emits the result of the <code>redact</code> logic.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Sensitivity.html">Sensitivity</a>: For defining data classification levels.</li>
+<li><a href="../../cell_tissue/Cell/derive.html">Cell.derive</a>: For general-purpose projections without sensitivity
+checks.</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/sanitized_demo.dart</code> for a complete
+walkthrough of automated PII redaction and audit trails.
+{@category Core 16 Operators}</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell sanitized&lt;P extends Pulse&gt;({
-  required Cell bind,
-  required P Function(P pulse) redactor,
+  <pre class="language-dart"><code class="language-dart">static Cell sanitized&lt;P extends Pulse&gt;(Cell source, {
+  required P Function(P pulse) redact,
   Sensitivity minSensitivity = Sensitivity.confidential,
 }) {
   final receptor = _Receptor(reaction: (pulse, cell, {user}) {
     final p = pulse as P;
     final sensitivity = p.context.sensitivity;
     if (sensitivity != null &amp;&amp; sensitivity.index &gt;= minSensitivity.index) {
-      return redactor(p);
+      return redact(p);
     }
     return p;
   });
-  return Cell(bind: bind, receptor: receptor);
+  return Cell(bind: source, receptor: receptor);
 }</code></pre>
 </section>
 
@@ -152,7 +187,7 @@ at which redaction is enforced (defaults to <a href="../../cell_tissue/Sensitivi
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

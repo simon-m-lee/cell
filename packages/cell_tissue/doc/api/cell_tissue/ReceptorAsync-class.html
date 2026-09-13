@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ReceptorAsync<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ReceptorAsync</div>
@@ -55,59 +55,59 @@
     
 <section class="desc markdown">
   <p>An asynchronous execution handle for a <a href="../cell_tissue/Receptor-class.html">Receptor</a> that facilitates
-non‑blocking pulse processing.</p>
-<p><a href="../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> is obtained via <code>receptor.async</code>. It provides a <code>Future</code>-
-based API for processing pulses without blocking the current execution
-thread. This is essential for high‑throughput scenarios where you want
-to fire‑and‑forget or await the completion of a pulse's propagation.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You get an instance from any receptor:</p>
-<pre class="language-dart"><code class="language-dart">final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
-final asyncReceptor = receptor.async;
-</code></pre>
+non‑blocking pulse processing and lifecycle synchronization.</p>
+<p><a href="../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> provides a <code>Future</code>-based API for interacting with cells,
+ensuring that reactive signals can be injected from asynchronous contexts
+while maintaining strict causal order and transactional integrity.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use the async view when:</p>
+<p>Use the async view when you need to bridge asynchronous events into the
+reactive graph.</p>
 <ul>
-<li>You are in an asynchronous context (e.g., event handler, background task).</li>
-<li>You need to wait for the entire propagation wave to finish before
-continuing (<code>serializedCompletion: true</code>).</li>
-<li>You want to avoid blocking the UI or main thread.</li>
+<li><strong>Event Integration</strong>: Injecting pulses from timers, network responses,
+or user interactions.</li>
+<li><strong>Deterministic Testing</strong>: Waiting for a reactive wave to fully settle
+before asserting results.</li>
+<li><strong>Backpressure Management</strong>: Coordinating sequential updates in high-
+throughput scenarios.</li>
 </ul>
 <h3 id="how-it-works">How it works</h3>
-<ul>
-<li>The async receptor buffers incoming pulses in a <strong>thread‑safe queue</strong>.</li>
-<li>A background worker drains the queue, processing pulses sequentially
-to preserve causal order.</li>
-<li>Each pulse is processed within the cell's <code>Lock</code> to ensure atomicity.</li>
-<li>The <code>serializedCompletion</code> flag controls whether the worker waits for
-all downstream propagation to complete before moving to the next pulse.</li>
-</ul>
+<ol>
+<li><strong>Queueing</strong>: Pulses are added to a thread-safe internal queue to
+preserve the order of arrival.</li>
+<li><strong>Sequential Processing</strong>: A worker drains the queue, executing each
+pulse within the cell's atomic perimeter using the synchronous pipeline.</li>
+<li><strong>Future Mapping</strong>: It converts the receptor's synchronous logic into
+a guaranteed <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API.</li>
+<li><strong>Synchronized Completion</strong>: It can optionally wait for every
+downstream synapse to finish propagation before resolving.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The queue is <strong>bounded</strong> only by memory; high‑frequency pulses without
-backpressure can lead to unbounded growth. Use with caution.</li>
-<li>When <code>serializedCompletion</code> is <code>false</code>, the worker does not wait for
-downstream propagation – this can lead to <strong>causal races</strong> if not
-handled carefully.</li>
-<li>The async receptor shares the same <code>TestCell</code> and <code>Lock</code> as the
-synchronous receptor – validation and concurrency are preserved.</li>
+<li><strong>Memory Awareness</strong>: The internal buffer is unbounded; high-frequency
+bursts without proper awaiting can lead to memory pressure.</li>
+<li><strong>Causal Consistency</strong>: By default, it preserves the order of signals
+even if the underlying transformations are asynchronous.</li>
+<li><strong>Atomicity</strong>: Even when called asynchronously, the actual state transition
+is protected by the cell's lock, preventing race conditions.</li>
+<li><strong>Identity Integrity</strong>: The async handle is a stateless proxy; it
+shares the same operational context and metadata as the primary receptor.</li>
+<li><strong>Synchronous Pipeline</strong>: The underlying pipeline executes synchronously.
+The async adapter only manages the execution timing and completion.</li>
 </ul>
-<h3 id="example-awaiting-completion">Example: Awaiting Completion</h3>
-<pre class="language-dart"><code class="language-dart">final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
-final async = receptor.async;
-
-// Wait for the pulse to fully propagate through the graph
-await async.call(Pulse(42), serializedCompletion: true);
-print('Pulse fully processed');
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>C</code>: The type of the host <a href="../cell_tissue/Cell-class.html">Cell</a>.</li>
+</ul>
+<h3 id="example-fire-and-forget">Example: Fire-and-Forget</h3>
+<pre class="language-dart"><code class="language-dart">receptor.async.call(Pulse('Update'));
 </code></pre>
-<h3 id="example-fireandforget">Example: Fire‑and‑Forget</h3>
-<pre class="language-dart"><code class="language-dart">// No waiting – just queue and continue
-unawaited(async.call(Pulse(42)));
+<h3 id="example-await-full-propagation">Example: Await Full Propagation</h3>
+<pre class="language-dart"><code class="language-dart">await receptor.async.call(Pulse('Critical'), serializedCompletion: true);
+// At this point, the entire downstream graph has settled.
 </code></pre>
 <p>See also:</p>
 <ul>
-<li><a href="../cell_tissue/Receptor/async.html">Receptor.async</a> – the getter that provides this handle.</li>
-<li><a href="../cell_tissue/ModifiableAsync-class.html">ModifiableAsync</a> – similar pattern for cell commands.</li>
+<li><a href="../cell_tissue/Receptor/async.html">Receptor.async</a> – The getter that provides this handle.</li>
 </ul>
 </section>
 
@@ -141,7 +141,7 @@ unawaited(async.call(Pulse(42)));
           <span class="name"><a href="../cell_tissue/ReceptorAsync/ReceptorAsync.html">ReceptorAsync</a></span><span class="signature">(<span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">receptor</span></span>)</span>
         </dt>
         <dd>
-          Creates a new instance of <a href="../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> for the given synchronous receptor.
+          Creates an asynchronous adapter for a synchronous <a href="../cell_tissue/Receptor-class.html">Receptor</a>.
         </dd>
     </dl>
   </section>
@@ -185,14 +185,15 @@ unawaited(async.call(Pulse(42)));
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="call" class="callable">
-  <span class="name"><a href="../cell_tissue/ReceptorAsync/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-pulse"><span class="type-annotation"><a href="../cell_tissue/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="call-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">true</span></span>})
+  <span class="name"><a href="../cell_tissue/ReceptorAsync/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-incoming"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">incoming</span>, {</span><span class="parameter" id="call-param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span> = <span class="default-value">true</span>, </span><span class="parameter" id="call-param-hook"><span class="type-annotation">void</span> <span class="parameter-name">hook</span>({<span class="parameter" id="param-input"><span>required</span> <span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, </span><span class="parameter" id="param-result"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span></span>})?</span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Processes a pulse asynchronously.
+  Injects a pulse into the receptor's transformation pipeline
+asynchronously.
   
 
 </dd>
@@ -273,7 +274,7 @@ unawaited(async.call(Pulse(42)));
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

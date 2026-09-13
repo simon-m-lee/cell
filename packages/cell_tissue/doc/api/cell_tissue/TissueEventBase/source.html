@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">source property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/Tissue-class.html">Tissue</a>?</span>
       get
       <span class="name ">source</span>
@@ -70,12 +75,15 @@
   <p>The <a href="../../cell_tissue/Tissue-class.html">Tissue</a> that originally emitted this event.</p>
 <p>This is resolved by walking up the parent chain. If not set locally,
 it delegates to the parent.</p>
+<h3 id="returns">Returns:</h3>
+<p>The <a href="../../cell_tissue/Tissue-class.html">Tissue</a> that caused this event, or <code>null</code> if unknown.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Tissue? get source =&gt; super.source;</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+Tissue? get source =&gt; super.source;</code></pre>
 </section>
 
   </section>
@@ -105,7 +113,7 @@ it delegates to the parent.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

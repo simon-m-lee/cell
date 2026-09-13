@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseBase-class.html">PulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">PulseBase.fromRecord const constructor</li>
   </ol>
@@ -54,16 +54,44 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">PulseBase&lt;<wbr><span class="type-parameter">P</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-_record"><span class="type-annotation">dynamic</span> <span class="parameter-name">_record</span></span></li>
+      <span class="name ">PulseBase&lt;<wbr><span class="type-parameter">P</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span></span></li>
 </ol>)
     </section>
     
+<section class="desc markdown">
+  <p>Creates a pulse from an existing record.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>This is used internally for cloning and deserialisation. You never
+call it directly.</li>
+<li>This constructor is used internally by the framework for:
+<ul>
+<li>Cloning pulses (creating a copy with the same metadata).</li>
+<li>Deserialising pulses from a stored format.</li>
+<li>Framework extension points.</li>
+</ul>
+</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Directly assigns the provided record to <code>_record</code>. The record is
+assumed to be correctly shaped — no validation is performed.</p>
+<h3 id="nonobvious-this-bypasses-the-bitmask-optimization">Non‑obvious: this bypasses the bitmask optimization</h3>
+<p>Unlike the primary constructor, this does not call <code>mask</code>. It assumes
+the record is already correctly formed. This is why it's only used
+internally — to avoid the overhead of re‑masking when cloning.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>record</code>: The record containing the pulse's metadata.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/PulseBase-class.html">PulseBase</a> instance with the provided record.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const PulseBase.fromRecord(this._record);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const PulseBase.fromRecord(Record record) : _record = record;</code></pre>
 </section>
 
 
@@ -91,7 +119,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

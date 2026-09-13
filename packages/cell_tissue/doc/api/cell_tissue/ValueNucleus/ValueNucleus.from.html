@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueNucleus.from constructor</li>
   </ol>
@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.from</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="from-param-rule"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span></li>
+      <span class="name ">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.from</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="from-param-instruction"><span class="type-annotation"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span></li>
 <li><span class="parameter" id="from-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="from-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
 <li><span class="parameter" id="from-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span></li>
@@ -67,12 +67,12 @@
     
 <section class="desc markdown">
   <p>Initializes a new primary <code>ValueNucleus</code> using a pre‑configured
-<a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> – the preferred way to reuse transformation logic.</p>
+<a href="../../cell_tissue/Instruction-class.html">Instruction</a> – the preferred way to reuse transformation logic.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>When you have a reusable <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> that you want to apply to
+<p>When you have a reusable <a href="../../cell_tissue/Instruction-class.html">Instruction</a> that you want to apply to
 multiple state cells.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>It pairs the provided <code>rule</code> with <a href="../../cell_tissue/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> to form
+<p>It pairs the provided <code>instruction</code> with <a href="../../cell_tissue/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> to form
 a complete commitment pipeline. The nucleus gets a fresh <code>Box</code> and
 lock.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
@@ -84,14 +84,14 @@ unlike the primary constructor which forces a lock by default.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>rule</code>: <strong>The Transformation Blueprint.</strong> A formal <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> defining
+<li><code>instruction</code>: <strong>The Transformation Blueprint.</strong> A formal <a href="../../cell_tissue/Instruction-class.html">Instruction</a> defining
 how stimuli are converted into state. If provided, it overrides
 the <code>receptor</code> parameter.</li>
 <li><code>bind</code>: <strong>The Upstream Dependency.</strong> An optional <a href="../../cell_tissue/Cell-class.html">Cell</a> that this nucleus
 subscribes to for automatic updates.</li>
 <li><code>context</code>: <strong>The Environmental Scope.</strong> Defines the authority and
 security tier (defaults to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
-<li><code>receptor</code>: <strong>The Processing Interface.</strong> Overridden if <code>rule</code> is
+<li><code>receptor</code>: <strong>The Processing Interface.</strong> Overridden if <code>instruction</code> is
 provided. If customized manually, it must handle <a href="../../cell_tissue/Box-class.html">Box</a> commitment.</li>
 <li><code>testRule</code>: <strong>The Security Gate.</strong> A <a href="../../cell_tissue/TestCell-class.html">TestCell</a> predicate used to
 validate proposed state changes (defaults to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>).</li>
@@ -107,7 +107,7 @@ traits carried by the nucleus blueprint.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ValueNucleus.from({
-  PulseRule&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;? rule,
+  Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;? instruction,
 
   Cell? bind,
   Context context = Context.system,
@@ -117,11 +117,11 @@ traits carried by the nucleus blueprint.</li>
   EphemeralPolicy? ephemeralPolicy,
 
   Record? user
-}) : this._(record: (
+}) : this._((
     (local: NucleusBase.mask(bind: bind, context: context, testRule: testRule, synapses: synapses, forceLock: false, user: user,
         ephemeralPolicy: ephemeralPolicy,
-        receptor: rule != null ? Receptor.from(rule: rule, postProcess: ValueCell.postProcessRule)
-            : receptor == Receptor.passThrough ? Receptor.from(postProcess: ValueCell.postProcessRule)  : receptor,
+        receptor: instruction != null ? Receptor.pipeline(instruction: instruction, postProcess: ValueCell.postProcessRule)
+            : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
         others: (value: Box&lt;V&gt;()))
     ))
 );</code></pre>
@@ -152,7 +152,7 @@ traits carried by the nucleus blueprint.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

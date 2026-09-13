@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">groupBy&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; function</li>
   </ol>
   <div class="self-name">groupBy</div>
@@ -71,13 +71,6 @@ selection function.</p>
 categories or "buckets." It is particularly useful for organising search
 results, categorising entities by type, or grouping model fields by their
 metadata within the reactive ecosystem.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You call <a href="../cell_tissue/groupBy.html">groupBy</a> when you have a list of items and you want to partition
-them by some common property – for example, grouping a list of tasks by their
-priority, or grouping a list of users by their role.</p>
-<p>This is a pure, synchronous utility – it does not interact with the reactive
-graph directly. It's often used in combination with <a href="../cell_tissue/Tissue-class.html">Tissue</a> collections to
-prepare data for display or further processing.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You have a flat list of elements and need to organise them into
@@ -88,6 +81,12 @@ per group).</li>
 <li>You are preparing data for a <a href="../cell_tissue/TissueMap-class.html">TissueMap</a> or a <a href="../cell_tissue/TissueList-class.html">TissueList</a> where the
 grouping key becomes the key of a map.</li>
 </ul>
+<p>You call <a href="../cell_tissue/groupBy.html">groupBy</a> when you have a list of items and you want to partition
+them by some common property – for example, grouping a list of tasks by their
+priority, or grouping a list of users by their role.</p>
+<p>This is a pure, synchronous utility – it does not interact with the reactive
+graph directly. It's often used in combination with <a href="../cell_tissue/Tissue-class.html">Tissue</a> collections to
+prepare data for display or further processing.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It iterates through every element in the <code>values</code> collection.</li>
@@ -196,7 +195,7 @@ sharing the same key.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

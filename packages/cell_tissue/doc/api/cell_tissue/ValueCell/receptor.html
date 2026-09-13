@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">receptor&lt;<wbr><span class="type-parameter">V</span>&gt; static method</li>
   </ol>
@@ -73,7 +73,7 @@ the state commitment pipeline.</p>
 – it's safer than manually constructing a <code>Receptor</code> because it
 automatically includes the commitment rule.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>The provided <code>transform</code> function is wrapped in a <code>PulseRule</code>, and the
+<p>The provided <code>transform</code> function is wrapped in a <code>Instruction</code>, and the
 result is paired with <a href="../../cell_tissue/ValueCell/postProcessRule.html">ValueCell.postProcessRule</a> as the post‑process
 stage. This guarantees that every valid pulse is persisted to the Box.</p>
 <h3 id="example">Example</h3>
@@ -81,7 +81,7 @@ stage. This guarantees that every valid pulse is persisted to the Box.</p>
   final v = input.payload as int;
   return Pulse(v * 2);
 });
-final cell = ValueCell&lt;int&gt;(value: 0, receptor: receptor);
+final cell = ValueCell&lt;int&gt;(state: 0, receptor: receptor);
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -105,8 +105,8 @@ upstream synapse.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Receptor receptor&lt;V&gt;(Pulse&lt;V?&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user}) transform) {
-  return Receptor.from(
-      rule: PulseRule&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;((host, input, {user}) =&gt; transform(host, input, user: user)),
+  return Receptor.pipeline(
+      instruction: Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;((pulse, {cell, user}) =&gt; transform(cell!, pulse, user: user)),
       postProcess: ValueCell.postProcessRule
   );
 }</code></pre>
@@ -137,7 +137,7 @@ upstream synapse.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -46,6 +46,7 @@ class _Tissue<E,I extends Iterable<E>, C extends Tissue<E>> extends Unmodifiable
     testRule: testRule,
     receptor: receptor,
     synapses: synapses,
+    ephemeralPolicy: ephemeralPolicy,
   ), elements: elements);
 
   _Tissue.empty({
@@ -134,11 +135,14 @@ class _TissueDeputy<E,I extends Iterable<E>, C extends Tissue<E>> extends _Tissu
     Synapses synapses = Synapses.enabled
   })
       : super.fromNucleus(_TissueNucleus<E,Iterable<E>,C>.evolve(
-      override: _TissueNucleus<E,Iterable<E>,C>(
-        bind: bind,
-        context: context,
-        testRule: bind._nucleus.testRule + testRule,
-        synapses: synapses,
+      override: _TissueNucleus<E,Iterable<E>,C>.fromRecord(
+        (local: TissueNucleusBase.local<E,Iterable<E>,C>(
+          bind: bind,
+          context: context,
+          testRule: bind._nucleus.testRule + testRule,
+          synapses: synapses,
+          ephemeralPolicy: ephemeralPolicy,
+        ))
       ),
       principal: bind._nucleus as TissueNucleusBase<E,Iterable<E>,Tissue<E>>
   ));
@@ -266,7 +270,7 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
   /// Even though the collection is empty, the validation logic defaults
   /// to [TestTissue.allowAll] to satisfy the interface requirements.
   @override
-  TestTissue<dynamic, Tissue<dynamic>> get validate => TestTissue.allowAll;
+  TestTissue<dynamic, Tissue<dynamic>> get validate => _nucleus.testRule;
 
   @override
   Context get context => Context.system;
@@ -414,7 +418,7 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   ///   reactive discovery.
   TissueBase(TissueNucleusBase<E,I,C> super.nucleus, {Iterable<E>? elements})
       : _nucleus = nucleus, super.fromNucleus() {
-    final container = get<Container?>(() => _nucleus.record.mask.container, orElse: null);
+    final container = get<Container?>(() => _nucleus.record.local.container, orElse: null);
     if (container != null) {
       _nucleus.container.init(elements);
     }
@@ -424,20 +428,6 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
           .forEach((e) => _nucleus.synapses.link(e, downstreamCell: this));
     }
   }
-
-  // static TissueNucleusBase<E,I,C> _checkNucleus<E, I extends Iterable<E>, C extends Tissue<E>>(
-  //     TissueNucleusBase<E,I,C> nucleus, {Iterable<E>? elements}) {
-  //   if (elements != null) {
-  //     final localContainer = get<TissueContainer<E,I>?>(() => nucleus.record.local.container, orElse: null);
-  //     final localSynapses = get<Synapses?>(() => nucleus.record.local.synapses, orElse: null);
-  //     if (localContainer == null || localSynapses == null) {
-  //       final containerType = nucleus.containerType;
-  //       final synapses = localSynapses ?? (nucleus.synapses != Synapses.disabled ? Synapses() : Synapses.disabled);
-  //       return TissueNucleus.create<E,I,C>(container: containerType, synapses: synapses, principal: nucleus);
-  //     }
-  //   }
-  //   return nucleus;
-  // }
 
   /// Synthesizes a specialised **Mandate Handle** (Deputy) of this collection,
   /// providing a scoped, authoritative interface to the underlying state.
@@ -484,29 +474,7 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
     covariant TestTissue testRule= TestTissue.allowAll,
     EphemeralPolicy? ephemeralPolicy,
     Synapses synapses = Synapses.enabled,
-  }) => deputy(context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
-
-/*  /// A no‑op implementation of the [Cell.apply] method.
-  ///
-  /// Since the tissue is empty, there are no elements to apply
-  /// functions to, and the tissue itself provides no dynamic
-  /// callable behaviour.
-  @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
-    ApplyTransactionScope? tx,
-    Function? compensate,
-    List? compensatePositional,
-    Map<Symbol, dynamic>? compensateNamed,
-    Cell? compensateCell,
-  }) {
-    return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
-        tx: tx,
-        compensate: compensate,
-        compensatePositional: compensatePositional,
-        compensateNamed: compensateNamed,
-        compensateCell: compensateCell
-    );
-  }*/
+  });
 
   /// Provides structural equality for tissues.
   ///
@@ -515,7 +483,7 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// 2.  **Unmodifiable Linkage:** If [other] is an [Unmodifiable] view
   ///     pointing back to `this`.
   /// 3.  **Content Equality:** If [other] is a standard [Iterable], equality
-  ///     is delegated to the underlying [_nucleus.container].
+  ///     is delegated to the underlying `_nucleus.container`.
   ///
   /// ### When to use
   /// This operator is called automatically when comparing tissues for equality.
@@ -542,7 +510,7 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
       if (other is Unmodifiable) {
         if (other._nucleus.bind != null &&
             identical(this, other._nucleus.bind)) {
-          return identical(unmodifiable, this);
+          return identical(other, unmodifiable);
         }
       }
     }
@@ -593,14 +561,13 @@ class _UnmodifiableTissue<E, C extends Tissue<E>> extends UnmodifiableTissueBase
 
   _UnmodifiableTissue(Iterable<E> elements, {bool unmodifiableElement = true, TissueNucleus<E>? nucleus})
       : this.fromNucleus(
-      (nucleus ?? TissueNucleus.create<E,Iterable<E>,C>()) as TissueNucleusBase<E,Iterable<E>,C>,
+      (nucleus ?? TissueNucleus.create<E,Iterable<E>,C>(container: Container.iterable)) as TissueNucleusBase<E,Iterable<E>,C>,
       unmodifiableElement: unmodifiableElement,
       elements: elements
   );
 
   _UnmodifiableTissue.view(Tissue<E> bind, {Context? context, bool unmodifiableElement = true})
       : this.fromNucleus(TissueNucleus.create<E,Iterable<E>,C>(bind: bind,
-      container: unmodifiableElement ? bind._nucleus.containerType : null,
       context: context,
       synapses: bind._nucleus.synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
       principal: bind._nucleus as TissueNucleusBase<E,Iterable<E>,C>
@@ -690,9 +657,9 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
   ///   elements are mapped to their read‑only versions before being stored
   ///   in the container.
   UnmodifiableTissueBase(super.nucleus,
-      {this.unmodifiableElement = true, Iterable<E>? elements}) : super() {
+      {this.unmodifiableElement = true, Iterable<E>? elements}) : super(elements: elements) {
     if (unmodifiableElement) {
-      final bind = get<Cell?>(() => _nucleus.record.mask.bind, orElse: null);
+      final bind = get<Cell?>(() => _nucleus.record.local.bind, orElse: null);
       if (bind != null && elements != null && identical(bind, elements)) {
         elements
             .whereType<Cell>()
@@ -762,7 +729,7 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
   /// ### Purpose & Recursive Safety:
   /// The primary purpose of this getter is to ensure **Deep Immutability**
   /// across the reactive graph. In a system where collections often contain
-  /// other reactive nodes (such as [Cell]s, [Field]s, or [Model]s), a simple
+  /// other reactive nodes (such as [Cell]s, `Field`s, or `Model`s), a simple
   /// read‑only list is insufficient if the elements themselves remain mutable.
   ///
   /// To solve this, the iterator implements the following architectural logic:
@@ -781,9 +748,9 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
   ///   from the tissue.
   @override
   Iterator<E> get iterator {
-    final container = get<TissueContainer?>(() => _nucleus.record.mask.container, orElse: null);
+    final container = get<TissueContainer?>(() => _nucleus.record.local.container, orElse: null);
     if (container != null) {
-      return container.store.iterator as Iterator<E>;
+      return (container.store as Iterable).map((e) => e as E).iterator;
     }
     if (unmodifiableElement) {
       final elements = _nucleus.container.map((e) => e is Cell ? e.unmodifiable : e).cast<E>();

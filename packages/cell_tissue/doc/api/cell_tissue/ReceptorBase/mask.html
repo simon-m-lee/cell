@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">mask static method</li>
   </ol>
@@ -55,107 +55,92 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
-<span class="name ">mask</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="mask-param-rule"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span></li>
-<li><span class="parameter" id="mask-param-preProcess"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span></li>
-<li><span class="parameter" id="mask-param-postProcess"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span></li>
+<span class="name ">mask</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="mask-param-instruction"><span class="type-annotation"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span></li>
+<li><span class="parameter" id="mask-param-preProcess"><span class="type-annotation"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span></li>
+<li><span class="parameter" id="mask-param-postProcess"><span class="type-annotation"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span></li>
 <li><span class="parameter" id="mask-param-reaction"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">reaction</span>, </span></li>
-<li><span class="parameter" id="mask-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
-<li><span class="parameter" id="mask-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="mask-param-init"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">init</span>, </span></li>
 </ol>})
 
       
 
     </section>
     
+<section class="desc markdown">
+  <p>Creates a mask record for the receptor configuration.</p>
+<p>This internal method optimizes the storage of pipeline instructions
+by only including fields that are actually used.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The core transformation instruction.</li>
+<li><code>preProcess</code>: Sanitization stage.</li>
+<li><code>postProcess</code>: Commitment stage.</li>
+<li><code>reaction</code>: Simplified reaction function.</li>
+<li><code>user</code>: User metadata factory.</li>
+<li><code>init</code>: Initialization function.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A record containing only the provided fields, optimized for memory.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Record mask({
-  PulseRule? rule,
-  PulseRule? preProcess,
-  PulseRule? postProcess,
+  Instruction? instruction,
+  Instruction? preProcess,
+  Instruction? postProcess,
   Function? reaction,
-  dynamic user,
-  bool isGoverned = false,
+  Function? user,
+  Function? init
 }) {
 
-  final mask = (
-      (rule != null ? 1 : 0) |
+  final instructionMask = (
+      (instruction != null ? 1 : 0) |
       (preProcess != null ? 2 : 0 ) |
       (postProcess != null ? 4 : 0) |
-      (reaction != null ? 8 : 0) |
-      (user != null ? 16 : 0) |
-      (isGoverned ? 32 : 0)
+      (reaction != null ? 8 : 0)
   );
+
+  final instructionRecord = switch (instructionMask) {
+    0 =&gt; (),
+    1 =&gt; (instruction: instruction),
+    2 =&gt; (preProcess: preProcess),
+    3 =&gt; (instruction: instruction, preProcess: preProcess),
+    4 =&gt; (postProcess: postProcess),
+    5 =&gt; (instruction: instruction, postProcess: postProcess),
+    6 =&gt; (preProcess: preProcess, postProcess: postProcess),
+    7 =&gt; (instruction: instruction, preProcess: preProcess, postProcess: postProcess),
+    8 =&gt; (reaction: reaction),
+    9 =&gt; (instruction: instruction, reaction: reaction),
+    10 =&gt; (preProcess: preProcess, reaction: reaction),
+    11 =&gt; (instruction: instruction, preProcess: preProcess, reaction: reaction),
+    12 =&gt; (postProcess: postProcess, reaction: reaction),
+    13 =&gt; (instruction: instruction, postProcess: postProcess, reaction: reaction),
+    14 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+    15 =&gt; (instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+    _ =&gt; ()
+  };
+
+  final mask = (
+      (instructionMask != 0 ? 1 : 0) |
+      (init != null ? 2 : 0) |
+      (user != null ? 4 : 0)
+  );
+
+  final userBox = user != null ? (FinalBox()..value = user()) : null;
 
   return switch (mask) {
     0 =&gt; (),
-    1 =&gt; (rule: rule),
-    2 =&gt; (preProcess: preProcess),
-    3 =&gt; (rule: rule, preProcess: preProcess),
-    4 =&gt; (postProcess: postProcess),
-    5 =&gt; (rule: rule, postProcess: postProcess),
-    6 =&gt; (preProcess: preProcess, postProcess: postProcess),
-    7 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess),
-    8 =&gt; (reaction: reaction),
-    9 =&gt; (rule: rule, reaction: reaction),
-    10 =&gt; (preProcess: preProcess, reaction: reaction),
-    11 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction),
-    12 =&gt; (postProcess: postProcess, reaction: reaction),
-    13 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction),
-    14 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction),
-    15 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction),
-    16 =&gt; (user: user),
-    17 =&gt; (rule: rule, user: user),
-    18 =&gt; (preProcess: preProcess, user: user),
-    19 =&gt; (rule: rule, preProcess: preProcess, user: user),
-    20 =&gt; (postProcess: postProcess, user: user),
-    21 =&gt; (rule: rule, postProcess: postProcess, user: user),
-    22 =&gt; (preProcess: preProcess, postProcess: postProcess, user: user),
-    23 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, user: user),
-    24 =&gt; (reaction: reaction, user: user),
-    25 =&gt; (rule: rule, reaction: reaction, user: user),
-    26 =&gt; (preProcess: preProcess, reaction: reaction, user: user),
-    27 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, user: user),
-    28 =&gt; (postProcess: postProcess, reaction: reaction, user: user),
-    29 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, user: user),
-    30 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user),
-    31 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user),
-
-    32 =&gt; (isGoverned: true),
-    33 =&gt; (rule: rule, isGoverned: true),
-    34 =&gt; (preProcess: preProcess, isGoverned: true),
-    35 =&gt; (rule: rule, preProcess: preProcess, isGoverned: true),
-    36 =&gt; (postProcess: postProcess, isGoverned: true),
-    37 =&gt; (rule: rule, postProcess: postProcess, isGoverned: true),
-    38 =&gt; (preProcess: preProcess, postProcess: postProcess, isGoverned: true),
-    39 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, isGoverned: true),
-    40 =&gt; (reaction: reaction, isGoverned: true),
-    41 =&gt; (rule: rule, reaction: reaction, isGoverned: true),
-    42 =&gt; (preProcess: preProcess, reaction: reaction, isGoverned: true),
-    43 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, isGoverned: true),
-    44 =&gt; (postProcess: postProcess, reaction: reaction, isGoverned: true),
-    45 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, isGoverned: true),
-    46 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, isGoverned: true),
-    47 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, isGoverned: true),
-    48 =&gt; (user: user, isGoverned: true),
-    49 =&gt; (rule: rule, user: user, isGoverned: true),
-    50 =&gt; (preProcess: preProcess, user: user, isGoverned: true),
-    51 =&gt; (rule: rule, preProcess: preProcess, user: user, isGoverned: true),
-    52 =&gt; (postProcess: postProcess, user: user, isGoverned: true),
-    53 =&gt; (rule: rule, postProcess: postProcess, user: user, isGoverned: true),
-    54 =&gt; (preProcess: preProcess, postProcess: postProcess, user: user, isGoverned: true),
-    55 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, user: user, isGoverned: true),
-    56 =&gt; (reaction: reaction, user: user, isGoverned: true),
-    57 =&gt; (rule: rule, reaction: reaction, user: user, isGoverned: true),
-    58 =&gt; (preProcess: preProcess, reaction: reaction, user: user, isGoverned: true),
-    59 =&gt; (rule: rule, preProcess: preProcess, reaction: reaction, user: user, isGoverned: true),
-    60 =&gt; (postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
-    61 =&gt; (rule: rule, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
-    62 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
-    63 =&gt; (rule: rule, preProcess: preProcess, postProcess: postProcess, reaction: reaction, user: user, isGoverned: true),
+    1 =&gt; (instruction: instructionRecord),
+    2 =&gt; (init: init),
+    3 =&gt; (instruction: instructionRecord, init: init),
+    4 =&gt; (user: user, userBox: userBox),
+    5 =&gt; (instruction: instructionRecord, user: user, userBox: userBox),
+    6 =&gt; (init: init, user: user, userBox: userBox),
+    7 =&gt; (instruction: instructionRecord, init: init, user: user, userBox: userBox),
     _ =&gt; ()
   };
 }</code></pre>
@@ -186,7 +171,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

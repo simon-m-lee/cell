@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">shuffle method</li>
   </ol>
@@ -63,26 +63,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously shuffles the elements of this list randomly.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/shuffle.html">TissueList.shuffle</a>. The <code>Future</code> completes successfully if the
-list is modifiable and the operation is permitted.
-Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>random</code>: (Optional) A <a href="https://api.flutter.dev/flutter/dart-math/Random-class.html">Random</a> instance to use for shuffling.
-          If <code>null</code>, a default <code>Random</code> instance is used.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously shuffles the elements of this list.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>Although the order changes, this triggers a forensic update to notify
+observers that the structural sequence has been randomized.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; shuffle([Random? random]) {
-  return Future&lt;void&gt;(() =&gt; _tissue.shuffle(random));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; shuffle([Random? random]) =&gt; Future&lt;void&gt;(() =&gt; _tissue.shuffle(random));</code></pre>
 </section>
 
 
@@ -110,7 +101,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

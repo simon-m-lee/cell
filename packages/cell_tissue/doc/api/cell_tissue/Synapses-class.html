@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Synapses<span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">Synapses</div>
@@ -56,45 +56,48 @@
 
     
 <section class="desc markdown">
-  <p>The distribution registry for a <a href="../cell_tissue/Cell-class.html">Cell</a>'s downstream observers — where
-a pulse goes after a cell accepts it.</p>
-<h3 id="where-to-start">Where to start</h3>
+  <p>The distribution fabric for a <a href="../cell_tissue/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.</p>
+<h3 id="when-to-use">When to use:</h3>
 <ul>
-<li><a href="../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> — the default; an empty, live registry ready to
-accept links. Cells created via <a href="../cell_tissue/Cell/value.html">Cell.value</a>/<a href="../cell_tissue/Cell/observe.html">Cell.observe</a>/etc.
-already use this unless you override it.</li>
-<li><a href="../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a> — for terminal/sink cells that should never
-broadcast (e.g. what <a href="../cell_tissue/Cell/observe.html">Cell.observe</a> uses internally, since an
-observer is a dead end by design).</li>
-<li><code>Synapses(downstreams: [...])</code> — construct with an initial set of
-observers, or add <code>filter:</code> to redact/transform outgoing pulses
-before they're delivered.</li>
+<li><strong>Broadcasting</strong>: The primary mechanism for managing a cell's
+downstream observers and dependencies.</li>
+<li><strong>Egress Filtering</strong>: When you need to transform or redact pulses
+<em>before</em> they leave the cell boundary (e.g., PII masking for UI views).</li>
+<li><strong>Flow Control</strong>: When you need to apply temporal governance (like
+debouncing or batching) to the delivery of signals at the source.</li>
 </ul>
-<p>You'll set this via a <code>synapses:</code> parameter on a <code>Cell.*</code> factory far
-more often than you'll construct one directly.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>Synapses manage a list of downstream cells. When a pulse is broadcast,
-it's filtered (if a <a href="../cell_tissue/FilterRule-class.html">FilterRule</a> is set) and then delivered to each
-observer in sequence. The framework ensures cycle safety by tracking
-visited nodes.</p>
-<h3 id="nonobvious-propagation-strategies">Non‑obvious: propagation strategies</h3>
-<p>By default, delivery is synchronous and immediate. <code>PropagationPolicy</code>
-lets you switch to <code>async</code>, <code>debounced</code>, <code>throttled</code>, <code>batched</code>, and
-several other strategies — worth knowing this exists before you reach
-for a manual <code>Timer</code> or <code>Stream.debounce</code> around a cell yourself.</p>
-<h3 id="nonobvious-cycle-safety">Non‑obvious: cycle safety</h3>
-<p>If cell A's synapses eventually loop back to A, the framework won't
-hang — each pulse carries its own visited-node record, so a cycle is
-silently broken rather than causing infinite propagation. You don't
-need to guard against this yourself when wiring cells together.</p>
+<h3 id="how-it-works">How it works:</h3>
+<p>Synapses maintain an adjacency list of downstream <a href="../cell_tissue/Cell-class.html">Cell</a> nodes. When
+the host cell emits a pulse, the synapses intercept it, apply any
+configured <a href="../cell_tissue/FilterRule-class.html">FilterRule</a>, and then broadcast it across the network
+according to the timing rules defined in the <a href="../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>.</p>
+<h3 id="nonobvious">Non‑obvious:</h3>
+<ul>
+<li><strong>Cycle Safety</strong>: The fabric automatically prevents infinite loops
+by tracking the forensic history of every pulse. If a pulse detects
+it is returning to a cell it has already visited, propagation for
+that branch is silently terminated.</li>
+<li><strong>Flyweight Optimization</strong>: Predefined constants like
+<a href="../cell_tissue/Synapses/enabled-constant.html">Synapses.enabled</a> and <a href="../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a> allow the framework to
+avoid allocating registry memory for sink nodes or inactive cells.</li>
+<li><strong>Forensic Tagging</strong>: All signals passing through the fabric are
+implicitly tagged with egress metadata, allowing for complete audit
+trails of how data flowed between specific cell boundaries.</li>
+</ul>
 <h3 id="example-simple-distribution">Example: simple distribution</h3>
 <pre class="language-dart"><code class="language-dart">final synapses = Synapses&lt;String, Cell&gt;(
   downstreams: [logger, analytics, uiUpdater],
 );
 </code></pre>
-<p>See also: <a href="../cell_tissue/FilterRule-class.html">FilterRule</a> (transform/redact outgoing pulses), <a href="../cell_tissue/Synapses/link.html">Synapses.link</a>
-/ <a href="../cell_tissue/Synapses/unlink.html">Synapses.unlink</a> (the usual way to add/remove observers at runtime,
-rather than calling <a href="../cell_tissue/Synapses/link.html">link</a>/<a href="../cell_tissue/Synapses/unlink.html">unlink</a> on this directly).</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/FilterRule-class.html">FilterRule</a>: For logic used to intercept or transform pulses at the
+egress point.</li>
+<li><a href="../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>: For defining temporal governance strategies.</li>
+<li><strong>HowTo</strong>: See <code>guide/HowTo-Synapses.md</code> for best practices on
+configuring signal distribution and flow control.</li>
+</ul>
 </section>
 
 
@@ -720,7 +723,7 @@ and active synapse network.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

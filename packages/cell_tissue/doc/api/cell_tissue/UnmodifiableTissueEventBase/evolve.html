@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">evolve method</li>
   </ol>
@@ -54,7 +54,12 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a></span>
 <span class="name ">evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">pulse</span>, </span></li>
 <li><span class="parameter" id="evolve-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
@@ -67,13 +72,22 @@
 <section class="desc markdown">
   <p>Creates a new event that is a child of the source event.</p>
 <p>This does <strong>not</strong> mutate the current unmodifiable event.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulse</code>: Optional pulse to associate with the new event.</li>
+<li><code>step</code>: Optional step description to add to the trace.</li>
+<li><code>context</code>: Optional context override for the new event.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../cell_tissue/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a> linked to the source event as its parent.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEvent evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
+  <pre class="language-dart"><code class="language-dart">@override
+TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
   return _source.evolve(pulse: pulse, step: step, context: context);
 }</code></pre>
 </section>
@@ -103,7 +117,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueCell-class.html">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueCell.fromNucleus constructor</li>
   </ol>
@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">ValueCell&lt;<wbr><span class="type-parameter">V</span>&gt;.fromNucleus</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span></li>
-<li><span class="parameter" id="fromNucleus-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="fromNucleus-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span></li>
 </ol>})
     </section>
     
@@ -66,18 +66,18 @@ internally for blueprint hydration.</p>
 <p>This is used by the framework when you create a cell from a nucleus
 (e.g., when restoring from a saved state). You rarely call it yourself.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>It binds the nucleus to the cell and optionally seeds an initial value
+<p>It binds the nucleus to the cell and optionally seeds an initial state
 directly (bypassing the transform).</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The initial value is written directly to the Box without validation.</li>
+<li>The initial state is written directly to the Box without validation.</li>
 <li>The nucleus is cloned if it's already activated (to avoid sharing).</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>nucleus</code>: <strong>Required.</strong> The <a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> that defines the behavior,
 storage schema, and environmental <a href="../../cell_tissue/Context-class.html">Context</a> for this cell.</li>
-<li><code>value</code>: An optional initial state of type <code>V?</code>. If provided, it
+<li><code>initial</code>: An optional initial state of type <code>V?</code>. If provided, it
 populates the cell's storage immediately, overwriting any
 previous data in the nucleus's associated <a href="../../cell_tissue/Box-class.html">Box</a>.</li>
 </ul>
@@ -89,9 +89,9 @@ previous data in the nucleus's associated <a href="../../cell_tissue/Box-class.h
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ValueCell.fromNucleus(ValueNucleus&lt;V&gt; super.nucleus, {V? value}) : super.fromNucleus() {
-  if (value != null) {
-    _nucleus.value.value = value;
+  <pre class="language-dart"><code class="language-dart">ValueCell.fromNucleus(ValueNucleus&lt;V&gt; super.nucleus, {V? initial}) : super.fromNucleus() {
+  if (initial != null) {
+    _nucleus.state.value = initial;
   }
 }</code></pre>
 </section>
@@ -121,7 +121,7 @@ previous data in the nucleus's associated <a href="../../cell_tissue/Box-class.h
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

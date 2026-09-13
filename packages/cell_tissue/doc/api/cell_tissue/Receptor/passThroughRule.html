@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">passThroughRule property</li>
   </ol>
@@ -59,7 +59,7 @@
   <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="returntype"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+      <span class="returntype"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
       get
       <span class="name ">passThroughRule</span>
       
@@ -67,16 +67,18 @@
     </section>
     
 <section class="desc markdown">
-  <p>The underlying <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a> used for pass-through transformations.</p>
+  <p>The underlying <a href="../../cell_tissue/Instruction-class.html">Instruction</a> used for pass-through transformations.</p>
 <p>This is an internal constant used by the framework to optimize
 pass-through behavior. Human developers should use <a href="../../cell_tissue/Receptor/passThrough-constant.html">Receptor.passThrough</a>
 directly.</p>
+<h3 id="returns">Returns:</h3>
+<p>A pass-through instruction that forwards pulses unchanged.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static PulseRule&lt;Cell, Pulse, Pulse&gt; get passThroughRule =&gt; const _PulseRulePassThrough();</code></pre>
+  <pre class="language-dart"><code class="language-dart">static Instruction&lt;Cell, Pulse, Pulse&gt; get passThroughRule =&gt; const _PulseRulePassThrough();</code></pre>
 </section>
 
   </section>
@@ -106,7 +108,7 @@ directly.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

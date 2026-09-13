@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ContextBase-class.html">ContextBase</a></li>
     <li class="self-crumb">ContextBase.new constructor</li>
   </ol>
@@ -92,10 +92,13 @@ its baseline governance and identity.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ContextBase(Iterable&lt;GovernanceEntry&gt; entries, {Map&lt;String, dynamic&gt;? others, Context? parent})
-    : this.fromRecord(parent != null ? others != null
-    ? (map: Map&lt;Governance,dynamic&gt;.unmodifiable(Map.fromEntries(entries.map((e) =&gt; e.toEntry()))), others: Map&lt;String,dynamic&gt;.unmodifiable(others), parent: parent)
-    : (map: Map&lt;Governance,dynamic&gt;.unmodifiable(Map.fromEntries(entries.map((e) =&gt; e.toEntry()))), parent: parent)
-    : (map: Map.fromEntries(entries.map((e) =&gt; e.toEntry()))));</code></pre>
+    : this.fromRecord((
+        map: Map&lt;Governance, dynamic&gt;.unmodifiable(
+          Map.fromEntries(entries.map((e) =&gt; e.toEntry())),
+        ),
+        others: others == null ? null : Map&lt;String, dynamic&gt;.unmodifiable(others),
+        parent: parent,
+      ));</code></pre>
 </section>
 
 
@@ -123,7 +126,7 @@ its baseline governance and identity.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

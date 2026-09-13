@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">Pulse.governed factory constructor</li>
   </ol>
@@ -75,53 +75,60 @@
     </section>
     
 <section class="desc markdown">
-  <p>Synthesizes a managed <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance with an exhaustive set of configuration
-options for complex system integration and <strong>Policy-Based Governance</strong>.</p>
+  <p>Creates a governed pulse with lifecycle and security metadata.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Only when you need explicit provenance – e.g., audit trails, security
-rules, or when the pulse must carry actor/reason/sensitivity metadata.
-For most signals, the plain <a href="../../cell_tissue/Pulse-class.html">Pulse</a> constructor is sufficient.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>You provide optional metadata like <code>context</code> (authority, actor, reason),
-<code>priority</code> (scheduling urgency), and <code>policy</code> (TTL/hop limits). The
-framework attaches all of this to the pulse for traceability.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The <code>onComplete</code> callback fires only after the pulse has been fully
-propagated through the graph – useful for coordinating side effects.</li>
-<li>The <code>policy</code> can neutralise a pulse if it exceeds its TTL or hop limit,
-preventing infinite loops.</li>
+<li><strong>Governed Signals</strong>: Use this when you need a pulse to have explicit governance — TTL, hop
+limits, a custom security context, or completion/error callbacks.</li>
+<li>Pulses that must self-destruct after a time (TTL).</li>
+<li>Signals with hop limits to prevent infinite propagation.</li>
+<li>Audited signals requiring full provenance.</li>
+<li>Security-sensitive signals with clearance requirements.</li>
+<li>Signals that need completion/error callbacks.</li>
+<li>Regulatory compliance (GDPR, HIPAA, PCI-DSS).</li>
 </ul>
-<h3 id="example-highintegrity-update">Example: High‑Integrity Update</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;.governed(
-  payload: 42,
-  type: 'system_command',
-  context: PulseContext.instruction(
-    baseContext: currentContext,
-    actor: 'admin_service',
-    directive: 'RESOURCE_OPTIMIZATION',
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li>The <code>policy</code> defines the pulse's lifetime (TTL and/or hop limit).</li>
+<li>The <code>context</code> provides provenance (actor, reason, sensitivity, etc.).</li>
+<li>Callbacks (<code>onComplete</code>, <code>onError</code>, <code>onProgress</code>) are attached to the
+pulse and fire during its lifecycle.</li>
+</ul>
+<h3 id="nonobvious-callbacks-travel-with-the-pulse">Non‑obvious: callbacks travel with the pulse</h3>
+<p>Callbacks attached to a governed pulse are <strong>inherited</strong> through the
+parent chain. If you evolve a pulse, the original callbacks are still
+present — they're not lost or duplicated.</p>
+<h3 id="nonobvious-governance-is-determined-by-context-or-policy">Non‑obvious: governance is determined by Context or Policy</h3>
+<p>A pulse becomes governed when either <code>context</code> (non‑default provenance)
+or <code>policy</code> (lifecycle rules) is provided. Governed pulses undergo
+additional validation, TTL checks, and auditing during propagation.</p>
+<h3 id="example-a-timesensitive-token">Example: A Time‑Sensitive Token</h3>
+<pre class="language-dart"><code class="language-dart">final token = Pulse.governed&lt;String&gt;(
+  payload: 'session_123',
+  policy: PulseEphemeralPolicy(
+    duration: Duration(minutes: 5),
+    onInvalidate: (Pulse p) =&gt;. print('Token expired'),
   ),
-  priority: 10,
-  step: 'initial_ingress',
+  context: PulseContext.userAction(
+    actor: 'admin',
+    reason: 'Session creation',
+  ),
 );
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>policy</code>: <strong>Lifecycle Governance.</strong> Defines termination constraints (TTL/Hops).</li>
-<li><code>context</code>: <strong>Authorization &amp; Provenance.</strong> The authority and audit metadata.</li>
-<li><code>payload</code>: <strong>The Message Content.</strong> The primary data or instruction.</li>
-<li><code>type</code>: <strong>The Message Signature.</strong> A tag used for logic routing.</li>
-<li><code>source</code>: <strong>The Originating Node.</strong> The <a href="../../cell_tissue/Cell-class.html">Cell</a> that generated this signal.</li>
-<li><code>step</code>: <strong>The Audit Step.</strong> A description of the initial processing stage.</li>
-<li><code>priority</code>: <strong>Scheduling Priority.</strong> Used for urgent execution in
-high-contention cycles.</li>
-<li><code>onComplete</code>: Success callback triggered after graph-wide stabilization.</li>
-<li><code>onError</code>: Failure callback for validation errors or transformation exceptions.</li>
-<li><code>onProgress</code>: Telemetry callback for graph traversal milestones.</li>
+<li><code>policy</code>: Lifecycle governance (TTL, hop limit, invalidation hook).</li>
+<li><code>context</code>: Provenance metadata (actor, reason, sensitivity, etc.).</li>
+<li><code>payload</code>: The data.</li>
+<li><code>type</code>: Optional semantic tag.</li>
+<li><code>source</code>: Optional originating cell.</li>
+<li><code>step</code>: Optional trace step.</li>
+<li><code>priority</code>: Urgency (defaults to <a href="../../cell_tissue/Pulse/defaultPriority.html">defaultPriority</a>).</li>
+<li><code>onComplete</code>: Called when the pulse successfully completes.</li>
+<li><code>onError</code>: Called if the pulse fails during processing.</li>
+<li><code>onProgress</code>: Called during processing (for long operations).</li>
 </ul>
-<h3 id="returns">Returns:</h3>
-<p>A fully configured <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance ready for governed propagation through
-the reactive fabric.</p>
+<p>See also: <a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>, <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>, <a href="../../cell_tissue/Pulse/Pulse.governed.html">Pulse.governed</a>.</p>
 </section>
 
 
@@ -171,7 +178,7 @@ the reactive fabric.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">passThrough constant</li>
   </ol>
@@ -64,23 +64,21 @@
 <section class="desc markdown">
   <p>A canonical, stateless <a href="../../cell_tissue/Receptor-class.html">Receptor</a> that performs an <strong>Identity
 Transformation</strong> on all incoming signals.</p>
-<p><a href="../../cell_tissue/Receptor/passThrough-constant.html">passThrough</a> is the framework's default "Open Gate." It implements the
-simplest possible reactive behavior: every <a href="../../cell_tissue/Pulse-class.html">Pulse</a> received by the
-<a href="../../cell_tissue/Cell-class.html">Cell</a> is immediately and transparently broadcast to all downstream
-observers via the cell's <a href="../../cell_tissue/Synapses-class.html">Synapses</a>.</p>
+<p>This is the framework's default "Open Gate." It implements the simplest
+reactive behavior: every pulse received is immediately and
+transparently broadcast downstream.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You typically don't need to specify this – it's the default if you
-don't provide a custom receptor. Use it explicitly if you're building
-a relay node that just forwards signals without transformation.</p>
+<p>You typically don't need to specify this – it's the default if no
+custom receptor is provided. Use it explicitly for relay nodes that
+just forward signals without modification.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>The receptor returns the input pulse unchanged. No validation, no
-transformation – just pass‑through.</p>
+<p>The receptor returns the input pulse unchanged. It performs no
+validation or transformation.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>This is a singleton; millions of cells can share it without memory
-overhead.</li>
-<li>It provides no protection against invalid data – use a custom receptor
-if you need validation.</li>
+<li><strong>Memory</strong>: This is a singleton shared across the entire project.</li>
+<li><strong>Security</strong>: It provides no protection against invalid data. Use a
+custom receptor if you need to sanitize or validate inputs.</li>
 </ul>
 </section>
 
@@ -116,7 +114,7 @@ if you need validation.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

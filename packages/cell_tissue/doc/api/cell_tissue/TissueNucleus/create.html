@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleus-class.html">TissueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">create&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt; static method</li>
   </ol>
@@ -63,6 +63,7 @@
 <li><span class="parameter" id="create-param-container"><span class="type-annotation"><a href="../../cell_tissue/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span></li>
 <li><span class="parameter" id="create-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="create-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="create-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="create-param-principal"><span class="type-annotation"><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">principal</span>, </span></li>
 </ol>})
 
@@ -134,14 +135,16 @@ stateless template for the specified collection architecture.</p>
 
   bool forceLock = false,
   Record? user,
+  EphemeralPolicy? ephemeralPolicy,
   TissueNucleusBase&lt;E,I,C&gt;? principal
 }) {
   final local = TissueNucleusBase.local&lt;E,I,C&gt;(
     bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses,
     container: container, forceLock: forceLock, user: user,
+    ephemeralPolicy: ephemeralPolicy,
   );
   return _TissueNucleus&lt;E,I,C&gt;.fromRecord(
-      record: principal != null ?  (mask: local, principal: principal) : (mask: local)
+      principal != null ?  (local: local, principal: principal) : (local: local)
   );
 }</code></pre>
 </section>
@@ -171,7 +174,7 @@ stateless template for the specified collection architecture.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueBase-class.html">TissueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueBase.new constructor</li>
   </ol>
@@ -107,7 +107,7 @@ reactive discovery.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TissueBase(TissueNucleusBase&lt;E,I,C&gt; super.nucleus, {Iterable&lt;E&gt;? elements})
     : _nucleus = nucleus, super.fromNucleus() {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
+  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
   if (container != null) {
     _nucleus.container.init(elements);
   }
@@ -144,7 +144,7 @@ reactive discovery.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

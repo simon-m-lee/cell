@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></li>
     <li class="self-crumb">modifiable property</li>
   </ol>
@@ -67,18 +67,55 @@
     </section>
     
 <section class="desc markdown">
-  <p>Defines the exhaustive whitelist of functions and commands that are
-permitted to be executed on this node via the dynamic <a href="../../cell_tissue/Cell/apply.html">apply</a> method.</p>
-<p>This getter is a foundational component of the framework's <strong>Command
+  <p>Defines the exhaustive whitelist of functions and commands authorized for
+execution on this node via the dynamic <a href="../../cell_tissue/Cell/apply.html">apply</a> method.</p>
+<p>This property is a foundational component of the framework's <strong>Command
 Pattern</strong> and <strong>Action-Based Security</strong> architecture. It acts as a
 reflective <strong>Capability Manifest</strong>, declaring which specific operations
-on this cell instance are exposed for external or dynamic manipulation.</p>
+are exposed for external or dynamic manipulation on this <a href="../../cell_tissue/Cell-class.html">Cell</a> instance.</p>
+<h3 id="relationship-with-cellunmodifiable">Relationship with <a href="../../cell_tissue/Cell/unmodifiable.html">Cell.unmodifiable</a></h3>
+<p>There is a direct, reciprocal relationship between these two members:</p>
+<ul>
+<li><strong><a href="../../cell_tissue/Cell/modifiable.html">Cell.modifiable</a> (The Authority)</strong>: Provides the set of "Keys" or
+capabilities that allow a caller to trigger state transitions via
+the <a href="../../cell_tissue/Cell/apply.html">apply</a> gateway.</li>
+<li><strong><a href="../../cell_tissue/Cell/unmodifiable.html">Cell.unmodifiable</a> (The Egress)</strong>: Produces a <a href="../../cell_tissue/Cell-class.html">Cell</a> projection where
+this <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> list is <strong>explicitly nullified</strong>. While the deputy
+retains the same state, it possesses zero capabilities from this
+manifest, ensuring it remains read-only.</li>
+</ul>
 <h3 id="when-to-use">When to use</h3>
-<p>Rarely in application code – this is used internally for the command
-pattern and by deputies to restrict operations.</p>
+<ul>
+<li><strong>Internal Orchestration</strong>: Used by the <a href="../../cell_tissue/Cell/apply.html">apply</a> method to verify if a
+requested command is within the cell's authorized perimeter.</li>
+<li><strong>Security Auditing</strong>: Checking the surface area of a reactive node to
+determine what mutations are possible at runtime.</li>
+<li><strong>Dynamic UI Generation</strong>: Discovering available actions to
+automatically render buttons or controls that map to whitelisted commands.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Capability Matching</strong>: When <a href="../../cell_tissue/Cell/apply.html">apply</a> is called with a function
+reference, the cell checks if that reference exists within this <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a>.</li>
+<li><strong>Integrity Gate</strong>: Even if a function is in this manifest, the
+<a href="../../cell_tissue/TestCell-class.html">TestCell</a> (Integrity Gate) may still reject the specific execution
+context or payload.</li>
+<li><strong>Deputy Restriction</strong>: In "Deputy" nodes (created via <a href="../../cell_tissue/Cell/unmodifiable.html">Cell.unmodifiable</a>),
+this getter is hardcoded to return an empty collection, effectively
+disabling the command pattern gateway.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Reference Equality</strong>: Functions are typically compared by reference.
+Ensure that the functions passed to <a href="../../cell_tissue/Cell/apply.html">apply</a> are the exact instances
+defined in this manifest.</li>
+<li><strong>Flyweight Optimization</strong>: The manifest is often stored using
+optimized records to minimize memory overhead when managing thousands
+of cells.</li>
+</ul>
 <h3 id="returns">Returns:</h3>
-<p>An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> references that are authorized for
-  dynamic invocation on this cell.</p>
+<p>An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> references that represent the authorized
+mutation surface of this node.</p>
 </section>
 
     
@@ -114,7 +151,7 @@ pattern and by deputies to restrict operations.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/FilterRule-class.html">FilterRule<span class="signature">&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;</span></a></li>
     <li class="self-crumb">FilterRule.new const constructor</li>
   </ol>
@@ -69,7 +69,7 @@
 receives the pulse and returns either a new pulse or <code>null</code>.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>rule</code>: The transformation logic. Receives the <code>_pulse</code> and optional
+<li><code>rule</code>: The transformation logic. Receives the pulse and optional
 <code>user</code> metadata; returns a <a href="../../cell_tissue/Pulse-class.html">Pulse</a> to continue or <code>null</code> to drop.</li>
 <li><code>parent</code>: An optional filter to be applied after this one, enabling
 chaining (but using <code>+</code> is usually more readable).</li>
@@ -89,8 +89,13 @@ chaining (but using <code>+</code> is usually more readable).</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const FilterRule(P? Function(P pulse, {dynamic user}) rule, {
   FilterRule&lt;P&gt;? parent, dynamic user
-}) : _record = parent != null ? user != null
-    ? (rule: rule, parent: parent, user: user) : (rule: rule, parent: parent) : (rule: rule);</code></pre>
+}) : _record = parent != null
+    ? user != null
+        ? (rule: rule, parent: parent, user: user)
+        : (rule: rule, parent: parent)
+    : user != null
+        ? (rule: rule, user: user)
+        : (rule: rule);</code></pre>
 </section>
 
 
@@ -118,7 +123,7 @@ chaining (but using <code>+</code> is usually more readable).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

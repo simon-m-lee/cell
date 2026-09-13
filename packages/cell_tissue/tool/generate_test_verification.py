@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Generate TEST_VERIFICATION.md for a Dart package (cell-style test_*.dart suite).
+"""Generate TEST_VERIFICATION.md for the cell_tissue package.
 
-Usage (from the package root, e.g. packages/cell):
+Usage (from packages/cell_tissue):
 
-  python3 generate_test_verification.py
-  python3 generate_test_verification.py --run-tests
-  python3 generate_test_verification.py --coverage
-  python3 generate_test_verification.py --package-name cell --version 1.0.0-rc.2
+  python3 tool/generate_test_verification.py
+  python3 tool/generate_test_verification.py --run-tests
+  python3 tool/generate_test_verification.py --coverage
+  python3 tool/generate_test_verification.py --run-tests --coverage
+  python3 tool/generate_test_verification.py --package-name cell_tissue --version 1.0.0
 
 What is automatic
   - test file inventory (lines, size, test() / group() / async counts)
@@ -34,7 +35,7 @@ from pathlib import Path
 
 
 def resolve_cmd(name: str) -> str:
-    """Windows: dart/flutter are often *.bat, which CreateProcess will not find as 'dart'."""
+    """Windows: dart is often *.bat, which CreateProcess will not find as 'dart'."""
     found = shutil.which(name)
     if found:
         return found
@@ -54,6 +55,7 @@ def resolve_cmd(name: str) -> str:
         "and add that directory (and Pub\\Cache\\bin) to Path."
     )
 
+
 TEST_RE = re.compile(r"""^\s*test\s*\(\s*(['"])(?P<name>.*?)\1""", re.M)
 GROUP_RE = re.compile(r"""^\s*group\s*\(\s*(['"])(?P<name>.*?)\1""", re.M)
 ASYNC_TEST_RE = re.compile(
@@ -69,15 +71,9 @@ def count_matches(text: str, pattern: re.Pattern) -> int:
 def analyze_test_file(path: Path) -> dict:
     text = path.read_text(encoding="utf-8", errors="replace")
     lines = text.count("\n") + (0 if text.endswith("\n") or not text else 1)
-    tests = TEST_RE.findall(text)
-    groups = GROUP_RE.findall(text)
-    # TEST_RE groups include the quote char; names are group 2 if we used named
-    test_names = [m[1] if isinstance(m, tuple) else m for m in TEST_RE.findall(text)]
-    # fix: findall with one group returns names only if one group — we have name + quote
     test_names = re.findall(r"""^\s*test\s*\(\s*['\"](.*?)['\"]""", text, re.M)
     group_names = re.findall(r"""^\s*group\s*\(\s*['\"](.*?)['\"]""", text, re.M)
     async_n = len(re.findall(r"""test\s*\([^)]*\)\s*async""", text))
-    # more reliable async: test( ... () async
     async_n = len(re.findall(r"test\s*\([\s\S]{0,200}?\(\s*\)\s*async", text))
     skip_n = len(re.findall(r"""test\s*\([\s\S]{0,300}?skip:\s*(true|['\"])""", text))
     return {
@@ -96,7 +92,7 @@ def analyze_test_file(path: Path) -> dict:
 
 
 def guess_focus(filename: str, groups: list[str]) -> str:
-    stem = filename.replace("test_", "").replace(".dart", "").replace("_", " ")
+    stem = filename.replace("tissue_", "").replace(".dart", "").replace("_", " ")
     if groups:
         return f"{stem}; groups: {', '.join(groups[:6])}" + (
             "…" if len(groups) > 6 else ""
@@ -162,12 +158,12 @@ def dedupe_lcov(rows: list[dict]) -> list[dict]:
 
 # compact: "00:14 +1012: All tests passed!"  or  "00:13 +944 -1: Some tests failed."
 _SUMMARY_RE = re.compile(
-    r"\+(\d+)(?:\s+-(\d+))?(?:\s+~(\d+))?:\s+"
+    r"\+(?P<passed>\d+)(?:\s+-(?P<failed>\d+))?(?:\s+~(?P<skipped>\d+))?:\s+"
     r"(All tests passed|Some tests failed)",
     re.I,
 )
 _PLUS_LINE_RE = re.compile(
-    r"\+(\d+)(?:\s+-(\d+))?(?:\s+~(\d+))?:",
+    r"\+(?P<passed>\d+)(?:\s+-(?P<failed>\d+))?(?:\s+~(?P<skipped>\d+))?:",
 )
 
 
@@ -185,18 +181,18 @@ def run_dart_test(package: Path, files: list[Path], coverage_dir: Path | None) -
     summaries = list(_SUMMARY_RE.finditer(out))
     if summaries:
         m = summaries[-1]
-        passed = int(m.group(1))
-        failed = int(m.group(2) or 0)
-        skipped = int(m.group(3) or 0)
+        passed = int(m.group("passed"))
+        failed = int(m.group("failed") or 0)
+        skipped = int(m.group("skipped") or 0)
         if m.group(4) and m.group(4).lower().startswith("all tests passed"):
             failed = 0
     else:
         ticks = list(_PLUS_LINE_RE.finditer(out))
         if ticks:
             m = ticks[-1]
-            passed = int(m.group(1))
-            failed = int(m.group(2) or 0)
-            skipped = int(m.group(3) or 0)
+            passed = int(m.group("passed"))
+            failed = int(m.group("failed") or 0)
+            skipped = int(m.group("skipped") or 0)
         elif "All tests passed" in out:
             passed = 0
             failed = 0
@@ -428,14 +424,15 @@ def render(md: dict) -> str:
     a("## Recommendations")
     a("")
     a("1. Keep this report generated — do not hand-count `test(`.")
-    a("2. CI should pass the explicit file list below (includes "
-      "`instruction_demo_test.dart`) or a `dart_test.yaml`.")
-    a("3. Demo `main()` tests in `instruction_demo_test.dart` exist for "
-      "`lib/` line coverage; contract behaviour lives in the per-operator "
-      "`*_test.dart` files.")
-    a("4. Remaining coverage holes are the `Flow` / `flow_core` facades, "
-      "not the instruction bodies.")
-    a("5. Add cross-package tests when dependents rely on these contracts.")
+    a("2. CI should run the explicit file list below (or `dart test` from the "
+      "package root) so all reactive collections are exercised.")
+    a("3. Each reactive collection has a public interface file plus an internal "
+      "implementation file; the internal files carry most of the "
+      "`apply`/`modifiable`/deputy logic.")
+    a("4. Keep the `Tissue*.apply + Cell.txApply integration` groups in sync with "
+      "`Cell.txApply` changes in `package:cell`.")
+    a("5. Coverage targets should be tracked per public/internal pair, not just "
+      "the whole `lib/` average.")
     a("")
     a("---")
     a("")
@@ -463,7 +460,7 @@ def main() -> int:
     ap.add_argument(
         "--pattern",
         default="*_test.dart",
-        help="Glob under test-dir (cell_flow: *_test.dart; cell: pass test_*.dart)",
+        help="Glob under test-dir (cell_tissue: *_test.dart)",
     )
     ap.add_argument(
         "--also-test-star",

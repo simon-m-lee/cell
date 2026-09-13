@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueMapNucleusBase-class.html">TissueMapNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">principal property</li>
   </ol>
@@ -77,14 +77,13 @@
 link. It facilitates the "Property Cascading" mechanism that allows
 <a href="../../cell_tissue/TissueMap-class.html">TissueMap</a> instances to participate in an inheritance‑based
 configuration model.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely need to read this directly. The framework uses it internally
-when you create a deputy via <code>deputy()</code>. It's what makes a deputy "share"
-the same logic and storage as its principal.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Only if you are building a custom map implementation and need to
 traverse the inheritance chain to resolve a property value. For most
 application code, you never call this – the framework handles it for you.</p>
+<p>You rarely need to read this directly. The framework uses it internally
+when you create a deputy via <code>deputy()</code>. It's what makes a deputy "share"
+the same logic and storage as its principal.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>When you call <code>deputy()</code> on a map, the new nucleus's <code>principal</code> is
@@ -155,7 +154,7 @@ TissueMapNucleusBase&lt;K,V,C&gt;? get principal =&gt; super.principal as Tissue
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

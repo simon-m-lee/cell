@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">CollectivePulse.governed factory constructor</li>
   </ol>
@@ -77,6 +77,40 @@
 </ol>})
     </section>
     
+<section class="desc markdown">
+  <p>Creates a governed collective pulse with lifecycle and security metadata.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Governed Batches</strong>: Use this when the collective itself needs governance — TTL, audit level,
+or a custom security context — beyond what individual pulses provide.</li>
+<li>The collective as a whole needs a TTL or hop limit.</li>
+<li>You need audit-level logging for the entire batch.</li>
+<li>Individual pulses don't have governance, but the batch does.</li>
+<li>You want completion/error callbacks for the batch.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>The <code>policy</code> controls the collective's lifetime (TTL/hop limit). The
+<code>context</code> provides provenance metadata for the bundle. Callbacks are
+attached to the collective and fire once when all sub‑pulses complete.</p>
+<h3 id="nonobvious-callbacks-fire-once-not-perpulse">Non‑obvious: callbacks fire once, not per‑pulse</h3>
+<p>The <code>onComplete</code>, <code>onError</code>, and <code>onProgress</code> callbacks are attached to
+the collective itself. They fire once when the collective completes
+(or fails), not once per sub‑pulse.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>pulses</code>: The individual pulses to bundle.</li>
+<li><code>policy</code>: Optional lifecycle policy (TTL/hop limit).</li>
+<li><code>context</code>: Optional provenance context.</li>
+<li><code>type</code>: Optional semantic tag.</li>
+<li><code>source</code>: Optional originating cell.</li>
+<li><code>step</code>: Optional trace step.</li>
+<li><code>priority</code>: Optional urgency.</li>
+<li><code>onComplete</code>: Called when all sub‑pulses complete.</li>
+<li><code>onError</code>: Called if any sub‑pulse fails.</li>
+<li><code>onProgress</code>: Called during processing.</li>
+<li><code>scrutinize</code>: Optional authorization challenge function.</li>
+</ul>
+</section>
 
 
     
@@ -126,7 +160,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

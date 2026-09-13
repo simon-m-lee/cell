@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Context-class.html">Context</a></li>
     <li class="self-crumb">Context.new factory constructor</li>
   </ol>
@@ -54,7 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Context</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-domains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">domains</span>, </span></li>
+      <span class="name ">Context</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="-param-identity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">identity</span>, </span></li>
+<li><span class="parameter" id="-param-domains"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">domains</span>, </span></li>
 <li><span class="parameter" id="-param-dataSources"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">dataSources</span>, </span></li>
 <li><span class="parameter" id="-param-taxonomy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">taxonomy</span>, </span></li>
 <li><span class="parameter" id="-param-topology"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">topology</span>, </span></li>
@@ -88,6 +90,8 @@ evolvable – they can't be changed later via <code>evolve</code>. Make sure you
 set them correctly upfront.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
+<li><code>type</code>: The <strong>Category or Archetype</strong> of the cell.</li>
+<li><code>identity</code>: The unique identifier for this cell.</li>
 <li><code>partOf</code>: The hierarchical container or system name (Structural Parent).</li>
 <li><code>dataSources</code>: The origins or upstream interfaces supplying data to
 this cell.</li>
@@ -112,6 +116,9 @@ metadata that falls outside the standard pillars.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory Context({
+  String? type,
+  String? identity,
+
   String? domains,
   String? dataSources,
   String? taxonomy,
@@ -153,7 +160,7 @@ metadata that falls outside the standard pillars.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">activate abstract method</li>
   </ol>
@@ -66,16 +66,32 @@
   <p>Formally activates the receptor by binding its transformation logic to
 a concrete <code>cell</code> instance.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You never call this – the framework does it automatically when you
-create a cell from a nucleus via <a href="../../cell_tissue/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a>.</p>
+<p>You never call this method directly in application code. The framework
+invokes it automatically during the cell construction process (e.g.,
+via <a href="../../cell_tissue/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a>).</p>
 <h3 id="how-it-works">How it works</h3>
-<p>It binds the receptor to the cell, making the <code>cell</code> getter available.
-After activation, <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a> returns <code>true</code>.</p>
-<h3 id="returns">Returns:</h3>
+<ol>
+<li>It links the receptor to its host <code>cell</code>, providing the necessary
+operational context.</li>
+<li>It enables the <code>cell</code> getter, allowing instructions to access the
+host's state.</li>
+<li>It transitions the receptor's state so that <a href="../../cell_tissue/Receptor/isActivated.html">isActivated</a> returns <code>true</code>.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><code>true</code> if the activation succeeded.</li>
-<li><code>false</code> if the receptor is already activated or the cell is invalid.</li>
+<li><strong>One-Way Transition</strong>: Once activated, a receptor is permanently
+pinned to its cell. It cannot be re-activated or moved to a different
+cell; use <a href="../../cell_tissue/Receptor/clone.html">clone</a> if you need a fresh template.</li>
+<li><strong>Safety Checks</strong>: Returns <code>true</code> on successful binding. It returns
+<code>false</code> if the receptor was already activated or if the provided
+cell instance is incompatible.</li>
 </ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>cell</code>: The cell to bind this receptor to.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if activation was successful, <code>false</code> otherwise.</p>
 </section>
 
 
@@ -110,7 +126,7 @@ After activation, <a href="../../cell_tissue/Receptor/isActivated.html">isActiva
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

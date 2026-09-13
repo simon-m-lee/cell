@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">hub static method</li>
   </ol>
@@ -55,16 +55,17 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/HubHandle.html">HubHandle</a></span>
-<span class="name ">hub</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="hub-param-spokes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>&gt;</span>?</span> <span class="parameter-name">spokes</span>, </span></li>
+<span class="name ">hub</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="hub-param-spokes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span></span>&gt;</span>?</span> <span class="parameter-name">spokes</span>, </span></li>
 <li><span class="parameter" id="hub-param-governedSpokes"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">governedSpokes</span>, </span></li>
-<li><span class="parameter" id="hub-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
-<li><span class="parameter" id="hub-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
-<li><span class="parameter" id="hub-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span></li>
+<li><span class="parameter" id="hub-param-registrations"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/SpokeRegistration.html">SpokeRegistration</a></span>&gt;</span>?</span> <span class="parameter-name">registrations</span>, </span></li>
+<li><span class="parameter" id="hub-param-routing"><span class="type-annotation"><a href="../../cell_tissue/HubRouting.html">HubRouting</a></span> <span class="parameter-name">routing</span> = <span class="default-value">HubRouting.exact</span>, </span></li>
+<li><span class="parameter" id="hub-param-multicast"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">multicast</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="hub-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">fallback</span>, </span></li>
 <li><span class="parameter" id="hub-param-distribution"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">distribution</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">role</span></span></li>
 </ol>)?, </span></li>
 <li><span class="parameter" id="hub-param-relay"><span class="type-annotation">void</span> <span class="parameter-name">relay</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span></li>
 </ol>)?, </span></li>
-<li><span class="parameter" id="hub-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="hub-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
 </ol>})
 
       
@@ -72,73 +73,108 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <strong>Switching Fabric</strong>: a routing node that dispatches an incoming
-<a href="../../cell_tissue/Pulse-class.html">Pulse</a> to one of several named handlers based on <a href="../../cell_tissue/Pulse/type.html">Pulse.type</a>.</p>
-<p>This is the basic-tier hub factory. Like <a href="../../cell_tissue/Cell/value.html">Cell.value</a>, <a href="../../cell_tissue/Cell/ingress.html">Cell.ingress</a>, and
-<a href="../../cell_tissue/Cell/observe.html">Cell.observe</a>, it requires <strong>no knowledge of <a href="../../cell_tissue/Context-class.html">Context</a>, <a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a>,
-<a href="../../cell_tissue/Receptor-class.html">Receptor</a>, or <a href="../../cell_tissue/TestCell-class.html">TestCell</a></strong> to use — you provide plain functions keyed by
-a role name, and the framework handles wiring, activation, and dispatch.</p>
-<h3 id="1-what-it-does">1. What it does</h3>
-<p>Each entry in <code>spokes</code> becomes an internal cell. When a pulse arrives at
-the hub with <code>pulse.type == role</code>, it is routed to that entry's handler.
-Handlers use the same closure shape as <a href="../../cell_tissue/Cell/derive.html">Cell.derive</a>'s <code>transform</code> or
-<a href="../../cell_tissue/Cell/observe.html">Cell.observe</a>'s <code>onPulse</code> — nothing new to learn.</p>
-<h3 id="2-example">2. Example</h3>
+  <p>Synthesizes a <strong>Multi-Destination Router</strong>—a specialized node that acts as
+a reactive demultiplexer, directing signals to specialized handlers.</p>
+<p>The <a href="../../cell_tissue/Cell/hub.html">hub</a> factory is the primary tool for <strong>Signal Orchestration</strong>. It allows
+a single ingress point to govern a network of <code>spokes</code>, routing pulses based
+on their categorical <a href="../../cell_tissue/Pulse/type.html">Pulse.type</a> or forensic metadata.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use this when you have a centralized event stream (like a WebSocket or
+global message bus) that needs to be distributed to specific modules
+based on the type of message received.</p>
+<ul>
+<li><strong>Pattern Matching</strong>: Routing signals like <code>user.auth.*</code> to an auth spoke.</li>
+<li><strong>Multicasting</strong>: Delivering the same telemetry pulse to both a logger
+and a real-time dashboard.</li>
+<li><strong>Fallback Handling</strong>: Providing a safety-net spoke for unrecognized signals.</li>
+<li><strong>Priority Routing</strong>: Ensuring high-priority system commands are
+processed before general telemetry.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>A pulse is injected via the <code>emit</code> gateway (The <strong>Ingress Port</strong>).</li>
+<li>The hub evaluates the <a href="../../cell_tissue/Pulse/type.html">Pulse.type</a> against its registered <code>spokes</code>
+using the chosen <a href="../../cell_tissue/HubRouting.html">HubRouting</a> strategy.</li>
+<li>Matching spokes are sorted by their defined priority.</li>
+<li>The signal is dispatched either to the highest-priority match (Standard)
+or all matches (Multicast).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Longest-Match Wins</strong>: In <a href="../../cell_tissue/HubRouting.html">HubRouting.prefix</a> mode, the router
+automatically selects the spoke with the most specific key.</li>
+<li><strong>CBAC Enforcement</strong>: <code>governedSpokes</code> allow you to restrict specific
+routes to callers holding a required <a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a> mandate.</li>
+<li><strong>Audit Trail</strong>: The hub maintains the <strong>Causal Provenance</strong> of routed
+signals, allowing you to trace a spoke's execution back to the
+original hub injection.</li>
+</ul>
+<h3 id="example--fallback--priority">Example – fallback + priority</h3>
+<pre class="language-dart"><code class="language-dart">final hub = Cell.hub(
+  registrations: [
+    (key: 'user.login', priority: 10, handler: handleLogin, …),
+    (key: 'user.*',     priority: 5,  handler: handleUser,  …),
+    (key: 'audit',      priority: 0,  handler: handleAudit, …),
+  ],
+  fallback: 'audit',
+  routing: HubRouting.pattern,
+);
+</code></pre>
+<h3 id="example-priority-routing">Example: Priority Routing</h3>
+<pre class="language-dart"><code class="language-dart">final appHub = Cell.hub(
+  registrations: [
+    (key: 'sys.critical', priority: 0,  handler: shutdownHandler),
+    (key: 'sys.*',        priority: 10, handler: logHandler),
+  ],
+  routing: HubRouting.pattern,
+  fallback: 'sys.log',
+);
+</code></pre>
+<h3 id="example--multicast">Example – multicast</h3>
 <pre class="language-dart"><code class="language-dart">final hub = Cell.hub(
   spokes: {
-    'Auditor': (cell, pulse, {user}) =&gt;
-        pulse.evolve(PulseContext(reason: 'AuditRecord'), step: 'audit'),
-    'StateEngine': (cell, pulse, {user}) =&gt; pulse,
-    'Telemetry': (cell, pulse, {user}) async {
-      await remoteLogger.send(pulse.payload);
-      return pulse;
-    },
+    'metrics': recordMetric,
+    'log':     writeLog,
   },
+  routing: HubRouting.multicast,   // or multicast: true
 );
-
-hub.trigger(Pulse.governed(payload: auditEvent, type: 'Auditor'));
+// Every pulse is delivered to both spokes.
 </code></pre>
-<h3 id="3-routing-mechanics">3. Routing mechanics</h3>
-<p>The default <code>relay</code> does a direct map lookup — <code>spokes[Pulse.type]</code> — with
-no runtime type casting involved. If <a href="../../cell_tissue/Pulse/type.html">Pulse.type</a> doesn't match any key,
-the pulse is dropped silently at the hub (no spoke is triggered). Provide
-<code>relay</code> to override this and implement custom dispatch (e.g. broadcast to
-every spoke, or route on a computed key rather than <a href="../../cell_tissue/Pulse/type.html">Pulse.type</a>).</p>
-<h3 id="4-advanced-per-spoke-governance">4. Advanced: per-spoke governance</h3>
-<p>If individual spokes need distinct security tiers, clearance levels, or
-temporal leases, use <code>governedSpokes</code> instead of <code>spokes</code>. This exposes
-<a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a> (to define each spoke's mandate) and <a href="../../cell_tissue/Receptor-class.html">Receptor</a> (to
-define its handler logic) directly. Provide exactly one of <code>spokes</code> or
-<code>governedSpokes</code>, not both. Most applications will never need this path.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>spokes</code>: Maps a role name to its handler. Mutually exclusive with
-<code>governedSpokes</code>.</li>
-<li><code>governedSpokes</code>: <strong>Advanced.</strong> Maps a <a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a> (mandate/role)
-to a <a href="../../cell_tissue/Receptor-class.html">Receptor</a> for cases needing per-spoke authority tiers. Mutually
-exclusive with <code>spokes</code>.</li>
-<li><code>bind</code>: Optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> to observe, making the hub reactive
-to another source in addition to manual <code>trigger</code>/<code>ingest</code> calls.</li>
-<li><code>context</code>: The hub root's own operational tier. Defaults to
-<a href="../../cell_tissue/Context/system-constant.html">Context.system</a>; safe to leave unset for basic use.</li>
-<li><code>testRule</code>: An <a href="../../cell_tissue/TestCell-class.html">TestCell</a> guard applied to the hub's root ingress.
-Defaults to <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</li>
-<li><code>distribution</code>: Optional factory to customize each spoke's <a href="../../cell_tissue/Synapses-class.html">Synapses</a>
-(e.g. to attach a <a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>), keyed by role name.</li>
-<li><code>relay</code>: Optional override for the default routing logic described
-above.</li>
-<li><code>forceLock</code>: If <code>true</code>, allocates a dedicated <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> for the hub root,
-guaranteeing sequential processing under high-frequency bursts.</li>
+<li><code>spokes</code>: <strong>Direct Routing Map.</strong> A map of exact-match keys to reactive
+transformation handlers.</li>
+<li><code>governedSpokes</code>: <strong>Authority-Based Routing.</strong> Maps <a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a>
+mandates to specific receptors for secure signal handling.</li>
+<li><code>registrations</code>: <strong>Ordered Routing Registry.</strong> A list of
+<a href="../../cell_tissue/SpokeRegistration.html">SpokeRegistration</a>s supporting priority and pattern matching.</li>
+<li><code>routing</code>: <strong>Match Strategy.</strong> Defines evaluation logic:
+<a href="../../cell_tissue/HubRouting.html">HubRouting.exact</a>, <a href="../../cell_tissue/HubRouting.html">HubRouting.pattern</a>, or <a href="../../cell_tissue/HubRouting.html">HubRouting.prefix</a>.</li>
+<li><code>multicast</code>: <strong>Broadcast Mode.</strong> If <code>true</code>, delivers signals to <em>all</em>
+matching spokes instead of just the highest priority.</li>
+<li><code>fallback</code>: <strong>Default Route.</strong> The key of the spoke used when no matches
+are identified.</li>
+<li><code>source</code>: <strong>Ingress Source.</strong> An optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> that
+automatically feeds the hub.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="../../cell_tissue/HubHandle.html">HubHandle</a> record: <code>root</code> (the ingress <a href="../../cell_tissue/Cell-class.html">Cell</a>), <code>spokes</code> (the
-internal spoke cells), <code>trigger</code>/<code>triggerAsync</code> (manual injection), and
-<code>ingest</code> (standard <a href="../../cell_tissue/Pulse-class.html">Pulse</a>-based injection with <code>serializedCompletion</code>
-support).</p>
-<p>See also:</p>
+<p>A <a href="../../cell_tissue/HubHandle.html">HubHandle</a> (Record) providing:</p>
 <ul>
-<li><a href="../../cell_tissue/Cell/derive.html">Cell.derive</a> for a single-output equivalent of a spoke handler.</li>
-<li><a href="../../cell_tissue/Cell/observe.html">Cell.observe</a> for a terminal (non-propagating) handler shape.</li>
+<li><code>cell</code>: The central routing <a href="../../cell_tissue/Cell-class.html">Cell</a> instance (The Observable).</li>
+<li><code>emit</code>: A synchronous gateway for manual signal injection.</li>
+<li><code>emitAsync</code>: An asynchronous, lock-protected version of the emit.</li>
+<li><code>ingest</code>: A high-level ingress handle for standardized orchestration.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Cell/ingress.html">Cell.ingress</a>: For standard single-path entry points.</li>
+<li><a href="../../cell_tissue/Cell/open.html">Cell.open</a>: For module boundaries requiring manual structural control.</li>
+<li><a href="../../cell_tissue/HubRouting.html">HubRouting</a>: For defining how the hub evaluates pulse types.</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/hub_demo.dart</code> for a complete executable
+walkthrough of pattern matching, priority ordering, and multicast routing.
+{@category Core 16 Operators}</li>
 </ul>
 </section>
 
@@ -147,75 +183,27 @@ support).</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static HubHandle hub({
-  Map&lt;String, FutureOr&lt;Pulse?&gt; Function(Cell cell, Pulse pulse, {dynamic user})&gt;? spokes,
+  Map&lt;String, Pulse? Function(Cell cell, Pulse pulse, {dynamic user})&gt;? spokes,
   Map&lt;DeputyContext, Receptor&gt;? governedSpokes,
-
-  Cell? bind,
-  Context context = Context.system,
-  TestCell testRule = TestCell.allowAll,
+  List&lt;SpokeRegistration&gt;? registrations,
+  HubRouting routing = HubRouting.exact,
+  bool multicast = false, &#47;&#47; force broadcast to all matches
+  String? fallback, &#47;&#47; key used when nothing matches
   Synapses Function(String role)? distribution,
   void Function(Pulse pulse)? relay,
-  bool forceLock = false,
-}) {
-  &#47;&#47; Exactly one input mode is allowed. Both null or both non-null are
-  &#47;&#47; programmer errors, not runtime conditions — fail fast, at construction
-  &#47;&#47; time, before any Cell is allocated.
-  assert(
-  (spokes == null) != (governedSpokes == null),
-  &#39;Cell.hub requires exactly one of `spokes` or `governedSpokes`. &#39;
-      &#39;Use `spokes` for the basic string-keyed router (no Context&#47;Receptor &#39;
-      &#39;knowledge needed). Use `governedSpokes` only if individual spokes need &#39;
-      &#39;distinct DeputyContext authority tiers (clearance, lease, isolation).&#39;,
-  );
-
-  &#47;&#47; Resolve both input modes to one common internal shape:
-  &#47;&#47;   Map&lt;String role, Cell spokeCell&gt;
-  &#47;&#47; This is the seam that keeps DeputyContext&#47;Receptor entirely out of the
-  &#47;&#47; `spokes` path — by the time we get past this block, both paths look
-  &#47;&#47; identical to the rest of the method.
-  final Map&lt;String, Cell&gt; spokeCells = spokes != null
-      ? _spokesFromSimple(spokes, distribution: distribution)
-      : _spokesFromGoverned(governedSpokes!, distribution: distribution);
-
-  final receptor = Receptor((cell, input, {user}) =&gt; input);
-  final cell = Cell.governed(
-    context: context,
-    receptor: receptor,
-    testRule: testRule,
-    synapses: Synapses(
-      downstreams: spokeCells.values,
-      relay: relay ?? (pulse) {
-        &#47;&#47; Direct map lookup, keyed by the pulse&#39;s own declared type.
-        &#47;&#47; No cast, no reflection into a spoke&#39;s governance context — this
-        &#47;&#47; is what removes the (DeputyContext) cast and its associated
-        &#47;&#47; runtime TypeError risk from the original implementation.
-        final spoke = spokeCells[pulse.type];
-        spoke?._nucleus.receptor.call(pulse);
-      },
-    ),
-    bind: bind,
-    forceLock: forceLock,
-  );
-
-  Pulse? trigger(Pulse pulse) {
-    final result = receptor.call(pulse);
-    return result is! Future ? result : null;
-  }
-
-  Future&lt;Pulse?&gt; triggerAsync(Pulse pulse) {
-    final lock = cell._nucleus.lock;
-    if (lock != null) {
-      return lock.synchronized(() =&gt; trigger(pulse));
-    }
-    return Future&lt;Pulse?&gt;(() =&gt; trigger(pulse));
-  }
-
-  Future&lt;void&gt; ingest(Pulse pulse, {bool serializedCompletion = true}) {
-    return receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
-  }
-
-  return (root: cell, spokes: spokeCells.values, trigger: trigger, triggerAsync: triggerAsync, ingest: ingest);
-}</code></pre>
+  Cell? source,
+}) =&gt;
+    _hub(
+      spokes: spokes,
+      governedSpokes: governedSpokes,
+      registrations: registrations,
+      fallback: fallback,
+      routing: routing,
+      multicast: multicast,
+      bind: source,
+      distribution: distribution,
+      relay: relay,
+    );</code></pre>
 </section>
 
 
@@ -243,7 +231,7 @@ support).</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

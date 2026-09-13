@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></li>
     <li class="self-crumb">isTerminal property</li>
   </ol>
@@ -67,19 +67,57 @@
     </section>
     
 <section class="desc markdown">
-  <p>A boolean indicator identifying whether this <a href="../../cell_tissue/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
-within the reactive graph.</p>
-<p>In a reactive architecture, a <strong>Terminal Node</strong> is a component that possesses the
-internal logic to process and store state but lacks the propagation mechanisms
-required to broadcast its updates to downstream dependents.</p>
+  <p>A boolean indicator identifying whether this <a href="../../cell_tissue/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.</p>
+<p>In the Cell-Mitosis architecture, a <strong>Terminal Node</strong> is a specialized
+component that possesses the internal logic to process pulses and
+maintain state, but lacks the propagation mechanisms required to
+broadcast its updates to downstream dependents.</p>
+<h3 id="architectural-significance-the-reactive-sink">Architectural Significance: The Reactive Sink</h3>
+<p>Terminal nodes represent the leaf nodes of a reactive graph. Unlike
+standard transit nodes, terminal nodes do not maintain a registry of
+downstream observers, making them significantly more memory-efficient
+for high-frequency updates where only the final side-effect matters.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is mostly informational. Terminal nodes (e.g. <a href="../../cell_tissue/Cell/observe.html">Cell.observe</a>) have
-no downstream observers, so they're lightweight and won't cause cascade
-effects.</p>
+<ul>
+<li><strong>Observation &amp; Side-Effects</strong>: Identifying cells created via
+<code>Cell.observe</code> or <code>Cell.sink</code>, which are intended to bridge the
+reactive world into imperative systems (like logging or database I/O).</li>
+<li><strong>Performance Tuning</strong>: Detecting nodes that will never trigger
+cascade updates, allowing for optimizations in batch processing or
+atomic transactions.</li>
+<li><strong>Topology Mapping</strong>: Used by framework-level tools to visualize
+the boundaries and "exit points" of a reactive circuit.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Synapse Absence</strong>: A terminal node is initialized with
+<a href="../../cell_tissue/Synapses/disabled-constant.html">Synapses.disabled</a>, preventing it from establishing outgoing
+connections or consuming resources for observer management.</li>
+<li><strong>Pulse Absorption</strong>: When a terminal node receives a <a href="../../cell_tissue/Pulse-class.html">Pulse</a>,
+it updates its internal state and executes its <a href="../../cell_tissue/Instruction-class.html">Instruction</a>,
+but the signal propagation terminates at this node.</li>
+<li><strong>Memory Efficiency</strong>: Since no observer links are created,
+terminal nodes are easier for the garbage collector to reclaim
+once their parent handle is released.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Way Traffic</strong>: You cannot attach observers to a terminal node.
+Attempting to listen to a terminal cell's stream will typically
+throw an exception or result in a no-op, depending on the specific
+implementation.</li>
+<li><strong>Identity</strong>: A terminal node still maintains logical identity and
+lineage within its <a href="../../cell_tissue/Context-class.html">Context</a>, even though it does not propagate
+signals.</li>
+</ul>
 <h3 id="returns">Returns:</h3>
-<p><code>true</code> if this cell is a terminal node with no outgoing notification
-capabilities; <code>false</code> if it is a transit node that broadcasts its
-state changes to observers.</p>
+<ul>
+<li><code>true</code>: If this cell is a terminal sink with no outgoing
+notification capabilities.</li>
+<li><code>false</code>: If this is a transit node that broadcasts state
+changes to downstream observers.</li>
+</ul>
 </section>
 
     
@@ -115,7 +153,7 @@ state changes to observers.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

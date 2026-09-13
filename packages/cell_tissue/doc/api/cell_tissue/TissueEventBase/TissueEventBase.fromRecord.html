@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">TissueEventBase.fromRecord const constructor</li>
   </ol>
@@ -68,7 +68,7 @@ call it directly.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TissueEventBase.fromRecord(Record record) : _record = record, super.fromRecord(record);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TissueEventBase.fromRecord(super.record) : _record = record, super.fromRecord();</code></pre>
 </section>
 
 
@@ -96,7 +96,7 @@ call it directly.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">HubHandle typedef</li>
   </ol>
   <div class="self-name">HubHandle</div>
@@ -54,7 +54,7 @@
     <section class="multi-line-signature">
         
   
-<span class="name ">HubHandle</span> = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)</span>
+<span class="name ">HubHandle</span> = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)</span>
 
 
     </section>
@@ -68,7 +68,7 @@ interface to control a multi-destination routing cluster.</p>
 pulse to multiple specialised handlers based on <a href="../cell_tissue/Pulse/type.html">Pulse.type</a>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>The handle contains a <code>root</code> cell (the ingress) and a set of <code>spokes</code>
-(the handlers). When you <code>trigger</code> or <code>ingest</code> a pulse, it's routed to
+(the handlers). When you <code>emit</code> or <code>ingest</code> a pulse, it's routed to
 the appropriate spoke(s) based on the hub's configuration.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -95,14 +95,14 @@ spokes to finish processing before completing the Future.</li>
   &#47;&#47;&#47;
   &#47;&#47;&#47; Returns the resulting pulse if it successfully passed the **Integrity
   &#47;&#47;&#47; Gate** and was broadcast; returns `null` if neutralized by a policy guard.
-  Pulse? Function(Pulse pulse) trigger,
+  Pulse? Function(Pulse pulse) emit,
 
   &#47;&#47;&#47; Asynchronously injects a stimulus, ensuring **Serialized Transformation**
   &#47;&#47;&#47; through the system&#39;s **Conactive Lock**.
   &#47;&#47;&#47;
   &#47;&#47;&#47; This modality is required if the [root] or any [spokes] involve
   &#47;&#47;&#47; I&#47;O-bound validation or cross-domain security checks.
-  Future&lt;Pulse?&gt; Function(Pulse pulse) triggerAsync,
+  Future&lt;Pulse?&gt; Function(Pulse pulse) emitAsync,
 
   &#47;&#47;&#47; The **Primary Distribution Ingress** handle.
   &#47;&#47;&#47;
@@ -151,7 +151,7 @@ spokes to finish processing before completing the Future.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

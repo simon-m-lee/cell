@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueReceptorBase-class.html">TissueReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueReceptorBase.fromRecord constructor</li>
   </ol>
@@ -59,20 +59,61 @@
     </section>
     
 <section class="desc markdown">
-  <p><strong>Low‑level Record Constructor</strong> – instantiates a receptor from a
-pre‑packed property record.</p>
-<h3 id="who-should-call-this">Who should call this</h3>
+  <p><strong>Primary Constructor</strong> – defines the transformation pipeline for a
+reactive collection.</p>
+<h3 id="when-to-use">When to use</h3>
+<p><strong>Internal framework use only.</strong> This constructor is <code>public</code> only so
+that concrete subclasses (like <code>_TissueReceptor</code>) can invoke it via
+<code>super()</code>. <strong>Application code should never call this directly.</strong></p>
+<p>If you need a receptor, use <a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> (for a single‑rule receptor)
+or <code>TissueReceptor.from</code> (for a multi‑stage pipeline). For the default
+behaviour, simply omit the <code>receptor</code> parameter when creating a tissue.</p>
+<p>You are writing a custom tissue implementation that needs to override
+the default receptor behaviour.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The <code>rule</code>, <code>preProcess</code>, and <code>postProcess</code> parameters define the
+multi‑stage pipeline:
+<ul>
+<li><code>preProcess</code>: runs first (e.g., sanitization, logging).</li>
+<li><code>rule</code>: the core transformation logic.</li>
+<li><code>postProcess</code>: runs last (e.g., validation, commitment).</li>
+</ul>
+</li>
+<li>The <code>reaction</code> parameter is a simplified functional form – if provided,
+it is wrapped into a <a href="../../cell_tissue/Instruction-class.html">Instruction</a> internally.</li>
+<li>The pipeline is stored in a memory‑optimised record using bitmasking.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The <code>receptor</code> is automatically cloned if it is already activated
+(bound to another cell), ensuring that each nucleus starts with a
+clean logic instance.</li>
+<li>If <code>rule</code> is <code>null</code>, the receptor behaves like <code>passThrough</code> for that stage.</li>
+<li>The <code>user</code> parameter is passed to the rule functions and can be used
+for configuration, but it's not part of the pulse's context.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>rule</code>: The primary <a href="../../cell_tissue/Instruction-class.html">Instruction</a> defining the core transformation logic.</li>
+<li><code>preProcess</code>: Optional <a href="../../cell_tissue/Instruction-class.html">Instruction</a> for early‑stage filtering or logging.</li>
+<li><code>postProcess</code>: Optional <a href="../../cell_tissue/Instruction-class.html">Instruction</a> for late‑stage commitment.</li>
+<li><code>reaction</code>: A simplified functional alternative to <code>rule</code>.</li>
+<li><code>user</code>: Optional metadata passed to the rule functions.
+<strong>Low‑level Record Constructor</strong> – instantiates a receptor from a
+pre‑packed property record.</li>
+</ul>
+<h3 id="when-to-use-2">When to use</h3>
 <p><strong>Strictly internal framework use only.</strong> This constructor bypasses
 all parameter validation and default‑value logic. It is designed for
 performance‑critical paths like cloning and state restoration.
 <strong>Application code must never call this.</strong></p>
-<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
 <ul>
 <li>When implementing <code>clone</code> in a custom receptor subclass.</li>
 <li>When restoring a receptor from a serialised state where the record
 shape is already guaranteed.</li>
 </ul>
-<h3 id="how-it-works">How it works</h3>
+<h3 id="how-it-works-2">How it works</h3>
 <ul>
 <li>The provided <code>record</code> is directly assigned to the internal storage.</li>
 <li>No validation or default‑value logic is performed – the record is
@@ -81,7 +122,7 @@ assumed to be correct and complete.</li>
 which is why it is only safe to use when the record shape is
 guaranteed.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
+<h3 id="nonobvious-2">Non‑obvious</h3>
 <ul>
 <li>The record must contain all necessary fields for a receptor,
 including the <code>rule</code>, <code>preProcess</code>, <code>postProcess</code>, and <code>user</code> metadata.</li>
@@ -94,7 +135,7 @@ instantiation of static receptors.</li>
 <pre class="language-dart"><code class="language-dart">final record = (rule: myRule, preProcess: myPre, user: null);
 final receptor = TissueReceptorBase.fromRecord(record: record);
 </code></pre>
-<h3 id="parameters">Parameters:</h3>
+<h3 id="parameters-2">Parameters:</h3>
 <ul>
 <li><code>record</code>: The internal property record – an implementation‑specific
 Dart <code>Record</code> containing all receptor fields.</li>
@@ -133,7 +174,7 @@ Dart <code>Record</code> containing all receptor fields.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

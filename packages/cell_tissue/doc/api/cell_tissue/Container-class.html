@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">Container class</li>
   </ol>
   <div class="self-name">Container</div>
@@ -63,18 +63,17 @@ physically stored, initialised, and manipulated.</p>
 requirements of a collection (like signalling and dependency tracking)
 from the low‑level mechanics of Dart's native collection types (like <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>,
 <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, or <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>).</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely need to interact with this interface directly. It is used
-internally by the framework to select the appropriate storage strategy
-based on the collection type. The predefined constants (<code>Container.list</code>,
-<code>Container.set</code>, <code>Container.map</code>, <code>Container.queue</code>, <code>Container.value</code>)
-are the entry points for most use cases.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>You might need to use this interface if you are building a custom
 collection type that requires a non‑standard storage behaviour (e.g.,
 a specialised list that maintains a fixed capacity, or a set that uses
 identity equality). In such cases, you can create a custom <code>Container</code>
 strategy using <code>Container.create()</code>.</p>
+<p>You rarely need to interact with this interface directly. It is used
+internally by the framework to select the appropriate storage strategy
+based on the collection type. The predefined constants (<code>Container.list</code>,
+<code>Container.set</code>, <code>Container.map</code>, <code>Container.queue</code>, <code>Container.value</code>)
+are the entry points for most use cases.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>Each <a href="../cell_tissue/Container-class.html">Container</a> instance is a strategy object that defines three
@@ -215,7 +214,7 @@ container.init(['a', 'b']);
 
         <dt id="init" class="callable">
   <span class="name"><a href="../cell_tissue/Container/init.html">init</a></span><span class="signature">(<wbr>[<span class="parameter" id="init-param-initialization"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialization</span></span>])
-    <span class="returntype parameter">&#8594; dynamic</span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span>
   </span>
   
 
@@ -491,7 +490,7 @@ through value equality (<code>==</code>).
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

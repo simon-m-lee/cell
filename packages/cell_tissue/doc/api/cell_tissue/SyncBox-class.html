@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">SyncBox<span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">SyncBox</div>
@@ -54,47 +54,74 @@
 
     
 <section class="desc markdown">
-  <p>A synchronized variant of <a href="../cell_tissue/Box-class.html">Box</a> that provides thread-safe access and
-facilitates atomic state transitions.</p>
-<p>In the reactive framework, <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> implements the <strong>Synchronized State
-Anchor</strong> pattern. While a standard <a href="../cell_tissue/Box-class.html">Box</a> is optimized for high-performance,
-single-threaded propagation within a reactive wave, <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> is designed
-for <strong>Conactive Integrity</strong>—ensuring that state remains consistent even
-when accessed or mutated across concurrent execution contexts.</p>
-<h3 id="1-architectural-role-thread-safe-proxy">1. Architectural Role: Thread-Safe Proxy</h3>
-<p><a href="../cell_tissue/SyncBox-class.html">SyncBox</a> serves as the primary storage gateway for nodes that require
-strict <strong>Mutual Exclusion</strong>. It is a cornerstone of the framework's
-concurrency model, preventing "State Tearing" or race conditions during
-high-frequency updates from multiple asynchronous sources (such as
-hardware interrupts, network callbacks, or background isolates).</p>
-<h3 id="2-functional-mechanics-atomic-commitment">2. Functional Mechanics: Atomic Commitment</h3>
-<p>Unlike a standard <a href="../cell_tissue/Box-class.html">Box</a>, which allows direct imperative access, <a href="../cell_tissue/SyncBox-class.html">SyncBox</a>
-is architecturally positioned to work with the framework's locking
-mechanisms:</p>
+  <p>A synchronized variant of <a href="../cell_tissue/Box-class.html">Box</a> providing <strong>Thread-Safe Access</strong> and
+facilitating <strong>Atomic State Transitions</strong> across concurrent execution boundaries.</p>
+<p><a href="../cell_tissue/SyncBox-class.html">SyncBox</a> implements the <strong>Synchronized State Anchor</strong> pattern. While a
+standard <a href="../cell_tissue/Box-class.html">Box</a> is optimized for zero-latency, single-threaded propagation
+within a reactive wave, <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> is designed for <strong>Conactive Integrity</strong>—ensuring
+that state remains consistent even when accessed or mutated by multiple
+asynchronous actors (such as isolates, event loop tasks, or network callbacks).</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Serialization</strong>: Access to the underlying value is gated by an
-internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, ensuring that only one <a href="../cell_tissue/Receptor-class.html">Receptor</a> or actor can
-modify the state at a time.</li>
-<li><strong>Visibility Guarantees</strong>: It ensures that once a value is written,
-it is immediately visible to all subsequent readers across different
-execution contexts, maintaining a <strong>Linearizable</strong> state history.</li>
-<li><strong>Asynchronous Interface</strong>: All operations return <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>s, signaling
-to the framework that the operation involves a synchronization barrier
-and may yield execution.</li>
+<li><strong>Shared Resources</strong>: Protecting state that is updated from external
+asynchronous drivers like hardware sensors, sockets, or Bluetooth streams.</li>
+<li><strong>Cross-Context Signals</strong>: Acting as a stable memory bridge when <a href="../cell_tissue/Pulse-class.html">Pulse</a>
+signals originate from background workers or different execution tiers.</li>
+<li><strong>Concurrent Orchestration</strong>: Managing shared configuration in complex
+system hierarchies where multiple independent agents may read or write
+simultaneously.</li>
+<li><strong>State Tearing Prevention</strong>: Ensuring that complex payloads are not read
+while a mutation is partially complete.</li>
 </ul>
-<h3 id="3-use-cases-in-the-conactive-engine">3. Use Cases in the Conactive Engine</h3>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Serialization</strong>: Access to the underlying <a href="../cell_tissue/Box-class.html">Box</a> is gated by a non-recursive
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This ensures that only one actor can perform a read or write
+operation at any given moment.</li>
+<li><strong>Visibility Guarantees</strong>: It ensures that once a value is committed, it
+is immediately visible to all subsequent readers across different execution
+contexts, maintaining a <strong>Linearizable</strong> state history.</li>
+<li><strong>Asynchronous Interface</strong>: All operations return <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> handles,
+aligning with the framework's non-blocking concurrency model and signaling
+a synchronization barrier.</li>
+<li><strong>Conactive Bridge</strong>: It serves as the primary gateway for <a href="../cell_tissue/Async-class.html">Async</a> proxies
+to interact with a cell's internal cytoplasm safely.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li><strong>Shared Resources</strong>: Used in cells that wrap external asynchronous
-drivers (e.g., a shared sensor buffer or a database connection).</li>
-<li><strong>Cross-Context Signals</strong>: Acting as a stable memory bridge when
-<a href="../cell_tissue/Pulse-class.html">Pulse</a> signals originate from background worker isolates.</li>
-<li><strong>Orchestration Nodes</strong>: Storing shared configuration in complex
-system hierarchies where multiple agents may read/write simultaneously.</li>
+<li><strong>Locking Latency</strong>: While providing safety, the synchronization barrier
+introduces a minor scheduling delay compared to direct <a href="../cell_tissue/Box-class.html">Box</a> access. Use
+the standard <a href="../cell_tissue/Box-class.html">Box</a> for pure intra-wave reactive transformations.</li>
+<li><strong>Point-in-Time Consistency</strong>: The <a href="../cell_tissue/SyncBox/state.html">state</a> getter returns the state at
+the exact moment the lock was acquired, preventing the "Lost Update"
+problem during high-contention cycles.</li>
+<li><strong>Zero-Blocking</strong>: Because it uses the framework's internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, the
+calling thread remains free to handle other event loop tasks while waiting
+for access, preventing UI jank.</li>
+<li><strong>Principal Coupling</strong>: A <a href="../cell_tissue/SyncBox-class.html">SyncBox</a> is strictly a proxy; it does not own
+the state itself but merely coordinates access to its principal <a href="../cell_tissue/Box-class.html">Box</a>.</li>
 </ul>
-<p>See also:</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final sharedBox = Box&lt;int&gt;(0).async; // Returns a SyncBox
+
+void updateFromNetwork(int newValue) async {
+  // Thread-safe update
+  await sharedBox.set(newValue);
+
+  // Thread-safe read
+  final current = await sharedBox.state;
+  print('Atomic state: $current');
+}
+</code></pre>
+<h3 id="parameters">Parameters:</h3>
 <ul>
-<li><a href="../cell_tissue/Box-class.html">Box</a>: The standard mutable variant for high-speed reactive flow.</li>
-<li><a href="../cell_tissue/FinalBox-class.html">FinalBox</a>: The write-once variant for late-binding immutability.</li>
+<li><strong><code>T</code></strong>: The type of data stored in the box.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/Box-class.html">Box</a>: The high-performance, non-synchronized somatic variant.</li>
+<li><a href="../cell_tissue/FinalBox-class.html">FinalBox</a>: For write-once, late-bound immutable anchors.</li>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The underlying primitive used to serialize access.</li>
 </ul>
 </section>
 
@@ -142,14 +169,14 @@ system hierarchies where multiple agents may read/write simultaneously.</li>
 
 </dd>
 
-        <dt id="value" class="property">
-  <span class="name"><a href="../cell_tissue/SyncBox/value.html">value</a></span>
+        <dt id="state" class="property">
+  <span class="name"><a href="../cell_tissue/SyncBox/state.html">state</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T?</span>&gt;</span></span>
   
 
 </dt>
 <dd>
-  Retrieves the current value asynchronously, ensuring the read is
+  Retrieves the current state asynchronously, ensuring the read is
 serialized behind the internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.
   <div class="features"><span class="feature">no setter</span></div>
 
@@ -178,14 +205,14 @@ serialized behind the internal <a href="https://pub.dev/documentation/synchroniz
 </dd>
 
         <dt id="set" class="callable">
-  <span class="name"><a href="../cell_tissue/SyncBox/set.html">set</a></span><span class="signature">(<wbr><span class="parameter" id="set-param-value"><span class="type-annotation">T?</span> <span class="parameter-name">value</span></span>)
+  <span class="name"><a href="../cell_tissue/SyncBox/set.html">set</a></span><span class="signature">(<wbr><span class="parameter" id="set-param-state"><span class="type-annotation">T?</span> <span class="parameter-name">state</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Sets the current value asynchronously, ensuring the write is
+  Sets the current state asynchronously, ensuring the write is
 performed within a thread-safe <strong>State Commitment Phase</strong>.
   
 
@@ -254,7 +281,7 @@ performed within a thread-safe <strong>State Commitment Phase</strong>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">ValueCell<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">ValueCell</div>
@@ -56,24 +56,24 @@
 <section class="desc markdown">
   <p>A state‑bearing reactive node – the primary way to manage persistent
 state in the Cell Framework.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You almost always create a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> via <a href="../cell_tissue/Cell/value.html">Cell.value</a>. That gives you
+<h3 id="when-to-use">When to use</h3>
+<p>You almost always create a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> via <a href="../cell_tissue/Cell/state.html">Cell.state</a>. That gives you
 a <a href="../cell_tissue/StateHandle.html">StateHandle</a> with a <code>cell</code> and update functions.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>A <code>ValueCell</code> holds a value in a <code>Box</code> (physical storage). It uses a
+<p>A <code>ValueCell</code> holds a state in a <code>Box</code> (physical storage). It uses a
 <a href="../cell_tissue/Receptor-class.html">Receptor</a> to process incoming pulses through a <code>transform</code> function,
-validates the result with a <code>testRule</code>, and commits the new value to
+validates the result with a <code>testRule</code>, and commits the new state to
 the <code>Box</code>. Changes are then broadcast to observers via <a href="../cell_tissue/Synapses-class.html">Synapses</a>.</p>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
 <li>The cell is thread‑safe – all mutations are serialized through its
 internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
-<li>You can read the value synchronously with <code>cell.value</code>, but for
-consistency across concurrent updates, use <code>await cell.async.value</code>.</li>
+<li>You can read the state synchronously with <code>cell.state</code>, but for
+consistency across concurrent updates, use <code>await cell.async.state</code>.</li>
 <li>If you create a deputy via <code>deputy()</code>, it shares the same state but
 can have its own validation or propagation rules.</li>
 </ul>
-<p>See also: <a href="../cell_tissue/Cell/value.html">Cell.value</a> (the factory), <a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> (the blueprint),
+<p>See also: <a href="../cell_tissue/Cell/state.html">Cell.state</a> (the factory), <a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> (the blueprint),
 <a href="../cell_tissue/Box-class.html">Box</a> (storage), <a href="../cell_tissue/StateHandle.html">StateHandle</a> (the returned record).</p>
 </section>
 
@@ -110,20 +110,20 @@ can have its own validation or propagation rules.</li>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="ValueCell.new" class="callable">
-          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.html">ValueCell</a></span><span class="signature">({<span class="parameter" id="-param-transform"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.html">ValueCell</a></span><span class="signature">({<span class="parameter" id="-param-transform"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span>, </span><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span></span>})</span>
         </dt>
         <dd>
           Initializes a new primary <code>ValueCell</code> – the standard state atom.
         </dd>
         <dt id="ValueCell.fromNucleus" class="callable">
-          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.fromNucleus.html">ValueCell.fromNucleus</a></span><span class="signature">(<span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span><span class="parameter" id="fromNucleus-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.fromNucleus.html">ValueCell.fromNucleus</a></span><span class="signature">(<span class="parameter" id="fromNucleus-param-nucleus"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span><span class="parameter" id="fromNucleus-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span></span>})</span>
         </dt>
         <dd>
           Initializes a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> from an existing <a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> – used
 internally for blueprint hydration.
         </dd>
         <dt id="ValueCell.terminal" class="callable">
-          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.terminal.html">ValueCell.terminal</a></span><span class="signature">({<span class="parameter" id="terminal-param-transform"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="terminal-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="terminal-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="terminal-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="terminal-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="terminal-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span></span>})</span>
+          <span class="name"><a href="../cell_tissue/ValueCell/ValueCell.terminal.html">ValueCell.terminal</a></span><span class="signature">({<span class="parameter" id="terminal-param-transform"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-host"><span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">host</span>, </span><span class="parameter" id="param-input"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="terminal-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span>, </span><span class="parameter" id="terminal-param-bind"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="terminal-param-context"><span class="type-annotation"><a href="../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span><span class="parameter" id="terminal-param-receptor"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span> = <span class="default-value">Receptor.passThrough</span>, </span><span class="parameter" id="terminal-param-testRule"><span class="type-annotation"><a href="../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span> = <span class="default-value">TestCell.allowAll</span></span>})</span>
         </dt>
         <dd>
           Creates a terminal <code>ValueCell</code> that never broadcasts its state changes.
@@ -156,8 +156,8 @@ providing thread‑safe and serialized state access.
 
 </dt>
 <dd class="inherited">
-  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the security tier, execution priority,
-and administrative authority of this <a href="../cell_tissue/Cell-class.html">Cell</a>.
+  The operational <a href="../cell_tissue/Context-class.html">Context</a> defining the forensic identity, administrative
+authority, and causal lineage of this specific <a href="../cell_tissue/Cell-class.html">Cell</a> handle.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -181,8 +181,8 @@ and administrative authority of this <a href="../cell_tissue/Cell-class.html">Ce
 
 </dt>
 <dd class="inherited">
-  Indicates whether this <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a <strong>Management Policy</strong>
-that oversees its operational boundaries, security constraints, and administrative metadata.
+  Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -207,8 +207,8 @@ sequence and is currently in the process of being neutralized.
 
 </dt>
 <dd class="inherited">
-  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a <strong>Processing Sink</strong>
-within the reactive graph.
+  A boolean indicator identifying whether this <a href="../cell_tissue/Cell-class.html">Cell</a> acts as a
+<strong>Processing Sink</strong> within the reactive topology.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -220,8 +220,8 @@ within the reactive graph.
 
 </dt>
 <dd class="inherited">
-  Defines the exhaustive whitelist of functions and commands that are
-permitted to be executed on this node via the dynamic <a href="../cell_tissue/CellBase/apply.html">apply</a> method.
+  Defines the exhaustive whitelist of functions and commands authorized for
+execution on this node via the dynamic <a href="../cell_tissue/CellBase/apply.html">apply</a> method.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -257,8 +257,8 @@ permitted to be executed on this node via the dynamic <a href="../cell_tissue/Ce
 
 </dt>
 <dd class="inherited">
-  The primary structural gatekeeper and validation rule governing this cell's
-integrity and security.
+  The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -285,7 +285,7 @@ integrity and security.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="apply" class="callable inherited">
-  <span class="name"><a href="../cell_tissue/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, </span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, [</span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span></span>])
+  <span class="name"><a href="../cell_tissue/CellBase/apply.html">apply</a></span><span class="signature">(<wbr><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span></span>})
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -305,9 +305,8 @@ integrity and security.
 
 </dt>
 <dd class="inherited">
-  Creates a <strong>deputy</strong>: a proxy <a href="../cell_tissue/Cell-class.html">Cell</a> that shares the same underlying
-state and identity as this cell, but operates under a different
-<code>context</code> and/or <code>testRule</code>.
+  Creates an <strong>Attenuated Proxy</strong> (Deputy) of this cell with specialized
+governance and restricted authority.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -325,16 +324,16 @@ state and identity as this cell, but operates under a different
 
 </dd>
 
-        <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../cell_tissue/ValueCell/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   A string representation of this object.
-  <div class="features"><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -367,12 +366,12 @@ state and identity as this cell, but operates under a different
     <dl class="properties">
         <dt id="postProcessRule" class="property">
   <span class="name"><a href="../cell_tissue/ValueCell/postProcessRule.html">postProcessRule</a></span>
-  <span class="signature">&#8596; <a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
+  <span class="signature">&#8596; <a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span>
   
 
 </dt>
 <dd>
-  A static, reusable <a href="../cell_tissue/PulseRule-class.html">PulseRule</a> that commits a validated pulse to the
+  A static, reusable <a href="../cell_tissue/Instruction-class.html">Instruction</a> that commits a validated pulse to the
 cell's <code>Box</code>.
   <div class="features"><span class="feature">getter/setter pair</span></div>
 
@@ -385,15 +384,15 @@ cell's <code>Box</code>.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="create" class="callable">
-  <span class="name"><a href="../cell_tissue/ValueCell/create.html">create</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="create-param-nucleus"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span><span class="parameter" id="create-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>})
+  <span class="name"><a href="../cell_tissue/ValueCell/create.html">create</a></span><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="create-param-nucleus"><span class="type-annotation"><a href="../cell_tissue/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span><span class="parameter" id="create-param-initial"><span class="type-annotation">V?</span> <span class="parameter-name">initial</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_tissue/StateHandle.html">StateHandle</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  A high‑level static factory that builds a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> and its update
-handles in one step – used internally by <a href="../cell_tissue/Cell/value.html">Cell.value</a>.
+  A high-level static factory that synthesizes a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> and its
+operational <a href="../cell_tissue/StateHandle.html">StateHandle</a> in a single atomic operation.
   
 
 </dd>
@@ -439,7 +438,7 @@ the state commitment pipeline.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

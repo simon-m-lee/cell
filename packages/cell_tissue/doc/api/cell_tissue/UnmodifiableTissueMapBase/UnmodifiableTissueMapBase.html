@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueMapBase-class.html">UnmodifiableTissueMapBase<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueMapBase.new constructor</li>
   </ol>
@@ -65,7 +65,7 @@
 <p>If <code>entries</code> are provided, they are loaded into the underlying storage.
 Any values that are <a href="../../cell_tissue/Cell-class.html">Cell</a> instances are linked to this tissue's
 synapses to ensure reactivity is propagated from the elements.</p>
-<p>Parameters:</p>
+<h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>properties</code>: The configuration for the reactive map.</li>
 <li><code>unmodifiableElement</code>: If true, elements retrieved from the map will
@@ -80,20 +80,7 @@ be returned as unmodifiable views (if they support it).</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueMapBase(
     TissueMapNucleusBase&lt;K,V,C&gt; super.properties, {super.unmodifiableElement, Iterable&lt;MapEntry&lt;K,V&gt;&gt;? entries})
-    : super() {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
-  if (container != null) {
-    _nucleus.container.init(entries);
-  }
-  if (unmodifiableElement) {
-    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.mask.bind, orElse: null);
-    if (bind != null &amp;&amp; entries != null) {
-      entries.map&lt;V&gt;((en) =&gt; en.value).whereType&lt;Cell&gt;()
-          .forEach((e) =&gt; _nucleus.synapses.link(e, downstreamCell: this));
-    }
-  }
-
-}</code></pre>
+    : super();</code></pre>
 </section>
 
 
@@ -121,7 +108,7 @@ be returned as unmodifiable views (if they support it).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

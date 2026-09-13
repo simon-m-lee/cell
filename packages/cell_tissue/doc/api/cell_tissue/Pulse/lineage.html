@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">lineage&lt;<wbr><span class="type-parameter">T</span>&gt; abstract method</li>
   </ol>
@@ -54,54 +54,69 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span>
-<span class="name ">lineage</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="lineage-param-fieldGetter"><span class="type-annotation">dynamic</span> <span class="parameter-name">fieldGetter</span>, {</span></li>
-<li><span class="parameter" id="lineage-param-fromPolicy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">fromPolicy</span> = <span class="default-value">false</span>, </span></li>
-</ol>})
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+<span class="name ">lineage</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="lineage-param-arg"><span class="type-annotation"><a href="../../cell_tissue/LineageArgument.html">LineageArgument</a></span> <span class="parameter-name">arg</span></span></li>
+</ol>)
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Traverses the dependency chain to reconstruct the complete <strong>Execution Trace</strong>
-of the current signal.</p>
+  <p>Traverses the causal chain from the root ancestor to this pulse to
+reconstruct a historical timeline of values.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this for advanced debugging or auditing – to see how a value or
-property evolved across the causal chain.</p>
+<ul>
+<li><strong>Value Evolution Auditing</strong>: Use this to see how a specific property
+(like <code>payload</code> or <code>step</code>) has changed across every hop in the graph.</li>
+<li><strong>Forensic Debugging</strong>: Identify exactly which transformation step
+introduced an unexpected value.</li>
+<li><strong>Explainable AI (XAI)</strong>: Reconstruct the decision path of a signal
+through a complex reactive network.</li>
+<li><strong>State Drift Analysis</strong>: Compare the primordial root value with the
+current state to calculate total delta.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>You provide a field getter (e.g., <code>#payload</code>, <code>Provenance.reason</code>) and
-the method walks up the parent chain, collecting values along the way.</p>
-<h3 id="examples">Examples</h3>
-<pre class="language-dart"><code class="language-dart">// Trace how a value changed over time
-final history = pulse.lineage&lt;int&gt;(#payload);
-// Returns: [100, 105, 98]
+<ol>
+<li>The method starts at the current pulse and walks up the <code>parent</code> chain
+until it reaches the <a href="../../cell_tissue/Pulse/root.html">root</a>.</li>
+<li>For each pulse in the chain, it extracts the requested value using the
+provided <code>arg</code>.</li>
+<li>The resulting collection is <strong>reversed</strong> to provide a chronological
+sequence (FIFO: First-In, First-Out).</li>
+</ol>
+<h3 id="nonobvious-chronological-order">Non‑obvious: chronological order</h3>
+<p>Unlike the manual <code>parent</code> traversal which is LIFO (Last-In, First-Out),
+<a href="../../cell_tissue/Pulse/lineage.html">lineage</a> returns a FIFO list. The element at index <code>0</code> is always
+the <a href="../../cell_tissue/Pulse/root.html">root</a> pulse's value.</p>
+<h3 id="nonobvious-type-safety">Non‑obvious: type safety</h3>
+<p>If a pulse in the chain returns a value that does not match the
+requested type <code>T</code>, that specific hop is omitted from the results
+to prevent runtime type exceptions during iteration.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Trace how the payload evolved from the original input
+final history = pulse.lineage&lt;double&gt;(Pulse.payload);
+print(history); // [100.0, 115.0, 103.5]
 
-// Trace the reasons behind each step
-final reasons = pulse.lineage&lt;String&gt;(Provenance.reason, fromPolicy: true);
-// Returns: ['User Input', 'Sanitization', 'Validation']
+// Trace the causal "steps" taken through the graph
+final steps = pulse.lineage&lt;String&gt;(Pulse.step);
+print(steps); // ['origin', 'tax_calc', 'discount_apply']
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>fieldGetter</code>: The key or property used to extract data from the signal chain.
-<ul>
-<li>If <code>fromPolicy</code> is <code>false</code>: Refers to <a href="../../cell_tissue/Pulse-class.html">Pulse</a> members like <code>payload</code>.</li>
-<li>If <code>fromPolicy</code> is <code>true</code>: Refers to <a href="../../cell_tissue/Provenance.html">Provenance</a> metadata keys.</li>
-</ul>
-</li>
-<li><code>fromPolicy</code>: If <code>true</code>, indicates the traversal is being performed
-within the context of a <strong>Management Policy</strong> or <a href="../../cell_tissue/TestCell-class.html">TestCell</a>.</li>
+<li><code>arg</code>: A <a href="../../cell_tissue/LineageArgument.html">LineageArgument</a> defining which property to extract from
+the causal chain.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;T&gt;</a> containing the chronological sequence of historical values,
-or <code>null</code> if no signals in the hierarchy match the requested type <code>T</code>.</p>
+<p>A fixed-length <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;T&gt;</a> containing the historical values in
+chronological order (Primordial -&gt; Present).</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">List&lt;T&gt;? lineage&lt;T&gt;(dynamic fieldGetter, {bool fromPolicy = false});</code></pre>
+  <pre class="language-dart"><code class="language-dart">List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg);</code></pre>
 </section>
 
 
@@ -129,7 +144,7 @@ or <code>null</code> if no signals in the hierarchy match the requested type <co
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

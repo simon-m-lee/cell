@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueValueBase-class.html">UnmodifiableTissueValueBase<span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends TissueValue&lt;<wbr><span class="type-parameter">V</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueValueBase.new constructor</li>
   </ol>
@@ -63,12 +63,11 @@
 <section class="desc markdown">
   <p>The internal constructor that materialises a read‑only, live view of a
 reactive single value.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
 <p>You never call this constructor directly. It is invoked by the framework
 when you write <code>myValue.unmodifiable</code>, or when you use one of the
 specialised factories (<code>UnmodifiableTissueValue</code>, <code>UnmodifiableTissueValue.view</code>,
 or <code>UnmodifiableTissueValue.fromNucleus</code>).</p>
-<h3 id="when-to-use-as-a-developer">When to use (as a developer)</h3>
 <p>You don't. This is an internal constructor. But understanding it helps
 you trust that <code>.unmodifiable</code> is cheap (zero‑copy), live, and deeply
 safe.</p>
@@ -76,7 +75,7 @@ safe.</p>
 <ol>
 <li><strong>Logic activation</strong>: It receives a <a href="../../cell_tissue/TissueValueNucleusBase-class.html">TissueValueNucleusBase</a> (the
 immutable blueprint) and binds it to the new view instance. The
-nucleus holds the value’s structural strategy (<code>finalValue</code>), its
+nucleus holds the value's structural strategy (<code>finalValue</code>), its
 synchronisation <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, and its governance rules.</li>
 <li><strong>State seeding</strong>: If a <code>value</code> is provided, it writes it directly
 into the underlying <a href="../../cell_tissue/ValueContainer-class.html">ValueContainer</a> (the physical storage) atomically.
@@ -107,7 +106,7 @@ view shares the same physical storage as its source – <strong>zero‑copy</str
  lazily when the <code>value</code> getter is accessed (via the mixin logic).</li>
 <li><strong>The <code>bind</code> check</strong>: The constructor checks if the nucleus has a
  <code>bind</code> (a principal). If so, and the value is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, it links
- to ensure the view stays in sync with the principal’s child cell.</li>
+ to ensure the view stays in sync with the principal's child cell.</li>
 </ul>
 <h3 id="example-internal-usage--how-the-framework-creates-a-view">Example (internal usage – how the framework creates a view)</h3>
 <pre class="language-dart"><code class="language-dart">// When you write source.unmodifiable, the framework does something like:
@@ -122,12 +121,12 @@ final readOnly = UnmodifiableTissueValueBase&lt;int, TissueValue&lt;int&gt;&gt;(
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>properties</code>: <strong>Required</strong>. The immutable blueprint that defines the
-value’s behaviour, storage strategy (<code>finalValue</code>), and governance.</li>
+value's behaviour, storage strategy (<code>finalValue</code>), and governance.</li>
 <li><code>unmodifiableElement</code>: If <code>true</code>, and the value is a <a href="../../cell_tissue/Cell-class.html">Cell</a>, it is
 projected as its <code>.unmodifiable</code> deputy when accessed. Defaults to
 <code>true</code> in most factories.</li>
 <li><code>value</code>: Optional initial value to seed the physical container.
-This is typically the source’s current value.</li>
+This is typically the source's current value.</li>
 </ul>
 </section>
 
@@ -137,12 +136,12 @@ This is typically the source’s current value.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueValueBase(super.properties, {super.unmodifiableElement, V? value})
     : super() {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.mask.container, orElse: null);
+  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
   if (container != null) {
     _nucleus.container.store.value = value;
   }
   if (unmodifiableElement) {
-    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.mask.bind, orElse: null);
+    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.local.bind, orElse: null);
     if (bind != null &amp;&amp; value != null) {
       if (value is Cell) {
         _nucleus.synapses.link(value, downstreamCell: this);
@@ -177,7 +176,7 @@ This is typically the source’s current value.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

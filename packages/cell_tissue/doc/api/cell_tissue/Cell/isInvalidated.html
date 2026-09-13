@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">isInvalidated property</li>
   </ol>
@@ -72,14 +72,57 @@ sequence and is currently in the process of being neutralized.</p>
 <p>This property reflects the <strong>Active Invalidation State</strong> of a reactive
 node. A cell enters this state when its <a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a>—the
 component responsible for <strong>Lifecycle Governance</strong>—determines that an
-operational threshold (such as a Time-to-Live expiration or a signal
-hop limit) has been reached.</p>
+operational threshold has been reached.</p>
+<h3 id="architectural-significance-the-neutralization-phase">Architectural Significance: The Neutralization Phase</h3>
+<p>In the Cell-Mitosis lifecycle, invalidation is the transitionary phase
+between <strong>Active Vitality</strong> and <strong>Garbage Collection</strong>.</p>
+<ul>
+<li><strong>Trigger Mechanisms</strong>: A node may be invalidated due to a
+Time-to-Live (TTL) expiration, a signal "hop limit" (Causal Lineage
+depth), or an explicit call to the <code>neutralize()</code> command.</li>
+<li><strong>Operational Guard</strong>: Once <code>isInvalidated</code> is <code>true</code>, the node's
+<strong>Integrity Gate</strong> will begin rejecting all incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a>s
+and <a href="../../cell_tissue/Cell/apply.html">apply</a> commands to prevent state corruption.</li>
+</ul>
 <h3 id="when-to-use">When to use</h3>
-<p>Check this before interacting with a cell to avoid acting on a dead
-node. Especially important in long‑running systems with ephemeral cells.</p>
+<ul>
+<li><strong>Stale Data Prevention</strong>: Check this before interacting with a cell
+in long-running asynchronous operations to ensure you aren't acting
+on a node that is no longer part of the active reactive graph.</li>
+<li><strong>Resource Cleanup</strong>: Use this as a signal to detach listeners or
+dispose of UI controllers bound to this specific node.</li>
+<li><strong>Dynamic Topology</strong>: Framework-level logic uses this to prune dead
+branches from the reactive tree during <strong>Switching Fabric</strong> maintenance.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Policy Egress</strong>: The <a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a> attached to the cell
+monitors usage patterns and environmental signals.</li>
+<li><strong>Signal Propagation</strong>: When the policy triggers, the cell emits
+a final "Neutralization Pulse" to notify downstream observers
+that it is shutting down.</li>
+<li><strong>State Freezing</strong>: While the cell may still hold its last value
+in memory, <code>isInvalidated</code> serves as a semantic lock, preventing
+further state transitions.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Irreversibility</strong>: Invalidation is a <strong>terminal state</strong>. Once a cell
+is invalidated, it cannot be "revived"; a new <a href="../../cell_tissue/Cell-class.html">Cell</a> instance must be
+synthesized from a <code>Nucleus</code> if the logic needs to restart.</li>
+<li><strong>Memory Safety</strong>: This state allows the internal <a href="../../cell_tissue/Synapses-class.html">Synapses</a> to
+clear their observer registries, breaking strong reference cycles and
+facilitating proper garbage collection.</li>
+<li><strong>Deputy Impact</strong>: When a principal cell is invalidated, all of its
+attenuated deputies are automatically moved into the neutralization phase.</li>
+</ul>
 <h3 id="returns">Returns:</h3>
-<p><code>true</code> if the cell's governance policy has triggered its termination
-sequence; <code>false</code> if the cell is currently stable and operational.</p>
+<ul>
+<li><code>true</code>: If the cell's governance policy has emitted its termination
+sequence and the node is no longer operational.</li>
+<li><code>false</code>: If the cell is currently stable, healthy, and participating
+in the reactive topology.</li>
+</ul>
 </section>
 
     
@@ -115,7 +158,7 @@ sequence; <code>false</code> if the cell is currently stable and operational.</p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

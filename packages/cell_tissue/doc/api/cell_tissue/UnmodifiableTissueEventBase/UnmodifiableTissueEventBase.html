@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueEventBase.new constructor</li>
   </ol>
@@ -60,14 +60,14 @@
     
 <section class="desc markdown">
   <p>Creates an unmodifiable projection of the given <code>source</code> event.</p>
-<p>This constructor is used internally by <a href="../../cell_tissue/TissueEvent/unmodifiable.html">TissueEvent.unmodifiable</a>.</p>
+<p>This constructor is used internally by <a href="../../cell_tissue/TissuePulse/unmodifiable.html">TissuePulse.unmodifiable</a>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueEventBase(TissueEventBase&lt;E&gt; source) : _source = source, super(source);</code></pre>
+  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueEventBase(TissueEventBase&lt;E&gt; super.source) : _source = source;</code></pre>
 </section>
 
 
@@ -95,7 +95,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

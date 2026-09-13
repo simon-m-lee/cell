@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissueBase-class.html">UnmodifiableTissueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissueBase.new constructor</li>
   </ol>
@@ -80,9 +80,9 @@ in the container.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueBase(super.nucleus,
-    {this.unmodifiableElement = true, Iterable&lt;E&gt;? elements}) : super() {
+    {this.unmodifiableElement = true, Iterable&lt;E&gt;? elements}) : super(elements: elements) {
   if (unmodifiableElement) {
-    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.mask.bind, orElse: null);
+    final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.local.bind, orElse: null);
     if (bind != null &amp;&amp; elements != null &amp;&amp; identical(bind, elements)) {
       elements
           .whereType&lt;Cell&gt;()
@@ -118,7 +118,7 @@ in the container.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

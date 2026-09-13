@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiableTissue-class.html">UnmodifiableTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">UnmodifiableTissue.new factory constructor</li>
   </ol>
@@ -62,14 +62,6 @@
     
 <section class="desc markdown">
   <p>Creates a permanently read‑only reactive collection from a fixed set of elements.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You rarely call this factory directly. In most cases, you get an unmodifiable
-tissue by calling <code>.unmodifiable</code> on an existing mutable tissue:</p>
-<pre class="language-dart"><code class="language-dart">final readOnly = myList.unmodifiable;
-</code></pre>
-<p>Use this factory only when you need to create a standalone immutable collection
-that is not derived from a mutable source – e.g., for configuration data that
-should never change.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>You have a fixed set of data that must never change (e.g., a list of
@@ -79,6 +71,13 @@ though there won't be any) and to participate in the reactive graph.</li>
 <li>You want to enforce immutability at the type level – the collection will
 reject any mutation attempt.</li>
 </ul>
+<p>You rarely call this factory directly. In most cases, you get an unmodifiable
+tissue by calling <code>.unmodifiable</code> on an existing mutable tissue:</p>
+<pre class="language-dart"><code class="language-dart">final readOnly = myList.unmodifiable;
+</code></pre>
+<p>Use this factory only when you need to create a standalone immutable collection
+that is not derived from a mutable source – e.g., for configuration data that
+should never change.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The factory creates a new tissue node with a <strong>read‑only nucleus</strong>.</li>
@@ -87,7 +86,7 @@ modified. The storage is allocated atomically under a lock, so observers
 never see a partially populated state.</li>
 <li>If <code>unmodifiableElement</code> is <code>true</code> (the default), any element that is itself
 a <a href="../../cell_tissue/Cell-class.html">Cell</a> is automatically wrapped in its <code>.unmodifiable</code> deputy when accessed.
-This prevents “side‑door” mutations through nested mutable cells.</li>
+This prevents "side‑door" mutations through nested mutable cells.</li>
 <li>The tissue is fully reactive: it can be observed, it participates in the
 graph, and it can be used as a source for derived tissues. It simply
 blocks all mutations.</li>
@@ -160,7 +159,7 @@ strictly immutable.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

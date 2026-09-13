@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/OpenCell-class.html">OpenCell</a></li>
     <li class="self-crumb">OpenCell.new factory constructor</li>
   </ol>
@@ -54,7 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">OpenCell</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+      <span class="name ">OpenCell</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
+<li><span class="parameter" id="-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
+<li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="-param-receptor"><span class="type-annotation"><a href="../../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">receptor</span>, </span></li>
 <li><span class="parameter" id="-param-testRule"><span class="type-annotation"><a href="../../cell_tissue/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">testRule</span>, </span></li>
 <li><span class="parameter" id="-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span>, </span></li>
@@ -67,7 +69,7 @@
 <ul>
 <li><code>receptor</code>: The logic unit for processing incoming signals.</li>
 <li><code>bind</code>: An optional upstream cell to bind to (acting as a deputy).</li>
-<li><a href="../../cell_tissue/Cell/context.html">context</a>: The execution context (e.g., system vs user).</li>
+<li><code>context</code>: The execution context (e.g., system vs user).</li>
 <li><code>testRule</code>: The validation rule determining permissions for this cell.
 This allows restricting external access to open methods like <code>receptor</code> and <a href="../../cell_tissue/OpenCell/link.html">link</a>.</li>
 <li><code>synapses</code>: The manager for downstream connections.</li>
@@ -79,8 +81,10 @@ This allows restricting external access to open methods like <code>receptor</cod
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory OpenCell({
+  EphemeralPolicy? ephemeralPolicy,
 
   Cell? bind,
+  Context context,
   Receptor receptor,
   TestCell testRule,
   Synapses synapses,
@@ -114,7 +118,7 @@ This allows restricting external access to open methods like <code>receptor</cod
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

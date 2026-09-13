@@ -117,6 +117,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
     TestTissue<E, TissueList<E>> testRule,
     Synapses synapses,
     bool growable,
+    EphemeralPolicy? ephemeralPolicy,
     Record? user,
   }) = _TissueListNucleus<E, TissueList<E>>;
 
@@ -183,6 +184,8 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
     TestTissue<E, TissueList<E>>? testRule,
     Synapses? synapses,
 
+    EphemeralPolicy? ephemeralPolicy,
+
     TissueListNucleus<E>? override,
     required TissueListNucleus<E> principal
   }) = _TissueListNucleus<E, TissueList<E>>.evolve;
@@ -238,17 +241,19 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 
     Container? container,
     Record? user,
+    EphemeralPolicy? ephemeralPolicy,
     forceLock = false,
     TissueListNucleusBase<E,C>? principal
   }) {
 
     if (principal != null) {
-      final local = TissueNucleusBase.local<E,Set<E>,C>(
+      final local = TissueNucleusBase.local<E,List<E>,C>(
         container: container,
         bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        ephemeralPolicy: ephemeralPolicy,
       );
       return _TissueListNucleus<E,C>.fromRecord(
-          (mask: local, principal: principal)
+          (local: local, principal: principal)
       );
     }
 
@@ -260,6 +265,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
         synapses: synapses ?? Synapses.enabled,
         growable: container == Container.growableTrue,
         user: user,
+        ephemeralPolicy: ephemeralPolicy,
         forceLock: forceLock
     );
 
@@ -355,7 +361,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// - Internally, it uses a [TissueListNucleus] to govern behaviour and a
 ///   [Container] for physical storage.
 /// - Every mutation (e.g., `add`, `removeAt`, `operator []=`) goes through a
-///   validation pipeline ([testRule]) and emits a [TissueEvent].
+///   validation pipeline ([testRule]) and emits a [TissuePulse].
 /// - The list is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, etc.) that share the same storage.
@@ -531,7 +537,7 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// ```
   ///
   /// ### Parameters:
-  /// - [nucleus]: The blueprint to use.
+  /// - [properties]: The blueprint to use.
   /// - [elements]: Optional initial data.
   ///
   /// ### Returns:
@@ -670,7 +676,7 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   ///
   /// ### How it works
   /// - It calls `apply` with the `setValueAt` function and the arguments.
-  /// - The mutation is validated by [testRule.action] and [testRule.element].
+  /// - The mutation is validated by `testRule.action` and `testRule.element`.
   /// - If successful, it emits an `ElementAddedEvent` (since this is an update,
   ///   it's treated as a replacement).
   ///
@@ -886,7 +892,7 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   ///
   /// ### Parameters:
   /// - [elements]: The immutable data set.
-  /// - [nucleus]: Optional blueprint; if omitted, a standard read‑only nucleus
+  /// - [properties]: Optional blueprint; if omitted, a standard read‑only nucleus
   ///   is used.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
@@ -940,7 +946,7 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   = _UnmodifiableTissueList<E,TissueList<E>>.view;
 
   /// A low‑level architectural factory for materializing an [UnmodifiableTissueList]
-  /// directly from a pre‑constructed reactive blueprint ([nucleus]).
+  /// directly from a pre‑constructed reactive blueprint ([properties]).
   ///
   /// This constructor is the primary **Materialization Hook** used when the behavioural
   /// identity—including security rules, execution context, and synchronisation
@@ -958,7 +964,7 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   /// - The [unmodifiableElement] flag applies deep immutability.
   ///
   /// ### Parameters:
-  /// - [nucleus]: The pre‑configured read‑only blueprint.
+  /// - [properties]: The pre‑configured read‑only blueprint.
   /// - [unmodifiableElement]: If `true`, child cells are projected as
   ///   unmodifiable deputies.
   /// - [elements]: Optional initial data.

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">ValueNucleus.evolve constructor</li>
   </ol>
@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-rule"><span class="type-annotation"><a href="../../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span></li>
+      <span class="name ">ValueNucleus&lt;<wbr><span class="type-parameter">V</span>&gt;.evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-instruction"><span class="type-annotation"><a href="../../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V?</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">instruction</span>, </span></li>
 <li><span class="parameter" id="evolve-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 <li><span class="parameter" id="evolve-param-bind"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span></li>
@@ -88,13 +88,13 @@ parameter is used.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>rule</code>: <strong>The Specialization Logic.</strong> An optional <a href="../../cell_tissue/PulseRule-class.html">PulseRule</a>
+<li><code>instruction</code>: <strong>The Specialization Logic.</strong> An optional <a href="../../cell_tissue/Instruction-class.html">Instruction</a>
 defining a new transformation strategy for this deputy.</li>
 <li><code>principal</code>: <strong>The Authoritative Source.</strong> (Required) The parent
 <a href="../../cell_tissue/ValueNucleus-class.html">ValueNucleus</a> providing the physical state <a href="../../cell_tissue/Box-class.html">Box</a> and synchronization lock.</li>
 <li><code>bind</code>: <strong>Dependency Re-anchoring.</strong> Connects this nucleus to a
 different upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> if the specialization requires a different
-trigger source.</li>
+emit source.</li>
 <li><code>context</code>: <strong>Environmental Authority.</strong> Overrides the execution
 authority (e.g., shifting a system-level cell into a user-restricted context).</li>
 <li><code>testRule</code>: <strong>Security Adaptation.</strong> Overrides the validation logic,
@@ -113,7 +113,7 @@ behavior to, used for complex structural redirections.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ValueNucleus.evolve({
-  PulseRule&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;? rule,
+  Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;? instruction,
 
   EphemeralPolicy? ephemeralPolicy,
   Cell? bind,
@@ -125,11 +125,11 @@ behavior to, used for complex structural redirections.</li>
 
   ValueNucleus? override,
   required ValueNucleus principal
-}) : this._(record: (
+}) : this._((
 local: override?.record.local ?? NucleusBase.mask(bind: bind,
     context: context,
-    receptor: rule != null ? Receptor.from(rule: rule, postProcess: ValueCell.postProcessRule)
-        : receptor == Receptor.passThrough ? Receptor.from(postProcess: ValueCell.postProcessRule)  : receptor,
+    receptor: instruction != null ? Receptor.pipeline(instruction: instruction, postProcess: ValueCell.postProcessRule)
+        : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
     testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy,
     others: (value: Box&lt;V&gt;())
 ),
@@ -163,7 +163,7 @@ principal: principal
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

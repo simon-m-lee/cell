@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">get&lt;<wbr><span class="type-parameter">T</span>&gt; function</li>
   </ol>
   <div class="self-name">get</div>
@@ -83,7 +83,7 @@ to the expected type <code>T</code>.</li>
 <li><strong>Stage 2: Secondary Recovery (<code>fallback</code>)</strong>:
 If Stage 1 fails (due to a runtime exception or a type-cast error),
 the utility attempts to execute the <code>fallback</code> function. This is
-ideal for triggering alternative lookup logic or logging the failure.</li>
+ideal for emitting alternative lookup logic or logging the failure.</li>
 <li><strong>Stage 3: Static Default (<code>orElse</code>)</strong>:
 If both functional attempts fail (or if the <code>fallback</code> throws), the
 utility attempts to return the provided <code>orElse</code> constant.</li>
@@ -105,7 +105,7 @@ reactive descriptors.</li>
 <ul>
 <li><code>fn</code>: The primary <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> to execute. It should return a value
 compatible with type <code>T</code>.</li>
-<li><code>fallback</code>: An optional recovery <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> triggered only if <code>fn</code>
+<li><code>fallback</code>: An optional recovery <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> emitted only if <code>fn</code>
 encounters an error.</li>
 <li><code>orElse</code>: A static value of type <code>T</code> to return as the ultimate
 safety net if all functional calls fail.</li>
@@ -167,7 +167,7 @@ safety net if all functional calls fail.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

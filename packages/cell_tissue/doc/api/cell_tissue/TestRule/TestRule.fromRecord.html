@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
     <li class="self-crumb">TestRule.fromRecord const constructor</li>
   </ol>
@@ -54,32 +54,67 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-_record"><span class="type-annotation">dynamic</span> <span class="parameter-name">_record</span></span></li>
+      <span class="name ">TestRule&lt;<wbr><span class="type-parameter">C</span>&gt;.fromRecord</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="fromRecord-param-record"><span class="type-annotation">dynamic</span> <span class="parameter-name">record</span></span></li>
 </ol>)
     </section>
     
 <section class="desc markdown">
-  <p>Reconstitutes a <a href="../../cell_tissue/TestRule-class.html">TestRule</a> from a raw <strong>Flyweight Record</strong>.</p>
-<p>This constructor is part of the <strong>Flyweight Pattern</strong> implementation,
-allowing the framework to restore validation logic from a compressed
-state representation. It is primarily used during <strong>Structural
-Deserialization</strong> or when moving rules across memory boundaries.</p>
-<h3 id="1-architectural-role-state-restoration">1. Architectural Role: State Restoration</h3>
+  <p>Reconstitutes a <a href="../../cell_tissue/TestRule-class.html">TestRule</a> from a raw <strong>Flyweight Record</strong>, facilitating
+the restoration of validation logic from a compressed state.</p>
+<p>The <a href="../../cell_tissue/TestRule/TestRule.fromRecord.html">TestRule.fromRecord</a> constructor is the primary mechanism for
+<strong>Structural Deserialization</strong> within the reactive fabric. It allows the
+framework to reconstruct complex validation hierarchies and <strong>Integrity
+Gates</strong> without the overhead of standard object allocation.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Identity Preservation</strong>: Ensures that the rule maintains its
-original configuration (rule, parent, user metadata) without
-the overhead of full class instantiation.</li>
-<li><strong>Memory Efficiency</strong>: By accepting the internal <code>_record</code> directly,
-it avoids redundant validation of parameters already processed
-by the primary constructors.</li>
+<li><strong>State Restoration</strong>: Use when recreating a rule from an existing
+memory-optimized record representation during graph deserialization.</li>
+<li><strong>Low-Level Orchestration</strong>: Use when transferring rules across
+execution boundaries where only raw data is available.</li>
+<li><strong>Framework Internals</strong>: Primarily intended for internal optimization
+and high-frequency graph synthesis to minimize heap pressure via the
+<strong>Flyweight Strategy</strong>.</li>
+<li><strong>Causal Provenance</strong>: Re-hydrating an <strong>Integrity Gate</strong> from a
+persisted trace to ensure its lineage and metadata are preserved.</li>
 </ul>
-<h3 id="human-developer-usage">Human Developer Usage</h3>
-<p>Developers rarely need to use this constructor directly. It is used
-internally by the framework for performance optimization.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Direct Injection</strong>: It bypasses standard construction and validation
+logic, directly populating the internal <code>_record</code> state.</li>
+<li><strong>Identity Restoration</strong>: Re-establishes the rule's logic, parent
+links, and user metadata from the provided record.</li>
+<li><strong>Flyweight Efficiency</strong>: By utilizing the record directly, it
+supports the framework's goal of sharing memory for identical
+validation logic across different nodes.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Developer Guidance</strong>: Most developers should use the primary
+<a href="../../cell_tissue/TestRule-class.html">TestRule</a> or <a href="../../cell_tissue/TestRule/TestRule.chain.html">TestRule.chain</a> constructors. This constructor is
+reserved for <strong>Advanced Framework Scenarios</strong>.</li>
+<li><strong>Zero-Cost Path</strong>: It provides a zero-latency path for restoring
+rules within performance-critical reactive waves.</li>
+<li><strong>Data Integrity</strong>: Assumes the provided record is valid and was
+properly synthesized by the framework.</li>
+<li><strong>Isolation</strong>: Rules restored this way are immediately ready for use in
+a <strong>Reciprocal Handshake</strong> without further configuration.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Primarily used internally for restoration:
+final restoredRule = TestRule&lt;C&gt;.fromRecord(storedRecord);
+</code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>_record</code>: The memory-optimized Dart Record containing the rule's
-behavioral configuration and hierarchical links.</li>
+<li><code>record</code>: <strong>The Flyweight Payload.</strong> The memory-optimized record
+containing the rule's logic, parent links, and metadata.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/TestRule-class.html">TestRule</a> instance reconstituted from its internal state.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/TestRule-class.html">TestRule</a>: The standard constructor for defining validation logic.</li>
+<li><a href="../../cell_tissue/TestRule/TestRule.chain.html">TestRule.chain</a>: For aggregating multiple rules into a pipeline.</li>
+<li><a href="../../cell_tissue/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a>: The structural counterpart for node blueprints.</li>
 </ul>
 </section>
 
@@ -87,7 +122,7 @@ behavioral configuration and hierarchical links.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TestRule.fromRecord(this._record);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TestRule.fromRecord(dynamic record) : _record = record;</code></pre>
 </section>
 
 
@@ -115,7 +150,7 @@ behavioral configuration and hierarchical links.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

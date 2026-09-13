@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueSet-class.html">TissueSet<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">TissueSet.identity factory constructor</li>
   </ol>
@@ -107,12 +107,12 @@ print(identitySet.length); // 2
   Synapses synapses = Synapses.enabled,
 }) =&gt; _TissueSet&lt;E,TissueSet&lt;E&gt;&gt;.fromNucleus(
     TissueSetNucleus&lt;E&gt;(
-      bind: bind,
-      context: context,
-      receptor: receptor,
-      testRule: testRule,
-      synapses: synapses,
-      identitySet: true
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        identitySet: true
     )
 );</code></pre>
 </section>
@@ -142,7 +142,7 @@ print(identitySet.length); // 2
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

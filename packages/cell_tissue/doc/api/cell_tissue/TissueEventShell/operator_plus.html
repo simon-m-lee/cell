@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueEventShell-class.html">TissueEventShell<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">operator + method</li>
   </ol>
@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+<span class="returntype"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a></span>
 <span class="name ">operator +</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
@@ -67,13 +67,32 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Attempts to merge this shell with another signal, which is <strong>not supported</strong>.</p>
+<h3 id="rationale-security-termination">Rationale: Security Termination</h3>
+<p>A <a href="../../cell_tissue/TissueEventShell-class.html">TissueEventShell</a> is a defensive, zero-trust proxy. Allowing the <code>+</code>
+operator would enable the creation of a <a href="../../cell_tissue/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> where
+the shell is bundled with other, potentially unprotected signals.</p>
+<p>To prevent metadata leakage and to ensure the <strong>reciprocal handshake</strong>
+remains focused on a single causal origin, shells are considered terminal
+in the composition chain.</p>
+<h3 id="how-to-combine-signals-with-a-shell">How to combine signals with a shell</h3>
+<p>If you need to batch a shielded event, you must first:</p>
+<ol>
+<li><a href="../../cell_tissue/TissueEventShell/scrutinize.html">scrutinize</a> the shell using a valid <a href="../../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> to unlock it.</li>
+<li>Perform the addition on the resulting <a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a>.</li>
+</ol>
+<h3 id="errors">Errors</h3>
+<p>Throws an <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> if invoked, as composition violates the
+encapsulation contract of the shell.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissueEvent operator +(covariant Pulse other) {
+TissuePulse operator +(covariant Pulse other) {
   throw UnsupportedError(&#39;PulseShell not supported for addition.&#39;);
 }</code></pre>
 </section>
@@ -103,7 +122,7 @@ TissueEvent operator +(covariant Pulse other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

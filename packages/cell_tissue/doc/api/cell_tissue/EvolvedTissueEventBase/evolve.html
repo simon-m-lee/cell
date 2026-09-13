@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">evolve method</li>
   </ol>
@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+<span class="returntype"><a href="../../cell_tissue/TissuePulse-class.html">TissuePulse</a></span>
 <span class="name ">evolve</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evolve-param-pulse"><span class="type-annotation"><a href="../../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">pulse</span>, </span></li>
 <li><span class="parameter" id="evolve-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
 <li><span class="parameter" id="evolve-param-context"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
@@ -70,40 +70,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a derived version of this pulse, adapted for the next stage of
-the processing chain.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to change a pulse's context (authority, reason,
-priority) without losing its causal history – e.g., after a
-transformation step.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>You provide a new <code>pulse</code> (to append to the chain), a <code>step</code> description,
-and/or a new <code>context</code>. The new pulse links back to this one via
-<a href="../../cell_tissue/EvolvedTissueEventBase/parent.html">parent</a>, so the history is preserved.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>You must provide at least one of <code>pulse</code>, <code>step</code>, or <code>context</code>.</li>
-<li>The payload is inherited from the root – you can't change it here.</li>
-<li>The new pulse gets a fresh <a href="../../cell_tissue/PulseBase/trace.html">trace</a> entry with the <code>step</code>.</li>
-<li>If you provide a <code>pulse</code>, the new pulse becomes an <a href="../../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a>
-that carries the new pulse as its payload.</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final root = Pulse&lt;int&gt;(42);
-final evolved = root.evolve(step: 'sanitization');
-print(evolved.trace); // ['sanitization']
-print(evolved.payload); // 42 (inherited from root)
-</code></pre>
+  <p>Creates a new event that is a child of this one.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>pulse</code>: An optional pulse to append to the chain.</li>
-<li><code>step</code>: A descriptive string to be added to the chronological <a href="../../cell_tissue/PulseBase/trace.html">trace</a> log.</li>
-<li><code>context</code>: A new <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> containing the updated <strong>Mandate</strong>
-and <strong>Provenance</strong> for the derived signal.</li>
+<li><code>pulse</code>: Optional pulse to associate with the new event.</li>
+<li><code>step</code>: Optional step description to add to the trace.</li>
+<li><code>context</code>: Optional context override for the new event.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A new <a href="../../cell_tissue/Pulse-class.html">Pulse</a> instance representing the updated state of the message
-with its causal lineage preserved.</p>
+<p>A new <a href="../../cell_tissue/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a> linked to this event as its parent.</p>
 </section>
 
 
@@ -111,7 +86,7 @@ with its causal lineage preserved.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissueEvent evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
+TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
   return _EvolvedTissueEvent(
     context: context,
     step: step,
@@ -146,7 +121,7 @@ TissueEvent evolve({Pulse? pulse, String? step, covariant PulseContext? context}
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

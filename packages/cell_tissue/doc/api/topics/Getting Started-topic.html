@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Getting Started topic docs, for the Dart programming language.">
+  <title>Getting Started topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Getting Started topic</li>
+  </ol>
+  <div class="self-name">Getting Started</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Getting Started</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="how-to-start-with-cell_tissue">How to Start with cell_tissue</h1>
+<p><strong>Quick-start guide for developers</strong> · <code>cell_tissue</code> v1.0.0-rc.3</p>
+<p>Get up and running with <strong>cell_tissue</strong> in 15 minutes. Learn the five reactive collection types, add validation, observe granular change events, create zero-copy deputy views, and govern a tissue with a lifecycle policy.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#what-is-cell_tissue">What is cell_tissue?</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#core-concepts-in-5-minutes">Core Concepts in 5 Minutes</a></li>
+<li><a href="#the-five-tissues-cheat-sheet">The Five Tissues (Cheat Sheet)</a></li>
+<li><a href="#your-first-reactive-collections-5-examples">Your First Reactive Collections (5 Examples)</a></li>
+<li><a href="#validation-with-testtissue">Validation with TestTissue</a></li>
+<li><a href="#events--observation">Events &amp; Observation</a></li>
+<li><a href="#deputies--unmodifiable-views">Deputies &amp; Unmodifiable Views</a></li>
+<li><a href="#governance-with-ephemeralpolicy">Governance with EphemeralPolicy</a></li>
+<li><a href="#common-patterns">Common Patterns</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ol>
+<hr>
+<h2 id="what-is-cell_tissue">What is cell_tissue?</h2>
+<p><strong>cell_tissue</strong> is the <em>Application Layer (Tissue)</em> of the Cell Framework: reactive, validated, thread-safe Dart collections — built <strong>on the same graph</strong> as <code>package:cell</code>.</p>
+<table>
+<thead>
+<tr>
+<th>You want…</th>
+<th>cell_tissue provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A reactive, indexable list</td>
+<td><code>TissueList&lt;E&gt;</code></td>
+</tr>
+<tr>
+<td>A unique-element set</td>
+<td><code>TissueSet&lt;E&gt;</code></td>
+</tr>
+<tr>
+<td>A reactive key-value store</td>
+<td><code>TissueMap&lt;K, V&gt;</code></td>
+</tr>
+<tr>
+<td>A bounded FIFO buffer</td>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+</tr>
+<tr>
+<td>A single reactive scalar</td>
+<td><code>TissueValue&lt;V&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> the graph, locks, validation, provenance, and lifecycle governance stay in <strong>cell</strong>. Tissue only decides <em>what shape the collection has</em> and <em>which granular events it emits</em> (<code>ElementAdded</code>, <code>ElementRemoved</code>, <code>ElementUpdated</code>).</p>
+<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;.of([1, 2, 3]);
+print(list.length); // 3 – it is a List…
+print(list.isGoverned); // false – …and a Cell
+</code></pre>
+<hr>
+<h2 id="installation">Installation</h2>
+<p>Add <code>cell</code> and <code>cell_tissue</code> to your <code>pubspec.yaml</code>:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^1.0.0-rc.2
+  cell_tissue: ^1.0.0-rc.3
+</code></pre>
+<p>Import once in your Dart file:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_tissue/cell_tissue.dart'; // re-exports package:cell
+</code></pre>
+<hr>
+<h2 id="core-concepts-in-5-minutes">Core Concepts in 5 Minutes</h2>
+<h3 id="1-tissue--cell--collection">1. Tissue = Cell + Collection</h3>
+<p>Every tissue is a <code>Cell</code> (it lives in the reactive graph, has a <code>Nucleus</code>, a lock, and a validation gate) <strong>and</strong> a normal Dart collection (it implements <code>List</code>, <code>Set</code>, <code>Map</code>, or <code>Queue</code>).</p>
+<pre class="language-dart"><code class="language-dart">final set = TissueSet&lt;int&gt;([1, 2, 3]);
+set.add(4);          // Dart collection API
+Cell.observe(source: set, effect: (p) =&gt; print('Set changed')); // Cell API
+</code></pre>
+<h3 id="2-every-mutation-is-validated-then-signalled">2. Every Mutation Is Validated, Then Signalled</h3>
+<p>A mutation flows through the tissue's command gateway:</p>
+<pre class="language-dart"><code>mutate → TestTissue (action + element gates) → container update → TissuePulse → synapses → observers
+</code></pre>
+<pre class="language-dart"><code class="language-dart">final positive = TestTissue&lt;int, TissueList&lt;int&gt;&gt;(
+  (value, {host, arguments, user}) =&gt; value &gt; 0,
+);
+final nums = TissueList&lt;int&gt;.of([1], testRule: positive);
+
+nums.add(2);   // ✅ passes validation
+nums.add(-1);  // ❌ silently skipped
+print(nums.length); // 2
+</code></pre>
+<h3 id="3-granular-events-carry-provenance">3. Granular Events Carry Provenance</h3>
+<p>Every mutation returns (or emits) a <code>TissuePulse</code> subtype that says <em>exactly</em> what happened:</p>
+<pre class="language-dart"><code class="language-dart">final list = TissueList.of(['a']);
+final event = list.apply(list.add, positionalArguments: ['b']);
+
+if (event is ElementAdded&lt;String&gt;) {
+  print(event.payload); // b
+}
+</code></pre>
+<ul>
+<li><code>ElementAdded&lt;E&gt;</code> — an element entered a collection.</li>
+<li><code>ElementRemoved&lt;E&gt;</code> — an element left a collection.</li>
+<li><code>ElementUpdated&lt;V, E&gt;</code> — a <code>TissueValue</code> changed; <code>payload</code> carries <code>before</code> / <code>after</code> / <code>value</code>.</li>
+</ul>
+<h3 id="4-progressive-disclosure">4. Progressive Disclosure</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Use When</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Direct constructors</strong></td>
+<td>App code, defaults</td>
+<td><code>TissueList.of([1, 2])</code></td>
+</tr>
+<tr>
+<td><strong>2. Nucleus factories</strong></td>
+<td>Reusable blueprints, governance</td>
+<td><code>TissueListNucleus(...)</code> + <code>fromNucleus</code></td>
+</tr>
+<tr>
+<td><strong>3. Deputy / unmodifiable</strong></td>
+<td>Scoped, read-only views</td>
+<td><code>await list.deputy()</code></td>
+</tr>
+<tr>
+<td><strong>4. Nucleus evolve</strong></td>
+<td>Custom collection types</td>
+<td><code>TissueNucleus.evolve(...)</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="the-five-tissues-cheat-sheet">The Five Tissues (Cheat Sheet)</h2>
+<h3 id="create">Create</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Empty</th>
+<th>With Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList&lt;E&gt;</code></td>
+<td><code>TissueList&lt;int&gt;()</code></td>
+<td><code>TissueList.of([1, 2, 3])</code></td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;E&gt;</code></td>
+<td><code>TissueSet&lt;int&gt;.empty()</code></td>
+<td><code>TissueSet&lt;int&gt;([1, 2, 3])</code></td>
+</tr>
+<tr>
+<td><code>TissueMap&lt;K, V&gt;</code></td>
+<td><code>TissueMap&lt;String, int&gt;()</code></td>
+<td><code>TissueMap.from({'a': 1})</code></td>
+</tr>
+<tr>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+<td><code>TissueQueue&lt;int&gt;(capacity: 5)</code></td>
+<td><code>TissueQueue.of([1, 2, 3])</code></td>
+</tr>
+<tr>
+<td><code>TissueValue&lt;V&gt;</code></td>
+<td><code>TissueValue&lt;int&gt;.empty()</code></td>
+<td><code>TissueValue&lt;int&gt;(0)</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mutate">Mutate</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Typical Mutations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList&lt;E&gt;</code></td>
+<td><code>add</code>, <code>addAll</code>, <code>remove</code>, <code>clear</code>, <code>setValueAt</code></td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;E&gt;</code></td>
+<td><code>add</code>, <code>addAll</code>, <code>remove</code>, <code>clear</code></td>
+</tr>
+<tr>
+<td><code>TissueMap&lt;K, V&gt;</code></td>
+<td><code>map[key] = value</code>, <code>remove(key)</code>, <code>clear</code></td>
+</tr>
+<tr>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+<td><code>add</code>, <code>addFirst</code>, <code>removeFirst</code>, <code>removeLast</code></td>
+</tr>
+<tr>
+<td><code>TissueValue&lt;V&gt;</code></td>
+<td><code>value.set(42)</code>, <code>value.value = 42</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="read">Read</h3>
+<table>
+<thead>
+<tr>
+<th>Tissue</th>
+<th>Read</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList&lt;E&gt;</code></td>
+<td><code>list[0]</code>, <code>list.length</code>, <code>for (final e in list)</code></td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;E&gt;</code></td>
+<td><code>set.contains(x)</code>, <code>set.length</code></td>
+</tr>
+<tr>
+<td><code>TissueMap&lt;K, V&gt;</code></td>
+<td><code>map[key]</code>, <code>map.keys</code>, <code>map.entries</code></td>
+</tr>
+<tr>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+<td><code>queue.first</code>, <code>queue.last</code>, <code>queue.length</code></td>
+</tr>
+<tr>
+<td><code>TissueValue&lt;V&gt;</code></td>
+<td><code>value.value</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="your-first-reactive-collections-5-examples">Your First Reactive Collections (5 Examples)</h2>
+<h3 id="example-1-validated-task-list-list--observe">Example 1: Validated Task List (List + Observe)</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_tissue/cell_tissue.dart';
+
+final tasks = TissueList.of(
+  ['buy milk', 'write guide'],
+  testRule: TestTissue&lt;String, TissueList&lt;String&gt;&gt;(
+    (value, {host, arguments, user}) =&gt; value.isNotEmpty,
+  ),
+);
+
+final handle = Cell.observe&lt;TissuePulse&lt;String&gt;&gt;(
+  source: tasks,
+  effect: (pulse) =&gt; print('Changed: ${pulse.payload}'),
+);
+
+tasks.add('publish'); // → Changed: publish
+tasks.add('');        // rejected by validation, nothing printed
+handle.stop();
+</code></pre>
+<p><strong>Why it works:</strong> the <code>TestTissue</code> gate runs <em>before</em> the container mutation; invalid elements are silently skipped.</p>
+<hr>
+<h3 id="example-2-unique-tags-set">Example 2: Unique Tags (Set)</h3>
+<pre class="language-dart"><code class="language-dart">final tags = TissueSet&lt;String&gt;(['dart', 'reactive']);
+
+tags.add('dart');      // already present → no-op
+tags.add('collection');
+print(tags.length);    // 3
+
+tags.remove('dart');
+print(tags.contains('dart')); // false
+</code></pre>
+<p><strong>Why it works:</strong> <code>TissueSet</code> enforces uniqueness with standard <code>==</code> / <code>hashCode</code>. Use <code>TissueSet.identity()</code> for identity-based uniqueness.</p>
+<hr>
+<h3 id="example-3-key-value-counters-map">Example 3: Key-Value Counters (Map)</h3>
+<pre class="language-dart"><code class="language-dart">final counters = TissueMap&lt;String, int&gt;();
+
+counters['a'] = 1;
+counters['b'] = (counters['a'] ?? 0) + 1;
+
+print(counters['b']); // 2
+print(counters.keys); // (a, b)
+</code></pre>
+<p><strong>Why it works:</strong> <code>TissueMap</code> behaves like a Dart <code>Map</code>, but every <code>[]=</code> is validated and observable.</p>
+<hr>
+<h3 id="example-4-sliding-window-bounded-queue">Example 4: Sliding Window (Bounded Queue)</h3>
+<pre class="language-dart"><code class="language-dart">final window = TissueQueue&lt;int&gt;(capacity: 2);
+
+window.add(1);
+window.add(2);
+window.add(3); // queue is full → oldest (1) is dropped
+
+print(window.toList()); // [2, 3]
+</code></pre>
+<p><strong>Why it works:</strong> a bounded <code>TissueQueue</code> is a circular buffer — adding past capacity evicts the oldest element.</p>
+<hr>
+<h3 id="example-5-reactive-scalar-value">Example 5: Reactive Scalar (Value)</h3>
+<pre class="language-dart"><code class="language-dart">final counter = TissueValue&lt;int&gt;(0);
+
+final event = counter.apply(counter.set, positionalArguments: [42])
+    as ElementUpdated&lt;int, TissueValue&lt;int&gt;&gt;;
+
+print(event.payload?.before); // 0
+print(event.payload?.after);  // 42
+print(counter.value);         // 42
+</code></pre>
+<p><strong>Why it works:</strong> <code>TissueValue.set</code> validates, then stores; <code>apply</code> returns the <code>ElementUpdated</code> event with the before/after record.</p>
+<hr>
+<h2 id="validation-with-testtissue">Validation with TestTissue</h2>
+<p><code>TestTissue&lt;E, C&gt;</code> validates two things:</p>
+<ul>
+<li><strong>Actions</strong> — which mutation functions are permitted (<code>action</code>).</li>
+<li><strong>Elements</strong> — which values may enter the collection (<code>element</code>).</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">final positive = TestTissue&lt;int, TissueList&lt;int&gt;&gt;(
+  (value, {host, arguments, user}) =&gt; value &gt; 0,
+);
+final even = TestTissue&lt;int, TissueList&lt;int&gt;&gt;(
+  (value, {host, arguments, user}) =&gt; value.isEven,
+);
+
+// Compose gates: both must pass, in order
+final gate = positive + even;
+
+final list = TissueList&lt;int&gt;.of([2], testRule: gate);
+list.add(4);   // ✅ positive + even
+list.add(3);   // ❌ odd
+list.add(-2);  // ❌ negative
+print(list.toList()); // [2, 4]
+</code></pre>
+<p>For multi-rule pipelines use <code>TestTissue.chain</code>; for specialized element or action rules, extend <code>TestElementRule</code> / <code>TestActionRule</code>.</p>
+<blockquote>
+<p>💡 <strong>Deputy rules are layered.</strong> A deputy's <code>testRule</code> is applied <em>on top of</em> its principal's rule — you can only narrow permissions, never expand them.</p>
+</blockquote>
+<hr>
+<h2 id="events--observation">Events &amp; Observation</h2>
+<h3 id="collections-emit-through-the-graph">Collections Emit Through the Graph</h3>
+<p><code>Cell.observe</code> (re-exported by <code>cell_tissue</code>) receives each change as a <code>TissuePulse</code>:</p>
+<pre class="language-dart"><code class="language-dart">final tasks = TissueList.of(['a']);
+final seen = &lt;String&gt;[];
+
+final handle = Cell.observe&lt;TissuePulse&lt;String&gt;&gt;(
+  source: tasks,
+  effect: (pulse) =&gt; seen.add(pulse.payload ?? ''),
+);
+
+tasks.add('b');
+tasks.add('c');
+print(seen); // [b, c]
+
+handle.stop();
+</code></pre>
+<h3 id="apply-returns-the-concrete-event">Apply Returns the Concrete Event</h3>
+<p>When you need the exact event type (not just the payload), use <code>apply</code>:</p>
+<pre class="language-dart"><code class="language-dart">final added = tasks.apply(tasks.add, positionalArguments: ['x'])
+    as ElementAdded&lt;String&gt;;
+final removed = tasks.apply(tasks.remove, positionalArguments: ['x'])
+    as ElementRemoved&lt;String&gt;;
+</code></pre>
+<h3 id="batch-events">Batch Events</h3>
+<pre class="language-dart"><code class="language-dart">final batch = TissuePulse.batch&lt;String&gt;([added, removed]);
+print(batch.toList().length); // 2
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>Gotcha:</strong> initial population does <strong>not</strong> emit pulses. <code>TissueList.of([1, 2, 3])</code> is silent — observers only see mutations that happen <em>after</em> creation.</p>
+</blockquote>
+<hr>
+<h2 id="deputies--unmodifiable-views">Deputies &amp; Unmodifiable Views</h2>
+<h3 id="deputy--zero-copy-live-restricted">Deputy — Zero-Copy, Live, Restricted</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;int&gt;.of([1, 2, 3]);
+
+final deputy = await source.deputy(); // shares the same storage
+
+source.add(4);
+print(deputy.toList()); // [1, 2, 3, 4] – live view
+print(deputy == source); // true – same logical entity
+</code></pre>
+<p>Deputies can have their own <code>context</code>, <code>testRule</code>, <code>synapses</code>, and <code>ephemeralPolicy</code> — same data, scoped authority.</p>
+<h3 id="unmodifiable--read-only-view">Unmodifiable — Read-Only View</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;int&gt;.of([1, 2, 3]);
+
+final readOnly = TissueList&lt;int&gt;.unmodifiable(source, unmodifiableElement: false);
+// readOnly.add(4); // blocked – mutations throw
+
+source.add(4);
+print(readOnly.toList()); // [1, 2, 3, 4] – live read-only view
+</code></pre>
+<p><code>unmodifiableElement: false</code> gives a <strong>live, storage-sharing</strong> view. With <code>unmodifiableElement: true</code> (the default on <code>.unmodifiable</code>), child <code>Cell</code>s are projected read-only for <strong>deep immutability</strong>.</p>
+<hr>
+<h2 id="governance-with-ephemeralpolicy">Governance with EphemeralPolicy</h2>
+<p>A tissue is <strong>governed</strong> when it hosts an <code>EphemeralPolicy</code> (TTL / event budget) in its nucleus — or when it inherits one from an upstream <code>bind</code>.</p>
+<h3 id="hosted-policy-local">Hosted Policy (Local)</h3>
+<pre class="language-dart"><code class="language-dart">final cachePolicy = EphemeralPolicy&lt;Cell&gt;(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, required policy, arguments, user}) =&gt;
+      (events: 0),
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+// Via a nucleus blueprint
+final nucleus = TissueListNucleus&lt;int&gt;(ephemeralPolicy: cachePolicy);
+final governed = TissueList&lt;int&gt;.fromNucleus(nucleus, elements: [1]);
+print(governed.isGoverned); // true
+
+// Or via the Tissue factory
+final other = Tissue&lt;int&gt;.governed(
+  [1, 2, 3],
+  context: Context.system,
+  ephemeralPolicy: cachePolicy,
+);
+print(other.isGoverned); // true
+</code></pre>
+<h3 id="upstream-bind-policy">Upstream (Bind) Policy</h3>
+<p>A tissue with no policy of its own still inherits governance from the head of its bind chain — "the head owns the body". A hosted policy always overrides an upstream one.</p>
+<pre class="language-dart"><code class="language-dart">final head = TissueList&lt;int&gt;.fromNucleus(nucleus);      // governed
+final body = TissueList&lt;int&gt;.of([], bind: head);        // no policy of its own
+print(body.isGoverned); // true – inherited from upstream
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>Note:</strong> <code>context</code> alone does <strong>not</strong> make a tissue governed. Governance is determined solely by the presence of an <code>EphemeralPolicy</code> — local or upstream.</p>
+</blockquote>
+<hr>
+<h2 id="common-patterns">Common Patterns</h2>
+<h3 id="pattern-1-task-list-with-business-rules">Pattern 1: Task List with Business Rules</h3>
+<pre class="language-dart"><code class="language-dart">final tasks = TissueList.of(
+  ['buy milk'],
+  testRule: TestTissue&lt;String, TissueList&lt;String&gt;&gt;(
+    (value, {host, arguments, user}) =&gt; value.isNotEmpty &amp;&amp; value.length &lt;= 80,
+  ),
+);
+
+tasks.add('write guide');
+tasks.add(''); // silently skipped
+</code></pre>
+<hr>
+<h3 id="pattern-2-unique-tag-cloud">Pattern 2: Unique Tag Cloud</h3>
+<pre class="language-dart"><code class="language-dart">final tags = TissueSet&lt;String&gt;(['dart']);
+
+tags.add('reactive');
+tags.add('dart');     // duplicate, ignored
+tags.addAll(['state', 'graph']);
+
+print(tags.toList()); // dart, reactive, state, graph
+</code></pre>
+<hr>
+<h3 id="pattern-3-sliding-window-telemetry">Pattern 3: Sliding Window Telemetry</h3>
+<pre class="language-dart"><code class="language-dart">final window = TissueQueue&lt;int&gt;(capacity: 10);
+
+void record(int sample) =&gt; window.add(sample);
+// The queue always keeps the 10 most recent samples.
+</code></pre>
+<hr>
+<h3 id="pattern-4-live-read-only-projection">Pattern 4: Live Read-Only Projection</h3>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;int&gt;.of([1, 2, 3]);
+final view = TissueList&lt;int&gt;.unmodifiable(source, unmodifiableElement: false);
+
+// Give `view` to a UI widget – it can read, but not mutate.
+source.add(4);
+print(view.length); // 4
+</code></pre>
+<hr>
+<h3 id="pattern-5-governed-cache">Pattern 5: Governed Cache</h3>
+<pre class="language-dart"><code class="language-dart">final cachePolicy = EphemeralPolicy&lt;Cell&gt;(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, required policy, arguments, user}) =&gt;
+      (events: 0), // reset TTL on activity
+  onInvalidate: (nucleus) =&gt; true, // clear resources
+);
+
+final cache = TissueMap&lt;String, String&gt;.fromNucleus(
+  TissueMapNucleus&lt;String, String&gt;(ephemeralPolicy: cachePolicy),
+);
+
+cache['home'] = api.fetchHome(); // cache expires 5 minutes after last activity
+</code></pre>
+<hr>
+<h2 id="next-steps">Next Steps</h2>
+<h3 id="-deepen-your-knowledge">📚 Deepen Your Knowledge</h3>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>What You'll Learn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue"><code>cell_tissue</code> API docs</a></td>
+<td>Full collection API reference</td>
+</tr>
+<tr>
+<td><a href="../cell/guide/HowTo-Start.md"><code>HowTo-Start.md</code> (cell)</a></td>
+<td>The Cell graph, pulses, and operators underneath</td>
+</tr>
+<tr>
+<td><a href="../cell/guide/HowTo-EphemeralPolicy.md"><code>HowTo-EphemeralPolicy.md</code> (cell)</a></td>
+<td>TTL and event-limit lifecycle policies</td>
+</tr>
+<tr>
+<td><a href="../cell/guide/HowTo-TestCell.md"><code>HowTo-TestCell.md</code> (cell)</a></td>
+<td>Validation gates and business rules</td>
+</tr>
+<tr>
+<td><a href="../cell/guide/HowTo-Nucleus.md"><code>HowTo-Nucleus.md</code> (cell)</a></td>
+<td>Blueprints and structural integrity</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-explore-examples">🛠️ Explore Examples</h3>
+<p>Runnable demos in <code>example/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Scenario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>card-auth-pipeline(tissue)-Demo.dart</code></td>
+<td>Card authentication pipeline</td>
+</tr>
+<tr>
+<td><code>grid-demand-response(tissue)-Demo.dart</code></td>
+<td>Grid demand-response orchestration</td>
+</tr>
+<tr>
+<td><code>nl-instruction-tissue-set-Demo.dart</code></td>
+<td>Natural-language → <code>TissueSet</code> commands</td>
+</tr>
+<tr>
+<td><code>ride-hail-dispatch(tissue)-Demo.dart</code></td>
+<td>Ride-hail dispatch</td>
+</tr>
+</tbody>
+</table>
+<p>Run any example:</p>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_tissue
+dart run example/card-auth-pipeline(tissue)-Demo.dart
+</code></pre>
+<hr>
+<h3 id="-key-rules-to-remember">🔍 Key Rules to Remember</h3>
+<ol>
+<li><strong>A tissue is a Cell and a collection.</strong> It lives in the reactive graph and behaves like a normal Dart collection.</li>
+<li><strong>Mutations are validated first.</strong> Invalid elements are silently skipped — they do not throw or fail the batch.</li>
+<li><strong>Initial population is silent.</strong> Only post-creation mutations emit <code>TissuePulse</code>s.</li>
+<li><strong>Deputies are zero-copy.</strong> <code>await source.deputy()</code> shares storage and compares equal to its principal.</li>
+<li><strong><code>TissueValue</code> returns its event from <code>apply</code>.</strong> Use <code>apply(set, ...)</code> to obtain the <code>ElementUpdated</code> before/after record.</li>
+<li><strong>Use <code>.async</code> for Future-based mutations</strong> when you need to <code>await</code> propagation.</li>
+<li><strong>Governance = <code>EphemeralPolicy</code>.</strong> <code>isGoverned</code> is <code>true</code> only when a policy is hosted or inherited from <code>bind</code>.</li>
+</ol>
+<hr>
+<h3 id="-troubleshooting">🆘 Troubleshooting</h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Likely Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add</code> silently does nothing</td>
+<td>Element rejected by <code>TestTissue</code></td>
+<td>Check the <code>element</code> / <code>action</code> gates</td>
+</tr>
+<tr>
+<td>Observer never fires on creation</td>
+<td>Initial population is silent</td>
+<td>Observe, <em>then</em> mutate</td>
+</tr>
+<tr>
+<td>Deputy mutation throws</td>
+<td>Deputy's <code>testRule</code> is read-only or additive</td>
+<td>Use a wider rule or mutate the source</td>
+</tr>
+<tr>
+<td>Queue drops elements</td>
+<td><code>capacity</code> reached (circular buffer)</td>
+<td>Raise <code>capacity</code> or use <code>-1</code> for unbounded</td>
+</tr>
+<tr>
+<td><code>Tissue.governed</code> reports <code>isGoverned == false</code></td>
+<td>No <code>ephemeralPolicy</code> supplied</td>
+<td>Pass an <code>EphemeralPolicy</code> (context alone doesn't govern)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="-get-help">📞 Get Help</h3>
+<ul>
+<li><strong>Issues:</strong> <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
+<li><strong>Repo:</strong> <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
+<li><strong>Package:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue">packages/cell_tissue</a></li>
+</ul>
+<hr>
+<p><strong>Happy building with cell_tissue!</strong> 🧬</p>
+<p>If you've made it this far, you know enough to build production-ready reactive collections: create a tissue, add a <code>TestTissue</code> gate, observe <code>TissuePulse</code> events, share state with zero-copy deputies, and govern lifetimes with <code>EphemeralPolicy</code>.</p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Cell">
+  <span class="name "><a href="../cell_tissue/Cell-class.html">Cell</a></span> 
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Getting Started topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Getting Started topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Getting Started-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Cell-class.html">Cell</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

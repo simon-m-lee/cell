@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Walkthroughs topic docs, for the Dart programming language.">
+  <title>Walkthroughs topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+  </ol>
+  <div class="self-name">Walkthroughs</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Walkthroughs</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="demo_guidemd-tissue-edition">DEMO_GUIDE.md (Tissue Edition)</h1>
+<h1 id="cell--flow--tissue-demo-guide">(Cell + Flow + Tissue) Demo Guide</h1>
+<h2 id="from-simple-collections-to-governed-reactive-books">From Simple Collections to Governed Reactive Books</h2>
+<p>A comprehensive guide to understanding the Cell Framework through practical Tissue examples, organized from fundamental collection patterns to real-world governed-ledger applications.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#tissue-learning-path">Tissue Learning Path</a></li>
+<li><a href="#level-1-tissue-collections">Level 1: Tissue Collections</a></li>
+<li><a href="#level-2-governance--validation">Level 2: Governance &amp; Validation</a></li>
+<li><a href="#level-3-deputies--immutability">Level 3: Deputies &amp; Immutability</a></li>
+<li><a href="#level-4-the-seam--flow--tissue">Level 4: The Seam — Flow + Tissue</a></li>
+<li><a href="#level-5-real-world-applications">Level 5: Real-World Applications</a></li>
+<li><a href="#tissue-collection-reference">Tissue Collection Reference</a></li>
+<li><a href="#combining-patterns">Combining Patterns</a></li>
+<li><a href="#common-pitfalls">Common Pitfalls</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p>The Cell Framework provides a reactive programming model where <strong>Cells</strong> hold state, <strong>Pulses</strong> carry signals, and <strong>Tissue</strong> extends Cell to governed, observable, thread-safe collections. This guide walks you through the Tissue demo examples from simple collections to complex real-world books.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ul>
+<li>When to use <code>TissueList</code> vs <code>TissueSet</code> vs <code>TissueMap</code> vs <code>TissueQueue</code> vs <code>TissueValue</code></li>
+<li>How to enforce business rules with <code>TestTissue</code></li>
+<li>How to build read-only deputies and audit views</li>
+<li>How to wire Flow decisions into Tissue books</li>
+<li>Common patterns and anti-patterns</li>
+</ul>
+<h3 id="the-two-subsystem-split">The Two Subsystem Split</h3>
+<p>Every Tissue demo follows the same architectural pattern:</p>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Responsibility</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flow</strong></td>
+<td>Decision, interpretation, transformation</td>
+<td><code>Flow.map</code>, <code>Flow.filter</code>, <code>Flow.debounce</code></td>
+</tr>
+<tr>
+<td><strong>Tissue</strong></td>
+<td>Durable state, validation, audit trail</td>
+<td><code>TissueList</code>, <code>TissueValue</code>, <code>TissueMap</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The Golden Rule:</strong> Flow decides. Tissue records. The observer is the only glue. Never mix these responsibilities.</p>
+<p><strong>TestCell vs TestTissue — do not swap:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+</tr>
+<tr>
+<td><code>TissueList</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> / <code>Value</code></td>
+<td><code>TestTissue&lt;E, C&gt;</code></td>
+<td><code>testRule:</code></td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>TestCell</code> is the integrity rule on a <strong>Cell</strong> (shape of an incoming pulse). <code>TestTissue</code> is the integrity rule on a <strong>Tissue</strong> (shape of a mutation, a member, a value write). Grep for <code>testRule: TestCell</code> on a Tissue constructor: zero hits.</p>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="what-is-a-tissue">What is a Tissue?</h3>
+<p>A Tissue is a <strong>Cell that is a collection</strong>. It holds physical storage, applies validation, and broadcasts every mutation as a <code>TissuePulse</code>.</p>
+<pre class="language-dart"><code class="language-dart">final tags = TissueSet&lt;int&gt;(
+  const &lt;int&gt;[],
+  testRule: TestTissue&lt;int, TissueSet&lt;int&gt;&gt;(
+    (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &gt;= 0,
+  ),
+);
+
+tags.add(42);          // validated, observable
+tags.add(-1);          // silently rejected by TestTissue
+</code></pre>
+<h3 id="what-is-a-tissuepulse">What is a TissuePulse?</h3>
+<p>A <code>TissuePulse</code> is the structural event emitted on every mutation. Three kinds:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Meaning</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ElementAdded</code></td>
+<td>a member was added</td>
+<td>the added element (or iterable for batch)</td>
+</tr>
+<tr>
+<td><code>ElementRemoved</code></td>
+<td>a member was removed</td>
+<td>the removed element (or iterable)</td>
+</tr>
+<tr>
+<td><code>ElementUpdated</code></td>
+<td>a value cell changed</td>
+<td><code>ElementUpdatedRecord&lt;V, E&gt;</code> with <code>before</code>/<code>after</code></td>
+</tr>
+</tbody>
+</table>
+<pre class="language-dart"><code class="language-dart">tags.listen((TissuePulse e) {
+  if (e is ElementAdded&lt;int&gt;) {
+    print('Added: ${e.payload}');
+  }
+});
+</code></pre>
+<h3 id="what-is-testtissue">What is TestTissue?</h3>
+<p><code>TestTissue</code> is the integrity rule on a Tissue. It runs on <strong>every</strong> mutation and can accept or reject it. Rules compose with <code>+</code>:</p>
+<pre class="language-dart"><code class="language-dart">final elementRule = TestTissue&lt;int, TissueSet&lt;int&gt;&gt;(
+  (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &gt;= 0,
+);
+
+final alsoSmall = TestTissue&lt;int, TissueSet&lt;int&gt;&gt;(
+  (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &lt; 1000,
+);
+
+final policy = elementRule + alsoSmall;
+</code></pre>
+<h3 id="what-is-a-deputy">What is a Deputy?</h3>
+<p>A Deputy is a restricted view of a Tissue that shares the same physical storage but applies a different <code>TestTissue</code> or <code>Context</code>. Deputies are the primary mechanism for read-only projections and scoped authority.</p>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;String&gt;(['A', 'B']);
+final readOnly = source.deputy(testRule: TestTissue.readOnly);
+
+readOnly.add('C');   // blocked
+source.add('C');     // readOnly reflects the change
+</code></pre>
+<hr>
+<h2 id="tissue-learning-path">Tissue Learning Path</h2>
+<pre class="language-dart"><code>Level 1: Tissue Collections (Start Here)
+├── TissueList        - ordered, indexable
+├── TissueSet         - unique members
+├── TissueMap         - key-value association
+├── TissueQueue       - FIFO / double-ended buffer
+└── TissueValue       - single scalar atom
+
+Level 2: Governance &amp; Validation
+├── TestTissue        - mutation rule
+├── element rule      - per-member shape
+├── action deny       - block clear/remove
+└── runtime mutation  - ops add a rule at runtime
+
+Level 3: Deputies &amp; Immutability
+├── .unmodifiable     - read-only projection
+├── .deputy(...)      - scoped authority
+└── deep projection   - recursive immutability
+
+Level 4: The Seam — Flow + Tissue
+├── Gate → Observer   - Flow decides, Tissue records
+├── Distinct before Filter - latch ordering
+└── ACK resets        - latch without graph rebuild
+
+Level 5: Real-World Applications
+├── Card Auth         - payments books
+├── Ride-Hail Dispatch - mobility books
+├── Grid Demand-Response - energy books
+└── NL Instruction    - command surface books
+</code></pre>
+<hr>
+<h2 id="level-1-tissue-collections">Level 1: Tissue Collections</h2>
+<h3 id="1-tissuelist--ordered-indexable">1. TissueList — Ordered, Indexable</h3>
+<p><strong>What it does:</strong> A reactive list with validation, thread safety, and observability.</p>
+<p><strong>When to use:</strong> Ordered collections where position matters — logs, queues, task lists, audit trails.</p>
+<pre class="language-dart"><code class="language-dart">final ledger = TissueList&lt;LedgerEntry&gt;(
+  testRule: TestTissue&lt;LedgerEntry, TissueList&lt;LedgerEntry&gt;&gt;(
+    (e, {host, arguments, user}) {
+      // Append-only rule: allow add/addAll; deny remove/clear/[]=
+      if (arguments is Function) {
+        final src = arguments.toString();
+        if (src.contains('remove') ||
+            src.contains('clear') ||
+            src.contains('[]=')) {
+          return false;
+        }
+      }
+      return true;
+    },
+  ),
+);
+
+ledger.add(LedgerEntry(kind: 'HOLD', authId: 'H-1', detail: '60000¢', at: DateTime.now()));
+print(ledger.length); // 1
+</code></pre>
+<p><strong>Key Insight:</strong> <code>TissueList</code> routes every mutation through <code>apply(...)</code>. The <code>arguments</code> parameter of a <code>TestTissue</code> rule receives the mutation function, so an append-only rule string-matches against <code>remove</code>/<code>clear</code>/<code>[]=</code>.</p>
+<hr>
+<h3 id="2-tissueset--unique-members">2. TissueSet — Unique Members</h3>
+<p><strong>What it does:</strong> A reactive set with value-based or identity-based uniqueness.</p>
+<p><strong>When to use:</strong> Unique element collections — tags, roles, no-go zones, blocklists.</p>
+<pre class="language-dart"><code class="language-dart">final mccBlock = TissueSet&lt;String&gt;(
+  &lt;String&gt;[],
+  testRule: TestTissue&lt;String, TissueSet&lt;String&gt;&gt;(
+    (v, {host, arguments, user}) =&gt;
+        v is String &amp;&amp; v.length == 4 &amp;&amp; int.tryParse(v) != null,
+  ),
+);
+
+mccBlock.add('7995');  // accepted
+mccBlock.add('99');    // rejected by TestTissue
+</code></pre>
+<p><strong>Value-based vs identity-based:</strong></p>
+<pre class="language-dart"><code class="language-dart">// Value-based (default): uses == and hashCode
+final byValue = TissueSet&lt;MyKey&gt;(&lt;MyKey&gt;[]);
+
+// Identity-based: uses identical
+final byIdentity = TissueSet.identity&lt;MyKey&gt;();
+</code></pre>
+<p><strong>Key Insight:</strong> The uniqueness strategy is structural — fixed at creation, inherited by all deputies. You cannot change a value-based set into an identity-based one through a deputy.</p>
+<hr>
+<h3 id="3-tissuemap--key-value-association">3. TissueMap — Key-Value Association</h3>
+<p><strong>What it does:</strong> A reactive map with key-value association and per-value validation.</p>
+<p><strong>When to use:</strong> Registries, assignment tables, caches, index maps.</p>
+<pre class="language-dart"><code class="language-dart">final holdsMap = TissueMap&lt;String, Hold&gt;(
+  properties: TissueMapNucleus&lt;String, Hold&gt;(
+    testRule: TestTissue&lt;Hold, TissueMap&lt;String, Hold&gt;&gt;(
+      (v, {host, arguments, user}) =&gt;
+          v is Hold &amp;&amp; v.amountCents &gt; 0 &amp;&amp; v.authId.isNotEmpty,
+    ),
+  ),
+);
+
+holdsMap['H-1'] = Hold(authId: 'H-1', amountCents: 60000, mid: 'M-4419');
+</code></pre>
+<p><strong>Key Insight:</strong> <code>TissueMap</code> puts <code>testRule</code> on the <strong>nucleus</strong> via <code>properties:</code>, not on the constructor. The value type is the "element" type for validation.</p>
+<hr>
+<h3 id="4-tissuequeue--fifo--double-ended-buffer">4. TissueQueue — FIFO / Double-Ended Buffer</h3>
+<p><strong>What it does:</strong> A reactive queue with optional capacity (circular buffer) behaviour.</p>
+<p><strong>When to use:</strong> Outbound queues, work buffers, event pipelines, bounded outbound channels.</p>
+<pre class="language-dart"><code class="language-dart">final rtuQ = TissueQueue&lt;RtuJob&gt;(
+  capacity: 32,
+  testRule: TestTissue&lt;RtuJob, TissueQueue&lt;RtuJob&gt;&gt;(
+    (v, {host, arguments, user}) =&gt; true,
+  ),
+);
+
+rtuQ.addLast(RtuJob(feeder: 'INT-14', action: Action.shed));
+</code></pre>
+<p><strong>Key Insight:</strong> With <code>capacity</code>, a full queue drops the oldest element on the next <code>addLast</code>. This is the circular-buffer behaviour that gives you backpressure without an explicit reject path.</p>
+<hr>
+<h3 id="5-tissuevalue--single-scalar-atom">5. TissueValue — Single Scalar Atom</h3>
+<p><strong>What it does:</strong> A reactive single-value cell with validation and observability.</p>
+<p><strong>When to use:</strong> Counters, balances, flags, single state atoms.</p>
+<pre class="language-dart"><code class="language-dart">final reserveMw = TissueValue&lt;int&gt;(
+  800,
+  testRule: TestTissue&lt;int, TissueValue&lt;int&gt;&gt;(
+    (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &gt;= 0,
+  ),
+);
+
+reserveMw.set(750);  // accepted, ElementUpdated emitted
+reserveMw.set(-1);   // rejected by TestTissue
+</code></pre>
+<p><strong>Key Insight:</strong> <code>TissueValue</code> is the atomic unit of the books. Every write emits an <code>ElementUpdated</code> with a <code>before</code>/<code>after</code> record.</p>
+<hr>
+<h2 id="level-2-governance--validation">Level 2: Governance &amp; Validation</h2>
+<h3 id="6-testtissue--mutation-rule">6. TestTissue — Mutation Rule</h3>
+<p><strong>What it does:</strong> Enforces a predicate on every mutation.</p>
+<p><strong>When to use:</strong> Any business rule that must hold on every add/remove/set.</p>
+<pre class="language-dart"><code class="language-dart">final nonNegative = TestTissue&lt;int, TissueValue&lt;int&gt;&gt;(
+  (v, {host, arguments, user}) =&gt; v is int &amp;&amp; v &gt;= 0,
+);
+</code></pre>
+<p><strong>Key Insight:</strong> The rule receives <code>(value, {host, arguments, user})</code>. The <code>arguments</code> parameter is the mutation function when the rule is invoked from the action path.</p>
+<h3 id="7-composition--multiple-rules">7. Composition — Multiple Rules</h3>
+<p><strong>What it does:</strong> Combines rules with <code>+</code>. All must pass; short-circuits on <code>false</code>.</p>
+<pre class="language-dart"><code class="language-dart">final policy = nonNegative + underThreshold + evenOnly;
+</code></pre>
+<p><strong>Key Insight:</strong> Compose with <code>+</code> on the correct side. Do not wrap a <code>TestCell</code> in a <code>TestTissue</code> — they are not subtypes.</p>
+<h3 id="8-runtime-mutation--ops-change-a-rule">8. Runtime Mutation — Ops Change a Rule</h3>
+<p><strong>What it does:</strong> Mutate a <code>TissueSet</code> or <code>TissueMap</code> at runtime without redeploying the graph.</p>
+<pre class="language-dart"><code class="language-dart">mccBlock.add('7995');   // ops blocks a category
+protected.add('HOSP-1'); // ops protects a feeder
+</code></pre>
+<p><strong>Key Insight:</strong> Policy inputs that can change at runtime belong in a Tissue, not in a Dart <code>const</code>. The dispatcher reads the Tissue on every tick.</p>
+<hr>
+<h2 id="level-3-deputies--immutability">Level 3: Deputies &amp; Immutability</h2>
+<h3 id="9-unmodifiable--read-only-projection">9. <code>.unmodifiable</code> — Read-Only Projection</h3>
+<p><strong>What it does:</strong> Returns a live, zero-copy read-only view.</p>
+<p><strong>When to use:</strong> Sharing a collection with code that should observe but never mutate.</p>
+<pre class="language-dart"><code class="language-dart">final auditor = ledger.unmodifiable;
+auditor.add(entry);       // blocked
+ledger.add(entry);        // auditor reflects the change (live)
+</code></pre>
+<p><strong>Key Insight:</strong> The view is <strong>not a snapshot</strong> (in the general case). It stays in sync with the source. In some builds it may be a snapshot; check the demo header.</p>
+<h3 id="10-deputy--scoped-authority">10. <code>.deputy(...)</code> — Scoped Authority</h3>
+<p><strong>What it does:</strong> Returns a restricted view with a different <code>TestTissue</code> and <code>Context</code>.</p>
+<p><strong>When to use:</strong> Least-privilege access — read-only, scoped authority, temporary leases.</p>
+<pre class="language-dart"><code class="language-dart">final readOnly = source.deputy(testRule: TestTissue.readOnly);
+final temporary = source.deputy(ephemeralPolicy: EphemeralPolicy(...));
+</code></pre>
+<p><strong>Key Insight:</strong> The deputy's <code>testRule</code> is layered <strong>on top</strong> of the principal's. You can only narrow permissions, never widen.</p>
+<h3 id="11-deep-projection--recursive-immutability">11. Deep Projection — Recursive Immutability</h3>
+<p><strong>What it does:</strong> When <code>unmodifiableElement: true</code> (default), child <code>Cell</code> elements are automatically projected as their <code>.unmodifiable</code> deputies.</p>
+<p><strong>When to use:</strong> Prevent "side-door" mutations through nested mutable cells.</p>
+<pre class="language-dart"><code class="language-dart">final source = TissueList&lt;Task&gt;([Task('Buy milk')]);
+final readOnly = source.unmodifiable;
+final task = readOnly.first;   // unmodifiable deputy of Task
+// task.complete(); // blocked
+</code></pre>
+<p><strong>Key Insight:</strong> The projection is lazy. You get the unmodifiable deputy when you iterate/access; the underlying storage is shared.</p>
+<hr>
+<h2 id="level-4-the-seam--flow--tissue">Level 4: The Seam — Flow + Tissue</h2>
+<h3 id="12-gate--observer--flow-decides-tissue-records">12. Gate → Observer — Flow Decides, Tissue Records</h3>
+<p><strong>What it does:</strong> Wires a Flow pipeline's output to a Tissue write via <code>Cell.observe</code>.</p>
+<p><strong>When to use:</strong> Every real-world Tissue demo.</p>
+<pre class="language-dart"><code class="language-dart">// Flow owns the decision
+final declined = MapValue&lt;AuthAttempt, Decision&gt;(
+      (a) =&gt; riskOf(a, mccBlock),
+    ) +
+    _distinctDecline() +
+    Filter&lt;Decision&gt;((d) =&gt; d == Decision.decline);
+
+declineCell = declined.toHandle(source: attemptIn.cell).cell;
+
+// Tissue records the decision
+Cell.observe(
+  source: declineCell,
+  effect: (pulse) {
+    if (pulse.payload == Decision.decline) {
+      ledger.add(LedgerEntry(kind: 'DECLINE', ...));
+    }
+  },
+);
+</code></pre>
+<p><strong>Key Insight:</strong> The Receptor lock on <code>declineCell</code> releases before the observer takes the <code>TissueList</code> lock. Two locks, two owners, two talk-track sentences.</p>
+<h3 id="13-distinct-before-filter--latch-ordering">13. Distinct Before Filter — Latch Ordering</h3>
+<p><strong>What it does:</strong> Runs <code>Distinct</code> <strong>before</strong> <code>Filter</code>, so the latch records every decision the pipeline made (including <code>hold</code>/<code>approve</code>/<code>idle</code>).</p>
+<p><strong>When to use:</strong> Any gate where ACK resets the latch, and <code>shed → hold → shed</code> must fire twice.</p>
+<pre class="language-dart"><code class="language-dart">MapValue&lt;BayTick, Action&gt;((t) =&gt; actionOf(t, protected))
+  + _distinctShed()
+  + Filter&lt;Action&gt;((a) =&gt; a == Action.shed)
+</code></pre>
+<p><strong>Key Insight:</strong> If <code>Filter</code> ran first, <code>shed → hold → shed</code> would fire only once (latch still at <code>shed</code>). Running <code>Distinct</code> first means the latch tracks every decision.</p>
+<h3 id="14-ack-resets--no-graph-rebuild">14. ACK Resets — No Graph Rebuild</h3>
+<p><strong>What it does:</strong> Clears the Distinct latches without creating a new <code>toHandle</code>.</p>
+<p><strong>When to use:</strong> Driver accepts, shift lead restores, operator approves.</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(
+  source: ackIn.cell,
+  effect: (pulse) {
+    resetDistinct();
+    // optionally restore(...)
+  },
+);
+</code></pre>
+<p><strong>Key Insight:</strong> Never call <code>toHandle</code> from an observer. It doubles every downstream effect. <code>resetDistinct</code> is a plain field assignment — no lock needed.</p>
+<hr>
+<h2 id="level-5-real-world-applications">Level 5: Real-World Applications</h2>
+<h3 id="15-card-auth--payments-books">15. Card Auth — Payments Books</h3>
+<p><strong>File:</strong> <code>card-auth-pipeline(tissue)-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> The full Flow + Tissue seam in a fintech context.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Ingress Layer</strong> — <code>TestCell</code> on amount (1–250_000¢), MCC (4 digits)</li>
+<li><strong>Flow Layer</strong> — <code>MapValue</code> + <code>Distinct</code> + <code>Filter</code> per decision (DECLINE / STEP-UP)</li>
+<li><strong>Tissue Books</strong> — <code>ledger</code> (append-only), <code>available</code>/<code>held</code> (non-negative cents), <code>holdsMap</code>, <code>mccBlock</code>, <code>issuerQ</code></li>
+<li><strong>Money Movement</strong> — <code>placeHold</code> / <code>capture</code> / <code>voidHold</code> with v1 compensation ladder</li>
+<li><strong>Compliance</strong> — <code>ledger.unmodifiable</code> for the regulator</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>amountIn (TestCell) ─┐
+mccIn (TestCell) ────┼─ publishAttempt → AuthAttempt
+                     │
+                     ▼
+                  attemptIn
+                ┌────┴────┐
+                ▼         ▼
+           decline     stepUp
+           gate        gate
+                │         │
+                ▼         ▼
+          observe     observe
+          DECLINE     STEP-UP
+                │
+                ▼
+             ledger.add(...)
+             issuerQ.addLast(...)
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li><code>riskOf</code> reads <code>mccBlock</code> (TissueSet) but never writes it.</li>
+<li>Distinct runs before Filter on <strong>both</strong> gates.</li>
+<li>ACK does <strong>not</strong> call <code>toHandle</code>; it resets Distinct.</li>
+<li>Money moves on ACK, not on decision.</li>
+<li>The invariant <code>available + held + captured == 250000</code> holds after every money method.</li>
+<li>Every Tissue constructor passes <code>TestTissue</code>, never <code>TestCell</code>.</li>
+</ol>
+<h3 id="16-ride-hail-dispatch--mobility-books">16. Ride-Hail Dispatch — Mobility Books</h3>
+<p><strong>File:</strong> <code>ride-hail-dispatch(tissue)-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> The same seam with mobility semantics.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Sensors</strong> — lat/lng/wait/surge with <code>TestCell</code></li>
+<li><strong>Flow</strong> — <code>MapValue(matchOf)</code> + Distinct + Filter per gate (DISPATCH / SURGE)</li>
+<li><strong>Tissue</strong> — <code>trips</code> (append-only), <code>idleDrivers</code> (non-negative), <code>assignments</code>, <code>noGo</code>, <code>pushQ</code></li>
+<li><strong>Push Pump</strong> — <code>_drivePush</code> with fail-once retry</li>
+<li><strong>Auditor</strong> — <code>trips.unmodifiable</code> for the city regulator</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>latIn / lngIn / waitIn / surgeIn ── publishTick
+                                     │
+                                     ▼
+                                  tickIn
+                              ┌─────┴─────┐
+                              ▼           ▼
+                          dispatch    surge
+                          gate        gate
+                              │           │
+                              ▼           ▼
+                          observe     observe
+                          DISPATCH    SURGE
+                              │
+                              ▼
+                          trips.add(...)
+                          pushQ.addLast(...)
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li><code>matchOf</code> reads <code>noGo</code> (TissueSet) but never writes it.</li>
+<li>Closed zone → <code>idle</code> before the nearby check.</li>
+<li>Two latches, two gates, one ACK resets both.</li>
+<li>Fleet invariant: <code>idleDrivers + assignments.length == 12</code>.</li>
+<li>Forced-zero override in §11 proves the non-negative <code>TestTissue</code>.</li>
+<li>Same two-lock discipline as card-auth.</li>
+</ol>
+<h3 id="17-grid-demand-response--energy-books">17. Grid Demand-Response — Energy Books</h3>
+<p><strong>File:</strong> <code>grid-demand-response(tissue)-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> The same seam with power-grid semantics.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Sensors</strong> — Hz (49–51), load MW (≥0), SOC (0–100) with <code>TestCell</code></li>
+<li><strong>Flow</strong> — <code>MapValue(actionOf)</code> + Distinct + Filter per gate (SHED / WARN)</li>
+<li><strong>Tissue</strong> — <code>events</code> (append-only), <code>reserveMw</code> (non-negative), <code>shedMap</code>, <code>protected</code>, <code>rtuQ</code></li>
+<li><strong>RTU Pump</strong> — <code>_driveRtu</code> with fail-once retry</li>
+<li><strong>Council</strong> — <code>events.unmodifiable</code> for the reliability council</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>hzIn / loadIn / socIn ── publishTick
+                          │
+                          ▼
+                       tickIn
+                   ┌─────┴─────┐
+                   ▼           ▼
+                shed        warn
+                gate        gate
+                   │           │
+                   ▼           ▼
+               observe     observe
+               SHED        WARN
+                   │
+                   ▼
+               events.add(...)
+               rtuQ.addLast(...)
+               applyShed(50)
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li><code>actionOf</code> reads <code>protected</code> (TissueSet) but never writes it.</li>
+<li>Protected feeder → <code>hold</code> before the frequency check.</li>
+<li>Reserve invariant: <code>reserveMw + sum(droppedMw) == 800</code>.</li>
+<li>Forced-low override in §11 proves the non-negative <code>TestTissue</code>.</li>
+<li><code>_fmtHz</code> pins Hz to two decimals so <code>49.70</code> never renders as <code>49.7</code>.</li>
+</ol>
+<h3 id="18-nl-instruction--tissueset--command-surface-books">18. NL Instruction → TissueSet — Command Surface Books</h3>
+<p><strong>File:</strong> <code>nl-instruction-tissue-set-Demo.dart</code></p>
+<p><strong>What it demonstrates:</strong> The same seam with a natural-language ingress.</p>
+<p><strong>Key Components:</strong></p>
+<ol>
+<li><strong>Sentence Ingress</strong> — <code>TestCell</code> on non-empty, ≤ 200 chars</li>
+<li><strong>Interpreter Instruction</strong> — <code>AiTissueCommand&lt;String&gt;</code> (from <code>ai_tissue_command.dart</code>)</li>
+<li><strong>Classification Filter</strong> — <code>Flow.filter&lt;Object&gt;</code> drops <code>Reject</code>, counts both</li>
+<li><strong>Dispatch Instruction</strong> — <code>Flow.map</code> calls <code>_runDispatch(cmd)</code> against a swappable host</li>
+<li><strong>Tissue Set</strong> — <code>TissueSet&lt;int&gt;</code> with <code>&gt;= 0</code> element rule</li>
+<li><strong>Auditor</strong> — <code>tags.unmodifiable</code> for read-only review</li>
+</ol>
+<p><strong>Architecture:</strong></p>
+<pre class="language-dart"><code>commandIn (TestCell) ── AiTissueCommand ── Filter ── MapValue
+                                                        │
+                                                        ▼
+                                                    _runDispatch
+                                                        │
+                                                        ▼
+                                                    tags.add(...)
+</code></pre>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>The model chooses a verb; <code>modifiable</code> allows the verb; <code>TestTissue</code> allows the element.</li>
+<li>The interpreter is Flow; the dispatch instruction is Flow; only <code>_runDispatch</code> writes Tissue.</li>
+<li>The dispatcher's host is a <code>Box&lt;TissueSet&lt;int&gt;&gt;</code> — swapped to <code>auditor</code> in §8, back after.</li>
+<li>The <code>modifiable</code> gate denies before the tear-off runs.</li>
+<li>Full traffic logging is preserved offline and live.</li>
+</ol>
+<hr>
+<h2 id="tissue-collection-reference">Tissue Collection Reference</h2>
+<h3 id="collection-types">Collection Types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Uniqueness</th>
+<th>Order</th>
+<th>Key Access</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList&lt;E&gt;</code></td>
+<td>Duplicates allowed</td>
+<td>Index</td>
+<td><code>[i]</code></td>
+<td>Logs, ordered sequences</td>
+</tr>
+<tr>
+<td><code>TissueSet&lt;E&gt;</code></td>
+<td>Value/identity</td>
+<td>Insertion</td>
+<td>—</td>
+<td>Tags, blocklists, roles</td>
+</tr>
+<tr>
+<td><code>TissueMap&lt;K,V&gt;</code></td>
+<td>Key uniqueness</td>
+<td>Insertion</td>
+<td><code>[key]</code></td>
+<td>Registries, indexes</td>
+</tr>
+<tr>
+<td><code>TissueQueue&lt;E&gt;</code></td>
+<td>Duplicates allowed</td>
+<td>FIFO</td>
+<td>—</td>
+<td>Outbound buffers</td>
+</tr>
+<tr>
+<td><code>TissueValue&lt;V&gt;</code></td>
+<td>Singleton</td>
+<td>—</td>
+<td><code>.value</code></td>
+<td>Counters, balances</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tissue-constructors">Tissue Constructors</h3>
+<table>
+<thead>
+<tr>
+<th>Constructor</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TissueList()</code></td>
+<td><code>testRule:</code> (named)</td>
+</tr>
+<tr>
+<td><code>TissueList.of(elements)</code></td>
+<td><code>testRule:</code> (named)</td>
+</tr>
+<tr>
+<td><code>TissueSet(elements)</code></td>
+<td>initial iterable <strong>positional</strong>; <code>testRule:</code> named</td>
+</tr>
+<tr>
+<td><code>TissueSet.identity()</code></td>
+<td><code>testRule:</code> (named)</td>
+</tr>
+<tr>
+<td><code>TissueMap()</code></td>
+<td><code>properties:</code> named carrying <code>TissueMapNucleus</code></td>
+</tr>
+<tr>
+<td><code>TissueQueue()</code></td>
+<td><code>capacity:</code> and <code>testRule:</code> named</td>
+</tr>
+<tr>
+<td><code>TissueValue(value)</code></td>
+<td>initial scalar <strong>positional</strong>; <code>testRule:</code> named</td>
+</tr>
+</tbody>
+</table>
+<h3 id="testtissue-rules">TestTissue Rules</h3>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Element shape</td>
+<td>Validate each member (<code>v is int &amp;&amp; v &gt;= 0</code>)</td>
+</tr>
+<tr>
+<td>Action deny</td>
+<td>Block <code>remove</code>/<code>clear</code>/<code>[]=</code> for append-only logs</td>
+</tr>
+<tr>
+<td>Non-negative</td>
+<td>Reject negative balances</td>
+</tr>
+<tr>
+<td>Shape-only</td>
+<td>Require non-empty id, positive MW, etc.</td>
+</tr>
+<tr>
+<td><code>TestTissue.readOnly</code></td>
+<td>Block all mutations</td>
+</tr>
+<tr>
+<td><code>TestTissue.allowAll</code></td>
+<td>Default (no restriction)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deputy-types">Deputy Types</h3>
+<table>
+<thead>
+<tr>
+<th>Deputy</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.unmodifiable</code></td>
+<td><code>TestTissue.readOnly</code> + deep projection</td>
+</tr>
+<tr>
+<td><code>.deputy(testRule:)</code></td>
+<td>Custom <code>TestTissue</code>, layered on principal</td>
+</tr>
+<tr>
+<td><code>.deputy(context:)</code></td>
+<td>Scoped <code>DeputyContext</code></td>
+</tr>
+<tr>
+<td><code>.deputy(ephemeralPolicy:)</code></td>
+<td>Independent TTL / event-limit</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="combining-patterns">Combining Patterns</h2>
+<h3 id="pattern-append-only-audit-log">Pattern: Append-Only Audit Log</h3>
+<p>Combine <code>TissueList</code> (append-only) with a read-only deputy and a Gate observer.</p>
+<pre class="language-dart"><code class="language-dart">final ledger = TissueList&lt;LedgerEntry&gt;(
+  testRule: TestTissue&lt;LedgerEntry, TissueList&lt;LedgerEntry&gt;&gt;(
+    (e, {host, arguments, user}) {
+      if (arguments is Function) {
+        final src = arguments.toString();
+        if (src.contains('remove') || src.contains('clear') || src.contains('[]=')) {
+          return false;
+        }
+      }
+      return true;
+    },
+  ),
+);
+
+final auditor = ledger.unmodifiable;
+
+Cell.observe(
+  source: gateCell,
+  effect: (pulse) =&gt; ledger.add(LedgerEntry(...)),
+);
+</code></pre>
+<h3 id="pattern-bounded-outbound-queue">Pattern: Bounded Outbound Queue</h3>
+<p>Combine <code>TissueQueue</code> (bounded) with a working list and a fail-once retry.</p>
+<pre class="language-dart"><code class="language-dart">final rtuQ = TissueQueue&lt;RtuJob&gt;(capacity: 32);
+final _rtuWork = &lt;RtuJob&gt;[];
+
+Cell.observe(
+  source: shedCell,
+  effect: (pulse) {
+    if (pulse.payload == Action.shed) {
+      final job = RtuJob(...);
+      rtuQ.addLast(job);
+      _rtuWork.add(job);
+      _driveRtu();
+    }
+  },
+);
+</code></pre>
+<h3 id="pattern-money-movement-with-compensation">Pattern: Money Movement with Compensation</h3>
+<p>Combine <code>TissueValue</code> (balances) with <code>TissueMap</code> (open holds) and a compensation ladder.</p>
+<pre class="language-dart"><code class="language-dart">bool placeHold(String authId, int cents, String mid) {
+  final before = available.value ?? 0;
+  if (before &lt; cents) return false;
+
+  holdsMap[authId] = Hold(authId: authId, amountCents: cents, mid: mid);
+  final okAvail = available.set(before - cents);
+  if (!okAvail) {
+    holdsMap.remove(authId);
+    return false;
+  }
+
+  final heldBefore = held.value ?? 0;
+  final okHeld = held.set(heldBefore + cents);
+  if (!okHeld) {
+    available.set(before);
+    holdsMap.remove(authId);
+    return false;
+  }
+
+  ledger.add(LedgerEntry(kind: 'HOLD', authId: authId, detail: '$cents¢', at: DateTime.now()));
+  return true;
+}
+</code></pre>
+<h3 id="pattern-flow-decision--tissue-book">Pattern: Flow Decision → Tissue Book</h3>
+<p>Combine a Flow gate with a <code>Cell.observe</code> and a <code>TissueList</code> append.</p>
+<pre class="language-dart"><code class="language-dart">final declined = MapValue&lt;AuthAttempt, Decision&gt;(
+      (a) =&gt; riskOf(a, mccBlock),
+    ) +
+    _distinctDecline() +
+    Filter&lt;Decision&gt;((d) =&gt; d == Decision.decline);
+
+final declineCell = declined.toHandle(source: attemptIn.cell).cell;
+
+Cell.observe(
+  source: declineCell,
+  effect: (pulse) {
+    if (pulse.payload == Decision.decline) {
+      ledger.add(LedgerEntry(kind: 'DECLINE', ...));
+      issuerQ.addLast(IssuerJob(...));
+    }
+  },
+);
+</code></pre>
+<hr>
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+<table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Why it breaks the lesson</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ledger.add(...)</code> inside a <code>MapValue</code></td>
+<td>Folds Flow into the log; destroys the two-lock discipline.</td>
+</tr>
+<tr>
+<td><code>available.set(...)</code> inside <code>riskOf</code></td>
+<td>Folds Tissue into the decision; makes the policy untestable.</td>
+</tr>
+<tr>
+<td>Passing <code>TestCell.allowAll</code> to a Tissue constructor</td>
+<td>Type error at best; silent looseness at worst.</td>
+</tr>
+<tr>
+<td>Wrapping a <code>TestCell</code> in <code>TestTissue</code> to "compose"</td>
+<td>They are not subtypes; compose with <code>+</code> on the correct side.</td>
+</tr>
+<tr>
+<td>Using a Dart <code>List&lt;T&gt;</code> as the source of truth</td>
+<td>The books are the <code>TissueList</code>; a local list is only for formatting.</td>
+</tr>
+<tr>
+<td><code>toHandle</code> called from the ACK observer</td>
+<td>Doubles every downstream effect on the next tick.</td>
+</tr>
+<tr>
+<td>Reading <code>ledger</code> from inside an observer to "check duplicates"</td>
+<td>Duplicates are Distinct's job, not the log's.</td>
+</tr>
+<tr>
+<td>Emitting a decision from the policy</td>
+<td>The policy returns a value; the gate emits the pulse.</td>
+</tr>
+<tr>
+<td>Bypassing <code>placeHold</code> to write <code>available</code>/<code>held</code> directly</td>
+<td>The three money methods are the only writers of the money tables.</td>
+</tr>
+<tr>
+<td>Ignoring the compensation ladder in <code>placeHold</code></td>
+<td>A partial write leaves an orphan hold or a lost balance.</td>
+</tr>
+<tr>
+<td>Replacing Distinct with "the log has this id"</td>
+<td>The log is history; Distinct is the <em>current</em> latch. ACK clears the latch, never the log.</td>
+</tr>
+<tr>
+<td>Holding the Receptor lock across a Tissue write</td>
+<td>Violates the two-lock discipline; makes the two subsystems indivisible.</td>
+</tr>
+<tr>
+<td>Encoding a two-product distinction in a boolean</td>
+<td>Two products need two gates; a boolean cannot express the middle state.</td>
+</tr>
+<tr>
+<td>Making <code>riskOf</code> / <code>actionOf</code> / <code>matchOf</code> async</td>
+<td>Purity is the lesson; async reads belong at ingress.</td>
+</tr>
+<tr>
+<td>Trying to make <code>.unmodifiable</code> a snapshot</td>
+<td>The contract is live, zero-copy projection.</td>
+</tr>
+<tr>
+<td>Reading <code>auditor.length</code> to prove liveliness without checking the header</td>
+<td>Some builds are snapshots; verify before asserting.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="next-steps">Next Steps</h2>
+<h3 id="for-dart-developers-new-to-cell">For Dart Developers New to Cell</h3>
+<ol>
+<li>Read the demo header for one sibling (<code>card-auth-pipeline(tissue)-Demo.dart</code>).</li>
+<li>Read <code>riskOf</code> and <code>installGates</code> in isolation. They are pure.</li>
+<li>Trace one DECLINE from <code>setAmount</code> through <code>ledger.add</code>.</li>
+<li>Add a fourth decision (<code>review</code>) to see the mechanical pattern.</li>
+</ol>
+<h3 id="for-framework-extenders">For Framework Extenders</h3>
+<ol>
+<li>Read <code>tissue_nucleus.dart</code> for <code>TissueNucleusBase</code>.</li>
+<li>Read <code>tissue_container.dart</code> for the <code>Container</code> strategy.</li>
+<li>Read <code>tissue_receptor.dart</code> for the deputy sync engine.</li>
+<li>Write a custom <code>Tissue</code> subtype for a non-standard storage.</li>
+</ol>
+<h3 id="for-domain-porters">For Domain Porters</h3>
+<ol>
+<li>Pick a sibling closest to your domain.</li>
+<li>Rename the domain types (<code>AuthAttempt</code> → <code>YourTick</code>).</li>
+<li>Rewrite the policy (<code>riskOf</code> → <code>yourPolicy</code>).</li>
+<li>Keep the seam: <code>MapValue → Distinct → Filter</code> per product, one observer per gate, one <code>TestTissue</code> per collection.</li>
+<li>Keep the two-lock discipline.</li>
+</ol>
+<h3 id="sibling-demos">Sibling Demos</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Domain</th>
+<th>Seam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>card-auth-pipeline(tissue)-Demo.dart</code></td>
+<td>Payments</td>
+<td>Flow decides, Tissue records cents</td>
+</tr>
+<tr>
+<td><code>ride-hail-dispatch(tissue)-Demo.dart</code></td>
+<td>Mobility</td>
+<td>Flow decides, Tissue records trips</td>
+</tr>
+<tr>
+<td><code>grid-demand-response(tissue)-Demo.dart</code></td>
+<td>Energy</td>
+<td>Flow decides, Tissue records MW</td>
+</tr>
+<tr>
+<td><code>nl-instruction-tissue-set-Demo.dart</code></td>
+<td>Command surface</td>
+<td>Flow interprets, Tissue records members</td>
+</tr>
+<tr>
+<td><code>ICU-alarm-pipeline(enhanced)-Demo.dart</code></td>
+<td>Clinical</td>
+<td>Flow decides, Tissue records alarms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="companion-documents">Companion Documents</h3>
+<p>For each demo, the following companions exist:</p>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*-Demo.dart</code></td>
+<td>Executable implementation</td>
+</tr>
+<tr>
+<td><code>*-WalkThrough.md</code></td>
+<td>Requirement document and scenario contract</td>
+</tr>
+<tr>
+<td><code>*-ARCHITECTURE.md</code></td>
+<td>Layering, ownership, locking, failure semantics, anti-patterns</td>
+</tr>
+<tr>
+<td><code>*-FEATURES.md</code></td>
+<td>Operator catalogue and feature index</td>
+</tr>
+</tbody>
+</table>
+<p>Read them in this order:</p>
+<ol>
+<li><strong>This file</strong> — the guide in ten minutes.</li>
+<li><strong><code>*-Demo.dart</code></strong> — skim the class doc, then read the pure policy and the gate installation.</li>
+<li><strong><code>*-WalkThrough.md</code></strong> — the requirement and the scenario contract.</li>
+<li><strong><code>*-FEATURES.md</code></strong> — the operator catalogue.</li>
+<li><strong><code>*-ARCHITECTURE.md</code></strong> — the layering and ownership note.</li>
+</ol>
+<hr>
+<p><em>End of DEMO_GUIDE.md (Tissue Edition).</em></p>
+</section>
+
+
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Tissue">
+  <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">cell_tissue</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+</ol>
+
+  <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Core</li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Walkthroughs topic</h5>
+  <ol>
+
+    <li class="section-title"><a href="../topics/Walkthroughs-topic.html#classes">Classes</a></li>
+      <li><a href="../cell_tissue/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

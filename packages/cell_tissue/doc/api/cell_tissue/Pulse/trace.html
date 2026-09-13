@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Pulse-class.html">Pulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">trace property</li>
   </ol>
@@ -67,11 +67,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>An ordered sequence of <strong>Operational Milestones</strong> documenting the
-signal's journey through the reactive graph.</p>
+  <p>An ordered sequence of steps documenting the signal's journey.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this for debugging or auditing – it shows every step the pulse
-has taken through the graph.</p>
+<ul>
+<li><strong>Forensic Auditing</strong>: Use this for debugging or auditing — it shows every step the pulse has
+taken through the graph.</li>
+<li>Debugging to see what transformations were applied.</li>
+<li>Auditing to understand a signal's journey.</li>
+<li>Explainable AI (XAI) to show decision steps.</li>
+<li>Understanding the evolution of a signal.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <p>Every call to <a href="../../cell_tissue/Pulse/evolve.html">evolve</a> or <a href="../../cell_tissue/Pulse/withStep.html">withStep</a> appends to the trace. The list is
 accumulated by walking up the parent chain.</p>
@@ -118,7 +123,7 @@ print(evolved.trace); // ['validation', 'transformation', 'persistence']
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

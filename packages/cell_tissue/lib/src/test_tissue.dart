@@ -170,7 +170,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
-  Iterable<TestRule<C>> get _rules => get<Iterable<TestRule<C>>>(_record.rules, orElse: const Iterable.empty());
+  Iterable<TestRule<C>> get _rules => get<Iterable<TestRule<C>>>(() => _record.rules, orElse: <TestRule<C>>[]);
 
   /// Creates a new [TestTissue] validation rule for reactive collections.
   ///
@@ -227,7 +227,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// the chain short‑circuits and the whole validation fails.
   ///
   /// ### Non‑obvious
-  /// - You can provide a custom [fn] that acts as an "Omniscient Guard,"
+  /// - You can provide a custom `fn` that acts as an "Omniscient Guard,"
   ///   executing alongside the specialised [rules]. If provided, it overrides
   ///   the default sequential evaluation.
   /// - If a rule returns a `Future`, the chain automatically becomes
@@ -347,6 +347,16 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   FutureOr<bool> element(covariant E? element, {required C host, Function? action}) {
     final rules = _rules.whereType<TestElementRule<E, C>>().toList();
 
+    // Single-rule policies (stored as `rule` rather than `rules`) are
+    // evaluated directly as element predicates.
+    if (rules.isEmpty) {
+      final rule = get<FutureOr<bool> Function(dynamic, {C? host, dynamic arguments, dynamic user})?>(
+          () => _record.rule, orElse: null);
+      if (rule != null) {
+        return rule(element, host: host, arguments: action);
+      }
+    }
+
     // Internal recursive evaluator to handle FutureOr branching
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
@@ -461,7 +471,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
 /// See also:
 /// - [TestTissue] – the main policy engine that uses this rule.
 /// - [TestActionRule] – for validating the action itself.
-/// - [TestInstruction] – for validating incoming signals.
+/// - `TestInstruction` – for validating incoming signals.
 class TestElementRule<E, C extends Tissue<E>> extends TestRule<C> {
 
   /// Creates a specialised **Integrity Guard** for individual collection

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Deputy-mixin.html">Deputy<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">hashCode property</li>
   </ol>
@@ -78,15 +78,21 @@ consistency with the overridden <a href="../../cell_tissue/Deputy/operator_equal
 <p>Automatic – you don't need to call it. It ensures consistent behaviour
 in hash‑based collections.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>Delegates to the bound cell's hash code, so a deputy and its principal
-have the same hash.</p>
+<p>Walks to the root principal nucleus, matching <a href="../../cell_tissue/Cell-class.html">Cell</a> identity so a
+deputy and its principal have the same hash.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-int get hashCode =&gt; _nucleus.bind.hashCode;</code></pre>
+int get hashCode {
+  Nucleus? p = _nucleus;
+  while (p?.principal != null) {
+    p = p!.principal;
+  }
+  return identityHashCode(p);
+}</code></pre>
 </section>
 
   </section>
@@ -116,7 +122,7 @@ int get hashCode =&gt; _nucleus.bind.hashCode;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

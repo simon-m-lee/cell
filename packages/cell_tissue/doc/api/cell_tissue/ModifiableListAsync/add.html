@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">add method</li>
   </ol>
@@ -63,25 +63,22 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously adds <code>element</code> to the end of the list.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/add.html">TissueList.add</a>. The <code>Future</code> completes successfully if the
-element is added (i.e., allowAll validation, list is growable and modifiable).
-Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
-<ul>
-<li><code>element</code>: The element to add.</li>
-</ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
+  <p>Asynchronously appends <code>element</code> to the end of this list.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>Schedules the addition through the tissue's command gateway. If the
+<code>element</code> passes the DNA integrity checks (<code>testRule</code>), a new <a href="../../cell_tissue/Pulse-class.html">Pulse</a>
+is emitted containing an <code>ElementAdded</code> event.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<p>If the addition is rejected by validation, the <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> will resolve
+without modifying the state, and no forensic trace will be generated
+for the collection.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; add(E element) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.add(element));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; add(E element) =&gt; Future&lt;void&gt;(() =&gt; _tissue.add(element));</code></pre>
 </section>
 
 
@@ -109,7 +106,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

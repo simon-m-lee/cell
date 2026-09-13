@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">SyncSet<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">SyncSet</div>
@@ -56,41 +56,65 @@
 <section class="desc markdown">
   <p>A thread-safe implementation of a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, providing <strong>Synchronized Access</strong>
 for collection-based state.</p>
-<p>The <a href="../cell_tissue/SyncSet-class.html">SyncSet</a> serves as a <strong>Concurrency-Safe Container</strong>. It ensures that
-the membership of a set (such as the collection of active <strong>Synapses</strong> or
+<p>The <a href="../cell_tissue/SyncSet-class.html">SyncSet</a> serves as a <strong>Concurrency-Safe Container</strong>, ensuring that the
+membership of a set (such as the collection of active <strong>Synapses</strong> or
 dependency nodes) remains atomically consistent even when accessed or
 mutated across different reactive waves or asynchronous execution threads.</p>
-<h3 id="1-architectural-role-concurrent-integrity">1. Architectural Role: Concurrent Integrity</h3>
-<p>This implementation uses a non-recursive <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to serialize access to the
-underlying storage. It is designed to prevent "Collection Tearing"—a
-condition where one thread reads the set while another is mid-mutation,
-leading to inconsistent reactive waves or corrupted state snapshots.</p>
-<h3 id="2-asynchronous-interface-non-blocking-access">2. Asynchronous Interface: Non-Blocking Access</h3>
-<p>Unlike standard synchronous sets, <a href="../cell_tissue/SyncSet-class.html">SyncSet</a> utilizes <strong>Future-based
-Accessors</strong>. This aligns with the framework's non-blocking concurrency
-model, ensuring that the calling thread never blocks while waiting for
-the internal synchronization lock to release.</p>
-<h3 id="3-operational-mechanics">3. Operational Mechanics:</h3>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Atomic Mutations</strong>: Operations like <a href="../cell_tissue/SyncSet/add.html">add</a>, <a href="../cell_tissue/SyncSet/remove.html">remove</a>, and <a href="../cell_tissue/SyncSet/clear.html">clear</a> are
-serialized through the internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, ensuring that the collection
-membership is updated as a single, indivisible unit.</li>
-<li><strong>Snapshot Iteration</strong>: The <a href="../cell_tissue/SyncSet/iterator.html">iterator</a> provides access to a
-<strong>Point-in-Time Snapshot</strong> of the set. This prevents
-<code>ConcurrentModificationError</code> by allowing the system to iterate over
-a stable copy while the primary set undergoes further concurrent updates.</li>
-<li><strong>Relational Operations</strong>: Set operations like <a href="../cell_tissue/SyncSet/intersection.html">intersection</a> and <a href="../cell_tissue/SyncSet/union.html">union</a>
-return standard <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> objects, representing an immutable "Resultant View"
-of the interaction between two collections.</li>
+<li><strong>Dependency Management</strong>: Tracking active listeners or observers that
+may be added or removed from different asynchronous contexts.</li>
+<li><strong>Shared State</strong>: Managing collections that are accessed by multiple
+concurrent actors in the reactive fabric.</li>
+<li><strong>Resource Tracking</strong>: Keeping track of active network connections or
+file handles where structural integrity is paramount.</li>
 </ul>
-<h3 id="4-performance-note">4. Performance Note:</h3>
-<p>This set is optimized for <strong>Structural Safety</strong> and thread synchronization
-over high-frequency throughput. In scenarios requiring mass-iterations or
-intensive read-only processing, it is recommended to use <a href="../cell_tissue/SyncSet/replicate.html">replicate</a> to
-obtain a local, non-synchronized copy.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Serialization</strong>: Uses a non-recursive <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to serialize all access
+to the underlying storage.</li>
+<li><strong>Asynchronous Interface</strong>: All operations return <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> handles,
+aligning with the framework's non-blocking concurrency model.</li>
+<li><strong>Snapshot Isolation</strong>: Methods that involve iteration (like <a href="../cell_tissue/SyncSet/iterator.html">iterator</a>,
+<a href="../cell_tissue/SyncSet/toList.html">toList</a>, or <a href="../cell_tissue/SyncSet/map.html">map</a>) operate on a <strong>Point-in-Time Snapshot</strong>. This
+prevents <code>ConcurrentModificationError</code> by allowing concurrent mutations
+while a specific reactive wave processes the current state.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Locking Overhead</strong>: While providing safety, the internal synchronization
+introduces latency. For high-frequency read-only access within a single
+thread, consider using <a href="../cell_tissue/SyncSet/replicate.html">replicate</a> to get a local, non-synchronized copy.</li>
+<li><strong>Future Completion</strong>: A mutation's <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> completes once the lock is
+acquired and the operation is applied, ensuring causal ordering between
+sequential calls.</li>
+<li><strong>Zero-Blocking</strong>: The use of <code>synchronized</code> ensures that the calling
+thread remains free for other tasks while waiting for the set to become
+available.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final registry = SyncSet&lt;String&gt;();
+
+// Thread-safe addition
+await registry.add('node_alpha');
+
+// Safe iteration over a snapshot
+final items = await registry.toList();
+for (var item in items) {
+  print('Processing $item');
+}
+
+// Atomic bulk update
+await registry.addAll(['node_beta', 'node_gamma']);
+</code></pre>
 <h3 id="type-parameters">Type Parameters:</h3>
 <ul>
-<li><code>E</code>: The type of elements contained within the synchronized set.</li>
+<li><strong><code>E</code></strong>: The type of elements contained within the synchronized set.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The underlying synchronization mechanism.</li>
+<li><a href="../cell_tissue/AsyncQueueList-class.html">AsyncQueueList</a>: For a synchronized FIFO/LIFO structure.</li>
 </ul>
 </section>
 
@@ -544,7 +568,7 @@ obtain a local, non-synchronized copy.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li class="self-crumb">tissue.dart</li>
+    <li class="self-crumb">cell_tissue.dart</li>
   </ol>
   <div class="self-name">cell_tissue</div>
   <form class="search navbar-right" role="search">
@@ -51,7 +51,7 @@
       
 
       <h1>
-        <span class="kind-library">tissue</span>
+        <span class="kind-library">cell_tissue</span>
         library 
  
 
@@ -101,7 +101,7 @@ transformation logic, and propagation behaviour.</p>
 <ol>
 <li>Passes through the <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> validation gate.</li>
 <li>Is applied atomically to the physical storage.</li>
-<li>Emits a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> (e.g., <code>ElementAddedEvent</code>).</li>
+<li>Emits a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> (e.g., <code>ElementAddedEvent</code>).</li>
 <li>Propagates the event through the collection’s <a href="../cell_tissue/Synapses-class.html">Synapses</a> to all
 downstream observers.</li>
 </ol>
@@ -123,7 +123,7 @@ default), any child <a href="../cell_tissue/Cell-class.html">Cell</a> elements a
 <code>addAll</code>), each element is validated individually. Invalid elements are
 silently skipped – they do <strong>not</strong> cause the entire operation to fail.</li>
 <li><strong>Initial population is silent</strong>: When you create a tissue with initial
-elements (e.g., <code>TissueList([1, 2, 3])</code>), no <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> is emitted.
+elements (e.g., <code>TissueList([1, 2, 3])</code>), no <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> is emitted.
 Observers only see events for mutations that happen <em>after</em> creation.</li>
 <li><strong>Bounded queues</strong>: For <a href="../cell_tissue/TissueQueue-class.html">TissueQueue</a>, setting a <code>capacity</code> creates a
 circular buffer – when the queue is full, adding a new element drops the
@@ -168,14 +168,29 @@ print(readOnly.length); // 4 – the view is live!
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../cell_tissue/ApplyRejected-class.html">ApplyRejected</a></span> 
+
+</dt>
+<dd>
+  Explicit soft-reject from <a href="../cell_tissue/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+</dd>
+
+          <dt id="ApplyTransactionScope">
+  <span class="name "><a href="../cell_tissue/ApplyTransactionScope-class.html">ApplyTransactionScope</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="Async">
   <span class="name "><a href="../cell_tissue/Async-class.html">Async</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  <a href="../cell_tissue/Async-class.html">Async</a> is a foundational marker interface and architectural contract used
-to identify the <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> of a specific
-core component <code>C</code>.
+  A foundational marker interface and architectural contract representing
+an <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> for a core component <code>C</code>.
 </dd>
 
           <dt id="AsyncPriorityQueue">
@@ -208,7 +223,8 @@ signal distribution.
 
 </dt>
 <dd>
-  A specialized, lightweight container used to provide a mutable state/// anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.
+  A specialized, lightweight container used to provide a mutable state
+anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.
 </dd>
 
           <dt id="Cell">
@@ -234,8 +250,8 @@ whatever else is listening.
 
 </dt>
 <dd>
-  A <strong>Collective Pulse</strong> – a flat bundle of multiple independent pulses
-that travel together as a single atomic wave.
+  A <strong>Collective Pulse</strong> — a flat bundle of independent pulses travelling
+together as a single atomic wave.
 </dd>
 
           <dt id="CollectivePulseBase">
@@ -243,17 +259,7 @@ that travel together as a single atomic wave.
 
 </dt>
 <dd>
-  The abstract base class for a <strong>Collective Pulse</strong> – a bundle of multiple
-independent pulses that travel together as a single atomic wave.
-</dd>
-
-          <dt id="CollectiveTissueEvent">
-  <span class="name "><a href="../cell_tissue/CollectiveTissueEvent-class.html">CollectiveTissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A batch of multiple independent <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a>s that travel together as a
-single atomic wave.
+  The abstract base class for <a href="../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> implementations.
 </dd>
 
           <dt id="CollectiveTissueEventBase">
@@ -262,7 +268,24 @@ single atomic wave.
 </dt>
 <dd>
   The base implementation for a flat bundle of multiple independent
-<a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a>s that travel together as a single atomic wave.
+<a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a>s that travel together as a single atomic wave.
+</dd>
+
+          <dt id="CollectiveTissuePulse">
+  <span class="name "><a href="../cell_tissue/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A batch of multiple independent <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a>s that travel together as a
+single atomic wave.
+</dd>
+
+          <dt id="CompensationFailure">
+  <span class="name "><a href="../cell_tissue/CompensationFailure-class.html">CompensationFailure</a></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="Container">
@@ -297,7 +320,9 @@ the core logic for <strong>Prototype-based Inheritance</strong> and <strong>Onto
 
 </dt>
 <dd>
-  A utility for <strong>Circular Dependency Detection</strong> within the reactive graph.
+  A specialized <strong>Traversal Guard</strong> and <strong>Topology Validator</strong>, responsible for
+preventing infinite recursion and ensuring the reactive graph remains a
+<strong>Directed Acyclic Graph (DAG)</strong> during signal propagation.
 </dd>
 
           <dt id="DefaultValue">
@@ -318,22 +343,31 @@ fields in a model class.
   Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>.
 </dd>
 
-          <dt id="ElementAddedEvent">
-  <span class="name "><a href="../cell_tissue/ElementAddedEvent-class.html">ElementAddedEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+          <dt id="ElementAdded">
+  <span class="name "><a href="../cell_tissue/ElementAdded-class.html">ElementAdded</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  A specialised <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> signifying the addition of new elements
+  A specialised <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> signifying the addition of new elements
 to a reactive collection.
 </dd>
 
-          <dt id="ElementRemovedEvent">
-  <span class="name "><a href="../cell_tissue/ElementRemovedEvent-class.html">ElementRemovedEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+          <dt id="ElementRemoved">
+  <span class="name "><a href="../cell_tissue/ElementRemoved-class.html">ElementRemoved</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  A specialised <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> signifying the removal or disposal of an
+  A specialised <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> signifying the removal or disposal of an
 element from a reactive collection.
+</dd>
+
+          <dt id="ElementUpdated">
+  <span class="name "><a href="../cell_tissue/ElementUpdated-class.html">ElementUpdated</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> signifying a discrete state transition or value
+evolution within the reactive framework.
 </dd>
 
           <dt id="EmailPattern">
@@ -359,7 +393,7 @@ whether a string input matches a specific Regular Expression (<a href="https://a
 
 </dt>
 <dd>
-  Defines the <strong>Lifecycle Governance</strong> for transient reactive elements.
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.
 </dd>
 
           <dt id="EvolvedPulse">
@@ -367,8 +401,8 @@ whether a string input matches a specific Regular Expression (<a href="https://a
 
 </dt>
 <dd>
-  An immutable signal that has been derived from a previous pulse through
-a transformation step.
+  An immutable signal derived from a previous pulse through a transformation
+step — a causal link in the signal's journey.
 </dd>
 
           <dt id="EvolvedPulseBase">
@@ -376,17 +410,7 @@ a transformation step.
 
 </dt>
 <dd>
-  The abstract base class for an <strong>Evolved Pulse</strong> – a pulse that has been
-derived from a previous pulse through a transformation step.
-</dd>
-
-          <dt id="EvolvedTissueEvent">
-  <span class="name "><a href="../cell_tissue/EvolvedTissueEvent-class.html">EvolvedTissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A specialized structural signal representing a reactive transition that has
-originated from a previous event within the collection layer.
+  The abstract base class for <a href="../cell_tissue/EvolvedPulse-class.html">EvolvedPulse</a> implementations.
 </dd>
 
           <dt id="EvolvedTissueEventBase">
@@ -394,8 +418,18 @@ originated from a previous event within the collection layer.
 
 </dt>
 <dd>
-  The base implementation for a single <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> that has been derived
+  The base implementation for a single <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> that has been derived
 from a previous event, preserving its full causal lineage.
+</dd>
+
+          <dt id="EvolvedTissuePulse">
+  <span class="name "><a href="../cell_tissue/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> that has been derived from a previous event, preserving
+its full causal lineage — the parent‑child chain that explains how the
+signal evolved.
 </dd>
 
           <dt id="FilterRule">
@@ -412,7 +446,7 @@ broadcast to downstream observers.
 
 </dt>
 <dd>
-  A specialized, write-once container that provides a thread-safe, immutable
+  A specialized, write-once container providing a thread-safe, immutable
 anchor for state that is initialized after construction.
 </dd>
 
@@ -468,12 +502,48 @@ governance within the framework's <strong>Scene-Driven Ontology</strong>.
   
 </dd>
 
+          <dt id="Instruction">
+  <span class="name "><a href="../cell_tissue/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A discrete logic unit that defines how a <a href="../cell_tissue/Receptor-class.html">Receptor</a> reacts to a <a href="../cell_tissue/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="InstructionBase">
+  <span class="name "><a href="../cell_tissue/InstructionBase-class.html">InstructionBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation and architectural base for all <a href="../cell_tissue/Instruction-class.html">Instruction</a>
+variants.
+</dd>
+
+          <dt id="InstructionChain">
+  <span class="name "><a href="../cell_tissue/InstructionChain-class.html">InstructionChain</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A composite <a href="../cell_tissue/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
           <dt id="Lock">
   <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a></span> 
 
 </dt>
 <dd>
   Object providing the implicit lock.
+</dd>
+
+          <dt id="MapStore">
+  <span class="name "><a href="../cell_tissue/MapStore-class.html">MapStore</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A physical map storage that is both an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> over its values and a
+map-like accessor for keys. It bridges the gap between the generic
+<a href="../cell_tissue/TissueContainer-class.html">TissueContainer</a> (which requires an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> store) and the map‑shaped
+storage needs of <a href="../cell_tissue/TissueMap-class.html">TissueMap</a>.
 </dd>
 
           <dt id="MaxLength">
@@ -557,7 +627,7 @@ controlled mutation through the framework's dynamic command pattern.
 </dt>
 <dd>
   A specialized, terminal implementation of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract representing
-the framework's "zero-state."
+the framework's "zero-state" and <strong>Ontological Root</strong>.
 </dd>
 
           <dt id="Nucleus">
@@ -601,7 +671,8 @@ external stimulus injection and dynamic topology management.
 
 </dt>
 <dd>
-  A collection of elements that maintains a <strong>Deterministic Priority Order</strong>.
+  A collection of elements that maintains a <strong>Deterministic Priority Order</strong>,
+serving as a specialized <strong>Ranked Execution Buffer</strong> for the reactive fabric.
 </dd>
 
           <dt id="PropagationPolicy">
@@ -618,7 +689,7 @@ external stimulus injection and dynamic topology management.
 
 </dt>
 <dd>
-  An immutable signal carrying a payload through the reactive graph.
+  A reactive signal — the fundamental unit of communication in the framework.
 </dd>
 
           <dt id="PulseBase">
@@ -626,8 +697,7 @@ external stimulus injection and dynamic topology management.
 
 </dt>
 <dd>
-  The foundational implementation of the <a href="../cell_tissue/Pulse-class.html">Pulse</a> interface, providing the
-core logic for signal storage and property resolution.
+  
 </dd>
 
           <dt id="PulseContext">
@@ -645,31 +715,6 @@ core logic for signal storage and property resolution.
 <dd>
   A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
 for a <a href="../cell_tissue/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
-</dd>
-
-          <dt id="PulseRule">
-  <span class="name "><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A reusable unit of logic for processing and transforming <a href="../cell_tissue/Pulse-class.html">Pulse</a> instances.
-</dd>
-
-          <dt id="PulseRuleBase">
-  <span class="name "><a href="../cell_tissue/PulseRuleBase-class.html">PulseRuleBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-
-</dt>
-<dd>
-  The foundational implementation and architectural base for all <a href="../cell_tissue/PulseRule-class.html">PulseRule</a>
-variants.
-</dd>
-
-          <dt id="PulseRuleChain">
-  <span class="name "><a href="../cell_tissue/PulseRuleChain-class.html">PulseRuleChain</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A composite <a href="../cell_tissue/PulseRule-class.html">PulseRule</a> that applies a sequence of rules to a pulse.
 </dd>
 
           <dt id="PulseShell">
@@ -695,8 +740,7 @@ facilitate pre-execution validation and security gating.
 </dt>
 <dd>
   The transformation pipeline that decides how a <a href="../cell_tissue/Cell-class.html">Cell</a> responds to an
-incoming <a href="../cell_tissue/Pulse-class.html">Pulse</a> – return a pulse to continue propagation, or <code>null</code> to
-stop it there.
+incoming <a href="../cell_tissue/Pulse-class.html">Pulse</a>.
 </dd>
 
           <dt id="ReceptorAsync">
@@ -705,7 +749,7 @@ stop it there.
 </dt>
 <dd>
   An asynchronous execution handle for a <a href="../cell_tissue/Receptor-class.html">Receptor</a> that facilitates
-non‑blocking pulse processing.
+non‑blocking pulse processing and lifecycle synchronization.
 </dd>
 
           <dt id="ReceptorBase">
@@ -722,7 +766,8 @@ core synchronization and pulse propagation engine.
 
 </dt>
 <dd>
-  Defines a <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> for framework entities.
+  A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
 </dd>
 
           <dt id="Synapses">
@@ -730,8 +775,8 @@ core synchronization and pulse propagation engine.
 
 </dt>
 <dd>
-  The distribution registry for a <a href="../cell_tissue/Cell-class.html">Cell</a>'s downstream observers — where
-a pulse goes after a cell accepts it.
+  The distribution fabric for a <a href="../cell_tissue/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.
 </dd>
 
           <dt id="SynapsesBase">
@@ -748,8 +793,8 @@ a pulse goes after a cell accepts it.
 
 </dt>
 <dd>
-  A synchronized variant of <a href="../cell_tissue/Box-class.html">Box</a> that provides thread-safe access and
-facilitates atomic state transitions.
+  A synchronized variant of <a href="../cell_tissue/Box-class.html">Box</a> providing <strong>Thread-Safe Access</strong> and
+facilitating <strong>Atomic State Transitions</strong> across concurrent execution boundaries.
 </dd>
 
           <dt id="SyncCycleChecker">
@@ -844,8 +889,9 @@ graph formation within the reactive framework.
 
 </dt>
 <dd>
-  The foundational abstraction for <strong>Validation Logic</strong>, <strong>Policy Enforcement</strong>,
-and <strong>Security Guarding</strong> within the reactive framework.
+  A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.
 </dd>
 
           <dt id="TestTissue">
@@ -860,6 +906,15 @@ containers (Lists, Sets, Maps, Queues, Values).
 
           <dt id="Tissue">
   <span class="name "><a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+    <span class="category getting-started cp-0 linked" title="This is part of the Getting Started topic."><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></span>
+    <span class="category features cp-1 linked" title="This is part of the Features topic."><a href="../topics/Features-topic.html">Features</a></span>
+    <span class="category architecture cp-2 linked" title="This is part of the Architecture topic."><a href="../topics/Architecture-topic.html">Architecture</a></span>
+    <span class="category walkthroughs cp-3 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+    <span class="category demo-·-fintech-pipeline cp-4 linked" title="This is part of the Demo · Fintech Pipeline topic."><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></span>
+    <span class="category demo-·-grid-demand cp-5 linked" title="This is part of the Demo · Grid Demand topic."><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></span>
+    <span class="category demo-·-natural-language cp-6 linked" title="This is part of the Demo · Natural-Language topic."><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></span>
+    <span class="category demo-·-ride-hail cp-7 linked" title="This is part of the Demo · Ride Hail topic."><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></span>
+    <span class="category quick-start-&-examples cp-8 linked" title="This is part of the Quick Start & Examples topic."><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></span>
 
 </dt>
 <dd>
@@ -887,20 +942,12 @@ high‑fidelity collections in the <code>cell</code> ecosystem.
 manages the physical storage and structural lifecycle of <a href="../cell_tissue/Tissue-class.html">Tissue</a> elements.
 </dd>
 
-          <dt id="TissueEvent">
-  <span class="name "><a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  
-</dd>
-
           <dt id="TissueEventBase">
   <span class="name "><a href="../cell_tissue/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  The foundational implementation for all <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a>s – the standard
+  The foundational implementation for all <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a>s – the standard
 signal that carries a collection change through the reactive graph.
 </dd>
 
@@ -909,8 +956,8 @@ signal that carries a collection change through the reactive graph.
 
 </dt>
 <dd>
-  A defensive, read‑only shell that wraps a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> and forces any
-receiver to authenticate itself before the event’s payload is revealed.
+  A defensive, read‑only shell that wraps a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> and forces any
+receiver to authenticate itself before the event's payload is revealed.
 </dd>
 
           <dt id="TissueList">
@@ -1025,6 +1072,14 @@ and governance of a reactive collection.
 </dt>
 <dd>
   A terminal, immutable representation of empty tissue properties.
+</dd>
+
+          <dt id="TissuePulse">
+  <span class="name "><a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A structural signal emitted by a <a href="../cell_tissue/Tissue-class.html">Tissue</a> when its internal state changes.
 </dd>
 
           <dt id="TissueQueue">
@@ -1152,6 +1207,134 @@ DNA, security protocols, and reactive strategies for a <a href="../cell_tissue/T
 and governance of a reactive single‑value cell.
 </dd>
 
+          <dt id="TransactionBegun">
+  <span class="name "><a href="../cell_tissue/TransactionBegun-class.html">TransactionBegun</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction begins.
+</dd>
+
+          <dt id="TransactionCommitted">
+  <span class="name "><a href="../cell_tissue/TransactionCommitted-class.html">TransactionCommitted</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction commits successfully.
+</dd>
+
+          <dt id="TransactionEvent">
+  <span class="name "><a href="../cell_tissue/TransactionEvent-class.html">TransactionEvent</a></span> 
+
+</dt>
+<dd>
+  Base class for all transaction lifecycle events.
+</dd>
+
+          <dt id="TransactionOptions">
+  <span class="name "><a href="../cell_tissue/TransactionOptions-class.html">TransactionOptions</a></span> 
+
+</dt>
+<dd>
+  Configuration options for a <a href="../cell_tissue/Cell/transaction.html">Cell.transaction</a>.
+</dd>
+
+          <dt id="TransactionRolledBack">
+  <span class="name "><a href="../cell_tissue/TransactionRolledBack-class.html">TransactionRolledBack</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction is rolled back.
+</dd>
+
+          <dt id="TransactionTimedOut">
+  <span class="name "><a href="../cell_tissue/TransactionTimedOut-class.html">TransactionTimedOut</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction times out.
+</dd>
+
+          <dt id="TransactionUpdated">
+  <span class="name "><a href="../cell_tissue/TransactionUpdated-class.html">TransactionUpdated</a></span> 
+
+</dt>
+<dd>
+  Emitted when a cell is updated during a transaction.
+</dd>
+
+          <dt id="TxApplyBegun">
+  <span class="name "><a href="../cell_tissue/TxApplyBegun-class.html">TxApplyBegun</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCommitted">
+  <span class="name "><a href="../cell_tissue/TxApplyCommitted-class.html">TxApplyCommitted</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationFailed">
+  <span class="name "><a href="../cell_tissue/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationRetry">
+  <span class="name "><a href="../cell_tissue/TxApplyCompensationRetry-class.html">TxApplyCompensationRetry</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyEvent">
+  <span class="name "><a href="../cell_tissue/TxApplyEvent-class.html">TxApplyEvent</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyOptions">
+  <span class="name "><a href="../cell_tissue/TxApplyOptions-class.html">TxApplyOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRejected">
+  <span class="name "><a href="../cell_tissue/TxApplyRejected-class.html">TxApplyRejected</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRolledBack">
+  <span class="name "><a href="../cell_tissue/TxApplyRolledBack-class.html">TxApplyRolledBack</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyStaged">
+  <span class="name "><a href="../cell_tissue/TxApplyStaged-class.html">TxApplyStaged</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
           <dt id="TypeObject">
   <span class="name "><a href="../cell_tissue/TypeObject-class.html">TypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
@@ -1166,8 +1349,25 @@ Provides type safety when working with generic containers.
 
 </dt>
 <dd>
-  A specialized <strong>Marker Interface</strong> used to identify cell variants and
-data structures that have been locked against external mutation.
+  A specialized <strong>Marker Interface</strong> and architectural anchor used to identify
+reactive nodes and data structures that have been restricted to <strong>Read-Only</strong>
+access.
+</dd>
+
+          <dt id="UnmodifiableCollectivePulse">
+  <span class="name "><a href="../cell_tissue/UnmodifiableCollectivePulse-class.html">UnmodifiableCollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableEvolvedPulse">
+  <span class="name "><a href="../cell_tissue/UnmodifiableEvolvedPulse-class.html">UnmodifiableEvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="UnmodifiablePulse">
@@ -1175,8 +1375,7 @@ data structures that have been locked against external mutation.
 
 </dt>
 <dd>
-  A <strong>Read-Only Projection</strong> of a <a href="../cell_tissue/Pulse-class.html">Pulse</a> that enforces total structural
-and data finality.
+  A read‑only projection of a pulse that enforces structural finality.
 </dd>
 
           <dt id="UnmodifiablePulseBase">
@@ -1184,7 +1383,7 @@ and data finality.
 
 </dt>
 <dd>
-  Abstract base class for unmodifiable (read-only) pulse projections.
+  
 </dd>
 
           <dt id="UnmodifiableTissue">
@@ -1205,21 +1404,12 @@ that shares physical storage but prohibits all mutations.
 <strong>Read‑Only Reactive Projections</strong> (Deputies) of a <a href="../cell_tissue/Tissue-class.html">Tissue</a>.
 </dd>
 
-          <dt id="UnmodifiableTissueEvent">
-  <span class="name "><a href="../cell_tissue/UnmodifiableTissueEvent-class.html">UnmodifiableTissueEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A read‑only, immutable projection of a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> that guarantees no
-further evolution or mutation.
-</dd>
-
           <dt id="UnmodifiableTissueEventBase">
   <span class="name "><a href="../cell_tissue/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
 
 </dt>
 <dd>
-  A read‑only, immutable projection of a <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> that guarantees no
+  A read‑only, immutable projection of a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> that guarantees no
 further evolution or mutation.
 </dd>
 
@@ -1257,6 +1447,15 @@ underlying source.
 </dt>
 <dd>
   The foundational base class for all read‑only reactive map views.
+</dd>
+
+          <dt id="UnmodifiableTissuePulse">
+  <span class="name "><a href="../cell_tissue/UnmodifiableTissuePulse-class.html">UnmodifiableTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only, immutable projection of a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> that guarantees no
+further evolution or mutation.
 </dd>
 
           <dt id="UnmodifiableTissueQueue">
@@ -1318,6 +1517,14 @@ Reactive Value Cell</strong>.
   A specialized read‑only proxy of a <code>ValueCell</code> that enforces immutability.
 </dd>
 
+          <dt id="ValidationFailure">
+  <span class="name "><a href="../cell_tissue/ValidationFailure-class.html">ValidationFailure</a></span> 
+
+</dt>
+<dd>
+  Represents a validation failure for a specific cell.
+</dd>
+
           <dt id="ValueCell">
   <span class="name "><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
 
@@ -1334,15 +1541,6 @@ state in the Cell Framework.
 <dd>
   A specialized asynchronous controller for <a href="../cell_tissue/ValueCell-class.html">ValueCell</a>, providing a
 thread‑safe and non‑blocking interface for state interaction.
-</dd>
-
-          <dt id="ValueChangedEvent">
-  <span class="name "><a href="../cell_tissue/ValueChangedEvent-class.html">ValueChangedEvent</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A specialised <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a> signifying a discrete state transition or value
-evolution within the reactive framework.
 </dd>
 
           <dt id="ValueContainer">
@@ -1414,12 +1612,54 @@ required for a <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>'s operation
 reactive operations within the framework.
 </dd>
 
+          <dt id="CompensationErrorPolicy">
+  <span class="name "><a href="../cell_tissue/CompensationErrorPolicy.html">CompensationErrorPolicy</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="HubRouting">
+  <span class="name "><a href="../cell_tissue/HubRouting.html">HubRouting</a></span> 
+
+</dt>
+<dd>
+  Defines how a <a href="../cell_tissue/Cell/hub.html">Cell.hub</a> decides which spoke (child cell) should receive
+an incoming signal.
+</dd>
+
           <dt id="Isolation">
   <span class="name "><a href="../cell_tissue/Isolation.html">Isolation</a></span> 
 
 </dt>
 <dd>
   Defines the <strong>Architectural Boundary &amp; State Visibility</strong> of a <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="IsolationLevel">
+  <span class="name "><a href="../cell_tissue/IsolationLevel.html">IsolationLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the consistency and visibility guarantees for a transaction.
+</dd>
+
+          <dt id="LineageArgument">
+  <span class="name "><a href="../cell_tissue/LineageArgument.html">LineageArgument</a></span> 
+
+</dt>
+<dd>
+  Defines the specific data field to be extracted when traversing a <a href="../cell_tissue/Pulse-class.html">Pulse</a>'s
+<strong>Causal History</strong> via the <code>lineage</code> method.
+</dd>
+
+          <dt id="LockOrdering">
+  <span class="name "><a href="../cell_tissue/LockOrdering.html">LockOrdering</a></span> 
+
+</dt>
+<dd>
+  Defines the order in which locks are acquired during commit.
 </dd>
 
           <dt id="Mandate">
@@ -1514,12 +1754,20 @@ use this directly.
 <a href="../cell_tissue/Governance-class.html">Governance</a> interface methods.
 </dd>
 
+          <dt id="InstructionChainMixin">
+  <span class="name "><a href="../cell_tissue/InstructionChainMixin-mixin.html">InstructionChainMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core execution engine for composite instructions.
+</dd>
+
           <dt id="OpenReceptorMixin">
   <span class="name "><a href="../cell_tissue/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></span> 
 
 </dt>
 <dd>
-  A mixin that implements the <strong>Boundary Ingress Interface</strong> for <a href="../cell_tissue/OpenCell-class.html">OpenCell</a> architectures.
+  A mixin that implements the <strong>Manual Control Interface</strong> for the reactive network.
 </dd>
 
           <dt id="OpenSynapsesMixin">
@@ -1580,6 +1828,26 @@ particularly for accessing and modifying the single value it holds.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="PulseExtension">
+  <span class="name "><a href="../cell_tissue/PulseExtension.html">PulseExtension</a></span>
+  on <a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Provides a fluent, functional API for operating on individual <a href="../cell_tissue/Pulse-class.html">Pulse</a> instances.
+</dd>
+
+          <dt id="PulseIterableExtension">
+  <span class="name "><a href="../cell_tissue/PulseIterableExtension.html">PulseIterableExtension</a></span>
+  on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Fluent extensions for collections of <a href="../cell_tissue/Pulse-class.html">Pulse</a> objects.
+</dd>
+
           <dt id="TekartikLockExtension">
   <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/TekartikLockExtension.html">TekartikLockExtension</a></span>
   on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
@@ -1639,6 +1907,33 @@ selection function.
 
 </dd>
 
+          <dt id="withCellLocks" class="callable">
+  <span class="name"><a href="../cell_tissue/withCellLocks.html">withCellLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withCellLocks-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="withCellLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>(), {</span><span class="parameter" id="withCellLocks-param-order"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">order</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">b</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Convenience: acquire the locks of <code>cells</code> in a deterministic order.
+  
+
+</dd>
+
+          <dt id="withLocks" class="callable">
+  <span class="name"><a href="../cell_tissue/withLocks.html">withLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withLocks-param-locks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>&gt;</span></span> <span class="parameter-name">locks</span>, </span><span class="parameter" id="withLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
+in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
+  
+
+</dd>
+
       </dl>
     </section>
 
@@ -1678,6 +1973,22 @@ interface to manage an external side-effect listener.
 
 
           
+  <dt id="ElementUpdatedRecord" class="">
+  <span class="name"><a href="../cell_tissue/ElementUpdatedRecord.html">ElementUpdatedRecord</a></span>&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;
+    = (<span class="field">{<span class="type-annotation">V?</span> <span class="field-name">after</span>, </span><span class="field"><span class="type-annotation">V?</span> <span class="field-name">before</span>, </span><span class="field"><span class="type-annotation">E</span> <span class="field-name">value</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A record that captures a before‑and‑after snapshot of a reactive value
+change, delivered as the payload of a <a href="../cell_tissue/ElementUpdated-class.html">ElementUpdated</a>.
+  
+
+</dd>
+
+
+          
   <dt id="FunctionType" class="callable">
     <span class="name"><a href="../cell_tissue/FunctionType.html">FunctionType</a></span>&lt;<wbr><span class="type-parameter">R</span>&gt;<span class="signature">
       <span class="returntype parameter">= R Function<span class="signature">()</span></span>
@@ -1686,7 +1997,7 @@ interface to manage an external side-effect listener.
 
   </dt>
   <dd>
-    Generic function type that takes no parameters and returns R.
+    Generic function type that takes no parameters and returns RNA.
 Used in FunctionTypeObject for lazy evaluation.
     
 
@@ -1695,7 +2006,7 @@ Used in FunctionTypeObject for lazy evaluation.
           
   <dt id="HubHandle" class="">
   <span class="name"><a href="../cell_tissue/HubHandle.html">HubHandle</a></span>
-    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)
   </span>
   
 
@@ -1711,7 +2022,7 @@ interface to control a multi-destination routing cluster.
           
   <dt id="IngressHandle" class="">
   <span class="name"><a href="../cell_tissue/IngressHandle.html">IngressHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
-    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
   </span>
   
 
@@ -1749,8 +2060,8 @@ a node's operational identity and can be cascaded through the inheritance chain.
 
 </dt>
 <dd>
-  A type alias representing the most primitive, zero-overhead implementation
-of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract.
+  A semantic type alias representing the framework's <strong>Zero-Overhead Root</strong>
+and the terminal ancestor of all reactive blueprints.
   
 
 </dd>
@@ -1772,9 +2083,25 @@ of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract.
 
 
           
+  <dt id="SpokeRegistration" class="">
+  <span class="name"><a href="../cell_tissue/SpokeRegistration.html">SpokeRegistration</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A configuration record for an individual <strong>Spoke (Destination)</strong>
+within a <a href="../cell_tissue/Cell/hub.html">Cell.hub</a>.
+  
+
+</dd>
+
+
+          
   <dt id="StateHandle" class="">
   <span class="name"><a href="../cell_tissue/StateHandle.html">StateHandle</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
-    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">trigger</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">triggerAsync</span>}</span>)
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">updateAsync</span>}</span>)
   </span>
   
 
@@ -1782,6 +2109,22 @@ of the <a href="../cell_tissue/Nucleus-class.html">Nucleus</a> contract.
 <dd>
   A management record that bundles a <a href="../cell_tissue/ValueCell-class.html">ValueCell</a> with its imperative update
 functions — the standard way to create and interact with a state atom.
+  
+
+</dd>
+
+
+          
+  <dt id="SynthesisHandle" class="">
+  <span class="name"><a href="../cell_tissue/SynthesisHandle.html">SynthesisHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">add</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">addAll</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/SynthesisCell-class.html">SynthesisCell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">clear</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">isEmpty</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">remove</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">removeAll</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">toList</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  An Administrative Record providing a control interface for dynamic
+<a href="../cell_tissue/SynthesisCell-class.html">SynthesisCell</a> topographies.
   
 
 </dd>
@@ -1803,16 +2146,15 @@ functions — the standard way to create and interact with a state atom.
 
 
           
-  <dt id="ValueChangedRecord" class="">
-  <span class="name"><a href="../cell_tissue/ValueChangedRecord.html">ValueChangedRecord</a></span>&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../cell_tissue/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;
-    = (<span class="field">{<span class="type-annotation">V?</span> <span class="field-name">after</span>, </span><span class="field"><span class="type-annotation">V?</span> <span class="field-name">before</span>, </span><span class="field"><span class="type-annotation">E</span> <span class="field-name">value</span>}</span>)
+  <dt id="TransactionScope" class="">
+  <span class="name"><a href="../cell_tissue/TransactionScope.html">TransactionScope</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">begin</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">commit</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">pending</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">read</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-savepoint"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">savepoint</span></span>})</span></span> <span class="field-name">rollback</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> Function<span class="signature">()</span></span> <span class="field-name">savepoint</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>}</span>)
   </span>
   
 
 </dt>
 <dd>
-  A record that captures a before‑and‑after snapshot of a reactive value
-change, delivered as the payload of a <a href="../cell_tissue/ValueChangedEvent-class.html">ValueChangedEvent</a>.
+  A handle for coordinating atomic, multi‑cell transactions.
   
 
 </dd>
@@ -1821,6 +2163,51 @@ change, delivered as the payload of a <a href="../cell_tissue/ValueChangedEvent-
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+      <dl>
+          <dt id="TransactionConflictException">
+  <span class="name "><a href="../cell_tissue/TransactionConflictException-class.html">TransactionConflictException</a></span> 
+
+</dt>
+<dd>
+  Thrown when an isolation conflict is detected during commit.
+</dd>
+
+          <dt id="TransactionTimeoutException">
+  <span class="name "><a href="../cell_tissue/TransactionTimeoutException-class.html">TransactionTimeoutException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a transaction exceeds its <a href="../cell_tissue/TransactionTimeoutException/timeout.html">timeout</a> duration.
+</dd>
+
+          <dt id="TransactionValidationException">
+  <span class="name "><a href="../cell_tissue/TransactionValidationException-class.html">TransactionValidationException</a></span> 
+
+</dt>
+<dd>
+  Thrown when validation of buffered writes fails during commit.
+</dd>
+
+          <dt id="TxApplyCompensationException">
+  <span class="name "><a href="../cell_tissue/TxApplyCompensationException-class.html">TxApplyCompensationException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyException">
+  <span class="name "><a href="../cell_tissue/TxApplyException-class.html">TxApplyException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
   </div> <!-- /.main-content -->
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -1831,14 +2218,24 @@ change, delivered as the payload of a <a href="../cell_tissue/ValueChangedEvent-
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li class="self-crumb">tissue.dart</li>
+    <li class="self-crumb">cell_tissue.dart</li>
 </ol>
 
     <h5><span class="package-name">cell_tissue</span> <span class="package-kind">package</span></h5>
     <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Getting Started-topic.html">Getting&nbsp;Started</a></li>
+        <li><a href="../topics/Features-topic.html">Features</a></li>
+        <li><a href="../topics/Architecture-topic.html">Architecture</a></li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+        <li><a href="../topics/Fintech Pipeline-topic.html">Demo&nbsp;·&nbsp;Fintech&nbsp;Pipeline</a></li>
+        <li><a href="../topics/Grid Demand-topic.html">Demo&nbsp;·&nbsp;Grid&nbsp;Demand</a></li>
+        <li><a href="../topics/Natural-Language-topic.html">Demo&nbsp;·&nbsp;Natural-Language</a></li>
+        <li><a href="../topics/Ride Hail-topic.html">Demo&nbsp;·&nbsp;Ride&nbsp;Hail</a></li>
+        <li><a href="../topics/Examples-topic.html">Quick&nbsp;Start&nbsp;&&nbsp;Examples</a></li>
       <li class="section-title">Libraries</li>
       <li class="section-subtitle">Core</li>
-        <li class="section-subitem"><a href="../cell_tissue/">tissue</a></li>
+        <li class="section-subitem"><a href="../cell_tissue/">cell_tissue</a></li>
 </ol>
 
   </div>
@@ -1849,7 +2246,7 @@ change, delivered as the payload of a <a href="../cell_tissue/ValueChangedEvent-
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

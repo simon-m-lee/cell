@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Context-class.html">Context</a></li>
     <li class="self-crumb">Context.pulse factory constructor</li>
   </ol>
@@ -92,9 +92,9 @@ uniqueness. You can link pulses via <code>parentTraceId</code> to build a causal
 chain.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>baseContext</code>: The underlying environment (e.g., a <strong>DeputyContext</strong>)
+<li><code>baseContext</code>: The underlying environment (e.g., a <strong>Context</strong>)
 under which this pulse is being authorized.</li>
-<li><code>actor</code>: The identifier of the entity (Human or AI) triggering the pulse.</li>
+<li><code>actor</code>: The identifier of the entity (Human or AI) emitting the pulse.</li>
 <li><code>reason</code>: The immediate cause or "Trigger" for the state transition.</li>
 <li><code>purpose</code>: The high-level goal or "Strategic Intent" of the operation.</li>
 <li><code>strategy</code>: The <strong>ReasoningStrategy</strong> (e.g., Heuristic, LLM, Rule-Based)
@@ -107,7 +107,7 @@ asserted by this pulse (e.g., 'SOC2', 'Internal-Audit').</li>
 <li><code>sensitivity</code>: The data classification tier (e.g., Public, Restricted).</li>
 <li><code>auditLevel</code>: The depth of logging and verification required for this signal.</li>
 <li><code>traceId</code>: The unique identifier for this specific causal wave.</li>
-<li><code>parentTraceId</code>: The identifier of the wave that triggered this one,
+<li><code>parentTraceId</code>: The identifier of the wave that emitted this one,
 preserving lineage.</li>
 <li><code>others</code>: Catch-all for specialized ontological pulse metadata.</li>
 </ul>
@@ -161,7 +161,7 @@ preserving lineage.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

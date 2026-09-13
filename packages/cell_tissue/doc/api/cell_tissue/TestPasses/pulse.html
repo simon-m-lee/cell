@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestPasses-class.html">TestPasses</a></li>
     <li class="self-crumb">pulse method</li>
   </ol>
@@ -84,7 +84,7 @@ when a <a href="../../cell_tissue/Pulse-class.html">Pulse</a> arrives at a cell.
 <li>It collects all <a href="../../cell_tissue/TestPulseRule-class.html">TestPulseRule</a>s in the chain.</li>
 <li>Each rule is given the pulse and the host.</li>
 <li>If any rule returns <code>false</code>, the pulse is dropped.</li>
-<li>If all pass, it delegates to the <code>_parent</code>.</li>
+<li>If all pass, it delegates to the <code>TestCell.parent</code>.</li>
 </ol>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -170,7 +170,7 @@ FutureOr&lt;bool&gt; pulse(covariant Pulse pulse, {required Cell host}) =&gt; tr
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

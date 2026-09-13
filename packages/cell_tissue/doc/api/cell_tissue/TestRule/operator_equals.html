@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestRule-class.html">TestRule<span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></a></li>
     <li class="self-crumb">operator == method</li>
   </ol>
@@ -103,8 +103,10 @@ the <a href="../../cell_tissue/TestRule/hashCode.html">hashCode</a> method as we
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 bool operator ==(Object other) {
-  &#47;&#47; TODO: implement ==
-  return super == other;
+  if (identical(this, other)) return true;
+  return other is TestRule&lt;C&gt; &amp;&amp;
+      other.runtimeType == runtimeType &amp;&amp;
+      other._record == _record;
 }</code></pre>
 </section>
 
@@ -133,7 +135,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

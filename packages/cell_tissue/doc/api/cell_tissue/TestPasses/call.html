@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestPasses-class.html">TestPasses</a></li>
     <li class="self-crumb">call method</li>
   </ol>
@@ -82,7 +82,7 @@ automatically during validation. You might call it for testing.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It evaluates the local rules (and optionally a custom <code>strategy</code>).</li>
-<li>If all pass, it delegates to the <code>_parent</code> (if any).</li>
+<li>If all pass, it delegates to the <code>TestCell.parent</code> (if any).</li>
 <li>If a rule returns a <code>Future</code>, it waits for it.</li>
 <li>If an exception occurs and the host is governed, the validation fails
 (returns <code>false</code>); if ungoverned, it passes (<code>true</code>).</li>
@@ -137,7 +137,7 @@ FutureOr&lt;bool&gt; call(object, {covariant Cell? host, arguments}) =&gt; true;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

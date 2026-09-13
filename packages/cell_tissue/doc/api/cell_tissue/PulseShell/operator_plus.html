@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseShell-class.html">PulseShell<span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends Receptor&lt;<wbr><span class="type-parameter">Cell</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">operator + method</li>
   </ol>
@@ -67,6 +67,75 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Combines this pulse and <code>other</code> into a composite <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>.</p>
+<p>This operator performs <strong>binary composition</strong>. It treats both operands
+as distinct units, creating a new pulse whose payload contains exactly
+two elements: this pulse and the <code>other</code> pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pairing</strong>: Use this to link two signals where the relationship between
+them (the "left" and "right" sides) is semantically meaningful.</li>
+<li><strong>Ad-hoc Bundling</strong>: Quickly grouping two pulses for simultaneous
+propagation without pre-allocating a list.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Unlike <a href="../../cell_tissue/Pulse/batch.html">Pulse.batch</a>, this operator <strong>does not flatten</strong> the resulting
+structure. If you add a <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> to a <a href="../../cell_tissue/Pulse-class.html">Pulse</a>, the result is
+a new <a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a> where one of the two elements is itself a
+<a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse</a>.</p>
+<h3 id="comparison--vs-pulsebatch">Comparison: <code>+</code> vs <code>Pulse.batch</code></h3>
+<table>
+<thead>
+<tr>
+<th align="left">Feature</th>
+<th align="left"><code>operator +</code></th>
+<th align="left"><code>Pulse.batch()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Logic</strong></td>
+<td align="left">Binary Composition (Nesting)</td>
+<td align="left">Flattened Aggregation</td>
+</tr>
+<tr>
+<td align="left"><strong>Structure</strong></td>
+<td align="left">Always creates a pair</td>
+<td align="left">Creates a flat list</td>
+</tr>
+<tr>
+<td align="left"><strong>Payload</strong></td>
+<td align="left"><code>[Pulse, Pulse]</code></td>
+<td align="left"><code>[Pulse, Pulse, Pulse, ...]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="nonobvious-iteration-and-nesting">Non‑obvious: Iteration and Nesting</h3>
+<p>If you chain this operator (e.g., <code>p1 + p2 + p3</code>), you create a nested
+hierarchy. Iterating over the top-level <code>payload</code> will yield a length
+of 2: the first element being the result of <code>(p1 + p2)</code> and the second
+being <code>p3</code>.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final p1 = Pulse('A');
+final p2 = Pulse('B');
+final p3 = Pulse('C');
+
+// Binary composition creates a nested structure
+final nested = p1 + p2 + p3;
+print(nested.payload.length); // 2
+print(nested.payload.first is CollectivePulse); // true
+
+// Batching creates a flat structure
+final flat = Pulse.batch([p1, p2, p3]);
+print(flat.payload.length); // 3
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../../cell_tissue/Pulse/batch.html">Pulse.batch</a> for creating a flat collection of pulses.</li>
+<li><a href="../../cell_tissue/PulseShell/isComposite.html">isComposite</a> to determine if a pulse contains multiple signals.</li>
+</ul>
+</section>
 
 
     
@@ -103,7 +172,7 @@ Pulse operator +(covariant Pulse other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestPasses-class.html">TestPasses</a></li>
     <li class="self-crumb">action method</li>
   </ol>
@@ -109,7 +109,7 @@ when <a href="../../cell_tissue/Cell/apply.html">Cell.apply</a> is called. It ca
 individually validated via <code>call()</code>.</li>
 <li><strong>Action‑Specific Rules</strong>: Any <a href="../../cell_tissue/TestActionRule-class.html">TestActionRule</a>s in the chain are
 evaluated.</li>
-<li><strong>Delegation</strong>: If local rules pass, the <code>_parent</code> is called.</li>
+<li><strong>Delegation</strong>: If local rules pass, the <code>TestCell.parent</code> is called.</li>
 <li><strong>Short‑Circuit</strong>: If any validation returns <code>false</code>, the whole
 action is rejected.</li>
 </ol>
@@ -151,7 +151,14 @@ print(authorized); // true or false
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arguments}) =&gt; true;</code></pre>
+FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arguments}) {
+  final elements = [
+    if (arguments?.positionalArguments != null) ...arguments!.positionalArguments!,
+    if (arguments?.namedArguments != null) ...arguments!.namedArguments!.values,
+  ];
+  _checkArguments(elements, 0, host, action);
+  return _checkActionRules(action, host, arguments);
+}</code></pre>
 </section>
 
 
@@ -179,7 +186,7 @@ FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arg
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/PulseBase-class.html">PulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">policy property</li>
   </ol>
@@ -72,21 +72,30 @@
     </section>
     
 <section class="desc markdown">
-  <p>The <strong>Lifecycle Governance Policy</strong> defining the operational boundaries
-and expiration constraints of this <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</p>
+  <p>The lifecycle governance policy for this pulse.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need a pulse to self‑destruct – e.g., to prevent
-stale signals from propagating forever, or to limit the number of hops.</p>
+<ul>
+<li>Use this when you need a pulse to self‑destruct — to prevent stale signals
+from propagating forever, or to limit the number of hops.</li>
+<li>Preventing stale signals from propagating.</li>
+<li>Limiting propagation depth (hop limit).</li>
+<li>Time‑sensitive operations that must expire.</li>
+<li>Circuit breaker patterns.</li>
+<li>Automatic cleanup of transient signals.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The policy enforces a TTL (time‑to‑live) and/or a hop limit. The pulse
-is neutralised if it exceeds either limit. The framework checks this
+<p>The policy enforces a TTL (time‑to‑live) and/or hop limit. The pulse is
+neutralised if it exceeds either limit. The framework checks this
 automatically during propagation.</p>
+<h3 id="nonobvious-the-policy-is-attached-to-the-root">Non‑obvious: the policy is attached to the root</h3>
+<p>If you evolve a pulse, the policy travels with it — it's inherited
+through the parent chain, not duplicated.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
   payload: 42,
   policy: PulseEphemeralPolicy(
-    hopLimit: 3,  // Max 3 hops
-    duration: Duration(seconds: 5),  // Max 5 seconds
+    hopLimit: 3,
+    duration: Duration(seconds: 5),
     onEvent: (cell, {required policy}) =&gt; (hops: policy.hops + 1),
     onInvalidate: (pulse) =&gt; print('Pulse expired'),
   ),
@@ -131,7 +140,7 @@ PulseEphemeralPolicy? get policy {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

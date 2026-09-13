@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TestTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TestTissue</div>
@@ -61,7 +61,15 @@ containers (Lists, Sets, Maps, Queues, Values).</p>
 for collections. It extends the base <a href="../cell_tissue/TestCell-class.html">TestCell</a> logic to provide a
 comprehensive <strong>Integrity Gate</strong> that monitors every mutation, membership
 change, and reactive bond within the collection graph.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> whenever you need to enforce business rules, security
+boundaries, or data integrity on a reactive collection. The framework uses
+it internally for every mutation, but you supply your own when creating a
+tissue:</p>
+<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;(
+  testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0 &amp;&amp; v &lt;= 100),
+);
+</code></pre>
 <p>You almost never need to construct a <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> from scratch. Start with
 one of the predefined policies:</p>
 <ul>
@@ -77,15 +85,6 @@ final hasPermission = TestTissue&lt;Cell, TissueList&lt;Cell&gt;&gt;(
   (_, {host, ...}) =&gt; host.context.hasRole('admin'),
 );
 final policy = isPositive + hasPermission;
-</code></pre>
-<h3 id="when-to-use">When to use</h3>
-<p>Use <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> whenever you need to enforce business rules, security
-boundaries, or data integrity on a reactive collection. The framework uses
-it internally for every mutation, but you supply your own when creating a
-tissue:</p>
-<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;(
-  testRule: TestTissue&lt;int&gt;((v) =&gt; v &gt;= 0 &amp;&amp; v &lt;= 100),
-);
 </code></pre>
 <h3 id="how-it-works">How it works</h3>
 <ul>
@@ -440,7 +439,7 @@ Mutation Barrier</strong> specifically for reactive collections.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

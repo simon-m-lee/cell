@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">compareTo method</li>
   </ol>
@@ -68,13 +68,31 @@
     </section>
     
 <section class="desc markdown">
-  <p>Compares this <a href="../../cell_tissue/Pulse-class.html">Pulse</a> with another to determine their <strong>Causal and Temporal Order</strong>.</p>
+  <p>Compares this pulse with another to determine relative execution precedence.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>You rarely call this directly – the framework uses it for ordering
-pulses in the dispatcher.</p>
+<ul>
+<li><strong>Execution Precedence</strong>: You rarely call this directly — the framework uses it for ordering
+pulses in the dispatcher.</li>
+<li>Custom sorting of pulses.</li>
+<li>Testing or debugging order.</li>
+<li>Implementing custom dispatchers.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>Comparison is by timestamp first, then priority, then trace depth.
-It ensures deterministic ordering in the reactive stream.</p>
+<ol>
+<li><strong>Primary</strong>: Chronological order (earlier timestamps first).</li>
+<li><strong>Secondary</strong>: Priority (higher priority first).</li>
+<li><strong>Tertiary</strong>: Trace depth (shallower traces first).</li>
+</ol>
+<p>This multi-tier sorting strategy ensures deterministic ordering in
+the reactive stream, maintaining <strong>Causal Integrity</strong> and system
+state reproducibility.</p>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>other</code>: The pulse to compare with.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A negative value if this pulse has higher precedence, a positive value
+if lower precedence, or zero if they are equal.</p>
 </section>
 
 
@@ -110,7 +128,7 @@ int compareTo(Pulse other) =&gt; _source.compareTo(other);</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

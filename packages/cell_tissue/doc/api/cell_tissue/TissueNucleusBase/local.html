@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">local&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt; static method</li>
   </ol>
@@ -64,6 +64,7 @@
 <li><span class="parameter" id="local-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="local-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span></li>
 <li><span class="parameter" id="local-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span>, </span></li>
+<li><span class="parameter" id="local-param-ephemeralPolicy"><span class="type-annotation"><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span>, </span></li>
 </ol>})
 
       
@@ -136,7 +137,8 @@ properties required to initialize a <a href="../../cell_tissue/TissueNucleusBase
   bool forceLock = false,
 
   Record? user,
-  dynamic others
+  dynamic others,
+  EphemeralPolicy? ephemeralPolicy
 }) {
 
   if (synapses == Synapses.enabled) {
@@ -151,7 +153,8 @@ properties required to initialize a <a href="../../cell_tissue/TissueNucleusBase
       (context != null &amp;&amp; context != Context.system        ? 1 : 0) |
       (receptor != null &amp;&amp; receptor != TissueReceptor.passThrough ? 2 : 0 ) |
       (testRule != null &amp;&amp; testRule != TestTissue.allowAll      ? 4 : 0) |
-      (container != null &amp;&amp; container != Container.create&lt;E,I&gt;()  ? 8 : 0)
+      (container != null &amp;&amp; container != Container.create&lt;E,I&gt;()  ? 8 : 0) |
+      (ephemeralPolicy != null                                   ? 16 : 0)
   );
 
   final inheritable = switch (inheritableMask) {
@@ -171,6 +174,22 @@ properties required to initialize a <a href="../../cell_tissue/TissueNucleusBase
     13 =&gt; (context: context, testRule: testRule, container: container),
     14 =&gt; (receptor: receptor, testRule: testRule, container: container),
     15 =&gt; (context: context, receptor: receptor, testRule: testRule, container: container),
+    16 =&gt; (ephemeralPolicy: ephemeralPolicy),
+    17 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context),
+    18 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor),
+    19 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor),
+    20 =&gt; (ephemeralPolicy: ephemeralPolicy, testRule: testRule),
+    21 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, testRule: testRule),
+    22 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor, testRule: testRule),
+    23 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, testRule: testRule),
+    24 =&gt; (ephemeralPolicy: ephemeralPolicy, container: container),
+    25 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, container: container),
+    26 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor, container: container),
+    27 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, container: container),
+    28 =&gt; (ephemeralPolicy: ephemeralPolicy, testRule: testRule, container: container),
+    29 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, testRule: testRule, container: container),
+    30 =&gt; (ephemeralPolicy: ephemeralPolicy, receptor: receptor, testRule: testRule, container: container),
+    31 =&gt; (ephemeralPolicy: ephemeralPolicy, context: context, receptor: receptor, testRule: testRule, container: container),
     _ =&gt; ()
   };
 
@@ -353,7 +372,7 @@ properties required to initialize a <a href="../../cell_tissue/TissueNucleusBase
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

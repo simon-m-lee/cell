@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ReceptorBase-class.html">ReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">activate method</li>
   </ol>
@@ -68,19 +68,19 @@
     </section>
     
 <section class="desc markdown">
-  <p>Formally activates the receptor by binding its transformation logic to
-a concrete <code>cell</code> instance.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>You never call this – the framework does it automatically when you
-create a cell from a nucleus via <a href="../../cell_tissue/Cell/Cell.fromNucleus.html">Cell.fromNucleus</a>.</p>
+  <p>Activates the receptor by binding it to a cell.</p>
 <h3 id="how-it-works">How it works</h3>
-<p>It binds the receptor to the cell, making the <code>cell</code> getter available.
-After activation, <a href="../../cell_tissue/ReceptorBase/isActivated.html">isActivated</a> returns <code>true</code>.</p>
-<h3 id="returns">Returns:</h3>
+<ol>
+<li>Stores the cell reference.</li>
+<li>Executes the initialization function if provided.</li>
+<li>Marks the receptor as activated.</li>
+</ol>
+<h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>true</code> if the activation succeeded.</li>
-<li><code>false</code> if the receptor is already activated or the cell is invalid.</li>
+<li><code>cell</code>: The cell to bind to.</li>
 </ul>
+<h3 id="returns">Returns:</h3>
+<p><code>true</code> if activation was successful, <code>false</code> otherwise.</p>
 </section>
 
 
@@ -91,6 +91,7 @@ After activation, <a href="../../cell_tissue/ReceptorBase/isActivated.html">isAc
 bool activate(C cell) {
   try {
     this.cell = cell;
+    _init?.call();
     return true;
   } catch(_) {}
   return false;
@@ -122,7 +123,7 @@ bool activate(C cell) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

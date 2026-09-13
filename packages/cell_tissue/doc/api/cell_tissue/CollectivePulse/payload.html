@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/CollectivePulse-class.html">CollectivePulse<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">payload property</li>
   </ol>
@@ -73,21 +73,22 @@
     
 <section class="desc markdown">
   <p>The collection of pulses bundled in this collective.</p>
-<p>This is the entire iterable of pulses provided to <a href="../../cell_tissue/Pulse/batch.html">Pulse.batch</a> or
-combined via the <code>+</code> operator.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
-<li>Access the individual pulses in the collective.</li>
+<li><strong>Accessing Members</strong>: Use this to access the individual pulses in the collective.</li>
+<li>Access the individual pulses.</li>
 <li>Iterate over the pulses manually.</li>
 <li>Check the size of the collective.</li>
+<li>Extract a specific pulse from the bundle.</li>
 </ul>
-<h3 id="nonobvious">Non‑obvious</h3>
-<ul>
-<li>This is the <strong>entire</strong> iterable, not just the first pulse.</li>
-<li>The iterable is immutable – you cannot modify it.</li>
-<li>For a collective created with <code>+</code>, the iterable contains all pulses
-from both operands.</li>
-</ul>
+<h3 id="nonobvious-this-is-the-entire-iterable">Non‑obvious: this is the entire iterable</h3>
+<p>This is <strong>all</strong> the pulses, not just the first one. For a collective
+created with <code>+</code>, this contains all pulses from both operands.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
+  print(p.payload);
+}
+</code></pre>
 </section>
 
     
@@ -124,7 +125,7 @@ Iterable&lt;Pulse&lt;P&gt;&gt; get payload;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

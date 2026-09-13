@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Receptor-class.html">Receptor<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">async property</li>
   </ol>
@@ -69,15 +69,43 @@
 <section class="desc markdown">
   <p>Returns an asynchronous execution adapter for this receptor.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to process a pulse asynchronously – e.g., from
-an async event handler or when you want to wait for the entire
-downstream propagation to complete.</p>
+<p>Use this when you need to interact with the receptor from an
+asynchronous context or require precise control over the signal's
+propagation lifecycle.</p>
+<ul>
+<li><strong>Asynchronous Entry</strong>: Triggering pulses from <code>Future</code>-returning
+functions, network responses, or stream listeners.</li>
+<li><strong>Deterministic Completion</strong>: When you need to ensure that the
+entire reactive wave is finished before proceeding (e.g., in tests
+or complex multi-step updates).</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>The <code>async</code> getter returns a <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> that wraps the synchronous
-logic in a <code>Future</code>. You can call it with <code>await</code> and optionally specify
-<code>serializedCompletion</code> to wait for the full propagation.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">await receptor.async.call(pulse, serializedCompletion: true);
+<ol>
+<li>The getter provides a <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> proxy that wraps the receptor's
+core transformation logic.</li>
+<li>It converts the synchronous pipeline execution into an asynchronous
+<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API.</li>
+<li>It exposes advanced synchronization options, such as waiting for
+serialized completion across the entire downstream graph.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lightweight View</strong>: The async adapter is a stateless view of the
+primary receptor; it consumes negligible memory and shares all
+underlying instruction metadata.</li>
+<li><strong>Full Propagation</strong>: While a standard <code>await call()</code> only waits for
+ the immediate transformation, <code>async.call(..., serializedCompletion: true)</code>
+waits for every downstream side-effect to settle.</li>
+<li><strong>Atomic Integrity</strong>: It maintains the integrity of the cell's
+transaction boundary even when invoked from an asynchronous loop.</li>
+<li><strong>Queueing</strong>: Pulses are queued and processed sequentially to preserve
+causal order.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> handle for asynchronous pulse injection.</p>
+<h3 id="example-waiting-for-full-propagation">Example: Waiting for Full Propagation</h3>
+<pre class="language-dart"><code class="language-dart">// Trigger a pulse and wait for the entire graph to settle
+await receptor.async.call(myPulse, serializedCompletion: true);
 </code></pre>
 </section>
 
@@ -114,7 +142,7 @@ logic in a <code>Future</code>. You can call it with <code>await</code> and opti
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

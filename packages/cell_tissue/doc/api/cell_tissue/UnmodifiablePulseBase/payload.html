@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">payload property</li>
   </ol>
@@ -62,6 +62,7 @@
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
       <span class="returntype">P?</span>
@@ -79,21 +80,29 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-P? get payload {
-  if (_source.payload == null) return null;
-  if (_source.payload is Unmodifiable) {
-    return _source.payload as P;
-  }
-  if (_source.payload is Iterable&lt;Cell&gt;) {
-    return (_source.payload as Iterable&lt;Cell&gt;).map((e) =&gt; e.unmodifiable) as P;
-  }
-  if (_source.payload is Map&lt;dynamic,Cell&gt;) {
-    return (_source.payload as Map&lt;dynamic, Cell&gt;).map((k, v) =&gt; MapEntry(k, v.unmodifiable)) as P;
-  }
-  if (_source.payload is Cell) {
-    return (_source.payload as Cell).unmodifiable as P;
-  }
-  return _source.payload;
+@override
+P? get payload {    final sourcePayload = _source.payload;
+if (sourcePayload == null) return null;
+
+if (sourcePayload is Unmodifiable) {
+  return sourcePayload as P;
+}
+
+if (sourcePayload is Iterable&lt;Cell&gt;) {
+  return sourcePayload.map((e) =&gt; e.unmodifiable).toList(growable: false) as P;
+}
+
+if (sourcePayload is Map) {
+  return (Map.of(sourcePayload)
+    ..updateAll((k, v) =&gt; v is Cell ? v.unmodifiable : v))
+      .cast() as P;
+}
+
+if (sourcePayload is Cell) {
+  return sourcePayload.unmodifiable as P;
+}
+
+return sourcePayload as P;
 }</code></pre>
 </section>
 
@@ -124,7 +133,7 @@ P? get payload {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

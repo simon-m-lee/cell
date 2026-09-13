@@ -48,7 +48,7 @@ part of '../cell_tissue.dart';
 /// When you mutate a tissue (e.g., `list.add(42)`), the operation:
 /// 1. Passes through the [TestTissue] validation gate.
 /// 2. Is applied atomically to the physical storage under a [Lock].
-/// 3. Emits a [TissueEvent] (e.g., `ElementAddedEvent`).
+/// 3. Emits a [TissuePulse] (e.g., `ElementAddedEvent`).
 /// 4. Propagates the event through the collection's [Synapses] to all
 ///    downstream observers.
 ///
@@ -57,7 +57,7 @@ part of '../cell_tissue.dart';
 ///
 /// ### Non‑obvious
 /// - **Initial population is silent**: When you create a tissue with initial
-///   elements (e.g., `TissueList([1, 2, 3])`), **no** [TissueEvent] is emitted.
+///   elements (e.g., `TissueList([1, 2, 3])`), **no** [TissuePulse] is emitted.
 ///   Observers only see events for mutations that happen *after* creation.
 /// - **Deputies are zero‑copy**: Calling `.deputy()` or `.unmodifiable` on a
 ///   tissue creates a new view that shares the **same** physical storage.
@@ -114,7 +114,16 @@ part of '../cell_tissue.dart';
 ///   for the concrete collection types.
 /// - [TestTissue] for custom validation rules.
 /// - [TissueReceptor] for custom mutation processing.
-/// - [TissueEvent] for the change events emitted by tissues.
+/// - [TissuePulse] for the change events emitted by tissues.
+/// {@category Getting Started}
+/// {@category Features}
+/// {@category Architecture}
+/// {@category Walkthroughs}
+/// {@category Fintech Pipeline}
+/// {@category Grid Demand}
+/// {@category Natural-Language}
+/// {@category Ride Hail}
+/// {@category Examples}
 ///
 /// ### Type Parameters:
 /// * [E] – The type of elements held within the collection.
@@ -243,9 +252,10 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// - [context]: The operational environment (defaults to [Context.system]).
   ///   Determines priority and security authority for future signals.
   /// - [receptor]: A [TissueReceptor] defining how the collection
-  ///   will handle future mutation signals (defaults to [passThrough]).
+  ///   will handle future mutation signals (defaults to
+  ///   [TissueReceptor.passThrough]).
   /// - [testRule]: A [TestTissue] validator acting as the gatekeeper
-  ///   for all future membership changes (defaults to [allowAll]).
+  ///   for all future membership changes (defaults to [TestTissue.allowAll]).
   /// - [synapses]: Configuration for pulse propagation and child-linking.
   ///
   /// ### Returns:
@@ -449,7 +459,7 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
     covariant TestTissue testRule = TestTissue.allowAll,
     EphemeralPolicy? ephemeralPolicy,
     Synapses synapses = Synapses.enabled,
-  }) => deputy(context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  });
 
   /// Returns a read‑only, reactive projection (Deputy) of this [Tissue].
   ///
@@ -524,8 +534,13 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   @override
   bool get isInvalidated;
 
-  /// Indicates whether this tissue is governed (has a non‑default context,
-  /// testRule, or receptor).
+  /// Indicates whether this tissue is governed.
+  ///
+  /// A tissue is governed when it hosts an [EphemeralPolicy] in its nucleus
+  /// (for example via `TissueSetNucleus(ephemeralPolicy: ...)` or
+  /// `deputy(ephemeralPolicy: ...)`), or when it inherits a policy from an
+  /// upstream [Cell.bind]. See [Cell.isGoverned] for the full resolution
+  /// rules: a hosted policy always overrides an upstream one.
   ///
   /// ### When to use
   /// This is informational – you might use it to conditionally apply stricter
@@ -533,18 +548,59 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   @override
   bool get isGoverned;
 
-  /// Executes a whitelisted function on this tissue via the command gateway.
+  /// Executes a governed mutation on this tissue through the command gateway.
+  ///
+  /// This is the foundational method for all structural changes (e.g., adding
+  /// elements, clearing the collection). It ensures that every action is
+  /// audited, validated by the [testRule], and correctly linked in the
+  /// forensic causal chain.
   ///
   /// ### When to use
-  /// This is a low‑level method; you rarely call it directly. Instead, use the
-  /// higher‑level methods like `add`, `remove`, etc.
+  /// *   **Custom Mutations**: When implementing specialized collection
+  ///     operations not covered by the standard `add`/`remove` methods.
+  /// *   **Transaction Logic**: When you need to bundle operations with
+  ///     [compensate] logic for self-healing or undo-capabilities.
+  /// *   **Internal Logic**: Used primarily by the framework's high-level
+  ///     API to route mutations through the security and auditing gates.
   ///
   /// ### How it works
-  /// - Only functions listed in `modifiable` can be executed.
-  /// - The call is gated by `testRule.action` – if rejected, `null` is returned.
+  /// 1.  **Whitelist Check**: The provided [function] is verified against the
+  ///     [modifiable] whitelist. If the function is not registered as an
+  ///     authorized mutation, it is rejected.
+  /// 2.  **Integrity Validation**: The [testRule] (DNA) evaluates the action
+  ///     request. If the rule rejects the stimulus, the method returns `null`
+  ///     and the state remains unchanged.
+  /// 3.  **Command Execution**: The function is invoked within the tissue's
+  ///     [Lock] boundary to ensure atomic state transitions.
+  /// 4.  **Forensic Auditing**: The mutation is recorded as a step in the
+  ///     resulting [Pulse.trace], identifying the logic that caused the
+  ///     structural change.
   ///
-  /// ### Returns
-  /// The result of the function execution, or `null` if rejected.
+  /// ### Forensic Integrity
+  /// Unlike standard Dart collections where mutations are silent, `apply`
+  /// ensures that every change creates an **Audit Milestone**. If this action
+  /// is part of a larger transaction, the [tx] scope ensures that multiple
+  /// `apply` calls are batched into a single atomic propagation wave.
+  ///
+  /// ### Non‑obvious
+  /// *   **Compensation**: The [compensate] function provides a "Reversal
+  ///     Blueprint." If a subsequent step in a transaction fails, the
+  ///     framework can invoke this logic to restore the tissue to its
+  ///     primordial state.
+  /// *   **Deputy Restrictions**: If called on a read-only deputy (like
+  ///     [unmodifiable]), `apply` will always return `null` or throw an
+  ///     [UnsupportedError], as the whitelist for deputies is empty.
+  ///
+  /// ### Parameters:
+  /// - [function]: The specific mutation logic to execute.
+  /// - [positionalArguments]: Arguments passed to the mutation function.
+  /// - [namedArguments]: Named arguments passed to the mutation function.
+  /// - [tx]: Optional [ApplyTransactionScope] for batching and atomic commits.
+  /// - [compensate]: Logic used to reverse this mutation in case of failure.
+  ///
+  /// ### Returns:
+  /// The result of the mutation (usually the return value of [function]),
+  /// or `null` if the action was rejected by the [testRule].
   @override
   dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,

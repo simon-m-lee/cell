@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">source property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/Tissue-class.html">Tissue</a>?</span>
       get
       <span class="name ">source</span>
@@ -67,20 +72,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>The specific component or system node where this <a href="../../cell_tissue/Pulse-class.html">Pulse</a> lineage
-originated.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Read this to know which cell originally sent the pulse – useful for
-debugging, auditing, or loop prevention.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The source is set when the root pulse is created and inherited by all
-derived pulses. It never changes.</p>
+  <p>The tissue that originally emitted this event.</p>
+<h3 id="returns">Returns:</h3>
+<p>The <a href="../../cell_tissue/Tissue-class.html">Tissue</a> that caused this event, or <code>null</code> if unknown.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Tissue? get source =&gt; super.source as Tissue?;</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+Tissue? get source =&gt; super.source as Tissue?;</code></pre>
 </section>
 
   </section>
@@ -110,7 +111,7 @@ derived pulses. It never changes.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestPasses-class.html">TestPasses</a></li>
     <li class="self-crumb">TestPasses.new const constructor</li>
   </ol>
@@ -60,13 +60,15 @@
 <section class="desc markdown">
   <p>Creates a constant, immutable instance of the permissive rule.</p>
 <p>This constructor is typically used internally to define <a href="../../cell_tissue/TestCell/allowAll-constant.html">TestCell.allowAll</a>.</p>
+<p>Must extend <a href="../../cell_tissue/TestCell-class.html">TestCell</a>: <a href="../../cell_tissue/TestRule-class.html">TestRule</a> is a separate library, so an
+<code>implements</code> sentinel cannot provide <a href="../../cell_tissue/TestRule-class.html">TestRule</a>'s private <code>_record</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TestPasses();</code></pre>
+  <pre class="language-dart"><code class="language-dart">const TestPasses() : super.fromRecord(());</code></pre>
 </section>
 
 
@@ -94,7 +96,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

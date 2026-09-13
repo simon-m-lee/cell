@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">SyncCycleChecker class</li>
   </ol>
   <div class="self-name">SyncCycleChecker</div>
@@ -61,22 +61,64 @@ waves that span across asynchronous boundaries or multi-threaded execution
 contexts. It ensures that the "visited" state of the reactive graph remains
 consistent and protected from race conditions during concurrent pulse
 transmissions.</p>
-<h3 id="1-architectural-role-thread-safe-topology-protection">1. Architectural Role: Thread-Safe Topology Protection</h3>
-<p>In a concurrent reactive network, multiple <a href="../cell_tissue/Pulse-class.html">Pulse</a> waves may be active
-simultaneously. The <a href="../cell_tissue/SyncCycleChecker-class.html">SyncCycleChecker</a> provides:</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Atomic Traversal</strong>: Uses an internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to ensure that adding a
-node to the visited set is an atomic operation, preventing two
-concurrent branches of the same pulse from bypassing the cycle guard.</li>
-<li><strong>Asynchronous Coordination</strong>: Enables <a href="../cell_tissue/Receptor-class.html">Receptor</a>s to safely check for
-circular dependencies even when the transformation pipeline involves
-<code>Future</code> results or cross-isolate communication.</li>
+<li><strong>Asynchronous Propagation</strong>: Use when a reactive wave spans across
+asynchronous boundaries, such as <code>Future</code> transformations or cross-isolate
+communication.</li>
+<li><strong>Multi-threaded Safety</strong>: Use in concurrent environments where multiple
+branches of the same pulse wave might be processed simultaneously.</li>
+<li><strong>Topology Protection</strong>: Use to prevent infinite recursion in complex
+graphs that involve asynchronous nodes or deferred execution.</li>
 </ul>
-<h3 id="2-functional-mechanics">2. Functional Mechanics</h3>
-<p>This class wraps a standard <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> and gates all state-modifying
-operations behind a synchronization primitive. It is typically accessed
-via the <code>async</code> property of a base <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> when a propagation wave
-transitions from a synchronous to an asynchronous execution tier.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Atomic Traversal</strong>: Wraps the underlying <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a> operations in
+a non-recursive <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This ensures that adding a node to the visited
+set is an atomic operation, preventing race conditions between concurrent
+branches of the same pulse.</li>
+<li><strong>Conflict Detection</strong>: Before an asynchronous receptor processes a
+pulse, it invokes the <a href="../cell_tissue/SyncCycleChecker/add.html">add</a> method. If the node was already visited
+within the current pulse wave, the operation is rejected.</li>
+<li><strong>Coordination</strong>: Ensures that the "Visited" status is globally consistent
+across all concurrent tasks associated with a single <a href="../cell_tissue/Pulse-class.html">Pulse</a> lineage.</li>
+<li><strong>Async Interface</strong>: Provides a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API to align with the
+framework's non-blocking concurrency model.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Lifecycle</strong>: Typically accessed via the <code>async</code> property of a base
+<a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a>. It is an ephemeral proxy that lasts for the duration
+of a single propagation wave.</li>
+<li><strong>Principal Proxy</strong>: It does not own the visited set itself but merely
+coordinates synchronized access to its principal <a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a>.</li>
+<li><strong>Zero-Blocking</strong>: Uses the framework's internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to ensure the
+calling thread remains available for other tasks while waiting for
+registry access.</li>
+<li><strong>Forensic Integrity</strong>: Maintains the causal path of a pulse even when
+execution is deferred, parallelized, or moved to different execution tiers.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">Future&lt;void&gt; asyncPropagate(Pulse pulse, Cell node) async {
+  // Access the synchronized checker for async flows
+  final isSafe = await pulse.checker.async.add(node);
+
+  if (!isSafe) {
+    print('Async cycle detected at $node; halting branch.');
+    return;
+  }
+
+  // Proceed with the asynchronous transformation
+  await node.processAsync(pulse);
+}
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/CycleChecker-class.html">CycleChecker</a>: The high-performance synchronous variant.</li>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The underlying primitive used for synchronization.</li>
+<li><a href="../cell_tissue/Pulse-class.html">Pulse</a>: The stimulus that carries this guard through the graph.</li>
+<li><a href="../cell_tissue/Receptor-class.html">Receptor</a>: The primary consumer of this topology guard.</li>
+</ul>
 </section>
 
 
@@ -235,7 +277,7 @@ the current asynchronous stimulus.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

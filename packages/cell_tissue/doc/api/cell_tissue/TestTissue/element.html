@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestTissue-class.html">TestTissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">element method</li>
   </ol>
@@ -119,6 +119,16 @@ liveness.</li>
 FutureOr&lt;bool&gt; element(covariant E? element, {required C host, Function? action}) {
   final rules = _rules.whereType&lt;TestElementRule&lt;E, C&gt;&gt;().toList();
 
+  &#47;&#47; Single-rule policies (stored as `rule` rather than `rules`) are
+  &#47;&#47; evaluated directly as element predicates.
+  if (rules.isEmpty) {
+    final rule = get&lt;FutureOr&lt;bool&gt; Function(dynamic, {C? host, dynamic arguments, dynamic user})?&gt;(
+        () =&gt; _record.rule, orElse: null);
+    if (rule != null) {
+      return rule(element, host: host, arguments: action);
+    }
+  }
+
   &#47;&#47; Internal recursive evaluator to handle FutureOr branching
   FutureOr&lt;bool&gt; runRules(int index) {
     for (var i = index; i &lt; rules.length; i++) {
@@ -167,7 +177,7 @@ FutureOr&lt;bool&gt; element(covariant E? element, {required C host, Function? a
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

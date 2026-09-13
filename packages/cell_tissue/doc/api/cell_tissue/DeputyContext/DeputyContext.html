@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/DeputyContext-class.html">DeputyContext</a></li>
     <li class="self-crumb">DeputyContext.new constructor</li>
   </ol>
@@ -59,7 +59,6 @@
 <li><span class="parameter" id="-param-role"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">role</span>, </span></li>
 <li><span class="parameter" id="-param-isolation"><span class="type-annotation"><a href="../../cell_tissue/Isolation.html">Isolation</a>?</span> <span class="parameter-name">isolation</span> = <span class="default-value">Isolation.scoped</span>, </span></li>
 <li><span class="parameter" id="-param-clearance"><span class="type-annotation"><a href="../../cell_tissue/Clearance.html">Clearance</a></span> <span class="parameter-name">clearance</span> = <span class="default-value">Clearance.standard</span>, </span></li>
-<li><span class="parameter" id="-param-lease"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">lease</span>, </span></li>
 <li><span class="parameter" id="-param-justification"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">justification</span>, </span></li>
 <li><span class="parameter" id="-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">constraints</span>, </span></li>
 <li><span class="parameter" id="-param-others"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">others</span>, </span></li>
@@ -88,7 +87,6 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
 <li><code>role</code>: The semantic identity of the deputy (e.g., 'MAINTENANCE_BOT').</li>
 <li><code>isolation</code>: The virtualization level (defaults to <a href="../../cell_tissue/Isolation.html">Isolation.scoped</a>).</li>
 <li><code>clearance</code>: The mutation rank (defaults to <a href="../../cell_tissue/Clearance.html">Clearance.standard</a>).</li>
-<li><code>lease</code>: The temporal validity of the mandate.</li>
 <li><code>justification</code>: The semantic rationale for the delegation.</li>
 <li><code>constraints</code>: Machine-readable guardrails (e.g., max hop count).</li>
 <li><code>others</code>: Catch-all map for domain-specific telemetry.</li>
@@ -105,7 +103,6 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
   String? role,
   Isolation? isolation = Isolation.scoped,
   Clearance clearance = Clearance.standard, &#47;&#47; Standard default,
-  Duration? lease,
   String? justification,
   Map&lt;String, dynamic&gt;? constraints,
   Map&lt;String, dynamic&gt;? others,
@@ -114,7 +111,6 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
   if (role != null) Mandate.role.entry(role),
   if (isolation != null) Mandate.isolation.entry(isolation),
   if (clearance != Clearance.standard) Mandate.clearance.entry(clearance),
-  if (lease != null) Mandate.lease.entry(lease),
   if (justification != null) Mandate.justification.entry(justification),
   if (constraints != null) Mandate.constraints.entry(constraints),
 ], others: others, parent: baseContext);</code></pre>
@@ -145,7 +141,7 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">isActivated property</li>
   </ol>
@@ -85,8 +85,8 @@
   <pre class="language-dart"><code class="language-dart">@override
 bool get isActivated {
   try {
-    &#47;&#47; ignore: unnecessary_null_comparison
-    return cell != null;
+    receptor.cell;
+    return true;
   } catch (_) {}
   return false;
 }</code></pre>
@@ -119,7 +119,7 @@ bool get isActivated {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

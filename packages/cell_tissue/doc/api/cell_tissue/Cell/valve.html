@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">valve&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt; static method</li>
   </ol>
@@ -55,14 +55,10 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>
-<span class="name ">valve</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="valve-param-propagationPolicy"><span class="type-annotation"><a href="../../cell_tissue/PropagationPolicy-class.html">PropagationPolicy</a>?</span> <span class="parameter-name">propagationPolicy</span>, </span></li>
-<li><span class="parameter" id="valve-param-filter"><span class="type-annotation">P?</span> <span class="parameter-name">filter</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span>, {</span></li>
-<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
-</ol>})?, </span></li>
-<li><span class="parameter" id="valve-param-context"><span class="type-annotation"><a href="../../cell_tissue/Context-class.html">Context</a></span> <span class="parameter-name">context</span> = <span class="default-value">Context.system</span>, </span></li>
-<li><span class="parameter" id="valve-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
-<li><span class="parameter" id="valve-param-downstreams"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">downstreams</span>, </span></li>
-<li><span class="parameter" id="valve-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span></li>
+<span class="name ">valve</span>&lt;<wbr><span class="type-parameter">P extends Pulse</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="valve-param-source"><span class="type-annotation"><a href="../../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="valve-param-gate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">gate</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">P</span> <span class="parameter-name">pulse</span></span></li>
+</ol>), {</span></li>
+<li><span class="parameter" id="valve-param-synapses"><span class="type-annotation"><a href="../../cell_tissue/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">synapses</span> = <span class="default-value">Synapses.enabled</span>, </span></li>
 </ol>})
 
       
@@ -72,68 +68,90 @@
 <section class="desc markdown">
   <p>Synthesizes a <strong>Conditional Gate</strong>—a specialized node that acts as a
 reactive circuit breaker, controlling signal propagation through the graph.</p>
-<p>The <a href="../../cell_tissue/Cell/valve.html">valve</a> factory is a primary mechanism for <strong>Dynamic Graph Pruning</strong>.
+<p>The <a href="../../cell_tissue/Cell/valve.html">valve</a> factory is the primary mechanism for <strong>Dynamic Graph Pruning</strong>.
 It intercepts incoming stimuli from a source and, based on its internal
-state or policy, decides whether to "Open" (propagate the signal) or
-"Close" (suppress the signal).</p>
+<code>gate</code> logic, decides whether to "Open" (propagate) or "Close" (suppress).</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this to filter or control the flow of pulses – e.g. debouncing a
-search input, rate‑limiting sensor data, or blocking signals during
-maintenance.</p>
-<h3 id="how-it-works">How it works</h3>
 <ul>
-<li><code>filter</code>: a function that receives the pulse and returns it (to pass)
-or <code>null</code> (to block). If you return <code>null</code>, the signal stops there.</li>
-<li><code>propagationPolicy</code>: optionally control timing – e.g. debounce,
-throttle, batch.</li>
+<li><strong>Conditional Flow</strong>: Control signal propagation based on payload
+content or forensic metadata (e.g., source authority).</li>
+<li><strong>Validation</strong>: Suppress pulses that do not meet business rules or
+integrity constraints before they reach expensive downstream effects.</li>
+<li><strong>Dynamic Pruning</strong>: Disconnect reactive branches when system
+conditions (like "Maintenance Mode") are met.</li>
+<li><strong>Noise Filtering</strong>: Blocking signals that contain redundant or
+irrelevant information for a specific sub-graph.</li>
 </ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus</strong>: The valve monitors the <code>source</code> for any incoming <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+<li><strong>Evaluation</strong>: Upon receiving a pulse, the <code>gate</code> predicate is
+executed immediately.</li>
+<li><strong>Decision</strong>:
+<ul>
+<li>If <code>true</code>, the gate is <strong>Open</strong> and the original pulse is forwarded
+to the <code>synapses</code> layer.</li>
+<li>If <code>false</code>, the gate is <strong>Closed</strong> and the pulse is discarded
+(<strong>Signal Termination</strong>).</li>
+</ul>
+</li>
+<li><strong>Egress</strong>: Pulses that pass the gate are subject to the <code>synapses</code>
+configuration (e.g., <a href="../../cell_tissue/Cell/debounce.html">Cell.debounce</a>) before reaching observers.</li>
+</ol>
 <h3 id="nonobvious">Non‑obvious</h3>
-<p>The valve itself is a cell – you can observe its output (the pulses that
-pass through) just like any other cell. It does not store state; it only
-filters.</p>
-<h3 id="example-debounced-search-input">Example: Debounced Search Input</h3>
-<pre class="language-dart"><code class="language-dart">final searchGate = Cell.valve&lt;String&gt;(
-  propagationPolicy: PropagationPolicy(
-    strategy: PropagationStrategy.debounced,
-    debounceTime: Duration(milliseconds: 300),
-  ),
-  filter: (pulse, {user}) =&gt; pulse.payload.isNotEmpty ? pulse : null,
+<ul>
+<li><strong>Statelessness</strong>: A valve is a reactive conduit, not a state holder.
+It does not remember the last passed value. To filter based on
+value history, use <a href="../../cell_tissue/Cell/distinct.html">Cell.distinct</a>.</li>
+<li><strong>Early Termination</strong>: Because the valve sits upstream of its own
+synapses, a closed gate prevents propagation strategies (like
+debounce timers) from even being triggered.</li>
+<li><strong>Forensic Audit</strong>: Even suppressed pulses remain visible to the
+switching fabric's forensic hooks if the <a href="../../cell_tissue/Context-class.html">Context</a> is configured
+for full observability.</li>
+<li><strong>Type Safety</strong>: The <code>gate</code> function is generic over <code>P</code>, allowing
+specialized inspection of custom <a href="../../cell_tissue/Pulse-class.html">Pulse</a> subclasses or metadata.</li>
+</ul>
+<h3 id="example-content-based-filter">Example: Content-Based Filter</h3>
+<pre class="language-dart"><code class="language-dart">// Only allow non-empty search strings to reach the API caller
+final searchValve = Cell.valve&lt;Pulse&lt;String&gt;&gt;(
+  (pulse) =&gt; pulse.payload!.trim().isNotEmpty,
+  source: rawInputCell,
 );
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>propagationPolicy</code>: Optional policy for managing <strong>Signal Distribution</strong>
-dynamics (e.g., Immediate vs. Batched).</li>
-<li><code>filter</code>: <strong>The Gate Logic.</strong> A function that determines if the signal
-should pass through. Returning <code>null</code> terminates the wave.</li>
-<li><code>context</code>: <strong>Operational Authority.</strong> Defines the security and priority
-tier (defaults to <a href="../../cell_tissue/Context/system-constant.html">Context.system</a>).</li>
-<li><code>user</code>: Optional immutable metadata for <strong>Causal Provenance</strong>.</li>
-<li><code>downstreams</code>: An optional set of specific <a href="../../cell_tissue/Cell-class.html">Cell</a> nodes to target
-for egress.</li>
-<li><code>forceLock</code>: If <code>true</code>, ensures the creation of an <strong>Atomic
-Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
+<li><code>gate</code>: <strong>The Boolean Gate.</strong> A predicate function that inspects the
+incoming pulse. Returning <code>true</code> allows the signal to pass.</li>
+<li><code>source</code>: <strong>The Ingress Source.</strong> The upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> to be screened.</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Configures routing, timing, and
+distribution behavior for pulses that survive the gate.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> instance acting as a managed gate for signal propagation.</p>
+<p>A <a href="../../cell_tissue/Cell-class.html">Cell</a> instance acting as a <strong>Reactive Circuit Breaker</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Cell/distinct.html">Cell.distinct</a>: For filtering consecutive duplicate values.</li>
+<li><a href="../../cell_tissue/Cell/debounce.html">Cell.debounce</a>: For filtering signals based on temporal stability.</li>
+</ul>
+<ul>
+<li><strong>Example</strong>: See <code>example/valve_demo.dart</code> for a complete walkthrough
+of conditional signal suppression.
+{@category Core 16 Operators}</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell valve&lt;P extends Pulse&gt;({
-  PropagationPolicy? propagationPolicy,
-
-  P? Function(P pulse, {dynamic user})? filter,
-  Context context = Context.system,
-  dynamic user,
-  Iterable&lt;Cell&gt;? downstreams,
-  bool forceLock = false,
-}) {
-  final rule = filter != null ? FilterRule&lt;P&gt;(filter, user: user) : null;
-  final synapses = Synapses&lt;P,Cell&gt;(filter: rule, downstreams: downstreams, policy: propagationPolicy);
-  return Cell.governed(context: context, synapses: synapses, forceLock: forceLock);
+  <pre class="language-dart"><code class="language-dart">static Cell valve&lt;P extends Pulse&gt;(
+    Cell source,
+    bool Function(P pulse) gate, {
+      Synapses synapses = Synapses.enabled
+    }) {
+  final receptor = _Receptor(reaction: (pulse, cell, {user}) =&gt; gate(pulse as P) ? pulse : null);
+  return Cell.governed(receptor: receptor, bind: source, synapses: synapses);
 }</code></pre>
 </section>
 
@@ -162,7 +180,7 @@ Transaction Domain</strong> via a mandatory <a href="https://pub.dev/documentati
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

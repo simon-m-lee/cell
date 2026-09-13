@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/ModifiableListAsync-class.html">ModifiableListAsync<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">fillRange method</li>
   </ol>
@@ -65,28 +65,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Asynchronously overwrites a range of elements in this list with <code>fillValue</code>.</p>
-<p>Wraps <a href="https://api.flutter.dev/flutter/dart-core/List/fillRange.html">TissueList.fillRange</a>. The <code>Future</code> completes successfully if the
-operation is permitted (valid range, modifiable list, allowAll validation rules).
-Otherwise, it completes with an error.</p>
-<p>Parameters:</p>
+  <p>Asynchronously overwrites a range of elements with <code>fillValue</code>.</p>
+<h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>start</code>: The inclusive start index of the range to fill.</li>
-<li><code>end</code>: The exclusive end index of the range to fill.</li>
-<li><code>fillValue</code>: (Optional) The value to fill the range with. If <code>null</code>, behavior
-             depends on the element type <code>E</code> (may fill with <code>null</code> if <code>E</code> is nullable).</li>
+<li><code>start</code>: The inclusive start index.</li>
+<li><code>end</code>: The exclusive end index.</li>
+<li><code>fillValue</code>: The value to populate the range with.</li>
 </ul>
-<p>Returns:
-A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; fillRange(int start, int end, [E? fillValue]) async {
-  return Future&lt;void&gt;(() =&gt; _tissue.fillRange(start, end, fillValue));
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; fillRange(int start, int end, [E? fillValue]) =&gt;
+    Future&lt;void&gt;(() =&gt; _tissue.fillRange(start, end, fillValue));</code></pre>
 </section>
 
 
@@ -114,7 +107,7 @@ A <code>Future&lt;void&gt;</code> that completes when the operation is done.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

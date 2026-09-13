@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/NucleusBase-class.html">NucleusBase</a></li>
     <li class="self-crumb">NucleusBase.evolve constructor</li>
   </ol>
@@ -69,71 +69,72 @@
 <section class="desc markdown">
   <p>Creates a specialized <strong>Architectural Extension</strong> of an existing <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> to
 support hierarchical property inheritance and contextual overrides.</p>
-<p>This constructor is the core implementation of the <strong>Prototype Inheritance
-Pattern</strong> (specifically the <strong>Proxy/Deputy Pattern</strong>) within the property
-system. It allows a derived nucleus to inherit its structural identity and
-core behavioral logic from a <code>principal</code> while layering on localized
-configuration overrides.</p>
-<h3 id="1-purpose--architectural-role-contextual-specialization">1. Purpose &amp; Architectural Role: Contextual Specialization</h3>
-<p>The fundamental purpose of <code>.evolve</code> is to facilitate <strong>Behavioral
-Specialization</strong> with minimal memory overhead. In a complex reactive
-graph, many nodes may share the majority of their logic (e.g., security tiers,
-validation rules, or physical storage strategies) but differ in a single
-specific aspect.</p>
-<p>Instead of re-allocating a full property set for every variation, this
-constructor creates a "Linker Record" that points back to the principal
-for any property not explicitly defined in the local scope. This is
-critical for:</p>
+<p>This constructor implements the <strong>Prototype Inheritance Pattern</strong> within the
+property system, allowing a derived nucleus to inherit its structural
+identity and core behavioral logic from a <code>principal</code> while layering on
+localized configuration overrides.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Creating Proxies</strong>: Generating restricted-access or read-only views
-(Deputies) of a cell that share the same data but use different
-validation <code>testRule</code>s.</li>
-<li><strong>Contextual Projections</strong>: Running the same logic under a different
-<code>context</code> (e.g., projecting a system-level state into a user-level view).</li>
+<li><strong>Contextual Specialization</strong>: When many nodes share common logic (security
+tiers, storage strategies) but differ in a single specific aspect.</li>
+<li><strong>Creating Deputies</strong>: Generating restricted-access or read-only views
+of a cell that share data but use different <code>testRule</code> guards.</li>
+<li><strong>Contextual Projections</strong>: Projecting a system-level state into a
+user-level view by overriding the <code>context</code> pillar.</li>
 <li><strong>Behavioral Shadowing</strong>: Overriding a <code>receptor</code> to add transformation
-logic without altering the principal blueprint's original behavior.</li>
+logic without altering the principal's original behavior.</li>
 </ul>
-<h3 id="2-functional-behavior-the-resolution-chain">2. Functional Behavior: The Resolution Chain</h3>
-<p>This constructor establishes a vertical link in the configuration tree. When
-a property is accessed, the system employs a recursive "walk-up" strategy:</p>
+<h3 id="how-it-works">How it works</h3>
 <ol>
-<li><strong>Local Override</strong>: It first checks the local record for overrides
-provided directly to this <code>.evolve</code> call.</li>
-<li><strong>Parental Fallback</strong>: If the property is missing locally (omitted for
-memory efficiency), the system "walks up" the inheritance chain to the
-<code>principal</code>.</li>
-<li><strong>Terminal Defaults</strong>: The chain continues until it eventually falls
-back to global framework defaults (terminating at <a href="../../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a>).</li>
-</ol>
-<h3 id="3-synchronization-domain-lock-inheritance">3. Synchronization Domain (Lock Inheritance)</h3>
-<p>A key feature of evolved extensions is their relationship with the
-<code>principal</code>'s synchronization primitive:</p>
-<ul>
+<li><strong>The Linker Record</strong>: It creates a multi-tiered record that points back
+to the <code>principal</code> for any property not explicitly defined locally.</li>
+<li><strong>Resolution Chain</strong>: When a property is accessed, the system employs
+a "walk-up" strategy: Local Segment -&gt; Principal Segment -&gt;
+<a href="../../cell_tissue/Nucleus/Nucleus.empty.html">Nucleus.empty</a> (Global Defaults).</li>
 <li><strong>Shared Atomicity</strong>: By default, extensions share the <code>principal</code>'s
-atomic <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This ensures that the principal and its proxies maintain
-a single atomic boundary for complex graph transitions.</li>
-<li><strong>Isolation</strong>: If an <code>override</code> is provided and it contains its own
-lock, the extension can effectively branch into an independent
-synchronization domain.</li>
+atomic <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, ensuring they maintain a single atomic boundary for
+complex graph transitions.</li>
+<li><strong>Memory Optimization</strong>: It avoids re-allocating a full property set,
+storing only the "delta" between the extension and its prototype.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Binding Specificity</strong>: Upstream bindings (<code>bind</code>) are instance-specific
+and are <strong>not</strong> inherited from the principal to prevent accidental
+graph recursion.</li>
+<li><strong>Isolation Branching</strong>: If an <code>override</code> is provided with its own lock,
+the extension branches into an independent synchronization domain.</li>
+<li><strong>Shadowing Rules</strong>: Providing a <code>null</code> value for an inheritable pillar
+(like <code>testRule</code>) typically triggers a fallback to the principal,
+rather than clearing the property.</li>
+<li><strong>Trust Model</strong>: The framework assumes the <code>principal</code> is already
+valid and optimized, skipping redundant bitmask checks during evolution.</li>
 </ul>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>ephemeralPolicy</code>: Optional. A <strong>Lifecycle Governance Policy</strong> defining
-how and when the resulting cell should be automatically invalidated.</li>
-<li><code>bind</code>: Optional. A <a href="../../cell_tissue/Cell-class.html">Cell</a> dependency. Note: bindings are instance-specific
-and are <strong>not</strong> inherited from the principal. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>context</code>: Defines the execution tier and operational authority.
-If null, resolves from the <code>principal</code>. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>receptor</code>: The <strong>Transformation Pipeline</strong> logic. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>testRule</code>: <strong>Policy Guard</strong> rules for state changes. If null, inherits
-from the <code>principal</code>. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>synapses</code>: <strong>Egress Network</strong> management. Determines if the node
-maintains its own observer list. <em>(Ignored if <code>override</code> is set)</em>.</li>
-<li><code>user</code>: Optional ad-hoc metadata or extension-specific storage.</li>
-<li><code>override</code>: Optional. A pre-compiled <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> whose record will be
-directly adopted as the property base.</li>
-<li><code>principal</code>: <strong>Required</strong>. The source <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> from which this instance
-derives its structural and logic inheritance.</li>
+<li><code>ephemeralPolicy</code>: <strong>Lifecycle Governance.</strong> Defines when the resulting
+cell should be automatically invalidated.</li>
+<li><code>bind</code>: <strong>Upstream Dependency.</strong> The cell this node monitors (not inherited).</li>
+<li><code>context</code>: <strong>Operational Authority.</strong> The execution tier (inherits from
+<code>principal</code> if null).</li>
+<li><code>receptor</code>: <strong>Transformation Pipeline.</strong> The logic for processing pulses.</li>
+<li><code>testRule</code>: <strong>Policy Guard.</strong> Integrity rules for state changes (inherits
+from <code>principal</code> if null).</li>
+<li><code>synapses</code>: <strong>Egress Network.</strong> Manages the observer registry for the
+extension.</li>
+<li><code>user</code>: <strong>Ad-hoc Metadata.</strong> Optional extension-specific storage.</li>
+<li><code>override</code>: <strong>Pre-compiled Blueprint.</strong> A nucleus whose record will be
+directly adopted.</li>
+<li><code>principal</code>: <strong>The Prototype Source.</strong> The nucleus providing structural
+inheritance.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> instance representing a <strong>Hierarchical Property Extension</strong>.</p>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Nucleus/Nucleus.evolve.html">Nucleus.evolve</a>: The high-level extension method.</li>
+<li><a href="../../cell_tissue/DeputyContext/evolve.html">DeputyContext.evolve</a>: For specializing security and mandate dimensions.</li>
+<li><a href="../../cell_tissue/NucleusBase/NucleusBase.fromRecord.html">NucleusBase.fromRecord</a>: For restoring evolved nuclei from state.</li>
 </ul>
 </section>
 
@@ -153,7 +154,7 @@ derives its structural and logic inheritance.</li>
 
   Nucleus? override,
   required Nucleus principal
-}) : this.fromRecord(record: (
+}) : this.fromRecord((
     local: (override as NucleusBase?)?.record.local ?? NucleusBase.mask(bind: bind,
         context: context,
         receptor: receptor, testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy),
@@ -186,7 +187,7 @@ derives its structural and logic inheritance.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

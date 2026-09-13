@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TestCell-class.html">TestCell<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span></a></li>
     <li class="self-crumb">action method</li>
   </ol>
@@ -109,7 +109,7 @@ when <a href="../../cell_tissue/Cell/apply.html">Cell.apply</a> is called. It ca
 individually validated via <code>call()</code>.</li>
 <li><strong>Action‑Specific Rules</strong>: Any <a href="../../cell_tissue/TestActionRule-class.html">TestActionRule</a>s in the chain are
 evaluated.</li>
-<li><strong>Delegation</strong>: If local rules pass, the <code>_parent</code> is called.</li>
+<li><strong>Delegation</strong>: If local rules pass, the <code>TestCell.parent</code> is called.</li>
 <li><strong>Short‑Circuit</strong>: If any validation returns <code>false</code>, the whole
 action is rejected.</li>
 </ol>
@@ -168,7 +168,7 @@ print(authorized); // true or false
 &#47;&#47;&#47;    individually validated via `call()`.
 &#47;&#47;&#47; 2. **Action‑Specific Rules**: Any [TestActionRule]s in the chain are
 &#47;&#47;&#47;    evaluated.
-&#47;&#47;&#47; 3. **Delegation**: If local rules pass, the [_parent] is called.
+&#47;&#47;&#47; 3. **Delegation**: If local rules pass, the [TestCell.parent] is called.
 &#47;&#47;&#47; 4. **Short‑Circuit**: If any validation returns `false`, the whole
 &#47;&#47;&#47;    action is rejected.
 &#47;&#47;&#47;
@@ -255,7 +255,7 @@ FutureOr&lt;bool&gt; action(Function action, {required C host, Arguments? argume
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

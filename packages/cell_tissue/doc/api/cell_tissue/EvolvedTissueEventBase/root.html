@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">root property</li>
   </ol>
@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../cell_tissue/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
       get
       <span class="name ">root</span>
@@ -67,22 +72,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>The primordial ancestor that initiated this entire message lineage.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to jump to the very start of the causal chain –
-e.g., for root cause analysis or intent preservation.</p>
-<h3 id="how-it-works">How it works</h3>
-<p>The root is the original pulse that started the chain. It's immutable
-and never changes, even as you evolve the pulse.</p>
-<h3 id="nonobvious">Non‑obvious</h3>
-<p>For the original pulse, <code>pulse.root == pulse</code>. For any derived pulse,
-<code>pulse.root</code> points back to that original.</p>
+  <p>The primordial ancestor of this event's causal lineage.</p>
+<h3 id="returns">Returns:</h3>
+<p>The root event in the causal chain.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventBase&lt;E&gt; get root =&gt; super.root as TissueEventBase&lt;E&gt;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+TissueEventBase&lt;E&gt; get root =&gt; super.root as TissueEventBase&lt;E&gt;;</code></pre>
 </section>
 
   </section>
@@ -112,7 +111,7 @@ and never changes, even as you evolve the pulse.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

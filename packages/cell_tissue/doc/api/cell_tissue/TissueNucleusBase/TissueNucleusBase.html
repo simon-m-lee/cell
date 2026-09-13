@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/TissueNucleusBase-class.html">TissueNucleusBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends Iterable&lt;<wbr><span class="type-parameter">E</span>&gt;</span>, <span class="type-parameter">C extends Tissue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
     <li class="self-crumb">TissueNucleusBase.new constructor</li>
   </ol>
@@ -108,7 +108,11 @@ principal's lock (used for deputies).</li>
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
-<li><code>ephemeralPolicy</code>: Optional lifecycle policy (TTL/event limit).</li>
+<li><code>ephemeralPolicy</code>: Optional lifecycle policy (TTL/event limit). The
+policy is <strong>hosted</strong> in this nucleus, making any tissue built from it
+governed (<code>isGoverned == true</code>). If omitted, the tissue can still
+inherit governance from an upstream <code>bind</code> (see <a href="../../cell_tissue/Nucleus/isGoverned.html">Nucleus.isGoverned</a>):
+a hosted policy always overrides an upstream one.</li>
 <li><code>container</code>: The physical storage template. If <code>null</code>, a default
 container for type <code>I</code> is resolved.</li>
 <li><code>bind</code>: Optional upstream <a href="../../cell_tissue/Cell-class.html">Cell</a> – the collection will automatically
@@ -145,8 +149,7 @@ specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
   Record? others
 
 }) : super.fromRecord(
-    record: (
-    mask: local&lt;E,I,C&gt;(
+    (local: local&lt;E,I,C&gt;(
         container: container,
         bind: bind,
         context: context,
@@ -155,7 +158,8 @@ specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
         synapses: synapses,
         forceLock: forceLock,
         user: user,
-        others: others
+        others: others,
+        ephemeralPolicy: ephemeralPolicy
     ))
 );</code></pre>
 </section>
@@ -185,7 +189,7 @@ specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

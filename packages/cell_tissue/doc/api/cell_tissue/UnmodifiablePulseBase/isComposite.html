@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase<span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></a></li>
     <li class="self-crumb">isComposite property</li>
   </ol>
@@ -72,21 +72,38 @@
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether this pulse is a <strong>Multi-Message Bundle</strong> (Composite).</p>
+  <p>Indicates whether this pulse is a multi-message bundle (a collection).</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Check this if you need to know whether a pulse contains multiple
-sub‑pulses – e.g., when iterating over it.</p>
+<ul>
+<li><strong>Bundle Detection</strong>: Check this before iterating over a pulse to
+determine if it contains a single signal or a collection of signals.</li>
+<li><strong>Conditional Logic</strong>: Use this to branch logic based on whether a
+receptor is receiving an atomic update or a batch of updates.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
-<p>A composite pulse is created with the <code>+</code> operator. It acts as an
-iterable collection of pulses.</p>
+<p>A pulse is considered composite only when it acts as a container for
+other pulses. This occurs through:</p>
+<ol>
+<li><strong>Binary Composition</strong>: Using the <code>+</code> operator.</li>
+<li><strong>Flat Aggregation</strong>: Using the <a href="../../cell_tissue/Pulse/batch.html">Pulse.batch</a> factory or <code>.batch()</code>
+extension.</li>
+<li><strong>Explicit Evolution</strong>: Calling <a href="../../cell_tissue/PulseBase/evolve.html">evolve</a> while passing a new
+<a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</li>
+</ol>
+<h3 id="nonobvious-evolution-vs-aggregation">Non‑obvious: Evolution vs. Aggregation</h3>
+<p>Simply calling <a href="../../cell_tissue/PulseBase/withStep.html">withStep</a> or evolving the metadata (context, priority)
+does <strong>not</strong> make a pulse composite. These operations extend the
+<em>causal lineage</em> of a single signal but do not change the number of
+elements in the propagation unit.</p>
+<p>Even a pulse with a very long <a href="../../cell_tissue/UnmodifiablePulseBase/trace.html">trace</a> from many <code>withStep</code> calls
+will have <code>isComposite == false</code> and a <code>length</code> of 1.</p>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final composite = Pulse&lt;int&gt;(1) + Pulse&lt;String&gt;('hello');
-if (composite.isComposite) {
-  for (final p in composite) {
-    print(p.payload);
-  }
-}
-// Outputs: 1, hello
+<pre class="language-dart"><code class="language-dart">final p1 = Pulse(1).withStep('validated');
+print(p1.isComposite); // false (still one signal)
+
+final p2 = Pulse(2);
+final bundle = p1 + p2;
+print(bundle.isComposite); // true (contains two signals)
 </code></pre>
 </section>
 
@@ -124,7 +141,7 @@ bool get isComposite =&gt; _source.isComposite;</code></pre>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

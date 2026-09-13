@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">TissueReceptorBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">TissueReceptorBase</div>
@@ -60,15 +60,14 @@
 It extends the generic <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> to add collection‑aware logic:
 automatic state synchronisation with a bound principal, and the ability to
 process structural events like additions and removals.</p>
-<h3 id="where-to-start">Where to start</h3>
+<h3 id="when-to-use">When to use</h3>
+<p>Only if you are building a custom collection type that needs to override
+the default mutation handling. For standard use, the provided receptors
+are sufficient.</p>
 <p>You never implement this class directly. The framework provides concrete
 receptors via the <a href="../cell_tissue/TissueReceptor-class.html">TissueReceptor</a> factory and the <code>passThrough</code> constant.
 Your interaction with receptors is typically through the <code>receptor</code> parameter
 when creating a tissue, or via the <code>async</code> getter for asynchronous processing.</p>
-<h3 id="when-to-use-as-a-framework-extender">When to use (as a framework extender)</h3>
-<p>Only if you are building a custom collection type that needs to override
-the default mutation handling. For standard use, the provided receptors
-are sufficient.</p>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>It extends <a href="../cell_tissue/ReceptorBase-class.html">ReceptorBase</a> to inherit the multi‑stage pipeline
@@ -98,7 +97,7 @@ pulse</strong> that reflects only the changes that were actually committed.</li>
 </ul>
 <h3 id="example-internal--how-the-framework-uses-it">Example (Internal – how the framework uses it)</h3>
 <pre class="language-dart"><code class="language-dart">final receptor = TissueReceptorBase&lt;int, TissueList&lt;int&gt;&gt;(
-  rule: PulseRule((tissue, pulse, {user}) {
+  rule: Instruction((tissue, pulse, {user}) {
     // Custom transformation logic
     return pulse;
   }),
@@ -147,19 +146,12 @@ allowing for type‑safe pulse processing within the hierarchy.</li>
   <section class="summary offset-anchor" id="constructors">
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
-        <dt id="TissueReceptorBase.new" class="callable">
-          <span class="name"><a href="../cell_tissue/TissueReceptorBase/TissueReceptorBase.html">TissueReceptorBase</a></span><span class="signature">({<span class="parameter" id="-param-rule"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">rule</span>, </span><span class="parameter" id="-param-preProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">preProcess</span>, </span><span class="parameter" id="-param-postProcess"><span class="type-annotation"><a href="../cell_tissue/PulseRule-class.html">PulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span>&gt;</span>?</span> <span class="parameter-name">postProcess</span>, </span><span class="parameter" id="-param-reaction"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">reaction</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../cell_tissue/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="param-host"><span class="type-annotation">C</span> <span class="parameter-name">host</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})?, </span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-isGoverned"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isGoverned</span> = <span class="default-value">false</span></span>})</span>
-        </dt>
-        <dd>
-          <strong>Primary Constructor</strong> – defines the transformation pipeline for a
-reactive collection.
-        </dd>
         <dt id="TissueReceptorBase.fromRecord" class="callable">
           <span class="name"><a href="../cell_tissue/TissueReceptorBase/TissueReceptorBase.fromRecord.html">TissueReceptorBase.fromRecord</a></span><span class="signature">({<span class="parameter" id="fromRecord-param-record"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span> <span class="parameter-name">record</span> = <span class="default-value">()</span></span>})</span>
         </dt>
         <dd>
-          <strong>Low‑level Record Constructor</strong> – instantiates a receptor from a
-pre‑packed property record.
+          <strong>Primary Constructor</strong> – defines the transformation pipeline for a
+reactive collection.
         </dd>
     </dl>
   </section>
@@ -188,7 +180,7 @@ pre‑packed property record.
 
 </dt>
 <dd class="inherited">
-  The host <a href="../cell_tissue/Cell-class.html">Cell</a> instance that this receptor is currently serving.
+  The host cell this receptor is bound to.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -214,7 +206,7 @@ management.
 
 </dt>
 <dd class="inherited">
-  The hash code for this object.
+  Hash code for this receptor.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -226,21 +218,7 @@ management.
 
 </dt>
 <dd class="inherited">
-  Indicates whether this receptor has transitioned from a stateless template
-to a functional, cell-bound instance.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="isGoverned" class="property inherited">
-  <span class="name"><a href="../cell_tissue/ReceptorBase/isGoverned.html">isGoverned</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Indicates whether the receptor's host <a href="../cell_tissue/Cell-class.html">Cell</a> is currently subject to a
-<strong>Governance Policy</strong>.
+  Indicates whether this receptor is activated.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -274,8 +252,7 @@ to a functional, cell-bound instance.
 
 </dt>
 <dd class="inherited">
-  Formally activates the receptor by binding its transformation logic to
-a concrete <code>cell</code> instance.
+  Activates the receptor by binding it to a cell.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -335,7 +312,7 @@ a concrete <code>cell</code> instance.
 
 </dt>
 <dd class="inherited">
-  The equality operator.
+  Equality operator for receptors.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -369,7 +346,7 @@ a concrete <code>cell</code> instance.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

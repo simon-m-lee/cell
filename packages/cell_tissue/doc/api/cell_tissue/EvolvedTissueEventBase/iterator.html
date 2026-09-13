@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
     <li class="self-crumb">iterator property</li>
   </ol>
@@ -72,30 +72,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns an iterator over the sub‑pulses contained in this pulse.</p>
-<p>For a standard (non‑composite) pulse, this returns an iterator over a
-single element – the pulse itself.
-For a composite pulse (<a href="../../cell_tissue/PulseBase/isComposite.html">isComposite</a> is <code>true</code>), this returns an iterator
-over all the sub‑pulses in the bundle or chain.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Use this to iterate over the individual pulses in a composite.</p>
-<h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final collective = Pulse&lt;int&gt;(1) + Pulse&lt;String&gt;('hello');
-for (final p in collective) {
-  print(p.payload);
-}
-// Outputs: 1, hello
-</code></pre>
+  <p>Returns an iterator over the events in this chain.</p>
+<p>For a standard event, this returns an iterator over a single element.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Iterator&lt;Pulse&lt;E&gt;&gt; get iterator {
-  final events = super.toList(growable: false).cast&lt;TissueEvent&lt;E&gt;&gt;();
-  return events.iterator;
-}</code></pre>
+Iterator&lt;Pulse&lt;E&gt;&gt; get iterator =&gt; [this].iterator;</code></pre>
 </section>
 
   </section>
@@ -125,7 +110,7 @@ Iterator&lt;Pulse&lt;E&gt;&gt; get iterator {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the isGoverned property from the TissueListMixin mixin, for the Dart programming language.">
+  <title>isGoverned property - TissueListMixin mixin - cell_tissue library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueListMixin-mixin.html">TissueListMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">isGoverned property</li>
+  </ol>
+  <div class="self-name">isGoverned</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="cell_tissue&#47;TissueListMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">isGoverned</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+      get
+      <span class="name ">isGoverned</span>
+      <div class="features"><span class="feature">inherited</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Indicates whether this node is subject to active <strong>Administrative Oversight</strong>
+or specialized <strong>Lifecycle Governance</strong>.</p>
+<p>In the forensic architecture of the framework, a node is considered "Governed"
+if it departs from the default, passive system state by carrying either an explicit
+operational mandate (<a href="../../cell_tissue/Context-class.html">Context</a>) or a defined survival policy (<a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a>).</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Resource Management</strong>: To identify nodes that require active teardown or
+monitoring by a lifecycle manager or garbage collector.</li>
+<li><strong>Security Auditing</strong>: To distinguish between standard system-tier nodes and
+nodes operating under elevated or specialized administrative boundaries.</li>
+<li><strong>Forensic Diagnostics</strong>: To isolate nodes in a complex graph that possess
+transient lineage or non-standard authority vectors.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Governance is determined by the presence of an <a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a>,
+resolved in two tiers:</p>
+<ol>
+<li><strong>Hosted policy</strong>: if this node's <a href="../../cell_tissue/Nucleus-class.html">Nucleus</a> — or its <code>principal</code> chain,
+for deputies — carries an <a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a>, the node is immediately
+governed. A hosted policy always wins.</li>
+<li><strong>Upstream policy</strong>: if no policy is hosted, the node checks its
+upstream <code>Cell.bind</code>. If the bind is governed, the node inherits that
+state (<strong>"the head owns the body"</strong>), so a downstream projection of a
+governed source also reports <code>true</code>.</li>
+<li><strong>Default</strong>: with neither a hosted nor an upstream policy, the node is
+un-governed (<code>false</code>).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Cascading Contagion</strong>: Governance propagates down a binding lineage
+automatically. If a root source cell becomes governed, every node bound
+downstream reports <code>isGoverned == true</code>.</li>
+<li><strong>Authority vs. Governance</strong>: A node can enforce strict structural
+validation rules via a <a href="../../cell_tissue/TestCell-class.html">TestCell</a> gate, yet still remain un-governed if
+it hosts no <a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a> and is not bound to a governed source.
+<a href="../../cell_tissue/Context-class.html">Context</a> alone does <strong>not</strong> make a node governed.</li>
+<li><strong>Structural Verification</strong>: This property inspects the structural
+metadata (the "DNA") of the underlying node configuration rather than
+tracking dynamic mutations or value modifications.</li>
+</ul>
+<h3 id="example-inspecting-governance-state">Example: Inspecting Governance State</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) =&gt; (events: 0),
+  onInvalidate: (nucleus) =&gt; true,
+);
+
+final head = Cell.governed(ephemeralPolicy: policy, context: Context.system);
+final body = Cell(bind: head); // hosts no policy of its own
+
+print(head.isGoverned); // true (hosted policy)
+print(body.isGoverned); // true (inherited from the upstream bind)
+</code></pre>
+<h3 id="returns">Returns:</h3>
+<ul>
+<li><code>true</code>: If the cell is managed by a governance framework (<strong>Managed Node</strong>).</li>
+<li><code>false</code>: If the cell is autonomous or operates without an external
+management policy (<strong>Autonomous/Free Node</strong>).</li>
+</ul>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><a href="../../cell_tissue/Context-class.html">Context</a> – Establishes the authoritative identity driving the governance model.</li>
+<li><a href="../../cell_tissue/EphemeralPolicy-class.html">EphemeralPolicy</a> – Regulates transient survival constraints on governed nodes.</li>
+</ul>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+bool get isGoverned =&gt; _nucleus.isGoverned;</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue</a></li>
+    <li><a href="../../cell_tissue/TissueListMixin-mixin.html">TissueListMixin<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueList&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">isGoverned property</li>
+</ol>
+
+  <h5>TissueListMixin mixin</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cell_tissue
+      1.0.0-rc.3
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

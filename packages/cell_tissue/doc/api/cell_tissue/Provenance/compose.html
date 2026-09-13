@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Provenance.html">Provenance<span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">compose static method</li>
   </ol>
@@ -70,15 +70,16 @@ every defined dimension in the <a href="../../cell_tissue/Provenance.html">Prove
 <strong>Static Blueprint</strong> of a signal's metadata. It iterates through all
 available provenance keys—both <strong>Static Pillars</strong> and <strong>Fluid Boundaries</strong>—
 to build a complete semantic profile for a <a href="../../cell_tissue/Pulse-class.html">Pulse</a>.</p>
-<h3 id="where-to-start">Where to start</h3>
-<p>You don't call this directly. It's an internal utility used by the
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li>You don't call this directly. It's an internal utility used by the
 <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> factories (like <code>userAction</code>, <code>regulated</code>, <code>aiInference</code>)
 to build the initial context. Your day‑to‑day interaction with
-<a href="../../cell_tissue/Provenance.html">Provenance</a> is through <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> and its factories.</p>
-<h3 id="when-to-use">When to use</h3>
-<p>Only if you're building a custom context factory that needs to generate
+<a href="../../cell_tissue/Provenance.html">Provenance</a> is through <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a> and its factories.</li>
+<li>Only if you're building a custom context factory that needs to generate
 a full manifest from scratch. For most code, the existing <a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>
-factories are sufficient.</p>
+factories are sufficient.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
 <li>The method iterates over every <a href="../../cell_tissue/Provenance.html">Provenance</a> enum value.</li>
@@ -155,7 +156,7 @@ every applicable provenance dimension.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

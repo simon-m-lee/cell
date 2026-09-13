@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">cell_tissue</a></li>
-    <li><a href="../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../cell_tissue/">cell_tissue.dart</a></li>
     <li class="self-crumb">SyncQueue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span> class</li>
   </ol>
   <div class="self-name">SyncQueue</div>
@@ -56,28 +56,66 @@
 <section class="desc markdown">
   <p>A thread-safe implementation of a <a href="../cell_tissue/PriorityQueue-class.html">PriorityQueue</a>, providing <strong>Synchronized
 Access</strong> for prioritized collection-based state.</p>
-<p>In the reactive framework, the <a href="../cell_tissue/SyncQueue-class.html">SyncQueue</a> serves as a <strong>Concurrency-Safe
-Execution Buffer</strong>. It ensures that the sequence of processing is governed
-by <strong>Priority Precedence</strong> rather than simple arrival time, while remaining
-atomically consistent across asynchronous triggers and multi-threaded
-execution contexts.</p>
-<h3 id="architectural-role-weighted-integrity">Architectural Role: Weighted Integrity</h3>
-<p>This implementation wraps a <a href="../cell_tissue/PriorityQueue-class.html">PriorityQueue</a> with a non-recursive <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
-to serialize access to the underlying binary heap. It prevents "State
-Tearing"—a condition where structural mutations (like <a href="../cell_tissue/SyncQueue/add.html">add</a> or <a href="../cell_tissue/SyncQueue/removeFirst.html">removeFirst</a>)
-occur simultaneously with reads, which could lead to corrupted reactive
-waves or invalid priority transitions.</p>
-<h3 id="implementation-details">Implementation Details:</h3>
+<p><a href="../cell_tissue/SyncQueue-class.html">SyncQueue</a> serves as a <strong>Concurrency-Safe Execution Buffer</strong> within the
+reactive fabric. It ensures that signal processing is governed by
+<strong>Priority Precedence</strong> rather than simple arrival sequence, while maintaining
+atomic consistency across asynchronous waves and multi-threaded contexts.</p>
+<h3 id="when-to-use">When to use</h3>
 <ul>
-<li><strong>Async Interfacing</strong>: Access to the internal queue is governed by
-asynchronous <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> handles, aligning with the framework's non-blocking
-concurrency model.</li>
-<li><strong>Capacity Management</strong>: Supports an optional <a href="../cell_tissue/SyncQueue/capacity.html">capacity</a> constraint,
-acting as a "Resource Limit" to prevent memory bloat within the
-dependency graph.</li>
-<li><strong>Performance Note</strong>: Optimized for structural safety. For high-frequency
-read-only iterations, consider using <a href="../cell_tissue/SyncQueue/replicate.html">replicate</a> to obtain a
-point-in-time snapshot.</li>
+<li><strong>Signal Prioritization</strong>: Ensuring administrative pulses or system commands
+jump the queue ahead of standard state updates.</li>
+<li><strong>Task Scheduling</strong>: Orchestrating reactive waves where urgency (e.g.,
+security validation) outranks arrival time.</li>
+<li><strong>Resource Management</strong>: Using <a href="../cell_tissue/SyncQueue/capacity.html">capacity</a> constraints to prevent memory
+bloat in high-frequency dependency graphs.</li>
+<li><strong>Concurrency Safety</strong>: Protecting the internal binary heap from "State
+Tearing" during simultaneous async mutations.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Priority Ordering</strong>: Manages an internal <a href="../cell_tissue/PriorityQueue-class.html">PriorityQueue</a> (binary heap)
+to maintain O(log n) efficiency for ranked operations.</li>
+<li><strong>Atomic Synchronization</strong>: Wraps all somatic operations in a non-recursive
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>, ensuring structural integrity during mutations.</li>
+<li><strong>Async Interface</strong>: Exposes a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>-based API, aligning with the
+framework's non-blocking concurrency model.</li>
+<li><strong>Metabolic Gating</strong>: Enforces the <a href="../cell_tissue/SyncQueue/capacity.html">capacity</a> limit during <a href="../cell_tissue/SyncQueue/add.html">add</a> and
+<a href="../cell_tissue/SyncQueue/addAll.html">addAll</a> operations, throwing a <a href="https://api.flutter.dev/flutter/dart-core/StateError-class.html">StateError</a> if exceeded.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Snapshot Isolation</strong>: Use <a href="../cell_tissue/SyncQueue/replicate.html">replicate</a> for long-running iterations or
+mappings to avoid holding the genotypic lock and blocking other actors.</li>
+<li><strong>Traversal Order</strong>: The internal iterator does not guarantee priority
+order. Use sequential <a href="../cell_tissue/SyncQueue/removeFirst.html">removeFirst</a> calls for ranked extraction.</li>
+<li><strong>Bubble Penalty</strong>: Structural repairs after arbitrary removals are O(n);
+prefer <a href="../cell_tissue/SyncQueue/removeFirst.html">removeFirst</a> (O(log n)) for optimal throughput.</li>
+<li><strong>Zero-Blocking</strong>: The underlying lock ensures the calling thread remains
+available for other tasks while waiting for queue access.</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">// Higher number = Higher priority
+final buffer = SyncQueue&lt;int&gt;(
+  comparison: (a, b) =&gt; b.compareTo(a),
+  capacity: 100
+);
+
+await buffer.add(10);
+await buffer.add(50);
+
+// Highest priority (50) comes out first
+print(await buffer.removeFirst()); // 50
+</code></pre>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><strong><code>E</code></strong>: The type of elements held in the buffer. Must be <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>
+if no custom comparison function is provided.</li>
+</ul>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../cell_tissue/PriorityQueue-class.html">PriorityQueue</a>: The underlying non-synchronized somatic hierarchy.</li>
+<li><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>: The mechanism governing synchronized access.</li>
+<li><a href="../cell_tissue/AsyncPriorityQueue-class.html">AsyncPriorityQueue</a>: For a simpler async wrapper without capacity limits.</li>
 </ul>
 </section>
 
@@ -484,7 +522,7 @@ unlimited metabolic capacity.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>

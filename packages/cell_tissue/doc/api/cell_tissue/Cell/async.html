@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
     <li><a href="../../cell_tissue/Cell-class.html">Cell</a></li>
     <li class="self-crumb">async property</li>
   </ol>
@@ -72,22 +72,52 @@
 <p>This getter returns a <a href="../../cell_tissue/ModifiableAsync-class.html">ModifiableAsync</a> wrapper, which serves as the
 primary architectural bridge between the synchronous reactive graph and
 Dart's asynchronous execution model (<a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>s and <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a>s).</p>
+<h3 id="the-temporal-bridge">The Temporal Bridge</h3>
+<p>While the core of a <a href="../../cell_tissue/Cell-class.html">Cell</a> is designed for synchronous, atomic
+transitions within the reactive topology, real-world applications
+frequently require non-blocking operations. The <a href="../../cell_tissue/Cell/async.html">async</a> handle allows
+for <strong>Hybrid Convergence</strong>, where imperative, time-delayed logic
+safely interacts with the cell's protected state.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Use this when you need to perform a command or read state asynchronously,
-especially from UI event handlers or background tasks.</p>
-<h3 id="how-it-works">How it works</h3>
 <ul>
-<li>All operations are scheduled through the cell's lock.</li>
-<li>The result is wrapped in a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>.</li>
+<li><strong>UI Interaction</strong>: Dispatching commands from event handlers (e.g.,
+<code>onPressed</code>) without blocking the main isolate.</li>
+<li><strong>Background Orchestration</strong>: Executing business logic that involves
+I/O or heavy computation while maintaining reactive integrity.</li>
+<li><strong>Serialized Transitions</strong>: When multiple mutations must be queued
+and executed in order, ensuring no race conditions occur during
+asynchronous gaps.</li>
 </ul>
-<h3 id="example">Example:</h3>
-<pre class="language-dart"><code class="language-dart">final cell = Cell();
-final result = await cell.async.apply((x) =&gt; x + 1, [5]);
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Lock Orchestration</strong>: All operations performed via <a href="../../cell_tissue/Cell/async.html">async</a> (such
+as <code>apply</code> or <code>read</code>) are automatically scheduled through the cell's
+internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>. This guarantees atomicity even when calls originate
+from different asynchronous contexts.</li>
+<li><strong>Future Wrapping</strong>: Standard methods like <a href="../../cell_tissue/Cell/apply.html">apply</a> are mirrored here
+but return a <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a>, allowing the caller to <code>await</code> the result of
+the reactive transition.</li>
+<li><strong>Capability Preservation</strong>: The <a href="../../cell_tissue/Cell/async.html">async</a> handle respects the
+underlying node's <a href="../../cell_tissue/Cell/modifiable.html">modifiable</a> manifest and <a href="../../cell_tissue/TestCell-class.html">TestCell</a> rules. If
+called on an <a href="../../cell_tissue/Cell/unmodifiable.html">unmodifiable</a> deputy, the async mutation methods
+will still respect the restricted capability policy.</li>
+</ol>
+<h3 id="example-asynchronous-command-execution">Example: Asynchronous Command Execution</h3>
+<pre class="language-dart"><code class="language-dart">void onDepositPressed(int amount) async {
+  // The async handle allows awaiting the completion of the transition
+  final success = await userBalanceCell.async.apply(
+    (current) =&gt; current + amount
+  );
+
+  if (success != null) {
+    print('Deposit processed successfully.');
+  }
+}
 </code></pre>
 <h3 id="returns">Returns:</h3>
 <p>A <a href="../../cell_tissue/ModifiableAsync-class.html">ModifiableAsync</a> wrapper specialized for this <a href="../../cell_tissue/Cell-class.html">Cell</a>, providing
-a suite of asynchronous tools for command execution and state
-observation.</p>
+a suite of asynchronous tools for command execution, state
+observation, and signal ingestion.</p>
 </section>
 
     
@@ -123,7 +153,7 @@ observation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.3
   </span>
   
 </footer>
