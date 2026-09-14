@@ -745,7 +745,7 @@ abstract final class _robot {
 /// ❌ TestCell on state cell: Invalid values enter state, then are rejected
 /// ✅ TestCell on ingress: Invalid values are blocked at the boundary
 final TestCell stockIntegrity = TestCell<Cell>(
-      (value, {host, arguments, user}) {
+  (value, {host, arguments, user}) {
     final n = value is Pulse ? value.payload : value;
     if (n is! int) return true;
     if (n < 0) {
@@ -850,7 +850,7 @@ class ConfirmGate {
   FlowInstruction<Cell, Pulse<String>, Pulse<String>> _buildConfirmGate() {
     // Step 1: Normalize the input
     final normalize = FlowInstruction<Cell, Pulse<String>, Pulse<String>>(
-          (pulse, {cell, user}) {
+      (pulse, {cell, user}) {
         final normalized = (pulse.payload ?? '').trim().toUpperCase();
         print('    📋 [GATE] Normalized: "$normalized"');
         return Pulse<String>(normalized);
@@ -859,7 +859,7 @@ class ConfirmGate {
 
     // Step 2: Filter - only allow NDC format
     final filterNdc = FlowInstruction<Cell, Pulse<String>, Pulse<String>>(
-          (pulse, {cell, user}) {
+      (pulse, {cell, user}) {
         final value = pulse.payload ?? '';
         if (!value.startsWith('NDC')) {
           print('    ❌ [GATE] Invalid NDC format: $value');
@@ -930,7 +930,8 @@ Future<void> dispenseMemory(String code) async {
     tx.update(label.cell, true);
     print('  │ 📝  Staged → Stock: ${onHand - 1}  |  Label: true');
     await tx.commit();
-    print('  │ ✅  COMMITTED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
+    print(
+        '  │ ✅  COMMITTED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
     print('  └─────────────────────────────────────────────────────────────');
   } catch (e) {
     print('  │ ❌  TRANSACTION FAILED: $e');
@@ -971,7 +972,8 @@ Future<void> restorePack(String reason) async {
   tx.update(stock.cell, onHand + 1);
   tx.update(label.cell, false);
   await tx.commit();
-  print('  │ ✅  RESTORED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
+  print(
+      '  │ ✅  RESTORED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
   print('  └─────────────────────────────────────────────────────────────');
 }
 
@@ -1080,9 +1082,11 @@ Future<void> closeDrawer() async {
 /// THROWS:
 ///   Any exception from the underlying operations
 Future<void> fullDispense(String code, {bool printTicket = true}) async {
-  print('\n╔═══════════════════════════════════════════════════════════════════╗');
+  print(
+      '\n╔═══════════════════════════════════════════════════════════════════╗');
   print('║  🏥 [DISPENSE] Starting full dispense for: $code');
-  print('╚═══════════════════════════════════════════════════════════════════╝');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════╝');
 
   var memoryCommitted = false;
   try {
@@ -1117,15 +1121,19 @@ Future<void> fullDispense(String code, {bool printTicket = true}) async {
 /// - Label printed status
 /// - Hardware status
 void printStatus() {
-  print('\n┌───────────────────────────────────────────────────────────────────┐');
-  print('│ 📊  SYSTEM STATUS                                                 │');
-  print('├───────────────────────────────────────────────────────────────────┤');
+  print(
+      '\n┌───────────────────────────────────────────────────────────────────┐');
+  print(
+      '│ 📊  SYSTEM STATUS                                                 │');
+  print(
+      '├───────────────────────────────────────────────────────────────────┤');
   print('│  Patient  │  ${patient.cell.value?.padRight(20)}  │');
   print('│  Stock    │  ${stock.cell.value.toString().padRight(20)}  │');
   print('│  Drawer   │  ${(drawer.cell.value ?? 'closed').padRight(20)}  │');
   print('│  Label    │  ${label.cell.value.toString().padRight(20)}  │');
   print('│  Hardware │  ${_robot.status.padRight(20)}  │');
-  print('└───────────────────────────────────────────────────────────────────┘');
+  print(
+      '└───────────────────────────────────────────────────────────────────┘');
 }
 
 /// Reset the system to initial state
@@ -1138,9 +1146,12 @@ void printStatus() {
 /// - Drawer: closed
 /// - Label: unprinted
 void resetSystem({int packs = 5}) {
-  print('\n┌───────────────────────────────────────────────────────────────────┐');
-  print('│ 🔄  RESET SYSTEM → Stock: $packs                                  │');
-  print('└───────────────────────────────────────────────────────────────────┘');
+  print(
+      '\n┌───────────────────────────────────────────────────────────────────┐');
+  print(
+      '│ 🔄  RESET SYSTEM → Stock: $packs                                  │');
+  print(
+      '└───────────────────────────────────────────────────────────────────┘');
   _robot.reset();
   patient.update('P-4419');
   stock.update(packs);
@@ -1152,10 +1163,14 @@ void resetSystem({int packs = 5}) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 void main() async {
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  💊  PHARMACY DISPENSE — transaction + TestCell + compensate        ║');
-  print('║  Demonstrating atomic transactions + security + hardware recovery   ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  💊  PHARMACY DISPENSE — transaction + TestCell + compensate        ║');
+  print(
+      '║  Demonstrating atomic transactions + security + hardware recovery   ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
 
   resetSystem();
 
@@ -1180,12 +1195,18 @@ void main() async {
   // ── SCENARIO 1: Happy Path ──────────────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🟢  SCENARIO 1: SUCCESSFUL DISPENSING                              ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Complete workflow with all systems working correctly      ║');
-  print('║  Expected: Stock 5→4, Label false→true, Drawer opens→closes        ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🟢  SCENARIO 1: SUCCESSFUL DISPENSING                              ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Complete workflow with all systems working correctly      ║');
+  print(
+      '║  Expected: Stock 5→4, Label false→true, Drawer opens→closes        ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   gate.scan('NDC-12345');
   await Future<void>.delayed(const Duration(seconds: 1));
   await Future.wait(inFlight);
@@ -1194,24 +1215,36 @@ void main() async {
   // ── SCENARIO 2: Invalid NDC ──────────────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🔴  SCENARIO 2: INVALID NDC FORMAT                                 ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Validation pipeline rejects invalid input                 ║');
-  print('║  Expected: Scan rejected, no state changes                         ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🔴  SCENARIO 2: INVALID NDC FORMAT                                 ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Validation pipeline rejects invalid input                 ║');
+  print(
+      '║  Expected: Scan rejected, no state changes                         ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   gate.scan('invalid-code');
   await Future<void>.delayed(const Duration(milliseconds: 200));
 
   // ── SCENARIO 3: Out of Stock ─────────────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🟡  SCENARIO 3: OUT OF STOCK                                       ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Edge case handling when stock reaches zero                ║');
-  print('║  Expected: 2 successful dispenses, 3rd fails (stock=0)              ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🟡  SCENARIO 3: OUT OF STOCK                                       ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Edge case handling when stock reaches zero                ║');
+  print(
+      '║  Expected: 2 successful dispenses, 3rd fails (stock=0)              ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   resetSystem(packs: 2);
 
   // First dispense (stock: 2 → 1)
@@ -1244,12 +1277,18 @@ void main() async {
   // ── SCENARIO 4: Printer Jam + Compensation ──────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🟡  SCENARIO 4: PRINTER JAM + COMPENSATION                         ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Hardware failure recovery with manual compensation        ║');
-  print('║  Expected: Stock 3→2, Printer jams, Stock restored to 3             ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🟡  SCENARIO 4: PRINTER JAM + COMPENSATION                         ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Hardware failure recovery with manual compensation        ║');
+  print(
+      '║  Expected: Stock 3→2, Printer jams, Stock restored to 3             ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   resetSystem(packs: 3);
   _robot.jamNextPrint = true;
   gate.scan('NDC-JAM');
@@ -1265,12 +1304,18 @@ void main() async {
   // ── SCENARIO 5: Last-Pack Race ──────────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🟠  SCENARIO 5: LAST-PACK RACE                                     ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Race condition prevention with commit-time locking        ║');
-  print('║  Expected: Stock 1→0, exactly one success, one fail                ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🟠  SCENARIO 5: LAST-PACK RACE                                     ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Race condition prevention with commit-time locking        ║');
+  print(
+      '║  Expected: Stock 1→0, exactly one success, one fail                ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   resetSystem(packs: 1);
 
   print('\n  ┌─────────────────────────────────────────────────────────────');
@@ -1291,12 +1336,18 @@ void main() async {
   // ── SCENARIO 6: TestCell on Ingress ─────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  🟣  SCENARIO 6: TESTCELL ON INGRESS                               ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  Testing: Security boundary prevents invalid values                 ║');
-  print('║  Expected: Negative stock value is blocked by TestCell              ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  🟣  SCENARIO 6: TESTCELL ON INGRESS                               ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  Testing: Security boundary prevents invalid values                 ║');
+  print(
+      '║  Expected: Negative stock value is blocked by TestCell              ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
   resetSystem(packs: 0);
   print('\n  ┌─────────────────────────────────────────────────────────────');
   print('  │ 🧪  ATTEMPTING: stockIn.emit(-1)');
@@ -1312,31 +1363,56 @@ void main() async {
   // ── Demo Complete ────────────────────────────────────────────────────────────
 
   print('\n\n');
-  print('╔═══════════════════════════════════════════════════════════════════════╗');
-  print('║  ✅  DEMO COMPLETE                                                   ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║                                                                      ║');
-  print('║  ┌──────────┬─────────────────────────┬────────────────────────────┐ ║');
-  print('║  │ SCENARIO │ RESULT                  │ WHAT IT PROVES             │ ║');
-  print('║  ├──────────┼─────────────────────────┼────────────────────────────┤ ║');
-  print('║  │ 1: 🟢   │ Stock: 5→4, Label: true │ Happy path works           │ ║');
-  print('║  │ 2: 🔴   │ Invalid scan rejected   │ Security works             │ ║');
-  print('║  │ 3: 🟡   │ Stock: 2→0→attempt fails│ Edge cases work            │ ║');
-  print('║  │ 4: 🟡   │ Stock: 3→2→3 (restored) │ Recovery works             │ ║');
-  print('║  │ 5: 🟠   │ Stock: 1→0, one success │ Race prevention works      │ ║');
-  print('║  │ 6: 🟣   │ Negative stock blocked  │ TestCell works             │ ║');
-  print('║  └──────────┴─────────────────────────┴────────────────────────────┘ ║');
-  print('║                                                                      ║');
-  print('║  💡  KEY TAKEAWAYS:                                                  ║');
-  print('║  ───────────────────────────────────────────────────────────────────  ║');
-  print('║  1. TestCell on ingress creates a security boundary                 ║');
-  print('║  2. Cell.transaction provides atomic multi-cell updates            ║');
-  print('║  3. Manual compensation handles hardware failures gracefully        ║');
-  print('║  4. Commit-time locking prevents race conditions                    ║');
-  print('║  5. FlowInstruction validates and filters input                     ║');
-  print('║  6. State management with ValueCell provides clean separation       ║');
-  print('║                                                                      ║');
-  print('╚═══════════════════════════════════════════════════════════════════════╝');
+  print(
+      '╔═══════════════════════════════════════════════════════════════════════╗');
+  print(
+      '║  ✅  DEMO COMPLETE                                                   ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║                                                                      ║');
+  print(
+      '║  ┌──────────┬─────────────────────────┬────────────────────────────┐ ║');
+  print(
+      '║  │ SCENARIO │ RESULT                  │ WHAT IT PROVES             │ ║');
+  print(
+      '║  ├──────────┼─────────────────────────┼────────────────────────────┤ ║');
+  print(
+      '║  │ 1: 🟢   │ Stock: 5→4, Label: true │ Happy path works           │ ║');
+  print(
+      '║  │ 2: 🔴   │ Invalid scan rejected   │ Security works             │ ║');
+  print(
+      '║  │ 3: 🟡   │ Stock: 2→0→attempt fails│ Edge cases work            │ ║');
+  print(
+      '║  │ 4: 🟡   │ Stock: 3→2→3 (restored) │ Recovery works             │ ║');
+  print(
+      '║  │ 5: 🟠   │ Stock: 1→0, one success │ Race prevention works      │ ║');
+  print(
+      '║  │ 6: 🟣   │ Negative stock blocked  │ TestCell works             │ ║');
+  print(
+      '║  └──────────┴─────────────────────────┴────────────────────────────┘ ║');
+  print(
+      '║                                                                      ║');
+  print(
+      '║  💡  KEY TAKEAWAYS:                                                  ║');
+  print(
+      '║  ───────────────────────────────────────────────────────────────────  ║');
+  print(
+      '║  1. TestCell on ingress creates a security boundary                 ║');
+  print(
+      '║  2. Cell.transaction provides atomic multi-cell updates            ║');
+  print(
+      '║  3. Manual compensation handles hardware failures gracefully        ║');
+  print(
+      '║  4. Commit-time locking prevents race conditions                    ║');
+  print(
+      '║  5. FlowInstruction validates and filters input                     ║');
+  print(
+      '║  6. State management with ValueCell provides clean separation       ║');
+  print(
+      '║                                                                      ║');
+  print(
+      '╚═══════════════════════════════════════════════════════════════════════╝');
 
   print('\n📊 FINAL STATUS:');
   printStatus();

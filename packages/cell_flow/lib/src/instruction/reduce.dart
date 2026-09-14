@@ -23,7 +23,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef ReduceErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef ReduceErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────
 // Helper Functions
@@ -65,13 +66,14 @@ Pulse<A> _out<A>(A value, Pulse trigger, Cell? cell, String step) {
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      ReduceErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  ReduceErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -338,36 +340,36 @@ class Reduce<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ReduceMachine]: For event-driven state transitions.
   /// - [AsyncFold]: For asynchronous accumulation.
   Reduce(
-      A seed,
-      A Function(A acc, S value) reduce, {
-        ReduceSnapshot<A>? snapshot,
-        ReduceErrorHandler? onError,
-        dynamic user,
-      }) : this._(reduce, snapshot ?? ReduceSnapshot<A>(seed), onError, user);
+    A seed,
+    A Function(A acc, S value) reduce, {
+    ReduceSnapshot<A>? snapshot,
+    ReduceErrorHandler? onError,
+    dynamic user,
+  }) : this._(reduce, snapshot ?? ReduceSnapshot<A>(seed), onError, user);
 
   Reduce._(
-      A Function(A acc, S value) reduce,
-      this.snapshot,
-      ReduceErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final snap = snapshot;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          snap.value = reduce(snap.value, typed.payload as S);
-          snap.generation++;
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _out<A>(snap.value, typed, cell, 'Reduce');
-      };
-    })(),
-    user: user,
-  );
+    A Function(A acc, S value) reduce,
+    this.snapshot,
+    ReduceErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final snap = snapshot;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                snap.value = reduce(snap.value, typed.payload as S);
+                snap.generation++;
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _out<A>(snap.value, typed, cell, 'Reduce');
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -506,27 +508,27 @@ class ReduceSelect<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Reduce]: For maintaining state.
   /// - [ReduceMachine]: For event-driven state.
   ReduceSelect(
-      T Function(S value) select, {
-        ReduceErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        return _out<T>(
-          select(typed.payload as S),
-          typed,
-          cell,
-          'ReduceSelect',
+    T Function(S value) select, {
+    ReduceErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              return _out<T>(
+                select(typed.payload as S),
+                typed,
+                cell,
+                'ReduceSelect',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -719,46 +721,46 @@ class ReduceMachine<E, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ReduceSelect]: For projecting a slice.
   /// - [AsyncFold]: For asynchronous accumulation.
   ReduceMachine(
-      A seed,
-      A Function(A acc, E event) transition, {
-        ReduceSnapshot<A>? snapshot,
-        bool emitIfUnchanged = true,
-        ReduceErrorHandler? onError,
-        dynamic user,
-      }) : this._(
-    transition,
-    snapshot ?? ReduceSnapshot<A>(seed),
-    emitIfUnchanged,
-    onError,
-    user,
-  );
+    A seed,
+    A Function(A acc, E event) transition, {
+    ReduceSnapshot<A>? snapshot,
+    bool emitIfUnchanged = true,
+    ReduceErrorHandler? onError,
+    dynamic user,
+  }) : this._(
+          transition,
+          snapshot ?? ReduceSnapshot<A>(seed),
+          emitIfUnchanged,
+          onError,
+          user,
+        );
 
   ReduceMachine._(
-      A Function(A acc, E event) transition,
-      this.snapshot,
-      bool emitIfUnchanged,
-      ReduceErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final snap = snapshot;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<E>(pulse, onError: onError);
-        if (typed == null) return null;
-        final previous = snap.value;
-        try {
-          snap.value = transition(previous, typed.payload as E);
-          snap.generation++;
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        if (!emitIfUnchanged && snap.value == previous) return null;
-        return _out<A>(snap.value, typed, cell, 'ReduceMachine');
-      };
-    })(),
-    user: user,
-  );
+    A Function(A acc, E event) transition,
+    this.snapshot,
+    bool emitIfUnchanged,
+    ReduceErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final snap = snapshot;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<E>(pulse, onError: onError);
+              if (typed == null) return null;
+              final previous = snap.value;
+              try {
+                snap.value = transition(previous, typed.payload as E);
+                snap.generation++;
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              if (!emitIfUnchanged && snap.value == previous) return null;
+              return _out<A>(snap.value, typed, cell, 'ReduceMachine');
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -853,7 +855,7 @@ Future<void> main() async {
 
   final reduce = Reduce<int, int>(
     0,
-        (acc, n) => acc + n,
+    (acc, n) => acc + n,
   );
 
   final sums = reduce.toHandle(source: nums.cell);
@@ -866,7 +868,8 @@ Future<void> main() async {
   await nums.emitAsync(1);
   await nums.emitAsync(2);
 
-  print('   snapshot=${reduce.snapshot.value} gen=${reduce.snapshot.generation}');
+  print(
+      '   snapshot=${reduce.snapshot.value} gen=${reduce.snapshot.generation}');
 
   rObs.stop();
   print('');
@@ -879,7 +882,7 @@ Future<void> main() async {
   final rows = Cell.ingress<Map<String, Object>>();
 
   final names = ReduceSelect<Map<String, Object>, Object>(
-        (m) => m['name']!,
+    (m) => m['name']!,
   ).toHandle(source: rows.cell);
 
   final sObs = Cell.observe(
@@ -901,7 +904,7 @@ Future<void> main() async {
 
   final machine = ReduceMachine<String, int>(
     0,
-        (acc, event) {
+    (acc, event) {
       return switch (event) {
         'inc' => acc + 1,
         'dec' => acc - 1,

@@ -264,14 +264,14 @@ class SensorReading {
   bool get isAnomaly => temperature > 35 || temperature < 0 || humidity > 95;
 
   Map<String, dynamic> toJson() => {
-    'sensorId': sensorId,
-    'temperature': temperature,
-    'humidity': humidity,
-    'pressure': pressure,
-    'timestamp': timestamp.toIso8601String(),
-    'status': status,
-    'isAnomaly': isAnomaly,
-  };
+        'sensorId': sensorId,
+        'temperature': temperature,
+        'humidity': humidity,
+        'pressure': pressure,
+        'timestamp': timestamp.toIso8601String(),
+        'status': status,
+        'isAnomaly': isAnomaly,
+      };
 
   @override
   String toString() =>
@@ -299,14 +299,14 @@ class WebMetric {
   }) : timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
-    'sessionId': sessionId,
-    'userId': userId,
-    'page': page,
-    'action': action,
-    'duration': duration,
-    'timestamp': timestamp.toIso8601String(),
-    'metadata': metadata,
-  };
+        'sessionId': sessionId,
+        'userId': userId,
+        'page': page,
+        'action': action,
+        'duration': duration,
+        'timestamp': timestamp.toIso8601String(),
+        'metadata': metadata,
+      };
 
   @override
   String toString() => 'Metric($sessionId): $action on $page (${duration}ms)';
@@ -331,13 +331,13 @@ class SystemMetric {
   bool get isAnomaly => value > 90 && status != 'normal';
 
   Map<String, dynamic> toJson() => {
-    'metricName': metricName,
-    'value': value,
-    'unit': unit,
-    'status': status,
-    'timestamp': timestamp.toIso8601String(),
-    'isAnomaly': isAnomaly,
-  };
+        'metricName': metricName,
+        'value': value,
+        'unit': unit,
+        'status': status,
+        'timestamp': timestamp.toIso8601String(),
+        'isAnomaly': isAnomaly,
+      };
 
   @override
   String toString() => 'SystemMetric: $metricName = $value$unit';
@@ -393,7 +393,8 @@ class WebSocketSimulator {
   Timer? _timer;
   int _messageCount = 0;
 
-  WebSocketSimulator() : _controller = StreamController<Map<String, dynamic>>.broadcast();
+  WebSocketSimulator()
+      : _controller = StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 
@@ -428,7 +429,8 @@ class SensorSimulator {
   final String sensorId;
   int _readingCount = 0;
 
-  SensorSimulator(this.sensorId) : _controller = StreamController<SensorReading>.broadcast();
+  SensorSimulator(this.sensorId)
+      : _controller = StreamController<SensorReading>.broadcast();
 
   Stream<SensorReading> get stream => _controller.stream;
 
@@ -460,8 +462,20 @@ class WebMetricSimulator {
   final StreamController<WebMetric> _controller;
   Timer? _timer;
   int _metricCount = 0;
-  final List<String> _pages = ['/home', '/products', '/checkout', '/profile', '/dashboard'];
-  final List<String> _actions = ['pageview', 'click', 'scroll', 'submit', 'navigate'];
+  final List<String> _pages = [
+    '/home',
+    '/products',
+    '/checkout',
+    '/profile',
+    '/dashboard'
+  ];
+  final List<String> _actions = [
+    'pageview',
+    'click',
+    'scroll',
+    'submit',
+    'navigate'
+  ];
 
   WebMetricSimulator() : _controller = StreamController<WebMetric>.broadcast();
 
@@ -503,10 +517,17 @@ class WebMetricSimulator {
 class SystemMetricSimulator {
   final StreamController<SystemMetric> _controller;
   Timer? _timer;
-  final List<String> _metrics = ['cpu_usage', 'memory_usage', 'disk_usage', 'network_io', 'response_time'];
+  final List<String> _metrics = [
+    'cpu_usage',
+    'memory_usage',
+    'disk_usage',
+    'network_io',
+    'response_time'
+  ];
   final List<String> _units = ['%', '%', '%', 'MB/s', 'ms'];
 
-  SystemMetricSimulator() : _controller = StreamController<SystemMetric>.broadcast();
+  SystemMetricSimulator()
+      : _controller = StreamController<SystemMetric>.broadcast();
 
   Stream<SystemMetric> get stream => _controller.stream;
 
@@ -543,7 +564,8 @@ class SystemMetricSimulator {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Real-Time Data Pipeline Demo ──────────────────────────────────────────\n');
+  print(
+      '── Real-Time Data Pipeline Demo ──────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Stream Bridge - WebSocket Data
@@ -747,20 +769,24 @@ Future<void> main() async {
   // Create a synthetic stream for temperature only
   final tempStream1 = Flow.map<SensorReading, (String, double, DateTime)>(
     sensorHandle1.cell,
-    project: (reading) => (reading.sensorId, reading.temperature, reading.timestamp),
+    project: (reading) =>
+        (reading.sensorId, reading.temperature, reading.timestamp),
   );
 
   final tempStream2 = Flow.map<SensorReading, (String, double, DateTime)>(
     sensorHandle2.cell,
-    project: (reading) => (reading.sensorId, reading.temperature, reading.timestamp),
+    project: (reading) =>
+        (reading.sensorId, reading.temperature, reading.timestamp),
   );
 
   // Aggregate multiple streams using synthesis
   final aggCell = Cell.synthesis<Pulse<Map<String, dynamic>>>(
     [tempStream1.cell, tempStream2.cell],
     aggregator: (sources, emit) {
-      final s1 = (sources.elementAt(0) as ValueCell<(String, double, DateTime)>).value;
-      final s2 = (sources.elementAt(1) as ValueCell<(String, double, DateTime)>).value;
+      final s1 =
+          (sources.elementAt(0) as ValueCell<(String, double, DateTime)>).value;
+      final s2 =
+          (sources.elementAt(1) as ValueCell<(String, double, DateTime)>).value;
 
       if (s1 == null || s2 == null) return null;
 
@@ -786,7 +812,8 @@ Future<void> main() async {
       final avg = data['avg_temp'] as double;
       print('   [Aggregator] 📈 Combined Metrics:');
       print('   - Sensors: ${temps.keys.join(', ')}');
-      print('   - Temperatures: ${temps.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(1)}°C').join(', ')}');
+      print(
+          '   - Temperatures: ${temps.entries.map((e) => '${e.key}: ${e.value.toStringAsFixed(1)}°C').join(', ')}');
       print('   - Average Temperature: ${avg.toStringAsFixed(1)}°C');
       print('   - Timestamp: ${data['timestamp']}');
       print('');
@@ -898,9 +925,12 @@ Future<void> main() async {
       totalReadings++;
 
       // Check data quality
-      final isValid = reading.temperature >= -10 && reading.temperature <= 50 &&
-          reading.humidity >= 0 && reading.humidity <= 100 &&
-          reading.pressure >= 900 && reading.pressure <= 1100;
+      final isValid = reading.temperature >= -10 &&
+          reading.temperature <= 50 &&
+          reading.humidity >= 0 &&
+          reading.humidity <= 100 &&
+          reading.pressure >= 900 &&
+          reading.pressure <= 1100;
 
       if (isValid) {
         validReadings2++;
@@ -908,7 +938,8 @@ Future<void> main() async {
         invalidReadings2++;
       }
 
-      completenessScore = totalReadings > 0 ? (validReadings2 / totalReadings) * 100 : 0;
+      completenessScore =
+          totalReadings > 0 ? (validReadings2 / totalReadings) * 100 : 0;
 
       return {
         'totalReadings': totalReadings,
@@ -931,8 +962,10 @@ Future<void> main() async {
     source: validStream.cell,
     effect: (Pulse p) {
       final data = p.payload as Map<String, dynamic>;
-      print('   [Quality] ✅ Data quality check passed: ${data['validReadings2']} records');
-      print('   [Quality] ✅ Completeness score: ${(data['completenessScore'] as double).toStringAsFixed(1)}%');
+      print(
+          '   [Quality] ✅ Data quality check passed: ${data['validReadings2']} records');
+      print(
+          '   [Quality] ✅ Completeness score: ${(data['completenessScore'] as double).toStringAsFixed(1)}%');
     },
   );
 
@@ -989,9 +1022,12 @@ Future<void> main() async {
     effect: (Pulse p) {
       final data = p.payload as Map<String, dynamic>;
       print('   [Enriched] 📊 Sensor ${data['sensorId']}:');
-      print('   - Temperature: ${(data['temperature'] as double).toStringAsFixed(1)}°C');
-      print('   - Heat Index: ${(data['heatIndex'] as double).toStringAsFixed(1)}°C');
-      print('   - Dew Point: ${(data['dewPoint'] as double).toStringAsFixed(1)}°C');
+      print(
+          '   - Temperature: ${(data['temperature'] as double).toStringAsFixed(1)}°C');
+      print(
+          '   - Heat Index: ${(data['heatIndex'] as double).toStringAsFixed(1)}°C');
+      print(
+          '   - Dew Point: ${(data['dewPoint'] as double).toStringAsFixed(1)}°C');
       print('   - Risk Level: ${data['riskLevel']}');
       print('   - Location: ${data['location']}');
       print('');
@@ -1137,7 +1173,8 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1148,11 +1185,11 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a fromStream bridge with the specified stream.
   static FlowHandle fromStream<S>(
-      Cell source, {
-        required Stream<S> stream,
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Stream<S> stream,
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     final instruction = FromStream<S>(
       stream,
       onError: onError,
@@ -1163,39 +1200,41 @@ extension FlowUtils on Flow {
 
   /// Creates a filter transformation.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     final instruction = Filter<S>(test);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a map transformation.
   static FlowHandle map<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+  }) {
     final instruction = MapValue<S, T>(project);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a synthesis cell.
   static FlowHandle synthesis(
-      Iterable<Cell> sources, {
-        required Pulse? Function(Iterable<Cell> cells, Pulse emit) aggregator,
-      }) {
+    Iterable<Cell> sources, {
+    required Pulse? Function(Iterable<Cell> cells, Pulse emit) aggregator,
+  }) {
     final cell = Cell.synthesis<Pulse>(sources, aggregator: aggregator);
     return (
-    cell: cell,
-    emit: (input) => true,
-    emitAsync: (input) async => true,
-    ingest: (Pulse pulse, {bool serializedCompletion = true}) async => Future.value(),
+      cell: cell,
+      emit: (input) => true,
+      emitAsync: (input) async => true,
+      ingest: (Pulse pulse, {bool serializedCompletion = true}) async =>
+          Future.value(),
     );
   }
 }
 
 /// Error handler callback for stream operations.
-typedef StreamErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef StreamErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────────────
 // Helper Functions

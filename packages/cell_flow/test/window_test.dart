@@ -194,7 +194,6 @@ void main() {
     });
   });
 
-
   group('WindowCount extra', () {
     test('size 1 emits singleton windows', () async {
       final b = bind(WindowCount<int>(1));

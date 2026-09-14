@@ -117,8 +117,8 @@ part of '../cell_tissue.dart';
 /// - [TissueReceptor.passThrough] – the default, no‑op receptor.
 /// - [TissueReceptor.pipeline] – for multi‑stage pipelines.
 /// - [TissueReceptor.instruction] – for reusable instruction-based logic.
-abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Receptor<C> {
-
+abstract interface class TissueReceptor<E, C extends Tissue<E>>
+    implements Receptor<C> {
   /// The default, singleton implementation of [TissueReceptor] providing
   /// standardised pulse propagation and structural state synchronisation.
   ///
@@ -188,8 +188,10 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
   /// ### Parameters:
   /// - [instruction]: The transformation logic. Receives the tissue, the pulse,
   ///   and optional `user` data; returns a new pulse or `null` to drop it.
-  factory TissueReceptor(Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
-    return _TissueReceptor<E,C>(instruction: Instruction<C,Pulse,Pulse>((pulse, {C? cell, future, token, dynamic user}) {
+  factory TissueReceptor(
+      Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
+    return _TissueReceptor<E, C>(instruction: Instruction<C, Pulse, Pulse>(
+        (pulse, {C? cell, future, token, dynamic user}) {
       return instruction(cell!, pulse, user: user);
     }));
   }
@@ -225,8 +227,9 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
   /// // Bind it to a receptor
   /// final receptor = TissueReceptor.instruction(auditor, user: 'SecurityLog');
   /// ```
-  factory TissueReceptor.instruction(Instruction<C,Pulse,Pulse> instruction, {dynamic user}) {
-    return _TissueReceptor<E,C>(instruction: instruction, user: user);
+  factory TissueReceptor.instruction(Instruction<C, Pulse, Pulse> instruction,
+      {dynamic user}) {
+    return _TissueReceptor<E, C>(instruction: instruction, user: user);
   }
 
   /// The advanced compositional factory for creating a multi-stage processing
@@ -282,7 +285,7 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
     void Function()? init,
     dynamic Function()? user,
   }) {
-    return _TissueReceptor<E,C>(
+    return _TissueReceptor<E, C>(
       instruction: instruction,
       preProcess: preProcess,
       postProcess: postProcess,
@@ -314,7 +317,7 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
   /// A new [TissueReceptor<E, C>] instance that is functionally
   /// equivalent to this receptor.
   @override
-  TissueReceptor<E,C> get clone;
+  TissueReceptor<E, C> get clone;
 
   /// Returns an asynchronous execution adapter for this receptor.
   ///
@@ -338,5 +341,4 @@ abstract interface class TissueReceptor<E, C extends Tissue<E>> implements Recep
   /// A [ReceptorAsync] instance for non‑blocking execution.
   @override
   ReceptorAsync<C> get async;
-
 }

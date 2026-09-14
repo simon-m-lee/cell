@@ -24,8 +24,8 @@ part of '../../cell.dart';
 /// counter ensures that the collective's completion callback fires only when
 /// **all** sub‑pulses have finished processing.
 class _CollectivePulse<P> extends CollectivePulseBase<P> {
-
-  _CollectivePulse(Iterable<Pulse<P>> pulses, {
+  _CollectivePulse(
+    Iterable<Pulse<P>> pulses, {
     super.policy,
     super.type,
     super.context,
@@ -33,7 +33,8 @@ class _CollectivePulse<P> extends CollectivePulseBase<P> {
     super.source,
     super.step,
     void Function(Pulse pulse)? super.onComplete,
-    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? super.onError,
+    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
+        super.onError,
     void Function(Pulse pulse, Cell cell, {String? message})? super.onProgress,
     super.pulse,
     super.parent,
@@ -43,8 +44,8 @@ class _CollectivePulse<P> extends CollectivePulseBase<P> {
   }) : super(pulses: pulses);
 
   @override
-  UnmodifiableCollectivePulse<P> get unmodifiable => UnmodifiableCollectivePulse<P>._(this);
-
+  UnmodifiableCollectivePulse<P> get unmodifiable =>
+      UnmodifiableCollectivePulse<P>._(this);
 }
 
 /// The abstract base class for [CollectivePulse] implementations.
@@ -90,7 +91,6 @@ class _CollectivePulse<P> extends CollectivePulseBase<P> {
 /// - [Pulse.+] – the operator that creates collective pulses.
 abstract class CollectivePulseBase<P>
     extends _SinglePulseBase<Iterable<Pulse<P>>> implements CollectivePulse<P> {
-
   /// Creates a new collective pulse that bundles multiple individual pulses.
   ///
   /// ### How it works
@@ -142,23 +142,23 @@ abstract class CollectivePulseBase<P>
   ///   onComplete: (Pulse p) =>. print('Batch complete'),
   /// );
   /// ```
-  CollectivePulseBase({
-    Iterable<Pulse<P>>? pulses,
-    super.policy,
-    super.type,
-    super.context,
-    super.timestamp,
-    super.source,
-    super.step,
-    super.onComplete,
-    super.onError,
-    super.onProgress,
-    super.pulse,
-    super.parent,
-    super.scrutinize,
-    super.user,
-    super.priority
-  }) : super(payload: pulses) {
+  CollectivePulseBase(
+      {Iterable<Pulse<P>>? pulses,
+      super.policy,
+      super.type,
+      super.context,
+      super.timestamp,
+      super.source,
+      super.step,
+      super.onComplete,
+      super.onError,
+      super.onProgress,
+      super.pulse,
+      super.parent,
+      super.scrutinize,
+      super.user,
+      super.priority})
+      : super(payload: pulses) {
     final branches = _branches;
     if (branches != null) {
       branches.value = branches.value! + 1;
@@ -192,7 +192,6 @@ abstract class CollectivePulseBase<P>
 
   @override
   String toString() => 'CollectivePulse<$P>($_toString)';
-
 }
 
 /// A concrete implementation of [EvolvedPulse] that represents a causal chain.
@@ -205,7 +204,6 @@ abstract class CollectivePulseBase<P>
 /// Once created, an evolved pulse never changes. The parent chain is fixed
 /// at construction time.
 class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
-
   _EvolvedPulse({
     super.policy,
     super.payload,
@@ -215,7 +213,8 @@ class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
     super.source,
     super.step,
     void Function(Pulse pulse)? super.onComplete,
-    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? super.onError,
+    void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
+        super.onError,
     void Function(Pulse pulse, Cell cell, {String? message})? super.onProgress,
     required super.pulse,
     required super.parent,
@@ -223,7 +222,6 @@ class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
 
   @override
   EvolvedPulseBase<P> get unmodifiable => UnmodifiableEvolvedPulse<P>._(this);
-
 }
 
 /// The abstract base class for [EvolvedPulse] implementations.
@@ -262,8 +260,8 @@ class _EvolvedPulse<P> extends EvolvedPulseBase<P> {
 /// - [EvolvedPulse] – the public interface.
 /// - [Pulse.evolve] – the method that creates evolved pulses.
 /// - [Pulse.withStep] – a convenience wrapper around [evolve].
-abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P> implements EvolvedPulse<P> {
-
+abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P>
+    implements EvolvedPulse<P> {
   final List<PulseBase> _pulses;
 
   /// Creates a new evolved pulse that extends a causal chain.
@@ -317,20 +315,21 @@ abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P> implements Evolve
   EvolvedPulseBase({
     super.policy,
     super.context,
-
     super.payload,
     super.type,
     super.timestamp,
     super.source,
     super.step,
     super.priority,
-
     super.onComplete,
     super.onError,
     super.onProgress,
     required PulseBase pulse,
     required PulseBase parent,
-  }) : _pulses = pulse is EvolvedPulseBase ? [...pulse._pulses, pulse] : [parent, pulse], super(pulse: pulse, parent: parent) {
+  })  : _pulses = pulse is EvolvedPulseBase
+            ? [...pulse._pulses, pulse]
+            : [parent, pulse],
+        super(pulse: pulse, parent: parent) {
     final branches = _branches;
     if (branches != null) {
       branches.value = branches.value! + 1;
@@ -353,7 +352,6 @@ abstract class EvolvedPulseBase<P> extends _SinglePulseBase<P> implements Evolve
 
   @override
   String toString() => 'EvolvedPulse<$P>($_toString)';
-
 }
 
 /// A concrete implementation of a standard (non‑composite) pulse.
@@ -373,25 +371,20 @@ class _Pulse<P> extends _SinglePulseBase<P> {
   _Pulse({
     super.policy,
     super.context,
-
     super.payload,
     super.type,
     super.timestamp,
-
     super.source,
     super.step,
     super.priority,
-
     super.onComplete,
     super.onError,
     super.onProgress,
-
     super.pulse,
     super.parent,
     super.scrutinize,
     super.user,
   }) : super();
-
 }
 
 /// The abstract base class for single (non‑composite) pulses.
@@ -410,23 +403,18 @@ class _Pulse<P> extends _SinglePulseBase<P> {
 /// The string representation is computed once and cached in `_toString` to
 /// avoid repeated string building.
 abstract class _SinglePulseBase<P> extends PulseBase<P> {
-
   _SinglePulseBase({
     super.policy,
     super.context,
-
     super.payload,
     super.type,
     super.timestamp,
-
     super.source,
     super.step,
     super.priority,
-
     super.onComplete,
     super.onError,
     super.onProgress,
-
     super.pulse,
     super.parent,
     super.scrutinize,
@@ -442,12 +430,10 @@ abstract class _SinglePulseBase<P> extends PulseBase<P> {
   late final String _toString = _computeToString();
 
   String _computeToString() {
-    final mask = (
-      (payload != null ? 1 : 0) |
-      (source != null ? 2 : 0) |
-      (type != null ? 4 : 0) |
-      (trace.isNotEmpty ? 8 : 0)
-    );
+    final mask = ((payload != null ? 1 : 0) |
+        (source != null ? 2 : 0) |
+        (type != null ? 4 : 0) |
+        (trace.isNotEmpty ? 8 : 0));
 
     final s = switch (mask) {
       0 => 'null, priority: $priority',
@@ -464,8 +450,10 @@ abstract class _SinglePulseBase<P> extends PulseBase<P> {
       11 => '$payload, source: $source, trace: $trace, priority: $priority',
       12 => 'null, type: $type, trace: $trace, priority: $priority',
       13 => '$payload, type: $type, trace: $trace, priority: $priority',
-      14 => 'null, source: $source, type: $type, trace: $trace, priority: $priority',
-      15 => '$payload, source: $source, type: $type, trace: $trace, priority: $priority',
+      14 =>
+        'null, source: $source, type: $type, trace: $trace, priority: $priority',
+      15 =>
+        '$payload, source: $source, type: $type, trace: $trace, priority: $priority',
       _ => ('something is wrong with the mask: $mask')
     };
     return s;
@@ -473,58 +461,47 @@ abstract class _SinglePulseBase<P> extends PulseBase<P> {
 
   @override
   String toString() => 'Pulse<$P>($_toString)';
-
-
 }
 
 abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
-
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
-  PulseBase({
-    PulseEphemeralPolicy? policy,
-    PulseContext? context,
+  PulseBase(
+      {PulseEphemeralPolicy? policy,
+      PulseContext? context,
+      P? payload,
+      String? type,
+      DateTime? timestamp,
+      Cell? source,
+      String? step,
+      int? priority,
+      Function? onComplete, // void Function(Pulse pulse)? onComplete,
+      Function?
+          onError, // void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+      Function?
+          onProgress, // void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
 
-    P? payload,
-    String? type,
-    DateTime? timestamp,
-    Cell? source,
-    String? step,
-    int? priority,
-
-    Function? onComplete, // void Function(Pulse pulse)? onComplete,
-    Function? onError, // void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
-    Function? onProgress, // void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-
-    Pulse? pulse,
-    Pulse? parent,
-
-    FutureOr<Pulse?> Function(Receptor receptor)? scrutinize,
-    dynamic user
-  }) : _record = mask(
-          policy: policy,
-          context: context,
-
-          payload: payload,
-          type: type,
-          timestamp: timestamp ?? DateTime.now(),
-
-          source: source,
-          step: step,
-          priority: priority,
-
-          onComplete: onComplete,
-          onError: onError,
-          onProgress: onProgress,
-
-          pulse: pulse,
-          parent: parent,
-
-          scrutinize: scrutinize,
-
-          user: user
-        );
+      Pulse? pulse,
+      Pulse? parent,
+      FutureOr<Pulse?> Function(Receptor receptor)? scrutinize,
+      dynamic user})
+      : _record = mask(
+            policy: policy,
+            context: context,
+            payload: payload,
+            type: type,
+            timestamp: timestamp ?? DateTime.now(),
+            source: source,
+            step: step,
+            priority: priority,
+            onComplete: onComplete,
+            onError: onError,
+            onProgress: onProgress,
+            pulse: pulse,
+            parent: parent,
+            scrutinize: scrutinize,
+            user: user);
 
   /// Creates a pulse from an existing record.
   ///
@@ -556,8 +533,8 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   Pulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
     // 1. Validate that the call is meaningful
     assert(
-    pulse != null || step != null || context != null,
-    'Pulse.evolve requires at least `pulse` or `step` or `context` not null.',
+      pulse != null || step != null || context != null,
+      'Pulse.evolve requires at least `pulse` or `step` or `context` not null.',
     );
 
     // 2. Validate internal invariants (Example: Ensure we aren't evolving a pulse with itself)
@@ -568,23 +545,28 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
     // Ensure the new context is a legitimate descendant
     assert(
-    context == null ||
-        this.context == PulseContext.system ||
-        context._parent == this.context,
-    'Causal Integrity Violation: The new context must be evolved from the current pulse context.',
+      context == null ||
+          this.context == PulseContext.system ||
+          context._parent == this.context,
+      'Causal Integrity Violation: The new context must be evolved from the current pulse context.',
     );
 
     if (pulse != null) {
       if (pulse is PulseBase) {
         return pulse._asEvolvedFrom(this, step: step, context: context);
       }
-      return _EvolvedPulse(context: context, step: step, pulse: pulse as PulseBase, parent: this);
+      return _EvolvedPulse(
+          context: context,
+          step: step,
+          pulse: pulse as PulseBase,
+          parent: this);
     }
     return _Pulse<P>(context: context, step: step, parent: this);
   }
 
   /// Wraps [parent] as an [EvolvedPulse] whose payload type is this pulse's [P].
-  Pulse<P> _asEvolvedFrom(PulseBase parent, {String? step, PulseContext? context}) {
+  Pulse<P> _asEvolvedFrom(PulseBase parent,
+      {String? step, PulseContext? context}) {
     return _EvolvedPulse<P>(
       context: context,
       step: step,
@@ -598,16 +580,21 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
   @override
   CollectivePulse operator +(covariant Pulse other) {
-   return other is Pulse<P>
-        ? other is CollectivePulse<P> ? _CollectivePulse<P>([this, other]) : _CollectivePulse<P>([this, other])
-        : other is CollectivePulse ? _CollectivePulse([this, other]) : _CollectivePulse([this, other]);
+    return other is Pulse<P>
+        ? other is CollectivePulse<P>
+            ? _CollectivePulse<P>([this, other])
+            : _CollectivePulse<P>([this, other])
+        : other is CollectivePulse
+            ? _CollectivePulse([this, other])
+            : _CollectivePulse([this, other]);
   }
 
   @override
   PulseBase<P> get unmodifiable => UnmodifiablePulse<P>(this) as PulseBase<P>;
 
   CycleChecker get _checker {
-    final finalBox = get<FinalBox<CycleChecker>>(() => root._record.cycleChecker);
+    final finalBox =
+        get<FinalBox<CycleChecker>>(() => root._record.cycleChecker);
     try {
       return finalBox.value as CycleChecker;
     } catch (e) {
@@ -615,16 +602,13 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
     }
   }
 
-
-
   // ───── primary ─────
 
   /// Main payload.
   @override
   P? get payload {
     return get<P?>(() => _record.root.primary.payload,
-        fallback: () => _pulse?.payload ?? _parent?.payload,
-        orElse: null);
+        fallback: () => _pulse?.payload ?? _parent?.payload, orElse: null);
   }
 
   /// Origin cell (for tracing).
@@ -667,7 +651,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       return context.priority ?? local();
     }
     return local();
-
   }
 
   /// Execution/security context.
@@ -703,24 +686,27 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   }
 
   @override
-  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]) {
+  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]) {
     final scrutinize = _scrutinize;
     if (scrutinize != null) {
       try {
-        if (namedArguments != null && namedArguments.containsKey(#serializedCompletion)) {
-          return scrutinize(receptor, serializedCompletion: namedArguments[#serializedCompletion]);
+        if (namedArguments != null &&
+            namedArguments.containsKey(#serializedCompletion)) {
+          return scrutinize(receptor,
+              serializedCompletion: namedArguments[#serializedCompletion]);
         }
         return scrutinize(receptor);
       } catch (e) {
         return null;
       }
     }
-    
+
     return receptor(this);
   }
 
   @override
-  PulseShell<P,Receptor> get shell => PulseShell<P,Receptor>(this);
+  PulseShell<P, Receptor> get shell => PulseShell<P, Receptor>(this);
 
   /// The **Branch Completion Counter** for composite pulses.
   ///
@@ -831,7 +817,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// completion callback was attached.
   void Function(Pulse pulse)? get _onComplete {
     return get<void Function(Pulse pulse)?>(
-            () => _record.root.callbacks.onComplete,
+        () => _record.root.callbacks.onComplete,
         fallback: () => _parent?._onComplete,
         orElse: null);
   }
@@ -900,9 +886,12 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// A nullable function that receives the error object and optional stack
   /// trace upon a processing failure or policy rejection, or `null` if no
   /// error callback was attached.
-  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? get _onError {
-    return get<void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?>(
-            () => _record.root.callbacks.onError,
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
+      get _onError {
+    return get<
+            void Function(Pulse pulse, Object error,
+                {StackTrace? stackTrace})?>(
+        () => _record.root.callbacks.onError,
         fallback: () => _parent?._onError,
         orElse: null);
   }
@@ -971,7 +960,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   /// callback was attached.
   void Function(Pulse pulse, Cell cell, {String? message})? get _onProgress {
     return get<void Function(Pulse pulse, Cell cell, {String? message})?>(
-            () => _record.root.callbacks.onProgress,
+        () => _record.root.callbacks.onProgress,
         fallback: () => _parent?._onProgress,
         orElse: null);
   }
@@ -1013,36 +1002,28 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
   static Record mask({
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     dynamic payload,
     String? type,
     DateTime? timestamp,
     Cell? source,
     String? step,
-
     Function? onComplete,
     Function? onError,
     Function? onProgress,
-
     int? priority,
     dynamic user,
-
     Pulse? pulse,
     Pulse? parent,
-
     Function? scrutinize,
   }) {
-
     final isGoverned = policy != null || context != null ? true : false;
 
     // Physical reality (Payload, Source, Timestamp, Policy).
-    final primaryMask = (
-        (payload != null ? 1 : 0) |
+    final primaryMask = ((payload != null ? 1 : 0) |
         (source != null ? 2 : 0) |
         (timestamp != null ? 4 : 0) |
         (policy != null ? 8 : 0) |
-        (isGoverned ? 16 : 0)
-    );
+        (isGoverned ? 16 : 0));
 
     final primary = switch (primaryMask) {
       0 => (),
@@ -1060,8 +1041,12 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       12 => (timestamp: timestamp, policy: policy),
       13 => (payload: payload, timestamp: timestamp, policy: policy),
       14 => (source: source, timestamp: timestamp, policy: policy),
-      15 => (payload: payload, source: source, timestamp: timestamp, policy: policy),
-
+      15 => (
+          payload: payload,
+          source: source,
+          timestamp: timestamp,
+          policy: policy
+        ),
       16 => (isGoverned: isGoverned),
       17 => (payload: payload, isGoverned: isGoverned),
       18 => (source: source, isGoverned: isGoverned),
@@ -1069,25 +1054,48 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       20 => (timestamp: timestamp, isGoverned: isGoverned),
       21 => (payload: payload, timestamp: timestamp, isGoverned: isGoverned),
       22 => (source: source, timestamp: timestamp, isGoverned: isGoverned),
-      23 => (payload: payload, source: source, timestamp: timestamp, isGoverned: isGoverned),
+      23 => (
+          payload: payload,
+          source: source,
+          timestamp: timestamp,
+          isGoverned: isGoverned
+        ),
       24 => (policy: policy, isGoverned: isGoverned),
       25 => (payload: payload, policy: policy, isGoverned: isGoverned),
       26 => (source: source, policy: policy, isGoverned: isGoverned),
-      27 => (payload: payload, source: source, policy: policy, isGoverned: isGoverned),
+      27 => (
+          payload: payload,
+          source: source,
+          policy: policy,
+          isGoverned: isGoverned
+        ),
       28 => (timestamp: timestamp, policy: policy, isGoverned: isGoverned),
-      29 => (payload: payload, timestamp: timestamp, policy: policy, isGoverned: isGoverned),
-      30 => (source: source, timestamp: timestamp, policy: policy, isGoverned: isGoverned),
-      31 => (payload: payload, source: source, timestamp: timestamp, policy: policy, isGoverned: isGoverned),
-
+      29 => (
+          payload: payload,
+          timestamp: timestamp,
+          policy: policy,
+          isGoverned: isGoverned
+        ),
+      30 => (
+          source: source,
+          timestamp: timestamp,
+          policy: policy,
+          isGoverned: isGoverned
+        ),
+      31 => (
+          payload: payload,
+          source: source,
+          timestamp: timestamp,
+          policy: policy,
+          isGoverned: isGoverned
+        ),
       _ => ()
     };
 
     // Architectural placement (Type, Context, Metadata, Step).
-    final secondaryMask = (
-        (type != null ? 1 : 0) |
+    final secondaryMask = ((type != null ? 1 : 0) |
         (context != null ? 2 : 0) |
-        (step != null ? 4 : 0)
-    );
+        (step != null ? 4 : 0));
 
     final secondary = switch (secondaryMask) {
       0 => (),
@@ -1103,11 +1111,9 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
     // Tertiary: Governance and Provenance (Priority, Actor, Reason).
     // This represents the "Who" and "Why" behind the signal,
-    final tertiaryMask = (
-        (priority != null ? 1 : 0) |
+    final tertiaryMask = ((priority != null ? 1 : 0) |
         (user != null ? 2 : 0) |
-        (scrutinize != null ? 4 : 0)
-    );
+        (scrutinize != null ? 4 : 0));
 
     final tertiary = switch (tertiaryMask) {
       0 => (),
@@ -1121,11 +1127,9 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       _ => ()
     };
 
-    final callbackMask = (
-        (onComplete != null ? 1 : 0) |
+    final callbackMask = ((onComplete != null ? 1 : 0) |
         (onError != null ? 2 : 0) |
-        (onProgress != null ? 4 : 0)
-    );
+        (onProgress != null ? 4 : 0));
 
     final callbacks = switch (callbackMask) {
       0 => (),
@@ -1133,88 +1137,359 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       2 => (onError: onError),
       3 => (onComplete: onComplete, branches: Box<int>(1), onError: onError),
       4 => (onProgress: onProgress),
-      5 => (onComplete: onComplete, branches: Box<int>(1), onProgress: onProgress),
+      5 => (
+          onComplete: onComplete,
+          branches: Box<int>(1),
+          onProgress: onProgress
+        ),
       6 => (onError: onError, onProgress: onProgress),
-      7 => (onComplete: onComplete, branches: Box<int>(1), onError: onError, onProgress: onProgress),
+      7 => (
+          onComplete: onComplete,
+          branches: Box<int>(1),
+          onError: onError,
+          onProgress: onProgress
+        ),
       _ => ()
     };
 
     final finalMask = ((primaryMask > 0 ? 1 : 0) |
-        (secondaryMask > 0 ? 2 : 0) |
-        (tertiaryMask > 0 ? 4 : 0) |
-        (callbackMask > 0 ? 8 : 0) |
-        (parent != null ? 16 : 0)) |
+            (secondaryMask > 0 ? 2 : 0) |
+            (tertiaryMask > 0 ? 4 : 0) |
+            (callbackMask > 0 ? 8 : 0) |
+            (parent != null ? 16 : 0)) |
         (pulse != null ? 32 : 0);
 
     return switch (finalMask) {
       0 => (cycleChecker: FinalBox<CycleChecker>()),
       1 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary)),
-      2 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary)),
-      3 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary)),
+      2 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary)
+        ),
+      3 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary)
+        ),
       4 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary)),
-      5 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary)),
-      6 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary)),
-      7 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary)),
-      8 => (cycleChecker: FinalBox<CycleChecker>(), root: (callbacks: callbacks)),
-      9 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, callbacks: callbacks)),
-      10 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, callbacks: callbacks)),
-      11 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, callbacks: callbacks)),
-      12 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary, callbacks: callbacks)),
-      13 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary, callbacks: callbacks)),
-      14 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks)),
-      15 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary, callbacks: callbacks)),
-
+      5 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary)
+        ),
+      6 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, tertiary: tertiary)
+        ),
+      7 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, tertiary: tertiary)
+        ),
+      8 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (callbacks: callbacks)
+        ),
+      9 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, callbacks: callbacks)
+        ),
+      10 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, callbacks: callbacks)
+        ),
+      11 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, callbacks: callbacks)
+        ),
+      12 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary, callbacks: callbacks)
+        ),
+      13 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary, callbacks: callbacks)
+        ),
+      14 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks)
+        ),
+      15 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            primary: primary,
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          )
+        ),
       16 => (parent: parent),
-      17 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary), parent: parent),
-      18 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary), parent: parent),
-      19 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary), parent: parent),
-      20 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary), parent: parent),
-      21 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary), parent: parent),
-      22 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary), parent: parent),
-      23 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary), parent: parent),
-      24 => (cycleChecker: FinalBox<CycleChecker>(), root: (callbacks: callbacks), parent: parent),
-      25 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, callbacks: callbacks), parent: parent),
-      26 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, callbacks: callbacks), parent: parent),
-      27 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, callbacks: callbacks), parent: parent),
-      28 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary, callbacks: callbacks), parent: parent),
-      29 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary, callbacks: callbacks), parent: parent),
-      30 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks), parent: parent),
-      31 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary, callbacks: callbacks), parent: parent),
-
+      17 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary),
+          parent: parent
+        ),
+      18 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary),
+          parent: parent
+        ),
+      19 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary),
+          parent: parent
+        ),
+      20 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary),
+          parent: parent
+        ),
+      21 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary),
+          parent: parent
+        ),
+      22 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, tertiary: tertiary),
+          parent: parent
+        ),
+      23 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, tertiary: tertiary),
+          parent: parent
+        ),
+      24 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (callbacks: callbacks),
+          parent: parent
+        ),
+      25 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, callbacks: callbacks),
+          parent: parent
+        ),
+      26 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, callbacks: callbacks),
+          parent: parent
+        ),
+      27 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, callbacks: callbacks),
+          parent: parent
+        ),
+      28 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary, callbacks: callbacks),
+          parent: parent
+        ),
+      29 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
+          parent: parent
+        ),
+      30 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          parent: parent
+        ),
+      31 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            primary: primary,
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          parent: parent
+        ),
       32 => (pulse: pulse),
-      33 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary), pulse: pulse),
-      34 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary), pulse: pulse),
-      35 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary), pulse: pulse),
-      36 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary), pulse: pulse),
-      37 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary), pulse: pulse),
-      38 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary), pulse: pulse),
-      39 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary), pulse: pulse),
-      40 => (cycleChecker: FinalBox<CycleChecker>(), root: (callbacks: callbacks), pulse: pulse),
-      41 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, callbacks: callbacks), pulse: pulse),
-      42 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, callbacks: callbacks), pulse: pulse),
-      43 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, callbacks: callbacks), pulse: pulse),
-      44 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary, callbacks: callbacks), pulse: pulse),
-      45 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary, callbacks: callbacks), pulse: pulse),
-      46 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks), pulse: pulse),
-      47 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary, callbacks: callbacks), pulse: pulse),
-
+      33 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary),
+          pulse: pulse
+        ),
+      34 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary),
+          pulse: pulse
+        ),
+      35 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary),
+          pulse: pulse
+        ),
+      36 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary),
+          pulse: pulse
+        ),
+      37 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary),
+          pulse: pulse
+        ),
+      38 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, tertiary: tertiary),
+          pulse: pulse
+        ),
+      39 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, tertiary: tertiary),
+          pulse: pulse
+        ),
+      40 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (callbacks: callbacks),
+          pulse: pulse
+        ),
+      41 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, callbacks: callbacks),
+          pulse: pulse
+        ),
+      42 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, callbacks: callbacks),
+          pulse: pulse
+        ),
+      43 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, callbacks: callbacks),
+          pulse: pulse
+        ),
+      44 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary, callbacks: callbacks),
+          pulse: pulse
+        ),
+      45 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
+          pulse: pulse
+        ),
+      46 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          pulse: pulse
+        ),
+      47 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            primary: primary,
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          pulse: pulse
+        ),
       48 => (parent: parent, pulse: pulse),
-      49 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary), parent: parent, pulse: pulse),
-      50 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary), parent: parent, pulse: pulse),
-      51 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary), parent: parent, pulse: pulse),
-      52 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary), parent: parent, pulse: pulse),
-      53 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary), parent: parent, pulse: pulse),
-      54 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary), parent: parent, pulse: pulse),
-      55 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary), parent: parent, pulse: pulse),
-      56 => (cycleChecker: FinalBox<CycleChecker>(), root: (callbacks: callbacks), parent: parent, pulse: pulse),
-      57 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, callbacks: callbacks), parent: parent, pulse: pulse),
-      58 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, callbacks: callbacks), parent: parent, pulse: pulse),
-      59 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, callbacks: callbacks), parent: parent, pulse: pulse),
-      60 => (cycleChecker: FinalBox<CycleChecker>(), root: (tertiary: tertiary, callbacks: callbacks), parent: parent, pulse: pulse),
-      61 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, tertiary: tertiary, callbacks: callbacks), parent: parent, pulse: pulse),
-      62 => (cycleChecker: FinalBox<CycleChecker>(), root: (secondary: secondary, tertiary: tertiary, callbacks: callbacks), parent: parent, pulse: pulse),
-      63 => (cycleChecker: FinalBox<CycleChecker>(), root: (primary: primary, secondary: secondary, tertiary: tertiary, callbacks: callbacks), parent: parent, pulse: pulse),
-
+      49 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary),
+          parent: parent,
+          pulse: pulse
+        ),
+      50 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary),
+          parent: parent,
+          pulse: pulse
+        ),
+      51 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary),
+          parent: parent,
+          pulse: pulse
+        ),
+      52 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary),
+          parent: parent,
+          pulse: pulse
+        ),
+      53 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary),
+          parent: parent,
+          pulse: pulse
+        ),
+      54 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, tertiary: tertiary),
+          parent: parent,
+          pulse: pulse
+        ),
+      55 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, tertiary: tertiary),
+          parent: parent,
+          pulse: pulse
+        ),
+      56 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      57 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      58 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (secondary: secondary, callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      59 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, secondary: secondary, callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      60 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (tertiary: tertiary, callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      61 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (primary: primary, tertiary: tertiary, callbacks: callbacks),
+          parent: parent,
+          pulse: pulse
+        ),
+      62 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          parent: parent,
+          pulse: pulse
+        ),
+      63 => (
+          cycleChecker: FinalBox<CycleChecker>(),
+          root: (
+            primary: primary,
+            secondary: secondary,
+            tertiary: tertiary,
+            callbacks: callbacks
+          ),
+          parent: parent,
+          pulse: pulse
+        ),
       _ => ()
     };
   }
@@ -1279,7 +1554,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
   @override
   int compareTo(Pulse other) {
-
     if (identical(this, other)) {
       return 0;
     }
@@ -1350,39 +1624,46 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       } else {
         return true;
       }
-    },
-        fallback: () => _parent?.isGoverned,
-        orElse: false
-    );
+    }, fallback: () => _parent?.isGoverned, orElse: false);
   }
 
   @override
   List<T> lineage<T>(LineageArgument arg) {
-
     List<T> lineage = [];
     PulseBase? p = this;
     dynamic v;
 
     while (p != null) {
-
       switch (arg) {
         case LineageArgument.payload:
-          v = get<P?>(() => p!._record.root.primary.payload, fallback: () => p!._record.pulse._record.root.primary.payload, orElse: null);
+          v = get<P?>(() => p!._record.root.primary.payload,
+              fallback: () => p!._record.pulse._record.root.primary.payload,
+              orElse: null);
 
         case LineageArgument.source:
-          v = get<Cell?>(() => p!._record.root.primary.source, fallback: () => p!._record.pulse._record.root.primary.source, orElse: null);
+          v = get<Cell?>(() => p!._record.root.primary.source,
+              fallback: () => p!._record.pulse._record.root.primary.source,
+              orElse: null);
 
         case LineageArgument.policy:
-          v = get<PulseEphemeralPolicy?>(() => p!._record.root.primary.policy, fallback: () => p!._record.pulse._record.root.primary.policy,orElse: null);
+          v = get<PulseEphemeralPolicy?>(() => p!._record.root.primary.policy,
+              fallback: () => p!._record.pulse._record.root.primary.policy,
+              orElse: null);
 
         case LineageArgument.type:
-          v = get<String?>(() => p!._record.root.secondary.type, fallback: () => p!._record.pulse._record.root.secondary.type,orElse: null);
+          v = get<String?>(() => p!._record.root.secondary.type,
+              fallback: () => p!._record.pulse._record.root.secondary.type,
+              orElse: null);
 
         case LineageArgument.priority:
-          v = get<int?>(() => p!._record.root.tertiary.priority, fallback: () => p!._record.pulse._record.root.tertiary.priority,orElse: null);
+          v = get<int?>(() => p!._record.root.tertiary.priority,
+              fallback: () => p!._record.pulse._record.root.tertiary.priority,
+              orElse: null);
 
         case LineageArgument.context:
-          v = get<Context?>(() => p!._record.root.secondary.context, fallback: () => p!._record.pulse._record.root.secondary.context,orElse: null);
+          v = get<Context?>(() => p!._record.root.secondary.context,
+              fallback: () => p!._record.pulse._record.root.secondary.context,
+              orElse: null);
       }
 
       if (v != null) {
@@ -1396,7 +1677,6 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
     }
     return lineage.reversed.toList(growable: false);
   }
-
 }
 
 /// Defines the specific data field to be extracted when traversing a [Pulse]'s
@@ -1431,11 +1711,14 @@ enum LineageArgument {
   context,
 }
 
-class UnmodifiableCollectivePulse<P> extends _UnmodifiablePulse<Iterable<Pulse<P>>> implements CollectivePulse<P>, UnmodifiablePulse<Iterable<Pulse<P>>> {
+class UnmodifiableCollectivePulse<P>
+    extends _UnmodifiablePulse<Iterable<Pulse<P>>>
+    implements CollectivePulse<P>, UnmodifiablePulse<Iterable<Pulse<P>>> {
   UnmodifiableCollectivePulse._(CollectivePulse<P> super.source) : super();
 
   @override
-  Iterable<Pulse<P>> get payload => (_source.payload as Iterable<Pulse<P>>).map((e) => e.unmodifiable);
+  Iterable<Pulse<P>> get payload =>
+      (_source.payload as Iterable<Pulse<P>>).map((e) => e.unmodifiable);
 
   @override
   bool get isComposite => true;
@@ -1444,23 +1727,27 @@ class UnmodifiableCollectivePulse<P> extends _UnmodifiablePulse<Iterable<Pulse<P
   Iterator<UnmodifiableCollectivePulse<P>> get iterator => [this].iterator;
 
   @override
-  String toString() => 'UnmodifiableCollectivePulse<$P>(${(_source as CollectivePulseBase<P>)._toString})';
-
+  String toString() =>
+      'UnmodifiableCollectivePulse<$P>(${(_source as CollectivePulseBase<P>)._toString})';
 }
 
-class UnmodifiableEvolvedPulse<P> extends _UnmodifiablePulse<P> implements EvolvedPulseBase<P> {
-
+class UnmodifiableEvolvedPulse<P> extends _UnmodifiablePulse<P>
+    implements EvolvedPulseBase<P> {
   UnmodifiableEvolvedPulse._(EvolvedPulse<P> super.source) : super();
 
   @override
   Pulse get parent => (_source as EvolvedPulse).parent.unmodifiable;
 
   @override
-  String _computeToString() => (_source as EvolvedPulseBase<P>)._computeToString();
+  String _computeToString() =>
+      (_source as EvolvedPulseBase<P>)._computeToString();
 
   @override
   List<PulseBase<dynamic>> get _pulses {
-    return (_source as EvolvedPulseBase<P>)._pulses.map((e) => e.unmodifiable).toList(growable: false);
+    return (_source as EvolvedPulseBase<P>)
+        ._pulses
+        .map((e) => e.unmodifiable)
+        .toList(growable: false);
   }
 
   @override
@@ -1480,7 +1767,6 @@ class _UnmodifiablePulse<P> extends UnmodifiablePulseBase<P> {
   String toString() {
     return 'UnmodifiablePulse<$P>[$type] ${payload ?? "null"}';
   }
-
 }
 
 abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
@@ -1494,28 +1780,30 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
 
   @override
   @override
-  P? get payload {    final sourcePayload = _source.payload;
-  if (sourcePayload == null) return null;
+  P? get payload {
+    final sourcePayload = _source.payload;
+    if (sourcePayload == null) return null;
 
-  if (sourcePayload is Unmodifiable) {
+    if (sourcePayload is Unmodifiable) {
+      return sourcePayload as P;
+    }
+
+    if (sourcePayload is Iterable<Cell>) {
+      return sourcePayload.map((e) => e.unmodifiable).toList(growable: false)
+          as P;
+    }
+
+    if (sourcePayload is Map) {
+      return (Map.of(sourcePayload)
+            ..updateAll((k, v) => v is Cell ? v.unmodifiable : v))
+          .cast() as P;
+    }
+
+    if (sourcePayload is Cell) {
+      return sourcePayload.unmodifiable as P;
+    }
+
     return sourcePayload as P;
-  }
-
-  if (sourcePayload is Iterable<Cell>) {
-    return sourcePayload.map((e) => e.unmodifiable).toList(growable: false) as P;
-  }
-
-  if (sourcePayload is Map) {
-    return (Map.of(sourcePayload)
-      ..updateAll((k, v) => v is Cell ? v.unmodifiable : v))
-        .cast() as P;
-  }
-
-  if (sourcePayload is Cell) {
-    return sourcePayload.unmodifiable as P;
-  }
-
-  return sourcePayload as P;
   }
 
   @override
@@ -1528,8 +1816,8 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
   void Function(Pulse pulse)? get _onComplete => _source._onComplete;
 
   @override
-  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? get _onError =>
-      _source._onError;
+  void Function(Pulse pulse, Object error, {StackTrace? stackTrace})?
+      get _onError => _source._onError;
 
   @override
   void Function(Pulse pulse, Cell cell, {String? message})? get _onProgress =>
@@ -1572,7 +1860,6 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
   Iterator<Pulse> get iterator {
     return _source.map((e) => e.unmodifiable).iterator;
   }
-
 }
 
 /// A specialized **Traversal Guard** and **Topology Validator**, responsible for
@@ -1634,7 +1921,6 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
 /// * [Pulse]: The stimulus that carries the checker through the graph.
 /// * [Receptor]: The primary component that implements this guard.
 class CycleChecker {
-
   /// The set of nodes that have already processed the current stimulus.
   final Set<Cell> _visited = {};
 
@@ -1677,7 +1963,6 @@ class CycleChecker {
   /// Provides a thread-safe, synchronized version of this checker for
   /// asynchronous propagation waves.
   late final SyncCycleChecker async = SyncCycleChecker(this);
-
 }
 
 /// A thread-safe, **Synchronized Circular Dependency Guard** for asynchronous
@@ -1745,7 +2030,6 @@ class CycleChecker {
 /// * [Pulse]: The stimulus that carries this guard through the graph.
 /// * [Receptor]: The primary consumer of this topology guard.
 class SyncCycleChecker {
-
   /// The atomic synchronization primitive used to protect the visitor set.
   final _lock = Lock();
 
@@ -1854,7 +2138,6 @@ class SyncCycleChecker {
 /// * [Receptor]: The primary consumer that interacts with these shells.
 /// * [TestRule]: Often used within scrutiny logic to enforce business invariants.
 abstract interface class Shell<T> {
-
   /// Filters the underlying object through a **Capability Lens**, returning a
   /// version of the data compatible with the caller's authorization scope and intent.
   ///
@@ -1876,8 +2159,8 @@ abstract interface class Shell<T> {
   /// A [dynamic] result representing the **Authorized State**. This may be
   /// the internal kernel itself if **AUTHORIZED**, a redacted copy,
   /// or `null` if the interaction is **NEUTRALIZED** (Fail-Closed).
-  dynamic scrutinize(covariant T object, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]);
-
+  dynamic scrutinize(covariant T object, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]);
 }
 
 /// A specialized [Shell] providing a **Perceptual Projection** of a [Pulse] to
@@ -1950,8 +2233,9 @@ abstract interface class Shell<T> {
 /// * [Pulse]: The underlying stimulus being protected.
 /// * [Receptor]: The primary consumer that interacts with these shells.
 /// * [PulseContext]: The metadata governing the shell's security tier.
-class PulseShell<P, R extends Receptor> with IterableMixin<Pulse> implements Pulse<P>, Shell<R> {
-
+class PulseShell<P, R extends Receptor>
+    with IterableMixin<Pulse>
+    implements Pulse<P>, Shell<R> {
   final PulseBase<P> _kernal;
 
   /// Encapsulates the [Pulse] kernel within a perceptual boundary.
@@ -1974,26 +2258,26 @@ class PulseShell<P, R extends Receptor> with IterableMixin<Pulse> implements Pul
   }
 
   @override
-  PulseShell<P,R> get shell => this;
+  PulseShell<P, R> get shell => this;
 
   @override
   int compareTo(Pulse other) {
     if (identical(this, other)) {
       return 0;
     }
-    
+
     final timeComparison = timestamp.compareTo(other.timestamp);
     if (timeComparison != 0) {
       return timeComparison;
     }
-    
+
     final thisPriority = priority;
     final otherPriority = other.priority;
     final priorityComparison = otherPriority.compareTo(thisPriority);
     if (priorityComparison != 0) {
       return priorityComparison;
     }
-    
+
     return _kernal.trace.length.compareTo(other.trace.length);
   }
 
@@ -2013,8 +2297,6 @@ class PulseShell<P, R extends Receptor> with IterableMixin<Pulse> implements Pul
 
   @override
   bool get isInvalidated => _kernal.isInvalidated;
-
-
 
   @override
   P? get payload => null;
@@ -2044,7 +2326,8 @@ class PulseShell<P, R extends Receptor> with IterableMixin<Pulse> implements Pul
   Pulse<P> get unmodifiable => this;
 
   @override
-  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]) {
+  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]) {
     final validate = _kernal._scrutinize;
     if (validate != null) {
       try {
@@ -2065,5 +2348,4 @@ class PulseShell<P, R extends Receptor> with IterableMixin<Pulse> implements Pul
   List<T> lineage<T>(LineageArgument arg) {
     return const [];
   }
-
 }

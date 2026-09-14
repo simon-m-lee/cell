@@ -5,7 +5,7 @@
 part of '../../cell_tissue.dart';
 
 /// Base type for Tissue test rules
-typedef TestTissueBase<E, C extends Tissue<E>> = TestTissue<E,C>;
+typedef TestTissueBase<E, C extends Tissue<E>> = TestTissue<E, C>;
 
 /// A sentinel implementation of [TestTissue] that always authorises every operation.
 ///
@@ -55,18 +55,18 @@ typedef TestTissueBase<E, C extends Tissue<E>> = TestTissue<E,C>;
 /// - [TestTissue.allowAll] – the canonical constant.
 /// - [TestTissue.readOnly] – the opposite, blocking all mutations.
 class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
-
   const _TestTissueNever() : super.fromRecord(());
 
   @override
   TestTissue<Never, Never> operator +(covariant TestRule<Never> other) {
-    return TestTissue<Never,Never>.chain(const [],
-        strategy: (object, {Never? host, dynamic arguments, dynamic user}) => other.call(object, host: host, arguments: arguments)
-    );
+    return TestTissue<Never, Never>.chain(const [],
+        strategy: (object, {Never? host, dynamic arguments, dynamic user}) =>
+            other.call(object, host: host, arguments: arguments));
   }
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments}) {
     return true;
   }
 
@@ -76,7 +76,8 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
   }
 
   @override
-  FutureOr<bool> element(covariant dynamic element, {required Cell host, Function? action}) {
+  FutureOr<bool> element(covariant dynamic element,
+      {required Cell host, Function? action}) {
     return true;
   }
 
@@ -89,8 +90,6 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
   FutureOr<bool> pulse(covariant Pulse<dynamic> pulse, {required Cell host}) {
     return true;
   }
-
-
 }
 
 /// A sentinel implementation of [TestTissue] that enforces a strict
@@ -137,21 +136,21 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
 /// See also:
 /// - [TestTissue.readOnly] – the canonical constant.
 /// - [TestTissue.allowAll] – the permissive counterpart.
-class _TestTissueReadOnly extends TestTissue<Never,Never> {
-
+class _TestTissueReadOnly extends TestTissue<Never, Never> {
   const _TestTissueReadOnly() : super.fromRecord(());
 
   @override
-  TestTissue<Never,Never> operator +(covariant TestRule<Cell> other) {
-    return TestTissue<Never,Never>(
-          (object, {Cell? host, dynamic arguments, dynamic user}) {
+  TestTissue<Never, Never> operator +(covariant TestRule<Cell> other) {
+    return TestTissue<Never, Never>(
+      (object, {Cell? host, dynamic arguments, dynamic user}) {
         return other.call(object, host: host, arguments: arguments);
       },
     );
   }
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments}) {
     return !host.modifiable.contains(action);
   }
 
@@ -162,5 +161,4 @@ class _TestTissueReadOnly extends TestTissue<Never,Never> {
     }
     return true;
   }
-
 }

@@ -146,7 +146,9 @@ void main() {
         );
       });
 
-      test('readOnly action with arguments still allows non-modifiable tear-offs', () {
+      test(
+          'readOnly action with arguments still allows non-modifiable tear-offs',
+          () {
         final host = Cell();
         void other() {}
         expect(
@@ -246,8 +248,10 @@ void main() {
 
       test('TestCell.chain is fail-fast like +', () {
         final policy = TestCell.chain([
-          TestCell((object, {host, arguments, user}) => object is int && object > 0),
-          TestCell((object, {host, arguments, user}) => object is int && object < 10),
+          TestCell(
+              (object, {host, arguments, user}) => object is int && object > 0),
+          TestCell((object, {host, arguments, user}) =>
+              object is int && object < 10),
         ]);
         expect(policy.call(5), isTrue);
         expect(policy.call(0), isFalse);
@@ -256,8 +260,10 @@ void main() {
 
       test('chains nest', () {
         final a = TestCell((object, {host, arguments, user}) => object is int);
-        final b = TestCell((object, {host, arguments, user}) => object is int && object >= 0);
-        final c = TestCell((object, {host, arguments, user}) => object is int && object <= 10);
+        final b = TestCell(
+            (object, {host, arguments, user}) => object is int && object >= 0);
+        final c = TestCell(
+            (object, {host, arguments, user}) => object is int && object <= 10);
         final policy = (a + b) + c;
         expect(policy.call(7), isTrue);
         expect(policy.call(-1), isFalse);
@@ -305,7 +311,8 @@ void main() {
       });
 
       test('non-pulse objects pass the wrapped call', () {
-        final rule = TestPulseRule<Cell>((pulse, {required host, user}) => false);
+        final rule =
+            TestPulseRule<Cell>((pulse, {required host, user}) => false);
         expect(rule.call(42, host: Cell()), isTrue);
       });
 
@@ -379,7 +386,8 @@ void main() {
         final host = Cell();
         void allowed() {}
         void other() {}
-        final rule = TestActionRule<Cell>((action, {required host, arguments, user}) {
+        final rule =
+            TestActionRule<Cell>((action, {required host, arguments, user}) {
           return identical(action, allowed);
         });
         expect(rule.action(allowed, host: host), isTrue);
@@ -562,7 +570,8 @@ void main() {
       final b = TestRule<int>(always);
       expect(a, b);
       expect(a.hashCode, b.hashCode);
-      expect(a, isNot(TestRule<int>((object, {host, arguments, user}) => false)));
+      expect(
+          a, isNot(TestRule<int>((object, {host, arguments, user}) => false)));
     });
 
     test('fromRecord reconstitutes a callable rule', () {

@@ -75,7 +75,6 @@ typedef StateHandle<V> = ({
 ///
 /// See also: [ValueCell], [Box], [Cell.state].
 class ValueNucleus<V> extends NucleusBase {
-
   ValueNucleus._(super.record) : super.fromRecord();
 
   /// Initializes a new primary `ValueNucleus` – the blueprint for a stateful
@@ -110,29 +109,38 @@ class ValueNucleus<V> extends NucleusBase {
   ///   broadcast to the rest of the graph.
   /// * [user]: **Extended Metadata.** An optional [Record] of application-specific
   ///   traits carried by the nucleus blueprint.
-  ValueNucleus({
-    Pulse<V>? Function(ValueCell<V> host, Pulse input, {dynamic user})? transform,
-
-    Cell? bind,
-    Context context = Context.system,
-    Receptor receptor = Receptor.passThrough,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled,
-    EphemeralPolicy? ephemeralPolicy,
-
-    Record? user,
-    bool forceLock = true
-  }) : this._((
-  local: NucleusBase.mask(
-      bind: bind, context: context, testRule: testRule, synapses: synapses,
-      forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy,
-      receptor: transform != null
-          ? Receptor.pipeline(instruction: Instruction<ValueCell<V>,Pulse,Pulse<V>>((pulse, {cell, user, delayPropagation, token}) => transform(cell!, pulse, user: user)), postProcess: ValueCell.postProcessRule)
-          : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
-      others: (value: Box<V>())
-  )
-  )
-  );
+  ValueNucleus(
+      {Pulse<V>? Function(ValueCell<V> host, Pulse input, {dynamic user})?
+          transform,
+      Cell? bind,
+      Context context = Context.system,
+      Receptor receptor = Receptor.passThrough,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user,
+      bool forceLock = true})
+      : this._((
+          local: NucleusBase.mask(
+              bind: bind,
+              context: context,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: forceLock,
+              user: user,
+              ephemeralPolicy: ephemeralPolicy,
+              receptor: transform != null
+                  ? Receptor.pipeline(
+                      instruction: Instruction<ValueCell<V>, Pulse, Pulse<V>>(
+                          (pulse, {cell, user, delayPropagation, token}) =>
+                              transform(cell!, pulse, user: user)),
+                      postProcess: ValueCell.postProcessRule)
+                  : receptor == Receptor.passThrough
+                      ? Receptor.pipeline(
+                          postProcess: ValueCell.postProcessRule)
+                      : receptor,
+              others: (value: Box<V>()))
+        ));
 
   /// Initializes a new primary `ValueNucleus` using a pre‑configured
   /// [Instruction] – the preferred way to reuse transformation logic.
@@ -168,25 +176,34 @@ class ValueNucleus<V> extends NucleusBase {
   ///   broadcast to the rest of the reactive graph.
   /// * [user]: **Extended Metadata.** An optional [Record] of application-specific
   ///   traits carried by the nucleus blueprint.
-  ValueNucleus.from({
-    Instruction<ValueCell<V>,Pulse,Pulse<V?>>? instruction,
-
-    Cell? bind,
-    Context context = Context.system,
-    Receptor receptor = Receptor.passThrough,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled,
-    EphemeralPolicy? ephemeralPolicy,
-
-    Record? user
-  }) : this._((
-      (local: NucleusBase.mask(bind: bind, context: context, testRule: testRule, synapses: synapses, forceLock: false, user: user,
-          ephemeralPolicy: ephemeralPolicy,
-          receptor: instruction != null ? Receptor.pipeline(instruction: instruction, postProcess: ValueCell.postProcessRule)
-              : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
-          others: (value: Box<V>()))
-      ))
-  );
+  ValueNucleus.from(
+      {Instruction<ValueCell<V>, Pulse, Pulse<V?>>? instruction,
+      Cell? bind,
+      Context context = Context.system,
+      Receptor receptor = Receptor.passThrough,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user})
+      : this._(((
+          local: NucleusBase.mask(
+              bind: bind,
+              context: context,
+              testRule: testRule,
+              synapses: synapses,
+              forceLock: false,
+              user: user,
+              ephemeralPolicy: ephemeralPolicy,
+              receptor: instruction != null
+                  ? Receptor.pipeline(
+                      instruction: instruction,
+                      postProcess: ValueCell.postProcessRule)
+                  : receptor == Receptor.passThrough
+                      ? Receptor.pipeline(
+                          postProcess: ValueCell.postProcessRule)
+                      : receptor,
+              others: (value: Box<V>()))
+        )));
 
   /// Synthesizes a derivative `ValueNucleus` that shares the same physical
   /// state ([Box]) as its [principal] but may override behavior (rule,
@@ -227,30 +244,37 @@ class ValueNucleus<V> extends NucleusBase {
   ///
   /// ### Returns:
   /// A derivative [ValueNucleus] sharing the same physical state as the [principal].
-  ValueNucleus.evolve({
-    Instruction<ValueCell<V>,Pulse,Pulse<V?>>? instruction,
-
-    EphemeralPolicy? ephemeralPolicy,
-    Cell? bind,
-    Context? context,
-    Receptor? receptor,
-    TestCell? testRule,
-    Synapses? synapses,
-    Record? user,
-
-    ValueNucleus? override,
-    required ValueNucleus principal
-  }) : this._((
-  local: override?.record.local ?? NucleusBase.mask(bind: bind,
-      context: context,
-      receptor: instruction != null ? Receptor.pipeline(instruction: instruction, postProcess: ValueCell.postProcessRule)
-          : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
-      testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy,
-      others: (value: Box<V>())
-  ),
-
-  principal: principal
-  ));
+  ValueNucleus.evolve(
+      {Instruction<ValueCell<V>, Pulse, Pulse<V?>>? instruction,
+      EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context? context,
+      Receptor? receptor,
+      TestCell? testRule,
+      Synapses? synapses,
+      Record? user,
+      ValueNucleus? override,
+      required ValueNucleus principal})
+      : this._((
+          local: override?.record.local ??
+              NucleusBase.mask(
+                  bind: bind,
+                  context: context,
+                  receptor: instruction != null
+                      ? Receptor.pipeline(
+                          instruction: instruction,
+                          postProcess: ValueCell.postProcessRule)
+                      : receptor == Receptor.passThrough
+                          ? Receptor.pipeline(
+                              postProcess: ValueCell.postProcessRule)
+                          : receptor,
+                  testRule: testRule,
+                  synapses: synapses,
+                  user: user,
+                  ephemeralPolicy: ephemeralPolicy,
+                  others: (value: Box<V>())),
+          principal: principal
+        ));
 
   /// Resolves the physical [Box] storage container that holds the current
   /// state.
@@ -262,7 +286,8 @@ class ValueNucleus<V> extends NucleusBase {
   /// The getter walks up the principal chain to find the root nucleus that
   /// originally allocated the `Box`. This ensures that all deputies share
   /// the same storage.
-  Box<V> get state => get<Box<V>>(() => record.local.others.value, fallback: () => principal!.state, orElse: null);
+  Box<V> get state => get<Box<V>>(() => record.local.others.value,
+      fallback: () => principal!.state, orElse: null);
 
   @override
   ValueNucleus<V>? get principal => super.principal as ValueNucleus<V>?;
@@ -271,20 +296,21 @@ class ValueNucleus<V> extends NucleusBase {
   ValueNucleus<V> get clone {
     final handle = inheritable;
     return ValueNucleus<V>._((
-    local: NucleusBase.mask(
-      bind: handle.bind,
-      context: handle.context,
-      receptor: handle.receptor.clone,
-      testRule: handle.testRule,
-      ephemeralPolicy: handle.ephemeralPolicy,
-      synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
-      user: user,
-      forceLock: lock != null,
-    ),
-    principal: this
+      local: NucleusBase.mask(
+        bind: handle.bind,
+        context: handle.context,
+        receptor: handle.receptor.clone,
+        testRule: handle.testRule,
+        ephemeralPolicy: handle.ephemeralPolicy,
+        synapses: synapses != Synapses.disabled
+            ? Synapses.enabled
+            : Synapses.disabled,
+        user: user,
+        forceLock: lock != null,
+      ),
+      principal: this
     ));
   }
-
 }
 
 /// A state‑bearing reactive node – the primary way to manage persistent
@@ -312,14 +338,13 @@ class ValueNucleus<V> extends NucleusBase {
 /// [Box] (storage), [StateHandle] (the returned record).
 /// {@category Core}
 class ValueCell<V> extends CellBase {
-
   /// A static, reusable [Instruction] that commits a validated pulse to the
   /// cell's `Box`.
   ///
   /// This is the "commitment stage" of the pipeline. It's used internally
   /// by `ValueCell` and `ValueNucleus`. You don't need to call it directly.
   static Instruction postProcessRule =
-  Instruction<ValueCell,Pulse,Pulse>((pulse, {cell, user}) {
+      Instruction<ValueCell, Pulse, Pulse>((pulse, {cell, user}) {
     cell!._nucleus.state.value = pulse.payload;
     return pulse;
   });
@@ -358,25 +383,24 @@ class ValueCell<V> extends CellBase {
   /// *   `synapses`: **The Propagation Engine.** Controls how this cell
   ///     communicates with downstream dependents ([Synapses.enabled] by default).
   ValueCell({
-    Pulse<V>? Function(ValueCell<V> host, Pulse input, {dynamic user, Cell? bind})? transform,
+    Pulse<V>? Function(ValueCell<V> host, Pulse input,
+            {dynamic user, Cell? bind})?
+        transform,
     V? initial,
-
     Cell? bind,
     Context context = Context.system,
     Receptor receptor = Receptor.passThrough,
     TestCell testRule = TestCell.allowAll,
     Synapses synapses = Synapses.enabled,
-
   }) : this.fromNucleus(
-      ValueNucleus<V>(
-          transform: transform,
-          bind: bind,
-          context: context,
-          receptor: receptor,
-          testRule: testRule,
-          synapses: synapses
-      ), initial: initial
-  );
+            ValueNucleus<V>(
+                transform: transform,
+                bind: bind,
+                context: context,
+                receptor: receptor,
+                testRule: testRule,
+                synapses: synapses),
+            initial: initial);
 
   /// Creates a terminal `ValueCell` that never broadcasts its state changes.
   ///
@@ -397,17 +421,22 @@ class ValueCell<V> extends CellBase {
   /// // No observers will be notified of changes
   /// ```
   ValueCell.terminal({
-    Pulse<V>? Function(ValueCell<V> host, Pulse input, {dynamic user, Cell? bind})? transform,
+    Pulse<V>? Function(ValueCell<V> host, Pulse input,
+            {dynamic user, Cell? bind})?
+        transform,
     V? initial,
-
     Cell? bind,
     Context context = Context.system,
     Receptor receptor = Receptor.passThrough,
     TestCell testRule = TestCell.allowAll,
-  }) : this(synapses: Synapses.disabled,
-      transform: transform, bind: bind, context: context, receptor: receptor, testRule: testRule,
-      initial: initial
-  );
+  }) : this(
+            synapses: Synapses.disabled,
+            transform: transform,
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            initial: initial);
 
   /// Initializes a [ValueCell] from an existing [ValueNucleus] – used
   /// internally for blueprint hydration.
@@ -433,7 +462,8 @@ class ValueCell<V> extends CellBase {
   ///
   /// ### Returns:
   /// A fully hydrated [ValueCell] instance ready for reactive interaction.
-  ValueCell.fromNucleus(ValueNucleus<V> super.nucleus, {V? initial}) : super.fromNucleus() {
+  ValueCell.fromNucleus(ValueNucleus<V> super.nucleus, {V? initial})
+      : super.fromNucleus() {
     if (initial != null) {
       _nucleus.state.value = initial;
     }
@@ -476,17 +506,22 @@ class ValueCell<V> extends CellBase {
   /// - [Cell.state]: The standard application-level API for state creation.
   /// - [ValueNucleus]: The underlying blueprint used to configure this factory.
   /// - **How-To**: See `guide/HowTo-Start.md` for a guide on state management.
-  static StateHandle<V> create<V>(
-      ValueNucleus<V> nucleus, {V? initial}) {
+  static StateHandle<V> create<V>(ValueNucleus<V> nucleus, {V? initial}) {
     final cell = ValueCell<V>.fromNucleus(nucleus, initial: initial);
     final valueCellAsync = ValueCellAsync<V>(cell);
     final receptor = nucleus.receptor;
 
     Future<void> ingest(Pulse<V> pulse, {bool serializedCompletion = true}) {
-      return receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+      return receptor.async
+          .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
     }
 
-    return (cell: cell, update: cell._emit, updateAsync: valueCellAsync._emit, ingest: ingest);
+    return (
+      cell: cell,
+      update: cell._emit,
+      updateAsync: valueCellAsync._emit,
+      ingest: ingest
+    );
   }
 
   /// A factory for creating a custom [Receptor] that is pre‑integrated with
@@ -522,11 +557,13 @@ class ValueCell<V> extends CellBase {
   /// ### Returns:
   /// A [Receptor] configured to govern the ingress processing path for a
   /// [ValueCell].
-  static Receptor receptor<V>(Pulse<V?>? Function(ValueCell<V> host, Pulse input, {dynamic user}) transform) {
+  static Receptor receptor<V>(
+      Pulse<V?>? Function(ValueCell<V> host, Pulse input, {dynamic user})
+          transform) {
     return Receptor.pipeline(
-        instruction: Instruction<ValueCell<V>,Pulse,Pulse<V?>>((pulse, {cell, user}) => transform(cell!, pulse, user: user)),
-        postProcess: ValueCell.postProcessRule
-    );
+        instruction: Instruction<ValueCell<V>, Pulse, Pulse<V?>>(
+            (pulse, {cell, user}) => transform(cell!, pulse, user: user)),
+        postProcess: ValueCell.postProcessRule);
   }
 
   /// Retrieves the current state value held within this cell's physical storage.
@@ -615,9 +652,7 @@ class ValueCell<V> extends CellBase {
 ///
 /// See also: [ValueCell.unmodifiable].
 class UnmodifiableValueCell<V> extends ValueCell<V> implements Unmodifiable {
-
-  UnmodifiableValueCell._(ValueCell<V> bind)
-      : super.fromNucleus(bind._nucleus);
+  UnmodifiableValueCell._(ValueCell<V> bind) : super.fromNucleus(bind._nucleus);
 
   /// Retrieves the current state, projecting any nested `Cell` as
   /// unmodifiable.
@@ -638,5 +673,4 @@ class UnmodifiableValueCell<V> extends ValueCell<V> implements Unmodifiable {
   /// Returns itself – it's already the most restrictive view.
   @override
   ValueCell<V> get unmodifiable => this;
-
 }

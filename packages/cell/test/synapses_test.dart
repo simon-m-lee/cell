@@ -153,7 +153,8 @@ void main() {
         expect(recorder.receivedPulses.length, 1);
       });
 
-      test('empty synapses still complete a governed pulse with onComplete', () {
+      test('empty synapses still complete a governed pulse with onComplete',
+          () {
         var completed = false;
         final synapses = Synapses();
         final pulse = Pulse<int>.governed(
@@ -398,7 +399,8 @@ void main() {
         expect(recorder.receivedPayloads, [11]);
       });
 
-      test('chain strategy overrides sequential rules and still calls parent', () {
+      test('chain strategy overrides sequential rules and still calls parent',
+          () {
         dynamic seenUser;
         final recorder = RecordingCell();
         final skipped = FilterRule<Pulse>((pulse, {user}) {
@@ -546,12 +548,14 @@ void main() {
         expect(recorder.receivedPayloads, [11]);
       });
 
-      test('async.call on empty synapses completes without observers', () async {
+      test('async.call on empty synapses completes without observers',
+          () async {
         final synapses = Synapses();
         await synapses.async.call(Pulse<int>(1));
       });
 
-      test('async.call on empty synapses completes a governed onComplete pulse', () async {
+      test('async.call on empty synapses completes a governed onComplete pulse',
+          () async {
         var completed = false;
         final synapses = Synapses();
         await synapses.async.call(Pulse<int>.governed(
@@ -623,7 +627,8 @@ void main() {
         expect(recorder.receivedPulses, isNotEmpty);
       });
 
-      test('async.call with audit zero throttle delivers immediately', () async {
+      test('async.call with audit zero throttle delivers immediately',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -713,7 +718,8 @@ void main() {
         expect(recorder.receivedPayloads, [4]);
       });
 
-      test('async.call with non-zero debounce delivers after the window', () async {
+      test('async.call with non-zero debounce delivers after the window',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -728,7 +734,8 @@ void main() {
         expect(recorder.receivedPayloads, [9]);
       });
 
-      test('async.call with non-zero throttle delivers the leading pulse', () async {
+      test('async.call with non-zero throttle delivers the leading pulse',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -744,7 +751,8 @@ void main() {
         await delay(40);
       });
 
-      test('async.call with audit non-zero window delivers the latest', () async {
+      test('async.call with audit non-zero window delivers the latest',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -793,7 +801,9 @@ void main() {
         expect(recorder.receivedPulses, isNotEmpty);
       });
 
-      test('async.call debounceLeading non-zero throttle delivers the first pulse', () async {
+      test(
+          'async.call debounceLeading non-zero throttle delivers the first pulse',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -831,7 +841,8 @@ void main() {
         expect(recorder.receivedPulses.length, 1);
       });
 
-      test('async relay is skipped when every downstream already saw the pulse', () async {
+      test('async relay is skipped when every downstream already saw the pulse',
+          () async {
         final recorder = RecordingCell();
         final pulse = Pulse<int>(1);
         Synapses(downstreams: [recorder]).call(pulse);
@@ -883,7 +894,9 @@ void main() {
         expect(recorder.receivedPulses, isEmpty);
       });
 
-      test('async.call sample heartbeats the first pulse then stops when unlinked', () async {
+      test(
+          'async.call sample heartbeats the first pulse then stops when unlinked',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],

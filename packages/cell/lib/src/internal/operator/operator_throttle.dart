@@ -20,16 +20,16 @@ part of '../../../cell.dart';
 /// * Clearer than relying only on [PropagationStrategy.throttled] when you
 ///   want an explicit node in the graph.
 Cell _throttle(
-    Cell source,
-    Duration duration, {
-      bool leading = true,
-      bool trailing = false,
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Cell source,
+  Duration duration, {
+  bool leading = true,
+  bool trailing = false,
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   if (duration < Duration.zero) {
     throw ArgumentError.value(duration, 'duration', 'must be >= 0');
   }
@@ -81,7 +81,7 @@ Cell _throttle(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         if (outputCell.isInvalidated) return null;
         if (pulse.source != source) return null;
 

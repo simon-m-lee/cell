@@ -61,7 +61,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///
 /// ### See Also
 /// - [MergeMap.onError]: The parameter that accepts this callback.
-typedef MergeMapErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef MergeMapErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// A function that maps a value to an inner sequence for concurrent flattening.
 ///
@@ -130,10 +131,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **Stream Safety**: Streams are drained fully, respecting the stillLive
 ///   check at each event.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -363,49 +364,49 @@ class MergeMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MergeMap(
-      MergeMapMapper<S> mapper, {
-        int concurrency = 0,
-        MergeMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _MergeQueue<S>();
-      final limit = concurrency < 1 ? 1 << 20 : concurrency;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        state.enqueue(payload);
-        state.pump(
-          limit: limit,
-          run: (value) async {
-            try {
-              final inner = await Future.sync(() => mapper(value));
-              await _drain(inner, (item) {
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'MergeMap'),
-                    token: token,
-                  );
-                }
-              });
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          },
+    MergeMapMapper<S> mapper, {
+    int concurrency = 0,
+    MergeMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _MergeQueue<S>();
+            final limit = concurrency < 1 ? 1 << 20 : concurrency;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              state.enqueue(payload);
+              state.pump(
+                limit: limit,
+                run: (value) async {
+                  try {
+                    final inner = await Future.sync(() => mapper(value));
+                    await _drain(inner, (item) {
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'MergeMap'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                },
+              );
+              return null;
+            };
+          })(),
+          user: user,
         );
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -514,40 +515,40 @@ class MergeMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MergeMapTo(
-      FutureOr<Object?> Function() inner, {
-        int concurrency = 0,
-        MergeMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _MergeQueue<int>();
-      final limit = concurrency < 1 ? 1 << 20 : concurrency;
-      var ticket = 0;
-      return (pulse, {cell, user, future, token}) {
-        state.enqueue(++ticket);
-        state.pump(
-          limit: limit,
-          run: (_) async {
-            try {
-              final seq = await Future.sync(inner);
-              await _drain(seq, (item) {
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'MergeMapTo'),
-                    token: token,
-                  );
-                }
-              });
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          },
+    FutureOr<Object?> Function() inner, {
+    int concurrency = 0,
+    MergeMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _MergeQueue<int>();
+            final limit = concurrency < 1 ? 1 << 20 : concurrency;
+            var ticket = 0;
+            return (pulse, {cell, user, future, token}) {
+              state.enqueue(++ticket);
+              state.pump(
+                limit: limit,
+                run: (_) async {
+                  try {
+                    final seq = await Future.sync(inner);
+                    await _drain(seq, (item) {
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'MergeMapTo'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                },
+              );
+              return null;
+            };
+          })(),
+          user: user,
         );
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -670,48 +671,49 @@ class MergeScan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MergeScan(
-      A seed,
-      FutureOr<Object?> Function(A acc, S value) accumulate, {
-        MergeMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var acc = seed;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final current = acc;
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => accumulate(current, payload));
-            await _drain(inner, (item) {
-              if (item is A) {
-                acc = item;
-                future!(
-                  result: _out<A>(item, cell, pulse, 'MergeScan'),
-                  token: token,
+    A seed,
+    FutureOr<Object?> Function(A acc, S value) accumulate, {
+    MergeMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var acc = seed;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
+                return null;
               }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        }
+              final current = acc;
+              Future<void> run() async {
+                try {
+                  final inner =
+                      await Future.sync(() => accumulate(current, payload));
+                  await _drain(inner, (item) {
+                    if (item is A) {
+                      acc = item;
+                      future!(
+                        result: _out<A>(item, cell, pulse, 'MergeScan'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -784,9 +786,10 @@ Future<void> main() async {
   final names = Cell.ingress<String>();
 
   final merged = MergeMap<String, String>(
-        (name) async {
+    (name) async {
       // Simulate variable processing times
-      await Future<void>.delayed(Duration(milliseconds: name == 'slow' ? 40 : 5));
+      await Future<void>.delayed(
+          Duration(milliseconds: name == 'slow' ? 40 : 5));
       return name;
     },
   ).toHandle(source: names.cell);
@@ -812,7 +815,7 @@ Future<void> main() async {
   final clicks = Cell.ingress<void>();
 
   final echo = MergeMapTo<void, String>(
-        () => 'ping',
+    () => 'ping',
   ).toHandle(source: clicks.cell);
 
   final tObs = Cell.observe(
@@ -837,7 +840,7 @@ Future<void> main() async {
 
   final scanned = MergeScan<int, int>(
     0, // Initial seed
-        (acc, n) async {
+    (acc, n) async {
       // Simulate work and return the new total
       await Future.delayed(Duration(milliseconds: 10));
       return acc + n;

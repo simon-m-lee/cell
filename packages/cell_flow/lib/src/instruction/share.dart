@@ -41,13 +41,14 @@ typedef ShareErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      ShareErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  ShareErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -315,21 +316,21 @@ class Share<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   }) : this._(_Seen(), onError, user);
 
   Share._(
-      this._seen,
-      ShareErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final seen = _seen;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        seen.value++;
-        return typed.withStep('Share');
-      };
-    })(),
-    user: user,
-  );
+    this._seen,
+    ShareErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final seen = _seen;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              seen.value++;
+              return typed.withStep('Share');
+            };
+          })(),
+          user: user,
+        );
 
   final _Seen _seen;
 
@@ -452,21 +453,21 @@ class ShareLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   }) : this._(buffer ?? ShareBuffer<S>(size: 1), onError, user);
 
   ShareLatest._(
-      this.buffer,
-      ShareErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final buf = buffer;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        buf.push(typed.payload as S);
-        return typed.withStep('ShareLatest');
-      };
-    })(),
-    user: user,
-  );
+    this.buffer,
+    ShareErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final buf = buffer;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              buf.push(typed.payload as S);
+              return typed.withStep('ShareLatest');
+            };
+          })(),
+          user: user,
+        );
 
   /// The buffer containing the latest value.
   ///
@@ -591,27 +592,27 @@ class ShareReplay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ShareErrorHandler? onError,
     dynamic user,
   }) : this._(
-    buffer ?? ShareBuffer<S>(size: size < 1 ? 1 : size),
-    onError,
-    user,
-  );
+          buffer ?? ShareBuffer<S>(size: size < 1 ? 1 : size),
+          onError,
+          user,
+        );
 
   ShareReplay._(
-      this.buffer,
-      ShareErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final buf = buffer;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        buf.push(typed.payload as S);
-        return typed.withStep('ShareReplay');
-      };
-    })(),
-    user: user,
-  );
+    this.buffer,
+    ShareErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final buf = buffer;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              buf.push(typed.payload as S);
+              return typed.withStep('ShareReplay');
+            };
+          })(),
+          user: user,
+        );
 
   /// The buffer containing recent values.
   ///
@@ -744,32 +745,33 @@ class ShareReplayStart<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ShareLatest]: For storing only the latest value.
   /// - [ShareReplay]: For storing recent values.
   ShareReplayStart(
-      ShareBuffer<S> buffer, {
-        bool includeCurrent = true,
-        ShareErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var first = true;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (first) {
-          first = false;
-          for (final value in buffer.values) {
-            future!(
-              result: _out<S>(value, typed, cell, 'ShareReplayStart.replay'),
-              token: token,
-            );
-          }
-        }
-        buffer.push(typed.payload as S);
-        if (!includeCurrent) return null;
-        return typed.withStep('ShareReplayStart');
-      };
-    })(),
-    user: user,
-  );
+    ShareBuffer<S> buffer, {
+    bool includeCurrent = true,
+    ShareErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var first = true;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (first) {
+                first = false;
+                for (final value in buffer.values) {
+                  future!(
+                    result:
+                        _out<S>(value, typed, cell, 'ShareReplayStart.replay'),
+                    token: token,
+                  );
+                }
+              }
+              buffer.push(typed.payload as S);
+              if (!includeCurrent) return null;
+              return typed.withStep('ShareReplayStart');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -929,8 +931,7 @@ Future<void> main() async {
   final d = Cell.ingress<int>();
 
   // Use the buffer from the previous step which contains [2, 3]
-  final start = ShareReplayStart<int>(replayOp.buffer)
-      .toHandle(source: d.cell);
+  final start = ShareReplayStart<int>(replayOp.buffer).toHandle(source: d.cell);
 
   final tObs = Cell.observe(
     source: start.cell,

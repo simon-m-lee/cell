@@ -1004,7 +1004,8 @@ void main() {
         await expectLater(
           tx.commit(),
           throwsA(
-            isTxApplyException(containing: 'compensate not modifiable at commit'),
+            isTxApplyException(
+                containing: 'compensate not modifiable at commit'),
           ),
         );
       });

@@ -474,7 +474,7 @@ void printScenarioComplete(String message) {
 /// - HR > 250: improbable (would be artifact or error)
 /// - Blocking these prevents false alarms and corrupted data
 final TestCell hrRange = TestCell<Cell>(
-      (value, {host, arguments, user}) {
+  (value, {host, arguments, user}) {
     final n = value is Pulse ? value.payload : value;
     if (n is! int) return true;
     final ok = n >= 20 && n <= 250;
@@ -493,7 +493,7 @@ final TestCell hrRange = TestCell<Cell>(
 /// - SpO2 > 100: impossible (would be artifact or error)
 /// - Blocking these prevents false alarms and corrupted data
 final TestCell spo2Range = TestCell<Cell>(
-      (value, {host, arguments, user}) {
+  (value, {host, arguments, user}) {
     final n = value is Pulse ? value.payload : value;
     if (n is! int) return true;
     final ok = n >= 0 && n <= 100;
@@ -810,7 +810,7 @@ void installGates() {
 
   // Create the PAGER with retry
   pagerHandle = AsyncMapWithRetry<Severity, String>(
-        (_) async {
+    (_) async {
       pagerAttempts++;
       await Future<void>.delayed(const Duration(milliseconds: 40));
       if (pagerShouldFailOnce) {
@@ -895,7 +895,8 @@ Future<void> ack(String who) async {
 /// 3. Run the simulation scenarios
 Future<void> main() async {
   print('╔${'═' * 70}╗');
-  print('${'║  ICU-12 enhanced — TestCell + gates + ledger + ACK'.padRight(71)}║');
+  print(
+      '${'║  ICU-12 enhanced — TestCell + gates + ledger + ACK'.padRight(71)}║');
   print('╚${'═' * 70}╝');
 
   // STEP 1: Install gates and observers BEFORE any data flows
@@ -923,8 +924,8 @@ Future<void> main() async {
   printScenarioComplete('No alarm triggered');
 
   // ── SCENARIO 2 ──────────────────────────────────────────────────
-  printScenarioHeader('2', 'Desaturation (SpO2 86)',
-      'PAGE — Critical desaturation detected');
+  printScenarioHeader(
+      '2', 'Desaturation (SpO2 86)', 'PAGE — Critical desaturation detected');
   await setSpo2(86);
   await Future<void>.delayed(const Duration(milliseconds: 200));
   printScenarioComplete('PAGE triggered');
@@ -965,8 +966,8 @@ Future<void> main() async {
   printScenarioComplete('Recovered, ACK reset distinct state');
 
   // ── SCENARIO 7 ──────────────────────────────────────────────────
-  printScenarioHeader('7', 'New desat after ACK',
-      'New PAGE — Fresh alarm after ACK reset');
+  printScenarioHeader(
+      '7', 'New desat after ACK', 'New PAGE — Fresh alarm after ACK reset');
   await setSpo2(87);
   await Future<void>.delayed(const Duration(milliseconds: 200));
   printScenarioComplete('Fresh PAGE after ACK');
@@ -996,7 +997,8 @@ Future<void> main() async {
   print('╔${'═' * 70}╗');
   print('${'║  📊 SUMMARY'.padRight(71)}║');
   print('║  ${'─' * 68}║');
-  print('${'║  vitals: ${vitalsLog.length}  pages: ${pageLog.length}  warns: ${warnLog.length}  ledger: ${ledger.length}  pagerAttempts: $pagerAttempts'.padRight(71)}║');
+  print(
+      '${'║  vitals: ${vitalsLog.length}  pages: ${pageLog.length}  warns: ${warnLog.length}  ledger: ${ledger.length}  pagerAttempts: $pagerAttempts'.padRight(71)}║');
   print('╚${'═' * 70}╝');
 
   print('');

@@ -503,7 +503,8 @@ void main() {
         );
         final evolved = original.evolve((evolvable) {
           if (evolvable == Ontology.constraints) {
-            return Ontology.constraints.entry({'max_value': 50, 'read_only': true});
+            return Ontology.constraints
+                .entry({'max_value': 50, 'read_only': true});
           }
           if (evolvable == Ontology.compliance) {
             return Ontology.compliance.entry('SOC2, GDPR');
@@ -544,7 +545,8 @@ void main() {
           return null;
         });
 
-        expect(leaf.lineage(Ontology.subDomains), ['finance', 'payments', 'refunds']);
+        expect(leaf.lineage(Ontology.subDomains),
+            ['finance', 'payments', 'refunds']);
         expect(leaf.lineage(Ontology.identity), ['root', 'leaf']);
         expect(mid.lineage(Ontology.subDomains), ['finance', 'payments']);
       });
@@ -844,7 +846,8 @@ void main() {
     });
 
     group('fromEntries', () {
-      test('can assemble a mandate from mixed ontology and mandate entries', () {
+      test('can assemble a mandate from mixed ontology and mandate entries',
+          () {
         final parent = Context.module('Vault');
         final deputy = DeputyContext.fromEntries([
           Mandate.authority.entry('SIGN'),
@@ -1185,7 +1188,8 @@ void main() {
       });
 
       test('stores others when a parent is also provided', () {
-        final parent = PulseContext(actor: 'parent', others: {'from': 'parent'});
+        final parent =
+            PulseContext(actor: 'parent', others: {'from': 'parent'});
         final child = PulseContext(
           baseContext: parent,
           actor: 'child',
@@ -1426,7 +1430,8 @@ void main() {
         expect(context.strategy, ReasoningStrategy.deterministic);
       });
 
-      test('factories link parentTraceId when baseContext is a PulseContext', () {
+      test('factories link parentTraceId when baseContext is a PulseContext',
+          () {
         final parent = PulseContext(actor: 'root', traceId: 'root-id');
         final child = PulseContext.userAction(
           baseContext: parent,
@@ -1500,7 +1505,8 @@ void main() {
       });
 
       test('others passed to evolve are stored on the child', () {
-        final original = PulseContext(actor: 'admin', others: {'stage': 'root'});
+        final original =
+            PulseContext(actor: 'admin', others: {'stage': 'root'});
         final evolved = original.evolve(
           (evolvable) {
             if (evolvable == Provenance.reason) {
@@ -1530,7 +1536,8 @@ void main() {
         expect(child[Provenance.purpose], isNull);
       });
 
-      test('lineage traces evolved ontology identity through a pulse parent', () {
+      test('lineage traces evolved ontology identity through a pulse parent',
+          () {
         final base = Context.module('Auth', identity: 'root');
         final pulse = PulseContext(baseContext: base, actor: 'admin');
         final child = pulse.evolve((evolvable) {
@@ -1562,7 +1569,8 @@ void main() {
         expect(a.traceId, b.traceId);
       });
 
-      test('auto-generated traceIds make otherwise identical contexts unequal', () {
+      test('auto-generated traceIds make otherwise identical contexts unequal',
+          () {
         final a = PulseContext(actor: 'admin');
         final b = PulseContext(actor: 'admin');
         expect(a, isNot(equals(b)));

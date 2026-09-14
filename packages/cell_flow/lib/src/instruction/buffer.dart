@@ -41,7 +41,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef BufferErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef BufferErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -56,13 +57,14 @@ typedef BufferErrorHandler = void Function(Object error, StackTrace? stackTrace)
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      BufferErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  BufferErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -72,11 +74,11 @@ Pulse? _typedOrError<S>(
 
 /// Helper to create a buffer pulse with proper provenance.
 Pulse<List<S>> _buf<S>(
-    List<S> items,
-    Pulse trigger,
-    Cell? cell,
-    String step,
-    ) {
+  List<S> items,
+  Pulse trigger,
+  Cell? cell,
+  String step,
+) {
   return Pulse<List<S>>(
     List<S>.from(items),
     source: cell ?? trigger.source,
@@ -218,7 +220,6 @@ class _Emit {
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Count-Based Logic Gate** designed to batch pulses
   /// into discrete topographical windows based on stimulus frequency.
   ///
@@ -269,31 +270,31 @@ class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [BufferWithPredicate]: For batching based on logic conditions.
   /// - [WindowCount]: A related operator that yields multiple output pulses.
   BufferCount(
-      int size, {
-        int? skip,
-        BufferErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final step = skip == null || skip == size ? size : skip;
-      final buf = <S>[];
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        buf.add(typed.payload as S);
-        if (buf.length < size) return null;
-        final window = List<S>.from(buf);
-        final drop = step < 1 ? size : step;
-        if (drop >= buf.length) {
-          buf.clear();
-        } else {
-          buf.removeRange(0, drop);
-        }
-        return _buf<S>(window, typed, cell, 'BufferCount');
-      };
-    })(),
-    user: user,
-  );
+    int size, {
+    int? skip,
+    BufferErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final step = skip == null || skip == size ? size : skip;
+            final buf = <S>[];
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              buf.add(typed.payload as S);
+              if (buf.length < size) return null;
+              final window = List<S>.from(buf);
+              final drop = step < 1 ? size : step;
+              if (drop >= buf.length) {
+                buf.clear();
+              } else {
+                buf.removeRange(0, drop);
+              }
+              return _buf<S>(window, typed, cell, 'BufferCount');
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Synthesizes a **Count-Based Topographical Alias**—a specialized
@@ -342,7 +343,6 @@ class BufferCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// * [BufferCount]: The primary implementation for count-based logic batching.
 /// * [FlowInstruction]: The base interface for logic blueprints.
 class BufferWithCount<S> extends BufferCount<S> {
-
   /// Synthesizes a **Count-Based Topographical Alias**—a specialized
   /// constructor designed for Rx-compatible pulse orchestration.
   ///
@@ -374,11 +374,11 @@ class BufferWithCount<S> extends BufferCount<S> {
   /// ### See Also
   /// - [BufferCount]: The primary implementation for count-based logic batching.
   BufferWithCount(
-      super.size, {
-        super.skip,
-        super.onError,
-        super.user,
-      });
+    super.size, {
+    super.skip,
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -453,7 +453,6 @@ class BufferWithCount<S> extends BufferCount<S> {
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Temporal Logic Gate** designed to batch pulses
   /// into discrete topographical windows based on elapsed time.
   ///
@@ -504,45 +503,45 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [BufferWithTimeAndCount]: For hybrid temporal and frequency constraints.
   /// - [BufferWhen]: For trigger-based topographical flushes.
   BufferTime(
-      Duration duration, {
-        bool emitEmpty = false,
-        BufferErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final buf = <S>[];
-      final emit = _Emit();
-      var armed = false;
-      Pulse? last;
+    Duration duration, {
+    bool emitEmpty = false,
+    BufferErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final buf = <S>[];
+            final emit = _Emit();
+            var armed = false;
+            Pulse? last;
 
-      void flush() {
-        if (buf.isEmpty && !emitEmpty) return;
-        final trigger = last;
-        if (trigger == null || emit.future == null) return;
-        emit.future!(
-          result: _buf<S>(buf, trigger, emit.cell, 'BufferTime'),
-          token: emit.token,
+            void flush() {
+              if (buf.isEmpty && !emitEmpty) return;
+              final trigger = last;
+              if (trigger == null || emit.future == null) return;
+              emit.future!(
+                result: _buf<S>(buf, trigger, emit.cell, 'BufferTime'),
+                token: emit.token,
+              );
+              buf.clear();
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              last = typed;
+              buf.add(typed.payload as S);
+              if (!armed) {
+                armed = true;
+                Timer.periodic(duration, (_) => flush());
+              }
+              return null;
+            };
+          })(),
+          user: user,
         );
-        buf.clear();
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        last = typed;
-        buf.add(typed.payload as S);
-        if (!armed) {
-          armed = true;
-          Timer.periodic(duration, (_) => flush());
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 /// Synthesizes a **Temporal Topographical Alias**—a specialized
@@ -591,7 +590,6 @@ class BufferTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// * [BufferTime]: The primary implementation for temporal logic batching.
 /// * [BufferCount]: For batching based on stimulus frequency.
 class BufferWithTime<S> extends BufferTime<S> {
-
   /// Synthesizes a **Temporal Topographical Alias**—a specialized
   /// constructor designed for Rx-compatible pulse orchestration.
   ///
@@ -610,11 +608,11 @@ class BufferWithTime<S> extends BufferTime<S> {
   /// - [user]: **Flyweight Metadata.** Optional configuration data
   ///   preserved across the instruction chain for auditing and tracing.
   BufferWithTime(
-      super.duration, {
-        super.emitEmpty,
-        super.onError,
-        super.user,
-      });
+    super.duration, {
+    super.emitEmpty,
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -686,8 +684,8 @@ class BufferWithTime<S> extends BufferTime<S> {
 /// - [BufferTime]: For time-based buffering.
 /// - [BufferWhen]: For trigger-based buffering.
 /// - [BufferWithPredicate]: For predicate-based buffering.
-class BufferWithTimeAndCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
+class BufferWithTimeAndCount<S>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Synthesizes a **Dual-Threshold Logic Gate** for hybrid pulse batching.
   ///
   /// This constructor initializes an orchestrator that materializes a window
@@ -708,48 +706,49 @@ class BufferWithTimeAndCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
     BufferErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final buf = <S>[];
-      final emit = _Emit();
-      Timer? timer;
-      Pulse? last;
+          (() {
+            final buf = <S>[];
+            final emit = _Emit();
+            Timer? timer;
+            Pulse? last;
 
-      void flush(String step) {
-        if (buf.isEmpty && !emitEmpty) return;
-        final trigger = last;
-        if (trigger == null || emit.future == null) return;
-        emit.future!(
-          result: _buf<S>(buf, trigger, emit.cell, step),
-          token: emit.token,
+            void flush(String step) {
+              if (buf.isEmpty && !emitEmpty) return;
+              final trigger = last;
+              if (trigger == null || emit.future == null) return;
+              emit.future!(
+                result: _buf<S>(buf, trigger, emit.cell, step),
+                token: emit.token,
+              );
+              buf.clear();
+              timer?.cancel();
+              timer = null;
+            }
+
+            void arm() {
+              timer?.cancel();
+              timer =
+                  Timer(duration, () => flush('BufferWithTimeAndCount.time'));
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              last = typed;
+              final starting = buf.isEmpty;
+              buf.add(typed.payload as S);
+              if (starting) arm();
+              if (buf.length >= count) {
+                flush('BufferWithTimeAndCount.count');
+              }
+              return null;
+            };
+          })(),
+          user: user,
         );
-        buf.clear();
-        timer?.cancel();
-        timer = null;
-      }
-
-      void arm() {
-        timer?.cancel();
-        timer = Timer(duration, () => flush('BufferWithTimeAndCount.time'));
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        last = typed;
-        final starting = buf.isEmpty;
-        buf.add(typed.payload as S);
-        if (starting) arm();
-        if (buf.length >= count) {
-          flush('BufferWithTimeAndCount.count');
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -821,7 +820,6 @@ class BufferWithTimeAndCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
 /// - [BufferWithPredicate]: For predicate-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Boundary-Driven Logic Gate** for manual pulse batching.
   ///
   /// This constructor initializes an orchestrator that materializes a window
@@ -834,51 +832,51 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Invoked if a stimulus violates type integrity [S].
   /// - [user]: Optional metadata preserved across the topography.
   BufferWhen(
-      Cell closer, {
-        bool emitEmpty = false,
-        BufferErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final buf = <S>[];
-      final emit = _Emit();
-      var armed = false;
-      Pulse? last;
+    Cell closer, {
+    bool emitEmpty = false,
+    BufferErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final buf = <S>[];
+            final emit = _Emit();
+            var armed = false;
+            Pulse? last;
 
-      void flush(Pulse boundary) {
-        if (buf.isEmpty && !emitEmpty) return;
-        emit.future?.call(
-          result: _buf<S>(
-            buf,
-            last ?? boundary,
-            emit.cell,
-            'BufferWhen',
-          ),
-          token: emit.token,
+            void flush(Pulse boundary) {
+              if (buf.isEmpty && !emitEmpty) return;
+              emit.future?.call(
+                result: _buf<S>(
+                  buf,
+                  last ?? boundary,
+                  emit.cell,
+                  'BufferWhen',
+                ),
+                token: emit.token,
+              );
+              buf.clear();
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              if (!armed) {
+                armed = true;
+                Cell.observe(
+                  source: closer,
+                  effect: (Pulse boundary) => flush(boundary),
+                );
+              }
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              last = typed;
+              buf.add(typed.payload as S);
+              return null;
+            };
+          })(),
+          user: user,
         );
-        buf.clear();
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        if (!armed) {
-          armed = true;
-          Cell.observe(
-            source: closer,
-            effect: (Pulse boundary) => flush(boundary),
-          );
-        }
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        last = typed;
-        buf.add(typed.payload as S);
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -964,7 +962,6 @@ class BufferWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [BufferWhen]: For trigger-based buffering.
 /// - [BufferWithTimeAndCount]: For time or count buffering.
 class BufferWithPredicate<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Conditional Logic Gate** designed for predicate-driven
   /// pulse batching.
   ///
@@ -982,37 +979,37 @@ class BufferWithPredicate<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [user]: Optional flyweight metadata preserved across the topography
   ///   for auditing.
   BufferWithPredicate(
-      bool Function(S value) test, {
-        bool includeTrigger = true,
-        BufferErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final buf = <S>[];
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        late final bool close;
-        try {
-          close = test(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        if (close) {
-          if (includeTrigger) buf.add(value);
-          if (buf.isEmpty) return null;
-          final window = List<S>.from(buf);
-          buf.clear();
-          return _buf<S>(window, typed, cell, 'BufferWithPredicate');
-        }
-        buf.add(value);
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    bool Function(S value) test, {
+    bool includeTrigger = true,
+    BufferErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final buf = <S>[];
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              late final bool close;
+              try {
+                close = test(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              if (close) {
+                if (includeTrigger) buf.add(value);
+                if (buf.isEmpty) return null;
+                final window = List<S>.from(buf);
+                buf.clear();
+                return _buf<S>(window, typed, cell, 'BufferWithPredicate');
+              }
+              buf.add(value);
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1161,7 +1158,7 @@ Future<void> main() async {
   final seq = Cell.ingress<int>();
 
   final until = BufferWithPredicate<int>(
-        (n) => n.isEven,
+    (n) => n.isEven,
   ).toHandle(source: seq.cell);
 
   final uObs = Cell.observe(

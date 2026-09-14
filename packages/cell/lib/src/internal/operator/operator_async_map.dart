@@ -24,17 +24,17 @@ part of '../../../cell.dart';
 /// * switch → cancel interest in in-flight when a newer value arrives
 /// * exhaust → refuse new values until the current in-flight work finishes
 Cell _asyncMap<S, T>(
-    Cell source,
-    Future<T> Function(S value) mapper, {
-      int concurrency = 0,
-      bool latestOnly = false,
-      bool exhaust = false,
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Cell source,
+  Future<T> Function(S value) mapper, {
+  int concurrency = 0,
+  bool latestOnly = false,
+  bool exhaust = false,
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   if (latestOnly && exhaust) {
     throw ArgumentError(
       'asyncMap: use either latestOnly or exhaust, not both',
@@ -70,7 +70,7 @@ Cell _asyncMap<S, T>(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         if (outputCell.isInvalidated) return null;
         final payload = pulse.payload;
         if (payload is! S) return null;

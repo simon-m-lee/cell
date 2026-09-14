@@ -109,7 +109,7 @@ Order {
 /// Trims whitespace, converts string numbers to int/double, validates fields.
 Instruction<Cell, Pulse, Pulse> sanitizeInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       print('   [Sanitize] Input: ${pulse.payload}');
 
       final raw = pulse.payload as Map<String, dynamic>?;
@@ -137,7 +137,8 @@ Instruction<Cell, Pulse, Pulse> sanitizeInstruction() {
       }
 
       try {
-        sanitized['total'] = double.tryParse(raw['total']?.toString() ?? '0.0') ?? 0.0;
+        sanitized['total'] =
+            double.tryParse(raw['total']?.toString() ?? '0.0') ?? 0.0;
       } catch (_) {
         sanitized['total'] = 0.0;
       }
@@ -154,7 +155,7 @@ Instruction<Cell, Pulse, Pulse> sanitizeInstruction() {
 /// Checks customer name, email format, items count, and total.
 Instruction<Cell, Pulse, Pulse> validateInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final data = pulse.payload as Map<String, dynamic>?;
       if (data == null) {
         print('   [Validate] ✗ No data to validate');
@@ -201,7 +202,7 @@ Instruction<Cell, Pulse, Pulse> validateInstruction() {
 /// Fetches customer profile, applies discounts based on tier.
 Instruction<Cell, Pulse, Pulse> enrichInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final data = pulse.payload as Map<String, dynamic>?;
       if (data == null) {
         print('   [Enrich] ✗ No data to enrich');
@@ -251,7 +252,7 @@ Instruction<Cell, Pulse, Pulse> enrichInstruction() {
 /// Format order data into final Order object.
 Instruction<Cell, Pulse, Pulse> formatInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final data = pulse.payload as Map<String, dynamic>?;
       if (data == null) {
         print('   [Format] ✗ No data to format');
@@ -273,7 +274,7 @@ Instruction<Cell, Pulse, Pulse> formatInstruction() {
 
       final orderItems = List.generate(
         items,
-            (i) => OrderItem(
+        (i) => OrderItem(
           id: 'ITEM-${i + 1}',
           name: 'Product ${i + 1}',
           quantity: 1,
@@ -301,7 +302,7 @@ Instruction<Cell, Pulse, Pulse> formatInstruction() {
 /// Log order processing results.
 Instruction<Cell, Pulse, Pulse> logInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final order = pulse.payload as Order?;
       if (order == null) {
         print('   [Log] ✗ No order to log');
@@ -309,7 +310,8 @@ Instruction<Cell, Pulse, Pulse> logInstruction() {
       }
 
       print('   [Log] Order ${order.id} processed successfully');
-      print('   [Log]   Customer: ${order.customer.name} (${order.customer.email})');
+      print(
+          '   [Log]   Customer: ${order.customer.name} (${order.customer.email})');
       print('   [Log]   Items: ${order.items.length}');
       print('   [Log]   Total: \$${order.total.toStringAsFixed(2)}');
       print('   [Log]   Status: ${order.status}');
@@ -326,7 +328,7 @@ Instruction<Cell, Pulse, Pulse> logInstruction() {
 /// Async instruction that fetches customer data from external service.
 Instruction<Cell, Pulse, Pulse> asyncCustomerProcessor() {
   return Instruction<Cell, Pulse, Pulse>.future(
-        (pulse, {cell, future, token, user}) {
+    (pulse, {cell, future, token, user}) {
       print('   [Async] Fetching customer data from external service...');
 
       Timer(const Duration(milliseconds: 500), () {
@@ -369,10 +371,10 @@ class OrderProcessingException implements Exception {
   final DateTime timestamp;
 
   OrderProcessingException(
-      this.message, {
-        this.orderId,
-        DateTime? timestamp,
-      }) : timestamp = timestamp ?? DateTime.now();
+    this.message, {
+    this.orderId,
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
 
   @override
   String toString() => 'OrderProcessingException: $message (Order: $orderId)';
@@ -381,7 +383,7 @@ class OrderProcessingException implements Exception {
 /// Recovers from validation errors by providing default values.
 Instruction<Cell, Pulse, Pulse> recoveryInstruction() {
   return Instruction<Cell, Pulse, Pulse>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final data = pulse.payload as Map<String, dynamic>?;
       if (data == null) {
         print('   [Recovery] No data to recover');
@@ -390,8 +392,7 @@ Instruction<Cell, Pulse, Pulse> recoveryInstruction() {
 
       print('   [Recovery] Attempting to recover invalid data...');
 
-      final recovered = <String, dynamic>{}
-        ..addAll(data);
+      final recovered = <String, dynamic>{}..addAll(data);
 
       if ((recovered['customer']?.toString().trim() ?? '').isEmpty) {
         recovered['customer'] = 'Unknown Customer';
@@ -618,10 +619,12 @@ Future<void> main() async {
     'total': 49.95,
   };
   final validResult = validate.call(Pulse(validData));
-  print('   [Test] ValidateInstruction: ${validResult != null ? '✓ Passed' : '✗ Failed'}');
+  print(
+      '   [Test] ValidateInstruction: ${validResult != null ? '✓ Passed' : '✗ Failed'}');
 
   final enrichResult = enrich.call(Pulse(validData));
-  print('   [Test] EnrichInstruction: ${enrichResult != null ? '✓ Passed' : '✗ Failed'}');
+  print(
+      '   [Test] EnrichInstruction: ${enrichResult != null ? '✓ Passed' : '✗ Failed'}');
 
   print('');
 

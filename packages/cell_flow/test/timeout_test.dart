@@ -189,7 +189,6 @@ void main() {
     });
   });
 
-
   group('Timeout extra', () {
     test('resetOnPulse false is a first-gap deadline', () async {
       final errors = <Object>[];
@@ -321,5 +320,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

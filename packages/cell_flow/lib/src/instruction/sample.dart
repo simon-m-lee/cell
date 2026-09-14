@@ -24,7 +24,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef SampleErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef SampleErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────
 // Helper Functions and Types
@@ -43,13 +44,14 @@ typedef SampleErrorHandler = void Function(Object error, StackTrace? stackTrace)
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      SampleErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  SampleErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -214,40 +216,40 @@ class Sample<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Audit]: For audit on notifier.
   /// - [AuditTime]: For time-based audit.
   Sample(
-      Cell notifier, {
-        SampleErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      Pulse? pending;
-      var armed = false;
+    Cell notifier, {
+    SampleErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            Pulse? pending;
+            var armed = false;
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed != null) pending = typed;
-        if (!armed) {
-          armed = true;
-          Cell.observe(
-            source: notifier,
-            effect: (Pulse _) {
-              final held = pending;
-              if (held == null) return;
-              pending = null;
-              emit.future?.call(
-                result: held.withStep('Sample'),
-                token: emit.token,
-              );
-            },
-          );
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed != null) pending = typed;
+              if (!armed) {
+                armed = true;
+                Cell.observe(
+                  source: notifier,
+                  effect: (Pulse _) {
+                    final held = pending;
+                    if (held == null) return;
+                    pending = null;
+                    emit.future?.call(
+                      result: held.withStep('Sample'),
+                      token: emit.token,
+                    );
+                  },
+                );
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -366,37 +368,37 @@ class SampleTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Audit]: For audit on notifier.
   /// - [AuditTime]: For time-based audit.
   SampleTime(
-      Duration period, {
-        SampleErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      Pulse? pending;
-      var armed = false;
+    Duration period, {
+    SampleErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            Pulse? pending;
+            var armed = false;
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed != null) pending = typed;
-        if (!armed) {
-          armed = true;
-          Timer.periodic(period, (_) {
-            final held = pending;
-            if (held == null) return;
-            pending = null;
-            emit.future?.call(
-              result: held.withStep('SampleTime'),
-              token: emit.token,
-            );
-          });
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed != null) pending = typed;
+              if (!armed) {
+                armed = true;
+                Timer.periodic(period, (_) {
+                  final held = pending;
+                  if (held == null) return;
+                  pending = null;
+                  emit.future?.call(
+                    result: held.withStep('SampleTime'),
+                    token: emit.token,
+                  );
+                });
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -504,46 +506,46 @@ class Audit<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SampleTime]: For time-based sampling.
   /// - [AuditTime]: For time-based audit.
   Audit(
-      Cell notifier, {
-        SampleErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      Pulse? pending;
-      var waiting = false;
-      var armed = false;
+    Cell notifier, {
+    SampleErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            Pulse? pending;
+            var waiting = false;
+            var armed = false;
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed != null) {
-          pending = typed;
-          waiting = true;
-        }
-        if (!armed) {
-          armed = true;
-          Cell.observe(
-            source: notifier,
-            effect: (Pulse _) {
-              if (!waiting) return;
-              final held = pending;
-              if (held == null) return;
-              waiting = false;
-              pending = null;
-              emit.future?.call(
-                result: held.withStep('Audit'),
-                token: emit.token,
-              );
-            },
-          );
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed != null) {
+                pending = typed;
+                waiting = true;
+              }
+              if (!armed) {
+                armed = true;
+                Cell.observe(
+                  source: notifier,
+                  effect: (Pulse _) {
+                    if (!waiting) return;
+                    final held = pending;
+                    if (held == null) return;
+                    waiting = false;
+                    pending = null;
+                    emit.future?.call(
+                      result: held.withStep('Audit'),
+                      token: emit.token,
+                    );
+                  },
+                );
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -672,38 +674,38 @@ class AuditTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Audit]: For audit on notifier.
   /// - [Debounce]: For resetting the timer on each pulse.
   AuditTime(
-      Duration duration, {
-        SampleErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      Pulse? pending;
-      var scheduled = false;
+    Duration duration, {
+    SampleErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            Pulse? pending;
+            var scheduled = false;
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        pending = typed;
-        if (scheduled) return null;
-        scheduled = true;
-        Future<void>.delayed(duration, () {
-          scheduled = false;
-          final held = pending;
-          pending = null;
-          if (held == null) return;
-          emit.future?.call(
-            result: held.withStep('AuditTime'),
-            token: emit.token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              pending = typed;
+              if (scheduled) return null;
+              scheduled = true;
+              Future<void>.delayed(duration, () {
+                scheduled = false;
+                final held = pending;
+                pending = null;
+                if (held == null) return;
+                emit.future?.call(
+                  result: held.withStep('AuditTime'),
+                  token: emit.token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

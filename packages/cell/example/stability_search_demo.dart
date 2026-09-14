@@ -112,7 +112,8 @@ Future<void> main() async {
 
   for (final w in [800, 810, 824, 830, 840]) {
     await sizes.ingest(
-      Pulse({'width': w, 'height': 600},
+      Pulse(
+        {'width': w, 'height': 600},
         source: sizes.cell,
       ),
     );

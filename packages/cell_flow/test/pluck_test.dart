@@ -185,7 +185,6 @@ void main() {
     });
   });
 
-
   group('Pluck extra', () {
     test('reads a list index', () async {
       final b = bind(Pluck<int>(1));
@@ -285,7 +284,8 @@ void main() {
 
   group('composition / performance', () {
     test('Pluck + PluckOr is a chain', () async {
-      final op = Pluck<Map<String, Object>>('user') + PluckOr<int>('id', orElse: 0);
+      final op =
+          Pluck<Map<String, Object>>('user') + PluckOr<int>('id', orElse: 0);
       final gate = Cell.ingress<Map<String, Object>>();
       final out = op.toHandle(source: gate.cell);
       final probe = _Probe(out.cell);

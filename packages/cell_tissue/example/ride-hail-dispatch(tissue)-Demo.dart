@@ -392,9 +392,8 @@ final class MatchTick {
 
   /// A human-readable rendering.
   @override
-  String toString() =>
-      'MatchTick($riderId, $zone, $lat, $lng, ${waitSec}s, '
-          'nearby=$nearby, surge=${surgeX}x)';
+  String toString() => 'MatchTick($riderId, $zone, $lat, $lng, ${waitSec}s, '
+      'nearby=$nearby, surge=${surgeX}x)';
 }
 
 /// A single row in the append-only trip ledger.
@@ -896,10 +895,9 @@ class RideHailDispatchHarness {
   /// `TestTissue`. The string form is a portable check that survives
   /// across the List/Set/Map variants. A future build could replace it
   /// with a capability check.
-  static final TestTissue<TripEntry, TissueList<TripEntry>>
-  _tripAppendOnly =
-  TestTissue<TripEntry, TissueList<TripEntry>>(
-        (value, {host, arguments, user}) {
+  static final TestTissue<TripEntry, TissueList<TripEntry>> _tripAppendOnly =
+      TestTissue<TripEntry, TissueList<TripEntry>>(
+    (value, {host, arguments, user}) {
       if (arguments is Function) {
         final src = arguments.toString();
         if (src.contains('remove') ||
@@ -918,8 +916,8 @@ class RideHailDispatchHarness {
   /// over-assignment guard: a dispatcher cannot assign more drivers
   /// than the fleet is holding.
   static final TestTissue<int, TissueValue<int>> _nonNegativeInt =
-  TestTissue<int, TissueValue<int>>(
-        (value, {host, arguments, user}) {
+      TestTissue<int, TissueValue<int>>(
+    (value, {host, arguments, user}) {
       if (value is int) return value >= 0;
       return true;
     },
@@ -929,9 +927,8 @@ class RideHailDispatchHarness {
   ///
   /// Requires `driverId.isNotEmpty` and `riderId.isNotEmpty`.
   static final TestTissue<Assignment, TissueMap<String, Assignment>>
-  _assignmentRule =
-  TestTissue<Assignment, TissueMap<String, Assignment>>(
-        (value, {host, arguments, user}) {
+      _assignmentRule = TestTissue<Assignment, TissueMap<String, Assignment>>(
+    (value, {host, arguments, user}) {
       if (value is Assignment) {
         return value.driverId.isNotEmpty && value.riderId.isNotEmpty;
       }
@@ -943,8 +940,8 @@ class RideHailDispatchHarness {
   ///
   /// Requires an uppercase string of length ≥ 3.
   static final TestTissue<String, TissueSet<String>> _noGoRule =
-  TestTissue<String, TissueSet<String>>(
-        (value, {host, arguments, user}) {
+      TestTissue<String, TissueSet<String>>(
+    (value, {host, arguments, user}) {
       if (value is String) {
         return value.length >= 3 && value == value.toUpperCase();
       }
@@ -954,8 +951,8 @@ class RideHailDispatchHarness {
 
   /// Push job rule for [pushQ]. Accepts every job.
   static final TestTissue<PushJob, TissueQueue<PushJob>> _pushJobRule =
-  TestTissue<PushJob, TissueQueue<PushJob>>(
-        (value, {host, arguments, user}) => true,
+      TestTissue<PushJob, TissueQueue<PushJob>>(
+    (value, {host, arguments, user}) => true,
   );
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -971,7 +968,7 @@ class RideHailDispatchHarness {
   /// check. Without this the rule sees a `Pulse<double>` and rejects
   /// every emission.
   static final TestCell<Cell> _latRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! num) return false;
       final d = v.toDouble();
@@ -981,7 +978,7 @@ class RideHailDispatchHarness {
 
   /// Longitude shape: `−180.0 … 180.0` inclusive.
   static final TestCell<Cell> _lngRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! num) return false;
       final d = v.toDouble();
@@ -991,7 +988,7 @@ class RideHailDispatchHarness {
 
   /// Wait shape: `≥ 0 seconds`.
   static final TestCell<Cell> _waitRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! int) return false;
       return v >= 0;
@@ -1000,7 +997,7 @@ class RideHailDispatchHarness {
 
   /// Surge shape: `1.0 … 5.0` inclusive.
   static final TestCell<Cell> _surgeRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! num) return false;
       final d = v.toDouble();
@@ -1053,7 +1050,7 @@ class RideHailDispatchHarness {
 
     assignments = TissueMap<String, Assignment>(
       properties:
-      TissueMapNucleus<String, Assignment>(testRule: _assignmentRule),
+          TissueMapNucleus<String, Assignment>(testRule: _assignmentRule),
     );
 
     noGo = TissueSet<String>(<String>[], testRule: _noGoRule);
@@ -1102,8 +1099,7 @@ class RideHailDispatchHarness {
             print('[trips] DISPATCH ${t.riderId} — '
                 'zone=${t.zone} nearby=${t.nearby}');
 
-            final job =
-            PushJob(riderId: t.riderId, match: Match.dispatch);
+            final job = PushJob(riderId: t.riderId, match: Match.dispatch);
             pushQ.addLast(job);
             print('[pushQ] enqueued $job');
 
@@ -1211,7 +1207,7 @@ class RideHailDispatchHarness {
     // DISPATCH: MapValue → Distinct → Filter(dispatch)
     final dispatchFlow = MapValue<MatchTick, Match>(
           (t) => matchOf(t, noGo),
-    ) +
+        ) +
         _distinctDispatch() +
         Filter<Match>((m) => m == Match.dispatch);
 
@@ -1221,7 +1217,7 @@ class RideHailDispatchHarness {
     // SURGE: MapValue → Distinct → Filter(surge)
     final surgeFlow = MapValue<MatchTick, Match>(
           (t) => matchOf(t, noGo),
-    ) +
+        ) +
         _distinctSurge() +
         Filter<Match>((m) => m == Match.surge);
 
@@ -1683,10 +1679,12 @@ class RideHailDispatchHarness {
 /// | 13 | CANCEL without open assignment invents nothing |
 /// | COMPLY | deputy is live, writes blocked |
 Future<void> main() async {
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' ride-hail-dispatch(tissue)-Demo.dart');
   print(' Flow owns the match decision. Tissue owns the fleet books.');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   final h = RideHailDispatchHarness();
   await h.install();
@@ -1853,14 +1851,16 @@ Future<void> main() async {
 
   // ── Trailer ─────────────────────────────────────────────────────────────
   print('');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
   print('ticks=${h.ticks} dispatches=${h.dispatchCount} '
       'surges=${h.surgeCount} trips=${h.trips.length} '
       'pushAttempts=${h.pushAttempts}');
   print('idle=${h.idleDrivers.value} '
       'assignments=${h.assignmentCount}');
   print('auditorLength=${auditor.length} (same as trips)');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
 
   h.dispose();
 }

@@ -210,8 +210,10 @@ class BatchMetrics {
     totalProcessingTime += processingTime;
   }
 
-  double get averageBatchSize => totalBatches > 0 ? totalEvents / totalBatches : 0;
-  double get averageProcessingTime => totalBatches > 0 ? totalProcessingTime / totalBatches : 0;
+  double get averageBatchSize =>
+      totalBatches > 0 ? totalEvents / totalBatches : 0;
+  double get averageProcessingTime =>
+      totalBatches > 0 ? totalProcessingTime / totalBatches : 0;
 
   @override
   String toString() {
@@ -271,7 +273,8 @@ class EventFirehose {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Buffer: Batch Processing Demo ────────────────────────────────────────────────\n');
+  print(
+      '── Buffer: Batch Processing Demo ────────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. BufferCount - Batch by Size
@@ -334,7 +337,8 @@ Future<void> main() async {
     source: timeBuffer.cell,
     effect: (Pulse p) {
       final batch = p.payload as List<String>;
-      print('   [Batch] $batch (${batch.length} items) at ${DateTime.now().millisecond}ms');
+      print(
+          '   [Batch] $batch (${batch.length} items) at ${DateTime.now().millisecond}ms');
     },
   );
 
@@ -384,7 +388,8 @@ Future<void> main() async {
     source: comboBuffer.cell,
     effect: (Pulse p) {
       final batch = p.payload as List<int>;
-      print('   [Batch] $batch (${batch.length} items) - ${batch.length >= 3 ? "count triggered" : "time triggered"}');
+      print(
+          '   [Batch] $batch (${batch.length} items) - ${batch.length >= 3 ? "count triggered" : "time triggered"}');
     },
   );
 
@@ -421,7 +426,7 @@ Future<void> main() async {
   final predInput = Cell.ingress<int>();
 
   final predBuffer = BufferWithPredicate<int>(
-        (value) => value.isEven,
+    (value) => value.isEven,
     includeTrigger: true,
   ).toHandle(source: predInput.cell);
 
@@ -521,7 +526,7 @@ Future<void> main() async {
 
   // Process logs with summary
   final logProcessor = MapValue<List<LogEntry>, String>(
-        (batch) {
+    (batch) {
       final levels = batch.map((e) => e.level);
       final info = levels.where((l) => l == 'INFO').length;
       final warn = levels.where((l) => l == 'WARN').length;
@@ -541,13 +546,16 @@ Future<void> main() async {
   await logInput.emitAsync(LogEntry(level: 'INFO', message: 'User logged in'));
 
   print('   [App] API request (buffered)');
-  await logInput.emitAsync(LogEntry(level: 'INFO', message: 'API request /users'));
+  await logInput
+      .emitAsync(LogEntry(level: 'INFO', message: 'API request /users'));
 
   print('   [App] Database query (buffered)');
-  await logInput.emitAsync(LogEntry(level: 'WARN', message: 'Slow query: 2.3s'));
+  await logInput
+      .emitAsync(LogEntry(level: 'WARN', message: 'Slow query: 2.3s'));
 
   print('   [App] File upload (buffered)');
-  await logInput.emitAsync(LogEntry(level: 'ERROR', message: 'Upload failed: timeout'));
+  await logInput
+      .emitAsync(LogEntry(level: 'ERROR', message: 'Upload failed: timeout'));
 
   await Future.delayed(const Duration(milliseconds: 50));
 
@@ -576,12 +584,18 @@ Future<void> main() async {
   ).toHandle(source: sensorInput.cell);
 
   final sensorProcessor = MapValue<List<SensorReading>, String>(
-        (batch) {
-      final temps = batch.where((s) => s.type == 'Temperature').map((s) => s.value).toList();
-      final hums = batch.where((s) => s.type == 'Humidity').map((s) => s.value).toList();
-      final press = batch.where((s) => s.type == 'Pressure').map((s) => s.value).toList();
+    (batch) {
+      final temps = batch
+          .where((s) => s.type == 'Temperature')
+          .map((s) => s.value)
+          .toList();
+      final hums =
+          batch.where((s) => s.type == 'Humidity').map((s) => s.value).toList();
+      final press =
+          batch.where((s) => s.type == 'Pressure').map((s) => s.value).toList();
 
-      final avgTemp = temps.isNotEmpty ? temps.reduce((a, b) => a + b) / temps.length : 0;
+      final avgTemp =
+          temps.isNotEmpty ? temps.reduce((a, b) => a + b) / temps.length : 0;
       const avgHum = 45.0;
       const avgPress = 1013.2;
 
@@ -605,7 +619,8 @@ Future<void> main() async {
   ];
 
   for (final sensor in sensors) {
-    print('   [${sensor.sensorId}] ${sensor.value.toStringAsFixed(1)}${sensor.type == 'Temperature' ? '°C' : sensor.type == 'Humidity' ? '%' : 'hPa'}');
+    print(
+        '   [${sensor.sensorId}] ${sensor.value.toStringAsFixed(1)}${sensor.type == 'Temperature' ? '°C' : sensor.type == 'Humidity' ? '%' : 'hPa'}');
     await sensorInput.emitAsync(sensor);
     await Future.delayed(const Duration(milliseconds: 50));
   }
@@ -630,7 +645,7 @@ Future<void> main() async {
   ).toHandle(source: eventInput.cell);
 
   final eventProcessor = MapValue<List<UserEvent>, String>(
-        (batch) {
+    (batch) {
       final clicks = batch.where((e) => e.type == 'Click').length;
       final scrolls = batch.where((e) => e.type == 'Scroll').length;
       return '${batch.length} events - Clicks: $clicks, Scrolls: $scrolls';
@@ -675,7 +690,7 @@ Future<void> main() async {
 
   // Without batching (process each event)
   final withoutBatching = Tap<int>(
-        (value) {
+    (value) {
       perfMetrics.recordEvent('individual');
       // Simulate processing
     },
@@ -687,7 +702,7 @@ Future<void> main() async {
   ).toHandle(source: perfInput.cell);
 
   final batchProcessor = MapValue<List<int>, String>(
-        (batch) {
+    (batch) {
       perfMetrics.recordBatch(batch.length);
       return '${batch.length} items';
     },
@@ -715,7 +730,8 @@ Future<void> main() async {
   final batches = perfMetrics.totalBatches;
   final avgBatchSize = perfMetrics.averageBatchSize;
 
-  print('   Batches: $batches (${avgBatchSize.toStringAsFixed(1)} events/batch)');
+  print(
+      '   Batches: $batches (${avgBatchSize.toStringAsFixed(1)} events/batch)');
   print('   Processing time: ${stopwatch.elapsedMilliseconds}ms');
 
   // Simulate without batching overhead
@@ -761,5 +777,6 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }

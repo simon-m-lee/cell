@@ -224,7 +224,6 @@ void main() {
     });
   });
 
-
   group('DistinctUntilChanged extra', () {
     test('wrong types call onError and do not set previous', () async {
       final errors = <Object>[];

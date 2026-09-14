@@ -94,7 +94,8 @@ void main() {
     test('sees every pulse including wrong types', () async {
       final seen = <Object?>[];
       final IngressHandle<Object> gate = Cell.ingress<Object>();
-      final out = TapAll((p) => seen.add(p.payload)).toHandle(source: gate.cell);
+      final out =
+          TapAll((p) => seen.add(p.payload)).toHandle(source: gate.cell);
       final probe = _Probe(out.cell);
       addTearDown(probe.stop);
       await gate.emitAsync(1);
@@ -315,7 +316,8 @@ void main() {
   group('composition / performance', () {
     test('Tap + TapAll stays a chain', () async {
       final seen = <Object?>[];
-      final op = Tap<int>((n) => seen.add(n)) + TapAll((p) => seen.add(p.payload));
+      final op =
+          Tap<int>((n) => seen.add(n)) + TapAll((p) => seen.add(p.payload));
       final gate = Cell.ingress<int>();
       final out = op.toHandle(source: gate.cell);
       final probe = _Probe(out.cell);
@@ -337,7 +339,6 @@ void main() {
       expect(b.probe.payloads, hasLength(200));
     });
   });
-
 
   group('coverage extras', () {
     test('TapState next throw calls onError', () async {
@@ -372,5 +373,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

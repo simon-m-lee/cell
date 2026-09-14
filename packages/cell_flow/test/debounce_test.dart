@@ -131,7 +131,8 @@ void main() {
 
   group('DebounceLeadingOnly', () {
     test('emits only the first value of a burst', () async {
-      final b = bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 50)));
+      final b =
+          bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 50)));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(1);
       await b.gate.emitAsync(2);
@@ -141,7 +142,8 @@ void main() {
     });
 
     test('admits a new leading value after the window closes', () async {
-      final b = bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 40)));
+      final b =
+          bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 40)));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(1);
       await Future<void>.delayed(const Duration(milliseconds: 70));
@@ -192,7 +194,6 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
-
 
   group('Debounce extra', () {
     test('wrong types call onError and do not arm a timer', () async {
@@ -297,7 +298,8 @@ void main() {
     });
 
     test('DebounceLeadingOnly keeps first of a burst', () async {
-      final b = bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 40)));
+      final b =
+          bind(DebounceLeadingOnly<int>(const Duration(milliseconds: 40)));
       addTearDown(b.probe.stop);
       for (var i = 0; i < 50; i++) {
         await b.gate.emitAsync(i);

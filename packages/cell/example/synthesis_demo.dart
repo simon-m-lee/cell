@@ -29,7 +29,8 @@ class EnvironmentStatus {
   @override
   String toString() {
     final parts = <String>[];
-    if (temperature != null) parts.add('Temp=${temperature!.toStringAsFixed(1)}°C');
+    if (temperature != null)
+      parts.add('Temp=${temperature!.toStringAsFixed(1)}°C');
     if (humidity != null) parts.add('Hum=${humidity!.toStringAsFixed(0)}%');
     if (pressure != null) parts.add('Press=${pressure!.toStringAsFixed(0)}hPa');
     if (light != null) parts.add('Light=${light!.toStringAsFixed(0)}lux');
@@ -43,10 +44,12 @@ class FormState {
   final List<String> errors;
   final Map<String, String> fields;
 
-  FormState({required this.isValid, this.errors = const [], this.fields = const {}});
+  FormState(
+      {required this.isValid, this.errors = const [], this.fields = const {}});
 
   @override
-  String toString() => 'FormState(isValid: $isValid, errors: ${errors.join(', ')})';
+  String toString() =>
+      'FormState(isValid: $isValid, errors: ${errors.join(', ')})';
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -223,22 +226,21 @@ Future<void> main() async {
       String triggerName = 'unknown';
       if (triggerSource == tempCell) {
         triggerName = 'temperature';
-      }
-      else if (triggerSource == humCell) {
+      } else if (triggerSource == humCell) {
         triggerName = 'humidity';
-      }
-      else if (triggerSource == pressCell) {
+      } else if (triggerSource == pressCell) {
         triggerName = 'pressure';
-      }
-      else if (triggerSource == lightHandle?.cell) {
+      } else if (triggerSource == lightHandle?.cell) {
         triggerName = 'light';
 
         print('   [Aggregator] Triggered by: $triggerName');
-        print('   [Aggregator] Values: Temp=${temp?.toStringAsFixed(1) ?? 'N/A'}°C, '
+        print(
+            '   [Aggregator] Values: Temp=${temp?.toStringAsFixed(1) ?? 'N/A'}°C, '
             'Hum=${hum?.toStringAsFixed(0) ?? 'N/A'}%, '
             'Press=${press?.toStringAsFixed(0) ?? 'N/A'}hPa'
             '${light != null ? ', Light=${light.toInt()}lux' : ''}');
-        print('   [Aggregator] Output: EnvironmentStatus{temp: ${temp?.toStringAsFixed(1) ?? 'null'}, '
+        print(
+            '   [Aggregator] Output: EnvironmentStatus{temp: ${temp?.toStringAsFixed(1) ?? 'null'}, '
             'hum: ${hum?.toStringAsFixed(0) ?? 'null'}, '
             'press: ${press?.toStringAsFixed(0) ?? 'null'}, '
             'quality: $quality}');
@@ -509,7 +511,8 @@ Future<void> formValidationDemo() async {
 
       final isValid = errors.isEmpty;
 
-      print('   [Validator] Form is ${isValid ? 'VALID' : 'INVALID'}: ${errors.isEmpty ? 'All fields valid' : errors.join(', ')}');
+      print(
+          '   [Validator] Form is ${isValid ? 'VALID' : 'INVALID'}: ${errors.isEmpty ? 'All fields valid' : errors.join(', ')}');
 
       return Pulse(FormState(
         isValid: isValid,

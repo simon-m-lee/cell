@@ -164,7 +164,6 @@ void main() {
     });
   });
 
-
   group('Share extra', () {
     test('seen stays 0 with no pulses', () async {
       final op = Share<int>();

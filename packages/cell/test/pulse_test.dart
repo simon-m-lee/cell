@@ -219,7 +219,8 @@ void main() {
 
       test('evolve(step) lengthens lineage without causal branching', () {
         final root = Pulse<int>(10);
-        final processed = root.evolve(step: 'sanitized').evolve(step: 'validated');
+        final processed =
+            root.evolve(step: 'sanitized').evolve(step: 'validated');
 
         expect(processed.trace, ['sanitized', 'validated']);
         expect(root.trace, []);
@@ -311,7 +312,8 @@ void main() {
 
       test('evolve with context and step adds trace without EvolvedPulse', () {
         final context = PulseContext(actor: 'admin');
-        final pulse = Pulse<int>(42).evolve(step: 'validation', context: context);
+        final pulse =
+            Pulse<int>(42).evolve(step: 'validation', context: context);
         expect(pulse.context.actor, 'admin');
         expect(pulse.trace, ['validation']);
         expect(pulse.isGoverned, true);
@@ -345,8 +347,11 @@ void main() {
 
       test('lineage tracks type history with evolve(pulse)', () {
         final root = Pulse<int>(42, type: 'counter');
-        final evolved1 = root.evolve(pulse: Pulse<String>('result', type: 'validation'), step: 'step1');
-        final evolved2 = evolved1.evolve(pulse: Pulse<String>('final', type: 'transformation'), step: 'step2');
+        final evolved1 = root.evolve(
+            pulse: Pulse<String>('result', type: 'validation'), step: 'step1');
+        final evolved2 = evolved1.evolve(
+            pulse: Pulse<String>('final', type: 'transformation'),
+            step: 'step2');
 
         final lineage = evolved2.lineage<dynamic>(LineageArgument.type);
         expect(lineage, ['counter', 'validation', 'transformation']);
@@ -355,7 +360,8 @@ void main() {
 
       test('lineage tracks priority history with evolve(pulse)', () {
         final root = Pulse<int>(42, priority: 60);
-        final evolved = root.evolve(pulse: Pulse<int>(43, priority: 80), step: 'step1');
+        final evolved =
+            root.evolve(pulse: Pulse<int>(43, priority: 80), step: 'step1');
 
         final lineage = evolved.lineage<dynamic>(LineageArgument.priority);
         expect(lineage, [60, 80]);
@@ -366,7 +372,8 @@ void main() {
         final cell1 = TestCell();
         final cell2 = TestCell();
         final root = Pulse<int>(42, source: cell1);
-        final evolved = root.evolve(pulse: Pulse<int>(43, source: cell2), step: 'step1');
+        final evolved =
+            root.evolve(pulse: Pulse<int>(43, source: cell2), step: 'step1');
 
         final lineage = evolved.lineage<dynamic>(LineageArgument.source);
         expect(lineage, [cell1, cell2]);
@@ -375,9 +382,8 @@ void main() {
 
       test('withStep does NOT affect lineage history', () {
         final root = Pulse<int>(42);
-        final processed = root
-            .withStep('validation')
-            .withStep('transformation');
+        final processed =
+            root.withStep('validation').withStep('transformation');
 
         final lineage = processed.lineage<dynamic>(LineageArgument.payload);
         expect(lineage, [42]);
@@ -387,9 +393,8 @@ void main() {
 
       test('evolve(step) does NOT affect lineage history', () {
         final root = Pulse<int>(42);
-        final processed = root
-            .evolve(step: 'validation')
-            .evolve(step: 'transformation');
+        final processed =
+            root.evolve(step: 'validation').evolve(step: 'transformation');
 
         final lineage = processed.lineage<dynamic>(LineageArgument.payload);
         expect(lineage, [42]);
@@ -442,8 +447,10 @@ void main() {
       });
 
       test('Pulse.batch with governed pulses', () {
-        final p1 = Pulse.governed(payload: 1, context: PulseContext(actor: 'admin'));
-        final p2 = Pulse.governed(payload: 2, context: PulseContext(actor: 'admin'));
+        final p1 =
+            Pulse.governed(payload: 1, context: PulseContext(actor: 'admin'));
+        final p2 =
+            Pulse.governed(payload: 2, context: PulseContext(actor: 'admin'));
         final collective = Pulse.batch([p1, p2]);
         expect(collective.isComposite, true);
         expect(collective.payload.length, 2);
@@ -510,7 +517,9 @@ void main() {
         expect(unmodifiable.payload, 42);
       });
 
-      test('unmodifiable does NOT block withStep - creates new modifiable instance', () {
+      test(
+          'unmodifiable does NOT block withStep - creates new modifiable instance',
+          () {
         final pulse = Pulse<int>(42);
         final protected = pulse.unmodifiable;
 
@@ -524,7 +533,9 @@ void main() {
         expect(protected.payload, 42);
       });
 
-      test('unmodifiable does NOT block evolve(step) - creates new modifiable instance', () {
+      test(
+          'unmodifiable does NOT block evolve(step) - creates new modifiable instance',
+          () {
         final pulse = Pulse<int>(42);
         final protected = pulse.unmodifiable;
 
@@ -547,7 +558,8 @@ void main() {
         expect(protectedCell, isA<Cell>());
       });
 
-      test('unmodifiable recursively protects parent chain for EvolvedPulse', () {
+      test('unmodifiable recursively protects parent chain for EvolvedPulse',
+          () {
         final root = Pulse<int>(42);
         // Only evolve with pulse creates EvolvedPulse
         final child = Pulse<String>('result');
@@ -560,7 +572,9 @@ void main() {
         expect(parent, isA<UnmodifiablePulse>());
       });
 
-      test('unmodifiable with evolve(step) does NOT create recursive parent chain', () {
+      test(
+          'unmodifiable with evolve(step) does NOT create recursive parent chain',
+          () {
         final pulse = Pulse<int>(42);
         final protected = pulse.unmodifiable;
 
@@ -617,7 +631,9 @@ void main() {
         expect(unmodifiable.priority, Pulse.defaultPriority);
       });
 
-      test('evolve with pulse from unmodifiable preserves protected instance as parent', () {
+      test(
+          'evolve with pulse from unmodifiable preserves protected instance as parent',
+          () {
         final pulse = Pulse<int>(42);
         final protected = pulse.unmodifiable;
 
@@ -675,7 +691,6 @@ void main() {
     });
 
     group('Comparison', () {
-
       // Earlier timestamp has higher precedence (negative compareTo), independent
       // of payload. Two Pulse() calls in the same microsecond share a timestamp
       // and fall through to priority/trace, so wait until the clock advances.
@@ -706,7 +721,8 @@ void main() {
         expect(p1.compareTo(p2), isNotNull);
       });
 
-      test('compareTo orders by trace depth when timestamps and priority equal', () {
+      test('compareTo orders by trace depth when timestamps and priority equal',
+          () {
         final p1 = Pulse<int>(1, priority: 60);
         final p2 = Pulse<int>(2, priority: 60).withStep('step');
         expect(p1.compareTo(p2), lessThan(0));
@@ -739,7 +755,8 @@ void main() {
         expect(list.first, pulse);
       });
 
-      test('iterating over withStep pulse yields itself (not EvolvedPulse)', () {
+      test('iterating over withStep pulse yields itself (not EvolvedPulse)',
+          () {
         final pulse = Pulse<int>(42)
             .withStep('step1')
             .withStep('step2')
@@ -750,7 +767,8 @@ void main() {
         expect(pulse is EvolvedPulse, false);
       });
 
-      test('iterating over evolve(step) pulse yields itself (not EvolvedPulse)', () {
+      test('iterating over evolve(step) pulse yields itself (not EvolvedPulse)',
+          () {
         final pulse = Pulse<int>(42)
             .evolve(step: 'step1')
             .evolve(step: 'step2')
@@ -824,7 +842,8 @@ void main() {
         expect(pulse.isGoverned, false);
       });
 
-      test('isGoverned returns true when context is inherited via evolve(step)', () {
+      test('isGoverned returns true when context is inherited via evolve(step)',
+          () {
         final context = PulseContext(actor: 'admin');
         final pulse = Pulse.governed(payload: 42, context: context);
         final evolved = pulse.evolve(step: 'validation');
@@ -833,7 +852,9 @@ void main() {
         expect(evolved is EvolvedPulse, false);
       });
 
-      test('isGoverned returns true when context is inherited via evolve(pulse)', () {
+      test(
+          'isGoverned returns true when context is inherited via evolve(pulse)',
+          () {
         final context = PulseContext(actor: 'admin');
         final pulse = Pulse.governed(payload: 42, context: context);
         final child = Pulse<int>(43);
@@ -1164,7 +1185,8 @@ void main() {
           confidence: 0.9,
         );
         expect(context.actor, 'HomeostasisGuard');
-        expect(context.reason, 'Homeostasis Recovery (temperature): Value out of bounds');
+        expect(context.reason,
+            'Homeostasis Recovery (temperature): Value out of bounds');
         expect(context.strategy, ReasoningStrategy.deterministic);
         expect(context.confidence, 0.9);
         expect(context.priority, 85);
@@ -1181,7 +1203,8 @@ void main() {
           task: 'ProcessData',
         );
         expect(context.actor, 'Orchestrator');
-        expect(context.reason, 'DELEGATION: Assigning ProcessData to WorkerAgent');
+        expect(
+            context.reason, 'DELEGATION: Assigning ProcessData to WorkerAgent');
         expect(context.strategy, ReasoningStrategy.deterministic);
         expect(context.confidence, 1.0);
         expect(context.priority, 60);
@@ -1197,7 +1220,8 @@ void main() {
           theory: 'Memory scaling improves performance',
         );
         expect(context.actor, 'Predictor');
-        expect(context.reason, 'HYPOTHESIS_TEST: Memory scaling improves performance');
+        expect(context.reason,
+            'HYPOTHESIS_TEST: Memory scaling improves performance');
         expect(context.strategy, ReasoningStrategy.stochastic);
         expect(context.confidence, 0.0);
         expect(context.priority, 20);
@@ -1286,7 +1310,8 @@ void main() {
         expect(mapped.root.payload, 10);
       });
 
-      test('map keeps the original context and governance on the evolved child', () {
+      test('map keeps the original context and governance on the evolved child',
+          () {
         final pulse = Pulse<int>.governed(
           payload: 3,
           context: PulseContext(actor: 'mapper'),
@@ -1469,7 +1494,9 @@ void main() {
         expect(evolved.isComposite, true);
       });
 
-      test('withStep is for documentation, evolve(pulse) is for causal branching', () {
+      test(
+          'withStep is for documentation, evolve(pulse) is for causal branching',
+          () {
         final root = Pulse<int>(42);
 
         // withStep - documents the journey without branching
@@ -1488,7 +1515,8 @@ void main() {
             .evolve(pulse: Pulse<int>(45), step: 'transformed');
         expect(branched.trace, ['validated', 'sanitized', 'transformed']);
         expect(branched is EvolvedPulse, true);
-        expect(branched.lineage<dynamic>(LineageArgument.payload), [42, 43, 44, 45]);
+        expect(branched.lineage<dynamic>(LineageArgument.payload),
+            [42, 43, 44, 45]);
       });
 
       test('withStep does NOT affect root.trace', () {
@@ -1515,7 +1543,8 @@ void main() {
         expect(root.lineage<dynamic>(LineageArgument.payload), [10]);
 
         expect(evolved2.trace, ['step1', 'step2']);
-        expect(evolved2.lineage<dynamic>(LineageArgument.payload), [10, 20, 30]);
+        expect(
+            evolved2.lineage<dynamic>(LineageArgument.payload), [10, 20, 30]);
         expect(evolved2 is EvolvedPulse, true);
         expect((evolved2 as EvolvedPulse).parent, evolved1);
       });
@@ -1523,14 +1552,10 @@ void main() {
       test('withStep and evolve(pulse) can be combined', () {
         final root = Pulse<int>(10);
 
-        final documented = root
-            .withStep('validated')
-            .withStep('sanitized');
+        final documented = root.withStep('validated').withStep('sanitized');
 
-        final result = documented.evolve(
-            pulse: Pulse<int>(20),
-            step: 'transformed'
-        );
+        final result =
+            documented.evolve(pulse: Pulse<int>(20), step: 'transformed');
 
         expect(result is EvolvedPulse, true);
         expect(result.trace, ['validated', 'sanitized', 'transformed']);
@@ -1635,7 +1660,8 @@ void main() {
           context: ctx,
           policy: policy,
         );
-        expect(pulse.lineage<PulseEphemeralPolicy>(LineageArgument.policy), [policy]);
+        expect(pulse.lineage<PulseEphemeralPolicy>(LineageArgument.policy),
+            [policy]);
         expect(pulse.lineage<Context>(LineageArgument.context), isNotEmpty);
       });
 
@@ -1714,7 +1740,8 @@ void main() {
         expect(shell.context, pulse.context);
       });
 
-      test('shell compareTo uses priority then trace when timestamps match', () {
+      test('shell compareTo uses priority then trace when timestamps match',
+          () {
         PulseShell? low;
         PulseShell? high;
         for (var i = 0; i < 200; i++) {
@@ -1764,7 +1791,8 @@ void main() {
         expect(child.isGoverned, isTrue);
       });
 
-      test('CollectivePulse.governed stores type, context, step, and scrutinize',
+      test(
+          'CollectivePulse.governed stores type, context, step, and scrutinize',
           () {
         final ctx = PulseContext(actor: 'batch');
         final batch = CollectivePulse.governed(

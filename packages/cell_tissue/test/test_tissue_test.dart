@@ -8,11 +8,11 @@ import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
 
 class _AsyncElementRule extends TestElementRule<int, TissueList<int>> {
-  _AsyncElementRule()
-      : super((e, {required host, action, user}) => true);
+  _AsyncElementRule() : super((e, {required host, action, user}) => true);
 
   @override
-  FutureOr<bool> element(int? element, {required TissueList<int> host, Function? action}) async {
+  FutureOr<bool> element(int? element,
+      {required TissueList<int> host, Function? action}) async {
     return element != null && element > 0;
   }
 }
@@ -76,7 +76,8 @@ void main() {
   });
 
   group('TestTissue rule policies', () {
-    test('call routes element objects with function arguments to element()', () async {
+    test('call routes element objects with function arguments to element()',
+        () async {
       final rule = TestTissue<int, TissueList<int>>(
         (value, {host, arguments, user}) => value > 0,
       );
@@ -86,7 +87,8 @@ void main() {
       expect(await rule.call(-1, host: list, arguments: list.add), isFalse);
     });
 
-    test('call falls back to super when arguments are not a Function', () async {
+    test('call falls back to super when arguments are not a Function',
+        () async {
       final rule = TestTissue<int, TissueList<int>>(
         (value, {host, arguments, user}) => value is! int || value > 0,
       );

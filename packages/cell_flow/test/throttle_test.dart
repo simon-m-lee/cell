@@ -126,7 +126,6 @@ void main() {
     });
   });
 
-
   group('Throttle extra', () {
     test('wrong types call onError and do not open a window', () async {
       final errors = <Object>[];

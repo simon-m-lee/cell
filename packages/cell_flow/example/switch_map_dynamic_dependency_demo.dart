@@ -297,7 +297,8 @@ class DataSourceFactory {
         role: 'moderator',
       ),
     };
-    return profiles[userId] ?? UserProfile(id: userId, name: 'Unknown', email: 'unknown@example.com');
+    return profiles[userId] ??
+        UserProfile(id: userId, name: 'Unknown', email: 'unknown@example.com');
   }
 
   /// Creates a dashboard view source.
@@ -325,24 +326,51 @@ class DataSourceFactory {
       yield DashboardView(
         name: 'logs',
         data: [
-          {'timestamp': DateTime.now().subtract(Duration(seconds: 5)).toIso8601String(), 'level': 'INFO', 'message': 'System started'},
-          {'timestamp': DateTime.now().subtract(Duration(seconds: 3)).toIso8601String(), 'level': 'WARN', 'message': 'High memory usage'},
-          {'timestamp': DateTime.now().subtract(Duration(seconds: 1)).toIso8601String(), 'level': 'INFO', 'message': 'Request processed'},
+          {
+            'timestamp':
+                DateTime.now().subtract(Duration(seconds: 5)).toIso8601String(),
+            'level': 'INFO',
+            'message': 'System started'
+          },
+          {
+            'timestamp':
+                DateTime.now().subtract(Duration(seconds: 3)).toIso8601String(),
+            'level': 'WARN',
+            'message': 'High memory usage'
+          },
+          {
+            'timestamp':
+                DateTime.now().subtract(Duration(seconds: 1)).toIso8601String(),
+            'level': 'INFO',
+            'message': 'Request processed'
+          },
         ],
       );
     } else if (viewName == 'alerts') {
       yield DashboardView(
         name: 'alerts',
         data: [
-          {'timestamp': DateTime.now().subtract(Duration(seconds: 10)).toIso8601String(), 'severity': 'CRITICAL', 'message': 'System overload'},
-          {'timestamp': DateTime.now().subtract(Duration(seconds: 5)).toIso8601String(), 'severity': 'WARNING', 'message': 'High latency'},
+          {
+            'timestamp': DateTime.now()
+                .subtract(Duration(seconds: 10))
+                .toIso8601String(),
+            'severity': 'CRITICAL',
+            'message': 'System overload'
+          },
+          {
+            'timestamp':
+                DateTime.now().subtract(Duration(seconds: 5)).toIso8601String(),
+            'severity': 'WARNING',
+            'message': 'High latency'
+          },
         ],
       );
     }
   }
 
   /// Creates a feature implementation.
-  static Future<String> featureImplementation(String version, String input) async {
+  static Future<String> featureImplementation(
+      String version, String input) async {
     await Future.delayed(const Duration(milliseconds: 200));
     if (version == 'v1') {
       return 'Feature V1: Processing "$input" with basic algorithm';
@@ -354,7 +382,8 @@ class DataSourceFactory {
   }
 
   /// Creates an API connection.
-  static Future<ApiEndpoint> connectToEndpoint(String url, String version) async {
+  static Future<ApiEndpoint> connectToEndpoint(
+      String url, String version) async {
     await Future.delayed(const Duration(milliseconds: 200));
     return ApiEndpoint(
       url: url,
@@ -365,7 +394,8 @@ class DataSourceFactory {
   }
 
   /// Creates a source with shared state.
-  static Stream<String> statefulSource(String label, Map<String, dynamic> sharedState) async* {
+  static Stream<String> statefulSource(
+      String label, Map<String, dynamic> sharedState) async* {
     final count = sharedState['count'] as int? ?? 0;
     yield '$label: Starting with state: $count';
     for (var i = 1; i <= 3; i++) {
@@ -383,7 +413,8 @@ class DataSourceFactory {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Dynamic Dependency Injection Demo ─────────────────────────────────────\n');
+  print(
+      '── Dynamic Dependency Injection Demo ─────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Source Switching
@@ -494,7 +525,8 @@ Future<void> main() async {
     effect: (Pulse p) {
       final view = p.payload as DashboardView;
       if (view.name == 'metrics') {
-        final metrics = view.data.map((m) => '${m['metric']}: ${m['value']}%').join(', ');
+        final metrics =
+            view.data.map((m) => '${m['metric']}: ${m['value']}%').join(', ');
         print('   [Metrics] ✅ Showing live metrics: $metrics');
       } else if (view.name == 'logs') {
         print('   [Logs] ✅ Showing recent logs: ${view.data.length} entries');
@@ -594,7 +626,8 @@ Future<void> main() async {
     source: apiHandle.cell,
     effect: (Pulse p) {
       final endpoint = p.payload as ApiEndpoint;
-      print('   [API] ✅ Connected to ${endpoint.url} (v${endpoint.version}) - ${endpoint.status}');
+      print(
+          '   [API] ✅ Connected to ${endpoint.url} (v${endpoint.version}) - ${endpoint.status}');
     },
   );
 
@@ -646,7 +679,8 @@ Future<void> main() async {
   );
 
   // Simulate switching with shared state
-  print('   [State] Current: ${sharedState2['count']} (shared across switches)');
+  print(
+      '   [State] Current: ${sharedState2['count']} (shared across switches)');
 
   await stateSelector.emitAsync('source-a');
   await Future.delayed(const Duration(milliseconds: 500));
@@ -755,7 +789,8 @@ Future<void> main() async {
     source: authHandle.cell,
     effect: (Pulse p) {
       final data = p.payload as Map<String, dynamic>;
-      print('   [Auth] ✅ Authenticated with ${data['provider']}: ${data['email']}');
+      print(
+          '   [Auth] ✅ Authenticated with ${data['provider']}: ${data['email']}');
     },
   );
 
@@ -872,7 +907,8 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -930,9 +966,9 @@ Stream<String> _fallbackWorkflow(String type) async* {
 extension FlowUtils on Flow {
   /// Creates a switchMap with the specified project function.
   static FlowHandle switchMap<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) project,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) project,
+  }) {
     // Use the existing SwitchMap operator from the Cell Flow library
     final instruction = SwitchMap<S, T>(project);
     return instruction.toHandle(source: source);
@@ -948,48 +984,48 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   final FutureOr<Object?> Function(S value) _project;
 
   SwitchMap(
-      this._project, {
-        dynamic user,
-      }) : super.future(
-    (() {
-      var generation = 0;
+    this._project, {
+    dynamic user,
+  }) : super.future(
+          (() {
+            var generation = 0;
 
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) return null;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) return null;
 
-        final id = ++generation;
+              final id = ++generation;
 
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => _project(payload));
-            if (id != generation) return;
-            await _drain(inner, (item) {
-              if (id != generation) return;
-              if (item is T) {
-                future!(
-                  result: _fromPayload(item, pulse, cell, 'SwitchMap'),
-                  token: token,
-                );
+              Future<void> run() async {
+                try {
+                  final inner = await Future.sync(() => _project(payload));
+                  if (id != generation) return;
+                  await _drain(inner, (item) {
+                    if (id != generation) return;
+                    if (item is T) {
+                      future!(
+                        result: _fromPayload(item, pulse, cell, 'SwitchMap'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e) {
+                  // Error handling - emit error pulse
+                  if (id == generation) {
+                    future!(
+                      result: _errorPayload(e, pulse, cell, 'SwitchMap.error'),
+                      token: token,
+                    );
+                  }
+                }
               }
-            });
-          } catch (e) {
-            // Error handling - emit error pulse
-            if (id == generation) {
-              future!(
-                result: _errorPayload(e, pulse, cell, 'SwitchMap.error'),
-                token: token,
-              );
-            }
-          }
-        }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -998,10 +1034,10 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 
 /// Drains any object (Future, Stream, Iterable, or value) into a callback.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 

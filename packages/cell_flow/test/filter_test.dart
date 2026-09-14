@@ -160,7 +160,6 @@ void main() {
     });
   });
 
-
   group('FilterByTime', () {
     test('first value is immediate; early follow-ups wait', () async {
       final b = bind(FilterByTime<int>(const Duration(milliseconds: 80)));
@@ -184,7 +183,8 @@ void main() {
   });
 
   group('AsyncFilter', () {
-    test('keeps values whose predicate resolves true, in input order', () async {
+    test('keeps values whose predicate resolves true, in input order',
+        () async {
       final b = bind(AsyncFilter<String>((name) async {
         await Future<void>.delayed(Duration(
           milliseconds: name == 'slow-ok' ? 40 : 5,
@@ -345,7 +345,8 @@ void main() {
 
   group('composition', () {
     test('Filter + FilterNotNull can be chained with +', () async {
-      final op = Filter<String?>((s) => (s ?? '').length > 1) + FilterNotNull<String>();
+      final op = Filter<String?>((s) => (s ?? '').length > 1) +
+          FilterNotNull<String>();
       final IngressHandle<String?> ingress = Cell.ingress<String?>();
       final out = op.toHandle(source: ingress.cell);
       final probe = _Probe(out.cell);
@@ -374,7 +375,6 @@ void main() {
       expect(errors.single, isA<FormatException>());
     });
   });
-
 
   group('Filter extra', () {
     test('onError is optional when predicate throws', () async {

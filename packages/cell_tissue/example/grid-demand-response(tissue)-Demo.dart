@@ -902,10 +902,9 @@ class GridDemandResponseHarness {
   /// `TestTissue`. The string form is a portable check that survives
   /// across the List/Set/Map variants. A future build could replace it
   /// with a capability check.
-  static final TestTissue<GridEvent, TissueList<GridEvent>>
-  _eventAppendOnly =
-  TestTissue<GridEvent, TissueList<GridEvent>>(
-        (value, {host, arguments, user}) {
+  static final TestTissue<GridEvent, TissueList<GridEvent>> _eventAppendOnly =
+      TestTissue<GridEvent, TissueList<GridEvent>>(
+    (value, {host, arguments, user}) {
       if (arguments is Function) {
         final src = arguments.toString();
         if (src.contains('remove') ||
@@ -924,8 +923,8 @@ class GridDemandResponseHarness {
   /// the under-frequency guard: an operator cannot shed more MW than
   /// the system is holding.
   static final TestTissue<int, TissueValue<int>> _nonNegativeMw =
-  TestTissue<int, TissueValue<int>>(
-        (value, {host, arguments, user}) {
+      TestTissue<int, TissueValue<int>>(
+    (value, {host, arguments, user}) {
       if (value is int) return value >= 0;
       return true;
     },
@@ -935,8 +934,8 @@ class GridDemandResponseHarness {
   ///
   /// Requires `droppedMw > 0` and `feeder.isNotEmpty`.
   static final TestTissue<Shed, TissueMap<String, Shed>> _shedRule =
-  TestTissue<Shed, TissueMap<String, Shed>>(
-        (value, {host, arguments, user}) {
+      TestTissue<Shed, TissueMap<String, Shed>>(
+    (value, {host, arguments, user}) {
       if (value is Shed) {
         return value.droppedMw > 0 && value.feeder.isNotEmpty;
       }
@@ -949,8 +948,8 @@ class GridDemandResponseHarness {
   /// Requires an uppercase `AREA-N` style string: must contain a `-`
   /// and must already be uppercase.
   static final TestTissue<String, TissueSet<String>> _protectedRule =
-  TestTissue<String, TissueSet<String>>(
-        (value, {host, arguments, user}) {
+      TestTissue<String, TissueSet<String>>(
+    (value, {host, arguments, user}) {
       if (value is String) {
         return value.contains('-') && value == value.toUpperCase();
       }
@@ -960,8 +959,8 @@ class GridDemandResponseHarness {
 
   /// RTU job rule for [rtuQ]. Accepts every job.
   static final TestTissue<RtuJob, TissueQueue<RtuJob>> _rtuJobRule =
-  TestTissue<RtuJob, TissueQueue<RtuJob>>(
-        (value, {host, arguments, user}) => true,
+      TestTissue<RtuJob, TissueQueue<RtuJob>>(
+    (value, {host, arguments, user}) => true,
   );
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -977,7 +976,7 @@ class GridDemandResponseHarness {
   /// check. Without this the rule sees a `Pulse<double>` and rejects
   /// every emission.
   static final TestCell<Cell> _hzRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! num) return false;
       final d = v.toDouble();
@@ -987,7 +986,7 @@ class GridDemandResponseHarness {
 
   /// Load shape: `≥ 0 MW`.
   static final TestCell<Cell> _loadRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! int) return false;
       return v >= 0;
@@ -996,7 +995,7 @@ class GridDemandResponseHarness {
 
   /// SOC shape: `0 … 100 %` inclusive.
   static final TestCell<Cell> _socRange = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! int) return false;
       return v >= 0 && v <= 100;
@@ -1202,7 +1201,7 @@ class GridDemandResponseHarness {
     // SHED: MapValue → Distinct → Filter(shed)
     final shedFlow = MapValue<BayTick, Action>(
           (t) => actionOf(t, protected),
-    ) +
+        ) +
         _distinctShed() +
         Filter<Action>((a) => a == Action.shed);
 
@@ -1212,7 +1211,7 @@ class GridDemandResponseHarness {
     // WARN: MapValue → Distinct → Filter(warn)
     final warnFlow = MapValue<BayTick, Action>(
           (t) => actionOf(t, protected),
-    ) +
+        ) +
         _distinctWarn() +
         Filter<Action>((a) => a == Action.warn);
 
@@ -1655,10 +1654,12 @@ class GridDemandResponseHarness {
 /// | 13 | ACK without open shed invents no MW |
 /// | COMPLY | deputy is live, writes blocked |
 Future<void> main() async {
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' grid-demand-response(tissue)-Demo.dart');
   print(' Flow owns the shed decision. Tissue owns the feeder books.');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   final h = GridDemandResponseHarness();
   await h.install();
@@ -1799,8 +1800,7 @@ Future<void> main() async {
       'unchanged=${h.reserveMw.value == r13}');
 
   // ── COMPLY ──────────────────────────────────────────────────────────────
-  _section('COMPLY',
-      'council.add(...) blocked; length == events.length');
+  _section('COMPLY', 'council.add(...) blocked; length == events.length');
   final council = h.events.unmodifiable;
   final eventsBefore = h.events.length;
   var blocked = false;
@@ -1821,13 +1821,15 @@ Future<void> main() async {
 
   // ── Trailer ─────────────────────────────────────────────────────────────
   print('');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
   print('ticks=${h.ticks} sheds=${h.shedCount} warns=${h.warnCount} '
       'events=${h.events.length} rtuAttempts=${h.rtuAttempts}');
   print('reserveMw=${h.reserveMw.value} '
       'openSheds=${h.openShedsCount}');
   print('councilLength=${council.length} (same as events)');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
 
   h.dispose();
 }

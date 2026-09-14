@@ -87,7 +87,6 @@ part of '../../cell.dart';
 /// {@category Advanced}
 /// {@category Pulse Ephemeral Policy}
 class PulseEphemeralPolicy {
-
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -148,17 +147,18 @@ class PulseEphemeralPolicy {
   /// );
   /// ```
   PulseEphemeralPolicy({
-    required ({int? hops}) Function(Cell cell,{required PulseEphemeralPolicy policy}) onEvent,
+    required ({int? hops}) Function(Cell cell,
+            {required PulseEphemeralPolicy policy})
+        onEvent,
     required bool Function(Pulse pulse) onInvalidate,
     int? hopLimit,
     Duration? duration,
     dynamic user,
   }) : _record = mask(
-          onEvent: onEvent,
-          hopLimit: hopLimit,
-          duration: duration,
-          onInvalidate: onInvalidate
-        );
+            onEvent: onEvent,
+            hopLimit: hopLimit,
+            duration: duration,
+            onInvalidate: onInvalidate);
 
   /// The maximum **Time‑To‑Live (TTL)** for the pulse.
   ///
@@ -276,11 +276,37 @@ class PulseEphemeralPolicy {
     final mask = ((hopLimit != null ? 1 : 0) | (duration != null ? 2 : 0));
 
     return switch (mask) {
-      0 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>()),
-      1 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), hopLimit: hopLimit, hops: Box<int>()),
-      2 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), duration: duration),
-      3 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), hopLimit: hopLimit, hops: Box<int>(), duration: duration),
-      _ => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>())
+      0 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>()
+        ),
+      1 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          hopLimit: hopLimit,
+          hops: Box<int>()
+        ),
+      2 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          duration: duration
+        ),
+      3 => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>(),
+          hopLimit: hopLimit,
+          hops: Box<int>(),
+          duration: duration
+        ),
+      _ => (
+          onEvent: onEvent,
+          onInvalidate: onInvalidate,
+          invalidated: FinalBox<bool>()
+        )
     };
   }
 }

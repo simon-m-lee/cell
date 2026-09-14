@@ -35,7 +35,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef FlattenErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef FlattenErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Defines a **Pulse Expansion Orchestrator**—a specialized closure used to
 /// transform a single stimulus into a complex **Inner Sequence**.
@@ -88,10 +89,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -225,7 +226,6 @@ Future<void> _drain(
 /// - [ConcatMapFirst]: For exhaust flattening.
 /// - [AsyncExpand]: For flattening with different strategies.
 class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Sequential Expansion Bridge**—a specialized orchestration
   /// instruction designed for ordered, one-by-one inner pulse evolution.
   ///
@@ -266,43 +266,43 @@ class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ConcatMapLatest]: For latest-only flattening.
   /// - [ConcatMapFirst]: For exhaust flattening.
   ConcatMap(
-      FlattenMapper<S> mapper, {
-        FlattenErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = _ConcatQueue();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.enqueue(() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            await _drain(inner, (value) {
-              if (value is T) {
-                future!(
-                  result: _out<T>(value, cell, pulse, 'ConcatMap'),
-                  token: token,
+    FlattenMapper<S> mapper, {
+    FlattenErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = _ConcatQueue();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
+                return null;
               }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              queue.enqueue(() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  await _drain(inner, (value) {
+                    if (value is T) {
+                      future!(
+                        result: _out<T>(value, cell, pulse, 'ConcatMap'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -362,7 +362,6 @@ class ConcatMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatMapLatest]: For latest-only flattening.
 /// - [ConcatMapFirst]: For exhaust flattening.
 class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Static Sequential Expansion Bridge**—a specialized
   /// orchestration instruction designed to flatten a constant inner sequence
   /// for every incoming pulse.
@@ -406,33 +405,33 @@ class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ConcatMapLatest]: For latest-only flattening.
   /// - [ConcatMapFirst]: For exhaust flattening.
   ConcatMapTo(
-      FutureOr<Object?> Function() inner, {
-        FlattenErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = _ConcatQueue();
-      return (pulse, {cell, user, future, token}) {
-        queue.enqueue(() async {
-          try {
-            final seq = await Future.sync(inner);
-            await _drain(seq, (value) {
-              if (value is T) {
-                future!(
-                  result: _out<T>(value, cell, pulse, 'ConcatMapTo'),
-                  token: token,
-                );
-              }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    FutureOr<Object?> Function() inner, {
+    FlattenErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = _ConcatQueue();
+            return (pulse, {cell, user, future, token}) {
+              queue.enqueue(() async {
+                try {
+                  final seq = await Future.sync(inner);
+                  await _drain(seq, (value) {
+                    if (value is T) {
+                      future!(
+                        result: _out<T>(value, cell, pulse, 'ConcatMapTo'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -507,7 +506,6 @@ class ConcatMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatMapFirst]: For exhaust flattening.
 /// - [AsyncExpandLatest]: For latest-only flattening.
 class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Static Sequential Expansion Bridge**—a specialized
   /// orchestration instruction designed to flatten a constant inner sequence
   /// for every incoming pulse.
@@ -536,50 +534,50 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   and priority of the pulse that triggered that specific expansion cycle,
   ///   tagged with the `'ConcatMapTo'` step.
   ConcatMapLatest(
-      FlattenMapper<S> mapper, {
-        FlattenErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++gen.generation;
-        Future<void>(() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            if (id != gen.generation) return;
-            await _drain(
-              inner,
-                  (item) {
-                if (id != gen.generation) return;
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'ConcatMapLatest'),
-                    token: token,
+    FlattenMapper<S> mapper, {
+    FlattenErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++gen.generation;
+              Future<void>(() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  if (id != gen.generation) return;
+                  await _drain(
+                    inner,
+                    (item) {
+                      if (id != gen.generation) return;
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'ConcatMapLatest'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == gen.generation,
                   );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == gen.generation,
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -652,7 +650,6 @@ class ConcatMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatMapLatest]: For latest-only flattening.
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes an **Exclusive Sequential Expansion Gate**—a specialized
   /// orchestration instruction designed for prioritized, non-overlapping pulse evolution.
   ///
@@ -698,47 +695,47 @@ class ConcatMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ConcatMapTo]: For static inner sequences.
   /// - [ConcatMapLatest]: For latest-only flattening.
   ConcatMapFirst(
-      FlattenMapper<S> mapper, {
-        FlattenErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        state.busy = true;
-        Future<void>(() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            await _drain(inner, (item) {
-              if (item is T) {
-                future!(
-                  result: _out<T>(item, cell, pulse, 'ConcatMapFirst'),
-                  token: token,
+    FlattenMapper<S> mapper, {
+    FlattenErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
+                return null;
               }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.busy = true;
+              Future<void>(() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  await _drain(inner, (item) {
+                    if (item is T) {
+                      future!(
+                        result: _out<T>(item, cell, pulse, 'ConcatMapFirst'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

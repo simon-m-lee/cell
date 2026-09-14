@@ -32,7 +32,6 @@ void main() {
       expect(batch, isA<CollectiveTissuePulse>());
       expect(batch.payload.length, 2);
       expect(batch.toList(), [a, r]);
-
     });
 
     test('empty batch remains a collective', () {
@@ -93,8 +92,9 @@ void main() {
       final a = addedEvent(list, 3);
       final batch = TissuePulse.batch<int>([a]);
       final stringList = TissueList.of(['x']);
-      final foreign = stringList.apply(stringList.add, positionalArguments: ['y'])
-          as TissuePulse<String>;
+      final foreign =
+          stringList.apply(stringList.add, positionalArguments: ['y'])
+              as TissuePulse<String>;
 
       final withBatch = a + batch;
       expect(withBatch.toList().length, 2);
@@ -103,7 +103,8 @@ void main() {
       expect(withForeign.toList().length, 2);
     });
 
-    test('collective exposes shell, evolution, source, root and unmodifiable', () {
+    test('collective exposes shell, evolution, source, root and unmodifiable',
+        () {
       final list = TissueList.of([1]);
       final a = addedEvent(list, 2);
       final batch = TissuePulse.batch<int>([a]);
@@ -119,7 +120,6 @@ void main() {
       expect(evolved, isA<TissuePulse<dynamic>>());
       expect(evolved.root, isNotNull);
 
-      
       expect(batch.root, isA<TissuePulse<dynamic>>());
       expect(batch.unmodifiable, isA<UnmodifiableTissuePulse<dynamic>>());
       expect((batch + a).toList().length, 2);
@@ -163,7 +163,8 @@ void main() {
       final list = TissueList.of([1]);
       final a = addedEvent(list, 2);
 
-      final chain = a.withStep('validation').withStep('transformation') as dynamic;
+      final chain =
+          a.withStep('validation').withStep('transformation') as dynamic;
 
       expect(chain.trace, ['validation', 'transformation']);
       expect(chain.root, same(a));
@@ -322,7 +323,8 @@ void main() {
 
   group('groupBy utility', () {
     test('groups elements by key', () {
-      final grouped = groupBy<int, String>([1, 2, 3, 4], (e) => e.isEven ? 'even' : 'odd');
+      final grouped =
+          groupBy<int, String>([1, 2, 3, 4], (e) => e.isEven ? 'even' : 'odd');
 
       expect(grouped['even'], [2, 4]);
       expect(grouped['odd'], [1, 3]);

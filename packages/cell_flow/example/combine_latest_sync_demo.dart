@@ -167,7 +167,8 @@ class StockPrice {
   String get changeIndicator => change >= 0 ? '↗' : '↘';
 
   @override
-  String toString() => '$symbol: \$${price.toStringAsFixed(2)} (${changePercent.toStringAsFixed(1)}% $changeIndicator)';
+  String toString() =>
+      '$symbol: \$${price.toStringAsFixed(2)} (${changePercent.toStringAsFixed(1)}% $changeIndicator)';
 }
 
 /// Represents a system health check.
@@ -328,7 +329,8 @@ class StockSimulator {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Real-Time Data Sync Demo ──────────────────────────────────────────────\n');
+  print(
+      '── Real-Time Data Sync Demo ──────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic combineLatest - Two Sources
@@ -405,7 +407,8 @@ Future<void> main() async {
       final state = p.payload as Map<String, dynamic>;
       print('   📊 Dashboard State:');
       print('   - Users: ${state['users']}');
-      print('   - Requests: ${(state['requests'] as double).toStringAsFixed(1)}/s');
+      print(
+          '   - Requests: ${(state['requests'] as double).toStringAsFixed(1)}/s');
       print('   - Response: ${state['response']}ms');
       print('   - Errors: ${(state['errors'] as double).toStringAsFixed(1)}%');
       print('   [Update] Dashboard refreshed');
@@ -445,7 +448,8 @@ Future<void> main() async {
       final password = latest[0] as String? ?? '';
       final confirm = latest[1] as String? ?? '';
 
-      final isEmailValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+      final isEmailValid =
+          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
       final isPasswordValid = password.length >= 6;
       final doPasswordsMatch = password == confirm;
 
@@ -465,9 +469,12 @@ Future<void> main() async {
     source: formValidation.cell,
     effect: (Pulse p) {
       final state = p.payload as Map<String, dynamic>;
-      print('   [Form] Email: \'${state['email']}\' ${state['emailValid'] ? '✅' : '❌'} Valid');
-      print('   [Form] Password: \'${'*' * (state['password'] as String).length}\' ${state['passwordValid'] ? '✅' : '❌'} Valid');
-      print('   [Form] Confirm: \'${'*' * (state['confirm'] as String).length}\' ${state['passwordsMatch'] ? '✅' : '❌'} Valid');
+      print(
+          '   [Form] Email: \'${state['email']}\' ${state['emailValid'] ? '✅' : '❌'} Valid');
+      print(
+          '   [Form] Password: \'${'*' * (state['password'] as String).length}\' ${state['passwordValid'] ? '✅' : '❌'} Valid');
+      print(
+          '   [Form] Confirm: \'${'*' * (state['confirm'] as String).length}\' ${state['passwordsMatch'] ? '✅' : '❌'} Valid');
 
       if (state['isValid'] as bool) {
         print('   [Form] Form is VALID and ready to submit');
@@ -531,7 +538,9 @@ Future<void> main() async {
 
       final stocks = [aapl, googl, tsla].whereType<StockPrice>().toList();
       final totalValue = stocks.fold(0.0, (sum, s) => sum + s.price);
-      final avgChange = stocks.isEmpty ? 0.0 : stocks.fold(0.0, (sum, s) => sum + s.changePercent) / stocks.length;
+      final avgChange = stocks.isEmpty
+          ? 0.0
+          : stocks.fold(0.0, (sum, s) => sum + s.changePercent) / stocks.length;
 
       return {
         'stocks': stocks,
@@ -548,11 +557,14 @@ Future<void> main() async {
       final data = p.payload as Map<String, dynamic>;
       final stocks = data['stocks'] as List<StockPrice>;
 
-      print('   📈 Portfolio Value: \$${(data['totalValue'] as double).toStringAsFixed(2)}');
+      print(
+          '   📈 Portfolio Value: \$${(data['totalValue'] as double).toStringAsFixed(2)}');
       for (final stock in stocks) {
-        print('   - ${stock.symbol}: \$${stock.price.toStringAsFixed(2)} (${stock.changePercent.toStringAsFixed(1)}% ${stock.changeIndicator})');
+        print(
+            '   - ${stock.symbol}: \$${stock.price.toStringAsFixed(2)} (${stock.changePercent.toStringAsFixed(1)}% ${stock.changeIndicator})');
       }
-      print('   Portfolio updated at ${DateTime.now().toIso8601String().substring(11, 19)}');
+      print(
+          '   Portfolio updated at ${DateTime.now().toIso8601String().substring(11, 19)}');
     },
   );
 
@@ -579,7 +591,8 @@ Future<void> main() async {
   final networkInput = Cell.ingress<SystemHealth>();
 
   // Combine health metrics
-  final healthMonitor = Flow.combineLatestWith<SystemHealth, Map<String, dynamic>>(
+  final healthMonitor =
+      Flow.combineLatestWith<SystemHealth, Map<String, dynamic>>(
     cpuInput.cell,
     others: [memoryInput.cell, diskInput.cell, networkInput.cell],
     combine: (cpu, latest) {
@@ -587,7 +600,8 @@ Future<void> main() async {
       final disk = latest[1] as SystemHealth?;
       final network = latest[2] as SystemHealth?;
 
-      final components = [cpu, memory, disk, network].whereType<SystemHealth>().toList();
+      final components =
+          [cpu, memory, disk, network].whereType<SystemHealth>().toList();
       final healthy = components.every((c) => c.isHealthy);
       final warning = components.any((c) => c.isWarning);
       final critical = components.any((c) => c.isCritical);
@@ -607,10 +621,12 @@ Future<void> main() async {
       final alerts = <String>[];
       for (final component in components) {
         if (component.isWarning) {
-          alerts.add('${component.component} usage approaching limit (${component.value.toStringAsFixed(1)}%)');
+          alerts.add(
+              '${component.component} usage approaching limit (${component.value.toStringAsFixed(1)}%)');
         }
         if (component.isCritical) {
-          alerts.add('🚨 ${component.component} usage exceeded threshold (${component.value.toStringAsFixed(1)}%)');
+          alerts.add(
+              '🚨 ${component.component} usage exceeded threshold (${component.value.toStringAsFixed(1)}%)');
         }
       }
 
@@ -631,12 +647,21 @@ Future<void> main() async {
       final components = data['components'] as List<SystemHealth>;
       final alerts = data['alerts'] as List<String>;
 
-      final statusIcon = status == 'HEALTHY' ? '✅' : status == 'WARNING' ? '⚠️' : '🚨';
+      final statusIcon = status == 'HEALTHY'
+          ? '✅'
+          : status == 'WARNING'
+              ? '⚠️'
+              : '🚨';
       print('   🏥 System Health: $statusIcon $status');
 
       for (final component in components) {
-        final icon = component.isHealthy ? '✅' : component.isWarning ? '⚠️' : '🚨';
-        print('   - ${component.component}: ${component.value.toStringAsFixed(1)}% $icon');
+        final icon = component.isHealthy
+            ? '✅'
+            : component.isWarning
+                ? '⚠️'
+                : '🚨';
+        print(
+            '   - ${component.component}: ${component.value.toStringAsFixed(1)}% $icon');
       }
 
       for (final alert in alerts) {
@@ -722,7 +747,8 @@ Future<void> main() async {
       print('   🔍 Search: "${data['query']}"');
       print('   Filters: [type: ${data['type']}, sort: ${data['sort']}]');
       print('   Results: ${data['results']} items found');
-      print('   Query: \'${data['query']}\' (${data['type']}) - ${data['results']} results');
+      print(
+          '   Query: \'${data['query']}\' (${data['type']}) - ${data['results']} results');
     },
   );
 
@@ -777,7 +803,8 @@ Future<void> main() async {
       print('   Theme: ${prefs['theme']}');
       print('   Language: ${prefs['language']}');
       print('   Notifications: ${prefs['notifications'] ? "on" : "off"}');
-      print('   Preferences saved at ${DateTime.now().toIso8601String().substring(11, 19)}');
+      print(
+          '   Preferences saved at ${DateTime.now().toIso8601String().substring(11, 19)}');
     },
   );
 
@@ -905,7 +932,8 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -975,11 +1003,11 @@ class _ChatSimulator {
 extension FlowUtils on Flow {
   /// Creates a combineLatest transformation.
   static FlowHandle combineLatestWith<S, R>(
-      Cell source, {
-        required List<Cell> others,
-        required R Function(S sourceValue, List<Object?> latest) combine,
-        CombineErrorHandler? onError,
-      }) {
+    Cell source, {
+    required List<Cell> others,
+    required R Function(S sourceValue, List<Object?> latest) combine,
+    CombineErrorHandler? onError,
+  }) {
     final instruction = CombineLatestWith<S, R>(
       others,
       combine,
@@ -990,29 +1018,29 @@ extension FlowUtils on Flow {
 
   /// Creates a filter transformation.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     final instruction = Filter<S>(test);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a map transformation.
   static FlowHandle map<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+  }) {
     final instruction = MapValue<S, T>(project);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a fromStream bridge with the specified stream.
   static FlowHandle fromStream<S>(
-      Cell source, {
-        required Stream<S> stream,
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Stream<S> stream,
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     final instruction = FromStream<S>(
       stream,
       onError: onError,
@@ -1030,10 +1058,12 @@ extension FlowUtils on Flow {
 }
 
 /// Error handler callback for combine operations.
-typedef CombineErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef CombineErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Error handler callback for stream operations.
-typedef StreamErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef StreamErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────────────
 // Helper Functions

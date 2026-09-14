@@ -9,9 +9,9 @@ architecture notes.
 
 For operator catalogues see the instruction files under
 `lib/src/instruction/`. For chaining syntax see
-[`HowTo-Fluent_Operator.md`](HowTo-Fluent_Operator.md). For one-Receptor
+[`HowTo-Fluent_Operator.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md). For one-Receptor
 pipelines see
-[`HowTo-FlowInstruction-Receptor.md`](HowTo-FlowInstruction-Receptor.md).
+[`HowTo-FlowInstruction-Receptor.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md).
 
 ---
 

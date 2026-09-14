@@ -51,7 +51,6 @@ part of '../cell_tissue.dart';
 /// ### Type Parameters:
 /// * [V]: The type of the value contained within.
 class ValueContainer<V> extends IterableBase<V> {
-
   /// The single, optional value held by this container.
   ///
   /// Mutating this field directly within a [Tissue] context will
@@ -79,8 +78,8 @@ class ValueContainer<V> extends IterableBase<V> {
   /// ### Returns:
   /// An iterator over the contained value, or an empty iterator if `null`.
   @override
-  Iterator<V> get iterator => value != null ? [value as V].iterator : Iterable<V>.empty().iterator;
-
+  Iterator<V> get iterator =>
+      value != null ? [value as V].iterator : Iterable<V>.empty().iterator;
 }
 
 /// A concrete, strategy‑based implementation of the [Container] interface that
@@ -139,8 +138,8 @@ class ValueContainer<V> extends IterableBase<V> {
 /// print(container.length); // 3
 /// container.add(myTissue, 4); // adds and links if 4 is a Cell
 /// ```
-class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implements Container {
-
+class TissueContainer<E, I extends Iterable<E>> extends IterableBase<E>
+    implements Container {
   /// The physical, late-initialized storage instance for the tissue's data.
   ///
   /// This field represents the **Source of Truth** for the reactive collection.
@@ -385,7 +384,6 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
 
   @override
   String toString() => 'TissueContainer[$I]: $store';
-
 }
 
 /// A strategic architectural contract that defines how [Tissue] data is
@@ -473,7 +471,6 @@ class TissueContainer<E,I extends Iterable<E>> extends IterableBase<E> implement
 /// - [TissueContainer] – the physical container that uses these strategies.
 /// - [Container.create] – factory to build custom strategies.
 abstract interface class Container {
-
   /// A specialised [Container] sentinel strategy specifically designed for
   /// collections that are intended to remain permanently empty and unmodifiable.
   ///
@@ -494,7 +491,10 @@ abstract interface class Container {
   /// ### Non‑obvious
   /// - This is a singleton – all instances share the same empty iterable.
   /// - It is the most memory‑efficient container possible.
-  static const iterableNever = _Container(create: _iterableNeverCreate, add: _iterableNeverAdd, remove: _iterableNeverRemove);
+  static const iterableNever = _Container(
+      create: _iterableNeverCreate,
+      add: _iterableNeverAdd,
+      remove: _iterableNeverRemove);
 
   /// A strategy for standard, read‑only [Iterable] behaviour.
   ///
@@ -511,7 +511,8 @@ abstract interface class Container {
   /// - The underlying iterable is not copied – the container holds a reference
   ///   to the original. If the original is mutable, changes will be visible.
   /// - This strategy is often used for `Tissue.unmodifiable` views.
-  static const iterable = _Container(create: _iterableCreate, add: _iterableAdd, remove: _iterableRemove);
+  static const iterable = _Container(
+      create: _iterableCreate, add: _iterableAdd, remove: _iterableRemove);
 
   /// A strategy for standard [Set] behaviour, ensuring element uniqueness
   /// through value equality (`==`).
@@ -529,7 +530,8 @@ abstract interface class Container {
   /// - The set uses value equality, so two different objects with the same
   ///   `hashCode` and `==` are considered duplicates.
   /// - For identity‑based uniqueness, use [Container.identitySet].
-  static const set = _Container(create: _setCreate, add: _setAdd, remove: _setRemove);
+  static const set =
+      _Container(create: _setCreate, add: _setAdd, remove: _setRemove);
 
   /// A specialised [Container] strategy that determines uniqueness based on
   /// **Referential Identity** ([identical]) rather than value equality.
@@ -547,7 +549,8 @@ abstract interface class Container {
   /// - This is faster than value‑based sets because it avoids calling
   ///   `hashCode` and `==`.
   /// - It is the preferred strategy for collections of `Cell` objects.
-  static const identitySet = _Container(create: _identitySetCreate, add: _setAdd, remove: _setRemove);
+  static const identitySet =
+      _Container(create: _identitySetCreate, add: _setAdd, remove: _setRemove);
 
   /// A strategy for standard, growable [List] behaviour.
   ///
@@ -564,10 +567,12 @@ abstract interface class Container {
   /// - Lists allow duplicate elements. The container tracks each reference
   ///   separately and only unlinks a `Cell` when the last reference is removed.
   /// - For fixed‑length lists, use [Container.growableFalse].
-  static const list = _Container(create: _listCreate, add: _listAdd, remove: _listRemove);
+  static const list =
+      _Container(create: _listCreate, add: _listAdd, remove: _listRemove);
 
   /// A strategy for explicitly **Growable** [List] behaviour.
-  static const growableTrue = _Container(create: _growableTrueCreate, add: _listAdd, remove: _listRemove);
+  static const growableTrue = _Container(
+      create: _growableTrueCreate, add: _listAdd, remove: _listRemove);
 
   /// A strategy for **Fixed‑Length** [List] behaviour, where the structural
   /// dimensions of the collection are immutable after initialisation.
@@ -588,7 +593,8 @@ abstract interface class Container {
   ///   using index assignment. The `add` and `remove` methods operate on
   ///   content, not structure.
   /// - This strategy is memory‑efficient for known‑size collections.
-  static const growableFalse = _Container(create: _growableFalseCreate, add: _listAdd, remove: _listRemove);
+  static const growableFalse = _Container(
+      create: _growableFalseCreate, add: _listAdd, remove: _listRemove);
 
   /// A strategy for standard **Queue** (First‑In‑First‑Out) behaviour.
   ///
@@ -604,7 +610,8 @@ abstract interface class Container {
   /// - The queue strategy also supports a `capacity` parameter (via the nucleus)
   ///   for bounded queues. When capacity is reached, `add` may drop the oldest
   ///   element or reject the new one, depending on the implementation.
-  static const queue = _Container(create: _queueCreate, add: _queueAdd, remove: _queueRemove);
+  static const queue =
+      _Container(create: _queueCreate, add: _queueAdd, remove: _queueRemove);
 
   /// A strategy for standard [Map] behaviour, providing reactive
   /// key‑value association through value‑based indexing.
@@ -621,7 +628,8 @@ abstract interface class Container {
   /// ### Non‑obvious
   /// - The map is treated as a collection of values; keys are the "indices".
   /// - For identity‑based keys, use [Container.identityMap].
-  static const map = _Container(create: _mapCreate, add: _mapAdd, remove: _mapRemove);
+  static const map =
+      _Container(create: _mapCreate, add: _mapAdd, remove: _mapRemove);
 
   /// A specialised [Map] strategy that determines key uniqueness based on
   /// **Referential Identity** ([identical]) rather than value equality.
@@ -629,7 +637,8 @@ abstract interface class Container {
   /// ### When to use
   /// Use this when keys are themselves reactive nodes or complex objects
   /// that should be distinguished by identity.
-  static const identityMap = _Container(create: _identityMapCreate, add: _mapAdd, remove: _mapRemove);
+  static const identityMap =
+      _Container(create: _identityMapCreate, add: _mapAdd, remove: _mapRemove);
 
   /// A strategy for **Single‑Value** behaviour using [ValueContainer].
   ///
@@ -644,7 +653,8 @@ abstract interface class Container {
   /// ### Non‑obvious
   /// - This is not a collection in the traditional sense; it's a container
   ///   that behaves like a collection of zero or one element.
-  static const value = _Container(create: _valueCreate, add: _valueAdd, remove: _valueRemove);
+  static const value =
+      _Container(create: _valueCreate, add: _valueAdd, remove: _valueRemove);
 
   /// A specialised [Container] strategy for representing a single,
   /// **Deeply Immutable** value within the tissue ecosystem.
@@ -661,7 +671,10 @@ abstract interface class Container {
   ///
   /// ### Non‑obvious
   /// - This is the most memory‑efficient way to represent an immutable scalar.
-  static const finalValue = _Container(create: _finalValueCreate, add: _finalValueAdd, remove: _finalValueRemove);
+  static const finalValue = _Container(
+      create: _finalValueCreate,
+      add: _finalValueAdd,
+      remove: _finalValueRemove);
 
   /// Commits the initial state and allocates the physical storage for the
   /// collection.
@@ -740,7 +753,7 @@ abstract interface class Container {
   ///   remove: (tissue, list, e) => list.remove(e),
   /// );
   /// ```
-  static Container create<E,I>({
+  static Container create<E, I>({
     I Function([dynamic initialization])? create,
     bool Function(Tissue<E> tissue, I container, E e)? add,
     bool Function(Tissue<E> tissue, I container, E e)? remove,
@@ -751,75 +764,115 @@ abstract interface class Container {
     final type = I.toString();
 
     if (I == Iterable<E>) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? Container.iterable
-          : _Container(create: create ?? _iterableCreate, add: add ?? _iterableAdd, remove: remove ?? _iterableRemove);
+          : _Container(
+              create: create ?? _iterableCreate,
+              add: add ?? _iterableAdd,
+              remove: remove ?? _iterableRemove);
     }
     if (type.contains('Set')) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? (identitySet ? Container.identitySet : Container.set)
-          : _Container(create: create ?? (identitySet ? _identitySetCreate : _setCreate) , add: add ?? _setAdd, remove: remove ?? _setRemove);
+          : _Container(
+              create: create ?? (identitySet ? _identitySetCreate : _setCreate),
+              add: add ?? _setAdd,
+              remove: remove ?? _setRemove);
     }
 
     if (type.contains('List')) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? (growable ? Container.growableTrue : Container.growableFalse)
-          : _Container(create: create ?? (growable ? _growableTrueCreate : _growableFalseCreate), add: add ?? _setAdd, remove: remove ?? _setRemove);
+          : _Container(
+              create: create ??
+                  (growable ? _growableTrueCreate : _growableFalseCreate),
+              add: add ?? _setAdd,
+              remove: remove ?? _setRemove);
     }
     if (type.contains('Queue')) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? Container.queue
-          : _Container(create: create ?? _queueCreate, add: add ?? _queueAdd, remove: remove ?? _queueRemove);
+          : _Container(
+              create: create ?? _queueCreate,
+              add: add ?? _queueAdd,
+              remove: remove ?? _queueRemove);
     }
     if (type.contains('Map')) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? (identityMap ? Container.identityMap : Container.map)
-          : _Container(create: create ?? (identitySet ? _identitySetCreate : _setCreate) , add: add ?? _setAdd, remove: remove ?? _setRemove);
+          : _Container(
+              create: create ?? (identitySet ? _identitySetCreate : _setCreate),
+              add: add ?? _setAdd,
+              remove: remove ?? _setRemove);
     }
     if (type.contains('?')) {
-      return [create,add,remove].every((a) => a == null)
+      return [create, add, remove].every((a) => a == null)
           ? Container.value
-          : _Container(create: create ?? _valueCreate, add: add ?? _valueAdd, remove: remove ?? _valueRemove);
+          : _Container(
+              create: create ?? _valueCreate,
+              add: add ?? _valueAdd,
+              remove: remove ?? _valueRemove);
     }
 
-    return _Container(create: create ?? _iterableCreate, add: add ?? _iterableAdd, remove: remove ?? _iterableRemove);
+    return _Container(
+        create: create ?? _iterableCreate,
+        add: add ?? _iterableAdd,
+        remove: remove ?? _iterableRemove);
   }
 
   // Iterable<Never>
-  static Iterable<Never> _iterableNeverCreate <Never>([Iterable? elements]) {
+  static Iterable<Never> _iterableNeverCreate<Never>([Iterable? elements]) {
     return const Iterable.empty();
   }
-  static bool _iterableNeverAdd <Never>(Tissue<Never> tissue, Iterable<Never> store, Never e) => false;
-  static bool _iterableNeverRemove <Never>(Tissue<Never> tissue, Iterable<Never> store, Never e) => false;
+
+  static bool _iterableNeverAdd<Never>(
+          Tissue<Never> tissue, Iterable<Never> store, Never e) =>
+      false;
+  static bool _iterableNeverRemove<Never>(
+          Tissue<Never> tissue, Iterable<Never> store, Never e) =>
+      false;
 
   // Iterable
-  static Iterable<E> _iterableCreate <E>([Iterable? elements]) {
-    return elements != null
-        ? List<E>.of(elements as Iterable<E>)
-        : <E>[];
+  static Iterable<E> _iterableCreate<E>([Iterable? elements]) {
+    return elements != null ? List<E>.of(elements as Iterable<E>) : <E>[];
   }
-  static bool _iterableAdd <E>(Tissue<E> tissue, Iterable<E> store, E e) => false;
-  static bool _iterableRemove <E>(Tissue<E> tissue, Iterable<E> store, E e) => false;
+
+  static bool _iterableAdd<E>(Tissue<E> tissue, Iterable<E> store, E e) =>
+      false;
+  static bool _iterableRemove<E>(Tissue<E> tissue, Iterable<E> store, E e) =>
+      false;
 
   // Set
-  static Set<E> _setCreate <E>([Iterable<E>? i]) => i != null ? Set<E>.of(i) : <E>{};
-  static Set<E> _identitySetCreate <E>([Iterable<E>? i]) => i != null ? (Set<E>.identity()..addAll(i)) : Set<E>.identity();
-  static bool _setAdd <E>(Tissue<E> tissue, Set<E> container, E e) => container.add(e);
-  static bool _setRemove <E>(Tissue<E> tissue, Set<E> container, E e) => container.remove(e);
+  static Set<E> _setCreate<E>([Iterable<E>? i]) =>
+      i != null ? Set<E>.of(i) : <E>{};
+  static Set<E> _identitySetCreate<E>([Iterable<E>? i]) =>
+      i != null ? (Set<E>.identity()..addAll(i)) : Set<E>.identity();
+  static bool _setAdd<E>(Tissue<E> tissue, Set<E> container, E e) =>
+      container.add(e);
+  static bool _setRemove<E>(Tissue<E> tissue, Set<E> container, E e) =>
+      container.remove(e);
 
   // List
-  static List<E> _listCreate <E>([Iterable<E>? i]) => i != null ? List<E>.of(i) : <E>[];
-  static List<E> _growableTrueCreate <E>([Iterable<E>? i]) => i != null ? List<E>.from(i, growable: true) : List<E>.empty(growable: true);
-  static List<E> _growableFalseCreate <E>([Iterable<E>? i]) => i != null ? List<E>.from(i, growable: false) : List<E>.empty(growable: false);
-  static bool _listAdd<E>(Tissue <E> tissue, List<E> container, E e) {
+  static List<E> _listCreate<E>([Iterable<E>? i]) =>
+      i != null ? List<E>.of(i) : <E>[];
+  static List<E> _growableTrueCreate<E>([Iterable<E>? i]) => i != null
+      ? List<E>.from(i, growable: true)
+      : List<E>.empty(growable: true);
+  static List<E> _growableFalseCreate<E>([Iterable<E>? i]) => i != null
+      ? List<E>.from(i, growable: false)
+      : List<E>.empty(growable: false);
+  static bool _listAdd<E>(Tissue<E> tissue, List<E> container, E e) {
     container.add(e);
     return true;
   }
-  static bool _listRemove <E>(Tissue<E> tissue, List<E> container, E e) => container.remove(e);
+
+  static bool _listRemove<E>(Tissue<E> tissue, List<E> container, E e) =>
+      container.remove(e);
 
   // Queue
-  static Queue<E> _queueCreate <E>([Iterable<E>? i]) => i != null ? Queue<E>.of(i) : Queue<E>();
-  static bool _queueAdd <E>(TissueQueue<E> base, Queue<E> container, E e) {
+  static Queue<E> _queueCreate<E>([Iterable<E>? i]) =>
+      i != null ? Queue<E>.of(i) : Queue<E>();
+  static bool _queueAdd<E>(TissueQueue<E> base, Queue<E> container, E e) {
     if ((base as TissueQueueBase)._nucleus.capacity == container.length) {
       container.removeFirst();
       container.addLast(e);
@@ -828,16 +881,18 @@ abstract interface class Container {
     container.addLast(e);
     return true;
   }
-  static bool _queueRemove <E>(TissueQueue<E> base, Queue<E> container, E e) {
+
+  static bool _queueRemove<E>(TissueQueue<E> base, Queue<E> container, E e) {
     return container.remove(e);
   }
 
   // Value
-  static ValueContainer<V> _valueCreate <V>([V? value]) {
+  static ValueContainer<V> _valueCreate<V>([V? value]) {
     return ValueContainer<V>(value);
   }
 
-  static bool _valueAdd <V>(TissueValue<V> tissue, ValueContainer<V> container, V? v) {
+  static bool _valueAdd<V>(
+      TissueValue<V> tissue, ValueContainer<V> container, V? v) {
     if (container.value != v) {
       container.value = v;
       return true;
@@ -845,7 +900,8 @@ abstract interface class Container {
     return false;
   }
 
-  static bool _valueRemove <V>(Tissue<V> tissue, ValueContainer<V> container, V? v) {
+  static bool _valueRemove<V>(
+      Tissue<V> tissue, ValueContainer<V> container, V? v) {
     if (container.value == v) {
       container.value = null;
       return true;
@@ -854,43 +910,51 @@ abstract interface class Container {
   }
 
   // Final Value
-  static V _finalValueCreate <V>(V value) {
+  static V _finalValueCreate<V>(V value) {
     return value;
   }
 
-  static bool _finalValueAdd <V>(TissueValue<V> tissue, ValueContainer<V> container, V v) {
+  static bool _finalValueAdd<V>(
+      TissueValue<V> tissue, ValueContainer<V> container, V v) {
     return false;
   }
 
-  static bool _finalValueRemove <V>(Tissue<V> tissue, ValueContainer<V> container, V v) {
+  static bool _finalValueRemove<V>(
+      Tissue<V> tissue, ValueContainer<V> container, V v) {
     return false;
   }
 
   // Map
-  static MapStore<Object?,V> _mapCreate <V>([dynamic init]) {
+  static MapStore<Object?, V> _mapCreate<V>([dynamic init]) {
     if (init is Map) {
-      return MapStore<Object?,V>(Map<Object?,V>.fromEntries(
-          init.entries.map((e) => MapEntry<Object?,V>(e.key, e.value as V))));
+      return MapStore<Object?, V>(Map<Object?, V>.fromEntries(
+          init.entries.map((e) => MapEntry<Object?, V>(e.key, e.value as V))));
     } else if (init is Iterable<MapEntry>) {
-      return MapStore<Object?,V>(Map<Object?,V>.fromEntries(
-          init.cast<MapEntry>().map((e) => MapEntry<Object?,V>(e.key, e.value as V))));
+      return MapStore<Object?, V>(Map<Object?, V>.fromEntries(init
+          .cast<MapEntry>()
+          .map((e) => MapEntry<Object?, V>(e.key, e.value as V))));
     }
-    return MapStore<Object?,V>(<Object?,V>{});
+    return MapStore<Object?, V>(<Object?, V>{});
   }
 
-  static MapStore<Object?,V> _identityMapCreate <V>([dynamic init]) {
-    final map = Map<Object?,V>.identity();
+  static MapStore<Object?, V> _identityMapCreate<V>([dynamic init]) {
+    final map = Map<Object?, V>.identity();
     if (init is Map) {
-      map.addEntries(init.entries.map((e) => MapEntry<Object?,V>(e.key, e.value as V)));
+      map.addEntries(
+          init.entries.map((e) => MapEntry<Object?, V>(e.key, e.value as V)));
     } else if (init is Iterable<MapEntry>) {
-      map.addEntries(init.cast<MapEntry>().map((e) => MapEntry<Object?,V>(e.key, e.value as V)));
+      map.addEntries(init
+          .cast<MapEntry>()
+          .map((e) => MapEntry<Object?, V>(e.key, e.value as V)));
     }
-    return MapStore<Object?,V>(map);
+    return MapStore<Object?, V>(map);
   }
 
-  static bool _mapAdd <V>(Tissue<V> tissue, MapStore<Object?,V> container, V v) => false;
+  static bool _mapAdd<V>(
+          Tissue<V> tissue, MapStore<Object?, V> container, V v) =>
+      false;
 
-  static bool _mapRemove <V>(Tissue<V> tissue, MapStore<Object?,V> container, V v) => false;
-
+  static bool _mapRemove<V>(
+          Tissue<V> tissue, MapStore<Object?, V> container, V v) =>
+      false;
 }
-

@@ -24,8 +24,7 @@ part of '../../cell_tissue.dart';
 /// - This is a `const` singleton, making it extremely memory‑efficient.
 /// - It is the foundation of the **Deputy Pattern** – a deputy with a
 ///   pass‑through receptor stays perfectly in sync with its principal.
-class _PassThroughTissueReceptor implements TissueReceptor<Never,Never> {
-
+class _PassThroughTissueReceptor implements TissueReceptor<Never, Never> {
   const _PassThroughTissueReceptor();
 
   @override
@@ -35,19 +34,19 @@ class _PassThroughTissueReceptor implements TissueReceptor<Never,Never> {
   bool activate(Never cell) => false;
 
   @override
-  ReceptorAsync<Never> get async => throw UnsupportedError('Inactivated receptor');
+  ReceptorAsync<Never> get async =>
+      throw UnsupportedError('Inactivated receptor');
 
   @override
   bool get isActivated => true;
 
   @override
-  TissueReceptor<Never,Never> get clone => this;
+  TissueReceptor<Never, Never> get clone => this;
 
   @override
   FutureOr<PulseBase<dynamic>?> call(covariant PulseBase<dynamic> pulse) {
     return pulse;
   }
-
 }
 
 /// Internal implementation of [TissueReceptor] for generic tissues.
@@ -69,8 +68,7 @@ class _PassThroughTissueReceptor implements TissueReceptor<Never,Never> {
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue type.
-class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E,C> {
-
+class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E, C> {
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -81,12 +79,18 @@ class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E,C> {
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
     dynamic Function()? user,
-  }) : this.fromRecord(record: ReceptorBase.mask(
-      instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-      reaction: reaction, user: user, init: init
-  ));
+  }) : this.fromRecord(
+            record: ReceptorBase.mask(
+                instruction: instruction,
+                preProcess: preProcess,
+                postProcess: postProcess,
+                reaction: reaction,
+                user: user,
+                init: init));
 
-  _TissueReceptor.fromRecord({super.record}) :_record = record, super.fromRecord();
+  _TissueReceptor.fromRecord({super.record})
+      : _record = record,
+        super.fromRecord();
 
   /// Creates an independent, decoupled clone of this receptor.
   ///
@@ -102,8 +106,7 @@ class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E,C> {
   /// ### Returns:
   /// A new [TissueReceptor] instance with identical behavioural logic.
   @override
-  TissueReceptor<E,C> get clone => _TissueReceptor.fromRecord(record: _record);
-
+  TissueReceptor<E, C> get clone => _TissueReceptor.fromRecord(record: _record);
 }
 
 /// The foundational pulse‑processing engine for all reactive collections.
@@ -164,8 +167,9 @@ class _TissueReceptor<E, C extends Tissue<E>> extends TissueReceptorBase<E,C> {
 /// - [C]: The specific [Tissue] implementation type (e.g., `TissueList<E>`),
 ///   allowing for type‑safe pulse processing within the hierarchy.
 abstract class TissueReceptorBase<E, C extends Tissue<E>>
-    extends ReceptorBase<C> with _TissueReceptorBaseStack implements TissueReceptor<E,C> {
-
+    extends ReceptorBase<C>
+    with _TissueReceptorBaseStack
+    implements TissueReceptor<E, C> {
   /// **Primary Constructor** – defines the transformation pipeline for a
   /// reactive collection.
   ///
@@ -308,7 +312,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
     }
     return null;
   }
-
 }
 
 /// Internal engine that automatically synchronises a deputy tissue with its
@@ -365,7 +368,6 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
 /// // (it might be the same event, a subset, or null if nothing changed).
 /// ```
 mixin _TissueReceptorBaseStack {
-
   /// Processes an incoming structural event and applies its deltas to the
   /// local tissue's container.
   ///
@@ -411,8 +413,9 @@ mixin _TissueReceptorBaseStack {
   /// // If add2 fails validation, result will be a partial batch containing
   /// // only add1 and remove1.
   /// ```
-  TissueEventBase? _tissueStack<E>({required covariant Tissue tissue, required covariant TissueEventBase event}) {
-
+  TissueEventBase? _tissueStack<E>(
+      {required covariant Tissue tissue,
+      required covariant TissueEventBase event}) {
     TissueEventBase? out;
 
     out = tissue is Unmodifiable ? event.unmodifiable : event;
@@ -434,9 +437,7 @@ mixin _TissueReceptorBaseStack {
               partial = true;
             }
           }
-        }
-
-        else if (event is ElementRemoved<E>) {
+        } else if (event is ElementRemoved<E>) {
           if (payload != null) {
             if (container.remove(tissue, payload)) {
               (events ??= <TissuePulse<E>>[]).add(event);
@@ -444,23 +445,21 @@ mixin _TissueReceptorBaseStack {
               partial = true;
             }
           }
-        }
-
-        else if (event is ElementUpdated) {
+        } else if (event is ElementUpdated) {
           if (payload is ElementUpdatedRecord) {
             final e = payload.value;
             if (container.contains(payload.value)) {
               (events ??= <TissuePulse<E>>[]).add(event as TissuePulse<E>);
             } else {
               if (container.add(tissue, e)) {
-                (events ??= <TissuePulse<E>>[]).add(ElementAdded<E>._(payload: e as E));
+                (events ??= <TissuePulse<E>>[])
+                    .add(ElementAdded<E>._(payload: e as E));
               } else {
                 partial = true;
               }
             }
           }
         }
-
       }
 
       void processType(TissuePulse event) {
@@ -490,5 +489,4 @@ mixin _TissueReceptorBaseStack {
 
     return out;
   }
-
 }

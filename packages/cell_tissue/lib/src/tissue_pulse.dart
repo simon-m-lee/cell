@@ -55,8 +55,8 @@ part of '../cell_tissue.dart';
 /// See also:
 /// * [TissuePulse] – the base interface for all collection events.
 /// * [CollectiveTissuePulse] – a batch of multiple events, not a chain.
-abstract interface class EvolvedTissuePulse<E> implements TissuePulse<E>, EvolvedPulse<E> {
-
+abstract interface class EvolvedTissuePulse<E>
+    implements TissuePulse<E>, EvolvedPulse<E> {
   /// The preceding structural signal that triggered this evolved event.
   ///
   /// ### When to use
@@ -111,7 +111,6 @@ abstract interface class EvolvedTissuePulse<E> implements TissuePulse<E>, Evolve
   /// final batch = evolvedEvent + nextEvent;
   /// ```
   CollectiveTissuePulse operator +(covariant TissuePulse other);
-
 }
 
 /// A batch of multiple independent [TissuePulse]s that travel together as a
@@ -186,8 +185,8 @@ abstract interface class EvolvedTissuePulse<E> implements TissuePulse<E>, Evolve
 /// * [TissuePulse] – a single change event.
 /// * [EvolvedTissuePulse] – a single event with a history (chain).
 /// * [TissuePulse.batch] – the factory that creates these.
-abstract interface class CollectiveTissuePulse<E> implements TissuePulse<Iterable<Pulse<E>>>, CollectivePulse<E> {
-
+abstract interface class CollectiveTissuePulse<E>
+    implements TissuePulse<Iterable<Pulse<E>>>, CollectivePulse<E> {
   /// Creates a collective from an iterable of events.
   ///
   /// This is the simplest way to batch events. The metadata (context, type,
@@ -207,8 +206,8 @@ abstract interface class CollectiveTissuePulse<E> implements TissuePulse<Iterabl
   /// final events = [addEvent, removeEvent, updateEvent];
   /// final batch = CollectiveTissueEvent.from(events);
   /// ```
-  factory CollectiveTissuePulse.from(Iterable<TissuePulse<E>> events)
-  = _CollectiveTissueEvent<E>;
+  factory CollectiveTissuePulse.from(Iterable<TissuePulse<E>> events) =
+      _CollectiveTissueEvent<E>;
 
   /// Creates a collective with explicit metadata overrides.
   ///
@@ -236,23 +235,19 @@ abstract interface class CollectiveTissuePulse<E> implements TissuePulse<Iterabl
   ///   onComplete: (pulse) => print('Batch completed'),
   /// );
   /// ```
-  factory CollectiveTissuePulse.governed(Iterable<TissuePulse<E>> events, {
+  factory CollectiveTissuePulse.governed(
+    Iterable<TissuePulse<E>> events, {
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     String? type,
-
     Tissue? source,
     String? step,
-
     int? priority,
-
     void Function(TissuePulse event)? onComplete,
-    void Function(TissuePulse event, Object error, {StackTrace? stackTrace})? onError,
+    void Function(TissuePulse event, Object error, {StackTrace? stackTrace})?
+        onError,
     void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
-
     FutureOr<TissuePulse?> Function(TissueReceptor receptor)? scrutinize,
-
   }) = _CollectiveTissueEvent<E>;
 
   /// The collection of events bundled in this collective.
@@ -295,7 +290,6 @@ abstract interface class CollectiveTissuePulse<E> implements TissuePulse<Iterabl
   /// final combined = batch1 + batch2; // contains a, b, c, d
   /// ```
   CollectiveTissuePulse operator +(covariant TissuePulse other);
-
 }
 
 /// A defensive, read‑only shell that wraps a [TissuePulse] and forces any
@@ -341,8 +335,8 @@ abstract interface class CollectiveTissuePulse<E> implements TissuePulse<Iterabl
 ///
 /// ### Type Parameters:
 /// * [E] – The type of the event's payload.
-class TissueEventShell<E> extends PulseShell<E,TissueReceptor> implements TissuePulse<E> {
-
+class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
+    implements TissuePulse<E> {
   const TissueEventShell._(TissueEventBase<E> super.kernal) : super();
 
   @override
@@ -376,7 +370,8 @@ class TissueEventShell<E> extends PulseShell<E,TissueReceptor> implements Tissue
   TissueEventShell<E> get shell => this;
 
   @override
-  TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
+  TissuePulse evolve(
+      {Pulse? pulse, String? step, covariant PulseContext? context}) {
     throw UnsupportedError('PulseShell cannot be evolved.');
   }
 
@@ -390,7 +385,9 @@ class TissueEventShell<E> extends PulseShell<E,TissueReceptor> implements Tissue
   TissuePulse<E> get unmodifiable => this;
 
   @override
-  dynamic scrutinize(covariant TissueReceptor receptor, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]) {
+  dynamic scrutinize(
+      covariant TissueReceptor receptor, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]) {
     return super.scrutinize(receptor, positionalArguments, namedArguments);
   }
 
@@ -457,7 +454,6 @@ class TissueEventShell<E> extends PulseShell<E,TissueReceptor> implements Tissue
 /// - [ElementUpdated] – for when a scalar value changes.
 /// - `Tissue.listen` – the method that delivers these events.
 abstract interface class TissuePulse<E> implements Pulse<E> {
-
   /// Batches multiple events into a single [CollectiveTissuePulse].
   ///
   /// ### When to use
@@ -472,22 +468,21 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
   /// ```dart
   /// final batch = TissueEvent.batch([addEvent, removeEvent]);
   /// ```
-  static TissuePulse batch<E>(Iterable<TissuePulse<E>> events, {
+  static TissuePulse batch<E>(
+    Iterable<TissuePulse<E>> events, {
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     String? type,
     Tissue? source,
     String? step,
     int? priority,
-
     void Function(TissuePulse event)? onComplete,
-    void Function(TissuePulse event, Object error, {StackTrace? stackTrace})? onError,
+    void Function(TissuePulse event, Object error, {StackTrace? stackTrace})?
+        onError,
     void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
-
     FutureOr<TissuePulse?> Function(TissueReceptor receptor)? scrutinize,
-
-  }) => _CollectiveTissueEvent<E>(events);
+  }) =>
+      _CollectiveTissueEvent<E>(events);
 
   /// Challenges a receptor to prove its authority before revealing the event.
   ///
@@ -503,7 +498,8 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
   /// ### Returns:
   /// The event itself if authorised; `null` otherwise.
   @override
-  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]);
+  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]);
 
   /// Returns a defensive proxy of this event for safe distribution.
   ///
@@ -556,7 +552,8 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
   /// ### Returns:
   /// An [EvolvedTissuePulse] that preserves the full lineage.
   @override
-  TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context});
+  TissuePulse evolve(
+      {Pulse? pulse, String? step, covariant PulseContext? context});
 
   /// Returns a read‑only projection of this event.
   ///
@@ -578,7 +575,6 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
   /// A [CollectiveTissuePulse] containing both events.
   @override
   TissuePulse operator +(covariant TissuePulse other);
-
 }
 
 /// A read‑only, immutable projection of a [TissuePulse] that guarantees no
@@ -622,8 +618,8 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
 ///
 /// ### Type Parameters:
 /// * [E] – The type of the event's payload.
-abstract interface class UnmodifiableTissuePulse<E> implements TissuePulse<E>, UnmodifiablePulse<E> {
-
+abstract interface class UnmodifiableTissuePulse<E>
+    implements TissuePulse<E>, UnmodifiablePulse<E> {
   /// Creates an unmodifiable projection of an event.
   ///
   /// ### When to use
@@ -634,7 +630,8 @@ abstract interface class UnmodifiableTissuePulse<E> implements TissuePulse<E>, U
   ///
   /// ### Returns:
   /// An unmodifiable view of the event.
-  factory UnmodifiableTissuePulse(TissuePulse<E> source) = _UnmodifiableTissueEvent<E>;
+  factory UnmodifiableTissuePulse(TissuePulse<E> source) =
+      _UnmodifiableTissueEvent<E>;
 
   /// Combines this event with another into a collective.
   ///
@@ -644,7 +641,6 @@ abstract interface class UnmodifiableTissuePulse<E> implements TissuePulse<E>, U
   /// ### Returns:
   /// A [CollectiveTissuePulse] containing both events.
   TissuePulse operator +(covariant TissuePulse other);
-
 }
 
 /// A specialised [TissuePulse] signifying the addition of new elements
@@ -694,25 +690,19 @@ abstract interface class UnmodifiableTissuePulse<E> implements TissuePulse<E>, U
 /// ### Type Parameters:
 /// * [E]: The type of the element being added.
 class ElementAdded<E> extends _TissuePulse<E> {
-
-
   ElementAdded._({
     super.policy,
     super.context,
-
     super.payload,
     super.timestamp,
     super.source,
     super.step,
-
     super.onComplete,
     super.onError,
     super.onProgress,
-
     super.pulse,
     super.parent,
   }) : super();
-
 }
 
 /// A specialised [TissuePulse] signifying the removal or disposal of an
@@ -762,25 +752,19 @@ class ElementAdded<E> extends _TissuePulse<E> {
 /// ### Type Parameters:
 /// * [E]: The type of the element being removed.
 class ElementRemoved<E> extends _TissuePulse<E> {
-
-
   ElementRemoved._({
     super.policy,
     super.context,
-
     super.payload,
     super.timestamp,
     super.source,
     super.step,
-
     super.onComplete,
     super.onError,
     super.onProgress,
-
     super.pulse,
     super.parent,
   }) : super();
-
 }
 
 /// A record that captures a before‑and‑after snapshot of a reactive value
@@ -863,9 +847,10 @@ class ElementRemoved<E> extends _TissuePulse<E> {
 /// * [ElementUpdated] – the event that carries this record.
 /// * [TissueValue] – the reactive cell that emits these events.
 /// * [Cell.unmodifiable] – how deep immutability is enforced.
-typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({E value,
-V? before,
-V? after,
+typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({
+  E value,
+  V? before,
+  V? after,
 });
 
 /// A specialised [TissuePulse] signifying a discrete state transition or value
@@ -919,23 +904,19 @@ V? after,
 /// ### Type Parameters:
 /// * [V]: The type of the value carried by the associated [TissueValue].
 /// * [E]: The concrete [TissueValue] implementation.
-class ElementUpdated<V, E extends TissueValue<V>> extends _TissuePulse<ElementUpdatedRecord<V,E>> {
-
+class ElementUpdated<V, E extends TissueValue<V>>
+    extends _TissuePulse<ElementUpdatedRecord<V, E>> {
   ElementUpdated._({
     super.policy,
     super.context,
-
     super.payload,
     super.timestamp,
     super.source,
     super.step,
-
     super.onComplete,
     super.onError,
     super.onProgress,
-
     super.pulse,
     super.parent,
   }) : super();
-
 }

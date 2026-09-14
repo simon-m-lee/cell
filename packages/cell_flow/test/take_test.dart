@@ -167,7 +167,6 @@ void main() {
     });
   });
 
-
   group('Take extra', () {
     test('Take(0) emits nothing', () async {
       final b = bind(Take<int>(0));
@@ -301,5 +300,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

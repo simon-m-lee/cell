@@ -4,12 +4,12 @@
 **Version:** `1.0.0-rc.4` (RC / Mitosis Release Candidate)  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
-**Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))  
+**Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS))  
 **Location:** `packages/cell`
 
 This document is a complete, categorized inventory of features in the **cell** package — the foundation layer of the Cell Framework. Use it to decide whether Cell covers a requirement, which operator to reach for, and what is opt-in versus on by default.
 
-It is derived from the public API in `lib/` and the guides in `guide/`. If a guide and the source disagree, **the source is current**. Test contracts live in [`TEST_VERIFICATION.md`](TEST_VERIFICATION.md).
+It is derived from the public API in `lib/` and the guides in `guide/`. If a guide and the source disagree, **the source is current**. Test contracts live in [`TEST_VERIFICATION.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md).
 
 ---
 
@@ -1073,7 +1073,7 @@ Files are named `test_*.dart`, not `*_test.dart`. Therefore:
 
 - `dart test` with no path finds **no tests**
 - `dart test test` is a name filter, not a directory
-- Pass explicit files (see [`TEST_VERIFICATION.md`](TEST_VERIFICATION.md))
+- Pass explicit files (see [`TEST_VERIFICATION.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md))
 
 **1115** tests in **20** files. Last full run: **1115 passed / 0 failed / 0 skipped**. Measured `lib/` line coverage: **95.9%** (3397 / 3541). Suites cover Cell (including `valve` and `OpenCell.perform`), Pulse (`PulseExtension.map` / `cast` via `PulseExtension(pulse)`), Nucleus (`isInvalidated` follows a hosted `EphemeralPolicy`), Receptor (`pipeline` reaction / `isGoverned` / `PulseShell`), Instruction, Synapses (`FilterRule` parent/`fromRecord`, `PropagationStrategy.sample`), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, `transaction`, `txApply`, and operator phases 1–4.
 

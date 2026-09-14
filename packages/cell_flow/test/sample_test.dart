@@ -170,7 +170,6 @@ void main() {
     });
   });
 
-
   group('Sample extra', () {
     test('wrong types do not become the pending sample', () async {
       final errors = <Object>[];

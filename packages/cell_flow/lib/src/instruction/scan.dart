@@ -41,13 +41,14 @@ typedef ScanErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      ScanErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  ScanErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -234,32 +235,32 @@ class Scan<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [ScanSeeded]: For seeded accumulation.
   /// - [ScanIndexed]: For indexed accumulation.
   Scan(
-      A Function(A acc, S value) accumulate, {
-        ScanErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _ScanState<A>();
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (!state.hasAcc) {
-          state.acc = value as A;
-          state.hasAcc = true;
-          return null;
-        }
-        try {
-          state.acc = accumulate(state.acc as A, value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _acc(state.acc as A, typed, cell, 'Scan');
-      };
-    })(),
-    user: user,
-  );
+    A Function(A acc, S value) accumulate, {
+    ScanErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _ScanState<A>();
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (!state.hasAcc) {
+                state.acc = value as A;
+                state.hasAcc = true;
+                return null;
+              }
+              try {
+                state.acc = accumulate(state.acc as A, value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _acc(state.acc as A, typed, cell, 'Scan');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -398,27 +399,27 @@ class ScanSeeded<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Scan]: For seedless accumulation.
   /// - [ScanIndexed]: For indexed accumulation.
   ScanSeeded(
-      A seed,
-      A Function(A acc, S value) accumulate, {
-        ScanErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _ScanState<A>()..acc = seed;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          state.acc = accumulate(state.acc as A, typed.payload as S);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _acc(state.acc as A, typed, cell, 'ScanSeeded');
-      };
-    })(),
-    user: user,
-  );
+    A seed,
+    A Function(A acc, S value) accumulate, {
+    ScanErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _ScanState<A>()..acc = seed;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                state.acc = accumulate(state.acc as A, typed.payload as S);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _acc(state.acc as A, typed, cell, 'ScanSeeded');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -550,32 +551,32 @@ class ScanIndexed<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Scan]: For seedless accumulation.
   /// - [ScanSeeded]: For seeded accumulation without index.
   ScanIndexed(
-      A seed,
-      A Function(A acc, S value, int index) accumulate, {
-        ScanErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _ScanState<A>()..acc = seed;
-      var index = 0;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          state.acc = accumulate(
-            state.acc as A,
-            typed.payload as S,
-            index++,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _acc(state.acc as A, typed, cell, 'ScanIndexed');
-      };
-    })(),
-    user: user,
-  );
+    A seed,
+    A Function(A acc, S value, int index) accumulate, {
+    ScanErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _ScanState<A>()..acc = seed;
+            var index = 0;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                state.acc = accumulate(
+                  state.acc as A,
+                  typed.payload as S,
+                  index++,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _acc(state.acc as A, typed, cell, 'ScanIndexed');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -663,7 +664,7 @@ Future<void> main() async {
   print('2. ScanSeeded - seed 0');
   final b = Cell.ingress<int>();
   final seeded =
-  ScanSeeded<int, int>(0, (acc, n) => acc + n).toHandle(source: b.cell);
+      ScanSeeded<int, int>(0, (acc, n) => acc + n).toHandle(source: b.cell);
   final dObs = Cell.observe(
     source: seeded.cell,
     effect: (Pulse p) => print('   [ScanSeeded] ${p.payload}'),
@@ -678,7 +679,7 @@ Future<void> main() async {
   final c = Cell.ingress<String>();
   final listed = ScanIndexed<String, List<String>>(
     <String>[],
-        (acc, value, index) => [...acc, value],
+    (acc, value, index) => [...acc, value],
   ).toHandle(source: c.cell);
   final iObs = Cell.observe(
     source: listed.cell,

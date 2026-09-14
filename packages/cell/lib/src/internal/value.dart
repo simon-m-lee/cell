@@ -68,7 +68,6 @@ part of '../../cell.dart';
 /// * [StateHandle] – the record returned by [Cell.state].
 /// * [ModifiableAsync] – the base contract for asynchronous operations.
 class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
-
   /// Initializes a new [ValueCellAsync] controller, anchoring an
   /// asynchronous execution layer to a specific [ValueCell] principal.
   ///
@@ -158,11 +157,10 @@ class ValueCellAsync<V> extends ModifiableAsync<ValueCell<V>> {
     final lock = _cell._nucleus.lock;
     return lock != null
         ? lock.synchronized(() {
-          return _cell._emit(v);
-        }).then((value) {
-          return value;
-        })
+            return _cell._emit(v);
+          }).then((value) {
+            return value;
+          })
         : Future<bool>(() => _cell._emit(v)).then((value) => value);
   }
-
 }

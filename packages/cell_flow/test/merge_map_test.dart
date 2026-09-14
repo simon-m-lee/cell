@@ -170,8 +170,10 @@ void main() {
       expect(b.probe.payloads, [1, 3]);
     });
 
-    test('flattens an inner list and uses the last A as the next seed', () async {
-      final b = bind(MergeScan<int, int>(0, (acc, n) => [acc + n, acc + n + 10]));
+    test('flattens an inner list and uses the last A as the next seed',
+        () async {
+      final b =
+          bind(MergeScan<int, int>(0, (acc, n) => [acc + n, acc + n + 10]));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(1);
       await b.probe.settle();
@@ -215,7 +217,6 @@ void main() {
       expect(errors.single, isA<FormatException>());
     });
   });
-
 
   group('MergeMap extra', () {
     test('onError is optional when mapper throws', () async {

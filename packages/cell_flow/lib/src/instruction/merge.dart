@@ -111,10 +111,10 @@ Pulse _mark(Pulse pulse, String step) => pulse.withStep(step);
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -260,63 +260,63 @@ class MergeWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MergeWith(
-      Iterable<Cell> others, {
-        MergeErrorHandler? onError,
-        bool forwardSource = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _EmitState();
-      var armed = false;
-      return (pulse, {cell, user, future, token}) {
-        state.future = future;
-        state.token = token;
-        state.cell = cell;
-        if (!armed) {
-          armed = true;
-          for (final other in others) {
-            Cell.observe(
-              source: other,
-              effect: (Pulse incoming) {
-                final payload = incoming.payload;
-                if (payload is! S) {
-                  onError?.call(
-                    FormatException(
-                      'Expected payload of type $S, got ${payload.runtimeType}',
-                    ),
-                    StackTrace.current,
+    Iterable<Cell> others, {
+    MergeErrorHandler? onError,
+    bool forwardSource = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _EmitState();
+            var armed = false;
+            return (pulse, {cell, user, future, token}) {
+              state.future = future;
+              state.token = token;
+              state.cell = cell;
+              if (!armed) {
+                armed = true;
+                for (final other in others) {
+                  Cell.observe(
+                    source: other,
+                    effect: (Pulse incoming) {
+                      final payload = incoming.payload;
+                      if (payload is! S) {
+                        onError?.call(
+                          FormatException(
+                            'Expected payload of type $S, got ${payload.runtimeType}',
+                          ),
+                          StackTrace.current,
+                        );
+                        return;
+                      }
+                      state.future?.call(
+                        result: _out<S>(
+                          payload,
+                          state.cell,
+                          incoming,
+                          'MergeWith.other',
+                        ),
+                        token: state.token,
+                      );
+                    },
                   );
-                  return;
                 }
-                state.future?.call(
-                  result: _out<S>(
-                    payload,
-                    state.cell,
-                    incoming,
-                    'MergeWith.other',
+              }
+              if (!forwardSource) return null;
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
                   ),
-                  token: state.token,
+                  StackTrace.current,
                 );
-              },
-            );
-          }
-        }
-        if (!forwardSource) return null;
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        return _mark(pulse, 'MergeWith.source');
-      };
-    })(),
-    user: user,
-  );
+                return null;
+              }
+              return _mark(pulse, 'MergeWith.source');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -410,11 +410,11 @@ class Merge<S> extends MergeWith<S> {
   /// );
   /// ```
   Merge(
-      super.sources, {
-        super.onError,
-        super.forwardSource = false,
-        super.user,
-      });
+    super.sources, {
+    super.onError,
+    super.forwardSource = false,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -519,27 +519,27 @@ class MergeAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     MergeErrorHandler? onError,
     dynamic user,
   }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void> run() async {
-        try {
-          await _drain(pulse.payload, (item) {
-            if (item is T) {
-              future!(
-                result: _out<T>(item, cell, pulse, 'MergeAll'),
-                token: token,
-              );
+          (pulse, {cell, user, future, token}) {
+            Future<void> run() async {
+              try {
+                await _drain(pulse.payload, (item) {
+                  if (item is T) {
+                    future!(
+                      result: _out<T>(item, cell, pulse, 'MergeAll'),
+                      token: token,
+                    );
+                  }
+                });
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
             }
-          });
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -656,7 +656,7 @@ Future<void> main() async {
   final left = Cell.ingress<int>();
   final right = Cell.ingress<int>();
   final merged =
-  Merge<int>([left.cell, right.cell]).toHandle(source: gate.cell);
+      Merge<int>([left.cell, right.cell]).toHandle(source: gate.cell);
   final nObs = Cell.observe(
     source: merged.cell,
     effect: (Pulse p) => print('   [Merge] ${p.payload}'),

@@ -1,10 +1,10 @@
 # cell_flow
 
-**Codename: Mitosis** · `1.0.0-rc.2`
+**Codename: Mitosis** · `1.0.0-rc.5`
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-RC2-green.svg)](#status)
+[![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE)
+[![Status](https://img.shields.io/badge/Status-RC5-yellow.svg)](#status)
 
 **Rx-shaped operators for the [Cell](https://github.com/simon-m-lee/cell) framework.** Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as `FlowInstruction`s on the **same graph** as `package:cell`.
 
@@ -18,8 +18,8 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.4
-  cell_flow: ^1.0.0-rc.4
+  cell: ^1.0.0-rc.5
+  cell_flow: ^1.0.0-rc.5
 ```
 
 Import once in your Dart file:
@@ -51,7 +51,7 @@ Cell.observe(source: results.cell, effect: (p) {
 await query.emitAsync('Dart packages');
 ```
 
-> 💡 **New to cell_flow?** Read the **[How to Start Guide](guide/HowTo-Start.md)** for a complete 15-minute tutorial with 5 copy-paste examples.
+> 💡 **New to cell_flow?** Read the **[How to Start Guide](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md)** for a complete 15-minute tutorial with 5 copy-paste examples.
 
 ---
 
@@ -204,7 +204,7 @@ final handle = gate.toHandle(source: box.cell);
 | `retry` | Retry count | `cell.retry(count: 3)` |
 | `tap` | Side effect | `cell.tap(onValue: print)` |
 
-📖 **Full documentation:** [`FEATURES-Flow.md`](FEATURES-Flow.md)
+📖 **Full documentation:** [`FEATURES-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md)
 
 ---
 
@@ -365,12 +365,12 @@ package:cell_flow/cell_flow.dart
 
 | Document | Contents |
 |---|---|
-| 📘 **[How to Start](guide/HowTo-Start.md)** | **Quick-start tutorial (15 min)** with 5 examples |
-| 🏗️ [ARCHITECTURE-Flow.md](ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
-| 📋 [FEATURES-Flow.md](FEATURES-Flow.md) | Complete operator catalog (79+ operators) |
-| 🎬 [DEMO_GUIDE.md](DEMO_GUIDE.md) | High-fidelity walkthroughs |
-| 🔗 [HowTo-Fluent_Operator.md](guide/HowTo-Fluent_Operator.md) | Method chaining deep dive |
-| 🎯 [HowTo-FlowInstruction-Receptor.md](guide/HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
+| 📘 **[How to Start](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md)** | **Quick-start tutorial (15 min)** with 5 examples |
+| 🏗️ [ARCHITECTURE-Flow.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
+| 📋 [FEATURES-Flow.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md) | Complete operator catalog (79+ operators) |
+| 🎬 [DEMO_GUIDE.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/DEMO_GUIDE.md) | High-fidelity walkthroughs |
+| 🔗 [HowTo-Fluent_Operator.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md) | Method chaining deep dive |
+| 🎯 [HowTo-FlowInstruction-Receptor.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
 
 ---
 
@@ -412,20 +412,20 @@ dart run example/filter_data_quality_demo.dart
 
 | Package | Version      | Status |
 |---|--------------|---|
-| `cell` | `1.0.0-rc.4` | Release Candidate |
-| `cell_flow` | `1.0.0-rc.4` | Release Candidate |
+| `cell` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
+| `cell_flow` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
 
-**Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be `1.0.0`.
+**Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. The stable release on pub.dev will be `1.0.0`.
 
-> ⚠️ **Status:** Release Candidate (RC4). APIs may change. Not yet on pub.dev — use path or git dependencies. Verify behaviour against source.
+> ⚠️ **Status:** Release Candidate (RC4) — published to pub.dev. APIs may change before `1.0.0` stable. Verify behaviour against source.
 
 ---
 
 ## 📄 License
 
-**Dual-licensed:** MIT or Apache-2.0 — see [`LICENSE`](LICENSE) and file headers.
+**Dual-licensed:** MIT or Apache-2.0 — see [`LICENSE`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE) and file headers.
 
-Copyright (c) 2025-Present Lee Man Hoi Simon. See [`AUTHORS`](AUTHORS).
+Copyright (c) 2025-Present Lee Man Hoi Simon. See [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/AUTHORS).
 
 > ℹ️ Operator *names* follow ReactiveX vocabulary. Implementations are original Cell Flow; using `switchMap` as a name does not require an RxJS copyright header.
 
@@ -440,4 +440,4 @@ Copyright (c) 2025-Present Lee Man Hoi Simon. See [`AUTHORS`](AUTHORS).
 
 ---
 
-**Ready to build reactive pipelines?** Start with the **[How to Start Guide](guide/HowTo-Start.md)** →
+**Ready to build reactive pipelines?** Start with the **[How to Start Guide](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md)** →

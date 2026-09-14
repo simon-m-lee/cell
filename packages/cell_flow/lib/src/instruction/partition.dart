@@ -22,7 +22,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef PartitionErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef PartitionErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────
 // Split Record
@@ -135,13 +136,14 @@ class Split<S> {
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      PartitionErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  PartitionErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -317,28 +319,28 @@ class Partition<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PartitionCollect]: For collecting values by match status.
   /// - [PartitionOnly]: For filtering by match status.
   Partition(
-      bool Function(S value) test, {
-        PartitionErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        final value = typed.payload as S;
-        return _out<Split<S>>(
-          Split(matched: test(value), value: value),
-          typed,
-          cell,
-          'Partition',
+    bool Function(S value) test, {
+    PartitionErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              final value = typed.payload as S;
+              return _out<Split<S>>(
+                Split(matched: test(value), value: value),
+                typed,
+                cell,
+                'Partition',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -478,32 +480,32 @@ class PartitionMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PartitionCollect]: For collecting values by match status.
   /// - [PartitionOnly]: For filtering by match status.
   PartitionMap(
-      bool Function(S value) test, {
-        required T Function(S value) thenMap,
-        required T Function(S value) elseMap,
-        PartitionErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        final matched = test(value);
-        final result = matched ? thenMap(value) : elseMap(value);
-        return _out<T>(
-          result,
-          typed,
-          cell,
-          matched ? 'PartitionMap.then' : 'PartitionMap.else',
+    bool Function(S value) test, {
+    required T Function(S value) thenMap,
+    required T Function(S value) elseMap,
+    PartitionErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              final matched = test(value);
+              final result = matched ? thenMap(value) : elseMap(value);
+              return _out<T>(
+                result,
+                typed,
+                cell,
+                matched ? 'PartitionMap.then' : 'PartitionMap.else',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -620,48 +622,48 @@ class PartitionCollect<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PartitionMap]: For mapping matched/unmatched values differently.
   /// - [PartitionOnly]: For filtering by match status.
   PartitionCollect(
-      bool Function(S value) test, {
-        PartitionErrorHandler? onError,
-        dynamic user,
-      }) : this._(test, <S>[], <S>[], onError, user);
+    bool Function(S value) test, {
+    PartitionErrorHandler? onError,
+    dynamic user,
+  }) : this._(test, <S>[], <S>[], onError, user);
 
   PartitionCollect._(
-      bool Function(S value) test,
-      this.matched,
-      this.other,
-      PartitionErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final yes = matched;
-      final no = other;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          final value = typed.payload as S;
-          if (test(value)) {
-            yes.add(value);
-          } else {
-            no.add(value);
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _out<Map<String, List<S>>>(
-          {
-            'matched': List<S>.from(yes),
-            'other': List<S>.from(no),
-          },
-          typed,
-          cell,
-          'PartitionCollect',
+    bool Function(S value) test,
+    this.matched,
+    this.other,
+    PartitionErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final yes = matched;
+            final no = other;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                final value = typed.payload as S;
+                if (test(value)) {
+                  yes.add(value);
+                } else {
+                  no.add(value);
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _out<Map<String, List<S>>>(
+                {
+                  'matched': List<S>.from(yes),
+                  'other': List<S>.from(no),
+                },
+                typed,
+                cell,
+                'PartitionCollect',
+              );
+            };
+          })(),
+          user: user,
         );
-      };
-    })(),
-    user: user,
-  );
 
   /// The list of matched values.
   ///
@@ -838,25 +840,25 @@ class PartitionOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PartitionMap]: For mapping matched/unmatched values differently.
   /// - [PartitionCollect]: For collecting values by match status.
   PartitionOnly(
-      bool Function(S value) test, {
-        bool matched = true,
-        PartitionErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        final value = typed.payload as S;
-        if (test(value) != matched) return null;
-        return typed.withStep('PartitionOnly');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    bool Function(S value) test, {
+    bool matched = true,
+    PartitionErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              final value = typed.payload as S;
+              if (test(value) != matched) return null;
+              return typed.withStep('PartitionOnly');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -944,7 +946,7 @@ Future<void> main() async {
   final nums = Cell.ingress<int>();
 
   final tagged = Partition<int>(
-        (n) => n.isEven,
+    (n) => n.isEven,
   ).toHandle(source: nums.cell);
 
   final pObs = Cell.observe(
@@ -966,7 +968,7 @@ Future<void> main() async {
   final mapped = Cell.ingress<int>();
 
   final labels = PartitionMap<int, String>(
-        (n) => n.isEven,
+    (n) => n.isEven,
     thenMap: (n) => 'even-$n',
     elseMap: (n) => 'odd-$n',
   ).toHandle(source: mapped.cell);
@@ -990,7 +992,7 @@ Future<void> main() async {
   final seq = Cell.ingress<int>();
 
   final bags = PartitionCollect<int>(
-        (n) => n.isEven,
+    (n) => n.isEven,
   ).toHandle(source: seq.cell);
 
   final cObs = Cell.observe(
@@ -1012,7 +1014,7 @@ Future<void> main() async {
   final only = Cell.ingress<int>();
 
   final evens = PartitionOnly<int>(
-        (n) => n.isEven,
+    (n) => n.isEven,
   ).toHandle(source: only.cell);
 
   final oObs = Cell.observe(

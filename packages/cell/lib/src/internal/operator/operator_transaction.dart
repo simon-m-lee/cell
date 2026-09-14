@@ -313,7 +313,7 @@ class TransactionValidationException implements Exception {
   @override
   String toString() =>
       'TransactionValidationException(${failures.length} failure(s)): '
-          '${failures.map((f) => '${f.cell}: ${f.reason}').join('; ')}';
+      '${failures.map((f) => '${f.cell}: ${f.reason}').join('; ')}';
 }
 
 /// Thrown when an isolation conflict is detected during commit.
@@ -338,7 +338,7 @@ class TransactionConflictException implements Exception {
   @override
   String toString() =>
       'TransactionConflictException(${conflicts.length} conflict(s)): '
-          '${conflicts.map((c) => '${c.cell}: ${c.reason}').join('; ')}';
+      '${conflicts.map((c) => '${c.cell}: ${c.reason}').join('; ')}';
 }
 
 /// Thrown when a transaction exceeds its [timeout] duration.
@@ -579,163 +579,163 @@ final _serializableGate = Lock();
 ///
 /// See also [Cell.transaction].
 typedef TransactionScope = ({
-/// Starts a transaction that locks all [cells] atomically.
-///
-/// ### When to use
-/// Call this before any updates. The transaction is active until
-/// `commit` or `rollback` is called.
-///
-/// ### How it works
-/// - Registers the participants and (if needed) takes a snapshot.
-/// - Resolves lock ordering for the commit phase.
-/// - Starts a timeout timer if [timeout] is set.
-///
-/// ### Non‑obvious
-/// - Locks are **not** held during `begin` – they are acquired only
-///   during `commit`. This avoids long‑held locks.
-/// - If a timeout is set, the transaction is automatically rolled back
-///   when it expires.
-///
-/// ### Throws
-/// - [StateError] if a transaction is already active.
-/// - [ArgumentError] if [cells] is empty.
-/// - [TransactionTimeoutException] if the timeout expires.
-Future<void> Function(Iterable<Cell> cells) begin,
+  /// Starts a transaction that locks all [cells] atomically.
+  ///
+  /// ### When to use
+  /// Call this before any updates. The transaction is active until
+  /// `commit` or `rollback` is called.
+  ///
+  /// ### How it works
+  /// - Registers the participants and (if needed) takes a snapshot.
+  /// - Resolves lock ordering for the commit phase.
+  /// - Starts a timeout timer if [timeout] is set.
+  ///
+  /// ### Non‑obvious
+  /// - Locks are **not** held during `begin` – they are acquired only
+  ///   during `commit`. This avoids long‑held locks.
+  /// - If a timeout is set, the transaction is automatically rolled back
+  ///   when it expires.
+  ///
+  /// ### Throws
+  /// - [StateError] if a transaction is already active.
+  /// - [ArgumentError] if [cells] is empty.
+  /// - [TransactionTimeoutException] if the timeout expires.
+  Future<void> Function(Iterable<Cell> cells) begin,
 
-/// Buffers a change to a cell (does not apply it yet).
-///
-/// ### When to use
-/// Call this for each cell you want to update. The changes are buffered
-/// until `commit` is called.
-///
-/// ### How it works
-/// - The change is stored in a buffer.
-/// - The cell is marked as pending for `pending` reads.
-/// - Emits a [TransactionUpdated] event.
-///
-/// ### Non‑obvious
-/// - Validation happens during `commit`, not during `update`.
-/// - You can update the same cell multiple times – only the last value
-///   is used.
-///
-/// ### Throws
-/// - [StateError] if no transaction is active.
-/// - [ArgumentError] if the cell is not a participant.
-/// - [TransactionTimeoutException] if the timeout expires.
-void Function(Cell cell, dynamic value) update,
+  /// Buffers a change to a cell (does not apply it yet).
+  ///
+  /// ### When to use
+  /// Call this for each cell you want to update. The changes are buffered
+  /// until `commit` is called.
+  ///
+  /// ### How it works
+  /// - The change is stored in a buffer.
+  /// - The cell is marked as pending for `pending` reads.
+  /// - Emits a [TransactionUpdated] event.
+  ///
+  /// ### Non‑obvious
+  /// - Validation happens during `commit`, not during `update`.
+  /// - You can update the same cell multiple times – only the last value
+  ///   is used.
+  ///
+  /// ### Throws
+  /// - [StateError] if no transaction is active.
+  /// - [ArgumentError] if the cell is not a participant.
+  /// - [TransactionTimeoutException] if the timeout expires.
+  void Function(Cell cell, dynamic value) update,
 
-/// Reads a cell's value according to the isolation level.
-///
-/// ### When to use
-/// Use this to read participant values during the transaction.
-///
-/// ### How it works
-/// - `readCommitted`: returns the current live value.
-/// - `repeatableRead`: returns the snapshot value from `begin`.
-/// - `serializable`: returns the snapshot value and tracks the read set.
-///
-/// ### Non‑obvious
-/// - For `serializable`, reading a cell tracks it in the read set.
-///   If the cell changes before commit, the transaction aborts.
-/// - For `repeatableRead`, reads are stable, but writes are not
-///   included – use `pending` if you need to see buffered writes.
-///
-/// ### Returns
-/// The value of the cell according to the isolation level.
-///
-/// ### Throws
-/// - [StateError] if no transaction is active.
-/// - [ArgumentError] if the cell is not a participant.
-/// - [TransactionTimeoutException] if the timeout expires.
-dynamic Function(Cell cell) read,
+  /// Reads a cell's value according to the isolation level.
+  ///
+  /// ### When to use
+  /// Use this to read participant values during the transaction.
+  ///
+  /// ### How it works
+  /// - `readCommitted`: returns the current live value.
+  /// - `repeatableRead`: returns the snapshot value from `begin`.
+  /// - `serializable`: returns the snapshot value and tracks the read set.
+  ///
+  /// ### Non‑obvious
+  /// - For `serializable`, reading a cell tracks it in the read set.
+  ///   If the cell changes before commit, the transaction aborts.
+  /// - For `repeatableRead`, reads are stable, but writes are not
+  ///   included – use `pending` if you need to see buffered writes.
+  ///
+  /// ### Returns
+  /// The value of the cell according to the isolation level.
+  ///
+  /// ### Throws
+  /// - [StateError] if no transaction is active.
+  /// - [ArgumentError] if the cell is not a participant.
+  /// - [TransactionTimeoutException] if the timeout expires.
+  dynamic Function(Cell cell) read,
 
-/// Reads a cell's value, preferring buffered writes over snapshots.
-///
-/// ### When to use
-/// Use this when you need to see changes made earlier in the same
-/// transaction (e.g., to calculate a new value based on a pending update).
-///
-/// ### How it works
-/// - If the cell has a buffered write, returns that value.
-/// - Otherwise, falls back to `read`.
-///
-/// ### Returns
-/// The pending value if available, otherwise the isolation‑level read.
-///
-/// ### Throws
-/// - [StateError] if no transaction is active.
-/// - [ArgumentError] if the cell is not a participant.
-/// - [TransactionTimeoutException] if the timeout expires.
-dynamic Function(Cell cell) pending,
+  /// Reads a cell's value, preferring buffered writes over snapshots.
+  ///
+  /// ### When to use
+  /// Use this when you need to see changes made earlier in the same
+  /// transaction (e.g., to calculate a new value based on a pending update).
+  ///
+  /// ### How it works
+  /// - If the cell has a buffered write, returns that value.
+  /// - Otherwise, falls back to `read`.
+  ///
+  /// ### Returns
+  /// The pending value if available, otherwise the isolation‑level read.
+  ///
+  /// ### Throws
+  /// - [StateError] if no transaction is active.
+  /// - [ArgumentError] if the cell is not a participant.
+  /// - [TransactionTimeoutException] if the timeout expires.
+  dynamic Function(Cell cell) pending,
 
-/// Applies all buffered changes atomically and releases the lock.
-///
-/// ### When to use
-/// Call this when you are ready to apply all changes. The transaction
-/// is completed and cannot be used again.
-///
-/// ### How it works
-/// 1. Acquires locks on all participants in deterministic order.
-/// 2. Checks for isolation conflicts (if applicable).
-/// 3. Validates all buffered changes (own `testRule` + custom validator).
-/// 4. Applies all changes atomically.
-/// 5. Releases locks and resets the transaction state.
-/// 6. Emits a [TransactionCommitted] event.
-///
-/// ### Non‑obvious
-/// - Locks are held **only during commit**, not across begin→commit.
-/// - If validation fails, the transaction is automatically rolled back.
-/// - After commit, the transaction scope is reset – you must call
-///   `begin` again for a new transaction.
-///
-/// ### Throws
-/// - [StateError] if no transaction is active.
-/// - [TransactionValidationException] if validation fails.
-/// - [TransactionConflictException] if an isolation conflict occurs.
-/// - [TransactionTimeoutException] if the timeout expires.
-/// - Any error from custom `validate` or `apply` callbacks.
-Future<void> Function() commit,
+  /// Applies all buffered changes atomically and releases the lock.
+  ///
+  /// ### When to use
+  /// Call this when you are ready to apply all changes. The transaction
+  /// is completed and cannot be used again.
+  ///
+  /// ### How it works
+  /// 1. Acquires locks on all participants in deterministic order.
+  /// 2. Checks for isolation conflicts (if applicable).
+  /// 3. Validates all buffered changes (own `testRule` + custom validator).
+  /// 4. Applies all changes atomically.
+  /// 5. Releases locks and resets the transaction state.
+  /// 6. Emits a [TransactionCommitted] event.
+  ///
+  /// ### Non‑obvious
+  /// - Locks are held **only during commit**, not across begin→commit.
+  /// - If validation fails, the transaction is automatically rolled back.
+  /// - After commit, the transaction scope is reset – you must call
+  ///   `begin` again for a new transaction.
+  ///
+  /// ### Throws
+  /// - [StateError] if no transaction is active.
+  /// - [TransactionValidationException] if validation fails.
+  /// - [TransactionConflictException] if an isolation conflict occurs.
+  /// - [TransactionTimeoutException] if the timeout expires.
+  /// - Any error from custom `validate` or `apply` callbacks.
+  Future<void> Function() commit,
 
-/// Discards all buffered changes and releases the lock.
-///
-/// ### When to use
-/// Call this to cancel the transaction without applying any changes.
-/// Optionally pass a `savepoint` to rollback only to that point.
-///
-/// ### How it works
-/// - If a `savepoint` is provided, discards changes after that point.
-/// - Otherwise, discards all changes and resets the transaction.
-/// - Emits a [TransactionRolledBack] event.
-///
-/// ### Non‑obvious
-/// - Rolling back to a savepoint does **not** release locks – the
-///   transaction remains active.
-/// - After a full rollback (no savepoint), the transaction scope is
-///   reset – you must call `begin` again.
-///
-/// ### Throws
-/// - [ArgumentError] if the savepoint is unknown.
-Future<void> Function({Object? savepoint}) rollback,
+  /// Discards all buffered changes and releases the lock.
+  ///
+  /// ### When to use
+  /// Call this to cancel the transaction without applying any changes.
+  /// Optionally pass a `savepoint` to rollback only to that point.
+  ///
+  /// ### How it works
+  /// - If a `savepoint` is provided, discards changes after that point.
+  /// - Otherwise, discards all changes and resets the transaction.
+  /// - Emits a [TransactionRolledBack] event.
+  ///
+  /// ### Non‑obvious
+  /// - Rolling back to a savepoint does **not** release locks – the
+  ///   transaction remains active.
+  /// - After a full rollback (no savepoint), the transaction scope is
+  ///   reset – you must call `begin` again.
+  ///
+  /// ### Throws
+  /// - [ArgumentError] if the savepoint is unknown.
+  Future<void> Function({Object? savepoint}) rollback,
 
-/// Captures a restoration point for partial rollback.
-///
-/// ### When to use
-/// Use this to create a checkpoint within a transaction. Later, you can
-/// roll back to this point without discarding all changes.
-///
-/// ### How it works
-/// - Records the current buffer length.
-/// - Returns an opaque identifier that can be passed to `rollback`.
-///
-/// ### Non‑obvious
-/// - Savepoints are sequential – rolling back to an earlier savepoint
-///   discards all later savepoints.
-/// - The savepoint identifier is a simple integer. You can use it as a
-///   key for custom logic.
-///
-/// ### Returns
-/// An opaque identifier that can be passed to `rollback`.
-Object Function() savepoint,
+  /// Captures a restoration point for partial rollback.
+  ///
+  /// ### When to use
+  /// Use this to create a checkpoint within a transaction. Later, you can
+  /// roll back to this point without discarding all changes.
+  ///
+  /// ### How it works
+  /// - Records the current buffer length.
+  /// - Returns an opaque identifier that can be passed to `rollback`.
+  ///
+  /// ### Non‑obvious
+  /// - Savepoints are sequential – rolling back to an earlier savepoint
+  ///   discards all later savepoints.
+  /// - The savepoint identifier is a simple integer. You can use it as a
+  ///   key for custom logic.
+  ///
+  /// ### Returns
+  /// An opaque identifier that can be passed to `rollback`.
+  Object Function() savepoint,
 });
 
 // ─────────────────────────────────────────────────────────────

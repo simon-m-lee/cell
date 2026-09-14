@@ -209,7 +209,6 @@ void main() {
     });
   });
 
-
   group('Skip extra', () {
     test('Skip(0) is a pass-through', () async {
       final b = bind(Skip<int>(0));
@@ -390,5 +389,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

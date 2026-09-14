@@ -37,8 +37,9 @@ Future<void> main() async {
   final throttledSensor = Cell.throttle(
     rawSensor.cell,
     const Duration(milliseconds: 200),
-    leading: true,   // Emit the first pulse immediately
-    trailing: true,  // Emit the last pulse seen during the window once window closes
+    leading: true, // Emit the first pulse immediately
+    trailing:
+        true, // Emit the last pulse seen during the window once window closes
   );
 
   // -------------------------------------------------------------------------
@@ -52,7 +53,7 @@ Future<void> main() async {
   Cell.observe<Pulse<int>>(
     source: throttledSensor,
     effect: (pulse) {
-      // In the current version, we check for timer-driven pulses by looking 
+      // In the current version, we check for timer-driven pulses by looking
       // for the step name "throttle_timer" in the trace.
       final isTimerDriven = pulse.trace.contains('throttle_timer');
       final tag = isTimerDriven ? '[Throttled]' : '[UI]       ';

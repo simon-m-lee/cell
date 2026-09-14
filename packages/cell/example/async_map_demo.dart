@@ -73,7 +73,7 @@ Future<void> main() async {
 
   final profiles = Cell.asyncMap<int, Map<String, dynamic>>(
     userIds.cell,
-        (id) => pretendWork(
+    (id) => pretendWork(
       'fetch user $id',
       {'id': id, 'name': 'User-$id'},
       ms: 100 - id * 20, // higher ids finish first
@@ -104,7 +104,7 @@ Future<void> main() async {
 
   final searchResults = Cell.asyncMap<String, List<String>>(
     query.cell,
-        (q) async {
+    (q) async {
       print('   … searching "$q"');
       await Future.delayed(Duration(milliseconds: 60 + q.length * 20));
       return ['$q-result-1', '$q-result-2'];
@@ -136,7 +136,7 @@ Future<void> main() async {
 
   final jobResults = Cell.asyncMap<String, String>(
     jobs.cell,
-        (job) => pretendWork('job $job', '$job✓', ms: 50),
+    (job) => pretendWork('job $job', '$job✓', ms: 50),
     concurrency: 1,
   );
 
@@ -165,7 +165,7 @@ Future<void> main() async {
 
   final pooled = Cell.asyncMap<int, int>(
     tasks.cell,
-        (n) async {
+    (n) async {
       active++;
       if (active > maxActive) maxActive = active;
       print('   … pool start #$n (active=$active)');
@@ -200,7 +200,7 @@ Future<void> main() async {
 
   final thumbs = Cell.asyncMap<String, String>(
     paths.cell,
-        (path) => pretendWork(
+    (path) => pretendWork(
       'thumb $path',
       path.replaceAll('.png', '_thumb.png'),
       ms: 60,

@@ -86,7 +86,8 @@ import 'package:cell_flow/src/instruction/filter.dart';
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Distinct Noise Reduction Demo ──────────────────────────────────────────\n');
+  print(
+      '── Distinct Noise Reduction Demo ──────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Distinct - Remove Consecutive Duplicates
@@ -158,7 +159,8 @@ Future<void> main() async {
 
   await Future.delayed(const Duration(milliseconds: 50));
 
-  final sensorReduction = ((sensorData.length - sensorResults.length) / sensorData.length * 100);
+  final sensorReduction =
+      ((sensorData.length - sensorResults.length) / sensorData.length * 100);
   print('   Filtered (tolerance=0.2): $sensorResults');
   print('   Noise Reduction: ${sensorReduction.toStringAsFixed(1)}%');
 
@@ -221,7 +223,8 @@ Future<void> main() async {
   await Future.delayed(const Duration(milliseconds: 50));
 
   print('   Filtered GPS: $gpsResults');
-  print('   Movement detected: ${gpsResults.length - 1} significant position changes');
+  print(
+      '   Movement detected: ${gpsResults.length - 1} significant position changes');
 
   gpsObserver.stop();
   print('');
@@ -252,9 +255,11 @@ Future<void> main() async {
 
   await Future.delayed(const Duration(milliseconds: 50));
 
-  final bandwidthSaved = ((stockData.length - stockResults.length) / stockData.length * 100);
+  final bandwidthSaved =
+      ((stockData.length - stockResults.length) / stockData.length * 100);
   print('   Distinct: $stockResults');
-  print('   Updates: ${stockResults.length} (vs ${stockData.length} raw events)');
+  print(
+      '   Updates: ${stockResults.length} (vs ${stockData.length} raw events)');
   print('   Bandwidth Saved: ${bandwidthSaved.toStringAsFixed(1)}%');
 
   stockObserver.stop();
@@ -447,7 +452,14 @@ Future<void> main() async {
   print('   ────────────────────────────────────────────────────────\n');
 
   final userActivities = [
-    'view', 'view', 'click', 'scroll', 'scroll', 'view', 'click', 'click',
+    'view',
+    'view',
+    'click',
+    'scroll',
+    'scroll',
+    'view',
+    'click',
+    'click',
   ];
 
   print('   Raw Activities: $userActivities');
@@ -543,7 +555,8 @@ Future<void> main() async {
 
   stopwatch.stop();
 
-  final compressionRatio = ((largeDataset.length - perfResults.length) / largeDataset.length * 100);
+  final compressionRatio =
+      ((largeDataset.length - perfResults.length) / largeDataset.length * 100);
   print('    Filtered: ${perfResults.length} values');
   print('    Compression Ratio: ${compressionRatio.toStringAsFixed(1)}%');
   print('    Time: ${stopwatch.elapsedMilliseconds}ms');
@@ -569,7 +582,8 @@ Future<void> main() async {
   🔹 Ideal for: Sensor data, UI events, stock tickers, GPS
   ''');
 
-  print('── Finished ──────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -580,26 +594,26 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a distinct operator (removes consecutive duplicates).
   static FlowHandle distinct<S>(
-      Cell source,
-      ) {
+    Cell source,
+  ) {
     final instruction = Distinct<S>();
     return instruction.toHandle(source: source);
   }
 
   /// Creates a debounce with the specified duration.
   static FlowHandle debounce<S>(
-      Cell source, {
-        required Duration duration,
-      }) {
+    Cell source, {
+    required Duration duration,
+  }) {
     final instruction = Debounce<S>(duration);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a filter transformation.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     final instruction = Filter<S>(test);
     return instruction.toHandle(source: source);
   }

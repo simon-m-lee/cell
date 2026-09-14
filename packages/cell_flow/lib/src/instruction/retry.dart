@@ -153,13 +153,13 @@ Future<void> _attempt<S, T>({
   required Pulse pulse,
   required Cell? cell,
   required void Function({required Pulse? result, required dynamic token})?
-  future,
+      future,
   required dynamic token,
   required String step,
   required RetryErrorHandler? onError,
   required bool emitErrorPulse,
   required Future<bool> Function(Object error, StackTrace stack, int attempt)
-  again,
+      again,
 }) async {
   var attempt = 0;
   while (true) {
@@ -346,39 +346,39 @@ class Retry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RetryWithDelay]: For retries with a fixed delay.
   /// - [RetryWithBackoff]: For retries with exponential backoff.
   Retry(
-      RetryTask<S, T> task, {
-        int count = 3,
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    RetryTask<S, T> task, {
+    int count = 3,
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            _attempt<S, T>(
+              task: task,
+              value: payload,
+              pulse: pulse,
+              cell: cell,
+              future: future,
+              token: token,
+              step: 'Retry',
+              onError: onError,
+              emitErrorPulse: emitErrorPulse,
+              again: (e, stack, attempt) async => attempt < count,
+            );
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      _attempt<S, T>(
-        task: task,
-        value: payload,
-        pulse: pulse,
-        cell: cell,
-        future: future,
-        token: token,
-        step: 'Retry',
-        onError: onError,
-        emitErrorPulse: emitErrorPulse,
-        again: (e, stack, attempt) async => attempt < count,
-      );
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -530,46 +530,46 @@ class RetryWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RetryWithDelay]: For retries with a fixed delay.
   /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryWhen(
-      RetryTask<S, T> task, {
-        required FutureOr<bool> Function(Object error, int attempt) shouldRetry,
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    RetryTask<S, T> task, {
+    required FutureOr<bool> Function(Object error, int attempt) shouldRetry,
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            _attempt<S, T>(
+              task: task,
+              value: payload,
+              pulse: pulse,
+              cell: cell,
+              future: future,
+              token: token,
+              step: 'RetryWhen',
+              onError: onError,
+              emitErrorPulse: emitErrorPulse,
+              again: (e, stack, attempt) async {
+                try {
+                  return await shouldRetry(e, attempt);
+                } catch (err, st) {
+                  onError?.call(err, st);
+                  return false;
+                }
+              },
+            );
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      _attempt<S, T>(
-        task: task,
-        value: payload,
-        pulse: pulse,
-        cell: cell,
-        future: future,
-        token: token,
-        step: 'RetryWhen',
-        onError: onError,
-        emitErrorPulse: emitErrorPulse,
-        again: (e, stack, attempt) async {
-          try {
-            return await shouldRetry(e, attempt);
-          } catch (err, st) {
-            onError?.call(err, st);
-            return false;
-          }
-        },
-      );
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -689,44 +689,44 @@ class RetryWithDelay<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RetryWhen]: For conditional retry logic.
   /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryWithDelay(
-      RetryTask<S, T> task, {
-        int count = 3,
-        Duration delay = const Duration(milliseconds: 50),
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    RetryTask<S, T> task, {
+    int count = 3,
+    Duration delay = const Duration(milliseconds: 50),
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            _attempt<S, T>(
+              task: task,
+              value: payload,
+              pulse: pulse,
+              cell: cell,
+              future: future,
+              token: token,
+              step: 'RetryWithDelay',
+              onError: onError,
+              emitErrorPulse: emitErrorPulse,
+              again: (e, stack, attempt) async {
+                if (attempt >= count) return false;
+                await Future<void>.delayed(delay);
+                return true;
+              },
+            );
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      _attempt<S, T>(
-        task: task,
-        value: payload,
-        pulse: pulse,
-        cell: cell,
-        future: future,
-        token: token,
-        step: 'RetryWithDelay',
-        onError: onError,
-        emitErrorPulse: emitErrorPulse,
-        again: (e, stack, attempt) async {
-          if (attempt >= count) return false;
-          await Future<void>.delayed(delay);
-          return true;
-        },
-      );
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -868,52 +868,52 @@ class RetryWithBackoff<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RetryWhen]: For conditional retry logic.
   /// - [RetryWithDelay]: For retries with a fixed delay.
   RetryWithBackoff(
-      RetryTask<S, T> task, {
-        int count = 3,
-        Duration initial = const Duration(milliseconds: 20),
-        double factor = 2,
-        Duration? maxDelay,
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    RetryTask<S, T> task, {
+    int count = 3,
+    Duration initial = const Duration(milliseconds: 20),
+    double factor = 2,
+    Duration? maxDelay,
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            _attempt<S, T>(
+              task: task,
+              value: payload,
+              pulse: pulse,
+              cell: cell,
+              future: future,
+              token: token,
+              step: 'RetryWithBackoff',
+              onError: onError,
+              emitErrorPulse: emitErrorPulse,
+              again: (e, stack, attempt) async {
+                if (attempt >= count) return false;
+                var ms = initial.inMilliseconds * math.pow(factor, attempt);
+                if (maxDelay != null) {
+                  ms = math.min(ms, maxDelay.inMilliseconds);
+                }
+                await Future<void>.delayed(
+                  Duration(milliseconds: ms.round()),
+                );
+                return true;
+              },
+            );
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      _attempt<S, T>(
-        task: task,
-        value: payload,
-        pulse: pulse,
-        cell: cell,
-        future: future,
-        token: token,
-        step: 'RetryWithBackoff',
-        onError: onError,
-        emitErrorPulse: emitErrorPulse,
-        again: (e, stack, attempt) async {
-          if (attempt >= count) return false;
-          var ms = initial.inMilliseconds * math.pow(factor, attempt);
-          if (maxDelay != null) {
-            ms = math.min(ms, maxDelay.inMilliseconds);
-          }
-          await Future<void>.delayed(
-            Duration(milliseconds: ms.round()),
-          );
-          return true;
-        },
-      );
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1060,48 +1060,48 @@ class RetryUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RetryWithDelay]: For retries with a fixed delay.
   /// - [RetryWithBackoff]: For retries with exponential backoff.
   RetryUntil(
-      RetryTask<S, T> task, {
-        required bool Function(Object error, int attempt) until,
-        int maxAttempts = 8,
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    RetryTask<S, T> task, {
+    required bool Function(Object error, int attempt) until,
+    int maxAttempts = 8,
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            _attempt<S, T>(
+              task: task,
+              value: payload,
+              pulse: pulse,
+              cell: cell,
+              future: future,
+              token: token,
+              step: 'RetryUntil',
+              onError: onError,
+              emitErrorPulse: emitErrorPulse,
+              again: (e, stack, attempt) async {
+                if (attempt + 1 >= maxAttempts) return false;
+                try {
+                  return !until(e, attempt);
+                } catch (err, st) {
+                  onError?.call(err, st);
+                  return false;
+                }
+              },
+            );
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      _attempt<S, T>(
-        task: task,
-        value: payload,
-        pulse: pulse,
-        cell: cell,
-        future: future,
-        token: token,
-        step: 'RetryUntil',
-        onError: onError,
-        emitErrorPulse: emitErrorPulse,
-        again: (e, stack, attempt) async {
-          if (attempt + 1 >= maxAttempts) return false;
-          try {
-            return !until(e, attempt);
-          } catch (err, st) {
-            onError?.call(err, st);
-            return false;
-          }
-        },
-      );
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1191,7 +1191,7 @@ Future<void> main() async {
   final a = Cell.ingress<void>();
 
   final retried = Retry<void, String>(
-        (_) {
+    (_) {
       n++;
       if (n < 3) throw StateError('try-$n');
       return 'ok';
@@ -1220,7 +1220,7 @@ Future<void> main() async {
   final b = Cell.ingress<void>();
 
   final when = RetryWhen<void, String>(
-        (_) => throw StateError('nope'),
+    (_) => throw StateError('nope'),
     shouldRetry: (e, attempt) => e is! StateError,
     onError: (_, __) {},
   ).toHandle(source: b.cell);
@@ -1245,7 +1245,7 @@ Future<void> main() async {
   final c = Cell.ingress<void>();
 
   final delayed = RetryWithDelay<void, String>(
-        (_) {
+    (_) {
       d++;
       if (d < 2) throw StateError('wait');
       return 'late';
@@ -1276,7 +1276,7 @@ Future<void> main() async {
   final e = Cell.ingress<void>();
 
   final backed = RetryWithBackoff<void, String>(
-        (_) {
+    (_) {
       k++;
       if (k < 2) throw StateError('again');
       return 'ok';
@@ -1306,7 +1306,7 @@ Future<void> main() async {
   final f = Cell.ingress<void>();
 
   final until = RetryUntil<void, String>(
-        (_) => throw const FormatException('bad'),
+    (_) => throw const FormatException('bad'),
     until: (e, _) => e is FormatException,
     onError: (_, __) {},
   ).toHandle(source: f.cell);

@@ -169,7 +169,6 @@ void main() {
     });
   });
 
-
   group('ZipWith extra', () {
     test('empty others zips the source alone', () async {
       final gate = Cell.ingress<int>();

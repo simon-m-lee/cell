@@ -1,10 +1,10 @@
 # Cell Framework — Architecture
 
-**Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))
+**Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS))
 
 Why Cell is shaped this way, for contributors and anyone extending it.
 Task-oriented usage lives in `/guide`. Status and the operator table live
-in [`README.md`](README.md).
+in [`README.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md).
 
 This describes **intent plus the mechanisms that exist in source**. Where
 implementation lags the story, §8 says so. Do not treat a field on

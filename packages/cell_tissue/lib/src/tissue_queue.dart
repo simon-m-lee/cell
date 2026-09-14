@@ -69,7 +69,6 @@ part of '../cell_tissue.dart';
 /// - [TissueReceptor] – the engine that processes mutation signals.
 /// - [TestTissue] – the validation logic for collection elements.
 abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
-
   /// The primary architectural factory for creating a [TissueQueueNucleus],
   /// defining the foundational "Reactive DNA" and behavioural blueprint for
   /// a [TissueQueue].
@@ -113,17 +112,15 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A concrete [TissueQueueNucleus<E>] implementation tailored to the
   /// provided reactive blueprint.
-  factory TissueQueueNucleus({
-    int? capacity,
-
-    Cell? bind,
-    Context context,
-    TissueReceptor<E,TissueQueue<E>> receptor,
-    TestTissue<E,TissueQueue<E>> testRule,
-    Synapses synapses,
-    EphemeralPolicy? ephemeralPolicy,
-    Record? user
-  }) = _TissueQueueNucleus<E,TissueQueue<E>>;
+  factory TissueQueueNucleus(
+      {int? capacity,
+      Cell? bind,
+      Context context,
+      TissueReceptor<E, TissueQueue<E>> receptor,
+      TestTissue<E, TissueQueue<E>> testRule,
+      Synapses synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user}) = _TissueQueueNucleus<E, TissueQueue<E>>;
 
   /// Creates a derived [TissueQueueNucleus] by mutating or extending
   /// an existing [principal] configuration.
@@ -184,20 +181,17 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueQueueNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueQueueNucleus.evolve({
-    int? capacity,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E, TissueQueue<E>>? receptor,
-    TestTissue<E, TissueQueue<E>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueQueueNucleus<E>? override,
-    required TissueQueueNucleus<E> principal
-  }) = _TissueQueueNucleus<E,TissueQueue<E>>.evolve;
+  factory TissueQueueNucleus.evolve(
+          {int? capacity,
+          Cell? bind,
+          Context? context,
+          TissueReceptor<E, TissueQueue<E>>? receptor,
+          TestTissue<E, TissueQueue<E>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueQueueNucleus<E>? override,
+          required TissueQueueNucleus<E> principal}) =
+      _TissueQueueNucleus<E, TissueQueue<E>>.evolve;
 
   /// A highly configurable static utility factory that produces a type‑safe
   /// [TissueQueueNucleus] configuration for a specific element type [E]
@@ -243,37 +237,36 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified element and
   /// tissue types.
-  static TissueQueueNucleusBase<E,C> create<E,C extends TissueQueue<E>>({
-    int? capacity,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueQueueNucleusBase<E,C>? principal
-  }) {
-
+  static TissueQueueNucleusBase<E, C> create<E, C extends TissueQueue<E>>(
+      {int? capacity,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueQueueNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E,Queue<E>,C>(
+      final local = TissueNucleusBase.local<E, Queue<E>, C>(
           container: container,
-          bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+          bind: bind,
+          context: context,
+          receptor: receptor,
+          testRule: testRule,
+          synapses: synapses,
+          forceLock: forceLock,
+          user: user,
           ephemeralPolicy: ephemeralPolicy,
-          others: capacity != null ? (capacity: capacity) : null
-      );
-      return _TissueQueueNucleus<E,C>.fromRecord(
-          (local: local, principal: principal)
-      );
+          others: capacity != null ? (capacity: capacity) : null);
+      return _TissueQueueNucleus<E, C>.fromRecord(
+          (local: local, principal: principal));
     }
 
-    return _TissueQueueNucleus<E,C>(
+    return _TissueQueueNucleus<E, C>(
         capacity: capacity,
-
         bind: bind,
         context: context ?? Context.system,
         receptor: receptor ?? TissueReceptor.passThrough,
@@ -281,9 +274,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
         synapses: synapses ?? Synapses.enabled,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
-        forceLock: forceLock
-    );
-
+        forceLock: forceLock);
   }
 
   /// Creates an independent, decoupled clone of the current [TissueQueueNucleus]
@@ -370,7 +361,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
   ///   is full, `add` operations may drop the oldest element or reject the new
   ///   one, depending on the specific `TissueQueue` implementation.
   int get capacity;
-
 }
 
 /// A reactive, high‑performance, and synchronised implementation of a
@@ -473,7 +463,6 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 /// - [TissueQueueNucleus] – the blueprint and configuration for the queue.
 /// - [UnmodifiableTissueQueue] – a read‑only deputy variant.
 abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
-
   @override
   TissueQueueNucleus<E> get _nucleus;
 
@@ -514,13 +503,12 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   /// ```
   factory TissueQueue({
     int? capacity,
-
     Cell? bind,
     Context context,
-    TissueReceptor<E,TissueQueue<E>> receptor,
-    TestTissue<E,TissueQueue<E>> testRule,
+    TissueReceptor<E, TissueQueue<E>> receptor,
+    TestTissue<E, TissueQueue<E>> testRule,
     Synapses synapses,
-  }) = _TissueQueue<E,TissueQueue<E>>;
+  }) = _TissueQueue<E, TissueQueue<E>>;
 
   /// Factory constructor to create a new, pre‑populated [TissueQueue] from an
   /// [Iterable] of elements.
@@ -549,15 +537,15 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   /// ```dart
   /// final queue = TissueQueue.of([1, 2, 3], capacity: 10);
   /// ```
-  factory TissueQueue.of(Iterable<E> elements, {
+  factory TissueQueue.of(
+    Iterable<E> elements, {
     int? capacity,
-
     Cell? bind,
     Context context,
-    TissueReceptor<E,TissueQueue<E>> receptor,
-    TestTissue<E,TissueQueue<E>> testRule,
+    TissueReceptor<E, TissueQueue<E>> receptor,
+    TestTissue<E, TissueQueue<E>> testRule,
     Synapses synapses,
-  }) = _TissueQueue<E,TissueQueue<E>>.of;
+  }) = _TissueQueue<E, TissueQueue<E>>.of;
 
   /// Primary architectural factory for materialising a [TissueQueue] from an
   /// existing [TissueQueueNucleus] (the "Reactive DNA").
@@ -594,8 +582,8 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   ///
   /// ### Returns:
   /// A concrete [TissueQueue<E>] instance.
-  factory TissueQueue.fromNucleus(TissueQueueNucleus<E> nucleus, {Iterable<E>? elements})
-  = _TissueQueue<E,TissueQueue<E>>.fromNucleus;
+  factory TissueQueue.fromNucleus(TissueQueueNucleus<E> nucleus,
+      {Iterable<E>? elements}) = _TissueQueue<E, TissueQueue<E>>.fromNucleus;
 
   /// A high‑fidelity architectural factory for creating a **Deeply Immodifiable
   /// Reactive View** (Deputy) of an existing [TissueQueue].
@@ -629,8 +617,9 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   /// // readOnly.add(1); // blocked
   /// source.add(1); // readOnly reflects the change
   /// ```
-  factory TissueQueue.unmodifiable(TissueQueue<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueQueue<E,TissueQueue<E>>.view;
+  factory TissueQueue.unmodifiable(TissueQueue<E> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueQueue<E, TissueQueue<E>>.view;
 
   /// A high‑level, comprehensive static factory for orchestrating the assembly
   /// and instantiation of a [TissueQueueBase], serving as the primary
@@ -681,21 +670,18 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   ///   testRule: TestTissue<int>((v) => v > 0),
   /// );
   /// ```
-  static TissueQueueBase<E,C> create<E,C extends TissueQueue<E>>({
-    Iterable<E>? elements,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueQueueNucleusBase<E,C>? principal
-  }) {
-    final nucleus = TissueQueueNucleus.create<E,C>(
+  static TissueQueueBase<E, C> create<E, C extends TissueQueue<E>>(
+      {Iterable<E>? elements,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      forceLock = false,
+      TissueQueueNucleusBase<E, C>? principal}) {
+    final nucleus = TissueQueueNucleus.create<E, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -704,10 +690,8 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _TissueQueue<E,C>.fromNucleus(nucleus, elements: elements);
-
+        principal: principal);
+    return _TissueQueue<E, C>.fromNucleus(nucleus, elements: elements);
   }
 
   /// Adds value at the end of the queue.
@@ -835,7 +819,6 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
   /// Provides a view of this queue as a queue of R instances, if necessary.
   @override
   Queue<R> cast<R>();
-
 }
 
 /// A specialised architectural interface for a **Deeply Immodifiable, Reactive
@@ -904,8 +887,8 @@ abstract interface class TissueQueue<E> implements Tissue<E>, Queue<E> {
 /// See also:
 /// - [TissueQueue] – the mutable counterpart.
 /// - [UnmodifiableTissue] – the general contract for read‑only tissues.
-abstract interface class UnmodifiableTissueQueue<E> implements TissueQueue<E>, UnmodifiableTissue<E> {
-
+abstract interface class UnmodifiableTissueQueue<E>
+    implements TissueQueue<E>, UnmodifiableTissue<E> {
   /// The primary architectural factory for instantiating an [UnmodifiableTissueQueue],
   /// materializing a read‑only, reactive double‑ended buffer from a set of
   /// initial [elements].
@@ -945,10 +928,11 @@ abstract interface class UnmodifiableTissueQueue<E> implements TissueQueue<E>, U
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  factory UnmodifiableTissueQueue(Iterable<E> elements, {
+  factory UnmodifiableTissueQueue(
+    Iterable<E> elements, {
     TissueQueueNucleus<E>? nucleus,
     bool unmodifiableElement,
-  }) = _UnmodifiableTissueQueue<E,TissueQueue<E>>;
+  }) = _UnmodifiableTissueQueue<E, TissueQueue<E>>;
 
   /// A high‑fidelity architectural factory for creating a **Deeply Immodifiable
   /// Reactive View** (Deputy) of an existing [TissueQueue].
@@ -980,8 +964,9 @@ abstract interface class UnmodifiableTissueQueue<E> implements TissueQueue<E>, U
   /// final source = TissueQueue<int>();
   /// final readOnly = UnmodifiableTissueQueue.view(source);
   /// ```
-  factory UnmodifiableTissueQueue.view(TissueQueue<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueQueue<E,TissueQueue<E>>.view;
+  factory UnmodifiableTissueQueue.view(TissueQueue<E> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueQueue<E, TissueQueue<E>>.view;
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueQueue] directly from a pre‑constructed
@@ -1019,8 +1004,9 @@ abstract interface class UnmodifiableTissueQueue<E> implements TissueQueue<E>, U
   /// );
   /// final readOnlyQueue = UnmodifiableTissueQueue.fromNucleus(readOnlyNucleus);
   /// ```
-  factory UnmodifiableTissueQueue.fromNucleus(TissueQueueNucleus<E> nucleus, {bool unmodifiableElement, Iterable<E>? elements})
-  = _UnmodifiableTissueQueue<E,TissueQueue<E>>.fromNucleus;
+  factory UnmodifiableTissueQueue.fromNucleus(TissueQueueNucleus<E> nucleus,
+          {bool unmodifiableElement, Iterable<E>? elements}) =
+      _UnmodifiableTissueQueue<E, TissueQueue<E>>.fromNucleus;
 
   /// An advanced architectural factory for creating a specialised, type‑safe
   /// [UnmodifiableTissueQueue] with granular control over its behavioural
@@ -1070,39 +1056,33 @@ abstract interface class UnmodifiableTissueQueue<E> implements TissueQueue<E>, U
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  static UnmodifiableTissueQueueBase<E,C> create<E,C extends TissueQueue<E>>({
+  static UnmodifiableTissueQueueBase<E, C> create<E, C extends TissueQueue<E>>({
     int? capacity,
     Iterable<E>? elements,
     bool unmodifiableElement = true,
-
     Cell? bind,
     Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
+    TissueReceptor<E, C>? receptor,
+    TestTissue<E, C>? testRule,
     Synapses? synapses,
-
     Container? container,
     Record? user,
     forceLock = false,
-    TissueQueueNucleusBase<E,C>? principal,
+    TissueQueueNucleusBase<E, C>? principal,
   }) {
-    return _UnmodifiableTissueQueue<E,C>.fromNucleus(
-        TissueQueueNucleus.create<E,C>(
+    return _UnmodifiableTissueQueue<E, C>.fromNucleus(
+        TissueQueueNucleus.create<E, C>(
             capacity: capacity,
-
             bind: bind,
             context: context,
             testRule: testRule,
             receptor: receptor,
             synapses: synapses,
-
             container: container,
             user: user,
             forceLock: forceLock,
-            principal: principal
-        ),
+            principal: principal),
         unmodifiableElement: unmodifiableElement,
-        elements: elements
-    );
+        elements: elements);
   }
 }

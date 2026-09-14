@@ -307,8 +307,8 @@ void main() {
         elements: [4, 5],
         container: Container.iterable,
       );
-      final view = UnmodifiableTissue<int>.view(source,
-          unmodifiableElement: false);
+      final view =
+          UnmodifiableTissue<int>.view(source, unmodifiableElement: false);
 
       expect(view.toList(), [4, 5]);
     });
@@ -342,8 +342,7 @@ void main() {
       expect(identical(u, u.unmodifiable), isTrue);
     });
 
-    test('standalone unmodifiable tissue with unmodifiableElement false',
-        () {
+    test('standalone unmodifiable tissue with unmodifiableElement false', () {
       final u = UnmodifiableTissue<int>([1, 2, 3], unmodifiableElement: false);
 
       expect(u.toList(), [1, 2, 3]);
@@ -368,12 +367,10 @@ void main() {
       expect(u.toList(), [11, 12]);
     });
 
-    test('fromNucleus links cells when elements are identical to the bind',
-        () {
+    test('fromNucleus links cells when elements are identical to the bind', () {
       final cell = Cell.state<int>(initial: 9).cell;
       final source = Tissue<Cell>([cell]);
-      final nucleus =
-          TissueNucleus.create<Cell, Iterable<Cell>, Tissue<Cell>>(
+      final nucleus = TissueNucleus.create<Cell, Iterable<Cell>, Tissue<Cell>>(
         bind: source,
         container: Container.iterable,
       );

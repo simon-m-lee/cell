@@ -203,7 +203,11 @@ class SensorReading {
     this.status = 'normal',
   }) : timestamp = timestamp ?? DateTime.now();
 
-  bool get isValid => temperature >= -10 && temperature <= 50 && humidity >= 0 && humidity <= 100;
+  bool get isValid =>
+      temperature >= -10 &&
+      temperature <= 50 &&
+      humidity >= 0 &&
+      humidity <= 100;
   bool get isHighTemp => temperature > 35;
   bool get isLowTemp => temperature < 0;
   bool get isCritical => temperature > 45 || temperature < -5 || humidity > 95;
@@ -412,7 +416,8 @@ class EventSimulator {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Data Quality Filtering Demo ──────────────────────────────────────────\n');
+  print(
+      '── Data Quality Filtering Demo ──────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Numeric Filtering
@@ -553,7 +558,8 @@ Future<void> main() async {
 
   await Future.delayed(const Duration(milliseconds: 50));
 
-  print('   Filtered (age>=18): ${adultUsers.map((u) => u.toString()).join(', ')}');
+  print(
+      '   Filtered (age>=18): ${adultUsers.map((u) => u.toString()).join(', ')}');
   print('   Underage: ${underageUsers.map((u) => u.toString()).join(', ')}');
 
   userObserver.stop();
@@ -583,15 +589,19 @@ Future<void> main() async {
     sensorHandle.cell,
     test: (reading) {
       if (reading.isValid) {
-        print('   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ✅ PASSED');
+        print(
+            '   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ✅ PASSED');
         return true;
       } else {
         if (reading.isHighTemp) {
-          print('   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED (High temperature alert!)');
+          print(
+              '   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED (High temperature alert!)');
         } else if (reading.isLowTemp) {
-          print('   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED (Low temperature alert!)');
+          print(
+              '   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED (Low temperature alert!)');
         } else {
-          print('   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED');
+          print(
+              '   [Sensor] Temp: ${reading.temperature.toStringAsFixed(1)}°C ❌ FAILED');
         }
         return false;
       }
@@ -835,7 +845,8 @@ Future<void> main() async {
 
   final throughput = (testSize / stopwatch.elapsedMilliseconds) * 1000;
 
-  print('   ${numbers.length} items filtered in ${stopwatch.elapsedMilliseconds}ms');
+  print(
+      '   ${numbers.length} items filtered in ${stopwatch.elapsedMilliseconds}ms');
   print('   Throughput: ${throughput.toStringAsFixed(0)} items/sec');
 
   perfObserver.stop();
@@ -882,14 +893,25 @@ Future<void> main() async {
   final testData = [
     {'name': 'Alice', 'age': 30, 'score': 0.85, 'status': 'active'},
     {'name': 'Bob', 'age': 16, 'score': 0.95, 'status': 'active'}, // Too young
-    {'name': 'Charlie', 'age': 40, 'score': 0.65, 'status': 'pending'}, // Low score
-    {'name': 'Diana', 'age': 25, 'score': 0.90, 'status': 'inactive'}, // Wrong status
+    {
+      'name': 'Charlie',
+      'age': 40,
+      'score': 0.65,
+      'status': 'pending'
+    }, // Low score
+    {
+      'name': 'Diana',
+      'age': 25,
+      'score': 0.90,
+      'status': 'inactive'
+    }, // Wrong status
     {'name': 'Eve', 'age': 50, 'score': 0.92, 'status': 'active'},
   ];
 
   print('   Test Data:');
   for (final data in testData) {
-    print('     ${data['name']}: age=${data['age']}, score=${data['score']}, status=${data['status']}');
+    print(
+        '     ${data['name']}: age=${data['age']}, score=${data['score']}, status=${data['status']}');
     await complexInput.emitAsync(data);
   }
 
@@ -897,7 +919,8 @@ Future<void> main() async {
 
   print('   Filtered Results:');
   for (final result in complexResults) {
-    print('     ✅ ${result['name']} (age=${result['age']}, score=${result['score']}, status=${result['status']})');
+    print(
+        '     ✅ ${result['name']} (age=${result['age']}, score=${result['score']}, status=${result['status']})');
   }
 
   complexObserver.stop();
@@ -915,7 +938,11 @@ Future<void> main() async {
   // Simulate alerts from different systems
   final alerts = [
     {'system': 'web', 'severity': 'high', 'message': 'High traffic spike'},
-    {'system': 'db', 'severity': 'critical', 'message': 'Database connection failed'},
+    {
+      'system': 'db',
+      'severity': 'critical',
+      'message': 'Database connection failed'
+    },
     {'system': 'web', 'severity': 'low', 'message': 'Slow response time'},
     {'system': 'cache', 'severity': 'medium', 'message': 'Cache hit rate low'},
     {'system': 'db', 'severity': 'critical', 'message': 'Query timeout'},
@@ -954,7 +981,8 @@ Future<void> main() async {
 
   print('   Critical alerts requiring attention: ${criticalAlerts.length}');
   for (final alert in criticalAlerts) {
-    print('     🚨 ${alert['system']}: ${alert['message']} (${alert['severity']})');
+    print(
+        '     🚨 ${alert['system']}: ${alert['message']} (${alert['severity']})');
   }
 
   alertObserver.stop();
@@ -1026,7 +1054,8 @@ Future<void> main() async {
 
   await Future.delayed(const Duration(milliseconds: 50));
 
-  print('   Output: ${pipelineResults.length} items (values doubled, only >100)');
+  print(
+      '   Output: ${pipelineResults.length} items (values doubled, only >100)');
   for (final result in pipelineResults) {
     print('     ✅ id=${result['id']}, value=${result['value']}');
   }
@@ -1065,7 +1094,8 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1076,29 +1106,29 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a filter transformation.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     final instruction = Filter<S>(test);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a map transformation.
   static FlowHandle map<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+  }) {
     final instruction = MapValue<S, T>(project);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a fromStream bridge with the specified stream.
   static FlowHandle fromStream<S>(
-      Cell source, {
-        required Stream<S> stream,
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Stream<S> stream,
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     final instruction = FromStream<S>(
       stream,
       onError: onError,
@@ -1109,7 +1139,8 @@ extension FlowUtils on Flow {
 }
 
 /// Error handler callback for stream operations.
-typedef StreamErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef StreamErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────────────
 // Helper Functions

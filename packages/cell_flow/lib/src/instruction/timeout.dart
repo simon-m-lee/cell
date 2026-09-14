@@ -42,7 +42,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef TimeoutErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef TimeoutErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -57,13 +58,14 @@ typedef TimeoutErrorHandler = void Function(Object error, StackTrace? stackTrace
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      TimeoutErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  TimeoutErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -166,7 +168,7 @@ void _arm<S>({
   required Pulse pulse,
   required Cell? cell,
   required void Function({required Pulse? result, required dynamic token})?
-  future,
+      future,
   required dynamic token,
 }) {
   clock.future = future;
@@ -307,46 +309,46 @@ class Timeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   pulse. Set `false` for an overall deadline ([TimeoutFirst]).
   /// - [user]: Flyweight metadata preserved across the composition chain.
   Timeout(
-      Duration duration, {
-        TimeoutErrorHandler? onError,
-        bool emitErrorPulse = true,
-        bool resetOnPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final clock = _Clock();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        _arm<S>(
-          clock: clock,
-          duration: duration,
-          resetOnPulse: resetOnPulse,
-          pulse: typed,
-          cell: cell,
-          future: future,
-          token: token,
-          onTimeout: () {
-            if (clock.closed) return;
-            clock.closed = true;
-            final err = TimeoutException(
-              'No pulse within $duration',
-              duration,
-            );
-            onError?.call(err, StackTrace.current);
-            if (emitErrorPulse && clock.last != null) {
-              clock.future?.call(
-                result: _err(err, clock.last!, clock.cell, 'Timeout'),
-                token: clock.token,
+    Duration duration, {
+    TimeoutErrorHandler? onError,
+    bool emitErrorPulse = true,
+    bool resetOnPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final clock = _Clock();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              _arm<S>(
+                clock: clock,
+                duration: duration,
+                resetOnPulse: resetOnPulse,
+                pulse: typed,
+                cell: cell,
+                future: future,
+                token: token,
+                onTimeout: () {
+                  if (clock.closed) return;
+                  clock.closed = true;
+                  final err = TimeoutException(
+                    'No pulse within $duration',
+                    duration,
+                  );
+                  onError?.call(err, StackTrace.current);
+                  if (emitErrorPulse && clock.last != null) {
+                    clock.future?.call(
+                      result: _err(err, clock.last!, clock.cell, 'Timeout'),
+                      token: clock.token,
+                    );
+                  }
+                },
               );
-            }
-          },
+              return typed.withStep('Timeout');
+            };
+          })(),
+          user: user,
         );
-        return typed.withStep('Timeout');
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -447,56 +449,57 @@ class TimeoutWithError<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [emitErrorPulse]: When `true` (default), emit the error pulse.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   TimeoutWithError(
-      Duration duration, {
-        Object? error,
-        Object Function()? errorOf,
-        TimeoutErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final clock = _Clock();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        _arm<S>(
-          clock: clock,
-          duration: duration,
-          resetOnPulse: true,
-          pulse: typed,
-          cell: cell,
-          future: future,
-          token: token,
-          onTimeout: () {
-            if (clock.closed) return;
-            clock.closed = true;
-            late final Object err;
-            try {
-              err = errorOf != null
-                  ? errorOf()
-                  : (error ??
-                  TimeoutException(
-                    'No pulse within $duration',
-                    duration,
-                  ));
-            } catch (e, stack) {
-              onError?.call(e, stack);
-              return;
-            }
-            onError?.call(err, StackTrace.current);
-            if (emitErrorPulse && clock.last != null) {
-              clock.future?.call(
-                result: _err(err, clock.last!, clock.cell, 'TimeoutWithError'),
-                token: clock.token,
+    Duration duration, {
+    Object? error,
+    Object Function()? errorOf,
+    TimeoutErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final clock = _Clock();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              _arm<S>(
+                clock: clock,
+                duration: duration,
+                resetOnPulse: true,
+                pulse: typed,
+                cell: cell,
+                future: future,
+                token: token,
+                onTimeout: () {
+                  if (clock.closed) return;
+                  clock.closed = true;
+                  late final Object err;
+                  try {
+                    err = errorOf != null
+                        ? errorOf()
+                        : (error ??
+                            TimeoutException(
+                              'No pulse within $duration',
+                              duration,
+                            ));
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                    return;
+                  }
+                  onError?.call(err, StackTrace.current);
+                  if (emitErrorPulse && clock.last != null) {
+                    clock.future?.call(
+                      result: _err(
+                          err, clock.last!, clock.cell, 'TimeoutWithError'),
+                      token: clock.token,
+                    );
+                  }
+                },
               );
-            }
-          },
+              return typed.withStep('TimeoutWithError');
+            };
+          })(),
+          user: user,
         );
-        return typed.withStep('TimeoutWithError');
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -593,45 +596,45 @@ class TimeoutWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   TimeoutWithFallback(
-      Duration duration, {
-        required S fallback,
-        bool once = true,
-        TimeoutErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final clock = _Clock();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        _arm<S>(
-          clock: clock,
-          duration: duration,
-          resetOnPulse: true,
-          pulse: typed,
-          cell: cell,
-          future: future,
-          token: token,
-          onTimeout: () {
-            if (clock.closed && once) return;
-            if (once) clock.closed = true;
-            if (clock.last == null) return;
-            clock.future?.call(
-              result: _ok<S>(
-                fallback,
-                clock.last!,
-                clock.cell,
-                'TimeoutWithFallback',
-              ),
-              token: clock.token,
-            );
-          },
+    Duration duration, {
+    required S fallback,
+    bool once = true,
+    TimeoutErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final clock = _Clock();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              _arm<S>(
+                clock: clock,
+                duration: duration,
+                resetOnPulse: true,
+                pulse: typed,
+                cell: cell,
+                future: future,
+                token: token,
+                onTimeout: () {
+                  if (clock.closed && once) return;
+                  if (once) clock.closed = true;
+                  if (clock.last == null) return;
+                  clock.future?.call(
+                    result: _ok<S>(
+                      fallback,
+                      clock.last!,
+                      clock.cell,
+                      'TimeoutWithFallback',
+                    ),
+                    token: clock.token,
+                  );
+                },
+              );
+              return typed.withStep('TimeoutWithFallback');
+            };
+          })(),
+          user: user,
         );
-        return typed.withStep('TimeoutWithFallback');
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -711,13 +714,13 @@ class TimeoutFirst<S> extends Timeout<S> {
   /// ### Parameters
   /// Same as [Timeout] except [resetOnPulse] is forced to `false`.
   TimeoutFirst(
-      super.duration, {
-        super.onError,
-        super.emitErrorPulse,
-        super.user,
-      }) : super(
-    resetOnPulse: false,
-  );
+    super.duration, {
+    super.onError,
+    super.emitErrorPulse,
+    super.user,
+  }) : super(
+          resetOnPulse: false,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -784,13 +787,13 @@ class TimeoutLast<S> extends Timeout<S> {
   /// ### Parameters
   /// Same as [Timeout] except [resetOnPulse] is forced to `true`.
   TimeoutLast(
-      super.duration, {
-        super.onError,
-        super.emitErrorPulse,
-        super.user,
-      }) : super(
-    resetOnPulse: true,
-  );
+    super.duration, {
+    super.onError,
+    super.emitErrorPulse,
+    super.user,
+  }) : super(
+          resetOnPulse: true,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -936,8 +939,8 @@ Future<void> main() async {
 
   final fObs = Cell.observe(
     source: fb.cell,
-    effect: (Pulse p) =>
-        print('   [TimeoutWithFallback] ${p.payload == -1 ? 'none' : p.payload}'),
+    effect: (Pulse p) => print(
+        '   [TimeoutWithFallback] ${p.payload == -1 ? 'none' : p.payload}'),
   );
 
   await b.emitAsync(1);

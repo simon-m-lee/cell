@@ -1069,8 +1069,8 @@ final class AiConfig {
     if (endpoint is! String || endpoint.isEmpty) {
       throw const FormatException(
         'AiConfig: "endpoint" is required and must be a non-empty '
-            'String. No env-var fallback is performed when a config is '
-            'supplied.',
+        'String. No env-var fallback is performed when a config is '
+        'supplied.',
       );
     }
 
@@ -1078,8 +1078,8 @@ final class AiConfig {
     if (apiKey is! String || apiKey.isEmpty) {
       throw const FormatException(
         'AiConfig: "apiKey" is required and must be a non-empty '
-            'String. No env-var fallback is performed when a config is '
-            'supplied.',
+        'String. No env-var fallback is performed when a config is '
+        'supplied.',
       );
     }
 
@@ -1087,8 +1087,8 @@ final class AiConfig {
     if (model is! String || model.isEmpty) {
       throw const FormatException(
         'AiConfig: "model" is required and must be a non-empty '
-            'String. No env-var fallback is performed when a config is '
-            'supplied.',
+        'String. No env-var fallback is performed when a config is '
+        'supplied.',
       );
     }
 
@@ -1176,18 +1176,17 @@ final class AiConfig {
   /// Useful for writing a template config file or for logging the
   /// active configuration with the API key redacted by the caller.
   Map<String, dynamic> toJson() => {
-    'endpoint': endpoint.toString(),
-    'apiKey': apiKey,
-    'model': model,
-    'timeoutSeconds': timeout.inSeconds,
-    if (extraBody.isNotEmpty) 'extraBody': extraBody,
-  };
+        'endpoint': endpoint.toString(),
+        'apiKey': apiKey,
+        'model': model,
+        'timeoutSeconds': timeout.inSeconds,
+        if (extraBody.isNotEmpty) 'extraBody': extraBody,
+      };
 
   @override
-  String toString() =>
-      'AiConfig(endpoint: $endpoint, model: $model, '
-          'timeout: ${timeout.inSeconds}s, '
-          'extraBodyKeys: ${extraBody.keys.toList()})';
+  String toString() => 'AiConfig(endpoint: $endpoint, model: $model, '
+      'timeout: ${timeout.inSeconds}s, '
+      'extraBodyKeys: ${extraBody.keys.toList()})';
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1393,7 +1392,7 @@ class HttpInterpreter implements Interpreter {
 
     final response = await request.close().timeout(timeout);
     final replyBody =
-    await response.transform(utf8.decoder).join().timeout(timeout);
+        await response.transform(utf8.decoder).join().timeout(timeout);
 
     log.response(status: response.statusCode, body: replyBody);
 
@@ -1463,43 +1462,43 @@ class HttpInterpreter implements Interpreter {
 
       if (contentString == null) {
         return (
-        command: null,
-        reject: Reject(source: source, reason: 'unexpected-envelope'),
+          command: null,
+          reject: Reject(source: source, reason: 'unexpected-envelope'),
         );
       }
 
       final inner = jsonDecode(contentString);
       if (inner is! Map) {
         return (
-        command: null,
-        reject: Reject(source: source, reason: 'content-not-object'),
+          command: null,
+          reject: Reject(source: source, reason: 'content-not-object'),
         );
       }
 
       final verbString = inner['verb'];
       if (verbString is! String) {
         return (
-        command: null,
-        reject: Reject(source: source, reason: 'missing-verb'),
+          command: null,
+          reject: Reject(source: source, reason: 'missing-verb'),
         );
       }
 
       if (verbString == 'reject') {
         final reason = inner['reason'];
         return (
-        command: null,
-        reject: Reject(
-          source: source,
-          reason: reason is String ? reason : 'rejected-by-model',
-        ),
+          command: null,
+          reject: Reject(
+            source: source,
+            reason: reason is String ? reason : 'rejected-by-model',
+          ),
         );
       }
 
       final verb = verbByName[verbString];
       if (verb == null) {
         return (
-        command: null,
-        reject: Reject(source: source, reason: 'unknown-verb'),
+          command: null,
+          reject: Reject(source: source, reason: 'unknown-verb'),
         );
       }
 
@@ -1510,18 +1509,18 @@ class HttpInterpreter implements Interpreter {
       final confidence = confRaw is num ? confRaw.toDouble() : 0.5;
 
       return (
-      command: TissueCommand(
-        verb: verb,
-        args: args,
-        confidence: confidence,
-        source: source,
-      ),
-      reject: null,
+        command: TissueCommand(
+          verb: verb,
+          args: args,
+          confidence: confidence,
+          source: source,
+        ),
+        reject: null,
       );
     } catch (e) {
       return (
-      command: null,
-      reject: Reject(source: source, reason: 'parse-error:$e'),
+        command: null,
+        reject: Reject(source: source, reason: 'parse-error:$e'),
       );
     }
   }
@@ -1776,7 +1775,7 @@ class StubInterpreter implements Interpreter {
     }
 
     final addMatch =
-    RegExp(r'^(?:please )?(?:add|insert) (-?\d+)(?: .*)?$').firstMatch(n);
+        RegExp(r'^(?:please )?(?:add|insert) (-?\d+)(?: .*)?$').firstMatch(n);
     if (addMatch != null && verbs.contains('add')) {
       return jsonEncode({
         'verb': 'add',
@@ -1786,8 +1785,8 @@ class StubInterpreter implements Interpreter {
     }
 
     final removeMatch =
-    RegExp(r'^(?:please )?(?:remove|delete) (-?\d+)(?: .*)?$')
-        .firstMatch(n);
+        RegExp(r'^(?:please )?(?:remove|delete) (-?\d+)(?: .*)?$')
+            .firstMatch(n);
     if (removeMatch != null && verbs.contains('remove')) {
       return jsonEncode({
         'verb': 'remove',
@@ -1797,7 +1796,7 @@ class StubInterpreter implements Interpreter {
     }
 
     if (RegExp(r'^(?:please )?(?:clear|delete everything|empty)(?: .*)?$')
-        .hasMatch(n) &&
+            .hasMatch(n) &&
         verbs.contains('clear')) {
       return jsonEncode({
         'verb': 'clear',
@@ -1828,46 +1827,44 @@ class StubInterpreter implements Interpreter {
     try {
       final outer = jsonDecode(raw) as Map;
       final choices = outer['choices'] as List;
-      final content =
-      (choices.first as Map)['message']['content'] as String;
+      final content = (choices.first as Map)['message']['content'] as String;
       final inner = jsonDecode(content) as Map;
       final verbString = inner['verb'] as String;
 
       if (verbString == 'reject') {
         return (
-        command: null,
-        reject: Reject(
-          source: source,
-          reason: inner['reason'] as String? ?? 'rejected-by-model',
-        ),
+          command: null,
+          reject: Reject(
+            source: source,
+            reason: inner['reason'] as String? ?? 'rejected-by-model',
+          ),
         );
       }
 
       final verb = verbByName[verbString];
       if (verb == null) {
         return (
-        command: null,
-        reject: Reject(source: source, reason: 'unknown-verb'),
+          command: null,
+          reject: Reject(source: source, reason: 'unknown-verb'),
         );
       }
 
       final args = (inner['args'] as List?) ?? const <Object?>[];
-      final confidence =
-          (inner['confidence'] as num?)?.toDouble() ?? 0.5;
+      final confidence = (inner['confidence'] as num?)?.toDouble() ?? 0.5;
 
       return (
-      command: TissueCommand(
-        verb: verb,
-        args: args,
-        confidence: confidence,
-        source: source,
-      ),
-      reject: null,
+        command: TissueCommand(
+          verb: verb,
+          args: args,
+          confidence: confidence,
+          source: source,
+        ),
+        reject: null,
       );
     } catch (e) {
       return (
-      command: null,
-      reject: Reject(source: source, reason: 'parse-error:$e'),
+        command: null,
+        reject: Reject(source: source, reason: 'parse-error:$e'),
       );
     }
   }

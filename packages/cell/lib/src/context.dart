@@ -36,7 +36,6 @@ part of '../cell.dart';
 /// ### Type Parameters:
 /// - [V]: The expected value type for this specific governance dimension.
 abstract interface class Governance<V> implements Enum {
-
   /// Indicates whether this governance dimension can be specialized or
   /// modified during a context [Context.evolve] operation.
   ///
@@ -88,8 +87,7 @@ abstract interface class Governance<V> implements Enum {
   /// // Used to build contexts
   /// final context = Context.fromEntries([entry]);
   /// ```
-  GovernanceEntry<Governance<V>,V> entry(V value);
-
+  GovernanceEntry<Governance<V>, V> entry(V value);
 }
 
 /// A strongly-typed key-value pair that represents a single dimension of
@@ -125,7 +123,6 @@ abstract interface class Governance<V> implements Enum {
 /// * [Context]: The operational environment built from governance entries.
 /// * [DeputyContext]: The mandate profile for delegated authority.
 class GovernanceEntry<G extends Governance<V>, V> {
-
   /// The governance dimension (key) for this entry.
   final G key;
 
@@ -142,7 +139,7 @@ class GovernanceEntry<G extends Governance<V>, V> {
   /// final mapEntry = entry.toEntry();
   /// // mapEntry is MapEntry<Ontology<String>, String>
   /// ```
-  MapEntry<G,V> toEntry() => MapEntry(key, value);
+  MapEntry<G, V> toEntry() => MapEntry(key, value);
 
   /// Creates a new [GovernanceEntry] with the specified [key] and [value].
   ///
@@ -156,7 +153,6 @@ class GovernanceEntry<G extends Governance<V>, V> {
   /// final entry2 = Ontology.taxonomy.entry('Processor');
   /// ```
   const GovernanceEntry(this.key, this.value);
-
 }
 
 /// A convenient mixin that provides default implementations for the
@@ -177,7 +173,6 @@ class GovernanceEntry<G extends Governance<V>, V> {
 /// * [Provenance]: The causal governance enum.
 /// * [Mandate]: The delegation governance enum.
 mixin GovernanceMixin<G extends Governance<V>, V> implements Governance<V> {
-
   /// Validates if the provided [value] matches the expected type [V].
   ///
   /// ### Developer Ergonomics & Human Legibility
@@ -232,8 +227,8 @@ mixin GovernanceMixin<G extends Governance<V>, V> implements Governance<V> {
   /// ]);
   /// ```
   @override
-  GovernanceEntry<G,V> entry(V value) => GovernanceEntry<G,V>(this as G, value);
-
+  GovernanceEntry<G, V> entry(V value) =>
+      GovernanceEntry<G, V>(this as G, value);
 }
 
 /// Defines the **Structural Taxonomy, Static Identity, and Architectural Shape**
@@ -266,8 +261,7 @@ mixin GovernanceMixin<G extends Governance<V>, V> implements Governance<V> {
 /// * [Context]: The operational environment built from ontology.
 /// * [Mandate]: The delegation parameters that govern deputy behavior.
 /// * [Provenance]: The dynamic history of a pulse.
-enum Ontology<V> with GovernanceMixin<Ontology<V>,V> implements Governance<V> {
-
+enum Ontology<V> with GovernanceMixin<Ontology<V>, V> implements Governance<V> {
   // non-evolvable
 
   /// The high-level **Knowledge Domains** or business-level functional areas
@@ -720,7 +714,8 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>,V> implements Governance<V> {
   /// ### Returns:
   /// An [Iterable<GovernanceEntry>] containing a synthesized entry for every
   /// applicable ontological dimension in the scene.
-  static Iterable<GovernanceEntry> compose(GovernanceEntry? Function(Ontology dimension) resolver) {
+  static Iterable<GovernanceEntry> compose(
+      GovernanceEntry? Function(Ontology dimension) resolver) {
     final entries = values.map((g) => resolver(g)).where((en) => en != null);
     return entries.cast();
   }
@@ -763,12 +758,14 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>,V> implements Governance<V> {
   /// ### Returns:
   /// An [Iterable<GovernanceEntry>] containing only the evolved **Fluid Boundaries**
   /// that differ from or refine the base prototype.
-  static Iterable<GovernanceEntry> evolve(GovernanceEntry? Function(Ontology evolvable) resolver) {
-    final entries = values.where((g) => g.evolvable == true)
-        .map((g) => resolver(g)).whereType<GovernanceEntry>();
+  static Iterable<GovernanceEntry> evolve(
+      GovernanceEntry? Function(Ontology evolvable) resolver) {
+    final entries = values
+        .where((g) => g.evolvable == true)
+        .map((g) => resolver(g))
+        .whereType<GovernanceEntry>();
     return entries;
   }
-
 }
 
 /// Metadata describing a [Cell]'s tier, domain, and operational
@@ -807,7 +804,6 @@ enum Ontology<V> with GovernanceMixin<Ontology<V>,V> implements Governance<V> {
 /// {@category Advanced}
 /// {@category Context}
 abstract interface class Context {
-
   /// The canonical root context and **Terminal Ancestor** of the reactive fabric's
   /// governance model.
   ///
@@ -936,24 +932,21 @@ abstract interface class Context {
   ///   'ISO-27001').
   /// - [others]: A catch-all map for custom, scene-specific ontological
   ///   metadata that falls outside the standard pillars.
-  factory Context({
-    String? type,
-    String? identity,
-
-    String? domains,
-    String? dataSources,
-    String? taxonomy,
-    String? topology,
-    String? version,
-
-    String? subDomains,
-    String? stakeholders,
-    Map<String, dynamic>? constraints,
-    String? isNot,
-    String? compliances,
-    String? partOf,
-    Map<String, dynamic>? others
-  }) = _Context;
+  factory Context(
+      {String? type,
+      String? identity,
+      String? domains,
+      String? dataSources,
+      String? taxonomy,
+      String? topology,
+      String? version,
+      String? subDomains,
+      String? stakeholders,
+      Map<String, dynamic>? constraints,
+      String? isNot,
+      String? compliances,
+      String? partOf,
+      Map<String, dynamic>? others}) = _Context;
 
   /// Creates a specialized **Deputy Mandate**, allowing for authority
   /// delegation, mandate attenuation, and temporal governance.
@@ -1019,7 +1012,6 @@ abstract interface class Context {
   /// - [others]: Catch-all for specialized ontological metadata.
   factory Context.deputy({
     required Context baseContext,
-
     required String authority,
     String? role,
     Isolation? isolation,
@@ -1028,7 +1020,6 @@ abstract interface class Context {
     Map<String, dynamic>? constraints,
     Map<String, dynamic>? others,
   }) = DeputyContext;
-
 
   /// Synthesizes a **Pulse Context**, establishing the semantic and causal
   /// metadata for a specific reactive signal transmission.
@@ -1075,7 +1066,6 @@ abstract interface class Context {
   /// - [others]: Catch-all for specialized ontological pulse metadata.
   factory Context.pulse({
     Context? baseContext,
-
     String? actor,
     String? reason,
     String? purpose,
@@ -1087,7 +1077,6 @@ abstract interface class Context {
     AuditLevel? auditLevel,
     String? traceId,
     String? parentTraceId,
-
     Map<String, dynamic>? others,
   }) = PulseContext;
 
@@ -1120,8 +1109,10 @@ abstract interface class Context {
   ///   falls outside the standard governance schema.
   /// - [parent]: The ancestral [Context] providing the baseline lineage and
   ///   fallback properties for this evolution.
-  factory Context.fromEntries(Iterable<GovernanceEntry<Ontology, dynamic>> entries, {Map<String, dynamic>? others, Context? parent})
-  = _Context.fromEntries;
+  factory Context.fromEntries(
+      Iterable<GovernanceEntry<Ontology, dynamic>> entries,
+      {Map<String, dynamic>? others,
+      Context? parent}) = _Context.fromEntries;
 
   /// Synthesizes a **Core Infrastructure Blueprint** for foundational nodes,
   /// ingress switches, and architectural plumbing within the Switching Fabric.
@@ -1191,7 +1182,8 @@ abstract interface class Context {
   /// - [Context.module] – the standard factory for application logic.
   /// - [Ontology.type] – the dimension that stores the type.
   /// - [Pulse.type] – the pulse property that aligns with the context type.
-  factory Context.core(String type, {String? identity, String? partOf, Map<String, dynamic>? others}) =>
+  factory Context.core(String type,
+          {String? identity, String? partOf, Map<String, dynamic>? others}) =>
       Context.fromEntries(
         [
           Ontology.type.entry(type), // Categorical alignment with Pulse.type
@@ -1273,7 +1265,8 @@ abstract interface class Context {
   /// - [Context.core] – for system‑level infrastructure.
   /// - [Ontology.type] – the dimension that stores the type.
   /// - [Pulse.type] – the pulse property that aligns with the context type.
-  factory Context.module(String type, {String? identity, String? partOf, Map<String, dynamic>? others}) =>
+  factory Context.module(String type,
+          {String? identity, String? partOf, Map<String, dynamic>? others}) =>
       Context.fromEntries(
         [
           Ontology.type.entry(type),
@@ -1582,7 +1575,8 @@ abstract interface class Context {
         'strategy': ReasoningStrategy.reflexive.name,
         'sensitivity': Sensitivity.restricted.name,
         'audit_level': AuditLevel.full.name,
-        'priority': 0, // Governance gates operate at infrastructure-level precedence
+        'priority':
+            0, // Governance gates operate at infrastructure-level precedence
         'strict_mode': true,
         ...?constraints,
         ...?others,
@@ -1875,7 +1869,9 @@ abstract interface class Context {
   /// ### Returns:
   /// A specialized [Context] that represents a refined authority branch
   /// in the system's **Causal Lineage**.
-  Context evolve(covariant GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others});
+  Context evolve(
+      covariant GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others});
 
   /// Traverses the hierarchical tree to produce a **Causal Trace** of a specific
   /// **knowledge dimension** associated with this context.
@@ -2035,5 +2031,4 @@ abstract interface class Context {
   /// ### Returns:
   /// The value associated with the requested [dimension], or `null` if not defined.
   dynamic operator [](Governance dimension);
-
 }

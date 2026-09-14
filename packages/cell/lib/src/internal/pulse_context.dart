@@ -77,8 +77,9 @@ part of '../../cell.dart';
 /// * [PulseContext] – the runtime container for these dimensions.
 /// * [Ontology] – the static structural identity of a node.
 /// * [Mandate] – the authority profile of a deputy.
-enum Provenance<V> with GovernanceMixin<Provenance<V>,V> implements Governance<V> {
-
+enum Provenance<V>
+    with GovernanceMixin<Provenance<V>, V>
+    implements Governance<V> {
   /// The unique identifier for the **Principal, Service, or AI Agent**
   /// responsible for initiating or transforming this [Pulse].
   ///
@@ -477,7 +478,8 @@ enum Provenance<V> with GovernanceMixin<Provenance<V>,V> implements Governance<V
   /// ### Returns:
   /// An [Iterable<GovernanceEntry>] containing a synthesised entry for
   /// every applicable provenance dimension.
-  static Iterable<GovernanceEntry> compose(GovernanceEntry? Function(Provenance dimension) resolver) {
+  static Iterable<GovernanceEntry> compose(
+      GovernanceEntry? Function(Provenance dimension) resolver) {
     final entries = values.map((g) => resolver(g)).where((en) => en != null);
     return entries.cast();
   }
@@ -541,12 +543,14 @@ enum Provenance<V> with GovernanceMixin<Provenance<V>,V> implements Governance<V
   /// ### Returns:
   /// An [Iterable<GovernanceEntry>] containing the specialised metadata
   /// entries used to form an evolved pulse context.
-  static Iterable<GovernanceEntry> evolve(GovernanceEntry? Function(Provenance evolvable) resolver) {
-    final entries = values.where((g) => g.evolvable == true)
-        .map((g) => resolver(g)).where((en) => en != null);
+  static Iterable<GovernanceEntry> evolve(
+      GovernanceEntry? Function(Provenance evolvable) resolver) {
+    final entries = values
+        .where((g) => g.evolvable == true)
+        .map((g) => resolver(g))
+        .where((en) => en != null);
     return entries.cast();
   }
-
 }
 
 /// Represents the **Causal Identity** and ontological **Provenance** of a [Pulse].
@@ -607,7 +611,6 @@ enum Provenance<V> with GovernanceMixin<Provenance<V>,V> implements Governance<V
 /// {@category Advanced}
 /// {@category Pulse Context}
 class PulseContext extends ContextBase {
-
   /// Accessor for the **Core System Blueprint**, providing a set of pre‑defined
   /// telemetric templates for standard internal operations.
   ///
@@ -670,7 +673,6 @@ class PulseContext extends ContextBase {
   /// ```
   PulseContext({
     Context? baseContext,
-
     String? actor,
     String? reason,
     String? purpose,
@@ -682,21 +684,21 @@ class PulseContext extends ContextBase {
     AuditLevel? auditLevel,
     String? traceId,
     String? parentTraceId,
-
     Map<String, dynamic>? others,
   }) : this.fromEntries(<GovernanceEntry>[
-    if (actor != null) Provenance.actor.entry(actor),
-    if (reason != null) Provenance.reason.entry(reason),
-    if (purpose != null) Provenance.purpose.entry(purpose),
-    if (strategy != null) Provenance.strategy.entry(strategy),
-    if (confidence != null) Provenance.confidence.entry(confidence),
-    if (priority != null) Provenance.priority.entry(priority),
-    if (compliance != null) Provenance.compliance.entry(compliance),
-    if (sensitivity != null) Provenance.sensitivity.entry(sensitivity),
-    if (auditLevel != null) Provenance.auditLevel.entry(auditLevel),
-    Provenance.traceId.entry(traceId ?? Identity.next()),
-    if (parentTraceId != null) Provenance.parentTraceId.entry(parentTraceId),
-  ], others: others, parent: baseContext);
+          if (actor != null) Provenance.actor.entry(actor),
+          if (reason != null) Provenance.reason.entry(reason),
+          if (purpose != null) Provenance.purpose.entry(purpose),
+          if (strategy != null) Provenance.strategy.entry(strategy),
+          if (confidence != null) Provenance.confidence.entry(confidence),
+          if (priority != null) Provenance.priority.entry(priority),
+          if (compliance != null) Provenance.compliance.entry(compliance),
+          if (sensitivity != null) Provenance.sensitivity.entry(sensitivity),
+          if (auditLevel != null) Provenance.auditLevel.entry(auditLevel),
+          Provenance.traceId.entry(traceId ?? Identity.next()),
+          if (parentTraceId != null)
+            Provenance.parentTraceId.entry(parentTraceId),
+        ], others: others, parent: baseContext);
 
   /// Syntheses a **Signal Provenance Environment** from a collection of
   /// strongly‑typed telemetric entries.
@@ -779,14 +781,16 @@ class PulseContext extends ContextBase {
       Provenance.compliance.entry(framework),
       Provenance.sensitivity.entry(sensitivity),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext != null) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext != null)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
 
       // Operational Boundaries (Escalated for Compliance)
       Provenance.auditLevel.entry(AuditLevel.full),
       Provenance.strategy.entry(ReasoningStrategy.deterministic),
       Provenance.priority.entry(85), // High priority due to regulatory nature
       Provenance.purpose.entry('REGULATED_TRANSACTION'),
-      Provenance.reason.entry(reason ?? 'Executing within $framework framework.'),
+      Provenance.reason
+          .entry(reason ?? 'Executing within $framework framework.'),
       Provenance.confidence.entry(1.0),
     ]);
   }
@@ -840,7 +844,8 @@ class PulseContext extends ContextBase {
       // Static Pillars
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext != null) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext != null)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
 
       // Operational Boundaries (Optimized for Metabolism)
       Provenance.purpose.entry('SYSTEM_MAINTENANCE'),
@@ -899,7 +904,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry('system_daemon'),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.public),
 
       // --- Fluid Boundaries (Evolvable Intent) ---
@@ -962,7 +968,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(sensitivity),
 
       // --- Fluid Boundaries (Evolvable Intent) ---
@@ -1023,7 +1030,8 @@ class PulseContext extends ContextBase {
       Provenance.actor.entry(actor),
       Provenance.compliance.entry(framework),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.confidential),
 
       // --- Fluid Boundaries (Escalated for Forensics) ---
@@ -1088,7 +1096,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.internal),
 
       // --- Fluid Boundaries (Evolvable Intent) ---
@@ -1150,7 +1159,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.internal),
 
       // --- Fluid Boundaries (Evolvable Intent) ---
@@ -1207,7 +1217,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.internal),
 
       // --- Fluid Boundaries (Evolvable Intent) ---
@@ -1265,7 +1276,8 @@ class PulseContext extends ContextBase {
       // --- Static Pillars (Non-Evolvable Identity) ---
       Provenance.actor.entry(actor),
       Provenance.traceId.entry(Identity.next()),
-      if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+      if (baseContext is PulseContext)
+        Provenance.parentTraceId.entry(baseContext.traceId!),
       Provenance.sensitivity.entry(Sensitivity.secret),
 
       // --- Fluid Boundaries (Escalated for Maximum Safety) ---
@@ -1660,83 +1672,139 @@ class PulseContext extends ContextBase {
   /// A specialised [PulseContext] that represents a refined branch in the
   /// system's causal tree.
   @override
-  PulseContext evolve(covariant GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others}) {
-    final entries = <GovernanceEntry>[...Ontology.evolve(resolver), ...Provenance.evolve(resolver)];
+  PulseContext evolve(
+      covariant GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others}) {
+    final entries = <GovernanceEntry>[
+      ...Ontology.evolve(resolver),
+      ...Provenance.evolve(resolver)
+    ];
     return PulseContext.fromEntries(entries, others: others, parent: this);
   }
 
   String? get actor => get<String?>(
-        () => _record.map[Provenance.actor] ?? (_parent is PulseContext ? (_parent as PulseContext).actor : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.actor] ??
+            (_parent is PulseContext ? (_parent as PulseContext).actor : null),
+        orElse: null,
+      );
 
   String? get reason => get<String?>(
-        () => _record.map[Provenance.reason] ?? (_parent is PulseContext ? (_parent as PulseContext).reason : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.reason] ??
+            (_parent is PulseContext ? (_parent as PulseContext).reason : null),
+        orElse: null,
+      );
 
   String? get purpose => get<String?>(
-        () => _record.map[Provenance.purpose] ?? (_parent is PulseContext ? (_parent as PulseContext).purpose : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.purpose] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).purpose
+                : null),
+        orElse: null,
+      );
 
   ReasoningStrategy? get strategy => get<ReasoningStrategy?>(
-        () => _record.map[Provenance.strategy] ?? (_parent is PulseContext ? (_parent as PulseContext).strategy : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.strategy] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).strategy
+                : null),
+        orElse: null,
+      );
 
   double? get confidence => get<double?>(
-        () => _record.map[Provenance.confidence] ?? (_parent is PulseContext ? (_parent as PulseContext).confidence : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.confidence] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).confidence
+                : null),
+        orElse: null,
+      );
 
   int? get priority => get<int?>(
-        () => _record.map[Provenance.priority] ?? (_parent is PulseContext ? (_parent as PulseContext).priority : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.priority] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).priority
+                : null),
+        orElse: null,
+      );
 
   @override
   String? get compliance => get<String?>(
-        () => _record.map[Provenance.compliance] ?? (_parent is PulseContext ? (_parent as PulseContext).compliance : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.compliance] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).compliance
+                : null),
+        orElse: null,
+      );
 
   Sensitivity? get sensitivity => get<Sensitivity?>(
-        () => _record.map[Provenance.sensitivity] ?? (_parent is PulseContext ? (_parent as PulseContext).sensitivity : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.sensitivity] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).sensitivity
+                : null),
+        orElse: null,
+      );
 
   AuditLevel? get auditLevel => get<AuditLevel?>(
-        () => _record.map[Provenance.auditLevel] ?? (_parent is PulseContext ? (_parent as PulseContext).auditLevel : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.auditLevel] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).auditLevel
+                : null),
+        orElse: null,
+      );
 
   String? get traceId => get<String?>(
-        () => _record.map[Provenance.traceId] ?? (_parent is PulseContext ? (_parent as PulseContext).traceId : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.traceId] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).traceId
+                : null),
+        orElse: null,
+      );
 
   String? get parentTraceId => get<String?>(
-        () => _record.map[Provenance.parentTraceId] ?? (_parent is PulseContext ? (_parent as PulseContext).parentTraceId : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Provenance.parentTraceId] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).parentTraceId
+                : null),
+        orElse: null,
+      );
 
-  String? get integrity => get<String?>(() => _record.map[Provenance.integrity] ?? (_parent is PulseContext ? (_parent as PulseContext).integrity : null),
-      orElse: null,
-  );
+  String? get integrity => get<String?>(
+        () =>
+            _record.map[Provenance.integrity] ??
+            (_parent is PulseContext
+                ? (_parent as PulseContext).integrity
+                : null),
+        orElse: null,
+      );
 
-  Map<String, dynamic>? get others => get<Map<String, dynamic>?>(() => _record.others ?? (_parent is PulseContext ? (_parent as PulseContext).others : null),
-    orElse: null,
-  );
+  Map<String, dynamic>? get others => get<Map<String, dynamic>?>(
+        () =>
+            _record.others ??
+            (_parent is PulseContext ? (_parent as PulseContext).others : null),
+        orElse: null,
+      );
 }
 
 class _PulseContextSystem implements PulseContext {
-
   const _PulseContextSystem();
 
   @override
-  PulseContext evolve(GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others}) {
-    final entries = [...Ontology.evolve(resolver), ...Provenance.evolve(resolver)];
+  PulseContext evolve(GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others}) {
+    final entries = [
+      ...Ontology.evolve(resolver),
+      ...Provenance.evolve(resolver)
+    ];
     return PulseContext.fromEntries(entries, others: others);
   }
 
@@ -1747,34 +1815,34 @@ class _PulseContextSystem implements PulseContext {
   PulseContext? get _parent => null;
 
   @override
-    get _record => null;
+  get _record => null;
 
   @override
-    String? get actor => null;
+  String? get actor => null;
 
   @override
-    AuditLevel? get auditLevel => null;
+  AuditLevel? get auditLevel => null;
 
   @override
-    String? get compliance => null;
+  String? get compliance => null;
 
   @override
-    double? get confidence => null;
+  double? get confidence => null;
 
   @override
-    Map<String, String>? get constraints => null;
+  Map<String, String>? get constraints => null;
 
   @override
-    String? get dataSources => null;
+  String? get dataSources => null;
 
   @override
-    String? get domains => null;
+  String? get domains => null;
 
   @override
-    String? get integrity => null;
+  String? get integrity => null;
 
   @override
-    String? get isNot => null;
+  String? get isNot => null;
 
   @override
   List<String> lineage(Governance<dynamic> cxt) => const [];
@@ -1826,7 +1894,6 @@ class _PulseContextSystem implements PulseContext {
 
   @override
   String? get type => null;
-
 }
 
 /// A utility for materializing unique identities within the somatic graph.

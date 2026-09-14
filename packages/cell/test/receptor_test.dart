@@ -58,8 +58,7 @@ Receptor bindReceptor(Receptor receptor, {Cell? host}) {
 }
 
 /// [Receptor.call] is typed [FutureOr]; these tests use the sync path.
-Pulse? invoke(Receptor receptor, Pulse pulse) =>
-    receptor.call(pulse) as Pulse?;
+Pulse? invoke(Receptor receptor, Pulse pulse) => receptor.call(pulse) as Pulse?;
 
 void main() {
   group('Receptor', () {
@@ -83,7 +82,8 @@ void main() {
       });
 
       test('clone is the same instance', () {
-        expect(identical(Receptor.passThrough.clone, Receptor.passThrough), isTrue);
+        expect(identical(Receptor.passThrough.clone, Receptor.passThrough),
+            isTrue);
       });
 
       test('async is unsupported', () {
@@ -159,7 +159,8 @@ void main() {
 
       test('Instruction user metadata is available during execution', () {
         dynamic seenUser;
-        final instruction = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) {
+        final instruction =
+            Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) {
           seenUser = user;
           return pulse;
         }, user: 'SecurityLog');
@@ -304,7 +305,8 @@ void main() {
         ));
 
         expect(invoke(receptor, Pulse<String>('  hi  ')), isNull);
-        expect(invoke(receptor, Pulse<String>('  hello!  '))?.payload, 'HELLO!');
+        expect(
+            invoke(receptor, Pulse<String>('  hello!  '))?.payload, 'HELLO!');
       });
 
       test('omitted stages are skipped', () {
@@ -369,7 +371,8 @@ void main() {
 
       test('chain short-circuits on null', () {
         var ranSecond = false;
-        final drop = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => null);
+        final drop =
+            Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => null);
         final second = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) {
           ranSecond = true;
           return pulse;
@@ -398,7 +401,8 @@ void main() {
     });
 
     group('Instruction.future', () {
-      test('returns null immediately and resumes via future callback', () async {
+      test('returns null immediately and resumes via future callback',
+          () async {
         final done = Completer<Pulse?>();
         final inst = Instruction<Cell, Pulse, Pulse>.future(
           (pulse, {cell, future, token, user}) {
@@ -543,7 +547,8 @@ void main() {
         expect(await receptor.call(Pulse<int>(3) as PulseBase), isNull);
       });
 
-      test('a PulseShell is scrutinized instead of run through the pipeline', () {
+      test('a PulseShell is scrutinized instead of run through the pipeline',
+          () {
         final receptor = bindReceptor(Receptor((cell, pulse, {user}) => pulse));
         final kernel = Pulse<int>(7);
         final result = receptor.call(kernel.shell);
@@ -577,7 +582,8 @@ void main() {
 
     group('Receptor.pipeline mask', () {
       test('stores reaction flyweight combinations', () {
-        final identity = Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p);
+        final identity =
+            Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p);
         Pulse? react(Pulse p, Cell host, {user}) => p;
         var inits = 0;
         void init() => inits++;
@@ -648,7 +654,8 @@ void main() {
       test('a hosted EphemeralPolicy is ticked on a governed cell', () {
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (_) => true,
         );
@@ -657,7 +664,8 @@ void main() {
           bind: source.cell,
           ephemeralPolicy: policy,
           receptor: Receptor.pipeline(
-            instruction: Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p),
+            instruction:
+                Instruction<Cell, Pulse, Pulse>((p, {cell, user}) => p),
           ),
         );
         expect(cell.isGoverned, isTrue);

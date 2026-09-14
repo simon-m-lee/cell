@@ -242,7 +242,6 @@ void main() {
     });
   });
 
-
   group('AsyncFold extra', () {
     test('empty source leaves the seed', () async {
       final op = AsyncFold<int, int>(7, (acc, n) async => acc + n);
@@ -273,7 +272,8 @@ void main() {
     });
 
     test('onError is optional when accumulate throws', () async {
-      final op = AsyncFold<int, int>(0, (acc, n) async => throw StateError('f'));
+      final op =
+          AsyncFold<int, int>(0, (acc, n) async => throw StateError('f'));
       final b = bind<int>(op);
       addTearDown(b.probe.stop);
       await drive(b.gate, b.out, 1);

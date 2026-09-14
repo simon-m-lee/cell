@@ -1,4 +1,16 @@
 
+## Mitosis (1.0.0-rc.5) - Release Candidate
+
+Pub.dev score remediation release. No public API changes.
+
+### Fixed
+
+- **Package identity**: Restored the published package name to `cell` (the internal rename is handled outside the public package line).
+- **License detection**: Replaced the custom dual-license notice with the canonical MIT and Apache-2.0 texts so pub.dev recognizes the OSI-approved license.
+- **Example detection**: Added `example/cell_example.dart` — a runnable quick start matching pub.dev's example file conventions.
+
+---
+
 ## Mitosis (1.0.0-rc.4) - Release Candidate
 
 This release centers on **Lifecycle Governance** and **Pedagogical Standardization**. It formalizes the structural "DNA" of the core layer by refining how nodes handle administrative oversight, programmed expiration, and forensic documentation.

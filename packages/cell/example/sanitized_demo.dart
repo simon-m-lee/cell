@@ -32,14 +32,14 @@ String maskPhone(String phone) {
 }
 
 Pulse<Map<String, dynamic>> sensitivePulse(
-    Map<String, dynamic> payload, {
-      required String type,
-      required Sensitivity sensitivity,
-      required String actor,
-      required String reason,
-      String? compliance,
-      Cell? source,
-    }) {
+  Map<String, dynamic> payload, {
+  required String type,
+  required Sensitivity sensitivity,
+  required String actor,
+  required String reason,
+  String? compliance,
+  Cell? source,
+}) {
   return Pulse<Map<String, dynamic>>.governed(
     payload: payload,
     type: type,
@@ -134,8 +134,7 @@ Future<void> main() async {
   final auditObserver = Cell.observe(
     source: safeView,
     effect: (Pulse pulse) {
-      final line =
-          '[${DateTime.now().toIso8601String()}] '
+      final line = '[${DateTime.now().toIso8601String()}] '
           'type=${pulse.type} sensitivity=${pulse.context.sensitivity} '
           'actor=${pulse.context.actor} reason=${pulse.context.reason} '
           'payload=${pulse.payload}';

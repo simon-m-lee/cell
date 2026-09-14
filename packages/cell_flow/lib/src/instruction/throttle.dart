@@ -37,7 +37,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef ThrottleErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef ThrottleErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -52,13 +53,14 @@ typedef ThrottleErrorHandler = void Function(Object error, StackTrace? stackTrac
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      ThrottleErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  ThrottleErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -216,73 +218,73 @@ class Throttle<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   Throttle(
-      Duration duration, {
-        bool leading = true,
-        bool trailing = true,
-        ThrottleErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _WindowState<S>();
+    Duration duration, {
+    bool leading = true,
+    bool trailing = true,
+    ThrottleErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _WindowState<S>();
 
-      void armTrailing(
-          void Function({required Pulse? result, required dynamic token})?
-          future,
-          dynamic token,
-          Cell? cell,
-          ) {
-        if (!trailing) return;
-        state.timer?.cancel();
-        final elapsed = state.openedAt == null
-            ? duration
-            : DateTime.now().difference(state.openedAt!);
-        final remaining =
-        elapsed >= duration ? duration : duration - elapsed;
-        state.timer = Timer(remaining, () {
-          final value = state.pending;
-          final src = state.pendingPulse;
-          state.clearPending();
-          if (value == null || src == null || future == null) return;
-          state.openedAt = DateTime.now();
-          future(
-            result: _fromPayload(value, src, cell, 'Throttle.trailing'),
-            token: token,
-          );
-        });
-      }
+            void armTrailing(
+              void Function({required Pulse? result, required dynamic token})?
+                  future,
+              dynamic token,
+              Cell? cell,
+            ) {
+              if (!trailing) return;
+              state.timer?.cancel();
+              final elapsed = state.openedAt == null
+                  ? duration
+                  : DateTime.now().difference(state.openedAt!);
+              final remaining =
+                  elapsed >= duration ? duration : duration - elapsed;
+              state.timer = Timer(remaining, () {
+                final value = state.pending;
+                final src = state.pendingPulse;
+                state.clearPending();
+                if (value == null || src == null || future == null) return;
+                state.openedAt = DateTime.now();
+                future(
+                  result: _fromPayload(value, src, cell, 'Throttle.trailing'),
+                  token: token,
+                );
+              });
+            }
 
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final payload = typed.payload as S;
-        final now = DateTime.now();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final payload = typed.payload as S;
+              final now = DateTime.now();
 
-        if (state.openedAt == null ||
-            now.difference(state.openedAt!) >= duration) {
-          state.openedAt = now;
-          state.clearPending();
-          if (leading) {
-            if (trailing) armTrailing(future, token, cell);
-            return _mark(typed, 'Throttle.leading');
-          }
-          state.pending = payload;
-          state.pendingPulse = typed;
-          armTrailing(future, token, cell);
-          return null;
-        }
+              if (state.openedAt == null ||
+                  now.difference(state.openedAt!) >= duration) {
+                state.openedAt = now;
+                state.clearPending();
+                if (leading) {
+                  if (trailing) armTrailing(future, token, cell);
+                  return _mark(typed, 'Throttle.leading');
+                }
+                state.pending = payload;
+                state.pendingPulse = typed;
+                armTrailing(future, token, cell);
+                return null;
+              }
 
-        if (trailing) {
-          state.pending = payload;
-          state.pendingPulse = typed;
-          if (state.timer?.isActive != true) {
-            armTrailing(future, token, cell);
-          }
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              if (trailing) {
+                state.pending = payload;
+                state.pendingPulse = typed;
+                if (state.timer?.isActive != true) {
+                  armTrailing(future, token, cell);
+                }
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -357,13 +359,13 @@ class ThrottleLeading<S> extends Throttle<S> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   ThrottleLeading(
-      super.duration, {
-        super.onError,
-        super.user,
-      }) : super(
-    leading: true,
-    trailing: false,
-  );
+    super.duration, {
+    super.onError,
+    super.user,
+  }) : super(
+          leading: true,
+          trailing: false,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -445,13 +447,13 @@ class ThrottleTrailing<S> extends Throttle<S> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   ThrottleTrailing(
-      super.duration, {
-        super.onError,
-        super.user,
-      }) : super(
-    leading: false,
-    trailing: true,
-  );
+    super.duration, {
+    super.onError,
+    super.user,
+  }) : super(
+          leading: false,
+          trailing: true,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -534,8 +536,8 @@ Future<void> main() async {
 
   print('1. Throttle - leading + trailing');
   final a = Cell.ingress<int>();
-  final both = Throttle<int>(const Duration(milliseconds: 50))
-      .toHandle(source: a.cell);
+  final both =
+      Throttle<int>(const Duration(milliseconds: 50)).toHandle(source: a.cell);
   final bObs = Cell.observe(
     source: both.cell,
     effect: (Pulse p) => print('   [Throttle] ${p.payload}'),

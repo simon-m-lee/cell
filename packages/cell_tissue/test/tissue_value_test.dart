@@ -45,7 +45,6 @@ void main() {
 
       expect(value.value, 3);
     });
-
   });
 
   group('TissueValue reads and writes', () {
@@ -68,6 +67,7 @@ void main() {
       final value = TissueValue<int>(5);
       final same = TissueValue<int>(5);
 
+      // ignore: unrelated_type_equality_checks
       expect(value == 5, isTrue);
       expect(value == same, isTrue);
       expect(value == TissueValue<int>(6), isFalse);
@@ -181,13 +181,14 @@ void main() {
       final u = UnmodifiableTissueValue<int>(42);
 
       expect(u.value, 42);
+      // ignore: unrelated_type_equality_checks
       expect(u == 42, isTrue);
       expect(identical(u, 42), isFalse);
     });
 
     test('view factory', () {
-      final view = UnmodifiableTissueValue<int>.view(source,
-          unmodifiableElement: false);
+      final view =
+          UnmodifiableTissueValue<int>.view(source, unmodifiableElement: false);
 
       expect(view.value, 1);
     });
@@ -245,14 +246,14 @@ void main() {
       expect(value.value, 42);
     });
 
-    test('unmodifiable async set returns false and value is readable', () async {
+    test('unmodifiable async set returns false and value is readable',
+        () async {
       final view = TissueValue<int>(1).unmodifiable;
       final async = view.async as dynamic;
 
       await expectLater(async.set(9), throwsUnsupportedError);
       expect(await async.value, 1);
-      await expectLater(
-          () => async.apply(view.set, positionalArguments: [9]),
+      await expectLater(() => async.apply(view.set, positionalArguments: [9]),
           throwsA(isA<UnimplementedError>()));
       await expectLater(() => async.state, throwsA(isA<UnimplementedError>()));
     });

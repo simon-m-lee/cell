@@ -1,3 +1,17 @@
+## [Mitosis (1.0.0-rc.5)] - Release Candidate
+
+Pub.dev score remediation release. No public API changes.
+
+### Fixed
+
+- **Dependency alignment**: Tightened `cell` constraint to `^1.0.0-rc.4` so the package analyzes against the current core release line (previously `^1.0.0-rc.2` could resolve to `cell` `1.0.0-rc.3`, whose stricter `Receptor` interface broke static analysis on pub.dev).
+- **Static analysis hygiene**: Resolved remaining `unrelated_type_equality_checks` lints in `tissue_value_test.dart` and reformatted the package with `dart format`.
+- **License detection**: Replaced the custom dual-license notice with the canonical MIT and Apache-2.0 texts so pub.dev recognizes the OSI-approved license.
+- **Example detection**: Added `example/cell_tissue_example.dart` — a runnable quick start matching pub.dev's example file conventions.
+- **Dev dependency**: Replaced the local `cell_flow` path dev-dependency with a version constraint (`^1.0.0-rc.4`).
+
+[Mitosis (1.0.0-rc.5)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+
 ## [Mitosis (1.0.0-rc.4)] - Release Candidate
 
 This release formalizes the **Application Layer Governance** and introduces the **AI Command Infrastructure**, establishing a forensic gateway for machine-orchestrated state mutations within reactive collections.

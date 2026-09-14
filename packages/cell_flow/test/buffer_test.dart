@@ -291,7 +291,6 @@ void main() {
     });
   });
 
-
   group('BufferCount extra', () {
     test('size 1 emits singleton buffers', () async {
       final b = bind(BufferCount<int>(1));

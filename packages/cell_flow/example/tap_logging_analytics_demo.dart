@@ -190,7 +190,8 @@ class AnalyticsEvent {
   }) : timestamp = timestamp ?? DateTime.now();
 
   @override
-  String toString() => '$name: ${properties.isNotEmpty ? properties.toString() : ''}';
+  String toString() =>
+      '$name: ${properties.isNotEmpty ? properties.toString() : ''}';
 }
 
 /// Performance metric.
@@ -217,7 +218,8 @@ class PerformanceMetric {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Tap: Logging & Analytics Demo ────────────────────────────────────────────────\n');
+  print(
+      '── Tap: Logging & Analytics Demo ────────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Tap - Logging User Actions
@@ -230,7 +232,7 @@ Future<void> main() async {
 
   // Pipeline: actions → (tap logging) → (tap analytics)
   final tapLogging = Tap<String>(
-        (value) => print('   [LOG] $value'),
+    (value) => print('   [LOG] $value'),
   ).toHandle(source: actionInput.cell);
 
   final processed = tapLogging;
@@ -266,7 +268,7 @@ Future<void> main() async {
   final sessionInput = Cell.ingress<String>();
 
   final sessionTap = TapWithIndex<String>(
-        (value, index) => print('   [Session] Action #${index + 1}: $value'),
+    (value, index) => print('   [Session] Action #${index + 1}: $value'),
   ).toHandle(source: sessionInput.cell);
 
   final sessionObserver = Cell.observe(
@@ -274,7 +276,12 @@ Future<void> main() async {
     effect: (Pulse p) {},
   );
 
-  final actions = ['Page Load (home)', 'Search (dart)', 'Click (product)', 'Cart (add)'];
+  final actions = [
+    'Page Load (home)',
+    'Search (dart)',
+    'Click (product)',
+    'Cart (add)'
+  ];
   for (final action in actions) {
     await sessionInput.emitAsync(action);
     await Future.delayed(const Duration(milliseconds: 50));
@@ -298,7 +305,7 @@ Future<void> main() async {
   final analyticsEvents = <String>[];
 
   final analyticsTap = Tap<String>(
-        (value) {
+    (value) {
       analyticsEvents.add(value);
       print('   📊 Analytics: $value');
     },
@@ -318,7 +325,8 @@ Future<void> main() async {
   }
 
   final elapsed = DateTime.now().difference(startTime);
-  print('   📊 Metrics: ${analyticsEvents.length} events in ${elapsed.inMilliseconds}ms');
+  print(
+      '   📊 Metrics: ${analyticsEvents.length} events in ${elapsed.inMilliseconds}ms');
 
   analyticsObserver.stop();
   print('');
@@ -334,22 +342,23 @@ Future<void> main() async {
 
   // Tap 1: Logging
   final logTap = Tap<Map<String, dynamic>>(
-        (order) => print('   [LOG] 📝 ORDER_PLACED: ${order['id']}'),
+    (order) => print('   [LOG] 📝 ORDER_PLACED: ${order['id']}'),
   ).toHandle(source: orderInput.cell);
 
   // Tap 2: Analytics
   final analyticsTap2 = Tap<Map<String, dynamic>>(
-        (order) => print('   [ANALYTICS] 📊 order_created'),
+    (order) => print('   [ANALYTICS] 📊 order_created'),
   ).toHandle(source: logTap.cell);
 
   // Tap 3: Performance
   final perfTap = Tap<Map<String, dynamic>>(
-        (order) => print('   [PERFORMANCE] ⏱️  Order processing: ${order['duration']}ms'),
+    (order) =>
+        print('   [PERFORMANCE] ⏱️  Order processing: ${order['duration']}ms'),
   ).toHandle(source: analyticsTap2.cell);
 
   // Tap 4: Audit
   final auditTap = Tap<Map<String, dynamic>>(
-        (order) => print('   [AUDIT] 🔍 ORDER_AUDIT: ${order['id']}'),
+    (order) => print('   [AUDIT] 🔍 ORDER_AUDIT: ${order['id']}'),
   ).toHandle(source: perfTap.cell);
 
   final orderObserver = Cell.observe(
@@ -383,7 +392,7 @@ Future<void> main() async {
   // Use TapState to maintain running totals
   final shopState = TapState<String, Map<String, dynamic>>(
     {'views': 0, 'products': <String>{}, 'last': null},
-        (state, value) {
+    (state, value) {
       final products = Set<String>.from(state['products'] as Set<String>);
       products.add(value);
       return {
@@ -428,15 +437,16 @@ Future<void> main() async {
 
   // Start timing
   final startTap = Tap<String>(
-        (action) {
+    (action) {
       perfState[action] = DateTime.now();
-      print('   [PERF] ⏱️  start: ${DateTime.now().toIso8601String().substring(11, 19)}.${DateTime.now().millisecond}');
+      print(
+          '   [PERF] ⏱️  start: ${DateTime.now().toIso8601String().substring(11, 19)}.${DateTime.now().millisecond}');
     },
   ).toHandle(source: perfInput.cell);
 
   // Process action (simulated)
   final processMap = MapValue<String, String>(
-        (action) {
+    (action) {
       print('   [Action] $action - processing');
       return action;
     },
@@ -444,11 +454,12 @@ Future<void> main() async {
 
   // End timing
   final endTap = Tap<String>(
-        (action) {
+    (action) {
       final start = perfState[action];
       if (start != null) {
         final duration = DateTime.now().difference(start);
-        print('   [PERF] ⏱️  complete: ${DateTime.now().toIso8601String().substring(11, 19)}.${DateTime.now().millisecond} (${duration.inMilliseconds}ms)');
+        print(
+            '   [PERF] ⏱️  complete: ${DateTime.now().toIso8601String().substring(11, 19)}.${DateTime.now().millisecond} (${duration.inMilliseconds}ms)');
       }
     },
   ).toHandle(source: processMap.cell);
@@ -487,10 +498,11 @@ Future<void> main() async {
   final abConversions = <String, int>{'A': 0, 'B': 0};
 
   final abTap = Tap<String>(
-        (variant) {
+    (variant) {
       final key = variant.contains('variant_a') ? 'A' : 'B';
       abMetrics[key] = (abMetrics[key] ?? 0) + 1;
-      print('   [AB TEST] variant_${key.toLowerCase()}: ${variant.split(':')[1]}');
+      print(
+          '   [AB TEST] variant_${key.toLowerCase()}: ${variant.split(':')[1]}');
     },
   ).toHandle(source: abInput.cell);
 
@@ -519,7 +531,8 @@ Future<void> main() async {
   for (final entry in abMetrics.entries) {
     final conversions = abConversions[entry.key] ?? 0;
     final rate = entry.value > 0 ? conversions / entry.value : 0;
-    print('   [AB TEST] variant_${entry.key.toLowerCase()}: ${entry.value} events, '
+    print(
+        '   [AB TEST] variant_${entry.key.toLowerCase()}: ${entry.value} events, '
         '$conversions conversions (${(rate * 100).toInt()}% rate)');
   }
 
@@ -539,7 +552,7 @@ Future<void> main() async {
 
   // Track successes
   final successTap = Tap<String>(
-        (value) {
+    (value) {
       successCount++;
       print('   [SUCCESS] ✅ Order processed: $value');
     },
@@ -547,7 +560,7 @@ Future<void> main() async {
 
   // Track errors
   final errorTap = Tap<String>(
-        (value) {
+    (value) {
       errorCount++;
       print('   [ERROR] ❌ Payment failed: $value');
     },
@@ -555,11 +568,11 @@ Future<void> main() async {
 
   // Use filter to separate success and error
   final successFilter = Filter<String>(
-        (value) => value != 'error_order',
+    (value) => value != 'error_order',
   ).toHandle(source: successTap.cell);
 
   final errorFilter = Filter<String>(
-        (value) => value == 'error_order',
+    (value) => value == 'error_order',
   ).toHandle(source: errorTap.cell);
 
   // Merge both streams
@@ -604,7 +617,7 @@ Future<void> main() async {
   var conversions = 0;
 
   final dashboardTap = Tap<String>(
-        (event) {
+    (event) {
       dashboardMetrics[event] = (dashboardMetrics[event] ?? 0) + 1;
       print('   📊 Dashboard: $event');
 
@@ -619,7 +632,13 @@ Future<void> main() async {
     effect: (Pulse p) {},
   );
 
-  final dashboardEvents = ['user_login', 'product_view', 'add_to_cart', 'checkout', 'conversion'];
+  final dashboardEvents = [
+    'user_login',
+    'product_view',
+    'add_to_cart',
+    'checkout',
+    'conversion'
+  ];
   for (final event in dashboardEvents) {
     await dashboardInput.emitAsync(event);
     await Future.delayed(const Duration(milliseconds: 80));
@@ -642,8 +661,9 @@ Future<void> main() async {
   final debugInput = Cell.ingress<Object>();
 
   final debugTap = TapAll(
-        (pulse) {
-      print('   [DEBUG] Pulse: type=${pulse.type}, payload=${pulse.payload}, priority=${pulse.priority}');
+    (pulse) {
+      print(
+          '   [DEBUG] Pulse: type=${pulse.type}, payload=${pulse.payload}, priority=${pulse.priority}');
     },
   ).toHandle(source: debugInput.cell);
 
@@ -704,5 +724,6 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }

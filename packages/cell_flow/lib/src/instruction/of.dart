@@ -192,30 +192,30 @@ class Of<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   Of(
-      Iterable<T> values, {
-        OfErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var started = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started) return null;
-        started = true;
-        try {
-          for (final value in values) {
-            future!(
-              result: _out<T>(value, pulse, cell, 'Of'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<T> values, {
+    OfErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var started = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started) return null;
+              started = true;
+              try {
+                for (final value in values) {
+                  future!(
+                    result: _out<T>(value, pulse, cell, 'Of'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -304,30 +304,30 @@ class FromIterable<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromIterable(
-      Iterable<T> source, {
-        OfErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var started = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started) return null;
-        started = true;
-        try {
-          for (final value in source) {
-            future!(
-              result: _out<T>(value, pulse, cell, 'FromIterable'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<T> source, {
+    OfErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var started = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started) return null;
+              started = true;
+              try {
+                for (final value in source) {
+                  future!(
+                    result: _out<T>(value, pulse, cell, 'FromIterable'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -422,34 +422,34 @@ class Range extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   Range(
-      int start,
-      int count, {
-        int step = 1,
-        OfErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var started = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started) return null;
-        started = true;
-        try {
-          var value = start;
-          for (var i = 0; i < count; i++) {
-            future!(
-              result: _out<int>(value, pulse, cell, 'Range'),
-              token: token,
-            );
-            value += step;
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    int start,
+    int count, {
+    int step = 1,
+    OfErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var started = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started) return null;
+              started = true;
+              try {
+                var value = start;
+                for (var i = 0; i < count; i++) {
+                  future!(
+                    result: _out<int>(value, pulse, cell, 'Range'),
+                    token: token,
+                  );
+                  value += step;
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -542,31 +542,31 @@ class Repeat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   Repeat(
-      T value, {
-        int count = 1,
-        OfErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var started = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started) return null;
-        started = true;
-        try {
-          for (var i = 0; i < count; i++) {
-            future!(
-              result: _out<T>(value, pulse, cell, 'Repeat'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    T value, {
+    int count = 1,
+    OfErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var started = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started) return null;
+              started = true;
+              try {
+                for (var i = 0; i < count; i++) {
+                  future!(
+                    result: _out<T>(value, pulse, cell, 'Repeat'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

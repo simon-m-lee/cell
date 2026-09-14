@@ -78,7 +78,6 @@ part of '../cell_tissue.dart';
 /// - [TissueNucleusBase] – the standard abstract implementation class.
 /// - [Nucleus] – the base interface for all reactive cell configurations.
 abstract interface class TissueNucleus<E> implements Nucleus {
-
   /// The primary architectural factory for creating a [TissueNucleus],
   /// defining the foundational "Reactive DNA" and behavioural blueprint for
   /// a [Tissue] container.
@@ -122,17 +121,15 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// ### Returns:
   /// A concrete [TissueNucleus<E>] instance strictly configured
   /// according to the provided reactive blueprint.
-  factory TissueNucleus({
-    Cell? bind,
-    Context context,
-    TissueReceptor<E,Tissue<E>> receptor,
-    Container container,
-    TestTissue<E,Tissue<E>> testRule,
-    Synapses synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-    Record? user
-  }) = _TissueNucleus<E,Iterable<E>,Tissue<E>>;
+  factory TissueNucleus(
+      {Cell? bind,
+      Context context,
+      TissueReceptor<E, Tissue<E>> receptor,
+      Container container,
+      TestTissue<E, Tissue<E>> testRule,
+      Synapses synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user}) = _TissueNucleus<E, Iterable<E>, Tissue<E>>;
 
   /// Creates a derived [TissueNucleus] by mutating or extending
   /// an existing [principal] configuration.
@@ -195,18 +192,16 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// ### Returns:
   /// A new [TissueNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,Tissue<E>>? receptor,
-    TestTissue<E,Tissue<E>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueNucleus<E>? override,
-    required TissueNucleus<E> principal
-  }) = _TissueNucleus<E,Iterable<E>,Tissue<E>>.evolve;
+  factory TissueNucleus.evolve(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<E, Tissue<E>>? receptor,
+          TestTissue<E, Tissue<E>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueNucleus<E>? override,
+          required TissueNucleus<E> principal}) =
+      _TissueNucleus<E, Iterable<E>, Tissue<E>>.evolve;
 
   /// A specialised, terminal factory for creating a **Null Nucleus**—a stateless,
   /// immutable configuration representing a collection that can never contain
@@ -292,28 +287,32 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// ### Returns:
   /// A [TissueNucleusBase<E, I, C>] instance configured as a
   /// stateless template for the specified collection architecture.
-  static TissueNucleusBase<E,I,C> create<E, I extends Iterable<E>, C extends Tissue<E>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-
-    bool forceLock = false,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    TissueNucleusBase<E,I,C>? principal
-  }) {
-    final local = TissueNucleusBase.local<E,I,C>(
-      bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses,
-      container: container, forceLock: forceLock, user: user,
+  static TissueNucleusBase<E, I, C>
+      create<E, I extends Iterable<E>, C extends Tissue<E>>(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<E, C>? receptor,
+          TestTissue<E, C>? testRule,
+          Synapses? synapses,
+          Container? container,
+          bool forceLock = false,
+          Record? user,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueNucleusBase<E, I, C>? principal}) {
+    final local = TissueNucleusBase.local<E, I, C>(
+      bind: bind,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses: synapses,
+      container: container,
+      forceLock: forceLock,
+      user: user,
       ephemeralPolicy: ephemeralPolicy,
     );
-    return _TissueNucleus<E,I,C>.fromRecord(
-        principal != null ?  (local: local, principal: principal) : (local: local)
-    );
+    return _TissueNucleus<E, I, C>.fromRecord(principal != null
+        ? (local: local, principal: principal)
+        : (local: local));
   }
 
   /// The specialised [TissueReceptor] responsible for processing and
@@ -445,5 +444,4 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// independent synchronisation lock.
   @override
   TissueNucleus<E> get clone;
-
 }

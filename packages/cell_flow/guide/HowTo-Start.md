@@ -545,11 +545,11 @@ void main() {
 
 | Document | What You'll Learn |
 |---|---|
-| [`FEATURES-Flow.md`](FEATURES-Flow.md) | Full operator catalog (176+ operators) |
-| [`ARCHITECTURE-Flow.md`](ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
-| [`HowTo-Fluent_Operator.md`](guide/HowTo-Fluent_Operator.md) | Method chaining deep dive |
-| [`HowTo-FlowInstruction-Receptor.md`](guide/HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
-| [`DEMO_GUIDE.md`](DEMO_GUIDE.md) | High-fidelity walkthroughs |
+| [`FEATURES-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md) | Full operator catalog (176+ operators) |
+| [`ARCHITECTURE-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/ARCHITECTURE-Flow.md) | Why Flow is shaped this way |
+| [`HowTo-Fluent_Operator.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md) | Method chaining deep dive |
+| [`HowTo-FlowInstruction-Receptor.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md) | Purpose-built Receptors |
+| [`DEMO_GUIDE.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/DEMO_GUIDE.md) | High-fidelity walkthroughs |
 
 ---
 

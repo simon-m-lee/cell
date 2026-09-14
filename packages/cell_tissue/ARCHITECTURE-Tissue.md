@@ -1,13 +1,13 @@
 # cell_tissue — Architecture
 
-**Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))
+**Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS))
 
 This document explains the design intent behind **cell_tissue**: why
 collections are cells, how mutations become pulses, how deputies stay
 zero-copy, and how Flow-driven decisions wire into governed books. For a
-feature catalog, see [`FEATURES-Tissue.md`](FEATURES.md). Core graph
-primitives live in [cell](../cell/); transformations live in
-[cell_flow](../cell_flow/).
+feature catalog, see [`FEATURES-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/FEATURES-Tissue.md). Core graph
+primitives live in [cell](https://github.com/simon-m-lee/cell/tree/master/packages/cell); transformations live in
+[cell_flow](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow).
 
 ---
 
@@ -169,7 +169,7 @@ or a value write belongs on a `Tissue`. Passing a `TestCell` where a
 `TestTissue` is expected is a type error; wrapping one in the other is a
 layering error.
 
-**TissueValue vs ValueCell** (also [`docs/InDepth-CollectiveValue-vs-ValueCell.md`](docs/InDepth-CollectiveValue-vs-ValueCell.md)):
+**TissueValue vs ValueCell** (also `docs/InDepth-CollectiveValue-vs-ValueCell.md`):
 `TissueValue` implements `ValueCell` but uses `TissueValueNucleus`,
 `TestTissue`, and `TissueReceptor`. Prefer `Cell.state` / `ValueCell`
 for a lightweight scalar; prefer `TissueValue` when the scalar must
@@ -380,10 +380,10 @@ and the header of the demo that exercises it.
 
 | Document                                                                                                  | Purpose |
 |-----------------------------------------------------------------------------------------------------------|---------|
-| [`FEATURES-Tissue.md`](FEATURES-Tissue.md)                                                                | Categorized feature catalog |
-| [`DEMO_GUIDE-Tissue.md`](DEMO_GUIDE.md)                                                                   | Progressive walk-through of the demos |
-| [`card-auth-pipeline(tissue)-ARCHITECTURE.md`](../example/card-auth-pipeline(tissue)-ARCHITECTURE.md)     | Payments sibling — same seam, different domain |
-| [`ride-hail-dispatch(tissue)-ARCHITECTURE.md`](../example/ride-hail-dispatch(tissue)-ARCHITECTURE.md)     | Mobility sibling |
-| [`grid-demand-response(tissue)-ARCHITECTURE.md`](../example/grid-demand-response(tissue)-ARCHITECTURE.md) | Energy sibling |
-| [`cell`](../cell/)                                                                                        | Core graph primitives |
-| [`cell_flow`](../cell_flow/)                                                                              | Reactive operators |
+| [`FEATURES-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/FEATURES-Tissue.md)                                                                | Categorized feature catalog |
+| [`DEMO_GUIDE-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/DEMO_GUIDE-Tissue.md)                                                                   | Progressive walk-through of the demos |
+| [`card-auth-pipeline(tissue)-ARCHITECTURE.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-ARCHITECTURE.md)     | Payments sibling — same seam, different domain |
+| [`ride-hail-dispatch(tissue)-ARCHITECTURE.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-ARCHITECTURE.md)     | Mobility sibling |
+| [`grid-demand-response(tissue)-ARCHITECTURE.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-ARCHITECTURE.md) | Energy sibling |
+| [`cell`](https://github.com/simon-m-lee/cell/tree/master/packages/cell)                                                                                        | Core graph primitives |
+| [`cell_flow`](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow)                                                                              | Reactive operators |

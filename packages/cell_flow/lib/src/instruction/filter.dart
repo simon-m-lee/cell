@@ -48,7 +48,8 @@ import 'package:cell_flow/cell_flow.dart';
 /// ### Parameters
 /// - [error]: The error that occurred during filtering.
 /// - [stackTrace]: The stack trace at the point of failure.
-typedef FilterErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef FilterErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Internal helper that type-checks a pulse payload against type [S].
 ///
@@ -69,10 +70,10 @@ typedef FilterErrorHandler = void Function(Object error, StackTrace? stackTrace)
 /// ### Returns
 /// The original pulse if type-check passes, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      FilterErrorHandler? onError,
-      bool allowNull = false,
-    }) {
+  Pulse pulse, {
+  FilterErrorHandler? onError,
+  bool allowNull = false,
+}) {
   final payload = pulse.payload;
   if (payload == null) {
     if (allowNull && null is S) return pulse;
@@ -80,7 +81,8 @@ Pulse? _typedOrError<S>(
   }
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -161,22 +163,24 @@ class Filter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   Filter(
-      bool Function(S value) predicate, {
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        return predicate(typed.payload as S) ? _mark(typed, 'Filter') : null;
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    bool Function(S value) predicate, {
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              return predicate(typed.payload as S)
+                  ? _mark(typed, 'Filter')
+                  : null;
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 /// Sequential async filter. Each predicate completes before the next starts.
@@ -213,30 +217,30 @@ class AsyncFilter<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilter(
-      FutureOr<bool> Function(S value) predicate, {
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _AsyncQueueState();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _AsyncQueueState();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        state.enqueue(() async {
-          try {
-            if (await predicate(typed.payload as S)) {
-              future!(result: _mark(typed, 'AsyncFilter'), token: token);
-            }
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.enqueue(() async {
+                try {
+                  if (await predicate(typed.payload as S)) {
+                    future!(result: _mark(typed, 'AsyncFilter'), token: token);
+                  }
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Concurrent async filter. Predicates run in parallel; emission order is
@@ -271,30 +275,30 @@ class AsyncFilterConcurrent<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilterConcurrent(
-      FutureOr<bool> Function(S value) predicate, {
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
 
-      Future<void>(() async {
-        try {
-          if (await predicate(typed.payload as S)) {
-            future!(
-              result: _mark(typed, 'AsyncFilterConcurrent'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+            Future<void>(() async {
+              try {
+                if (await predicate(typed.payload as S)) {
+                  future!(
+                    result: _mark(typed, 'AsyncFilterConcurrent'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// Only the latest in-flight predicate may emit. Stale results are ignored.
@@ -328,34 +332,34 @@ class AsyncFilterLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilterLatest(
-      FutureOr<bool> Function(S value) predicate, {
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        final gen = ++state.generation;
-        Future<void>(() async {
-          try {
-            final ok = await predicate(typed.payload as S);
-            if (!ok || gen != state.generation) return;
-            future!(
-              result: _mark(typed, 'AsyncFilterLatest'),
-              token: token,
-            );
-          } catch (e, stack) {
-            if (gen == state.generation) onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              final gen = ++state.generation;
+              Future<void>(() async {
+                try {
+                  final ok = await predicate(typed.payload as S);
+                  if (!ok || gen != state.generation) return;
+                  future!(
+                    result: _mark(typed, 'AsyncFilterLatest'),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  if (gen == state.generation) onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Retries a failing async predicate up to [maxAttempts] times.
@@ -394,46 +398,46 @@ class AsyncFilterWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilterWithRetry(
-      FutureOr<bool> Function(S value) predicate, {
-        int maxAttempts = 3,
-        Duration delay = const Duration(milliseconds: 50),
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _AsyncQueueState();
-      final attempts = maxAttempts < 1 ? 1 : maxAttempts;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    int maxAttempts = 3,
+    Duration delay = const Duration(milliseconds: 50),
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _AsyncQueueState();
+            final attempts = maxAttempts < 1 ? 1 : maxAttempts;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        state.enqueue(() async {
-          Object? lastError;
-          StackTrace? lastStack;
-          for (var i = 0; i < attempts; i++) {
-            try {
-              if (await predicate(typed.payload as S)) {
-                future!(
-                  result: _mark(typed, 'AsyncFilterWithRetry'),
-                  token: token,
-                );
-              }
-              return;
-            } catch (e, stack) {
-              lastError = e;
-              lastStack = stack;
-              if (i < attempts - 1 && delay > Duration.zero) {
-                await Future<void>.delayed(delay);
-              }
-            }
-          }
-          if (lastError != null) onError?.call(lastError, lastStack);
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.enqueue(() async {
+                Object? lastError;
+                StackTrace? lastStack;
+                for (var i = 0; i < attempts; i++) {
+                  try {
+                    if (await predicate(typed.payload as S)) {
+                      future!(
+                        result: _mark(typed, 'AsyncFilterWithRetry'),
+                        token: token,
+                      );
+                    }
+                    return;
+                  } catch (e, stack) {
+                    lastError = e;
+                    lastStack = stack;
+                    if (i < attempts - 1 && delay > Duration.zero) {
+                      await Future<void>.delayed(delay);
+                    }
+                  }
+                }
+                if (lastError != null) onError?.call(lastError, lastStack);
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Drops the pulse if the predicate does not finish within [timeout].
@@ -461,7 +465,8 @@ class AsyncFilterWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///
 /// ### See Also:
 /// [AsyncFilter], [AsyncFilterWithRetry]
-class AsyncFilterWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+class AsyncFilterWithTimeout<S>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates an async filter with timeout instruction.
   ///
   /// ### Parameters
@@ -470,39 +475,39 @@ class AsyncFilterWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
   /// - [onError]: Optional callback for timeouts or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilterWithTimeout(
-      FutureOr<bool> Function(S value) predicate, {
-        required Duration timeout,
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _AsyncQueueState();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    required Duration timeout,
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _AsyncQueueState();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        state.enqueue(() async {
-          try {
-            final ok = await Future<bool>.sync(
-                  () => predicate(typed.payload as S),
-            ).timeout(timeout);
-            if (ok) {
-              future!(
-                result: _mark(typed, 'AsyncFilterWithTimeout'),
-                token: token,
-              );
-            }
-          } on TimeoutException catch (e, stack) {
-            onError?.call(e, stack);
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.enqueue(() async {
+                try {
+                  final ok = await Future<bool>.sync(
+                    () => predicate(typed.payload as S),
+                  ).timeout(timeout);
+                  if (ok) {
+                    future!(
+                      result: _mark(typed, 'AsyncFilterWithTimeout'),
+                      token: token,
+                    );
+                  }
+                } on TimeoutException catch (e, stack) {
+                  onError?.call(e, stack);
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// On predicate error, keeps the pulse if [fallback] is true (default: drop).
@@ -530,7 +535,8 @@ class AsyncFilterWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
 ///
 /// ### See Also:
 /// [AsyncFilter], [AsyncFilterWithRetry]
-class AsyncFilterWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+class AsyncFilterWithFallback<S>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates an async filter with fallback instruction.
   ///
   /// ### Parameters
@@ -540,40 +546,40 @@ class AsyncFilterWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
   /// - [onError]: Optional callback for type mismatches or predicate errors.
   /// - [user]: Optional user metadata passed to the instruction.
   AsyncFilterWithFallback(
-      FutureOr<bool> Function(S value) predicate, {
-        bool fallback = false,
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _AsyncQueueState();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    FutureOr<bool> Function(S value) predicate, {
+    bool fallback = false,
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _AsyncQueueState();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        state.enqueue(() async {
-          try {
-            if (await predicate(typed.payload as S)) {
-              future!(
-                result: _mark(typed, 'AsyncFilterWithFallback'),
-                token: token,
-              );
-            }
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            if (fallback) {
-              future!(
-                result: _mark(typed, 'AsyncFilterWithFallback.fallback'),
-                token: token,
-              );
-            }
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.enqueue(() async {
+                try {
+                  if (await predicate(typed.payload as S)) {
+                    future!(
+                      result: _mark(typed, 'AsyncFilterWithFallback'),
+                      token: token,
+                    );
+                  }
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  if (fallback) {
+                    future!(
+                      result: _mark(typed, 'AsyncFilterWithFallback.fallback'),
+                      token: token,
+                    );
+                  }
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Drops null payloads and keeps values of type [S].
@@ -609,22 +615,22 @@ class FilterNotNull<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FilterErrorHandler? onError,
     dynamic user,
   }) : super(
-        (pulse, {cell, user}) {
-      final payload = pulse.payload;
-      if (payload == null) return null;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+          (pulse, {cell, user}) {
+            final payload = pulse.payload;
+            if (payload == null) return null;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            return _mark(pulse, 'FilterNotNull');
+          },
+          user: user,
         );
-        return null;
-      }
-      return _mark(pulse, 'FilterNotNull');
-    },
-    user: user,
-  );
 }
 
 /// Keeps payloads that are a [T] (runtime type narrowing).
@@ -653,7 +659,8 @@ class FilterNotNull<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 ///
 /// ### See Also:
 /// [Filter], [FilterNotNull]
-class FilterType<S, T extends S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+class FilterType<S, T extends S>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a type filter instruction.
   ///
   /// ### Parameters
@@ -663,12 +670,12 @@ class FilterType<S, T extends S> extends FlowInstructionBase<Cell, Pulse, Pulse>
     FilterErrorHandler? onError,
     dynamic user,
   }) : super(
-        (pulse, {cell, user}) {
-      if (pulse.payload is T) return _mark(pulse, 'FilterType');
-      return null;
-    },
-    user: user,
-  );
+          (pulse, {cell, user}) {
+            if (pulse.payload is T) return _mark(pulse, 'FilterType');
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// Whitelist. O(1) [Set] membership.
@@ -710,15 +717,15 @@ class FilterAllowed<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FilterErrorHandler? onError,
     dynamic user,
   }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      return allowed.contains(typed.payload as S)
-          ? _mark(typed, 'FilterAllowed')
-          : null;
-    },
-    user: user,
-  );
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            return allowed.contains(typed.payload as S)
+                ? _mark(typed, 'FilterAllowed')
+                : null;
+          },
+          user: user,
+        );
 }
 
 /// Blacklist. O(1) [Set] membership.
@@ -760,15 +767,15 @@ class FilterBlocked<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     FilterErrorHandler? onError,
     dynamic user,
   }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      return blocked.contains(typed.payload as S)
-          ? null
-          : _mark(typed, 'FilterBlocked');
-    },
-    user: user,
-  );
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            return blocked.contains(typed.payload as S)
+                ? null
+                : _mark(typed, 'FilterBlocked');
+          },
+          user: user,
+        );
 }
 
 /// Time-gated pass. First value is immediate; later values must wait [duration]
@@ -807,54 +814,55 @@ class FilterByTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional callback for errors.
   /// - [user]: Optional user metadata passed to the instruction.
   FilterByTime(
-      Duration duration, {
-        FilterErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _TimeGateState<S>();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final payload = typed.payload as S;
+    Duration duration, {
+    FilterErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _TimeGateState<S>();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final payload = typed.payload as S;
 
-        if (duration == Duration.zero) {
-          return _mark(typed, 'FilterByTime');
-        }
+              if (duration == Duration.zero) {
+                return _mark(typed, 'FilterByTime');
+              }
 
-        final now = DateTime.now();
-        if (state.lastEmitted == null) {
-          state.lastEmitted = now;
-          state.clearTimer();
-          return _mark(typed, 'FilterByTime');
-        }
+              final now = DateTime.now();
+              if (state.lastEmitted == null) {
+                state.lastEmitted = now;
+                state.clearTimer();
+                return _mark(typed, 'FilterByTime');
+              }
 
-        final elapsed = now.difference(state.lastEmitted!);
-        if (elapsed >= duration) {
-          state.lastEmitted = now;
-          state.clearPending();
-          return _mark(typed, 'FilterByTime');
-        }
+              final elapsed = now.difference(state.lastEmitted!);
+              if (elapsed >= duration) {
+                state.lastEmitted = now;
+                state.clearPending();
+                return _mark(typed, 'FilterByTime');
+              }
 
-        state.pending = payload;
-        state.pendingPulse = typed;
-        state.timer?.cancel();
-        state.timer = Timer(duration - elapsed, () {
-          final value = state.pending;
-          final src = state.pendingPulse;
-          state.clearPending();
-          if (value == null || src == null) return;
-          state.lastEmitted = DateTime.now();
-          future!(
-            result: _fromPayload(value, src, cell, 'FilterByTime.pending'),
-            token: token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.pending = payload;
+              state.pendingPulse = typed;
+              state.timer?.cancel();
+              state.timer = Timer(duration - elapsed, () {
+                final value = state.pending;
+                final src = state.pendingPulse;
+                state.clearPending();
+                if (value == null || src == null) return;
+                state.lastEmitted = DateTime.now();
+                future!(
+                  result:
+                      _fromPayload(value, src, cell, 'FilterByTime.pending'),
+                  token: token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // Distinct → distinct.dart. Debounce → debounce.dart.
@@ -994,7 +1002,7 @@ Future<void> main() async {
   print('4. AsyncFilter - Async Validation');
   final usernames = Cell.ingress<String>();
   final available = AsyncFilter<String>(
-        (username) async {
+    (username) async {
       await Future<void>.delayed(const Duration(milliseconds: 30));
       return !['taken', 'reserved'].contains(username);
     },

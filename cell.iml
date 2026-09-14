@@ -12,6 +12,12 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/cell_flow/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/packages/cell_flow/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/cell_flow/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_tissue/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_tissue/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_tissue/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_organ/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_organ/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/cell_organ/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

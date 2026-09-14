@@ -234,7 +234,8 @@ void main() {
     });
 
     test('stream events are flattened', () async {
-      final b = bind(AsyncExpand<int, int>((n) => Stream.fromIterable([n, n + 1])));
+      final b =
+          bind(AsyncExpand<int, int>((n) => Stream.fromIterable([n, n + 1])));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(3);
       await b.probe.settle();
@@ -272,7 +273,6 @@ void main() {
       expect(sw.elapsedMilliseconds, lessThan(800));
     });
   });
-
 
   group('AsyncExpand extra', () {
     test('onError is optional when expand throws', () async {

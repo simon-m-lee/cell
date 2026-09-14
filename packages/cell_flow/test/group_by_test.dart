@@ -119,7 +119,8 @@ void main() {
       expect(b.probe.steps, contains('GroupCollect'));
     });
 
-    test('emitted maps are copies so later pulses do not mutate them', () async {
+    test('emitted maps are copies so later pulses do not mutate them',
+        () async {
       final b = bind(GroupCollect<int, String>((n) => 'g'));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(1);
@@ -262,7 +263,6 @@ void main() {
       expect(errors.single, isA<FormatException>());
     });
   });
-
 
   group('GroupBy extra', () {
     test('wrong types call onError', () async {

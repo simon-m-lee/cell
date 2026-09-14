@@ -176,7 +176,6 @@ void main() {
     });
   });
 
-
   group('Scan extra', () {
     test('onError is optional when accumulate throws', () async {
       final b = bind(Scan<int, int>((acc, n) => throw StateError('s')));

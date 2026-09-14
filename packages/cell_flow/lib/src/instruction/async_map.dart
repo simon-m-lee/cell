@@ -43,7 +43,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef AsyncMapErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef AsyncMapErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// An asynchronous mapping function.
 ///
@@ -189,7 +190,6 @@ Future<T> _call<S, T>(AsyncMapper<S, T> map, S value) {
 /// - [AsyncMapWithTimeout]: For timeout handling.
 /// - [AsyncMapWithFallback]: For fallback values.
 class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Sequential Asynchronous Bridge**—a specialized
   /// orchestration instruction designed for ordered, one-by-one pulse evolution.
   ///
@@ -242,49 +242,49 @@ class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
   /// - [AsyncExpand]: For mapping that yields multiple pulses per stimulus.
   AsyncMap(
-      AsyncMapper<S, T> map, {
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              final result = await _call(map, next);
-              future!(
-                result: _out<T>(result, pulse, cell, 'AsyncMap'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+    AsyncMapper<S, T> map, {
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    final result = await _call(map, next);
+                    future!(
+                      result: _out<T>(result, pulse, cell, 'AsyncMap'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Alias of [AsyncMap] for Rx compatibility.
@@ -300,7 +300,6 @@ class AsyncMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// // Same as AsyncMap
 /// ```
 class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
-
   /// Synthesizes a **Sequential Topographical Alias**—a specialized constructor
   /// that explicitly enforces ordered pulse evolution.
   ///
@@ -336,10 +335,10 @@ class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
   /// - [AsyncMap]: The primary implementation of this logic.
   /// - [AsyncMapConcurrent]: For unordered, parallel asynchronous lanes.
   AsyncMapSequential(
-      super.map, {
-        super.onError,
-        super.user,
-      });
+    super.map, {
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -413,7 +412,6 @@ class AsyncMapSequential<S, T> extends AsyncMap<S, T> {
 /// - [AsyncMapLatest]: For latest-only mapping.
 /// - [AsyncMapWithIndex]: For indexed mapping.
 class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Parallel Asynchronous Bridge**—a specialized orchestration
   /// instruction designed for concurrent pulse evolution and high-throughput
   /// topography.
@@ -465,38 +463,38 @@ class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
   /// - [AsyncExpandConcurrent]: For parallel mapping that yields multiple pulses.
   AsyncMapConcurrent(
-      AsyncMapper<S, T> map, {
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
-        );
-        return null;
-      }
-      Future<void> run() async {
-        try {
-          final result = await _call(map, payload);
-          future!(
-            result: _out<T>(result, pulse, cell, 'AsyncMapConcurrent'),
-            token: token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
+    AsyncMapper<S, T> map, {
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            Future<void> run() async {
+              try {
+                final result = await _call(map, payload);
+                future!(
+                  result: _out<T>(result, pulse, cell, 'AsyncMapConcurrent'),
+                  token: token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -571,7 +569,6 @@ class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncMapConcurrent]: For concurrent mapping.
 /// - [AsyncMapWithIndex]: For indexed mapping.
 class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Preemptive Asynchronous Bridge**—a specialized
   /// orchestration instruction designed for latest-only, switch-style
   /// pulse evolution.
@@ -632,43 +629,43 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncMapConcurrent]: For parallel execution where all results matter.
   /// - [AsyncExpandLatest]: For switch-style behavior yielding multiple pulses.
   AsyncMapLatest(
-      AsyncMapper<S, T> map, {
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++generation;
-        Future<void> run() async {
-          try {
-            final result = await _call(map, payload);
-            if (id != generation) return;
-            future!(
-              result: _out<T>(result, pulse, cell, 'AsyncMapLatest'),
-              token: token,
-            );
-          } catch (e, stack) {
-            if (id == generation) onError?.call(e, stack);
-          }
-        }
+    AsyncMapper<S, T> map, {
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++generation;
+              Future<void> run() async {
+                try {
+                  final result = await _call(map, payload);
+                  if (id != generation) return;
+                  future!(
+                    result: _out<T>(result, pulse, cell, 'AsyncMapLatest'),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  if (id == generation) onError?.call(e, stack);
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -738,7 +735,6 @@ class AsyncMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncMapConcurrent]: For concurrent mapping.
 /// - [AsyncMapLatest]: For latest-only mapping.
 class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes an **Indexed Asynchronous Bridge**—a specialized orchestration
   /// instruction designed for position-aware pulse evolution and sequential
   /// mapping.
@@ -795,52 +791,52 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   continuity are secondary.
   /// - [AsyncMapLatest]: For switch-style behavior (superseding old work).
   AsyncMapWithIndex(
-      FutureOr<T> Function(S value, int index) map, {
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var index = 0;
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            final i = index;
-            try {
-              final result = await Future<T>.sync(() => map(next, i));
-              index++;
-              future!(
-                result: _out<T>(result, pulse, cell, 'AsyncMapWithIndex'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+    FutureOr<T> Function(S value, int index) map, {
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var index = 0;
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  final i = index;
+                  try {
+                    final result = await Future<T>.sync(() => map(next, i));
+                    index++;
+                    future!(
+                      result: _out<T>(result, pulse, cell, 'AsyncMapWithIndex'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -905,7 +901,6 @@ class AsyncMapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [RetryWithDelay]: For retries with delay.
 /// - [RetryWithBackoff]: For retries with backoff.
 class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Resilient Asynchronous Bridge**—a specialized orchestration
   /// instruction designed for fault-tolerant, sequential pulse evolution.
   ///
@@ -964,56 +959,57 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncMapWithTimeout]: For enforcing temporal constraints on evolution.
   /// - [AsyncMapWithFallback]: For providing default values upon evolution failure.
   AsyncMapWithRetry(
-      AsyncMapper<S, T> map, {
-        int count = 3,
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            var attempt = 0;
-            while (true) {
-              try {
-                final result = await _call(map, next);
-                future!(
-                  result: _out<T>(result, pulse, cell, 'AsyncMapWithRetry'),
-                  token: token,
+    AsyncMapper<S, T> map, {
+    int count = 3,
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-                break;
-              } catch (e, stack) {
-                onError?.call(e, stack);
-                if (attempt >= count) break;
-                attempt++;
+                return null;
               }
-            }
-          }
-          busy = false;
-        }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  var attempt = 0;
+                  while (true) {
+                    try {
+                      final result = await _call(map, next);
+                      future!(
+                        result:
+                            _out<T>(result, pulse, cell, 'AsyncMapWithRetry'),
+                        token: token,
+                      );
+                      break;
+                    } catch (e, stack) {
+                      onError?.call(e, stack);
+                      if (attempt >= count) break;
+                      attempt++;
+                    }
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1077,8 +1073,8 @@ class AsyncMapWithRetry<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncMap]: For sequential mapping.
 /// - [Timeout]: For timeout on idle streams.
 /// - [TimeoutWithFallback]: For fallback on timeout.
-class AsyncMapWithTimeout<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
+class AsyncMapWithTimeout<S, T>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Synthesizes a **Time-Constrained Asynchronous Bridge**—a specialized
   /// orchestration instruction designed to enforce temporal boundaries on
   /// pulse evolution.
@@ -1139,50 +1135,51 @@ class AsyncMapWithTimeout<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> 
   ///   or error occurs.
   /// - [AsyncMapWithRetry]: For re-attempting failed (or timed-out) evolutions.
   AsyncMapWithTimeout(
-      AsyncMapper<S, T> map, {
-        required Duration duration,
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              final result = await _call(map, next).timeout(duration);
-              future!(
-                result: _out<T>(result, pulse, cell, 'AsyncMapWithTimeout'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+    AsyncMapper<S, T> map, {
+    required Duration duration,
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    final result = await _call(map, next).timeout(duration);
+                    future!(
+                      result:
+                          _out<T>(result, pulse, cell, 'AsyncMapWithTimeout'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1249,8 +1246,8 @@ class AsyncMapWithTimeout<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> 
 /// - [AsyncMap]: For sequential mapping.
 /// - [AsyncMapWithRetry]: For retry logic.
 /// - [TimeoutWithFallback]: For fallback on timeout.
-class AsyncMapWithFallback<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
+class AsyncMapWithFallback<S, T>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Synthesizes a **Resilient Asynchronous Bridge**—a specialized orchestration
   /// instruction designed to provide a safety net for pulse evolution.
   ///
@@ -1315,59 +1312,60 @@ class AsyncMapWithFallback<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse>
   /// - [AsyncMapWithRetry]: For attempting recovery through repetition.
   /// - [AsyncMapWithTimeout]: For enforcing temporal limits on evolution.
   AsyncMapWithFallback(
-      AsyncMapper<S, T> map, {
-        required T fallback,
-        AsyncMapErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              final result = await _call(map, next);
-              future!(
-                result: _out<T>(result, pulse, cell, 'AsyncMapWithFallback'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-              future!(
-                result: _out<T>(
-                  fallback,
-                  pulse,
-                  cell,
-                  'AsyncMapWithFallback.fallback',
-                ),
-                token: token,
-              );
-            }
-          }
-          busy = false;
-        }
+    AsyncMapper<S, T> map, {
+    required T fallback,
+    AsyncMapErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    final result = await _call(map, next);
+                    future!(
+                      result:
+                          _out<T>(result, pulse, cell, 'AsyncMapWithFallback'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                    future!(
+                      result: _out<T>(
+                        fallback,
+                        pulse,
+                        cell,
+                        'AsyncMapWithFallback.fallback',
+                      ),
+                      token: token,
+                    );
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1465,7 +1463,7 @@ Future<void> main() async {
   final nums = Cell.ingress<int>();
 
   final doubled = AsyncMap<int, int>(
-        (n) async => n * 2,
+    (n) async => n * 2,
   ).toHandle(source: nums.cell);
 
   final mObs = Cell.observe(
@@ -1488,8 +1486,9 @@ Future<void> main() async {
   final names = Cell.ingress<String>();
 
   final merged = AsyncMapConcurrent<String, String>(
-        (name) async {
-      await Future<void>.delayed(Duration(milliseconds: name == 'slow' ? 40 : 5));
+    (name) async {
+      await Future<void>.delayed(
+          Duration(milliseconds: name == 'slow' ? 40 : 5));
       return name;
     },
   ).toHandle(source: names.cell);
@@ -1514,7 +1513,7 @@ Future<void> main() async {
   final query = Cell.ingress<String>();
 
   final latest = AsyncMapLatest<String, String>(
-        (q) async {
+    (q) async {
       await Future<void>.delayed(Duration(milliseconds: q == 'old' ? 40 : 8));
       return q;
     },
@@ -1540,7 +1539,7 @@ Future<void> main() async {
   final letters = Cell.ingress<String>();
 
   final indexed = AsyncMapWithIndex<String, String>(
-        (s, i) async => '$i:$s',
+    (s, i) async => '$i:$s',
   ).toHandle(source: letters.cell);
 
   final iObs = Cell.observe(
@@ -1564,7 +1563,7 @@ Future<void> main() async {
   final start = Cell.ingress<void>();
 
   final retried = AsyncMapWithRetry<void, String>(
-        (_) {
+    (_) {
       n++;
       if (n < 3) throw StateError('try');
       return 'ok';
@@ -1592,7 +1591,7 @@ Future<void> main() async {
   final late = Cell.ingress<void>();
 
   final timed = AsyncMapWithTimeout<void, String>(
-        (_) async {
+    (_) async {
       await Future<void>.delayed(const Duration(milliseconds: 80));
       return 'late';
     },
@@ -1619,7 +1618,7 @@ Future<void> main() async {
   final raw = Cell.ingress<int>();
 
   final safe = AsyncMapWithFallback<int, String>(
-        (n) => throw StateError('nope'),
+    (n) => throw StateError('nope'),
     fallback: 'n/a',
     onError: (_, __) {},
   ).toHandle(source: raw.cell);

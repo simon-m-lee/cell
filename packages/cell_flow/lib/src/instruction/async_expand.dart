@@ -41,7 +41,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef ExpandErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef ExpandErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// A function that expands a value into an inner sequence.
 ///
@@ -95,10 +96,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -232,7 +233,6 @@ Future<void> _drain(
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 /// - [ConcatMap]: The Rx analogue.
 class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Sequential Expansion Gate**—a specialized orchestration
   /// instruction designed for ordered, non-concurrent pulse evolution.
   ///
@@ -282,53 +282,53 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncExpandLatest]: For switch-style behavior (cancellation of older
   ///   pending work).
   AsyncExpand(
-      Expander<S> expand, {
-        ExpandErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              final inner = await Future.sync(() => expand(next));
-              await _drain(inner, (item) {
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'AsyncExpand'),
-                    token: token,
-                  );
+    Expander<S> expand, {
+    ExpandErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    final inner = await Future.sync(() => expand(next));
+                    await _drain(inner, (item) {
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'AsyncExpand'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
                 }
-              });
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -415,8 +415,8 @@ class AsyncExpand<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncExpandLatest]: For latest-only flattening.
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 /// - [MergeMap]: The Rx analogue.
-class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
+class AsyncExpandConcurrent<S, T>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Synthesizes a **Parallel Expansion Gate**—a specialized orchestration
   /// instruction designed for maximum throughput and concurrent pulse evolution.
   ///
@@ -467,42 +467,43 @@ class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse
   /// - [AsyncExpandLatest]: For switch-style behavior (cancels previous work).
   /// - [AsyncExpandExhaust]: For ignoring new inputs while busy.
   AsyncExpandConcurrent(
-      Expander<S> expand, {
-        ExpandErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) {
-        onError?.call(
-          FormatException(
-            'Expected payload of type $S, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
-        );
-        return null;
-      }
-      Future<void> run() async {
-        try {
-          final inner = await Future.sync(() => expand(payload));
-          await _drain(inner, (item) {
-            if (item is T) {
-              future!(
-                result: _out<T>(item, cell, pulse, 'AsyncExpandConcurrent'),
-                token: token,
+    Expander<S> expand, {
+    ExpandErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) {
+              onError?.call(
+                FormatException(
+                  'Expected payload of type $S, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
               );
+              return null;
             }
-          });
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
+            Future<void> run() async {
+              try {
+                final inner = await Future.sync(() => expand(payload));
+                await _drain(inner, (item) {
+                  if (item is T) {
+                    future!(
+                      result:
+                          _out<T>(item, cell, pulse, 'AsyncExpandConcurrent'),
+                      token: token,
+                    );
+                  }
+                });
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -590,7 +591,6 @@ class AsyncExpandConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse
 /// - [AsyncExpandExhaust]: For exhaust flattening.
 /// - [SwitchMap]: The Rx analogue.
 class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Switch-Style Expansion Gate**—a specialized orchestration
   /// instruction designed for preemptive, latest-only pulse evolution.
   ///
@@ -611,52 +611,53 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// ### Returns:
   /// A [FlowInstruction] that flattens latest-only sequences.
   AsyncExpandLatest(
-      Expander<S> expand, {
-        ExpandErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++generation;
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => expand(payload));
-            if (id != generation) return;
-            await _drain(
-              inner,
-                  (item) {
-                if (id != generation) return;
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'AsyncExpandLatest'),
-                    token: token,
+    Expander<S> expand, {
+    ExpandErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++generation;
+              Future<void> run() async {
+                try {
+                  final inner = await Future.sync(() => expand(payload));
+                  if (id != generation) return;
+                  await _drain(
+                    inner,
+                    (item) {
+                      if (id != generation) return;
+                      if (item is T) {
+                        future!(
+                          result:
+                              _out<T>(item, cell, pulse, 'AsyncExpandLatest'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == generation,
                   );
+                } catch (e, stack) {
+                  if (id == generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == generation,
-            );
-          } catch (e, stack) {
-            if (id == generation) onError?.call(e, stack);
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -732,7 +733,6 @@ class AsyncExpandLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncExpandLatest]: For latest-only flattening.
 /// - [ExhaustMap]: The Rx analogue.
 class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **First-Come-First-Served Logic Gate**—a specialized
   /// orchestration instruction designed for prioritized, exclusive pulse evolution.
   ///
@@ -788,49 +788,50 @@ class AsyncExpandExhaust<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncExpandConcurrent]: For parallel processing of all pulses.
   /// - [AsyncExpandLatest]: For switch-style behavior (cancelling old work).
   AsyncExpandExhaust(
-      Expander<S> expand, {
-        ExpandErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        if (busy) return null;
-        busy = true;
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => expand(payload));
-            await _drain(inner, (item) {
-              if (item is T) {
-                future!(
-                  result: _out<T>(item, cell, pulse, 'AsyncExpandExhaust'),
-                  token: token,
+    Expander<S> expand, {
+    ExpandErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
+                return null;
               }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            busy = false;
-          }
-        }
+              if (busy) return null;
+              busy = true;
+              Future<void> run() async {
+                try {
+                  final inner = await Future.sync(() => expand(payload));
+                  await _drain(inner, (item) {
+                    if (item is T) {
+                      future!(
+                        result:
+                            _out<T>(item, cell, pulse, 'AsyncExpandExhaust'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  busy = false;
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -908,7 +909,7 @@ Future<void> main() async {
   final letters = Cell.ingress<String>();
 
   final concat = AsyncExpand<String, String>(
-        (s) async* {
+    (s) async* {
       yield '$s-1';
       yield '$s-2';
     },
@@ -934,8 +935,9 @@ Future<void> main() async {
   final names = Cell.ingress<String>();
 
   final merged = AsyncExpandConcurrent<String, String>(
-        (name) async {
-      await Future<void>.delayed(Duration(milliseconds: name == 'slow' ? 40 : 5));
+    (name) async {
+      await Future<void>.delayed(
+          Duration(milliseconds: name == 'slow' ? 40 : 5));
       return name;
     },
   ).toHandle(source: names.cell);
@@ -960,7 +962,7 @@ Future<void> main() async {
   final query = Cell.ingress<String>();
 
   final latest = AsyncExpandLatest<String, String>(
-        (q) async {
+    (q) async {
       await Future<void>.delayed(Duration(milliseconds: q == 'old' ? 40 : 8));
       return '$q-1';
     },
@@ -986,7 +988,7 @@ Future<void> main() async {
   final clicks = Cell.ingress<String>();
 
   final exhaust = AsyncExpandExhaust<String, String>(
-        (s) async {
+    (s) async {
       await Future<void>.delayed(const Duration(milliseconds: 40));
       return s;
     },

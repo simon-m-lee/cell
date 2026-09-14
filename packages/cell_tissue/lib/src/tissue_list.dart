@@ -69,7 +69,6 @@ part of '../cell_tissue.dart';
 /// - [TissueReceptor] – the engine that processes mutation signals.
 /// - [TestTissue] – the validation logic for collection elements.
 abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
-
   /// Creates a primary [TissueListNucleus] configuration, defining the
   /// foundational "Reactive DNA" and behavioural blueprint for a [TissueList].
   ///
@@ -177,18 +176,16 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueListNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueListNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E, TissueList<E>>? receptor,
-    TestTissue<E, TissueList<E>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueListNucleus<E>? override,
-    required TissueListNucleus<E> principal
-  }) = _TissueListNucleus<E, TissueList<E>>.evolve;
+  factory TissueListNucleus.evolve(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<E, TissueList<E>>? receptor,
+          TestTissue<E, TissueList<E>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueListNucleus<E>? override,
+          required TissueListNucleus<E> principal}) =
+      _TissueListNucleus<E, TissueList<E>>.evolve;
 
   /// A static utility factory that produces a type‑safe nucleus configuration
   /// for a specific element type [E] and a specialised [TissueList] interface [C].
@@ -232,32 +229,34 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified element and
   /// tissue types.
-  static TissueListNucleusBase<E,C> create<E, C extends TissueList<E>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueListNucleusBase<E,C>? principal
-  }) {
-
+  static TissueListNucleusBase<E, C> create<E, C extends TissueList<E>>(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueListNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E,List<E>,C>(
+      final local = TissueNucleusBase.local<E, List<E>, C>(
         container: container,
-        bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+        user: user,
         ephemeralPolicy: ephemeralPolicy,
       );
-      return _TissueListNucleus<E,C>.fromRecord(
-          (local: local, principal: principal)
-      );
+      return _TissueListNucleus<E, C>.fromRecord(
+          (local: local, principal: principal));
     }
 
-    return _TissueListNucleus<E,C>(
+    return _TissueListNucleus<E, C>(
         bind: bind,
         context: context ?? Context.system,
         receptor: receptor ?? TissueReceptor.passThrough,
@@ -266,9 +265,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
         growable: container == Container.growableTrue,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
-        forceLock: forceLock
-    );
-
+        forceLock: forceLock);
   }
 
   /// Creates an independent, decoupled clone of the current [TissueListNucleus]
@@ -328,7 +325,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
   ///   throw on a fixed‑length list).
   @override
   Container get containerType;
-
 }
 
 /// A reactive, observable, and optionally constrained implementation of the
@@ -421,7 +417,6 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 /// - [TissueListNucleus] – the blueprint and configuration for the list.
 /// - [UnmodifiableTissueList] – a read‑only deputy variant.
 abstract interface class TissueList<E> implements Tissue<E>, List<E> {
-
   @override
   TissueListNucleus<E> get _nucleus;
 
@@ -463,14 +458,13 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// final list = TissueList<int>([1, 2, 3]);
   /// print(list.length); // 3
   /// ```
-  factory TissueList({
-    Cell? bind,
-    Context context,
-    TissueReceptor<E,TissueList<E>> receptor,
-    TestTissue<E,TissueList<E>> testRule,
-    Synapses synapses,
-    bool growable
-  }) = _TissueList<E,TissueList<E>>;
+  factory TissueList(
+      {Cell? bind,
+      Context context,
+      TissueReceptor<E, TissueList<E>> receptor,
+      TestTissue<E, TissueList<E>> testRule,
+      Synapses synapses,
+      bool growable}) = _TissueList<E, TissueList<E>>;
 
   /// Creates a [TissueList] populated with elements from an existing [Iterable].
   ///
@@ -498,14 +492,13 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// ```dart
   /// final list = TissueList.of([1, 2, 3], testRule: ...);
   /// ```
-  factory TissueList.of(Iterable<E> elements, {
-    Cell? bind,
-    Context context,
-    TissueReceptor<E, TissueList<E>> receptor,
-    TestTissue<E, TissueList<E>> testRule,
-    Synapses synapses,
-    bool growable
-  }) = _TissueList<E, TissueList<E>>.of;
+  factory TissueList.of(Iterable<E> elements,
+      {Cell? bind,
+      Context context,
+      TissueReceptor<E, TissueList<E>> receptor,
+      TestTissue<E, TissueList<E>> testRule,
+      Synapses synapses,
+      bool growable}) = _TissueList<E, TissueList<E>>.of;
 
   /// Creates a [TissueList] instance materialized from a pre‑configured
   /// [TissueListNucleus] blueprint, optionally ingesting a starting set of data.
@@ -542,10 +535,8 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   ///
   /// ### Returns:
   /// A concrete [TissueList<E>] instance.
-  factory TissueList.fromNucleus(
-      TissueListNucleus<E> properties, {
-        Iterable<E>? elements
-      }) = _TissueList<E, TissueList<E>>.fromNucleus;
+  factory TissueList.fromNucleus(TissueListNucleus<E> properties,
+      {Iterable<E>? elements}) = _TissueList<E, TissueList<E>>.fromNucleus;
 
   /// Creates a read‑only, reactive projection (Deputy) of an existing [TissueList],
   /// enforcing a strict non‑mutation contract while remaining fully synchronised
@@ -584,8 +575,9 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// source.add(4);
   /// print(readOnly.length); // 4 (automatically updated)
   /// ```
-  factory TissueList.unmodifiable(TissueList<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueList<E,TissueList<E>>.view;
+  factory TissueList.unmodifiable(TissueList<E> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueList<E, TissueList<E>>.view;
 
   /// A high‑level architectural factory for creating a specialised, type‑safe
   /// reactive list with explicit control over its behavioural and structural blueprint.
@@ -633,21 +625,18 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   ///   testRule: TestTissue<int>((v) => v > 0),
   /// );
   /// ```
-  static TissueListBase<E,C> create<E,C extends TissueList<E>>({
-    Iterable<E>? elements,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueListNucleusBase<E,C>? principal
-  }) {
-    final properties = TissueListNucleus.create<E,C>(
+  static TissueListBase<E, C> create<E, C extends TissueList<E>>(
+      {Iterable<E>? elements,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      forceLock = false,
+      TissueListNucleusBase<E, C>? principal}) {
+    final properties = TissueListNucleus.create<E, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -656,10 +645,8 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _TissueList<E,C>.fromNucleus(properties, elements: elements);
-
+        principal: principal);
+    return _TissueList<E, C>.fromNucleus(properties, elements: elements);
   }
 
   /// Sets the element at the specified [index] to the given [value].
@@ -796,7 +783,6 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// ```
   @override
   ModifiableListAsync<E> get async;
-
 }
 
 /// A specialised, terminal architectural interface for a **Deeply
@@ -866,8 +852,8 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
 /// See also:
 /// - [TissueList] – the mutable counterpart.
 /// - [UnmodifiableTissue] – the general contract for read‑only tissues.
-abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, UnmodifiableTissue<E> {
-
+abstract interface class UnmodifiableTissueList<E>
+    implements TissueList<E>, UnmodifiableTissue<E> {
   /// The primary architectural factory for instantiating an [UnmodifiableTissueList],
   /// materializing a read‑only, reactive indexed node from an initial collection
   /// of [elements].
@@ -907,10 +893,11 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  factory UnmodifiableTissueList(Iterable<E> elements, {
+  factory UnmodifiableTissueList(
+    Iterable<E> elements, {
     TissueListNucleus<E>? properties,
     bool unmodifiableElement,
-  }) = _UnmodifiableTissueList<E,TissueList<E>>;
+  }) = _UnmodifiableTissueList<E, TissueList<E>>;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueList].
@@ -942,8 +929,9 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   /// final source = TissueList<int>([1, 2, 3]);
   /// final readOnly = UnmodifiableTissueList.view(source);
   /// ```
-  factory UnmodifiableTissueList.view(TissueList<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueList<E,TissueList<E>>.view;
+  factory UnmodifiableTissueList.view(TissueList<E> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueList<E, TissueList<E>>.view;
 
   /// A low‑level architectural factory for materializing an [UnmodifiableTissueList]
   /// directly from a pre‑constructed reactive blueprint ([properties]).
@@ -980,8 +968,9 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   /// );
   /// final readOnlyList = UnmodifiableTissueList.fromNucleus(readOnlyNucleus);
   /// ```
-  factory UnmodifiableTissueList.fromNucleus(TissueListNucleus<E> properties, {bool unmodifiableElement, Iterable<E>? elements})
-  = _UnmodifiableTissueList<E,TissueList<E>>.fromNucleus;
+  factory UnmodifiableTissueList.fromNucleus(TissueListNucleus<E> properties,
+          {bool unmodifiableElement, Iterable<E>? elements}) =
+      _UnmodifiableTissueList<E, TissueList<E>>.fromNucleus;
 
   /// An advanced architectural factory for creating a specialised, type‑safe
   /// [UnmodifiableTissueList] with granular control over its behavioural
@@ -1030,37 +1019,31 @@ abstract interface class UnmodifiableTissueList<E> implements TissueList<E>, Unm
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  static UnmodifiableTissueListBase<E,C> create<E,C extends TissueList<E>>({
+  static UnmodifiableTissueListBase<E, C> create<E, C extends TissueList<E>>({
     Iterable<E>? elements,
     bool unmodifiableElement = true,
-
     Cell? bind,
     Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
+    TissueReceptor<E, C>? receptor,
+    TestTissue<E, C>? testRule,
     Synapses? synapses,
-
     Container? container,
     Record? user,
     forceLock = false,
-    TissueListNucleusBase<E,C>? principal,
+    TissueListNucleusBase<E, C>? principal,
   }) {
-    return _UnmodifiableTissueList<E,C>.fromNucleus(
-        TissueListNucleus.create<E,C>(
+    return _UnmodifiableTissueList<E, C>.fromNucleus(
+        TissueListNucleus.create<E, C>(
             bind: bind,
             context: context,
             testRule: testRule,
             receptor: receptor,
             synapses: synapses,
-
             container: container,
             user: user,
             forceLock: forceLock,
-            principal: principal
-        ),
+            principal: principal),
         unmodifiableElement: unmodifiableElement,
-        elements: elements
-    );
+        elements: elements);
   }
-
 }

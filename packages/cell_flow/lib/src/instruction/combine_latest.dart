@@ -40,7 +40,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef CombineErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef CombineErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to create an output pulse with proper provenance.
 Pulse<R> _out<R>(R value, Pulse trigger, Cell? cell, String step) {
@@ -207,81 +208,81 @@ class CombineLatestWith<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   CombineLatestWith(
-      Iterable<Cell> others,
-      R Function(S source, List<Object?> latest) combine, {
-        CombineErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final slots = [for (final _ in others) _LatestSlot()];
-      final list = others.toList();
-      final emit = _EmitState();
-      S? sourceValue;
-      var hasSource = false;
-      var armed = false;
+    Iterable<Cell> others,
+    R Function(S source, List<Object?> latest) combine, {
+    CombineErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final slots = [for (final _ in others) _LatestSlot()];
+            final list = others.toList();
+            final emit = _EmitState();
+            S? sourceValue;
+            var hasSource = false;
+            var armed = false;
 
-      void publish(Pulse trigger, String step) {
-        if (!hasSource || slots.any((s) => !s.has)) return;
-        try {
-          final result = combine(
-            sourceValue as S,
-            [for (final s in slots) s.value],
-          );
-          emit.future?.call(
-            result: _out<R>(result, trigger, emit.cell, step),
-            token: emit.token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
+            void publish(Pulse trigger, String step) {
+              if (!hasSource || slots.any((s) => !s.has)) return;
+              try {
+                final result = combine(
+                  sourceValue as S,
+                  [for (final s in slots) s.value],
+                );
+                emit.future?.call(
+                  result: _out<R>(result, trigger, emit.cell, step),
+                  token: emit.token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            }
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        if (!armed) {
-          armed = true;
-          for (var i = 0; i < list.length; i++) {
-            final index = i;
-            Cell.observe(
-              source: list[index],
-              effect: (Pulse incoming) {
-                slots[index].value = incoming.payload;
-                slots[index].has = true;
-                publish(incoming, 'CombineLatestWith.other');
-              },
-            );
-          }
-        }
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        sourceValue = payload;
-        hasSource = true;
-        try {
-          if (slots.any((s) => !s.has)) return null;
-          return _out<R>(
-            combine(payload, [for (final s in slots) s.value]),
-            pulse,
-            cell,
-            'CombineLatestWith.source',
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              if (!armed) {
+                armed = true;
+                for (var i = 0; i < list.length; i++) {
+                  final index = i;
+                  Cell.observe(
+                    source: list[index],
+                    effect: (Pulse incoming) {
+                      slots[index].value = incoming.payload;
+                      slots[index].has = true;
+                      publish(incoming, 'CombineLatestWith.other');
+                    },
+                  );
+                }
+              }
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              sourceValue = payload;
+              hasSource = true;
+              try {
+                if (slots.any((s) => !s.has)) return null;
+                return _out<R>(
+                  combine(payload, [for (final s in slots) s.value]),
+                  pulse,
+                  cell,
+                  'CombineLatestWith.source',
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -385,53 +386,53 @@ class CombineLatest<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   CombineLatest(
-      Iterable<Cell> sources,
-      R Function(List<Object?> latest) combine, {
-        CombineErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final slots = [for (final _ in sources) _LatestSlot()];
-      final list = sources.toList();
-      final emit = _EmitState();
-      var armed = false;
+    Iterable<Cell> sources,
+    R Function(List<Object?> latest) combine, {
+    CombineErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final slots = [for (final _ in sources) _LatestSlot()];
+            final list = sources.toList();
+            final emit = _EmitState();
+            var armed = false;
 
-      void publish(Pulse trigger) {
-        if (slots.any((s) => !s.has)) return;
-        try {
-          final result = combine([for (final s in slots) s.value]);
-          emit.future?.call(
-            result: _out<R>(result, trigger, emit.cell, 'CombineLatest'),
-            token: emit.token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
+            void publish(Pulse trigger) {
+              if (slots.any((s) => !s.has)) return;
+              try {
+                final result = combine([for (final s in slots) s.value]);
+                emit.future?.call(
+                  result: _out<R>(result, trigger, emit.cell, 'CombineLatest'),
+                  token: emit.token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            }
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        if (!armed) {
-          armed = true;
-          for (var i = 0; i < list.length; i++) {
-            final index = i;
-            Cell.observe(
-              source: list[index],
-              effect: (Pulse incoming) {
-                slots[index].value = incoming.payload;
-                slots[index].has = true;
-                publish(incoming);
-              },
-            );
-          }
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              if (!armed) {
+                armed = true;
+                for (var i = 0; i < list.length; i++) {
+                  final index = i;
+                  Cell.observe(
+                    source: list[index],
+                    effect: (Pulse incoming) {
+                      slots[index].value = incoming.payload;
+                      slots[index].has = true;
+                      publish(incoming);
+                    },
+                  );
+                }
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -539,55 +540,55 @@ class WithLatestFrom<S, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   WithLatestFrom(
-      Iterable<Cell> others,
-      R Function(S source, List<Object?> latest) combine, {
-        CombineErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final slots = [for (final _ in others) _LatestSlot()];
-      final list = others.toList();
-      var armed = false;
-      return (pulse, {cell, user, future, token}) {
-        if (!armed) {
-          armed = true;
-          for (var i = 0; i < list.length; i++) {
-            final index = i;
-            Cell.observe(
-              source: list[index],
-              effect: (Pulse incoming) {
-                slots[index].value = incoming.payload;
-                slots[index].has = true;
-              },
-            );
-          }
-        }
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        if (slots.any((s) => !s.has)) return null;
-        try {
-          return _out<R>(
-            combine(payload, [for (final s in slots) s.value]),
-            pulse,
-            cell,
-            'WithLatestFrom',
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Cell> others,
+    R Function(S source, List<Object?> latest) combine, {
+    CombineErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final slots = [for (final _ in others) _LatestSlot()];
+            final list = others.toList();
+            var armed = false;
+            return (pulse, {cell, user, future, token}) {
+              if (!armed) {
+                armed = true;
+                for (var i = 0; i < list.length; i++) {
+                  final index = i;
+                  Cell.observe(
+                    source: list[index],
+                    effect: (Pulse incoming) {
+                      slots[index].value = incoming.payload;
+                      slots[index].has = true;
+                    },
+                  );
+                }
+              }
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              if (slots.any((s) => !s.has)) return null;
+              try {
+                return _out<R>(
+                  combine(payload, [for (final s in slots) s.value]),
+                  pulse,
+                  cell,
+                  'WithLatestFrom',
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -670,16 +671,16 @@ class CombineLatest2<A, B, R> extends CombineLatestWith<A, R> {
   /// );
   /// ```
   CombineLatest2(
-      Cell other,
-      R Function(A a, B b) combine, {
-        CombineErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    [other],
-        (a, latest) => combine(a, latest.single as B),
-    onError: onError,
-    user: user,
-  );
+    Cell other,
+    R Function(A a, B b) combine, {
+    CombineErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          [other],
+          (a, latest) => combine(a, latest.single as B),
+          onError: onError,
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -746,7 +747,7 @@ Future<void> main() async {
   final b = Cell.ingress<String>();
   final clw = CombineLatestWith<int, String>(
     [b.cell],
-        (n, latest) => '$n-${latest.single}',
+    (n, latest) => '$n-${latest.single}',
   ).toHandle(source: a.cell);
   final cObs = Cell.observe(
     source: clw.cell,
@@ -764,7 +765,7 @@ Future<void> main() async {
   final right = Cell.ingress<String>();
   final cl = CombineLatest<String>(
     [left.cell, right.cell],
-        (latest) => '${latest[0]}-${latest[1]}',
+    (latest) => '${latest[0]}-${latest[1]}',
   ).toHandle(source: gate.cell);
   final nObs = Cell.observe(
     source: cl.cell,
@@ -782,7 +783,7 @@ Future<void> main() async {
   final o = Cell.ingress<String>();
   final wlf = WithLatestFrom<int, String>(
     [o.cell],
-        (n, latest) => '$n-${latest.single}',
+    (n, latest) => '$n-${latest.single}',
   ).toHandle(source: s.cell);
   final wObs = Cell.observe(
     source: wlf.cell,
@@ -799,7 +800,7 @@ Future<void> main() async {
   final q = Cell.ingress<String>();
   final pair = CombineLatest2<int, String, String>(
     q.cell,
-        (n, label) => '$n:$label',
+    (n, label) => '$n:$label',
   ).toHandle(source: p.cell);
   final pObs = Cell.observe(
     source: pair.cell,

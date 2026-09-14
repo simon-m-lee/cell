@@ -6,9 +6,7 @@
 /// `lib/` line coverage. Demos print to stdout; that is expected.
 library;
 
-
-import 'package:cell_flow/src/instruction/async_expand.dart'
-    as async_expand;
+import 'package:cell_flow/src/instruction/async_expand.dart' as async_expand;
 import 'package:cell_flow/src/instruction/async_fold.dart' as async_fold;
 import 'package:cell_flow/src/instruction/async_map.dart' as async_map;
 import 'package:cell_flow/src/instruction/buffer.dart' as buffer;
@@ -19,13 +17,10 @@ import 'package:cell_flow/src/instruction/concat_map.dart' as concat_map;
 import 'package:cell_flow/src/instruction/debounce.dart' as debounce;
 import 'package:cell_flow/src/instruction/delay.dart' as delay;
 import 'package:cell_flow/src/instruction/distinct.dart' as distinct;
-import 'package:cell_flow/src/instruction/exhaust_map.dart'
-    as exhaust_map;
+import 'package:cell_flow/src/instruction/exhaust_map.dart' as exhaust_map;
 import 'package:cell_flow/src/instruction/filter.dart' as filter;
-import 'package:cell_flow/src/instruction/from_future.dart'
-    as from_future;
-import 'package:cell_flow/src/instruction/from_stream.dart'
-    as from_stream;
+import 'package:cell_flow/src/instruction/from_future.dart' as from_future;
+import 'package:cell_flow/src/instruction/from_stream.dart' as from_stream;
 import 'package:cell_flow/src/instruction/group_by.dart' as group_by;
 import 'package:cell_flow/src/instruction/interval.dart' as interval;
 import 'package:cell_flow/src/instruction/map.dart' as map_ops;

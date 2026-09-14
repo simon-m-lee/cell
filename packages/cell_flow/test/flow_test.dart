@@ -415,7 +415,8 @@ void main() {
       final handle = Flow.switchMap<String, String>(
         src.cell,
         project: (q) async* {
-          await Future<void>.delayed(Duration(milliseconds: q == 'old' ? 40 : 5));
+          await Future<void>.delayed(
+              Duration(milliseconds: q == 'old' ? 40 : 5));
           yield q;
         },
       );
@@ -931,8 +932,7 @@ void main() {
 
     test('bufferCount + windowCount + share', () async {
       final src = Cell.ingress<int>();
-      final handle = Flow.bufferCount<int>(src.cell, size: 2)
-          .share<Object>();
+      final handle = Flow.bufferCount<int>(src.cell, size: 2).share<Object>();
       final probe = _Probe(handle.cell);
       addTearDown(probe.stop);
       await src.emitAsync(1);
@@ -997,10 +997,14 @@ void main() {
 
     test('Flow delayWhen / sampleTime / auditTime / interval bind', () async {
       final src = Cell.ingress<int>();
-      final d = Flow.delayWhen<int>(src.cell, when: (_) => const Duration(milliseconds: 1));
-      final s = Flow.sampleTime<int>(src.cell, period: const Duration(milliseconds: 20));
-      final a = Flow.auditTime<int>(src.cell, duration: const Duration(milliseconds: 20));
-      final i = Flow.interval(src.cell, period: const Duration(milliseconds: 20));
+      final d = Flow.delayWhen<int>(src.cell,
+          when: (_) => const Duration(milliseconds: 1));
+      final s = Flow.sampleTime<int>(src.cell,
+          period: const Duration(milliseconds: 20));
+      final a = Flow.auditTime<int>(src.cell,
+          duration: const Duration(milliseconds: 20));
+      final i =
+          Flow.interval(src.cell, period: const Duration(milliseconds: 20));
       expect(d.cell, isNotNull);
       expect(s.cell, isNotNull);
       expect(a.cell, isNotNull);
@@ -1011,7 +1015,8 @@ void main() {
       final src = Cell.ingress<int>();
       final g = Flow.groupBy<int, int>(src.cell, keyOf: (n) => n % 2);
       final p = Flow.partition<int>(src.cell, test: (n) => n.isEven);
-      final b = Flow.bufferTime<int>(src.cell, duration: const Duration(milliseconds: 20));
+      final b = Flow.bufferTime<int>(src.cell,
+          duration: const Duration(milliseconds: 20));
       final w = Flow.windowCount<int>(src.cell, size: 2);
       expect(g.cell, isNotNull);
       expect(p.cell, isNotNull);
@@ -1093,7 +1098,8 @@ void main() {
       expect(e.cell, isNotNull);
     });
 
-    test('asyncFoldLatest / asyncFoldExhaust / asyncReduce / asyncMapConcurrent',
+    test(
+        'asyncFoldLatest / asyncFoldExhaust / asyncReduce / asyncMapConcurrent',
         () async {
       final src = Cell.ingress<int>();
       final a = Flow.asyncFoldLatest<int, int>(
@@ -1150,7 +1156,8 @@ void main() {
       expect(g.cell, isNotNull);
     });
 
-    test('takeUntil / skipUntil / skipWhen / sample / audit / timeoutWithFallback',
+    test(
+        'takeUntil / skipUntil / skipWhen / sample / audit / timeoutWithFallback',
         () async {
       final src = Cell.ingress<int>();
       final n = Cell.ingress<void>();

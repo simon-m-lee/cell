@@ -43,13 +43,14 @@ typedef TakeErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      TakeErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  TakeErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -207,22 +208,22 @@ class Take<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [TakeUntil]: For event-based taking.
   /// - [TakeUntilTime]: For time-based taking.
   Take(
-      int count, {
-        TakeErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var remaining = count < 0 ? 0 : count;
-      return (pulse, {cell, user}) {
-        if (remaining <= 0) return null;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        remaining--;
-        return _mark(typed, 'Take');
-      };
-    })(),
-    user: user,
-  );
+    int count, {
+    TakeErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var remaining = count < 0 ? 0 : count;
+            return (pulse, {cell, user}) {
+              if (remaining <= 0) return null;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              remaining--;
+              return _mark(typed, 'Take');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -358,33 +359,33 @@ class TakeWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [TakeUntil]: For event-based taking.
   /// - [Filter]: For filtering all values.
   TakeWhile(
-      bool Function(S value) predicate, {
-        bool inclusive = false,
-        TakeErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var open = true;
-      return (pulse, {cell, user}) {
-        if (!open) return null;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        late final bool pass;
-        try {
-          pass = predicate(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          open = false;
-          return null;
-        }
-        if (pass) return _mark(typed, 'TakeWhile');
-        open = false;
-        return inclusive ? _mark(typed, 'TakeWhile.inclusive') : null;
-      };
-    })(),
-    user: user,
-  );
+    bool Function(S value) predicate, {
+    bool inclusive = false,
+    TakeErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var open = true;
+            return (pulse, {cell, user}) {
+              if (!open) return null;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              late final bool pass;
+              try {
+                pass = predicate(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                open = false;
+                return null;
+              }
+              if (pass) return _mark(typed, 'TakeWhile');
+              open = false;
+              return inclusive ? _mark(typed, 'TakeWhile.inclusive') : null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -490,27 +491,27 @@ class TakeUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [TakeUntilTime]: For time-based taking.
   /// - [Take]: For count-based taking.
   TakeUntil(
-      Cell notifier, {
-        TakeErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _OpenState();
-      Cell.observe(
-        source: notifier,
-        effect: (Pulse _) {
-          state.open = false;
-        },
-      );
-      return (pulse, {cell, user}) {
-        if (!state.open) return null;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        return _mark(typed, 'TakeUntil');
-      };
-    })(),
-    user: user,
-  );
+    Cell notifier, {
+    TakeErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _OpenState();
+            Cell.observe(
+              source: notifier,
+              effect: (Pulse _) {
+                state.open = false;
+              },
+            );
+            return (pulse, {cell, user}) {
+              if (!state.open) return null;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              return _mark(typed, 'TakeUntil');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -616,28 +617,28 @@ class TakeUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [TakeWhile]: For conditional taking.
   /// - [Take]: For count-based taking.
   TakeUntilTime(
-      Duration duration, {
-        TakeErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _OpenState();
-      var armed = false;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (!armed) {
-          armed = true;
-          Timer(duration, () {
-            state.open = false;
-          });
-        }
-        if (!state.open) return null;
-        return _mark(typed, 'TakeUntilTime');
-      };
-    })(),
-    user: user,
-  );
+    Duration duration, {
+    TakeErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _OpenState();
+            var armed = false;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (!armed) {
+                armed = true;
+                Timer(duration, () {
+                  state.open = false;
+                });
+              }
+              if (!state.open) return null;
+              return _mark(typed, 'TakeUntilTime');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -757,8 +758,8 @@ Future<void> main() async {
 
   print('4. TakeUntilTime');
   final timed = Cell.ingress<int>();
-  final window =
-  TakeUntilTime<int>(const Duration(milliseconds: 40)).toHandle(source: timed.cell);
+  final window = TakeUntilTime<int>(const Duration(milliseconds: 40))
+      .toHandle(source: timed.cell);
   final dObs = Cell.observe(
     source: window.cell,
     effect: (Pulse p) => print('   [TakeUntilTime] ${p.payload}'),

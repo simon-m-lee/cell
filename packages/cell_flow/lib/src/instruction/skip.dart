@@ -43,13 +43,14 @@ typedef SkipErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      SkipErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  SkipErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -211,24 +212,24 @@ class Skip<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SkipFirst]: For skipping only the first value.
   /// - [SkipLast]: For skipping the last N values.
   Skip(
-      int count, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var remaining = count < 0 ? 0 : count;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (remaining > 0) {
-          remaining--;
-          return null;
-        }
-        return _mark(typed, 'Skip');
-      };
-    })(),
-    user: user,
-  );
+    int count, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var remaining = count < 0 ? 0 : count;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (remaining > 0) {
+                remaining--;
+                return null;
+              }
+              return _mark(typed, 'Skip');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -354,30 +355,30 @@ class SkipWhile<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SkipWhen]: For per-value conditional skipping.
   /// - [SkipUntil]: For event-based skipping.
   SkipWhile(
-      bool Function(S value) predicate, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var skipping = true;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (skipping) {
-          try {
-            if (predicate(value)) return null;
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            return null;
-          }
-          skipping = false;
-        }
-        return _mark(typed, 'SkipWhile');
-      };
-    })(),
-    user: user,
-  );
+    bool Function(S value) predicate, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var skipping = true;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (skipping) {
+                try {
+                  if (predicate(value)) return null;
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  return null;
+                }
+                skipping = false;
+              }
+              return _mark(typed, 'SkipWhile');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -480,27 +481,27 @@ class SkipUntil<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SkipUntilTime]: For time-based skipping.
   /// - [Skip]: For count-based skipping.
   SkipUntil(
-      Cell notifier, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _GateState();
-      Cell.observe(
-        source: notifier,
-        effect: (Pulse _) {
-          state.open = true;
-        },
-      );
-      return (pulse, {cell, user}) {
-        if (!state.open) return null;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        return _mark(typed, 'SkipUntil');
-      };
-    })(),
-    user: user,
-  );
+    Cell notifier, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _GateState();
+            Cell.observe(
+              source: notifier,
+              effect: (Pulse _) {
+                state.open = true;
+              },
+            );
+            return (pulse, {cell, user}) {
+              if (!state.open) return null;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              return _mark(typed, 'SkipUntil');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -602,28 +603,28 @@ class SkipUntilTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SkipWhile]: For conditional skipping.
   /// - [Debounce]: For waiting for silence.
   SkipUntilTime(
-      Duration duration, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _GateState();
-      var armed = false;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (!armed) {
-          armed = true;
-          Timer(duration, () {
-            state.open = true;
-          });
-        }
-        if (!state.open) return null;
-        return _mark(typed, 'SkipUntilTime');
-      };
-    })(),
-    user: user,
-  );
+    Duration duration, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _GateState();
+            var armed = false;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (!armed) {
+                armed = true;
+                Timer(duration, () {
+                  state.open = true;
+                });
+              }
+              if (!state.open) return null;
+              return _mark(typed, 'SkipUntilTime');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -790,25 +791,25 @@ class SkipLast<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Skip]: For skipping the first N values.
   /// - [SkipWhile]: For conditional skipping.
   SkipLast(
-      int count, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final keep = count < 0 ? 0 : count;
-      final buffer = <Pulse>[];
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (keep == 0) return _mark(typed, 'SkipLast');
-        buffer.add(typed);
-        if (buffer.length <= keep) return null;
-        final ready = buffer.removeAt(0);
-        return _mark(ready, 'SkipLast');
-      };
-    })(),
-    user: user,
-  );
+    int count, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final keep = count < 0 ? 0 : count;
+            final buffer = <Pulse>[];
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (keep == 0) return _mark(typed, 'SkipLast');
+              buffer.add(typed);
+              if (buffer.length <= keep) return null;
+              final ready = buffer.removeAt(0);
+              return _mark(ready, 'SkipLast');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -920,29 +921,29 @@ class SkipRepeated<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     SkipErrorHandler? onError,
     dynamic user,
   }) : super(
-    (() {
-      S? previous;
-      var hasPrevious = false;
-      final cmp = equals ?? (S a, S b) => a == b;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (hasPrevious) {
-          try {
-            if (cmp(previous as S, value)) return null;
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            return null;
-          }
-        }
-        previous = value;
-        hasPrevious = true;
-        return _mark(typed, 'SkipRepeated');
-      };
-    })(),
-    user: user,
-  );
+          (() {
+            S? previous;
+            var hasPrevious = false;
+            final cmp = equals ?? (S a, S b) => a == b;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (hasPrevious) {
+                try {
+                  if (cmp(previous as S, value)) return null;
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  return null;
+                }
+              }
+              previous = value;
+              hasPrevious = true;
+              return _mark(typed, 'SkipRepeated');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1047,23 +1048,23 @@ class SkipWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Filter]: For passing when a condition is true.
   /// - [Skip]: For count-based skipping.
   SkipWhen(
-      bool Function(S value) predicate, {
-        SkipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        if (predicate(typed.payload as S)) return null;
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-      return _mark(typed, 'SkipWhen');
-    },
-    user: user,
-  );
+    bool Function(S value) predicate, {
+    SkipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              if (predicate(typed.payload as S)) return null;
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+            return _mark(typed, 'SkipWhen');
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1196,8 +1197,8 @@ Future<void> main() async {
 
   print('4. SkipUntilTime');
   final timed = Cell.ingress<int>();
-  final window =
-  SkipUntilTime<int>(const Duration(milliseconds: 40)).toHandle(source: timed.cell);
+  final window = SkipUntilTime<int>(const Duration(milliseconds: 40))
+      .toHandle(source: timed.cell);
   final dObs = Cell.observe(
     source: window.cell,
     effect: (Pulse p) => print('   [SkipUntilTime] ${p.payload}'),

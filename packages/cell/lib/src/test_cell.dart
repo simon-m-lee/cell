@@ -74,8 +74,8 @@ part of '../cell.dart';
 ///   custom validation policies and integrity gates.
 ///
 /// {@category Testing & Validation}
-class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>, TestLinkRule<C>, TestPulseRule<C> {
-
+class TestCell<C extends Cell> extends TestRule<C>
+    implements TestActionRule<C>, TestLinkRule<C>, TestPulseRule<C> {
   /// A policy that allows everything – the default.
   ///
   /// Use this when you have no restrictions. It's a singleton, so no memory
@@ -104,11 +104,13 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   final _record;
 
   Iterable<TestRule<C>> get _rules {
-    return get<Iterable<TestRule<C>>>(() => _record.rules, orElse: const Iterable.empty());
+    return get<Iterable<TestRule<C>>>(() => _record.rules,
+        orElse: const Iterable.empty());
   }
 
   /// The next rule in the validation chain, evaluated if this rule passes.
-  TestCell<C>? get _parent => get<TestCell<C>?>(() => _record.parent, orElse: null);
+  TestCell<C>? get _parent =>
+      get<TestCell<C>?>(() => _record.parent, orElse: null);
 
   /// Creates an [TestCell] with a single validation rule.
   ///
@@ -139,15 +141,19 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   /// - [rule]: The validation logic. Must be a function taking `(object, {host, arguments, user})` and returning `FutureOr<bool>`.
   /// - [parent]: An optional [TestCell] to chain after this rule.
   /// - [user]: Optional metadata for auditing or context.
-  const TestCell(FutureOr<bool> Function(
-      dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestCell<C>? parent, dynamic user})
+  const TestCell(
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})
+          rule,
+      {TestCell<C>? parent,
+      dynamic user})
       : this.fromRecord(parent != null
-      ? user != null
-          ? (rule: rule, parent: parent, user: user)
-          : (rule: rule, parent: parent)
-      : user != null
-          ? (rule: rule, user: user)
-          : (rule: rule));
+            ? user != null
+                ? (rule: rule, parent: parent, user: user)
+                : (rule: rule, parent: parent)
+            : user != null
+                ? (rule: rule, user: user)
+                : (rule: rule));
 
   /// Synthesizes a **Composite Validation Pipeline** by aggregating multiple
   /// specialized rules into a single, unified **Integrity Gate**.
@@ -207,13 +213,21 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   /// - [strategy]: An optional override function that takes full control of
   ///   the validation logic; if provided, the default sequential evaluation
   ///   is bypassed.
-  const TestCell.chain(Iterable<TestRule<C>> rules, {TestCell<C>? parent, dynamic user,
-    FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy})
-      : this.fromRecord(strategy != null ? parent != null
-      ? user != null ? (rules: rules, rule: strategy, parent: parent, user: user) : (rules: rules, rule: strategy, parent: parent)
-      : user != null ? (rules: rules, rule: strategy, user: user) : (rules: rules, rule: strategy)
-      : (rules: rules)
-  );
+  const TestCell.chain(Iterable<TestRule<C>> rules,
+      {TestCell<C>? parent,
+      dynamic user,
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})?
+          strategy})
+      : this.fromRecord(strategy != null
+            ? parent != null
+                ? user != null
+                    ? (rules: rules, rule: strategy, parent: parent, user: user)
+                    : (rules: rules, rule: strategy, parent: parent)
+                : user != null
+                    ? (rules: rules, rule: strategy, user: user)
+                    : (rules: rules, rule: strategy)
+            : (rules: rules));
 
   /// Creates a [TestCell] instance directly from a raw [Record] blueprint.
   ///
@@ -234,7 +248,9 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   /// - The record's shape is internal; don't rely on it.
   /// - This constructor is used by the `+` operator and by deputies
   ///   to efficiently compose rules.
-  const TestCell.fromRecord(super.record) : _record = record, super.fromRecord();
+  const TestCell.fromRecord(super.record)
+      : _record = record,
+        super.fromRecord();
 
   /// The primary entry point for the **Integrity Gate**, executing the
   /// validation pipeline for a specific [object] or state mutation.
@@ -307,7 +323,6 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   /// ```
   ///
 
-
   /// Validates the execution of a functional [action] and its associated [arguments]
   /// on the [host] cell, supporting **Hybrid Convergence** (Sync/Async).
   ///
@@ -362,12 +377,15 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   /// ### Returns:
   /// `true` if the action is authorized; `false` otherwise.
   @override
-  FutureOr<bool> action(Function action, {required C host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required C host, Arguments? arguments}) {
     // Phase A: Argument Integrity
     if (arguments != null) {
       final elements = [
-        if (arguments.positionalArguments != null) ...arguments.positionalArguments!,
-        if (arguments.namedArguments != null) ...arguments.namedArguments!.values
+        if (arguments.positionalArguments != null)
+          ...arguments.positionalArguments!,
+        if (arguments.namedArguments != null)
+          ...arguments.namedArguments!.values
       ];
 
       final argResult = _checkArguments(elements, 0, host, action);
@@ -388,7 +406,8 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   }
 
   /// Internal recursive evaluator for argument integrity that handles FutureOr branching.
-  FutureOr<bool> _checkArguments(List elements, int index, C host, Function action) {
+  FutureOr<bool> _checkArguments(
+      List elements, int index, C host, Function action) {
     for (var i = index; i < elements.length; i++) {
       final result = call(elements[i], host: host, arguments: action);
 
@@ -405,12 +424,14 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   }
 
   /// Internal evaluator for TestActionRules that handles FutureOr branching and parent delegation.
-  FutureOr<bool> _checkActionRules(Function action, C host, Arguments? arguments) {
+  FutureOr<bool> _checkActionRules(
+      Function action, C host, Arguments? arguments) {
     final rules = _rules.whereType<TestActionRule<C>>().toList();
 
     FutureOr<bool> runRules(int index) {
       for (var i = index; i < rules.length; i++) {
-        final result = rules[i].action(action, host: host, arguments: arguments);
+        final result =
+            rules[i].action(action, host: host, arguments: arguments);
 
         if (result is Future<bool>) {
           return result.then((passed) {
@@ -640,7 +661,6 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
   TestCell<C> operator +(covariant TestRule<C> other) {
     return TestCell<C>.chain([this, other]);
   }
-
 }
 
 /// A rule that validates incoming [Pulse] signals before they reach a cell.
@@ -675,7 +695,6 @@ class TestCell<C extends Cell> extends TestRule<C> implements TestActionRule<C>,
 ///
 /// {@category Testing & Validation}
 class TestPulseRule<C extends Cell> extends TestRule<C> {
-
   /// Creates a pulse validation rule.
   ///
   /// The [rule] function is called for every incoming pulse. Return `true`
@@ -740,10 +759,15 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
   /// - [rule]: The validation logic.
   /// - [parent]: An optional parent rule to chain after this one.
   /// - [user]: Optional metadata.
-  TestPulseRule(bool Function(Pulse pulse, {required C host, dynamic user}) rule, {TestPulseRule<C>? super.parent, dynamic user})
+  TestPulseRule(
+      bool Function(Pulse pulse, {required C host, dynamic user}) rule,
+      {TestPulseRule<C>? super.parent,
+      dynamic user})
       : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-    return host != null && object is Pulse ? rule(object, host: host, user: user) : true;
-  });
+          return host != null && object is Pulse
+              ? rule(object, host: host, user: user)
+              : true;
+        });
 
   /// Executes the pulse validation logic for a specific reactive [pulse]
   /// targeting the [host] cell, supporting **Hybrid Convergence**.
@@ -779,7 +803,6 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
   FutureOr<bool> pulse(covariant Pulse pulse, {required C host}) {
     return call(pulse, host: host);
   }
-
 }
 
 /// A specialized behavioral guard for validating **Topological Synapses** and
@@ -864,7 +887,6 @@ class TestPulseRule<C extends Cell> extends TestRule<C> {
 ///
 /// {@category Testing & Validation}
 class TestLinkRule<C extends Cell> extends TestRule<C> {
-
   /// Synthesizes a specialized [TestLinkRule] instance for auditing
   /// **Topological Synapses** and graph formation.
   ///
@@ -897,10 +919,13 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
   /// - [rule]: The core validation logic.
   /// - [parent]: An optional [TestLinkRule] for policy inheritance.
   /// - [user]: Optional metadata.
-  TestLinkRule(bool Function(Cell link, {required C host, dynamic user}) rule, {TestLinkRule<C>? super.parent, dynamic user})
+  TestLinkRule(bool Function(Cell link, {required C host, dynamic user}) rule,
+      {TestLinkRule<C>? super.parent, dynamic user})
       : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-    return host != null && object is Cell ? rule(object, host: host, user: user) : true;
-  });
+          return host != null && object is Cell
+              ? rule(object, host: host, user: user)
+              : true;
+        });
 
   /// Executes the topological validation logic for a candidate [link] attempting
   /// to connect to the [host] cell, supporting **Hybrid Convergence**.
@@ -932,7 +957,6 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
   FutureOr<bool> link(covariant Cell link, {required C host}) {
     return call(link, host: host);
   }
-
 }
 
 /// A specialized behavioral guard for validating imperative logic and
@@ -1011,7 +1035,6 @@ class TestLinkRule<C extends Cell> extends TestRule<C> {
 ///
 /// {@category Testing & Validation}
 class TestActionRule<C extends Cell> extends TestRule<C> {
-
   /// Synthesizes a specialized [TestActionRule] instance for auditing
   /// **Imperative Logic** and functional executions.
   ///
@@ -1044,11 +1067,20 @@ class TestActionRule<C extends Cell> extends TestRule<C> {
   /// - [rule]: The core validation logic.
   /// - [parent]: An optional [TestActionRule] for policy inheritance.
   /// - [user]: Optional metadata.
-  TestActionRule(bool Function(Function action, {required C host, Arguments? arguments, dynamic user}) rule, {super.parent, dynamic user})
+  TestActionRule(
+      bool Function(Function action,
+              {required C host, Arguments? arguments, dynamic user})
+          rule,
+      {super.parent,
+      dynamic user})
       : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-    return host != null && object is Function
-        ? rule(object as Function, host: host, arguments: arguments is Arguments ? arguments : null, user: user) : true;
-  });
+          return host != null && object is Function
+              ? rule(object as Function,
+                  host: host,
+                  arguments: arguments is Arguments ? arguments : null,
+                  user: user)
+              : true;
+        });
 
   /// Validates the execution of a functional [action] and its associated
   /// [arguments] on the [host] cell, supporting **Hybrid Convergence**.
@@ -1079,9 +1111,8 @@ class TestActionRule<C extends Cell> extends TestRule<C> {
   ///
   /// ### Returns:
   /// `true` if the action is authorized; `false` otherwise.
-  FutureOr<bool> action(Function action, {required C host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required C host, Arguments? arguments}) {
     return call(action, host: host, arguments: arguments);
   }
-
 }
-

@@ -381,7 +381,7 @@ final class AuthAttempt {
   @override
   String toString() =>
       'AuthAttempt($authId, mid=$mid, $amountCents¢, mcc=$mcc, '
-          'vel=$velocity, ${presentment.name})';
+      'vel=$velocity, ${presentment.name})';
 }
 
 /// A single row in the append-only audit ledger.
@@ -682,9 +682,8 @@ class CardAuthHarness {
   /// `arguments` parameter carries the mutation action when the rule is
   /// invoked from the action path.
   static final TestTissue<LedgerEntry, TissueList<LedgerEntry>>
-  _ledgerAppendOnly =
-  TestTissue<LedgerEntry, TissueList<LedgerEntry>>(
-        (value, {host, arguments, user}) {
+      _ledgerAppendOnly = TestTissue<LedgerEntry, TissueList<LedgerEntry>>(
+    (value, {host, arguments, user}) {
       if (arguments is Function) {
         final src = arguments.toString();
         if (src.contains('remove') ||
@@ -699,8 +698,8 @@ class CardAuthHarness {
 
   /// Non-negative integer cents rule (used on `available` and `held`).
   static final TestTissue<int, TissueValue<int>> _nonNegativeCents =
-  TestTissue<int, TissueValue<int>>(
-        (value, {host, arguments, user}) {
+      TestTissue<int, TissueValue<int>>(
+    (value, {host, arguments, user}) {
       if (value is int) return value >= 0;
       return true;
     },
@@ -708,8 +707,8 @@ class CardAuthHarness {
 
   /// Hold rule: positive cents and non-empty auth id.
   static final TestTissue<Hold, TissueMap<String, Hold>> _holdRule =
-  TestTissue<Hold, TissueMap<String, Hold>>(
-        (value, {host, arguments, user}) {
+      TestTissue<Hold, TissueMap<String, Hold>>(
+    (value, {host, arguments, user}) {
       if (value is Hold) {
         return value.amountCents > 0 && value.authId.isNotEmpty;
       }
@@ -719,8 +718,8 @@ class CardAuthHarness {
 
   /// MCC blocklist member rule: exactly 4 digits.
   static final TestTissue<String, TissueSet<String>> _mccBlockRule =
-  TestTissue<String, TissueSet<String>>(
-        (value, {host, arguments, user}) {
+      TestTissue<String, TissueSet<String>>(
+    (value, {host, arguments, user}) {
       if (value is String) {
         return value.length == 4 && int.tryParse(value) != null;
       }
@@ -730,8 +729,8 @@ class CardAuthHarness {
 
   /// Issuer job rule — accepts every job.
   static final TestTissue<IssuerJob, TissueQueue<IssuerJob>> _issuerJobRule =
-  TestTissue<IssuerJob, TissueQueue<IssuerJob>>(
-        (value, {host, arguments, user}) => true,
+      TestTissue<IssuerJob, TissueQueue<IssuerJob>>(
+    (value, {host, arguments, user}) => true,
   );
 
   // ---------------------------------------------------------------------------
@@ -743,7 +742,7 @@ class CardAuthHarness {
   /// The ingress wraps the input in a [Pulse], so the rule unwraps
   /// `Pulse.payload` before applying the range check.
   static final TestCell<Cell> _amountShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! int) return false;
       return v >= 1 && v <= 250000;
@@ -755,7 +754,7 @@ class CardAuthHarness {
   /// The ingress wraps the input in a [Pulse], so the rule unwraps
   /// `Pulse.payload` before applying the shape check.
   static final TestCell<Cell> _mccShapeRule = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! String) return false;
       return v.length == 4 && int.tryParse(v) != null;
@@ -924,7 +923,7 @@ class CardAuthHarness {
     // --- DECLINE gate: MapValue → Distinct → Filter(decline) ---------------
     final declineFlow = MapValue<AuthAttempt, Decision>(
           (a) => riskOf(a, mccBlock),
-    ) +
+        ) +
         _distinctDecline() +
         Filter<Decision>((d) => d == Decision.decline);
 
@@ -934,7 +933,7 @@ class CardAuthHarness {
     // --- STEP-UP gate: MapValue → Distinct → Filter(stepUp) ----------------
     final stepUpFlow = MapValue<AuthAttempt, Decision>(
           (a) => riskOf(a, mccBlock),
-    ) +
+        ) +
         _distinctStepUp() +
         Filter<Decision>((d) => d == Decision.stepUp);
 
@@ -1058,8 +1057,7 @@ class CardAuthHarness {
       return Decision.decline;
     }
     if (a.velocity >= 5) return Decision.decline;
-    if (a.amountCents >= 50000 &&
-        a.presentment == Presentment.cardNotPresent) {
+    if (a.amountCents >= 50000 && a.presentment == Presentment.cardNotPresent) {
       return Decision.stepUp;
     }
     if (a.amountCents >= 100000) return Decision.stepUp;
@@ -1131,8 +1129,7 @@ class CardAuthHarness {
   static bool _amountValid(int v) => v >= 1 && v <= 250000;
 
   /// Static validator matching `_mccShapeRule`.
-  static bool _mccValid(String s) =>
-      s.length == 4 && int.tryParse(s) != null;
+  static bool _mccValid(String s) => s.length == 4 && int.tryParse(s) != null;
 
   /// Publishes an ACK onto the ACK ingress.
   Future<bool> ack(String who) async {
@@ -1286,10 +1283,12 @@ class CardAuthHarness {
 /// 3. Run scenarios 1–13 in order.
 /// 4. Print the trailer and dispose.
 Future<void> main() async {
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' card-auth-pipeline(tissue)-Demo.dart');
   print(' Flow owns the decision. Tissue owns the books.');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   final h = CardAuthHarness();
   await h.install();
@@ -1542,7 +1541,8 @@ Future<void> main() async {
   // storage.
   // -------------------------------------------------------------------------
   print('');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
   print('attempts=${h.attempts} declines=${h.declines} '
       'stepUps=${h.stepUps} ledger=${h.ledger.length} '
       'issuerAttempts=${h.issuerAttempts}');
@@ -1550,11 +1550,11 @@ Future<void> main() async {
       'openHolds=${h.openHoldsCount} captured=${h.capturedCents}');
   print('auditorLength=${auditor.length} (same as ledger)');
 
-  final invariant = (h.available.value ?? 0) +
-      (h.held.value ?? 0) +
-      h.capturedCents;
+  final invariant =
+      (h.available.value ?? 0) + (h.held.value ?? 0) + h.capturedCents;
   print('invariant available+held+captured = $invariant (expected 250000)');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
 
   h.dispose();
 }

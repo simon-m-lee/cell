@@ -420,7 +420,8 @@ void main() {
         final policy = EphemeralPolicy(
           eventLimit: 1,
           duration: Duration(milliseconds: 50),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 1),
           onInvalidate: (nucleus) => true,
         );
@@ -475,12 +476,14 @@ void main() {
 
       test('modifiable includes emit, ingest, link, and apply', () {
         final openCell = Cell.open();
-        expect(openCell.modifiable, containsAll([
-          openCell.emit,
-          openCell.ingest,
-          openCell.link,
-          openCell.apply,
-        ]));
+        expect(
+            openCell.modifiable,
+            containsAll([
+              openCell.emit,
+              openCell.ingest,
+              openCell.link,
+              openCell.apply,
+            ]));
       });
 
       test('emit awaits an async testRule', () async {
@@ -755,7 +758,8 @@ void main() {
             reason: 'Negative value not allowed',
           ),
         ]);
-        expect(exception.toString(), contains('TransactionValidationException'));
+        expect(
+            exception.toString(), contains('TransactionValidationException'));
         expect(exception.toString(), contains('Negative value not allowed'));
       });
 
@@ -771,7 +775,8 @@ void main() {
       });
 
       test('TxApplyException toString', () {
-        expect(TxApplyException('boom').toString(), contains('TxApplyException'));
+        expect(
+            TxApplyException('boom').toString(), contains('TxApplyException'));
         expect(TxApplyException('boom').toString(), contains('boom'));
       });
     });

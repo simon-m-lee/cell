@@ -205,12 +205,12 @@ void main() {
 
     test('fromJson throws when endpoint is missing', () {
       expect(
-            () => AiConfig.fromJson({
+        () => AiConfig.fromJson({
           'apiKey': 'sk-x',
           'model': 'm',
         }),
         throwsA(isA<FormatException>().having(
-              (e) => e.message,
+          (e) => e.message,
           'message',
           contains('"endpoint" is required'),
         )),
@@ -219,12 +219,12 @@ void main() {
 
     test('fromJson throws when apiKey is missing', () {
       expect(
-            () => AiConfig.fromJson({
+        () => AiConfig.fromJson({
           'endpoint': 'https://example.com',
           'model': 'm',
         }),
         throwsA(isA<FormatException>().having(
-              (e) => e.message,
+          (e) => e.message,
           'message',
           contains('"apiKey" is required'),
         )),
@@ -233,12 +233,12 @@ void main() {
 
     test('fromJson throws when model is missing', () {
       expect(
-            () => AiConfig.fromJson({
+        () => AiConfig.fromJson({
           'endpoint': 'https://example.com',
           'apiKey': 'sk-x',
         }),
         throwsA(isA<FormatException>().having(
-              (e) => e.message,
+          (e) => e.message,
           'message',
           contains('"model" is required'),
         )),
@@ -414,19 +414,18 @@ void main() {
       expect(reply.reject!.reason, equals('no-permitted-verb'));
     });
 
-    test('empty text produces a Reject with reason empty-command',
-            () async {
-          final reply = await stub.complete(
-            text: '',
-            verbs: {'add'},
-          );
-          expect(reply.reject!.reason, equals('empty-command'));
-        });
+    test('empty text produces a Reject with reason empty-command', () async {
+      final reply = await stub.complete(
+        text: '',
+        verbs: {'add'},
+      );
+      expect(reply.reject!.reason, equals('empty-command'));
+    });
 
     test('injectTimeoutOnce throws on the next call', () async {
       stub.injectTimeoutOnce();
       expect(
-            () => stub.complete(text: 'add 1', verbs: {'add'}),
+        () => stub.complete(text: 'add 1', verbs: {'add'}),
         throwsA(isA<TimeoutException>()),
       );
     });
@@ -434,7 +433,7 @@ void main() {
     test('injectTimeoutOnce fires exactly once', () async {
       stub.injectTimeoutOnce();
       await expectLater(
-            () => stub.complete(text: 'add 1', verbs: {'add'}),
+        () => stub.complete(text: 'add 1', verbs: {'add'}),
         throwsA(isA<TimeoutException>()),
       );
       final reply = await stub.complete(
@@ -519,63 +518,60 @@ void main() {
 
       expect(results, hasLength(1));
       expect(results.first, isA<Reject>());
-      expect((results.first as Reject).reason,
-          equals('no-permitted-verb'));
+      expect((results.first as Reject).reason, equals('no-permitted-verb'));
 
       obs.stop();
     });
 
-    test('latest-wins: a second sentence supersedes the first',
-            () async {
-          final router = _RoutingInterpreter([
-                (text) async {
-              await Future<void>.delayed(const Duration(milliseconds: 40));
-              return (
-              command: TissueCommand(
-                verb: TissueVerb.add,
-                args: [1],
-                confidence: 0.9,
-                source: text,
-              ),
-              reject: null,
-              );
-            },
-                (text) async {
-              return (
-              command: TissueCommand(
-                verb: TissueVerb.add,
-                args: [9],
-                confidence: 0.9,
-                source: text,
-              ),
-              reject: null,
-              );
-            },
-          ]);
-
-          final handle = AiTissueCommand<String>(
-            interpreter: router,
-            verbs: {'add'},
-          ).toHandle(source: commandIn.cell);
-
-          final results = <Object?>[];
-          final obs = Cell.observe(
-            source: handle.cell,
-            effect: (Pulse p) => results.add(p.payload),
+    test('latest-wins: a second sentence supersedes the first', () async {
+      final router = _RoutingInterpreter([
+        (text) async {
+          await Future<void>.delayed(const Duration(milliseconds: 40));
+          return (
+            command: TissueCommand(
+              verb: TissueVerb.add,
+              args: [1],
+              confidence: 0.9,
+              source: text,
+            ),
+            reject: null,
           );
+        },
+        (text) async {
+          return (
+            command: TissueCommand(
+              verb: TissueVerb.add,
+              args: [9],
+              confidence: 0.9,
+              source: text,
+            ),
+            reject: null,
+          );
+        },
+      ]);
 
-          commandIn.emit('add 1');
-          await Future<void>.delayed(const Duration(milliseconds: 5));
-          commandIn.emit('add 9');
-          await Future<void>.delayed(const Duration(milliseconds: 80));
+      final handle = AiTissueCommand<String>(
+        interpreter: router,
+        verbs: {'add'},
+      ).toHandle(source: commandIn.cell);
 
-          expect(results, hasLength(1));
-          final cmd = results.first as TissueCommand;
-          expect(cmd.args, equals([9]),
-              reason: 'the second sentence must win');
+      final results = <Object?>[];
+      final obs = Cell.observe(
+        source: handle.cell,
+        effect: (Pulse p) => results.add(p.payload),
+      );
 
-          obs.stop();
-        });
+      commandIn.emit('add 1');
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      commandIn.emit('add 9');
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+
+      expect(results, hasLength(1));
+      final cmd = results.first as TissueCommand;
+      expect(cmd.args, equals([9]), reason: 'the second sentence must win');
+
+      obs.stop();
+    });
 
     test('injectTimeoutOnce is proxied to the interpreter', () async {
       final handle = AiTissueCommand<String>(
@@ -648,41 +644,40 @@ void main() {
       obs.stop();
     });
 
-    test('mixed batch with a timeout emits a Reject for the failure',
-            () async {
-          final flaky = StubInterpreter(
-            latency: Duration.zero,
-            log: TrafficLog(silent: true),
-          );
-          flaky.injectTimeoutOnce();
+    test('mixed batch with a timeout emits a Reject for the failure', () async {
+      final flaky = StubInterpreter(
+        latency: Duration.zero,
+        log: TrafficLog(silent: true),
+      );
+      flaky.injectTimeoutOnce();
 
-          final batchIn = Cell.ingress<List<String>>();
-          final handle = AiTissueCommandBatch<String>(
-            interpreter: flaky,
-            verbs: {'add'},
-            onError: (_, __) {},
-          ).toHandle(source: batchIn.cell);
+      final batchIn = Cell.ingress<List<String>>();
+      final handle = AiTissueCommandBatch<String>(
+        interpreter: flaky,
+        verbs: {'add'},
+        onError: (_, __) {},
+      ).toHandle(source: batchIn.cell);
 
-          final results = <Object?>[];
-          final obs = Cell.observe(
-            source: handle.cell,
-            effect: (Pulse p) => results.add(p.payload),
-          );
+      final results = <Object?>[];
+      final obs = Cell.observe(
+        source: handle.cell,
+        effect: (Pulse p) => results.add(p.payload),
+      );
 
-          batchIn.emit(['add 7', 'add 8', 'add 9']);
-          await Future<void>.delayed(const Duration(milliseconds: 40));
+      batchIn.emit(['add 7', 'add 8', 'add 9']);
+      await Future<void>.delayed(const Duration(milliseconds: 40));
 
-          final list = results.first as List<Object>;
-          expect(list, hasLength(3));
-          expect(list[0], isA<Reject>());
-          expect((list[0] as Reject).reason, equals('interpreter-error'));
-          expect(list[1], isA<TissueCommand>());
-          expect((list[1] as TissueCommand).args, equals([8]));
-          expect(list[2], isA<TissueCommand>());
-          expect((list[2] as TissueCommand).args, equals([9]));
+      final list = results.first as List<Object>;
+      expect(list, hasLength(3));
+      expect(list[0], isA<Reject>());
+      expect((list[0] as Reject).reason, equals('interpreter-error'));
+      expect(list[1], isA<TissueCommand>());
+      expect((list[1] as TissueCommand).args, equals([8]));
+      expect(list[2], isA<TissueCommand>());
+      expect((list[2] as TissueCommand).args, equals([9]));
 
-          obs.stop();
-        });
+      obs.stop();
+    });
 
     test('empty batch emits an empty list', () async {
       final batchIn = Cell.ingress<List<String>>();
@@ -938,7 +933,7 @@ void main() {
       tags = TissueSet<int>(
         const <int>[],
         testRule: TestTissue<int, TissueSet<int>>(
-              (value, {host, arguments, user}) {
+          (value, {host, arguments, user}) {
             if (value is int) return value >= 0;
             return true;
           },

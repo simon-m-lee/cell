@@ -76,7 +76,6 @@ part of '../cell_tissue.dart';
 /// - [TissueReceptor] – the engine that processes mutation signals.
 /// - [TestTissue] – the validation logic for the value.
 abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
-
   /// Creates a standard, memory‑optimised implementation of [TissueValueNucleus].
   ///
   /// This factory serves as the primary entry point for configuring the identity,
@@ -116,16 +115,15 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A concrete [TissueValueNucleus<V>] instance strictly configured
   /// according to the provided reactive blueprint.
-  factory TissueValueNucleus({
-    Cell? bind,
-    Context context,
-    TissueReceptor<V,TissueValue<V>> receptor,
-    TestTissue<V,TissueValue<V>> testRule,
-    Synapses synapses,
-    bool finalValue,
-    EphemeralPolicy? ephemeralPolicy,
-    Record? user
-  }) = _TissueValueNucleus<V,TissueValue<V>>;
+  factory TissueValueNucleus(
+      {Cell? bind,
+      Context context,
+      TissueReceptor<V, TissueValue<V>> receptor,
+      TestTissue<V, TissueValue<V>> testRule,
+      Synapses synapses,
+      bool finalValue,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user}) = _TissueValueNucleus<V, TissueValue<V>>;
 
   /// Creates a specialised extension of [TissueValueNucleus] to support
   /// hierarchical property inheritance and the **Deputy Pattern** for reactive values.
@@ -183,18 +181,16 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A new [TissueValueNucleus<V>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueValueNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V, TissueValue<V>>? receptor,
-    TestTissue<V, TissueValue<V>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueValueNucleus<V>? override,
-    required TissueValueNucleus<V> principal
-  }) = _TissueValueNucleus<V,TissueValue<V>>.evolve;
+  factory TissueValueNucleus.evolve(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<V, TissueValue<V>>? receptor,
+          TestTissue<V, TissueValue<V>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueValueNucleus<V>? override,
+          required TissueValueNucleus<V> principal}) =
+      _TissueValueNucleus<V, TissueValue<V>>.evolve;
 
   /// A highly configurable static utility factory for creating specialised,
   /// type‑safe property configurations for [TissueValue] types.
@@ -239,32 +235,34 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified value and
   /// tissue types.
-  static TissueValueNucleusBase<V,C> create<V,C extends TissueValue<V>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueValueNucleusBase<V,C>? principal
-  }) {
-
+  static TissueValueNucleusBase<V, C> create<V, C extends TissueValue<V>>(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueValueNucleusBase<V, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<V,ValueContainer<V>,C>(
+      final local = TissueNucleusBase.local<V, ValueContainer<V>, C>(
         container: container,
-        bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+        user: user,
         ephemeralPolicy: ephemeralPolicy,
       );
-      return _TissueValueNucleus<V,C>.fromRecord(
-          (local: local, principal: principal)
-      );
+      return _TissueValueNucleus<V, C>.fromRecord(
+          (local: local, principal: principal));
     }
 
-    return _TissueValueNucleus<V,C>(
+    return _TissueValueNucleus<V, C>(
         bind: bind,
         context: context ?? Context.system,
         receptor: receptor ?? TissueReceptor.passThrough,
@@ -273,9 +271,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
         finalValue: container == Container.finalValue,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
-        forceLock: forceLock
-    );
-
+        forceLock: forceLock);
   }
 
   /// Creates an independent, decoupled clone of the current [TissueValueNucleus]
@@ -334,7 +330,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
   ///   assignment ([Container.finalValue] rejects subsequent writes).
   @override
   Container get containerType;
-
 }
 
 /// A specialised, terminal architectural interface for a **Governed Reactive
@@ -437,7 +432,6 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - [UnmodifiableTissueValue] – a read‑only deputy variant.
 /// - [ElementUpdated] – the event emitted on value changes.
 abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
-
   /// Provides access to the configuration properties of this `TissueValue`.
   ///
   /// Implementations of `TissueValue` are required to expose their configuration
@@ -488,14 +482,15 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// ```dart
   /// final counter = TissueValue<int>(0);
   /// ```
-  factory TissueValue(V? value, {
+  factory TissueValue(
+    V? value, {
     Cell? bind,
     Context context,
-    TestTissue<V,TissueValue<V>> testRule,
-    TissueReceptor<V,TissueValue<V>> receptor,
+    TestTissue<V, TissueValue<V>> testRule,
+    TissueReceptor<V, TissueValue<V>> receptor,
     Synapses synapses,
     bool finalValue,
-  }) = _TissueValue<V,TissueValue<V>>;
+  }) = _TissueValue<V, TissueValue<V>>;
 
   /// Architectural factory for instantiating an empty, reactive [TissueValue]
   /// governed by the **Conactive Model**.
@@ -527,10 +522,10 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   factory TissueValue.empty({
     Cell? bind,
     Context context,
-    TestTissue<V,TissueValue<V>> testRule,
-    TissueReceptor<V,TissueValue<V>> receptor,
+    TestTissue<V, TissueValue<V>> testRule,
+    TissueReceptor<V, TissueValue<V>> receptor,
     Synapses synapses,
-  }) = _TissueValue<V,TissueValue<V>>.empty;
+  }) = _TissueValue<V, TissueValue<V>>.empty;
 
   /// Primary architectural factory for materialising a [TissueValue] from
   /// an existing [TissueValueNucleus] (the "Reactive DNA").
@@ -567,8 +562,8 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   ///
   /// ### Returns:
   /// A concrete [TissueValue<V>] instance.
-  factory TissueValue.fromNucleus(TissueValueNucleus<V> nucleus, {V? value})
-  = _TissueValue<V,TissueValue<V>>.fromNucleus;
+  factory TissueValue.fromNucleus(TissueValueNucleus<V> nucleus, {V? value}) =
+      _TissueValue<V, TissueValue<V>>.fromNucleus;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueValue].
@@ -599,8 +594,8 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// // readOnly.value = 100; // blocked
   /// source.value = 100; // readOnly reflects the change
   /// ```
-  factory TissueValue.unmodifiable(TissueValue<V> bind)
-  = _UnmodifiableTissueValue<V,TissueValue<V>>.view;
+  factory TissueValue.unmodifiable(TissueValue<V> bind) =
+      _UnmodifiableTissueValue<V, TissueValue<V>>.view;
 
   /// A high‑level architectural factory for creating a specialised, type‑safe
   /// reactive value with explicit control over its behavioural and structural blueprint.
@@ -649,21 +644,18 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   ///   testRule: TestTissue<int>((v) => v > 0),
   /// );
   /// ```
-  static TissueValueBase<V,C> create<V,C extends TissueValue<V>>({
-    V? value,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueValueNucleusBase<V,C>? principal
-  }) {
-    final properties = TissueValueNucleus.create<V,C>(
+  static TissueValueBase<V, C> create<V, C extends TissueValue<V>>(
+      {V? value,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      forceLock = false,
+      TissueValueNucleusBase<V, C>? principal}) {
+    final properties = TissueValueNucleus.create<V, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -672,10 +664,8 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _TissueValue<V,C>.fromNucleus(properties, value: value);
-
+        principal: principal);
+    return _TissueValue<V, C>.fromNucleus(properties, value: value);
   }
 
   /// Creates a "Deputy" projection of this value—a specialised proxy that
@@ -879,7 +869,6 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
 
   /// Comparison operators for numeric values
   bool operator <(Object other);
-
 }
 
 /// A specialised, terminal architectural interface for a **Deeply Immodifiable
@@ -948,8 +937,8 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
 /// - [TissueValue] – the mutable counterpart.
 /// - [UnmodifiableTissue] – the general contract for read‑only tissues.
 /// - [Unmodifiable] – the marker interface for all read‑only proxies.
-abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, UnmodifiableTissue<V> {
-
+abstract interface class UnmodifiableTissueValue<V>
+    implements TissueValue<V>, UnmodifiableTissue<V> {
   /// The primary architectural factory for instantiating an [UnmodifiableTissueValue],
   /// materializing a read‑only, reactive state node from an initial [value].
   ///
@@ -985,8 +974,9 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// ```dart
   /// final fixed = UnmodifiableTissueValue<String>('production');
   /// ```
-  factory UnmodifiableTissueValue(V value, {bool unmodifiableElement, TissueValueNucleus<V>? properties})
-  = _UnmodifiableTissueValue<V,TissueValue<V>>;
+  factory UnmodifiableTissueValue(V value,
+          {bool unmodifiableElement, TissueValueNucleus<V>? properties}) =
+      _UnmodifiableTissueValue<V, TissueValue<V>>;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueValue].
@@ -1018,8 +1008,9 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// final source = TissueValue<int>(42);
   /// final readOnly = UnmodifiableTissueValue.view(source);
   /// ```
-  factory UnmodifiableTissueValue.view(TissueValue<V> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueValue<V,TissueValue<V>>.view;
+  factory UnmodifiableTissueValue.view(TissueValue<V> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueValue<V, TissueValue<V>>.view;
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueValue] directly from a pre‑constructed
@@ -1057,8 +1048,9 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// );
   /// final readOnlyValue = UnmodifiableTissueValue.fromNucleus(readOnlyNucleus);
   /// ```
-  factory UnmodifiableTissueValue.fromNucleus(TissueValueNucleus<V> properties, {bool unmodifiableElement, V? value})
-  = _UnmodifiableTissueValue<V,TissueValue<V>>.fromNucleus;
+  factory UnmodifiableTissueValue.fromNucleus(TissueValueNucleus<V> properties,
+      {bool unmodifiableElement,
+      V? value}) = _UnmodifiableTissueValue<V, TissueValue<V>>.fromNucleus;
 
   /// An advanced architectural factory for creating a specialised, type‑safe
   /// [UnmodifiableTissueValue] with granular control over its behavioural
@@ -1107,37 +1099,32 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  static UnmodifiableTissueValueBase<V,C> create<V,C extends TissueValue<V>>({
+  static UnmodifiableTissueValueBase<V, C> create<V, C extends TissueValue<V>>({
     V? value,
     bool unmodifiableElement = true,
-
     Cell? bind,
     Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
+    TissueReceptor<V, C>? receptor,
+    TestTissue<V, C>? testRule,
     Synapses? synapses,
-
     Container? container,
     Record? user,
     forceLock = false,
-    TissueValueNucleusBase<V,C>? principal,
+    TissueValueNucleusBase<V, C>? principal,
   }) {
-    return _UnmodifiableTissueValue<V,C>.fromNucleus(
-        TissueValueNucleus.create<V,C>(
+    return _UnmodifiableTissueValue<V, C>.fromNucleus(
+        TissueValueNucleus.create<V, C>(
             bind: bind,
             context: context,
             testRule: testRule,
             receptor: receptor,
             synapses: synapses,
-
             container: container,
             user: user,
             forceLock: forceLock,
-            principal: principal
-        ),
+            principal: principal),
         unmodifiableElement: unmodifiableElement,
-        value: value
-    );
+        value: value);
   }
 
   /// Provides a high‑fidelity asynchronous handle for interacting with this
@@ -1162,5 +1149,4 @@ abstract interface class UnmodifiableTissueValue<V> implements TissueValue<V>, U
   /// read‑only, asynchronous view of the reactive state.
   @override
   ValueCellAsync<V> get async;
-
 }

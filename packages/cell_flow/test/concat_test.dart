@@ -204,7 +204,6 @@ void main() {
     });
   });
 
-
   group('Concat extra', () {
     test('empty inners are silent', () async {
       final b = bind(Concat<int>(const []));

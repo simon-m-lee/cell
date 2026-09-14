@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.5)] - Release Candidate
+
+Pub.dev score remediation release. No public API changes.
+
+### Fixed
+
+- **Dependency alignment**: Tightened the `cell` constraint to `^1.0.0-rc.5`.
+- **License detection**: Replaced the custom dual-license notice with the canonical MIT and Apache-2.0 texts so pub.dev recognizes the OSI-approved license.
+- **Example detection**: Added `example/cell_flow_example.dart` — a runnable quick start matching pub.dev's example file conventions.
+
 ## [Mitosis (1.0.0-rc.4)] - Release Candidate
 
 This release introduces the **AI Command Infrastructure**, establishing a forensic gateway for AI-orchestrated state mutations. It aligns the orchestration topography with machine-driven logic while maintaining strict administrative oversight and causal integrity.
@@ -77,7 +87,7 @@ Patch focused on topographical integrity, path hygiene, and guidance expansion.
 
 ### Added
 
-- **Pedagogical Guidance**: Materialized the [`HowTo-Start.md`](HowTo-Start.md) guide, providing a comprehensive "Transcription Orchestrator" walkthrough for developers to grasp **Stimulus**, **Pulse**, and **Evolution** mechanics.
+- **Pedagogical Guidance**: Materialized the [`HowTo-Start.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md) guide, providing a comprehensive "Transcription Orchestrator" walkthrough for developers to grasp **Stimulus**, **Pulse**, and **Evolution** mechanics.
 - **Blueprint Templates**: Expanded the `README.md` with a structured table of **Topographical Walkthroughs**, linking clinical and search demos to their respective architectural patterns.
 
 ### Tests
@@ -105,7 +115,7 @@ topographical terminology alignment, and library hygiene.
 
 ### Added
 
-- **Quick Start Guide**: Introduced [`HowTo-Start.md`](HowTo-Start.md), providing a comprehensive entry point for developers to grasp the **Mitosis** mental model.
+- **Quick Start Guide**: Introduced [`HowTo-Start.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md), providing a comprehensive entry point for developers to grasp the **Mitosis** mental model.
 - **Topographical Walkthroughs**: Formally linked clinical and reactive search demos in the `README.md` and `dartdoc_options.yaml` as **Blueprint Templates**.
 - `fluent_operator_test.dart`: Exhaustive test coverage for `CellFlowOperators` and `FlowOperators` ensuring chains correctly anchor to the `IngressHandle.cell`.
 - **Topographical Auditing Tools**: Enhanced PowerShell-native auditing scripts for identifying files missing provenance metadata (Copyright headers).

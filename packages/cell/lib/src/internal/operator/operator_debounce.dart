@@ -19,15 +19,15 @@ part of '../../../cell.dart';
 /// * Clearer than [PropagationStrategy.debounced] when you want an explicit
 ///   node in the graph.
 Cell _debounce(
-    Cell source,
-    Duration duration, {
-      bool leading = false,
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Cell source,
+  Duration duration, {
+  bool leading = false,
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   if (duration < Duration.zero) {
     throw ArgumentError.value(duration, 'duration', 'must be >= 0');
   }
@@ -37,9 +37,7 @@ Cell _debounce(
   final outputCell = Cell.governed(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
-    receptor: ephemeralPolicy != null
-        ? _Receptor()
-        : Receptor.passThrough,
+    receptor: ephemeralPolicy != null ? _Receptor() : Receptor.passThrough,
     testRule: testRule,
     synapses: synapses,
     forceLock: forceLock,
@@ -62,7 +60,7 @@ Cell _debounce(
     testRule: TestCell.allowAll,
     synapses: Synapses.disabled,
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         if (outputCell.isInvalidated) {
           state.cancel();
           return null;

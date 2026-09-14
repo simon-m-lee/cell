@@ -78,7 +78,8 @@ Future<void> main() async {
     },
   );
 
-  profile.update({'name': 'ada lovelace', 'email': 'ada@example.com', 'age': 36});
+  profile
+      .update({'name': 'ada lovelace', 'email': 'ada@example.com', 'age': 36});
   await Future.delayed(const Duration(milliseconds: 30));
 
   // -------------------------------------------------------------------------
@@ -120,7 +121,8 @@ Future<void> main() async {
     },
   );
 
-  profile.update({'name': 'Grace Hopper', 'email': 'grace@navy.mil', 'age': 85});
+  profile
+      .update({'name': 'Grace Hopper', 'email': 'grace@navy.mil', 'age': 85});
   await Future.delayed(const Duration(milliseconds: 40));
 
   // -------------------------------------------------------------------------

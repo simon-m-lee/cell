@@ -72,7 +72,6 @@ part of '../cell_tissue.dart';
 /// - [TissueReceptor] – the engine that processes mutation signals.
 /// - [TestTissue] – the validation logic for collection elements.
 abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
-
   /// The primary architectural factory for instantiating a [TissueSetNucleus],
   /// defining the "DNA" and governance protocols for a reactive set.
   ///
@@ -113,16 +112,15 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A concrete [TissueSetNucleus<E>] instance strictly configured
   /// according to the provided reactive blueprint.
-  factory TissueSetNucleus({
-    Cell? bind,
-    Context context,
-    TissueReceptor<E,TissueSet<E>> receptor,
-    TestTissue<E,TissueSet<E>> testRule,
-    Synapses synapses,
-    bool identitySet,
-    EphemeralPolicy? ephemeralPolicy,
-    Record? user
-  }) = _TissueSetNucleus<E,TissueSet<E>>;
+  factory TissueSetNucleus(
+      {Cell? bind,
+      Context context,
+      TissueReceptor<E, TissueSet<E>> receptor,
+      TestTissue<E, TissueSet<E>> testRule,
+      Synapses synapses,
+      bool identitySet,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user}) = _TissueSetNucleus<E, TissueSet<E>>;
 
   /// Creates a derived [TissueSetNucleus] by mutating or extending
   /// an existing [principal] configuration.
@@ -180,18 +178,16 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A new [TissueSetNucleus<E>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueSetNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,TissueSet<E>>? receptor,
-    TestTissue<E,TissueSet<E>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueSetNucleus<E>? override,
-    required TissueSetNucleus<E> principal
-  }) = _TissueSetNucleus<E,TissueSet<E>>.evolve;
+  factory TissueSetNucleus.evolve(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<E, TissueSet<E>>? receptor,
+          TestTissue<E, TissueSet<E>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueSetNucleus<E>? override,
+          required TissueSetNucleus<E> principal}) =
+      _TissueSetNucleus<E, TissueSet<E>>.evolve;
 
   /// A static utility factory that produces a type‑safe nucleus configuration
   /// for a specific element type [E] and a specialised [TissueSet] interface [C].
@@ -235,32 +231,34 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified element and
   /// tissue types.
-  static TissueSetNucleusBase<E,C> create<E,C extends TissueSet<E>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueSetNucleusBase<E,C>? principal
-  }) {
-
+  static TissueSetNucleusBase<E, C> create<E, C extends TissueSet<E>>(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueSetNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E,Set<E>,C>(
+      final local = TissueNucleusBase.local<E, Set<E>, C>(
         container: container,
-        bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+        user: user,
         ephemeralPolicy: ephemeralPolicy,
       );
-      return _TissueSetNucleus<E,C>.fromRecord(
-          (local: local, principal: principal)
-      );
+      return _TissueSetNucleus<E, C>.fromRecord(
+          (local: local, principal: principal));
     }
 
-    return _TissueSetNucleus<E,C>(
+    return _TissueSetNucleus<E, C>(
         bind: bind,
         context: context ?? Context.system,
         receptor: receptor ?? TissueReceptor.passThrough,
@@ -269,9 +267,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
         identitySet: container == Container.identitySet,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
-        forceLock: forceLock
-    );
-
+        forceLock: forceLock);
   }
 
   /// Creates an independent, decoupled clone of the current [TissueSetNucleus]
@@ -331,7 +327,6 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
   ///   uses [identical]).
   @override
   Container get containerType;
-
 }
 
 /// A high‑performance, reactive implementation of a [Set] that integrates the standard
@@ -435,7 +430,6 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
 /// - [TissueSetNucleus] – the blueprint and configuration for the set.
 /// - [UnmodifiableTissueSet] – a read‑only deputy variant.
 abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
-
   /// Internal access to the specific property configuration for this set.
   @override
   TissueSetNucleus<E> get _nucleus;
@@ -477,14 +471,13 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// ```dart
   /// final set = TissueSet<int>([1, 2, 3]);
   /// ```
-  factory TissueSet(Iterable<E> elements, {
-    Cell? bind,
-    Context context,
-    TestTissue<E,TissueSet<E>> testRule,
-    TissueReceptor<E,TissueSet<E>> receptor,
-    Synapses synapses,
-    bool identitySet
-  }) = _TissueSet<E,TissueSet<E>>;
+  factory TissueSet(Iterable<E> elements,
+      {Cell? bind,
+      Context context,
+      TestTissue<E, TissueSet<E>> testRule,
+      TissueReceptor<E, TissueSet<E>> receptor,
+      Synapses synapses,
+      bool identitySet}) = _TissueSet<E, TissueSet<E>>;
 
   /// Architectural factory for instantiating an empty, reactive [TissueSet]
   /// governed by the **Conactive Model**.
@@ -513,14 +506,13 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// ```dart
   /// final emptySet = TissueSet.empty<int>();
   /// ```
-  factory TissueSet.empty({
-    Cell? bind,
-    Context context,
-    TestTissue<E,TissueSet<E>> testRule,
-    TissueReceptor<E,TissueSet<E>> receptor,
-    Synapses synapses,
-    bool identitySet
-  }) = _TissueSet<E,TissueSet<E>>.empty;
+  factory TissueSet.empty(
+      {Cell? bind,
+      Context context,
+      TestTissue<E, TissueSet<E>> testRule,
+      TissueReceptor<E, TissueSet<E>> receptor,
+      Synapses synapses,
+      bool identitySet}) = _TissueSet<E, TissueSet<E>>.empty;
 
   /// Factory constructor to create a new, pre‑populated [TissueSet] from an
   /// [Iterable] of elements.
@@ -548,11 +540,9 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// ```dart
   /// final set = TissueSet.of([1, 2, 3], nucleus: myNucleus);
   /// ```
-  factory TissueSet.of(Iterable<E> elements, {
-    TissueSetNucleus<E>? nucleus
-  }) => _TissueSet<E,TissueSet<E>>.fromNucleus(
-      nucleus ?? TissueSetNucleus<E>(), elements: Set<E>.of(elements)
-  );
+  factory TissueSet.of(Iterable<E> elements, {TissueSetNucleus<E>? nucleus}) =>
+      _TissueSet<E, TissueSet<E>>.fromNucleus(nucleus ?? TissueSetNucleus<E>(),
+          elements: Set<E>.of(elements));
 
   /// Factory constructor to create a new, pre‑populated [TissueSet] from an
   /// [Iterable] of elements, performing dynamic type casting.
@@ -581,11 +571,9 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// final dynamicList = [1, 2, 3] as List<dynamic>;
   /// final set = TissueSet.from<int>(dynamicList);
   /// ```
-  factory TissueSet.from(Iterable elements, {
-    TissueSetNucleus<E>? nucleus
-  }) => _TissueSet<E,TissueSet<E>>.fromNucleus(
-      nucleus ?? TissueSetNucleus<E>(), elements: Set<E>.from(elements)
-  );
+  factory TissueSet.from(Iterable elements, {TissueSetNucleus<E>? nucleus}) =>
+      _TissueSet<E, TissueSet<E>>.fromNucleus(nucleus ?? TissueSetNucleus<E>(),
+          elements: Set<E>.from(elements));
 
   /// Architectural factory for instantiating a [TissueSet] that utilises
   /// **Referential Identity** ([identical]) for membership and uniqueness.
@@ -622,19 +610,17 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   factory TissueSet.identity({
     Cell? bind,
     Context context = Context.system,
-    TestTissue<E,TissueSet<E>> testRule = TestTissue.allowAll,
-    TissueReceptor<E,TissueSet<E>> receptor = TissueReceptor.passThrough,
+    TestTissue<E, TissueSet<E>> testRule = TestTissue.allowAll,
+    TissueReceptor<E, TissueSet<E>> receptor = TissueReceptor.passThrough,
     Synapses synapses = Synapses.enabled,
-  }) => _TissueSet<E,TissueSet<E>>.fromNucleus(
-      TissueSetNucleus<E>(
+  }) =>
+      _TissueSet<E, TissueSet<E>>.fromNucleus(TissueSetNucleus<E>(
           bind: bind,
           context: context,
           receptor: receptor,
           testRule: testRule,
           synapses: synapses,
-          identitySet: true
-      )
-  );
+          identitySet: true));
 
   /// Primary architectural factory for materialising a [TissueSet] from an
   /// existing [TissueSetNucleus] (the "Reactive DNA").
@@ -671,8 +657,8 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   ///
   /// ### Returns:
   /// A concrete [TissueSet<E>] instance.
-  factory TissueSet.fromNucleus(TissueSetNucleus<E> nucleus, {Iterable<E>? elements})
-  = _TissueSet<E,TissueSet<E>>.fromNucleus;
+  factory TissueSet.fromNucleus(TissueSetNucleus<E> nucleus,
+      {Iterable<E>? elements}) = _TissueSet<E, TissueSet<E>>.fromNucleus;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueSet].
@@ -706,8 +692,9 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// // readOnly.add(1); // blocked
   /// source.add(1); // readOnly reflects the change
   /// ```
-  factory TissueSet.unmodifiable(TissueSet<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueSet<E,TissueSet<E>>.view;
+  factory TissueSet.unmodifiable(TissueSet<E> bind,
+      {Context? context,
+      bool unmodifiableElement}) = _UnmodifiableTissueSet<E, TissueSet<E>>.view;
 
   /// A high‑fidelity, strategy‑based factory for creating specialised
   /// [TissueSetBase] instances with explicit control over their
@@ -756,21 +743,18 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   ///   elements: [1, 2, 3],
   ///   testRule: TestTissue<int>((v) => v > 0),
   /// );
-  static TissueSetBase<E,C> create<E,C extends TissueSet<E>>({
-    Iterable<E>? elements,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueSetNucleusBase<E,C>? principal
-  }) {
-    final nucleus = TissueSetNucleus.create<E,C>(
+  static TissueSetBase<E, C> create<E, C extends TissueSet<E>>(
+      {Iterable<E>? elements,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      forceLock = false,
+      TissueSetNucleusBase<E, C>? principal}) {
+    final nucleus = TissueSetNucleus.create<E, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -779,10 +763,8 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _TissueSet<E,C>.fromNucleus(nucleus, elements: elements);
-
+        principal: principal);
+    return _TissueSet<E, C>.fromNucleus(nucleus, elements: elements);
   }
 
   /// Creates a "Deputy" projection of this set—a specialised proxy that
@@ -878,7 +860,6 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
   /// ```
   @override
   ModifiableSetAsync<E> get async;
-
 }
 
 /// A read‑only, reactive [Set] that reflects the state of a source collection
@@ -947,8 +928,8 @@ abstract interface class TissueSet<E> implements Tissue<E>, Set<E> {
 /// See also:
 /// - [TissueSet] – the mutable counterpart.
 /// - [UnmodifiableTissue] – the general contract for read‑only tissues.
-abstract interface class UnmodifiableTissueSet<E> implements TissueSet<E>, UnmodifiableTissue<E> {
-
+abstract interface class UnmodifiableTissueSet<E>
+    implements TissueSet<E>, UnmodifiableTissue<E> {
   /// The primary architectural factory for instantiating an [UnmodifiableTissueSet],
   /// materializing a read‑only, reactive set from an initial collection of [elements].
   ///
@@ -987,10 +968,11 @@ abstract interface class UnmodifiableTissueSet<E> implements TissueSet<E>, Unmod
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  factory UnmodifiableTissueSet(Iterable<E> elements, {
+  factory UnmodifiableTissueSet(
+    Iterable<E> elements, {
     TissueSetNucleus<E>? nucleus,
     bool unmodifiableElement,
-  }) = _UnmodifiableTissueSet<E,TissueSet<E>>;
+  }) = _UnmodifiableTissueSet<E, TissueSet<E>>;
 
   /// A high‑fidelity architectural factory for creating a **Deeply Immodifiable
   /// Reactive View** (Deputy) of an existing [TissueSet].
@@ -1022,8 +1004,9 @@ abstract interface class UnmodifiableTissueSet<E> implements TissueSet<E>, Unmod
   /// final source = TissueSet<int>();
   /// final readOnly = UnmodifiableTissueSet.view(source);
   /// ```
-  factory UnmodifiableTissueSet.view(TissueSet<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueSet<E,TissueSet<E>>.view;
+  factory UnmodifiableTissueSet.view(TissueSet<E> bind,
+      {Context? context,
+      bool unmodifiableElement}) = _UnmodifiableTissueSet<E, TissueSet<E>>.view;
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueSet] directly from a pre‑constructed
@@ -1061,8 +1044,9 @@ abstract interface class UnmodifiableTissueSet<E> implements TissueSet<E>, Unmod
   /// );
   /// final readOnlySet = UnmodifiableTissueSet.fromNucleus(readOnlyNucleus);
   /// ```
-  factory UnmodifiableTissueSet.fromNucleus(TissueSetNucleus<E> nucleus, {bool unmodifiableElement, Iterable<E>? elements})
-  = _UnmodifiableTissueSet<E,TissueSet<E>>.fromNucleus;
+  factory UnmodifiableTissueSet.fromNucleus(TissueSetNucleus<E> nucleus,
+          {bool unmodifiableElement, Iterable<E>? elements}) =
+      _UnmodifiableTissueSet<E, TissueSet<E>>.fromNucleus;
 
   /// A high‑level architectural factory for creating a specialised, type‑safe
   /// [UnmodifiableTissueSet] with granular control over its behavioural
@@ -1111,37 +1095,31 @@ abstract interface class UnmodifiableTissueSet<E> implements TissueSet<E>, Unmod
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  static UnmodifiableTissueSetBase<E,C> create<E,C extends TissueSet<E>>({
+  static UnmodifiableTissueSetBase<E, C> create<E, C extends TissueSet<E>>({
     Iterable<E>? elements,
     bool unmodifiableElement = true,
-
     Cell? bind,
     Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
+    TissueReceptor<E, C>? receptor,
+    TestTissue<E, C>? testRule,
     Synapses? synapses,
-
     Container? container,
     Record? user,
     forceLock = false,
-    TissueSetNucleusBase<E,C>? principal,
+    TissueSetNucleusBase<E, C>? principal,
   }) {
-    return _UnmodifiableTissueSet<E,C>.fromNucleus(
-        TissueSetNucleus.create<E,C>(
+    return _UnmodifiableTissueSet<E, C>.fromNucleus(
+        TissueSetNucleus.create<E, C>(
             bind: bind,
             context: context,
             testRule: testRule,
             receptor: receptor,
             synapses: synapses,
-
             container: container,
             user: user,
             forceLock: forceLock,
-            principal: principal
-        ),
+            principal: principal),
         unmodifiableElement: unmodifiableElement,
-        elements: elements
-    );
+        elements: elements);
   }
-
 }

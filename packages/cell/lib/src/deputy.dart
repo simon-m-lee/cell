@@ -30,7 +30,6 @@ part of '../cell.dart';
 /// See also: [Cell.deputy] (the real entry point), [Cell.unmodifiable]
 /// (a specific, common deputy — read-only).
 mixin Deputy<C extends Cell> on Cell {
-
   /// Synthesizes a specialized **Mandate Handle** (Deputy) of this cell, providing
   /// a functionally distinct and scoped interface to the underlying state.
   ///
@@ -180,5 +179,4 @@ mixin Deputy<C extends Cell> on Cell {
     }
     return identityHashCode(p);
   }
-
 }

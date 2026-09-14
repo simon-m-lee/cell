@@ -36,7 +36,6 @@ part of '../cell.dart';
 /// {@category Advanced}
 /// {@category Nucleus}
 abstract interface class Nucleus {
-
   /// The primary factory constructor for [Nucleus], which initializes a
   /// memory-optimized, tiered configuration for a reactive [Cell].
   ///
@@ -76,15 +75,12 @@ abstract interface class Nucleus {
   ///   properties kept separate from framework logic.
   factory Nucleus({
     EphemeralPolicy? ephemeralPolicy,
-
     Cell? bind,
     Context context,
     Receptor receptor,
     TestCell testRule,
     Synapses synapses,
-
     bool forceLock,
-
     Record? user,
   }) = _Nucleus;
 
@@ -137,19 +133,16 @@ abstract interface class Nucleus {
   ///   directly adopted as the property base.
   /// - [principal]: **Required**. The source [Nucleus] from which this instance
   ///   derives its structural and logic inheritance.
-  factory Nucleus.evolve({
-    EphemeralPolicy? ephemeralPolicy,
-
-    Cell? bind,
-    Context? context,
-    Receptor? receptor,
-    TestCell? testRule,
-    Synapses? synapses,
-    Record? user,
-
-    Nucleus? override,
-    required Nucleus principal
-  }) = _Nucleus.evolve;
+  factory Nucleus.evolve(
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context? context,
+      Receptor? receptor,
+      TestCell? testRule,
+      Synapses? synapses,
+      Record? user,
+      Nucleus? override,
+      required Nucleus principal}) = _Nucleus.evolve;
 
   /// Creates a primary, immutable, and completely empty [Nucleus] instance.
   ///
@@ -211,33 +204,35 @@ abstract interface class Nucleus {
   /// ### Returns:
   /// A [Nucleus] instance configured as a stateless blueprint for the
   /// specified reactive node.
-  static Nucleus create<C extends Cell>({
-    EphemeralPolicy<C>? ephemeralPolicy,
-
-    Cell? bind,
-    Context? context,
-    Receptor<C>? receptor,
-    TestCell<C>? testRule,
-    Synapses? synapses,
-
-    bool forceLock = false,
-    Record? user,
-    Nucleus? principal
-  }) {
+  static Nucleus create<C extends Cell>(
+      {EphemeralPolicy<C>? ephemeralPolicy,
+      Cell? bind,
+      Context? context,
+      Receptor<C>? receptor,
+      TestCell<C>? testRule,
+      Synapses? synapses,
+      bool forceLock = false,
+      Record? user,
+      Nucleus? principal}) {
     if (principal != null) {
-      final local = NucleusBase.mask(bind: bind, context: context, receptor: receptor,
-        testRule: testRule, synapses: synapses, forceLock: forceLock, user: user);
+      final local = NucleusBase.mask(
+          bind: bind,
+          context: context,
+          receptor: receptor,
+          testRule: testRule,
+          synapses: synapses,
+          forceLock: forceLock,
+          user: user);
       return _Nucleus.fromRecord((local: local, principal: principal));
     }
     return _Nucleus(
-      bind: bind,
-      context: context ?? Context.system,
-      receptor: receptor ?? Receptor.passThrough,
-      testRule: testRule ?? TestCell.allowAll,
-      synapses: synapses ?? Synapses.enabled,
-      user: user,
-      forceLock: forceLock
-    );
+        bind: bind,
+        context: context ?? Context.system,
+        receptor: receptor ?? Receptor.passThrough,
+        testRule: testRule ?? TestCell.allowAll,
+        synapses: synapses ?? Synapses.enabled,
+        user: user,
+        forceLock: forceLock);
   }
 
   /// Activates this nucleus by binding it to a live [Cell] instance.
@@ -559,5 +554,4 @@ abstract interface class Nucleus {
   /// Creates a new nucleus with the same logic but a fresh lock and
   /// synapse registry, so it can be used to create an independent cell.
   Nucleus get clone;
-
 }

@@ -48,11 +48,11 @@ class PulseRecorder extends CellBase {
 
   PulseRecorder({super.bind})
       : super(
-    receptor: Receptor((cell, pulse, {user}) {
-      (cell as PulseRecorder).receivedPulses.add(pulse);
-      return pulse;
-    }),
-  );
+          receptor: Receptor((cell, pulse, {user}) {
+            (cell as PulseRecorder).receivedPulses.add(pulse);
+            return pulse;
+          }),
+        );
 }
 
 /// A custom value cell for state testing.
@@ -165,8 +165,9 @@ void main() {
       test('Cell.governed with ephemeral policy', () {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 10),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
-          (events: 0),
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
+              (events: 0),
           onInvalidate: (nucleus) {
             return true;
           },
@@ -425,8 +426,9 @@ void main() {
         final cell = CustomCell();
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 10),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
-          (events: 0),
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
+              (events: 0),
           onInvalidate: (nucleus) {
             return true;
           },
@@ -513,7 +515,8 @@ void main() {
 
         int add(int a, int b) => a + b;
 
-        final result = await cell.async.apply(add, positionalArguments: [10, 20]);
+        final result =
+            await cell.async.apply(add, positionalArguments: [10, 20]);
         expect(result, 30);
       });
 
@@ -722,8 +725,9 @@ void main() {
       test('policy with TTL invalidates after duration', () async {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 10),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
-          (events: 0),
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
+              (events: 0),
           onInvalidate: (nucleus) => true,
         );
 

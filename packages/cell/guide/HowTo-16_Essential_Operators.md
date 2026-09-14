@@ -955,10 +955,10 @@ final summary = Cell.synthesis([a.cell, b.cell, c.cell], aggregator: ...);
 
 | Resource | Description |
 |----------|-------------|
-| [HowTo-Instruction.md](./HowTo-Instruction.md) | Deep dive into Instructions |
-| [HowTo-Receptor.md](./HowTo-Receptor.md) | Building transformation pipelines |
-| [HowTo-TestCell.md](./HowTo-TestCell.md) | Validation and security |
-| [HowTo-Start.md](./HowTo-Start.md) | Getting started guide |
+| [HowTo-Instruction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Instruction.md) | Deep dive into Instructions |
+| [HowTo-Receptor.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Receptor.md) | Building transformation pipelines |
+| [HowTo-TestCell.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TestCell.md) | Validation and security |
+| [HowTo-Start.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md) | Getting started guide |
 
 ### Run the Examples
 

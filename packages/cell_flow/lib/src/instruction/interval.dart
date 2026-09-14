@@ -61,7 +61,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///
 /// ### See Also
 /// - [Interval.onError]: The parameter that accepts this callback.
-typedef IntervalErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef IntervalErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to create an output pulse with proper provenance.
 ///
@@ -289,60 +290,60 @@ class Interval extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   Interval(
-      Duration period, {
-        int? maxTicks,
-        bool resetOnSource = false,
-        IntervalErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _ClockState();
+    Duration period, {
+    int? maxTicks,
+    bool resetOnSource = false,
+    IntervalErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _ClockState();
 
-      void emitTick() {
-        final trigger = state.trigger;
-        if (trigger == null || state.future == null) return;
-        state.future!(
-          result: _out<int>(
-            state.tick,
-            state.cell,
-            trigger,
-            'Interval',
-          ),
-          token: state.token,
+            void emitTick() {
+              final trigger = state.trigger;
+              if (trigger == null || state.future == null) return;
+              state.future!(
+                result: _out<int>(
+                  state.tick,
+                  state.cell,
+                  trigger,
+                  'Interval',
+                ),
+                token: state.token,
+              );
+              state.tick++;
+              if (maxTicks != null && state.tick >= maxTicks) {
+                state.cancel();
+              }
+            }
+
+            void arm(Pulse pulse, Cell? cell, dynamic future, dynamic token) {
+              state.future = future as void Function({
+                required Pulse? result,
+                required dynamic token,
+              })?;
+              state.token = token;
+              state.cell = cell;
+              state.trigger = pulse;
+              state.cancel();
+              state.tick = 0;
+              if (maxTicks != null && maxTicks <= 0) return;
+              state.timer = Timer.periodic(period, (_) => emitTick());
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              if (state.armed && !resetOnSource) return null;
+              state.armed = true;
+              try {
+                arm(pulse, cell, future, token);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+              return null;
+            };
+          })(),
+          user: user,
         );
-        state.tick++;
-        if (maxTicks != null && state.tick >= maxTicks) {
-          state.cancel();
-        }
-      }
-
-      void arm(Pulse pulse, Cell? cell, dynamic future, dynamic token) {
-        state.future = future as void Function({
-        required Pulse? result,
-        required dynamic token,
-        })?;
-        state.token = token;
-        state.cell = cell;
-        state.trigger = pulse;
-        state.cancel();
-        state.tick = 0;
-        if (maxTicks != null && maxTicks <= 0) return;
-        state.timer = Timer.periodic(period, (_) => emitTick());
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        if (state.armed && !resetOnSource) return null;
-        state.armed = true;
-        try {
-          arm(pulse, cell, future, token);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -463,61 +464,62 @@ class IntervalWithValue<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   IntervalWithValue(
-      Duration period, {
-        T? value,
-        T Function(int tick)? valueOf,
-        int? maxTicks,
-        bool resetOnSource = false,
-        IntervalErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      if (value == null && valueOf == null) {
-        throw ArgumentError('Provide value or valueOf');
-      }
-      final state = _ClockState();
+    Duration period, {
+    T? value,
+    T Function(int tick)? valueOf,
+    int? maxTicks,
+    bool resetOnSource = false,
+    IntervalErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            if (value == null && valueOf == null) {
+              throw ArgumentError('Provide value or valueOf');
+            }
+            final state = _ClockState();
 
-      T current() {
-        if (valueOf != null) return valueOf(state.tick);
-        return value as T;
-      }
+            T current() {
+              if (valueOf != null) return valueOf(state.tick);
+              return value as T;
+            }
 
-      void emitTick() {
-        final trigger = state.trigger;
-        if (trigger == null || state.future == null) return;
-        try {
-          final payload = current();
-          state.future!(
-            result: _out<T>(payload, state.cell, trigger, 'IntervalWithValue'),
-            token: state.token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          state.cancel();
-          return;
-        }
-        state.tick++;
-        if (maxTicks != null && state.tick >= maxTicks) {
-          state.cancel();
-        }
-      }
+            void emitTick() {
+              final trigger = state.trigger;
+              if (trigger == null || state.future == null) return;
+              try {
+                final payload = current();
+                state.future!(
+                  result: _out<T>(
+                      payload, state.cell, trigger, 'IntervalWithValue'),
+                  token: state.token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                state.cancel();
+                return;
+              }
+              state.tick++;
+              if (maxTicks != null && state.tick >= maxTicks) {
+                state.cancel();
+              }
+            }
 
-      return (pulse, {cell, user, future, token}) {
-        if (state.armed && !resetOnSource) return null;
-        state.armed = true;
-        state.future = future;
-        state.token = token;
-        state.cell = cell;
-        state.trigger = pulse;
-        state.cancel();
-        state.tick = 0;
-        if (maxTicks != null && maxTicks <= 0) return null;
-        state.timer = Timer.periodic(period, (_) => emitTick());
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              if (state.armed && !resetOnSource) return null;
+              state.armed = true;
+              state.future = future;
+              state.token = token;
+              state.cell = cell;
+              state.trigger = pulse;
+              state.cancel();
+              state.tick = 0;
+              if (maxTicks != null && maxTicks <= 0) return null;
+              state.timer = Timer.periodic(period, (_) => emitTick());
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -665,55 +667,55 @@ class IntervalWithState<A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   IntervalWithState(
-      Duration period,
-      A seed,
-      A Function(A state, int tick) next, {
-        int? maxTicks,
-        bool resetOnSource = false,
-        IntervalErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final clock = _ClockState();
-      var acc = seed;
+    Duration period,
+    A seed,
+    A Function(A state, int tick) next, {
+    int? maxTicks,
+    bool resetOnSource = false,
+    IntervalErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final clock = _ClockState();
+            var acc = seed;
 
-      void emitTick() {
-        final trigger = clock.trigger;
-        if (trigger == null || clock.future == null) return;
-        try {
-          acc = next(acc, clock.tick);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          clock.cancel();
-          return;
-        }
-        clock.future!(
-          result: _out<A>(acc, clock.cell, trigger, 'IntervalWithState'),
-          token: clock.token,
+            void emitTick() {
+              final trigger = clock.trigger;
+              if (trigger == null || clock.future == null) return;
+              try {
+                acc = next(acc, clock.tick);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                clock.cancel();
+                return;
+              }
+              clock.future!(
+                result: _out<A>(acc, clock.cell, trigger, 'IntervalWithState'),
+                token: clock.token,
+              );
+              clock.tick++;
+              if (maxTicks != null && clock.tick >= maxTicks) {
+                clock.cancel();
+              }
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              if (clock.armed && !resetOnSource) return null;
+              clock.armed = true;
+              clock.future = future;
+              clock.token = token;
+              clock.cell = cell;
+              clock.trigger = pulse;
+              clock.cancel();
+              clock.tick = 0;
+              acc = seed;
+              if (maxTicks != null && maxTicks <= 0) return null;
+              clock.timer = Timer.periodic(period, (_) => emitTick());
+              return null;
+            };
+          })(),
+          user: user,
         );
-        clock.tick++;
-        if (maxTicks != null && clock.tick >= maxTicks) {
-          clock.cancel();
-        }
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        if (clock.armed && !resetOnSource) return null;
-        clock.armed = true;
-        clock.future = future;
-        clock.token = token;
-        clock.cell = cell;
-        clock.trigger = pulse;
-        clock.cancel();
-        clock.tick = 0;
-        acc = seed;
-        if (maxTicks != null && maxTicks <= 0) return null;
-        clock.timer = Timer.periodic(period, (_) => emitTick());
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -827,35 +829,33 @@ class TimerPulse<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   TimerPulse(
-      Duration delay, {
-        T? value,
-        T Function()? valueOf,
-        IntervalErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _ClockState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.armed) return null;
-        state.armed = true;
-        state.timer = Timer(delay, () {
-          try {
-            final payload = valueOf != null
-                ? valueOf()
-                : (value as T);
-            future!(
-              result: _out<T>(payload, cell, pulse, 'TimerPulse'),
-              token: token,
-            );
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Duration delay, {
+    T? value,
+    T Function()? valueOf,
+    IntervalErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _ClockState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.armed) return null;
+              state.armed = true;
+              state.timer = Timer(delay, () {
+                try {
+                  final payload = valueOf != null ? valueOf() : (value as T);
+                  future!(
+                    result: _out<T>(payload, cell, pulse, 'TimerPulse'),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -983,7 +983,7 @@ Future<void> main() async {
   final doubled = IntervalWithState<int>(
     const Duration(milliseconds: 30),
     1,
-        (state, tick) => tick == 0 ? state : state * 2,
+    (state, tick) => tick == 0 ? state : state * 2,
     maxTicks: 3,
   ).toHandle(source: start3.cell);
 

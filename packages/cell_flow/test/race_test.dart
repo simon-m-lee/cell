@@ -108,7 +108,8 @@ void main() {
     test('a completed future beats a delayed stream', () async {
       final b = bind<void>(RaceFirst<String>([
         Stream<String>.fromFuture(
-          Future<String>.delayed(const Duration(milliseconds: 40), () => 'tick'),
+          Future<String>.delayed(
+              const Duration(milliseconds: 40), () => 'tick'),
         ),
         Future<String>.value('ready'),
       ]));
@@ -254,7 +255,6 @@ void main() {
       expect(b.probe.payloads, isEmpty);
     });
   });
-
 
   group('Race extra', () {
     test('empty competitors are silent', () async {

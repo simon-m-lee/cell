@@ -239,7 +239,8 @@ void main() {
 
         final sources = cell.toList();
         expect(sources.length, 3);
-        expect(sources, containsAll([source1.cell, source2.cell, source3.cell]));
+        expect(
+            sources, containsAll([source1.cell, source2.cell, source3.cell]));
       });
 
       test('synthesis handle can add sources dynamically', () {
@@ -535,7 +536,8 @@ void main() {
             for (final c in cells) {
               if (c == subtotal.cell) sub = (c as ValueCell<double>).value ?? 0;
               if (c == taxRate.cell) tax = (c as ValueCell<double>).value ?? 0;
-              if (c == discount.cell) disc = (c as ValueCell<double>).value ?? 0;
+              if (c == discount.cell)
+                disc = (c as ValueCell<double>).value ?? 0;
             }
             return Pulse(sub + (sub * tax) - disc);
           },

@@ -26,42 +26,42 @@ part of '../../cell_tissue.dart';
 /// ### Type Parameters:
 /// * [V]: The value type.
 /// * [C]: The concrete tissue value type.
-class _TissueValueNucleus<V,C extends TissueValue<V>> extends TissueValueNucleusBase<V,C> {
-
+class _TissueValueNucleus<V, C extends TissueValue<V>>
+    extends TissueValueNucleusBase<V, C> {
   _TissueValueNucleus({
     super.bind,
     super.context,
     super.receptor,
     super.testRule,
     super.synapses,
-
     super.ephemeralPolicy,
     super.forceLock,
     super.user,
-
     super.finalValue,
   }) : super();
 
-  _TissueValueNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    bool forceLock = true,
-
-    TissueValueNucleus<V>? override,
-    required super.principal
-  }) : super.evolve(
-      override: override ?? _TissueValueNucleus<V,C>.fromRecord(
-          (local: TissueNucleusBase.local<V,ValueContainer<V>,C>(
-              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock,
-              ephemeralPolicy: ephemeralPolicy
-          )))
-  );
+  _TissueValueNucleus.evolve(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      bool forceLock = true,
+      TissueValueNucleus<V>? override,
+      required super.principal})
+      : super.evolve(
+            override: override ??
+                _TissueValueNucleus<V, C>.fromRecord((
+                  local: TissueNucleusBase.local<V, ValueContainer<V>, C>(
+                      bind: bind,
+                      context: context,
+                      receptor: receptor,
+                      testRule: testRule,
+                      synapses: synapses,
+                      forceLock: forceLock,
+                      ephemeralPolicy: ephemeralPolicy)
+                )));
 
   _TissueValueNucleus.fromRecord(super.record) : super.fromRecord();
 
@@ -80,23 +80,23 @@ class _TissueValueNucleus<V,C extends TissueValue<V>> extends TissueValueNucleus
   /// ### Returns:
   /// A new [TissueValueNucleusBase] instance with identical behavioural logic.
   @override
-  TissueValueNucleusBase<V,C> get clone {
+  TissueValueNucleusBase<V, C> get clone {
     final p = principal;
-    return TissueValueNucleus.create<V,C>(
-        container: containerType,
-        context: context,
-        receptor: receptor,
-        testRule: testRule,
-        synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
-        user: user,
-        forceLock: false,
-        ephemeralPolicy: _hostedEphemeralPolicy,
-        // A deputy clone must keep the principal chain and bind.
-        bind: p != null ? bind : null,
-        principal: p == null ? null : this,
+    return TissueValueNucleus.create<V, C>(
+      container: containerType,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses:
+          synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
+      user: user,
+      forceLock: false,
+      ephemeralPolicy: _hostedEphemeralPolicy,
+      // A deputy clone must keep the principal chain and bind.
+      bind: p != null ? bind : null,
+      principal: p == null ? null : this,
     );
   }
-
 }
 
 /// The foundational blueprint that defines the behaviour, storage strategy,
@@ -157,7 +157,6 @@ class _TissueValueNucleus<V,C extends TissueValue<V>> extends TissueValueNucleus
 abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
     extends TissueNucleusBase<V, ValueContainer<V>, C>
     implements TissueValueNucleus<V> {
-
   /// **Primary Constructor** – defines the immutable behaviour and storage
   /// strategy for a reactive single value.
   ///
@@ -214,19 +213,17 @@ abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
   /// - [forceLock]: If `true`, shares the principal's lock (optimisation
   ///   for deputies); if `false` (default), allocates a new lock.
   /// - [user]: Optional custom metadata (e.g., UI hints, serialisation tags).
-  TissueValueNucleusBase({
-    super.bind,
-    super.context,
-    super.receptor,
-    super.testRule,
-    super.synapses,
-    bool finalValue = false,
-    super.ephemeralPolicy,
-    super.forceLock,
-    super.user
-  }) : super(
-      container: finalValue ? Container.finalValue : Container.value
-  );
+  TissueValueNucleusBase(
+      {super.bind,
+      super.context,
+      super.receptor,
+      super.testRule,
+      super.synapses,
+      bool finalValue = false,
+      super.ephemeralPolicy,
+      super.forceLock,
+      super.user})
+      : super(container: finalValue ? Container.finalValue : Container.value);
 
   /// **Low‑level Record Constructor** – instantiates a nucleus from a
   /// pre‑packed property record.
@@ -327,10 +324,9 @@ abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
   /// - [synapses]: Optional override for propagation behaviour.
   /// - (Other parameters like [forceLock] and [user] are typically
   ///   inherited from the principal or taken from [override]).
-  TissueValueNucleusBase.evolve({
-    super.override,
-    required TissueValueNucleus<V> super.principal
-  }) : super.evolve();
+  TissueValueNucleusBase.evolve(
+      {super.override, required TissueValueNucleus<V> super.principal})
+      : super.evolve();
 
   /// Retrieves the hierarchical principal configuration of this value's properties.
   ///
@@ -380,7 +376,8 @@ abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
   /// The parent nucleus that this configuration extends, or `null` if this is
   /// a root nucleus with no ancestors.
   @override
-  TissueValueNucleusBase<V,C>? get principal => super.principal as TissueValueNucleusBase<V,C>?;
+  TissueValueNucleusBase<V, C>? get principal =>
+      super.principal as TissueValueNucleusBase<V, C>?;
 
   /// The physical storage strategy (mutable or write‑once) used by this value.
   ///
@@ -399,9 +396,9 @@ abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
   /// - Defaults to [Container.value] if not set.
   @override
   Container get containerType {
-    return get<Container>(() => record.local.inheritable.container, fallback: () => principal?.containerType, orElse: Container.value);
+    return get<Container>(() => record.local.inheritable.container,
+        fallback: () => principal?.containerType, orElse: Container.value);
   }
-
 }
 
 /// Concrete implementation of a mutable reactive single value.
@@ -423,47 +420,58 @@ abstract class TissueValueNucleusBase<V, C extends TissueValue<V>>
 /// ### Type Parameters:
 /// * [V]: The value type.
 /// * [C]: The concrete tissue value type.
-class _TissueValue<V,C extends TissueValue<V>> extends TissueValueBase<V,C> {
-
-  _TissueValue(V? value, {
+class _TissueValue<V, C extends TissueValue<V>> extends TissueValueBase<V, C> {
+  _TissueValue(
+    V? value, {
     Cell? bind,
     Context context = Context.system,
-    TestTissue<V,C> testRule = TestTissue.allowAll,
-    TissueReceptor<V,C> receptor = TissueReceptor.passThrough,
+    TestTissue<V, C> testRule = TestTissue.allowAll,
+    TissueReceptor<V, C> receptor = TissueReceptor.passThrough,
     Synapses synapses = Synapses.enabled,
     bool finalValue = false,
-  }) : this.fromNucleus(_TissueValueNucleus<V,C>(
-    bind: bind,
-    testRule: testRule,
-    receptor: receptor,
-    synapses: synapses,
-    finalValue: finalValue,
-  ), value: value);
+  }) : this.fromNucleus(
+            _TissueValueNucleus<V, C>(
+              bind: bind,
+              testRule: testRule,
+              receptor: receptor,
+              synapses: synapses,
+              finalValue: finalValue,
+            ),
+            value: value);
 
   _TissueValue.empty({
     Cell? bind,
     Context context = Context.system,
-    TestTissue<V,C> testRule = TestTissue.allowAll,
-    TissueReceptor<V,C> receptor = TissueReceptor.passThrough,
+    TestTissue<V, C> testRule = TestTissue.allowAll,
+    TissueReceptor<V, C> receptor = TissueReceptor.passThrough,
     Synapses synapses = Synapses.enabled,
     bool finalValue = false,
-  }) : this.fromNucleus(_TissueValueNucleus<V,C>(
-    bind: bind,
-    testRule: testRule,
-    receptor: receptor,
-    synapses: synapses,
-    finalValue: finalValue,
-  ));
+  }) : this.fromNucleus(_TissueValueNucleus<V, C>(
+          bind: bind,
+          testRule: testRule,
+          receptor: receptor,
+          synapses: synapses,
+          finalValue: finalValue,
+        ));
 
   _TissueValue.fromNucleus(super.properties, {super.value}) : super();
 
   @override
-  FutureOr<TissueValue<V>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueValueDeputy<V,C>._(this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<TissueValue<V>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<V, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueValueDeputy<V, C>._(this,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 
   @override
-  late final TissueValue<V> unmodifiable = _UnmodifiableTissueValue<V,C>.view(this, unmodifiableElement: true);
+  late final TissueValue<V> unmodifiable =
+      _UnmodifiableTissueValue<V, C>.view(this, unmodifiableElement: true);
 
   /// Returns an asynchronous wrapper for this value.
   ///
@@ -481,13 +489,14 @@ class _TissueValue<V,C extends TissueValue<V>> extends TissueValueBase<V,C> {
     }
     if (other is TissueValue<V>) {
       if (other is Unmodifiable) {
-        if (other._nucleus.bind != null && identical(this, other._nucleus.bind)) {
+        if (other._nucleus.bind != null &&
+            identical(this, other._nucleus.bind)) {
           return other.value == value;
         }
       }
       return other.value == value;
     }
-    if (other is V && value != null ) {
+    if (other is V && value != null) {
       return other == value;
     }
     return false;
@@ -495,7 +504,6 @@ class _TissueValue<V,C extends TissueValue<V>> extends TissueValueBase<V,C> {
 
   @override
   int get hashCode => value?.hashCode ?? _nucleus.container.hashCode;
-
 }
 
 /// The foundational reactive engine for all single‑value containers in the
@@ -555,13 +563,12 @@ class _TissueValue<V,C extends TissueValue<V>> extends TissueValueBase<V,C> {
 /// - [C]: The specific [Tissue] implementation type (usually `TissueValue<V>`),
 ///   allowing for type‑safe pulse processing within the hierarchy.
 abstract class TissueValueBase<V, C extends TissueValue<V>>
-    extends TissueBase<V,ValueContainer<V>,C>
-    with TissueValueMixin<V,C>
+    extends TissueBase<V, ValueContainer<V>, C>
+    with TissueValueMixin<V, C>
     implements TissueValue<V> {
-
   @override
-  TissueValueNucleusBase<V,C> get _nucleus => super._nucleus as TissueValueNucleusBase<V,C>;
-
+  TissueValueNucleusBase<V, C> get _nucleus =>
+      super._nucleus as TissueValueNucleusBase<V, C>;
 
   /// Constructs a [TissueValueBase] with the given [properties] and
   /// an optional initial [value].
@@ -576,7 +583,7 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
   ///   - `value`: An optional initial value `V?` to store in the `TissueValue`.
   ///     If `null` or omitted, the `TissueValue` is initialized without a value.
   TissueValueBase(TissueValueNucleus<V> properties, {V? value})
-      : super(properties as TissueValueNucleusBase<V,C>) {
+      : super(properties as TissueValueNucleusBase<V, C>) {
     if (value != null) {
       properties.container.store.value = value;
       if (value is Cell) {
@@ -603,7 +610,7 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
   ///
   /// This rule is checked before elements are added or modified.
   @override
-  TestTissue<V,C> get validate => _nucleus.testRule;
+  TestTissue<V, C> get validate => _nucleus.testRule;
 
   /// Determines whether this `TissueValueBase` instance is equal to another `Object`.
   ///
@@ -629,13 +636,14 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
     }
     if (other is TissueValue<V>) {
       if (other is Unmodifiable) {
-        if (other._nucleus.bind != null && identical(this, other._nucleus.bind)) {
+        if (other._nucleus.bind != null &&
+            identical(this, other._nucleus.bind)) {
           return other.value == value;
         }
       }
       return other.value == value;
     }
-    if (other is V && value != null ) {
+    if (other is V && value != null) {
       return other == value;
     }
     return false;
@@ -653,7 +661,6 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
   /// equality operator (`operator==`).
   @override
   int get hashCode => value?.hashCode ?? _nucleus.container.hashCode;
-
 }
 
 /// Internal deputy implementation for [TissueValue].
@@ -676,20 +683,33 @@ abstract class TissueValueBase<V, C extends TissueValue<V>>
 /// ### Type Parameters:
 /// * [V]: The value type.
 /// * [C]: The concrete tissue value type.
-class _TissueValueDeputy<V,C extends TissueValue<V>> extends _TissueValue<V,C> with Deputy<TissueValue<V>> {
-
-  _TissueValueDeputy._(TissueValueBase<V,C> bind, {Context context = Context.system, TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})
-      : super.fromNucleus(_TissueValueNucleus<V,C>.evolve(
-      bind: bind,
-      testRule: bind._nucleus.testRule + testRule,
-      synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
-      ephemeralPolicy: ephemeralPolicy,
-      principal: bind._nucleus)
-  );
+class _TissueValueDeputy<V, C extends TissueValue<V>> extends _TissueValue<V, C>
+    with Deputy<TissueValue<V>> {
+  _TissueValueDeputy._(TissueValueBase<V, C> bind,
+      {Context context = Context.system,
+      TestTissue<V, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled})
+      : super.fromNucleus(_TissueValueNucleus<V, C>.evolve(
+            bind: bind,
+            testRule: bind._nucleus.testRule + testRule,
+            synapses: bind._nucleus.synapses != Synapses.disabled
+                ? synapses
+                : Synapses.disabled,
+            ephemeralPolicy: ephemeralPolicy,
+            principal: bind._nucleus));
 
   @override
-  FutureOr<TissueValue<V>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueValueDeputy<V,C>._(_nucleus.bind as TissueValueBase<V,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<TissueValue<V>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<V, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueValueDeputy<V, C>._(_nucleus.bind as TissueValueBase<V, C>,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 }
 
@@ -716,42 +736,60 @@ class _TissueValueDeputy<V,C extends TissueValue<V>> extends _TissueValue<V,C> w
 /// ### Type Parameters:
 /// * [V]: The value type.
 /// * [C]: The concrete tissue value type.
-class _UnmodifiableTissueValue<V, C extends TissueValue<V>> extends UnmodifiableTissueValueBase<V,C> {
-
-  _UnmodifiableTissueValue(V value, {bool unmodifiableElement = true, TissueValueNucleus<V>? properties})
+class _UnmodifiableTissueValue<V, C extends TissueValue<V>>
+    extends UnmodifiableTissueValueBase<V, C> {
+  _UnmodifiableTissueValue(V value,
+      {bool unmodifiableElement = true, TissueValueNucleus<V>? properties})
       : this.fromNucleus(
-      (properties ?? TissueValueNucleus.create<V,C>()) as TissueValueNucleusBase<V,C>,
-      unmodifiableElement: unmodifiableElement,
-      value: value
-  );
+            (properties ?? TissueValueNucleus.create<V, C>())
+                as TissueValueNucleusBase<V, C>,
+            unmodifiableElement: unmodifiableElement,
+            value: value);
 
-  _UnmodifiableTissueValue.view(TissueValue<V> bind, {Context? context, bool unmodifiableElement = true})
-      : this.fromNucleus(TissueValueNucleus.create<V,C>(bind: bind,
-      container: unmodifiableElement ? bind._nucleus.containerType : null,
-      context: context,
-      synapses: bind._nucleus.synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
-      principal: bind._nucleus as TissueValueNucleusBase<V,C>
-  ), unmodifiableElement: unmodifiableElement,
-      value: unmodifiableElement ? bind.value is Cell ? (bind.value! as Cell).unmodifiable as V : bind.value : null
-  );
+  _UnmodifiableTissueValue.view(TissueValue<V> bind,
+      {Context? context, bool unmodifiableElement = true})
+      : this.fromNucleus(
+            TissueValueNucleus.create<V, C>(
+                bind: bind,
+                container:
+                    unmodifiableElement ? bind._nucleus.containerType : null,
+                context: context,
+                synapses: bind._nucleus.synapses == Synapses.disabled
+                    ? Synapses.disabled
+                    : Synapses.enabled,
+                principal: bind._nucleus as TissueValueNucleusBase<V, C>),
+            unmodifiableElement: unmodifiableElement,
+            value: unmodifiableElement
+                ? bind.value is Cell
+                    ? (bind.value! as Cell).unmodifiable as V
+                    : bind.value
+                : null);
 
-  _UnmodifiableTissueValue.fromNucleus(TissueValueNucleus<V> properties, {super.unmodifiableElement, super.value})
-      : super(properties as TissueValueNucleusBase<V,C>);
+  _UnmodifiableTissueValue.fromNucleus(TissueValueNucleus<V> properties,
+      {super.unmodifiableElement, super.value})
+      : super(properties as TissueValueNucleusBase<V, C>);
 
   @override
-  FutureOr<TissueValue<V>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<V,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueValueDeputy<V,C>._(_nucleus.bind as TissueValueBase<V,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<TissueValue<V>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<V, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueValueDeputy<V, C>._(_nucleus.bind as TissueValueBase<V, C>,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 
   @override
   TissueValue<V> get unmodifiable => this;
 
   @override
-  TestTissue<V,C> get validate => _nucleus.testRule;
+  TestTissue<V, C> get validate => _nucleus.testRule;
 
   @override
   ValueCellAsync<V> get async => _UnmodifiableModifiableValueAsync(this);
-
 }
 
 /// The foundational base class for all read‑only reactive value views.
@@ -806,13 +844,13 @@ class _UnmodifiableTissueValue<V, C extends TissueValue<V>> extends Unmodifiable
 /// ### Type Parameters:
 /// - [V]: The type of the value contained in the cell.
 /// - [C]: The specific [TissueValue] implementation type (usually `TissueValue<V>`).
-abstract class UnmodifiableTissueValueBase<V,C extends TissueValue<V>>
-    extends UnmodifiableTissueBase<V,ValueContainer<V>,C>
-    with TissueValueMixin<V,C>
+abstract class UnmodifiableTissueValueBase<V, C extends TissueValue<V>>
+    extends UnmodifiableTissueBase<V, ValueContainer<V>, C>
+    with TissueValueMixin<V, C>
     implements UnmodifiableTissueValue<V> {
-
   @override
-  TissueValueNucleusBase<V,C> get _nucleus => super._nucleus as TissueValueNucleusBase<V,C>;
+  TissueValueNucleusBase<V, C> get _nucleus =>
+      super._nucleus as TissueValueNucleusBase<V, C>;
 
   @override
   Iterable<Function> get modifiable => <Function>{};
@@ -885,9 +923,11 @@ abstract class UnmodifiableTissueValueBase<V,C extends TissueValue<V>>
   ///   `true` in most factories.
   /// - [value]: Optional initial value to seed the physical container.
   ///   This is typically the source's current value.
-  UnmodifiableTissueValueBase(super.properties, {super.unmodifiableElement, V? value})
+  UnmodifiableTissueValueBase(super.properties,
+      {super.unmodifiableElement, V? value})
       : super() {
-    final container = get<Container?>(() => _nucleus.record.local.container, orElse: null);
+    final container =
+        get<Container?>(() => _nucleus.record.local.container, orElse: null);
     if (container != null) {
       _nucleus.container.store.value = value;
     }
@@ -959,7 +999,7 @@ abstract class UnmodifiableTissueValueBase<V,C extends TissueValue<V>>
       }
       return value != null && other.value == value;
     }
-    if (other is V && value != null ) {
+    if (other is V && value != null) {
       return other == value;
     }
     return false;
@@ -973,7 +1013,6 @@ abstract class UnmodifiableTissueValueBase<V,C extends TissueValue<V>>
   /// This is consistent with the `operator==` implementation.
   @override
   int get hashCode => _nucleus.container.hashCode;
-
 }
 
 /// A mixin that provides the core implementation for [TissueValue] behaviors,
@@ -1023,15 +1062,16 @@ abstract class UnmodifiableTissueValueBase<V,C extends TissueValue<V>>
 /// - Comparison operators (`<`, `>`, `<=`) only work for numeric values.
 mixin TissueValueMixin<V, C extends TissueValue<V>>
 // on TissueBase<V,TissueValue<V>,C>
-implements TissueValue<V> {
+    implements
+        TissueValue<V> {
+  @override
+  TissueValueNucleusBase<V, C> get _nucleus;
 
   @override
-  TissueValueNucleusBase<V,C> get _nucleus;
-
-  @override
-  Iterable<Function> get modifiable => <Function>{set,
-    // ...super.modifiable
-  };
+  Iterable<Function> get modifiable => <Function>{
+        set,
+        // ...super.modifiable
+      };
 
   /// The value of this TissueValue
   @override
@@ -1080,12 +1120,15 @@ implements TissueValue<V> {
   /// ### Returns:
   /// The [ElementUpdated] if the value was changed, or `null` otherwise.
   @override
-  ElementUpdated<V,C>? _set(V? v, {bool notification = true, Tissue<V>? deputy}) {
-    ElementUpdated<V,C>? event;
+  ElementUpdated<V, C>? _set(V? v,
+      {bool notification = true, Tissue<V>? deputy}) {
+    ElementUpdated<V, C>? event;
 
-    if (validate.action(set, host: this, arguments: (positionalArguments: [v], namedArguments: null)) == true) {
+    if (validate.action(set,
+            host: this,
+            arguments: (positionalArguments: [v], namedArguments: null)) ==
+        true) {
       if (validate.element(v, host: this, action: set) == true) {
-
         final before = value;
 
         if (_nucleus.container.store.value != v) {
@@ -1098,11 +1141,14 @@ implements TissueValue<V> {
             _nucleus.synapses.link(v, downstreamCell: this);
           }
 
-          event = ElementUpdated<V,C>._(source: deputy ?? this, payload: (value: (deputy ?? this) as C, before: before, after: v));
+          event = ElementUpdated<V, C>._(source: deputy ?? this, payload: (
+            value: (deputy ?? this) as C,
+            before: before,
+            after: v
+          ));
           if (notification) {
             _nucleus.receptor(event);
           }
-
         }
       }
     }
@@ -1111,25 +1157,33 @@ implements TissueValue<V> {
   }
 
   @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
     Map<Symbol, dynamic>? compensateNamed,
     Cell? compensateCell,
   }) {
-
     if (modifiable.contains(function)) {
       try {
-        if (validate.action(function, host: this, arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)) == true) {
+        if (validate.action(function, host: this, arguments: (
+              positionalArguments: positionalArguments,
+              namedArguments: namedArguments
+            )) ==
+            true) {
           final notification = namedArguments?[#$notification] ?? true;
           final deputy = namedArguments?[#deputy];
 
           if (function == set) {
-            return Function.apply(_set, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_set, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           }
           return;
-        }} catch (_) {}
+        }
+      } catch (_) {}
     }
     return Function.apply(function, positionalArguments, namedArguments);
   }
@@ -1151,7 +1205,6 @@ implements TissueValue<V> {
   /// Comparison operators for numeric values
   @override
   bool operator <=(Object other) {
-
     bool compare(V v) {
       if (v is num) {
         return (value as num) <= v;
@@ -1173,7 +1226,6 @@ implements TissueValue<V> {
   /// Comparison operators for numeric values
   @override
   bool operator >(Object other) {
-
     bool compare(V v) {
       if (v is num) {
         return (value as num) > v;
@@ -1195,7 +1247,6 @@ implements TissueValue<V> {
   /// Comparison operators for numeric values
   @override
   bool operator <(Object other) {
-
     bool compare(V v) {
       if (v is num) {
         return (value as num) < v;
@@ -1219,7 +1270,6 @@ implements TissueValue<V> {
 
   @override
   String toString() => value.toString();
-
 }
 
 /// An asynchronous facade for performing reactive mutation operations on a [TissueValue].
@@ -1268,8 +1318,7 @@ implements TissueValue<V> {
 /// See also:
 /// - [TissueValue.async] – the typical way to access an instance of this class.
 /// - [TissueModifiableAsync] – the base class providing common async wrapping.
-class ModifiableValueAsync<V> extends TissueModifiableAsync<V,TissueValue<V>> {
-
+class ModifiableValueAsync<V> extends TissueModifiableAsync<V, TissueValue<V>> {
   /// Creates an asynchronous callable wrapper for a [TissueValue].
   ///
   /// This constructor is typically not called directly. Instead, instances are
@@ -1303,13 +1352,11 @@ class ModifiableValueAsync<V> extends TissueModifiableAsync<V,TissueValue<V>> {
       return false;
     });
   }
-
 }
 
 /// Internal implementation of an unmodifiable async value wrapper that throws
 /// on any mutation.
 class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
-
   final TissueValue<V> _tissue;
 
   const _UnmodifiableModifiableValueAsync(this._tissue);
@@ -1329,7 +1376,10 @@ class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
   }
 
   @override
-  Future<dynamic> apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  Future<dynamic> apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -1342,5 +1392,4 @@ class _UnmodifiableModifiableValueAsync<V> implements ValueCellAsync<V> {
 
   @override
   Future<V?> get state => throw UnimplementedError();
-
 }

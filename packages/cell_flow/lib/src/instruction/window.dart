@@ -39,7 +39,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef WindowErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef WindowErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -54,13 +55,14 @@ typedef WindowErrorHandler = void Function(Object error, StackTrace? stackTrace)
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      WindowErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  WindowErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -70,11 +72,11 @@ Pulse? _typedOrError<S>(
 
 /// Helper to create a window pulse with proper provenance.
 Pulse<List<S>> _window<S>(
-    List<S> items,
-    Pulse trigger,
-    Cell? cell,
-    String step,
-    ) {
+  List<S> items,
+  Pulse trigger,
+  Cell? cell,
+  String step,
+) {
   return Pulse<List<S>>(
     List<S>.from(items),
     source: cell ?? trigger.source,
@@ -220,7 +222,6 @@ class _EmitState {
 /// - [WindowTime]: For time-based windows.
 /// - [WindowWhen]: For trigger-based windows.
 class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Count-Based Logic Gate** designed to batch pulses
   /// into discrete topographical windows based on stimulus frequency.
   ///
@@ -263,34 +264,34 @@ class WindowCount<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// final slidingWindow = WindowCount<int>(3, skip: 1);
   /// ```
   WindowCount(
-      int size, {
-        int? skip,
-        WindowErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final step = skip == null || skip == size ? size : skip;
-      final buf = <S>[];
-      // ignore: unused_local_variable
-      var seen = 0;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        buf.add(typed.payload as S);
-        seen++;
-        if (buf.length < size) return null;
-        final window = List<S>.from(buf);
-        final drop = step < 1 ? size : step;
-        if (drop >= buf.length) {
-          buf.clear();
-        } else {
-          buf.removeRange(0, drop);
-        }
-        return _window<S>(window, typed, cell, 'WindowCount');
-      };
-    })(),
-    user: user,
-  );
+    int size, {
+    int? skip,
+    WindowErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final step = skip == null || skip == size ? size : skip;
+            final buf = <S>[];
+            // ignore: unused_local_variable
+            var seen = 0;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              buf.add(typed.payload as S);
+              seen++;
+              if (buf.length < size) return null;
+              final window = List<S>.from(buf);
+              final drop = step < 1 ? size : step;
+              if (drop >= buf.length) {
+                buf.clear();
+              } else {
+                buf.removeRange(0, drop);
+              }
+              return _window<S>(window, typed, cell, 'WindowCount');
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Alias of [WindowCount] for Rx compatibility.
@@ -319,11 +320,11 @@ class WindowSize<S> extends WindowCount<S> {
   /// Behavior is identical to [WindowCount]; use this name when the
   /// pipeline reads more naturally as “window of size N”.
   WindowSize(
-      super.size, {
-        super.skip,
-        super.onError,
-        super.user,
-      });
+    super.size, {
+    super.skip,
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -412,45 +413,45 @@ class WindowTime<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   WindowTime(
-      Duration duration, {
-        bool emitEmpty = false,
-        WindowErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final buf = <S>[];
-      final emit = _EmitState();
-      var armed = false;
-      Pulse? last;
+    Duration duration, {
+    bool emitEmpty = false,
+    WindowErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final buf = <S>[];
+            final emit = _EmitState();
+            var armed = false;
+            Pulse? last;
 
-      void flush() {
-        if (buf.isEmpty && !emitEmpty) return;
-        final trigger = last;
-        if (trigger == null || emit.future == null) return;
-        emit.future!(
-          result: _window<S>(buf, trigger, emit.cell, 'WindowTime'),
-          token: emit.token,
+            void flush() {
+              if (buf.isEmpty && !emitEmpty) return;
+              final trigger = last;
+              if (trigger == null || emit.future == null) return;
+              emit.future!(
+                result: _window<S>(buf, trigger, emit.cell, 'WindowTime'),
+                token: emit.token,
+              );
+              buf.clear();
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              last = typed;
+              buf.add(typed.payload as S);
+              if (!armed) {
+                armed = true;
+                Timer.periodic(duration, (_) => flush());
+              }
+              return null;
+            };
+          })(),
+          user: user,
         );
-        buf.clear();
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        last = typed;
-        buf.add(typed.payload as S);
-        if (!armed) {
-          armed = true;
-          Timer.periodic(duration, (_) => flush());
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -536,51 +537,51 @@ class WindowWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches on the source.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   WindowWhen(
-      Cell closer, {
-        bool emitEmpty = false,
-        WindowErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final buf = <S>[];
-      final emit = _EmitState();
-      var armed = false;
-      Pulse? last;
+    Cell closer, {
+    bool emitEmpty = false,
+    WindowErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final buf = <S>[];
+            final emit = _EmitState();
+            var armed = false;
+            Pulse? last;
 
-      void flush(Pulse boundary) {
-        if (buf.isEmpty && !emitEmpty) return;
-        emit.future?.call(
-          result: _window<S>(
-            buf,
-            last ?? boundary,
-            emit.cell,
-            'WindowWhen',
-          ),
-          token: emit.token,
+            void flush(Pulse boundary) {
+              if (buf.isEmpty && !emitEmpty) return;
+              emit.future?.call(
+                result: _window<S>(
+                  buf,
+                  last ?? boundary,
+                  emit.cell,
+                  'WindowWhen',
+                ),
+                token: emit.token,
+              );
+              buf.clear();
+            }
+
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              if (!armed) {
+                armed = true;
+                Cell.observe(
+                  source: closer,
+                  effect: (Pulse boundary) => flush(boundary),
+                );
+              }
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              last = typed;
+              buf.add(typed.payload as S);
+              return null;
+            };
+          })(),
+          user: user,
         );
-        buf.clear();
-      }
-
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        if (!armed) {
-          armed = true;
-          Cell.observe(
-            source: closer,
-            effect: (Pulse boundary) => flush(boundary),
-          );
-        }
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        last = typed;
-        buf.add(typed.payload as S);
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────

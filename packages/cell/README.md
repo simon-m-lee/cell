@@ -3,8 +3,8 @@
 Reactive state for Dart. A **cell** holds a value or relays a signal. A **pulse** is the immutable message that moves a change. Operators (`Cell.state`, `Cell.observe`, …) wire cells together.
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Mitosis-1.0.0--rc.1-blue.svg)](#status)
+[![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE)
+[![Version](https://img.shields.io/badge/Mitosis-1.0.0--rc.5-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-RC-yellow.svg)](#status)
 
 Validation, deputies, provenance, and timing control are available when you need them. Defaults are pass-through and allow-all — you can ship a counter without learning `Nucleus`.
@@ -34,7 +34,7 @@ The package is on pub.dev. From this monorepo:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.4
+  cell: ^1.0.0-rc.5
 ```
 
 From git:
@@ -81,7 +81,7 @@ void main() {
 
 `evolve` returning `null` rejects the update. Omit `evolve` to treat `update` as a direct assignment.
 
-Runnable demos live in [`example/`](example/). Start with `example/state_demo.dart`.
+Runnable demos live in [`example/`](https://github.com/simon-m-lee/cell/tree/master/packages/cell/example). Start with `example/state_demo.dart`.
 
 ---
 
@@ -125,7 +125,7 @@ Layers are optional, not a reading list.
 
 A deputy is a proxy, not a copy: `cell == cell.deputy()` is true. Rules on a deputy can only **narrow** what the principal already allows.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the design rationale.
+See [ARCHITECTURE.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md) for the design rationale.
 
 ---
 
@@ -133,18 +133,18 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the design rationale.
 
 | Document | What it is |
 |----------|------------|
-| [HowTo-Start.md](guide/HowTo-Start.md) | Walkthrough of the core concepts |
-| [HowTo-16_Essential_Operators.md](guide/HowTo-16_Essential_Operators.md) | Operator reference and learning path |
-| [FEATURES.md](FEATURES.md) | Source-checked feature catalog |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Why the pieces are shaped this way |
-| [TEST_VERIFICATION.md](TEST_VERIFICATION.md) | Unit-test inventory, measured coverage, and how to run the suite |
-| [HowTo-TestCell.md](guide/HowTo-TestCell.md) | Validation rules |
-| [HowTo-Synapses.md](guide/HowTo-Synapses.md) | Linking, filters, propagation |
-| [HowTo-Receptor.md](guide/HowTo-Receptor.md) | Transformation pipelines |
-| [HowTo-Instruction.md](guide/HowTo-Instruction.md) | Instruction stages |
-| [HowTo-Transaction.md](guide/HowTo-Transaction.md) | Buffered multi-cell writes |
-| [HowTo-TransactionOnApply.md](guide/HowTo-TransactionOnApply.md) | Staged `apply` + compensation |
-| [HowTo-Advanced.md](guide/HowTo-Advanced.md) | Index of optional governance machinery |
+| [HowTo-Start.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md) | Walkthrough of the core concepts |
+| [HowTo-16_Essential_Operators.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-16_Essential_Operators.md) | Operator reference and learning path |
+| [FEATURES.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/FEATURES.md) | Source-checked feature catalog |
+| [ARCHITECTURE.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md) | Why the pieces are shaped this way |
+| [TEST_VERIFICATION.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md) | Unit-test inventory, measured coverage, and how to run the suite |
+| [HowTo-TestCell.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TestCell.md) | Validation rules |
+| [HowTo-Synapses.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Synapses.md) | Linking, filters, propagation |
+| [HowTo-Receptor.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Receptor.md) | Transformation pipelines |
+| [HowTo-Instruction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Instruction.md) | Instruction stages |
+| [HowTo-Transaction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md) | Buffered multi-cell writes |
+| [HowTo-TransactionOnApply.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md) | Staged `apply` + compensation |
+| [HowTo-Advanced.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Advanced.md) | Index of optional governance machinery |
 
 Guides use `HowTo-*.md` (hyphens). Generate API docs with `dart doc .` and open `doc/api/index.html`.
 
@@ -166,9 +166,9 @@ Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) 
 
 ## Status
 
-**RC** (Mitosis `1.0.0-rc.4`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
+**RC** (Mitosis `1.0.0-rc.5`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
 
-A fuller developer list is in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Known limits, so this page does not over-promise:
+A fuller developer list is in [KNOWN_ISSUES.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/KNOWN_ISSUES.md). Known limits, so this page does not over-promise:
 
 - Published to pub.dev.
 - `Context`, `PulseContext`, and `Sensitivity` let you *attach* classification, actor, and purpose. They do not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation. `Context.describe('…')` stores text; it is not a legal basis or an audit log.
@@ -187,8 +187,8 @@ dart doc .
 
 ## License
 
-MIT or Apache-2.0. See [LICENSE](LICENSE).
+MIT or Apache-2.0. See [LICENSE](https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE).
 
 ## Authors
 
-Lee Man Hoi Simon. See [AUTHORS](AUTHORS) for copyright holders.
+Lee Man Hoi Simon. See [AUTHORS](https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS) for copyright holders.

@@ -22,7 +22,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef StartWithErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef StartWithErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────
 // Helper Functions
@@ -41,13 +42,14 @@ typedef StartWithErrorHandler = void Function(Object error, StackTrace? stackTra
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      StartWithErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  StartWithErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -91,13 +93,13 @@ Pulse<S> _out<S>(S value, Pulse trigger, Cell? cell, String step) {
 /// - [future]: The continuation callback.
 /// - [token]: The continuation token.
 void _emitAll<S>(
-    Iterable<S> values,
-    Pulse trigger,
-    Cell? cell,
-    String step,
-    void Function({required Pulse? result, required dynamic token})? future,
-    dynamic token,
-    ) {
+  Iterable<S> values,
+  Pulse trigger,
+  Cell? cell,
+  String step,
+  void Function({required Pulse? result, required dynamic token})? future,
+  dynamic token,
+) {
   for (final value in values) {
     future?.call(
       result: _out<S>(value, trigger, cell, step),
@@ -241,29 +243,29 @@ class StartWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [StartWithMany]: For multiple prefix values.
   /// - [StartWithFactory]: For dynamic prefix values.
   StartWith(
-      S seed, {
-        bool replaceFirst = false,
-        StartWithErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var first = true;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (first) {
-          first = false;
-          future!(
-            result: _out<S>(seed, typed, cell, 'StartWith.seed'),
-            token: token,
-          );
-          if (replaceFirst) return null;
-        }
-        return typed.withStep('StartWith');
-      };
-    })(),
-    user: user,
-  );
+    S seed, {
+    bool replaceFirst = false,
+    StartWithErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var first = true;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (first) {
+                first = false;
+                future!(
+                  result: _out<S>(seed, typed, cell, 'StartWith.seed'),
+                  token: token,
+                );
+                if (replaceFirst) return null;
+              }
+              return typed.withStep('StartWith');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -309,11 +311,11 @@ class StartWithValue<S> extends StartWith<S> {
   /// );
   /// ```
   StartWithValue(
-      super.value, {
-        super.replaceFirst,
-        super.onError,
-        super.user,
-      });
+    super.value, {
+    super.replaceFirst,
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -434,27 +436,28 @@ class StartWithMany<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [StartWithValue]: Alias of StartWith.
   /// - [StartWithFactory]: For dynamic prefix values.
   StartWithMany(
-      Iterable<S> seeds, {
-        bool replaceFirst = false,
-        StartWithErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var first = true;
-      final prefix = List<S>.from(seeds);
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (first) {
-          first = false;
-          _emitAll(prefix, typed, cell, 'StartWithMany.seed', future, token);
-          if (replaceFirst) return null;
-        }
-        return typed.withStep('StartWithMany');
-      };
-    })(),
-    user: user,
-  );
+    Iterable<S> seeds, {
+    bool replaceFirst = false,
+    StartWithErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var first = true;
+            final prefix = List<S>.from(seeds);
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (first) {
+                first = false;
+                _emitAll(
+                    prefix, typed, cell, 'StartWithMany.seed', future, token);
+                if (replaceFirst) return null;
+              }
+              return typed.withStep('StartWithMany');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -577,39 +580,39 @@ class StartWithFactory<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [StartWithValue]: Alias of StartWith.
   /// - [StartWithMany]: For multiple prefix values.
   StartWithFactory(
-      Iterable<S> Function(S first) seedOf, {
-        bool replaceFirst = false,
-        StartWithErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var first = true;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        if (first) {
-          first = false;
-          try {
-            final prefix = seedOf(typed.payload as S);
-            _emitAll(
-              prefix,
-              typed,
-              cell,
-              'StartWithFactory.seed',
-              future,
-              token,
-            );
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            return null;
-          }
-          if (replaceFirst) return null;
-        }
-        return typed.withStep('StartWithFactory');
-      };
-    })(),
-    user: user,
-  );
+    Iterable<S> Function(S first) seedOf, {
+    bool replaceFirst = false,
+    StartWithErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var first = true;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              if (first) {
+                first = false;
+                try {
+                  final prefix = seedOf(typed.payload as S);
+                  _emitAll(
+                    prefix,
+                    typed,
+                    cell,
+                    'StartWithFactory.seed',
+                    future,
+                    token,
+                  );
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  return null;
+                }
+                if (replaceFirst) return null;
+              }
+              return typed.withStep('StartWithFactory');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

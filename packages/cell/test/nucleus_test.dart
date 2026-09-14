@@ -142,7 +142,8 @@ void main() {
         expect(() => Nucleus().cell, throwsA(isA<Error>()));
       });
 
-      test('activate returns false for a cell that does not own this nucleus', () {
+      test('activate returns false for a cell that does not own this nucleus',
+          () {
         final nucleus = Nucleus();
         expect(nucleus.activate(Cell()), isFalse);
         expect(nucleus.isActivated, isFalse);

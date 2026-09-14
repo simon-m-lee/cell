@@ -228,60 +228,61 @@ class ZipWith<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for project throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   ZipWith(
-      List<Cell> others, {
-        R Function(List<Object?> row)? project,
-        ZipErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      final queues = List<_Queue>.generate(others.length + 1, (_) => _Queue());
-      var armed = false;
-      Pulse? last;
+    List<Cell> others, {
+    R Function(List<Object?> row)? project,
+    ZipErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            final queues =
+                List<_Queue>.generate(others.length + 1, (_) => _Queue());
+            var armed = false;
+            Pulse? last;
 
-      void listen(int index, Cell source) {
-        Cell.observe(
-          source: source,
-          effect: (Pulse p) {
-            queues[index].values.add(p.payload);
-            last = p;
-            _tryZip(
-              queues: queues,
-              emit: emit,
-              trigger: last ?? p,
-              step: 'ZipWith',
-              project: project ?? (row) => row as R,
-              onError: onError,
-            );
-          },
-        );
-      }
+            void listen(int index, Cell source) {
+              Cell.observe(
+                source: source,
+                effect: (Pulse p) {
+                  queues[index].values.add(p.payload);
+                  last = p;
+                  _tryZip(
+                    queues: queues,
+                    emit: emit,
+                    trigger: last ?? p,
+                    step: 'ZipWith',
+                    project: project ?? (row) => row as R,
+                    onError: onError,
+                  );
+                },
+              );
+            }
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        last = pulse;
-        if (!armed) {
-          armed = true;
-          for (var i = 0; i < others.length; i++) {
-            listen(i + 1, others[i]);
-          }
-        }
-        queues[0].values.add(pulse.payload);
-        _tryZip(
-          queues: queues,
-          emit: emit,
-          trigger: pulse,
-          step: 'ZipWith',
-          project: project ?? (row) => row as R,
-          onError: onError,
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              last = pulse;
+              if (!armed) {
+                armed = true;
+                for (var i = 0; i < others.length; i++) {
+                  listen(i + 1, others[i]);
+                }
+              }
+              queues[0].values.add(pulse.payload);
+              _tryZip(
+                queues: queues,
+                emit: emit,
+                trigger: pulse,
+                step: 'ZipWith',
+                project: project ?? (row) => row as R,
+                onError: onError,
+              );
+              return null;
+            };
+          })(),
+          user: user,
         );
-        return null;
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -369,48 +370,49 @@ class Zip<R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for project throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   Zip(
-      List<Cell> sources, {
-        R Function(List<Object?> row)? project,
-        ZipErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final emit = _Emit();
-      final queues = List<_Queue>.generate(sources.length, (_) => _Queue());
-      var armed = false;
-      Pulse? last;
+    List<Cell> sources, {
+    R Function(List<Object?> row)? project,
+    ZipErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final emit = _Emit();
+            final queues =
+                List<_Queue>.generate(sources.length, (_) => _Queue());
+            var armed = false;
+            Pulse? last;
 
-      return (pulse, {cell, user, future, token}) {
-        emit.future = future;
-        emit.token = token;
-        emit.cell = cell;
-        last = pulse;
-        if (!armed) {
-          armed = true;
-          for (var i = 0; i < sources.length; i++) {
-            final index = i;
-            Cell.observe(
-              source: sources[i],
-              effect: (Pulse p) {
-                queues[index].values.add(p.payload);
-                last = p;
-                _tryZip(
-                  queues: queues,
-                  emit: emit,
-                  trigger: last ?? p,
-                  step: 'Zip',
-                  project: project ?? (row) => row as R,
-                  onError: onError,
-                );
-              },
-            );
-          }
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              emit.future = future;
+              emit.token = token;
+              emit.cell = cell;
+              last = pulse;
+              if (!armed) {
+                armed = true;
+                for (var i = 0; i < sources.length; i++) {
+                  final index = i;
+                  Cell.observe(
+                    source: sources[i],
+                    effect: (Pulse p) {
+                      queues[index].values.add(p.payload);
+                      last = p;
+                      _tryZip(
+                        queues: queues,
+                        emit: emit,
+                        trigger: last ?? p,
+                        step: 'Zip',
+                        project: project ?? (row) => row as R,
+                        onError: onError,
+                      );
+                    },
+                  );
+                }
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -489,38 +491,38 @@ class ZipAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   ZipAll(
-      int width, {
-        ZipErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final row = <T>[];
-      return (pulse, {cell, user}) {
-        final payload = pulse.payload;
-        if (payload is! T) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $T, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        row.add(payload);
-        if (row.length < width) return null;
-        final out = List<T>.from(row);
-        row.clear();
-        return Pulse<List<T>>(
-          out,
-          source: cell ?? pulse.source,
-          type: pulse.type,
-          priority: pulse.priority,
-          step: 'ZipAll',
+    int width, {
+    ZipErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final row = <T>[];
+            return (pulse, {cell, user}) {
+              final payload = pulse.payload;
+              if (payload is! T) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $T, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              row.add(payload);
+              if (row.length < width) return null;
+              final out = List<T>.from(row);
+              row.clear();
+              return Pulse<List<T>>(
+                out,
+                source: cell ?? pulse.source,
+                type: pulse.type,
+                priority: pulse.priority,
+                step: 'ZipAll',
+              );
+            };
+          })(),
+          user: user,
         );
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────

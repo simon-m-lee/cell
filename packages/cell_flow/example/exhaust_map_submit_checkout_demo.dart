@@ -187,7 +187,8 @@ class ShoppingCart {
   int get itemCount => items.length;
 
   @override
-  String toString() => '${items.length} items - Total: \$${total.toStringAsFixed(2)}';
+  String toString() =>
+      '${items.length} items - Total: \$${total.toStringAsFixed(2)}';
 }
 
 /// Represents a cart item.
@@ -216,8 +217,12 @@ class ApiResult<T> {
   final String? error;
   final bool isSuccess;
 
-  ApiResult.success(this.data) : error = null, isSuccess = true;
-  ApiResult.failure(this.error) : data = null, isSuccess = false;
+  ApiResult.success(this.data)
+      : error = null,
+        isSuccess = true;
+  ApiResult.failure(this.error)
+      : data = null,
+        isSuccess = false;
 
   @override
   String toString() => isSuccess ? 'Success: $data' : 'Error: $error';
@@ -336,7 +341,8 @@ class ApiSimulator {
 Future<void> main() async {
   final api = ApiSimulator();
 
-  print('── ExhaustMap Demo: Submit, Checkout, Refresh ─────────────────────────────\n');
+  print(
+      '── ExhaustMap Demo: Submit, Checkout, Refresh ─────────────────────────────\n');
 
   // ========================================================================
   // 1. Form Submit - Prevent Double-Submit
@@ -451,13 +457,16 @@ Future<void> main() async {
     total: 1029.98,
   );
 
-  print('   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (via Credit Card)');
+  print(
+      '   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (via Credit Card)');
   await checkoutInput.emitAsync(cart);
 
-  print('   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (IGNORED - processing)');
+  print(
+      '   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (IGNORED - processing)');
   await checkoutInput.emitAsync(cart);
 
-  print('   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (IGNORED - processing)');
+  print(
+      '   [User] Checkout: \$${cart.total.toStringAsFixed(2)} (IGNORED - processing)');
   await checkoutInput.emitAsync(cart);
 
   await Future.delayed(const Duration(milliseconds: 400));
@@ -654,10 +663,12 @@ Future<void> main() async {
     total: 189.97,
   );
 
-  print('   [User] Cart: 3 items - Total: \$${checkoutCart.total.toStringAsFixed(2)}');
+  print(
+      '   [User] Cart: 3 items - Total: \$${checkoutCart.total.toStringAsFixed(2)}');
   await cartInput.emitAsync(checkoutCart);
 
-  print('   [User] Cart: 3 items - Total: \$${checkoutCart.total.toStringAsFixed(2)} (IGNORED)');
+  print(
+      '   [User] Cart: 3 items - Total: \$${checkoutCart.total.toStringAsFixed(2)} (IGNORED)');
   await cartInput.emitAsync(checkoutCart);
 
   await Future.delayed(const Duration(milliseconds: 350));
@@ -863,5 +874,6 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }

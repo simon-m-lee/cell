@@ -25,7 +25,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef SwitchErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef SwitchErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 // ─────────────────────────────────────────────────────────────
 // Type Definitions and Helpers
@@ -182,10 +183,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 ///   to avoid character-by-character iteration.
 /// - **Efficiency**: Only processes values from the current generation.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -386,52 +387,52 @@ class SwitchMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SwitchLatest]: For when the payload is the inner sequence.
   /// - [SwitchMapState]: For stateful switching with snapshot access.
   SwitchMap(
-      SwitchMapper<S> mapper, {
-        SwitchErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++gen.generation;
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            if (id != gen.generation) return;
-            await _drain(
-              inner,
-                  (item) {
-                if (id != gen.generation) return;
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'SwitchMap'),
-                    token: token,
+    SwitchMapper<S> mapper, {
+    SwitchErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++gen.generation;
+              Future<void> run() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  if (id != gen.generation) return;
+                  await _drain(
+                    inner,
+                    (item) {
+                      if (id != gen.generation) return;
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'SwitchMap'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == gen.generation,
                   );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == gen.generation,
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -560,42 +561,42 @@ class SwitchMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SwitchLatest]: For when the payload is the inner sequence.
   /// - [SwitchMapState]: For stateful switching with snapshot access.
   SwitchMapTo(
-      FutureOr<Object?> Function() inner, {
-        SwitchErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final id = ++gen.generation;
-        Future<void> run() async {
-          try {
-            final seq = await Future.sync(inner);
-            if (id != gen.generation) return;
-            await _drain(
-              seq,
-                  (item) {
-                if (id != gen.generation) return;
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'SwitchMapTo'),
-                    token: token,
+    FutureOr<Object?> Function() inner, {
+    SwitchErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final id = ++gen.generation;
+              Future<void> run() async {
+                try {
+                  final seq = await Future.sync(inner);
+                  if (id != gen.generation) return;
+                  await _drain(
+                    seq,
+                    (item) {
+                      if (id != gen.generation) return;
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'SwitchMapTo'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == gen.generation,
                   );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == gen.generation,
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -711,36 +712,36 @@ class SwitchLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     SwitchErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final id = ++gen.generation;
-        Future<void> run() async {
-          try {
-            await _drain(
-              pulse.payload,
-                  (item) {
-                if (id != gen.generation) return;
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'SwitchLatest'),
-                    token: token,
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final id = ++gen.generation;
+              Future<void> run() async {
+                try {
+                  await _drain(
+                    pulse.payload,
+                    (item) {
+                      if (id != gen.generation) return;
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'SwitchLatest'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == gen.generation,
                   );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == gen.generation,
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// Alias of [SwitchLatest] for Rx `switchAll` compatibility.
@@ -894,62 +895,62 @@ class SwitchMapState<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [SwitchLatest]: For when the payload is the inner sequence.
   /// - [SwitchMapSnapshot]: The shared state object.
   SwitchMapState(
-      FutureOr<Object?> Function(S value, SwitchMapSnapshot<S, T> state) mapper, {
-        SwitchMapSnapshot<S, T>? state,
-        SwitchErrorHandler? onError,
-        dynamic user,
-      }) : this._(mapper, state ?? SwitchMapSnapshot<S, T>(), onError, user);
+    FutureOr<Object?> Function(S value, SwitchMapSnapshot<S, T> state) mapper, {
+    SwitchMapSnapshot<S, T>? state,
+    SwitchErrorHandler? onError,
+    dynamic user,
+  }) : this._(mapper, state ?? SwitchMapSnapshot<S, T>(), onError, user);
 
   SwitchMapState._(
-      FutureOr<Object?> Function(S value, SwitchMapSnapshot<S, T> state) mapper,
-      this.snapshot,
-      SwitchErrorHandler? onError,
-      dynamic user,
-      ) : super.future(
-    (() {
-      final snap = snapshot;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++snap.generation;
-        snap.lastTrigger = payload;
-        Future<void> run() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload, snap));
-            if (id != snap.generation) return;
-            await _drain(
-              inner,
-                  (item) {
-                if (id != snap.generation) return;
-                if (item is T) {
-                  snap.lastValue = item;
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'SwitchMapState'),
-                    token: token,
+    FutureOr<Object?> Function(S value, SwitchMapSnapshot<S, T> state) mapper,
+    this.snapshot,
+    SwitchErrorHandler? onError,
+    dynamic user,
+  ) : super.future(
+          (() {
+            final snap = snapshot;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++snap.generation;
+              snap.lastTrigger = payload;
+              Future<void> run() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload, snap));
+                  if (id != snap.generation) return;
+                  await _drain(
+                    inner,
+                    (item) {
+                      if (id != snap.generation) return;
+                      if (item is T) {
+                        snap.lastValue = item;
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'SwitchMapState'),
+                          token: token,
+                        );
+                      }
+                    },
+                    stillLive: () => id == snap.generation,
                   );
+                } catch (e, stack) {
+                  if (id == snap.generation) onError?.call(e, stack);
                 }
-              },
-              stillLive: () => id == snap.generation,
-            );
-          } catch (e, stack) {
-            if (id == snap.generation) onError?.call(e, stack);
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -1042,7 +1043,7 @@ Future<void> main() async {
   final query = Cell.ingress<String>();
 
   final switched = SwitchMap<String, String>(
-        (q) async* {
+    (q) async* {
       // Simulate varying response times
       await Future<void>.delayed(Duration(milliseconds: q == 'old' ? 40 : 10));
       yield '$q-1';
@@ -1070,7 +1071,7 @@ Future<void> main() async {
   final clicks = Cell.ingress<void>();
 
   final echo = SwitchMapTo<void, String>(
-        () async* {
+    () async* {
       yield 'ping';
       await Future<void>.delayed(const Duration(milliseconds: 40));
       yield 'pong';
@@ -1122,7 +1123,7 @@ Future<void> main() async {
   final keyed = Cell.ingress<String>();
 
   final stated = SwitchMapState<String, String>(
-        (q, state) async => 'q=$q gen=${state.generation}',
+    (q, state) async => 'q=$q gen=${state.generation}',
     state: snap,
   ).toHandle(source: keyed.cell);
 

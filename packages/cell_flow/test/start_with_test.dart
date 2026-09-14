@@ -95,7 +95,8 @@ void main() {
       await b.gate.emitAsync('z');
       await b.probe.settle();
       expect(b.probe.payloads, ['x', 'y', 'z']);
-      expect(b.probe.steps, containsAll(['StartWithMany.seed', 'StartWithMany']));
+      expect(
+          b.probe.steps, containsAll(['StartWithMany.seed', 'StartWithMany']));
     });
 
     test('replaceFirst drops the first source payload', () async {
@@ -156,7 +157,6 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
-
 
   group('StartWith extra', () {
     test('replaceFirst drops the first source payload', () async {
@@ -287,5 +287,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

@@ -50,7 +50,6 @@ part of '../cell.dart';
 /// - [Pulse.withStep] – a convenience wrapper around [evolve].
 /// - [CollectivePulse] – the flat bundle created by `+` or [Pulse.batch].
 abstract interface class EvolvedPulse<P> implements Pulse<P> {
-
   /// The immediate causal ancestor of this pulse in the processing chain.
   ///
   /// ### When to use
@@ -112,7 +111,6 @@ abstract interface class EvolvedPulse<P> implements Pulse<P> {
   /// was a pure control signal or access is restricted by the governance tier.
   @override
   P? get payload;
-
 }
 
 /// A **Collective Pulse** — a flat bundle of independent pulses travelling
@@ -177,8 +175,8 @@ abstract interface class EvolvedPulse<P> implements Pulse<P> {
 /// - [Pulse.batch] – the factory that creates collective pulses.
 /// - [Pulse.+] – the operator that creates collective pulses.
 /// - [EvolvedPulse] – the chain‑based composite created by [evolve].
-abstract interface class CollectivePulse<P> implements Pulse<Iterable<Pulse<P>>> {
-
+abstract interface class CollectivePulse<P>
+    implements Pulse<Iterable<Pulse<P>>> {
   /// Creates a collective pulse from a list of individual pulses.
   ///
   /// ### When to use
@@ -204,8 +202,10 @@ abstract interface class CollectivePulse<P> implements Pulse<Iterable<Pulse<P>>>
   /// - [priority]: Optional urgency (overrides individual priorities).
   /// - [step]: Optional trace step for the bundle.
   factory CollectivePulse.from(Iterable<Pulse<P>> pulses,
-      {String? type, Cell? source, int? priority, String? step})
-  = _CollectivePulse<P>;
+      {String? type,
+      Cell? source,
+      int? priority,
+      String? step}) = _CollectivePulse<P>;
 
   /// Creates a governed collective pulse with lifecycle and security metadata.
   ///
@@ -239,22 +239,19 @@ abstract interface class CollectivePulse<P> implements Pulse<Iterable<Pulse<P>>>
   /// - [onError]: Called if any sub‑pulse fails.
   /// - [onProgress]: Called during processing.
   /// - [scrutinize]: Optional authorization challenge function.
-  factory CollectivePulse.governed(Iterable<Pulse<P>> pulses, {
+  factory CollectivePulse.governed(
+    Iterable<Pulse<P>> pulses, {
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     String? type,
-
     Cell? source,
     String? step,
-
     int? priority,
-
     void Function(Pulse pulse)? onComplete,
     void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
     void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-
-    FutureOr<Pulse?> Function(Receptor receptor, {bool? serializedCompletion})? scrutinize,
+    FutureOr<Pulse?> Function(Receptor receptor, {bool? serializedCompletion})?
+        scrutinize,
   }) = _CollectivePulse<P>;
 
   /// The collection of pulses bundled in this collective.
@@ -278,7 +275,6 @@ abstract interface class CollectivePulse<P> implements Pulse<Iterable<Pulse<P>>>
   /// ```
   @override
   Iterable<Pulse<P>> get payload;
-
 }
 
 /// A reactive signal — the fundamental unit of communication in the framework.
@@ -345,8 +341,8 @@ abstract interface class CollectivePulse<P> implements Pulse<Iterable<Pulse<P>>>
 ///
 /// {@category Signals & Synapses}
 /// {@category Pulse}
-abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P>> {
-
+abstract interface class Pulse<P>
+    implements Iterable<Pulse>, Comparable<Pulse<P>> {
   /// The default priority for pulses when none is specified.
   ///
   /// ### When to use
@@ -395,8 +391,14 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   /// ```dart
   /// final pulse = Pulse('Hello', type: 'message', priority: 60);
   /// ```
-  factory Pulse(P? payload, {String? type, Cell? source, int? priority, String? step})
-  => _Pulse<P>(payload: payload, type: type, source: source, priority: priority, step: step);
+  factory Pulse(P? payload,
+          {String? type, Cell? source, int? priority, String? step}) =>
+      _Pulse<P>(
+          payload: payload,
+          type: type,
+          source: source,
+          priority: priority,
+          step: step);
 
   /// Creates a governed pulse with lifecycle and security metadata.
   ///
@@ -457,15 +459,11 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   factory Pulse.governed({
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     P? payload,
     String? type,
-
     Cell? source,
     String? step,
-
     int? priority,
-
     void Function(Pulse pulse)? onComplete,
     void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
     void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
@@ -511,19 +509,19 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   /// final pulse2 = Pulse('Update account');
   /// final batch = Pulse.batch([pulse1, pulse2]);
   /// ```
-  static Pulse batch<P>(Iterable<Pulse<P>> pulses, {
+  static Pulse batch<P>(
+    Iterable<Pulse<P>> pulses, {
     PulseEphemeralPolicy? policy,
     PulseContext? context,
-
     String? type,
     Cell? source,
     String? step,
     int? priority,
-
     void Function(Pulse pulse)? onComplete,
     void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
     void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-  }) => _CollectivePulse<P>(pulses);
+  }) =>
+      _CollectivePulse<P>(pulses);
 
   /// The primary data or instruction carried by this signal.
   ///
@@ -591,7 +589,8 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   ///
   /// ### Returns:
   /// The internal kernel if authorised; `null` if neutralised.
-  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map<Symbol, dynamic>? namedArguments]);
+  dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
+      [Map<Symbol, dynamic>? namedArguments]);
 
   /// Creates a derived version of this pulse for the next processing stage.
   ///
@@ -753,7 +752,7 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   ///
   /// ### Returns:
   /// A [PulseShell] that gates access until **Reciprocal Authorization** is satisfied.
-  PulseShell<P,Receptor> get shell;
+  PulseShell<P, Receptor> get shell;
 
   /// The exact moment this pulse was synthesised.
   ///
@@ -1146,17 +1145,17 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   /// *   **Archiving**: Ensuring a pulse stored in a history buffer or audit
   ///     log cannot be retroactively altered.
   ///
-  /// ### How it works  
+  /// ### How it works
   /// 1.  **Privilege Attenuation**: If the [payload] is a [Cell], the returned
   ///     pulse automatically projects it as an attenuated deputy (via [Cell.unmodifiable]).
-  ///     This strips mutation capabilities ([Cell.modifiable]) while preserving 
+  ///     This strips mutation capabilities ([Cell.modifiable]) while preserving
   ///     reactivity, ensuring downstream consumers can observe but not alter state.
-  /// 2.  **Recursive Provenance Locking**: To maintain a tamper-proof **Chain of 
-  ///     Evidence**, the entire causal lineage—including the `parent`, `root`, 
-  ///     and `source` properties—is recursively projected as unmodifiable views. 
+  /// 2.  **Recursive Provenance Locking**: To maintain a tamper-proof **Chain of
+  ///     Evidence**, the entire causal lineage—including the `parent`, `root`,
+  ///     and `source` properties—is recursively projected as unmodifiable views.
   /// 3.  **Structural Finality**: The pulse envelope (metadata, context, and trace)
-  ///     is effectively sealed. This creates an **Integrity Gate** that prevents 
-  ///     any modification to the current hop's record during the remainder of 
+  ///     is effectively sealed. This creates an **Integrity Gate** that prevents
+  ///     any modification to the current hop's record during the remainder of
   ///     the propagation cycle.
   ///
   /// ### Non‑obvious: Evolution is still permitted
@@ -1256,7 +1255,6 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
   /// A fixed-length [List<T>] containing the historical values in
   /// chronological order (Primordial -> Present).
   List<T> lineage<T>(LineageArgument arg);
-
 }
 
 /// A read‑only projection of a pulse that enforces structural finality.
@@ -1295,8 +1293,8 @@ abstract interface class Pulse<P> implements Iterable<Pulse>, Comparable<Pulse<P
 /// ```
 ///
 /// See also: [Pulse.unmodifiable] (the simpler way to get one of these).
-abstract interface class UnmodifiablePulse<P> implements Pulse<P>, Unmodifiable {
-
+abstract interface class UnmodifiablePulse<P>
+    implements Pulse<P>, Unmodifiable {
   /// Creates a read‑only projection of an existing pulse.
   ///
   /// ### When to use
@@ -1319,5 +1317,4 @@ abstract interface class UnmodifiablePulse<P> implements Pulse<P>, Unmodifiable 
   /// An [UnmodifiablePulse] that preserves the original data but blocks any
   /// further changes to its envelope or lineage.
   factory UnmodifiablePulse(Pulse<P> source) = _UnmodifiablePulse<P>;
-
 }

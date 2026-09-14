@@ -7,13 +7,13 @@
 part of '../../cell.dart';
 
 class _ContextDescribe implements Context {
-
   final String description;
 
   const _ContextDescribe(this.description);
 
   @override
-  Context evolve(GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others}) {
+  Context evolve(GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others}) {
     final entries = Ontology.evolve(resolver);
     return _Context.fromEntries(entries, others: others);
   }
@@ -37,7 +37,7 @@ class _ContextDescribe implements Context {
   String? get isNot => null;
 
   @override
-  List<String> lineage(Governance<dynamic> dimension) => const[];
+  List<String> lineage(Governance<dynamic> dimension) => const [];
 
   @override
   String? get partOf => null;
@@ -62,15 +62,14 @@ class _ContextDescribe implements Context {
 
   @override
   String? get type => null;
-
 }
 
 class _ContextSystem implements Context {
-
   const _ContextSystem();
 
   @override
-  Context evolve(GovernanceEntry? Function(Ontology evolvable) resolver, {Map<String, dynamic>? others}) {
+  Context evolve(GovernanceEntry? Function(Ontology evolvable) resolver,
+      {Map<String, dynamic>? others}) {
     final entries = Ontology.evolve(resolver);
     return _Context.fromEntries(entries, others: others);
   }
@@ -119,52 +118,49 @@ class _ContextSystem implements Context {
 
   @override
   String? get type => null;
-
 }
 
 class _Context extends ContextBase {
-
-  _Context({
-    String? type,
-    String? identity,
-
-    String? domains,
-    String? dataSources,
-    String? taxonomy,
-    String? topology,
-    String? version,
-
-    String? subDomains,
-    String? stakeholders,
-    Map<String, dynamic>? constraints,
-    String? isNot,
-    String? compliances,
-    String? partOf,
-    Map<String, dynamic>? others
-  }) : this.fromEntries(<GovernanceEntry>[
-    if (type != null) Ontology.type.entry(type),
-    if (identity != null) Ontology.identity.entry(identity),
-    if (partOf != null) Ontology.partOf.entry(partOf),
-    if (dataSources != null) Ontology.dataSources.entry(dataSources),
-    if (constraints != null) Ontology.constraints.entry(constraints),
-    if (domains != null) Ontology.domains.entry(domains),
-    if (taxonomy != null) Ontology.taxonomy.entry(taxonomy),
-    if (topology != null) Ontology.topology.entry(topology),
-    if (version != null) Ontology.version.entry(version),
-    if (subDomains != null) Ontology.subDomains.entry(subDomains),
-    if (stakeholders != null) Ontology.stakeholders.entry(stakeholders),
-    if (isNot != null) Ontology.isNot.entry(isNot),
-    if (compliances != null) Ontology.compliance.entry(compliances),
-  ], others: others);
+  _Context(
+      {String? type,
+      String? identity,
+      String? domains,
+      String? dataSources,
+      String? taxonomy,
+      String? topology,
+      String? version,
+      String? subDomains,
+      String? stakeholders,
+      Map<String, dynamic>? constraints,
+      String? isNot,
+      String? compliances,
+      String? partOf,
+      Map<String, dynamic>? others})
+      : this.fromEntries(<GovernanceEntry>[
+          if (type != null) Ontology.type.entry(type),
+          if (identity != null) Ontology.identity.entry(identity),
+          if (partOf != null) Ontology.partOf.entry(partOf),
+          if (dataSources != null) Ontology.dataSources.entry(dataSources),
+          if (constraints != null) Ontology.constraints.entry(constraints),
+          if (domains != null) Ontology.domains.entry(domains),
+          if (taxonomy != null) Ontology.taxonomy.entry(taxonomy),
+          if (topology != null) Ontology.topology.entry(topology),
+          if (version != null) Ontology.version.entry(version),
+          if (subDomains != null) Ontology.subDomains.entry(subDomains),
+          if (stakeholders != null) Ontology.stakeholders.entry(stakeholders),
+          if (isNot != null) Ontology.isNot.entry(isNot),
+          if (compliances != null) Ontology.compliance.entry(compliances),
+        ], others: others);
 
   _Context.fromEntries(super.entries, {super.others, super.parent});
 
   @override
-  Context evolve(covariant GovernanceEntry? Function(Ontology evolvable) resolver, {Map<String, dynamic>? others}) {
+  Context evolve(
+      covariant GovernanceEntry? Function(Ontology evolvable) resolver,
+      {Map<String, dynamic>? others}) {
     final entries = Ontology.evolve(resolver);
     return _Context.fromEntries(entries, others: others, parent: this);
   }
-
 }
 
 /// The foundational implementation of the **Operational Environment**, providing
@@ -198,7 +194,6 @@ class _Context extends ContextBase {
 ///
 /// See also: [Context], [DeputyContext], [PulseContext], [Ontology].
 abstract class ContextBase implements Context {
-
   final dynamic _record;
 
   /// Synthesizes an **Operational Environment** from a collection of
@@ -225,12 +220,14 @@ abstract class ContextBase implements Context {
   ///   specialised **Scene-Driven** logic.
   /// - [parent]: The ancestral [Context] from which this instance derives
   ///   its baseline governance and identity.
-  ContextBase(Iterable<GovernanceEntry> entries, {Map<String, dynamic>? others, Context? parent})
+  ContextBase(Iterable<GovernanceEntry> entries,
+      {Map<String, dynamic>? others, Context? parent})
       : this.fromRecord((
           map: Map<Governance, dynamic>.unmodifiable(
             Map.fromEntries(entries.map((e) => e.toEntry())),
           ),
-          others: others == null ? null : Map<String, dynamic>.unmodifiable(others),
+          others:
+              others == null ? null : Map<String, dynamic>.unmodifiable(others),
           parent: parent,
         ));
 
@@ -286,85 +283,86 @@ abstract class ContextBase implements Context {
     return null;
   }
 
-  ContextBase? get _parent => get<ContextBase?>(() => _record.parent, orElse: null);
+  ContextBase? get _parent =>
+      get<ContextBase?>(() => _record.parent, orElse: null);
 
   @override
   String? get type => get<String?>(
         () => _record.map[Ontology.type] ?? _parent?.type,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get identity => get<String?>(
         () => _record.map[Ontology.identity] ?? _parent?.identity,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get taxonomy => get<String?>(
         () => _record.map[Ontology.taxonomy] ?? _parent?.taxonomy,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get topology => get<String?>(
         () => _record.map[Ontology.topology] ?? _parent?.topology,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get dataSources => get<String?>(
         () => _record.map[Ontology.dataSources] ?? _parent?.dataSources,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   Map<String, dynamic>? get constraints => get<Map<String, dynamic>?>(
         () => _record.map[Ontology.constraints] ?? _parent?.constraints,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get domains => get<String?>(
         () => _record.map[Ontology.domains] ?? _parent?.domains,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get subDomains => get<String?>(
         () => _record.map[Ontology.subDomains] ?? _parent?.subDomains,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get stakeholders => get<String?>(
         () => _record.map[Ontology.stakeholders] ?? _parent?.stakeholders,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get isNot => get<String?>(
         () => _record.map[Ontology.isNot] ?? _parent?.isNot,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get compliance => get<String?>(
         () => _record.map[Ontology.compliance] ?? _parent?.compliance,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get partOf => get<String?>(
         () => _record.map[Ontology.partOf] ?? _parent?.partOf,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   @override
   String? get version => get<String?>(
         () => _record.map[Ontology.version] ?? _parent?.version,
-    orElse: null,
-  );
+        orElse: null,
+      );
 
   /// Performs **Identity Synthesis** by comparing the structural convergence
   /// of two **Somatic Signatures**.
@@ -390,7 +388,6 @@ abstract class ContextBase implements Context {
   /// consistent during reactive propagation.
   @override
   int get hashCode => _record.hashCode;
-
 }
 
 /*

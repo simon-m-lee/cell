@@ -480,10 +480,10 @@ cache['home'] = api.fetchHome(); // cache expires 5 minutes after last activity
 | Document | What You'll Learn |
 |---|---|
 | [`cell_tissue` API docs](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | Full collection API reference |
-| [`HowTo-Start.md` (cell)](../cell/guide/HowTo-Start.md) | The Cell graph, pulses, and operators underneath |
-| [`HowTo-EphemeralPolicy.md` (cell)](../cell/guide/HowTo-EphemeralPolicy.md) | TTL and event-limit lifecycle policies |
-| [`HowTo-TestCell.md` (cell)](../cell/guide/HowTo-TestCell.md) | Validation gates and business rules |
-| [`HowTo-Nucleus.md` (cell)](../cell/guide/HowTo-Nucleus.md) | Blueprints and structural integrity |
+| [`HowTo-Start.md` (cell)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md) | The Cell graph, pulses, and operators underneath |
+| [`HowTo-EphemeralPolicy.md` (cell)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-EphemeralPolicy.md) | TTL and event-limit lifecycle policies |
+| [`HowTo-TestCell.md` (cell)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TestCell.md) | Validation gates and business rules |
+| [`HowTo-Nucleus.md` (cell)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Nucleus.md) | Blueprints and structural integrity |
 
 ---
 

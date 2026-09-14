@@ -243,7 +243,6 @@ void main() {
     });
   });
 
-
   group('SwitchMap extra', () {
     test('onError is optional when mapper throws', () async {
       final b = bind(SwitchMap<int, int>((n) => throw StateError('s')));

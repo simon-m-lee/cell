@@ -227,8 +227,9 @@ void main() {
 
     test('synchronises ElementUpdated into a list of cells', () {
       final sourceValue = TissueValue<int>(0);
-      final event = sourceValue.apply(sourceValue.set, positionalArguments: [42])
-          as ElementUpdated<int, TissueValue<int>>;
+      final event =
+          sourceValue.apply(sourceValue.set, positionalArguments: [42])
+              as ElementUpdated<int, TissueValue<int>>;
 
       final target = TissueList<dynamic>();
       final receptor = TissueReceptor<dynamic, TissueList<dynamic>>(
@@ -239,8 +240,9 @@ void main() {
       receptor.call(event);
       expect(target.toList(), [sourceValue]);
 
-      final event2 = sourceValue.apply(sourceValue.set, positionalArguments: [43])
-          as ElementUpdated<int, TissueValue<int>>;
+      final event2 =
+          sourceValue.apply(sourceValue.set, positionalArguments: [43])
+              as ElementUpdated<int, TissueValue<int>>;
       receptor.call(event2);
       expect(target.toList(), [sourceValue]);
     });
@@ -259,7 +261,5 @@ void main() {
       expect(out, isNotNull);
       expect(target.toList(), [2, 2]);
     });
-
-
   });
 }

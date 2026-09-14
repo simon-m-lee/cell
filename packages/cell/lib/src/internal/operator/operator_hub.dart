@@ -237,12 +237,10 @@ HubHandle _hub({
   /// order). When false, only the highest-priority match receives it.
   /// Forced to true when [routing] == [HubRouting.multicast].
   bool multicast = false,
-
   EphemeralPolicy? ephemeralPolicy,
   Context context = Context.system,
   Cell? bind,
   TestCell testRule = TestCell.allowAll,
-
   Synapses Function(String role)? distribution,
   void Function(Pulse pulse)? relay,
   bool forceLock = false,
@@ -261,8 +259,7 @@ HubHandle _hub({
   final ordered = List<SpokeRegistration>.from(regs)
     ..sort((a, b) => b.priority.compareTo(a.priority));
 
-  final effectiveMulticast =
-      multicast || routing == HubRouting.multicast;
+  final effectiveMulticast = multicast || routing == HubRouting.multicast;
 
   // ── 2. Materialise spoke cells ─────────────────────────────
   final Map<String, Cell> spokeCells = {};
@@ -304,9 +301,9 @@ HubHandle _hub({
       case HubRouting.pattern:
         return _globMatch(reg.key, type);
       case HubRouting.multicast:
-      // Multicast still uses exact match per spoke unless a custom
-      // matcher is supplied; the “deliver to all” behaviour is
-      // controlled by [effectiveMulticast].
+        // Multicast still uses exact match per spoke unless a custom
+        // matcher is supplied; the “deliver to all” behaviour is
+        // controlled by [effectiveMulticast].
         return reg.key == type;
     }
   }
@@ -417,39 +414,37 @@ List<SpokeRegistration> _registrations({
   Map<DeputyContext, Receptor>? governedSpokes,
 }) {
   assert(
-  (spokes == null) != (governedSpokes == null) ||
-      (spokes == null && governedSpokes == null),
-  'Cell.hub requires exactly one of `spokes` or `governedSpokes` '
-      '(or use the new `registrations` list).',
+    (spokes == null) != (governedSpokes == null) ||
+        (spokes == null && governedSpokes == null),
+    'Cell.hub requires exactly one of `spokes` or `governedSpokes` '
+    '(or use the new `registrations` list).',
   );
 
   if (spokes != null) {
     return spokes.entries
         .map((e) => (
-    key: e.key,
-    priority: 0,
-    match: null,
-    handler: e.value,
-    receptor: null,
-    context: null,
-    ))
+              key: e.key,
+              priority: 0,
+              match: null,
+              handler: e.value,
+              receptor: null,
+              context: null,
+            ))
         .toList();
   }
 
   if (governedSpokes != null) {
-    return governedSpokes.entries
-        .map((e) {
+    return governedSpokes.entries.map((e) {
       final role = e.key.role ?? e.key.hashCode.toString();
       return (
-      key: role,
-      priority: 0,
-      match: null,
-      handler: null,
-      receptor: e.value,
-      context: e.key,
+        key: role,
+        priority: 0,
+        match: null,
+        handler: null,
+        receptor: e.value,
+        context: e.key,
       );
-    })
-        .toList();
+    }).toList();
   }
 
   return const [];

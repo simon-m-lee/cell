@@ -8,15 +8,15 @@ Use this group when a write must be *justified*, *isolated*, or *short-lived* â€
 
 | Topic | When you actually need it |
 | --- | --- |
-| [Context](HowTo-Context.md) | Domain / constraint metadata on a cell |
-| [Deputy Context](HowTo-DeputyContext.md) | A narrower proxy of the same cell |
-| [Nucleus](HowTo-Nucleus.md) | Shared immutable blueprints |
-| [Pulse Context](HowTo-PulseContext.md) | Actor / reason / purpose on a pulse |
-| [Pulse Ephemeral Policy](HowTo-PulseEphemeralPolicy.md) | TTL and hop limits on a signal |
-| [Ephemeral Policy](HowTo-EphemeralPolicy.md) | TTL and event budgets on a cell |
-| [Propagation Policy](HowTo-PropagationPolicy.md) | Debounce / throttle / batch at the synapse |
-| [Transactions](HowTo-Transaction.md) | Multi-cell buffered writes and isolation |
-| [txApply](HowTo-TransactionOnApply.md) | Staged `apply()` plus compensation |
+| [Context](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Context.md) | Domain / constraint metadata on a cell |
+| [Deputy Context](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-DeputyContext.md) | A narrower proxy of the same cell |
+| [Nucleus](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Nucleus.md) | Shared immutable blueprints |
+| [Pulse Context](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PulseContext.md) | Actor / reason / purpose on a pulse |
+| [Pulse Ephemeral Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PulseEphemeralPolicy.md) | TTL and hop limits on a signal |
+| [Ephemeral Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-EphemeralPolicy.md) | TTL and event budgets on a cell |
+| [Propagation Policy](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PropagationPolicy.md) | Debounce / throttle / batch at the synapse |
+| [Transactions](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md) | Multi-cell buffered writes and isolation |
+| [txApply](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md) | Staged `apply()` plus compensation |
 
 None of this runs unless you pass the type in. `Context.describe('â€¦')` stores text; it is not a compliance program.
 

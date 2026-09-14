@@ -474,9 +474,8 @@ final class DeskView {
   });
 
   @override
-  String toString() =>
-      'DeskView(conf=$conf, room=$room, hk=${hk.name}, '
-          'occupied=$occupied, doorOpen=$doorOpen)';
+  String toString() => 'DeskView(conf=$conf, room=$room, hk=${hk.name}, '
+      'occupied=$occupied, doorOpen=$doorOpen)';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -494,8 +493,7 @@ void _section(String label, String drive) {
 
 /// Awaits a short microtask-friendly delay so that observers wired with
 /// `Cell.observe` can drain before the next assertion.
-Future<void> _tick() =>
-    Future<void>.delayed(const Duration(milliseconds: 30));
+Future<void> _tick() => Future<void>.delayed(const Duration(milliseconds: 30));
 
 /// Reads the current `bool` value held by a [Cell], or `false` on failure.
 ///
@@ -715,7 +713,7 @@ class FrontDesk {
   /// optional single-letter suffix (`'412'`, `'412-A'`). Anything else
   /// is a desk error and must be caught at ingress.
   static final TestCell _roomShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! String) return true;
       return RegExp(r'^\d{3}(-[A-Z])?$').hasMatch(v);
@@ -728,7 +726,7 @@ class FrontDesk {
   /// The POS glass can emit a `-1` on cancel or malformed input.
   /// Rejecting at ingress keeps the folio Cell's domain clean.
   static final TestCell _centsNonNeg = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! int) return true;
       return v >= 0;
@@ -741,7 +739,7 @@ class FrontDesk {
   /// A blank conf is a swipe-read failure. It must never trigger a
   /// check-in transaction.
   static final TestCell _confShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! Reservation) return true;
       return v.conf.isNotEmpty;
@@ -839,8 +837,7 @@ class FrontDesk {
       aggregator: (cells, emit) {
         synthBumps++;
         final room = _peekCell(cells.elementAt(0), String) ?? '';
-        final hk =
-            _peekCell(cells.elementAt(1), HkStatus) ?? HkStatus.clean;
+        final hk = _peekCell(cells.elementAt(1), HkStatus) ?? HkStatus.clean;
         final occ = _peekCell(cells.elementAt(2), bool) ?? false;
         final door = _peekCell(cells.elementAt(3), bool) ?? false;
         final conf = _peekCell(cells.elementAt(4), String);
@@ -889,7 +886,7 @@ class FrontDesk {
     // reservations detach the prior inner Cell.
     latestRes = Cell.switchMap<Reservation, Reservation>(
       resIn.cell,
-          (r) {
+      (r) {
         final inner = Cell.ingress<Reservation>();
         final reservation = _asReservation(r);
         scheduleMicrotask(() {
@@ -904,7 +901,7 @@ class FrontDesk {
     // field is present, the post is recorded and a PMS-ACK is returned.
     pmsCell = Cell.asyncMap<Reservation, String>(
       latestRes!,
-          (r) async {
+      (r) async {
         await Future.delayed(const Duration(milliseconds: 5));
         final reservation = _asReservation(r);
         if (reservation == null) return 'PMS-ACK ?';
@@ -1219,10 +1216,12 @@ class FrontDesk {
 /// 3. Run scenarios 1–14 in order.
 /// 4. Print the trailer and dispose.
 Future<void> main() async {
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' hotel-front-desk-checkin-Demo.dart (corrected run)');
   print(' package:cell only — no Flow, no Tissue');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   final desk = FrontDesk();
   await desk.install();
@@ -1270,7 +1269,8 @@ Future<void> main() async {
   _section('3', "roomIn.emit('41') — TestCell reject");
   final sb0 = desk.synthBumps;
   final accepted = desk.roomIn.emit('41');
-  print('  ingress accepted=$accepted  synthBumps delta=${desk.synthBumps - sb0}');
+  print(
+      '  ingress accepted=$accepted  synthBumps delta=${desk.synthBumps - sb0}');
 
   // -------------------------------------------------------------------------
   // 4 — HK dirty, then RESERVE → no transaction
@@ -1444,14 +1444,16 @@ Future<void> main() async {
   // Trailer
   // -------------------------------------------------------------------------
   print('');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
   print('occupied=${_boolVal(desk.occupied.cell)} '
       'folio=${_intVal(desk.folio.cell)} '
       'status=${_statusName(desk.status.cell)}');
   print('auditContainsLovelace=${auditContainsLovelace.any((b) => b)}');
   print('encoder=${desk.lastKeyId ?? "<voided>"}');
   print('pmsLast=${desk.pmsLast}');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
 
   desk.dispose();
 }

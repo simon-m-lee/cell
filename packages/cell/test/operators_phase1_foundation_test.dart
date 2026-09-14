@@ -21,14 +21,14 @@ class RecordingCell extends CellBase {
 
   RecordingCell({Cell? bind})
       : super(
-    bind: bind,
-    receptor: Receptor((cell, pulse, {user}) {
-      final recorder = cell as RecordingCell;
-      recorder.receivedPulses.add(pulse);
-      recorder.receivedPayloads.add(pulse.payload);
-      return pulse;
-    }),
-  );
+          bind: bind,
+          receptor: Receptor((cell, pulse, {user}) {
+            final recorder = cell as RecordingCell;
+            recorder.receivedPulses.add(pulse);
+            recorder.receivedPayloads.add(pulse.payload);
+            return pulse;
+          }),
+        );
 }
 
 /// A simple value cell wrapper for testing.
@@ -416,7 +416,11 @@ void main() {
         expect(handle.cell, isA<Cell>());
         expect(handle.emit, isA<bool Function(int)>());
         expect(handle.emitAsync, isA<Future<bool> Function(int)>());
-        expect(handle.ingest, isA<Future<void> Function(Pulse<int>, {bool serializedCompletion})>());
+        expect(
+            handle.ingest,
+            isA<
+                Future<void> Function(Pulse<int>,
+                    {bool serializedCompletion})>());
       });
 
       test('emit sends a pulse through the ingress', () {

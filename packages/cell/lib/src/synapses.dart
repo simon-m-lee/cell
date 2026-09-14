@@ -52,7 +52,6 @@ part of '../cell.dart';
 ///
 /// {@category Signals & Synapses}
 class FilterRule<P extends Pulse> {
-
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -60,14 +59,15 @@ class FilterRule<P extends Pulse> {
     return get<Function?>(() => _record.rule, orElse: null);
   }
 
-  FilterRule<P>? get _parent => get<FilterRule<P>?>(() => _record.parent, orElse: null);
+  FilterRule<P>? get _parent =>
+      get<FilterRule<P>?>(() => _record.parent, orElse: null);
 
   dynamic get _user => get<dynamic>(() => _record.user, orElse: null);
 
   /// The collection of rules managed by this object.
   Iterable<FilterRule<P>> get _rules =>
-      get<Iterable<FilterRule<P>>>(
-              () => _record.rules, orElse: const Iterable.empty());
+      get<Iterable<FilterRule<P>>>(() => _record.rules,
+          orElse: const Iterable.empty());
 
   /// Creates a single filter rule from a transformation function.
   ///
@@ -89,15 +89,15 @@ class FilterRule<P extends Pulse> {
   ///   return pulse.payload > limit ? pulse : null;
   /// }, user: 50);
   /// ```
-  const FilterRule(P? Function(P pulse, {dynamic user}) rule, {
-    FilterRule<P>? parent, dynamic user
-  }) : _record = parent != null
-      ? user != null
-          ? (rule: rule, parent: parent, user: user)
-          : (rule: rule, parent: parent)
-      : user != null
-          ? (rule: rule, user: user)
-          : (rule: rule);
+  const FilterRule(P? Function(P pulse, {dynamic user}) rule,
+      {FilterRule<P>? parent, dynamic user})
+      : _record = parent != null
+            ? user != null
+                ? (rule: rule, parent: parent, user: user)
+                : (rule: rule, parent: parent)
+            : user != null
+                ? (rule: rule, user: user)
+                : (rule: rule);
 
   /// Creates a composite filter pipeline from a collection of rules.
   ///
@@ -126,12 +126,19 @@ class FilterRule<P extends Pulse> {
   /// - [user]: Optional metadata passed to the [strategy].
   /// - [strategy]: An optional transformation function that overrides the
   ///   default sequential execution of the [rules] collection.
-  const FilterRule.chain(Iterable<FilterRule<P>> rules, {
-    FilterRule<P>? parent, dynamic user,
-    bool Function(P pulse, {dynamic user})? strategy
-  }) : _record = strategy != null ? parent != null ? user != null
-      ? (rule: strategy, parent: parent, user: user) : (rule: strategy, parent: parent) : (rule: strategy)
-      : parent != null ? (rules: rules, parent: parent) : (rules: rules);
+  const FilterRule.chain(Iterable<FilterRule<P>> rules,
+      {FilterRule<P>? parent,
+      dynamic user,
+      bool Function(P pulse, {dynamic user})? strategy})
+      : _record = strategy != null
+            ? parent != null
+                ? user != null
+                    ? (rule: strategy, parent: parent, user: user)
+                    : (rule: strategy, parent: parent)
+                : (rule: strategy)
+            : parent != null
+                ? (rules: rules, parent: parent)
+                : (rules: rules);
 
   /// Reconstitutes a [FilterRule] from a raw flyweight record.
   ///
@@ -161,7 +168,6 @@ class FilterRule<P extends Pulse> {
   /// ### Returns:
   /// The transformed pulse, or `null` if the pulse was filtered out.
   P? call(P pulse) {
-
     P? out;
     out = pulse;
     try {
@@ -180,7 +186,7 @@ class FilterRule<P extends Pulse> {
           }
         }
       }
-    } catch(_) {}
+    } catch (_) {}
 
     if (out != null) {
       final parent = _parent;
@@ -217,7 +223,6 @@ class FilterRule<P extends Pulse> {
     if (other is! FilterRule) return false;
     return _record == other._record;
   }
-
 }
 
 /// The distribution fabric for a [Cell]'s outgoing signals—defining how,
@@ -263,8 +268,8 @@ class FilterRule<P extends Pulse> {
 ///   configuring signal distribution and flow control.
 ///
 /// {@category Signals & Synapses}
-abstract interface class Synapses<P extends Pulse, L extends Cell> implements Iterable<L> {
-
+abstract interface class Synapses<P extends Pulse, L extends Cell>
+    implements Iterable<L> {
   /// A predefined, singleton constant representing a completely disabled
   /// synapse network.
   ///
@@ -348,7 +353,7 @@ abstract interface class Synapses<P extends Pulse, L extends Cell> implements It
     Iterable<L>? downstreams,
     FilterRule<P>? filter,
     void Function(P pulse)? relay,
-  }) = _Synapses<P,L>;
+  }) = _Synapses<P, L>;
 
   /// Synchronously orchestrates the atomic propagation wave for the
   /// provided [pulse] across all registered downstream observers.
@@ -384,7 +389,7 @@ abstract interface class Synapses<P extends Pulse, L extends Cell> implements It
   /// ```dart
   /// await synapses.async.call(Pulse('update'));
   /// ```
-  AsyncSynapses<P,L> get async;
+  AsyncSynapses<P, L> get async;
 
   /// Establishes a formal reactive connection (link) between the host [cell]
   /// and a [downstreamCell].
@@ -448,5 +453,4 @@ abstract interface class Synapses<P extends Pulse, L extends Cell> implements It
   /// - `false` if the link did not exist, or if the operation was rejected
   ///   by security rules or disabled synapses.
   bool unlink(Cell cell, {required Cell downstreamCell});
-
 }

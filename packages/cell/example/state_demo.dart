@@ -89,14 +89,17 @@ Future<void> main() async {
 
   final asyncObs = Cell.observe(
     source: asyncState.cell,
-    effect: (Pulse pulse) => print('   [Async] value = ${pulse.payload} (after 100ms)'),
+    effect: (Pulse pulse) =>
+        print('   [Async] value = ${pulse.payload} (after 100ms)'),
   );
 
   print('   [Async] update started...');
-  unawaited(Future.delayed(const Duration(milliseconds: 100), () => 10).then((v) => asyncState.updateAsync(v)));
+  unawaited(Future.delayed(const Duration(milliseconds: 100), () => 10)
+      .then((v) => asyncState.updateAsync(v)));
 
   print('   [Async] update started...');
-  final val20 = await Future.delayed(const Duration(milliseconds: 100), () => 20);
+  final val20 =
+      await Future.delayed(const Duration(milliseconds: 100), () => 20);
   await asyncState.updateAsync(val20);
 
   await Future.delayed(const Duration(milliseconds: 50));

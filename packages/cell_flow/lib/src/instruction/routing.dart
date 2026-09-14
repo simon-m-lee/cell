@@ -41,13 +41,14 @@ typedef RouteErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      RouteErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  RouteErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -278,32 +279,32 @@ class Iif<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RouteByKey]: For key-based routing.
   /// - [PartitionTag]: For tagging without forking.
   Iif(
-      bool Function(S value) predicate, {
-        required T Function(S value) thenMap,
-        required T Function(S value) elseMap,
-        RouteErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        final matched = predicate(value);
-        final mapped = matched ? thenMap(value) : elseMap(value);
-        return _out<T>(
-          mapped,
-          typed,
-          cell,
-          matched ? 'Iif.then' : 'Iif.else',
+    bool Function(S value) predicate, {
+    required T Function(S value) thenMap,
+    required T Function(S value) elseMap,
+    RouteErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              final matched = predicate(value);
+              final mapped = matched ? thenMap(value) : elseMap(value);
+              return _out<T>(
+                mapped,
+                typed,
+                cell,
+                matched ? 'Iif.then' : 'Iif.else',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -432,35 +433,35 @@ class RouteWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RouteByKey]: For key-based routing.
   /// - [PartitionTag]: For tagging without forking.
   RouteWhen(
-      List<RouteCase<S, T>> cases, {
-        T Function(S value)? orElse,
-        RouteErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        for (var i = 0; i < cases.length; i++) {
-          if (cases[i].when(value)) {
-            return _out<T>(
-              cases[i].then(value),
-              typed,
-              cell,
-              'RouteWhen.$i',
-            );
-          }
-        }
-        if (orElse == null) return null;
-        return _out<T>(orElse(value), typed, cell, 'RouteWhen.else');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    List<RouteCase<S, T>> cases, {
+    T Function(S value)? orElse,
+    RouteErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              for (var i = 0; i < cases.length; i++) {
+                if (cases[i].when(value)) {
+                  return _out<T>(
+                    cases[i].then(value),
+                    typed,
+                    cell,
+                    'RouteWhen.$i',
+                  );
+                }
+              }
+              if (orElse == null) return null;
+              return _out<T>(orElse(value), typed, cell, 'RouteWhen.else');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -599,31 +600,31 @@ class RouteByKey<S, K, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RouteWhen]: For multi-path routing.
   /// - [PartitionTag]: For tagging without forking.
   RouteByKey(
-      K Function(S value) keyOf, {
-        required Map<K, T Function(S value)> routes,
-        T Function(S value)? orElse,
-        RouteErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        final key = keyOf(value);
-        final route = routes[key];
-        if (route != null) {
-          return _out<T>(route(value), typed, cell, 'RouteByKey.$key');
-        }
-        if (orElse == null) return null;
-        return _out<T>(orElse(value), typed, cell, 'RouteByKey.else');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    K Function(S value) keyOf, {
+    required Map<K, T Function(S value)> routes,
+    T Function(S value)? orElse,
+    RouteErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              final key = keyOf(value);
+              final route = routes[key];
+              if (route != null) {
+                return _out<T>(route(value), typed, cell, 'RouteByKey.$key');
+              }
+              if (orElse == null) return null;
+              return _out<T>(orElse(value), typed, cell, 'RouteByKey.else');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -772,29 +773,29 @@ class PartitionTag<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RouteWhen]: For multi-path routing.
   /// - [RouteByKey]: For key-based routing.
   PartitionTag(
-      bool Function(S value) predicate, {
-        RouteErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        final matched = predicate(value);
-        return _out<({bool matched, S value})>(
-          (matched: matched, value: value),
-          typed,
-          cell,
-          matched ? 'PartitionTag.then' : 'PartitionTag.else',
+    bool Function(S value) predicate, {
+    RouteErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              final matched = predicate(value);
+              return _out<({bool matched, S value})>(
+                (matched: matched, value: value),
+                typed,
+                cell,
+                matched ? 'PartitionTag.then' : 'PartitionTag.else',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -873,7 +874,7 @@ Future<void> main() async {
   print('1. Iif - status codes');
   final codes = Cell.ingress<int>();
   final labels = Iif<int, String>(
-        (c) => c < 400,
+    (c) => c < 400,
     thenMap: (c) => 'ok-$c',
     elseMap: (c) => 'err-$c',
   ).toHandle(source: codes.cell);
@@ -891,8 +892,7 @@ Future<void> main() async {
   final sized = RouteWhen<int, String>([
     RouteCase((n) => n < 10, (n) => 'small'),
     RouteCase((n) => n < 100, (n) => 'mid'),
-  ], orElse: (_) => 'big')
-      .toHandle(source: nums.cell);
+  ], orElse: (_) => 'big').toHandle(source: nums.cell);
   final wObs = Cell.observe(
     source: sized.cell,
     effect: (Pulse p) => print('   [RouteWhen] ${p.payload}'),
@@ -906,7 +906,7 @@ Future<void> main() async {
   print('3. RouteByKey - method table');
   final reqs = Cell.ingress<({String method, String path})>();
   final routed = RouteByKey<({String method, String path}), String, String>(
-        (r) => r.method,
+    (r) => r.method,
     routes: {
       'GET': (r) => 'GET ${r.path}',
       'POST': (r) => 'POST ${r.path}',
@@ -923,7 +923,8 @@ Future<void> main() async {
 
   print('4. PartitionTag');
   final items = Cell.ingress<int>();
-  final tagged = PartitionTag<int>((n) => n.isEven).toHandle(source: items.cell);
+  final tagged =
+      PartitionTag<int>((n) => n.isEven).toHandle(source: items.cell);
   final tObs = Cell.observe(
     source: tagged.cell,
     effect: (Pulse p) => print('   [PartitionTag] ${p.payload}'),

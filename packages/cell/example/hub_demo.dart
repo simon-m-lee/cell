@@ -78,39 +78,39 @@ Future<void> main() async {
     registrations: [
       // Highest priority – exact key (still works under pattern mode)
       (
-      key: 'auth.login',
-      priority: 100,
-      handler: authHandler,
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'auth.login',
+        priority: 100,
+        handler: authHandler,
+        match: null,
+        receptor: null,
+        context: null,
       ),
       // Prefix-style pattern for any user event
       (
-      key: 'user.*',
-      priority: 80,
-      handler: userHandler,
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'user.*',
+        priority: 80,
+        handler: userHandler,
+        match: null,
+        receptor: null,
+        context: null,
       ),
       // Broader admin pattern
       (
-      key: 'admin.*',
-      priority: 70,
-      handler: adminHandler,
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'admin.*',
+        priority: 70,
+        handler: adminHandler,
+        match: null,
+        receptor: null,
+        context: null,
       ),
       // Low-priority catch-all used as fallback
       (
-      key: 'fallback',
-      priority: 0,
-      handler: fallbackHandler,
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'fallback',
+        priority: 0,
+        handler: fallbackHandler,
+        match: null,
+        receptor: null,
+        context: null,
       ),
     ],
   );
@@ -144,34 +144,36 @@ Future<void> main() async {
     multicast: true, // deliver to every match
     registrations: [
       (
-      key: 'metrics.*',
-      priority: 50,
-      handler: (cell, pulse, {user}) {
-        print('   [Metrics]  received: "${pulse.payload}"  (type=${pulse.type})');
-        return pulse;
-      },
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'metrics.*',
+        priority: 50,
+        handler: (cell, pulse, {user}) {
+          print(
+              '   [Metrics]  received: "${pulse.payload}"  (type=${pulse.type})');
+          return pulse;
+        },
+        match: null,
+        receptor: null,
+        context: null,
       ),
       (
-      key: 'log.*',
-      priority: 40,
-      handler: (cell, pulse, {user}) {
-        print('   [Log]      received: "${pulse.payload}"  (type=${pulse.type})');
-        return pulse;
-      },
-      match: null,
-      receptor: null,
-      context: null,
+        key: 'log.*',
+        priority: 40,
+        handler: (cell, pulse, {user}) {
+          print(
+              '   [Log]      received: "${pulse.payload}"  (type=${pulse.type})');
+          return pulse;
+        },
+        match: null,
+        receptor: null,
+        context: null,
       ),
       (
-      key: '*', // matches everything
-      priority: 10,
-      handler: auditHandler,
-      match: null,
-      receptor: null,
-      context: null,
+        key: '*', // matches everything
+        priority: 10,
+        handler: auditHandler,
+        match: null,
+        receptor: null,
+        context: null,
       ),
     ],
   );

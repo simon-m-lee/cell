@@ -19,8 +19,7 @@ Map<K, V> toMap<K, V>(TissueMap<K, V> map) => Map.fromEntries(map.entries);
 /// A minimal concrete [TissueMapBase] subclass used to exercise the base
 /// class members that are normally shadowed by the public implementations.
 class _DirectMapBase<K, V> extends TissueMapBase<K, V, TissueMap<K, V>> {
-  _DirectMapBase(super.properties)
-      : super.fromNucleus();
+  _DirectMapBase(super.properties) : super.fromNucleus();
 
   @override
   TissueMap<K, V> get unmodifiable => this;
@@ -63,7 +62,8 @@ void main() {
     });
 
     test('fromNucleus populates entries', () {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final map = TissueMap.fromNucleus(nucleus, entries: [MapEntry('n', 1)]);
 
       expect(toMap(map), {'n': 1});
@@ -227,9 +227,11 @@ void main() {
     });
 
     test('fromNucleus links initial Cell values', () {
-      final nucleus = TissueMapNucleus.create<String, Cell, TissueMap<String, Cell>>();
+      final nucleus =
+          TissueMapNucleus.create<String, Cell, TissueMap<String, Cell>>();
       final cell = Cell.state<int>(initial: 1).cell;
-      final map = TissueMap.fromNucleus(nucleus, entries: [MapEntry('cell', cell)]);
+      final map =
+          TissueMap.fromNucleus(nucleus, entries: [MapEntry('cell', cell)]);
 
       expect(map['cell'], same(cell));
     });
@@ -255,14 +257,16 @@ void main() {
 
   group('TissueMapNucleus factories', () {
     test('create returns a reusable blueprint', () {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
 
       final map = TissueMap.fromNucleus(nucleus, entries: [MapEntry('a', 1)]);
       expect(toMap(map), {'a': 1});
     });
 
     test('clone produces an independent nucleus', () {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final clone = nucleus.clone;
 
       final map = TissueMap.fromNucleus(clone, entries: [MapEntry('b', 2)]);
@@ -270,7 +274,8 @@ void main() {
     });
 
     test('evolve produces a deputy nucleus', () {
-      final principal = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final principal =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final evolved = TissueMapNucleus<String, int>.evolve(
         principal: principal,
         testRule: TestTissue<int, TissueMap<String, int>>(
@@ -316,7 +321,8 @@ void main() {
     });
 
     test('standalone UnmodifiableTissueMap factory', () {
-      final u = UnmodifiableTissueMap<String, int>([MapEntry('a', 1), MapEntry('b', 2)]);
+      final u = UnmodifiableTissueMap<String, int>(
+          [MapEntry('a', 1), MapEntry('b', 2)]);
 
       expect(toMap(u), {'a': 1, 'b': 2});
       expect(u.length, 2);
@@ -334,7 +340,8 @@ void main() {
     });
 
     test('fromNucleus populates entries', () {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final u = UnmodifiableTissueMap<String, int>.fromNucleus(nucleus,
           entries: [MapEntry('u', 4)]);
 
@@ -342,7 +349,8 @@ void main() {
     });
 
     test('fromNucleus with unmodifiableElement false', () {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final u = UnmodifiableTissueMap<String, int>.fromNucleus(nucleus,
           unmodifiableElement: false, entries: [MapEntry('u', 5)]);
 
@@ -350,7 +358,8 @@ void main() {
     });
 
     test('create factory', () {
-      final u = UnmodifiableTissueMap.create<String, int, TissueMap<String, int>>(
+      final u =
+          UnmodifiableTissueMap.create<String, int, TissueMap<String, int>>(
         entries: [MapEntry('u', 6)],
       );
 
@@ -399,7 +408,8 @@ void main() {
 
   group('TissueMapBase direct subclass', () {
     test('base deputy member is exercised', () async {
-      final nucleus = TissueMapNucleus.create<String, int, TissueMap<String, int>>();
+      final nucleus =
+          TissueMapNucleus.create<String, int, TissueMap<String, int>>();
       final direct = _DirectMapBase<String, int>(nucleus);
 
       expect(direct.unmodifiable, same(direct));
@@ -465,13 +475,18 @@ void main() {
       expect(async, isA<ModifiableMapAsync<String, int>>());
       await expectLater(async.add('q', 1), throwsUnsupportedError);
       await expectLater(async.addAll({'q': 1}), throwsUnsupportedError);
-      await expectLater(async.addEntries([MapEntry('q', 1)]), throwsUnsupportedError);
+      await expectLater(
+          async.addEntries([MapEntry('q', 1)]), throwsUnsupportedError);
       await expectLater(async.clear(), throwsUnsupportedError);
-      await expectLater(async.putIfAbsent('q', () => 1), throwsUnsupportedError);
+      await expectLater(
+          async.putIfAbsent('q', () => 1), throwsUnsupportedError);
       await expectLater(async.remove('a'), throwsUnsupportedError);
-      await expectLater(async.removeWhere((k, v) => true), throwsUnsupportedError);
-      await expectLater(async.update('a', (v) => v + 1), throwsUnsupportedError);
-      await expectLater(async.updateAll((k, v) => v + 1), throwsUnsupportedError);
+      await expectLater(
+          async.removeWhere((k, v) => true), throwsUnsupportedError);
+      await expectLater(
+          async.update('a', (v) => v + 1), throwsUnsupportedError);
+      await expectLater(
+          async.updateAll((k, v) => v + 1), throwsUnsupportedError);
       await expectLater(
         async.apply(view.add, positionalArguments: ['q', 1]),
         throwsUnsupportedError,
@@ -485,12 +500,14 @@ void main() {
       final events = <TxApplyEvent>[];
       final tx = Cell.txApply(TxApplyOptions(onEvent: events.add));
 
-      await tx.execute(participants: [map], body: (tx) {
-        expect(toMap(map), isEmpty);
-        map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
-        map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
-        expect(toMap(map), isEmpty); // staged, not applied until commit
-      });
+      await tx.execute(
+          participants: [map],
+          body: (tx) {
+            expect(toMap(map), isEmpty);
+            map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
+            map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
+            expect(toMap(map), isEmpty); // staged, not applied until commit
+          });
 
       expect(toMap(map), {'a': 1, 'b': 2});
       expect(events.whereType<TxApplyBegun>(), isNotEmpty);
@@ -498,16 +515,19 @@ void main() {
       expect(events.whereType<TxApplyCommitted>(), isNotEmpty);
     });
 
-    test('apply with tx returns null and does not mutate before commit', () async {
+    test('apply with tx returns null and does not mutate before commit',
+        () async {
       final map = TissueMap<String, int>();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [map], body: (tx) {
-        final result =
-            map.apply(map.add, positionalArguments: ['k', 7], tx: tx);
-        expect(result, isNull);
-        expect(toMap(map), isEmpty);
-      });
+      await tx.execute(
+          participants: [map],
+          body: (tx) {
+            final result =
+                map.apply(map.add, positionalArguments: ['k', 7], tx: tx);
+            expect(result, isNull);
+            expect(toMap(map), isEmpty);
+          });
 
       expect(toMap(map), {'k': 7});
     });
@@ -517,18 +537,21 @@ void main() {
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [map], body: (tx) {
-          map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
-          map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
-          throw StateError('boom');
-        }),
+        tx.execute(
+            participants: [map],
+            body: (tx) {
+              map.apply(map.add, positionalArguments: ['a', 1], tx: tx);
+              map.apply(map.add, positionalArguments: ['b', 2], tx: tx);
+              throw StateError('boom');
+            }),
         throwsStateError,
       );
 
       expect(toMap(map), isEmpty);
     });
 
-    test('compensates unexecuted stages with compensateIfNotExecuted', () async {
+    test('compensates unexecuted stages with compensateIfNotExecuted',
+        () async {
       final map = TissueMap<String, int>();
       final tx = Cell.txApply(
         const TxApplyOptions(compensateIfNotExecuted: true),
@@ -549,33 +572,39 @@ void main() {
       expect(toMap(map), isEmpty);
     });
 
-    test('rejects functions outside the modifiable whitelist at enqueue', () async {
+    test('rejects functions outside the modifiable whitelist at enqueue',
+        () async {
       final map = TissueMap<String, int>();
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [map], body: (tx) {
-          map.apply(map.containsKey, positionalArguments: ['a'], tx: tx);
-        }),
+        tx.execute(
+            participants: [map],
+            body: (tx) {
+              map.apply(map.containsKey, positionalArguments: ['a'], tx: tx);
+            }),
         throwsA(isA<TxApplyException>()),
       );
 
       expect(toMap(map), isEmpty);
     });
 
-    test('enqueued compensation commits when the staged apply succeeds', () async {
+    test('enqueued compensation commits when the staged apply succeeds',
+        () async {
       final map = TissueMap<String, int>();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [map], body: (tx) {
-        map.apply(
-          map.add,
-          positionalArguments: ['x', 5],
-          tx: tx,
-          compensate: map.remove,
-          compensatePositional: ['x'],
-        );
-      });
+      await tx.execute(
+          participants: [map],
+          body: (tx) {
+            map.apply(
+              map.add,
+              positionalArguments: ['x', 5],
+              tx: tx,
+              compensate: map.remove,
+              compensatePositional: ['x'],
+            );
+          });
 
       expect(toMap(map), {'x': 5});
     });

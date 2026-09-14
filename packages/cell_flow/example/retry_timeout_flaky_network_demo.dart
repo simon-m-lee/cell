@@ -182,7 +182,8 @@ class DatabaseConnection {
   });
 
   @override
-  String toString() => '${connected ? "✅ Connected" : "❌ Failed"} to $host (${latency}ms)';
+  String toString() =>
+      '${connected ? "✅ Connected" : "❌ Failed"} to $host (${latency}ms)';
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -260,7 +261,10 @@ class FlakyNetwork {
           latency: 30 + _random.nextInt(100),
         );
       case 'payment':
-        return {'transaction_id': 'txn_${_random.nextInt(100000)}', 'status': 'approved'};
+        return {
+          'transaction_id': 'txn_${_random.nextInt(100000)}',
+          'status': 'approved'
+        };
       case 'sync':
         return List.generate(42, (i) => 'Record ${i + 1}');
       case 'large_dataset':
@@ -320,7 +324,8 @@ Future<void> main() async {
   final network = FlakyNetwork();
   final cache = Cache();
 
-  print('── Retry + Timeout: Flaky Network Demo ──────────────────────────────────────────\n');
+  print(
+      '── Retry + Timeout: Flaky Network Demo ──────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Simple Retry - Transient Failure
@@ -334,7 +339,7 @@ Future<void> main() async {
   var retryAttempts = 0;
 
   final retryHandle = Retry<String, UserProfile>(
-        (endpoint) async {
+    (endpoint) async {
       retryAttempts++;
       print('   [Request] Fetching user data...');
       try {
@@ -347,7 +352,8 @@ Future<void> main() async {
         print('   [Success] ✅ User data loaded: ${result.toString()}');
         return result as UserProfile;
       } catch (e) {
-        print('   [Retry] Attempt $retryAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $retryAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -444,7 +450,7 @@ Future<void> main() async {
 
   // Retry with timeout handling
   final comboHandle = Retry<String, Order>(
-        (endpoint) async {
+    (endpoint) async {
       comboAttempts++;
       print('   [Request] Placing order...');
       try {
@@ -457,7 +463,8 @@ Future<void> main() async {
         print('   [Success] ✅ Order placed: ${result.toString()}');
         return result as Order;
       } catch (e) {
-        print('   [Retry] Attempt $comboAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $comboAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -496,7 +503,7 @@ Future<void> main() async {
 
   // Custom retry with exponential backoff (simulated by failUntil)
   final backoffHandle = Retry<String, Map<String, dynamic>>(
-        (endpoint) async {
+    (endpoint) async {
       backoffAttempts++;
       print('   [Request] Processing payment...');
       try {
@@ -510,7 +517,8 @@ Future<void> main() async {
         print('   [Success] ✅ Payment processed: ${result['status']}');
         return result as Map<String, dynamic>;
       } catch (e) {
-        print('   [Retry] Attempt $backoffAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $backoffAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -549,7 +557,7 @@ Future<void> main() async {
 
   // Retry with a deadline
   final deadlineHandle = Retry<String, String>(
-        (endpoint) async {
+    (endpoint) async {
       deadlineAttempts++;
       print('   [Request] Critical API call...');
       try {
@@ -563,7 +571,8 @@ Future<void> main() async {
         print('   [Success] ✅ ${result}');
         return result as String;
       } catch (e) {
-        print('   [Retry] Attempt $deadlineAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $deadlineAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -578,7 +587,8 @@ Future<void> main() async {
     onError: (error, stack) {
       if (error is TimeoutException) {
         print('   [Deadline] ⏱️  Deadline exceeded (1000ms)');
-        print('   ❌ Error: Deadlines exceeded after $deadlineAttempts attempts');
+        print(
+            '   ❌ Error: Deadlines exceeded after $deadlineAttempts attempts');
         print('   User sees: "Service unavailable. Please try later."');
       }
     },
@@ -616,7 +626,7 @@ Future<void> main() async {
   var syncAttempts = 0;
 
   final syncHandle = Retry<String, List<String>>(
-        (endpoint) async {
+    (endpoint) async {
       syncAttempts++;
       print('   [Request] Data sync...');
       try {
@@ -626,10 +636,12 @@ Future<void> main() async {
           delay: 50,
           errorProbability: 0.8,
         );
-        print('   [Success] ✅ Sync complete! ${(result as List<String>).length} records synced');
+        print(
+            '   [Success] ✅ Sync complete! ${(result as List<String>).length} records synced');
         return result;
       } catch (e) {
-        print('   [Retry] Attempt $syncAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $syncAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -726,7 +738,7 @@ Future<void> main() async {
   int dbAttempts = 0;
 
   final dbHandle = Retry<String, DatabaseConnection>(
-        (endpoint) async {
+    (endpoint) async {
       dbAttempts++;
       print('   [Request] Connecting to database...');
       try {
@@ -740,7 +752,8 @@ Future<void> main() async {
         print('   [Success] ✅ ${result.toString()}');
         return result as DatabaseConnection;
       } catch (e) {
-        print('   [Retry] Attempt $dbAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
+        print(
+            '   [Retry] Attempt $dbAttempts failed: ${network.getLastError(endpoint) ?? e.toString()}');
         rethrow;
       }
     },
@@ -861,5 +874,6 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }

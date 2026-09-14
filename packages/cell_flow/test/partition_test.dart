@@ -295,8 +295,8 @@ void main() {
 
   group('composition / performance', () {
     test('Partition + PartitionOnly is a chain', () async {
-      final op = Partition<int>((n) => n.isEven) +
-          PartitionOnly<Object>((_) => true);
+      final op =
+          Partition<int>((n) => n.isEven) + PartitionOnly<Object>((_) => true);
       final gate = Cell.ingress<int>();
       final out = op.toHandle(source: gate.cell);
       final probe = _Probe(out.cell);
@@ -336,5 +336,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

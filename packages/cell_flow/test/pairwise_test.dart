@@ -97,7 +97,8 @@ void main() {
       expect(b.probe.payloads, [3, 2]);
     });
 
-    test('combine exceptions call onError and still advance previous', () async {
+    test('combine exceptions call onError and still advance previous',
+        () async {
       final errors = <Object>[];
       final b = bind(PairwiseWith<int, int>(
         (prev, next) {
@@ -115,7 +116,6 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
-
 
   group('Pairwise extra', () {
     test('single value never pairs', () async {
@@ -189,8 +189,7 @@ void main() {
 
   group('composition / performance', () {
     test('Pairwise + PairwiseWith is a chain', () async {
-      final op = Pairwise<int>() +
-          PairwiseWith<Object, int>((a, b) => 0);
+      final op = Pairwise<int>() + PairwiseWith<Object, int>((a, b) => 0);
       final gate = Cell.ingress<int>();
       final out = op.toHandle(source: gate.cell);
       final probe = _Probe(out.cell);

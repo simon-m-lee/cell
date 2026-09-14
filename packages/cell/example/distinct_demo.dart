@@ -65,7 +65,15 @@ Future<void> main() async {
     effect: (Pulse p) => print('   [Status] ${p.payload}'),
   );
 
-  for (final s in ['idle', 'idle', 'idle', 'loading', 'loading', 'done', 'done']) {
+  for (final s in [
+    'idle',
+    'idle',
+    'idle',
+    'loading',
+    'loading',
+    'done',
+    'done'
+  ]) {
     await status.ingest(
       Pulse(s, source: status.cell),
     );
@@ -105,7 +113,7 @@ Future<void> main() async {
   final distinctTags = Cell.distinct(
     tags.cell,
     equals: (a, b) =>
-    (a as String).toLowerCase() == (b as String).toLowerCase(),
+        (a as String).toLowerCase() == (b as String).toLowerCase(),
   );
 
   final tagObs = Cell.observe(
@@ -130,8 +138,7 @@ Future<void> main() async {
   final users = Cell.ingress<Map<String, dynamic>>();
   final distinctUsers = Cell.distinct(
     users.cell,
-    equals: (a, b) =>
-    (a as Map)['id'] == (b as Map)['id'],
+    equals: (a, b) => (a as Map)['id'] == (b as Map)['id'],
   );
 
   final userObs = Cell.observe(
@@ -139,19 +146,24 @@ Future<void> main() async {
     effect: (Pulse p) => print('   [User]   ${p.payload}'),
   );
 
-  await users.ingest(Pulse({'id': 1, 'name': 'Ada', 'status': 'online'},
+  await users.ingest(Pulse(
+    {'id': 1, 'name': 'Ada', 'status': 'online'},
     source: users.cell,
   ));
-  await users.ingest(Pulse({'id': 1, 'name': 'Ada', 'status': 'away'}, // same id → drop
+  await users.ingest(Pulse(
+    {'id': 1, 'name': 'Ada', 'status': 'away'}, // same id → drop
     source: users.cell,
   ));
-  await users.ingest(Pulse({'id': 2, 'name': 'Grace', 'status': 'online'},
+  await users.ingest(Pulse(
+    {'id': 2, 'name': 'Grace', 'status': 'online'},
     source: users.cell,
   ));
-  await users.ingest(Pulse({'id': 2, 'name': 'Grace Hopper', 'status': 'online'}, // drop
+  await users.ingest(Pulse(
+    {'id': 2, 'name': 'Grace Hopper', 'status': 'online'}, // drop
     source: users.cell,
   ));
-  await users.ingest(Pulse({'id': 1, 'name': 'Ada', 'status': 'online'}, // id changed back → emit
+  await users.ingest(Pulse(
+    {'id': 1, 'name': 'Ada', 'status': 'online'}, // id changed back → emit
     source: users.cell,
   ));
   await Future.delayed(const Duration(milliseconds: 40));

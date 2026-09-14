@@ -41,7 +41,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef ExhaustErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef ExhaustErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// A functional contract for an **Evolution Factory** used within exclusive
 /// flattening topographies.
@@ -101,10 +102,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -252,7 +253,6 @@ Future<void> _drain(
 /// - [ExhaustMapFirst]: For only the first item of each inner.
 /// - [ExhaustMapLatest]: For trailing exhaust with latest remembered.
 class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates an [ExhaustMap] instruction with the specified [mapper].
   ///
   /// ### Parameters:
@@ -269,47 +269,47 @@ class ExhaustMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ExhaustMap(
-      ExhaustMapper<S> mapper, {
-        ExhaustErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        state.busy = true;
-        Future<void>(() async {
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            await _drain(inner, (item) {
-              if (item is T) {
-                future!(
-                  result: _out<T>(item, cell, pulse, 'ExhaustMap'),
-                  token: token,
+    ExhaustMapper<S> mapper, {
+    ExhaustErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
+                return null;
               }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.busy = true;
+              Future<void>(() async {
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  await _drain(inner, (item) {
+                    if (item is T) {
+                      future!(
+                        result: _out<T>(item, cell, pulse, 'ExhaustMap'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -390,37 +390,37 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ExhaustMapTo(
-      FutureOr<Object?> Function() inner, {
-        ExhaustErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        state.busy = true;
-        Future<void>(() async {
-          try {
-            final seq = await Future.sync(inner);
-            await _drain(seq, (item) {
-              if (item is T) {
-                future!(
-                  result: _out<T>(item, cell, pulse, 'ExhaustMapTo'),
-                  token: token,
-                );
-              }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    FutureOr<Object?> Function() inner, {
+    ExhaustErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              state.busy = true;
+              Future<void>(() async {
+                try {
+                  final seq = await Future.sync(inner);
+                  await _drain(seq, (item) {
+                    if (item is T) {
+                      future!(
+                        result: _out<T>(item, cell, pulse, 'ExhaustMapTo'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -487,7 +487,6 @@ class ExhaustMapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ExhaustMap]: For mapping payloads to sequences.
 /// - [ExhaustMapTo]: For the same sequence every trigger.
 class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes an **Intrinsic Exclusive Flattener** from pulse payloads.
   ///
   /// This constructor initializes an orchestrator that drains the
@@ -504,32 +503,32 @@ class ExhaustAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ExhaustErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        state.busy = true;
-        Future<void>(() async {
-          try {
-            await _drain(pulse.payload, (item) {
-              if (item is T) {
-                future!(
-                  result: _out<T>(item, cell, pulse, 'ExhaustAll'),
-                  token: token,
-                );
-              }
-            });
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              state.busy = true;
+              Future<void>(() async {
+                try {
+                  await _drain(pulse.payload, (item) {
+                    if (item is T) {
+                      future!(
+                        result: _out<T>(item, cell, pulse, 'ExhaustAll'),
+                        token: token,
+                      );
+                    }
+                  });
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -613,52 +612,52 @@ class ExhaustMapFirst<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ExhaustMapFirst(
-      ExhaustMapper<S> mapper, {
-        ExhaustErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        state.busy = true;
-        Future<void>(() async {
-          var emitted = false;
-          try {
-            final inner = await Future.sync(() => mapper(payload));
-            await _drain(
-              inner,
-                  (item) {
-                if (emitted || item is! T) return;
-                emitted = true;
-                future!(
-                  result: _out<T>(item, cell, pulse, 'ExhaustMapFirst'),
-                  token: token,
+    ExhaustMapper<S> mapper, {
+    ExhaustErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-              },
-              stillLive: () => !emitted,
-            );
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+                return null;
+              }
+              state.busy = true;
+              Future<void>(() async {
+                var emitted = false;
+                try {
+                  final inner = await Future.sync(() => mapper(payload));
+                  await _drain(
+                    inner,
+                    (item) {
+                      if (emitted || item is! T) return;
+                      emitted = true;
+                      future!(
+                        result: _out<T>(item, cell, pulse, 'ExhaustMapFirst'),
+                        token: token,
+                      );
+                    },
+                    stillLive: () => !emitted,
+                  );
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -746,64 +745,64 @@ class ExhaustMapLatest<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ExhaustMapLatest(
-      ExhaustMapper<S> mapper, {
-        ExhaustErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _LatestState<S>();
-      Future<void> run(
-          S value,
-          Pulse pulse,
-          Cell? cell,
-          void Function({required Pulse? result, required dynamic token})?
-          future,
-          dynamic token,
-          ) async {
-        state.busy = true;
-        try {
-          final inner = await Future.sync(() => mapper(value));
-          await _drain(inner, (item) {
-            if (item is T) {
-              future!(
-                result: _out<T>(item, cell, pulse, 'ExhaustMapLatest'),
-                token: token,
-              );
+    ExhaustMapper<S> mapper, {
+    ExhaustErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _LatestState<S>();
+            Future<void> run(
+              S value,
+              Pulse pulse,
+              Cell? cell,
+              void Function({required Pulse? result, required dynamic token})?
+                  future,
+              dynamic token,
+            ) async {
+              state.busy = true;
+              try {
+                final inner = await Future.sync(() => mapper(value));
+                await _drain(inner, (item) {
+                  if (item is T) {
+                    future!(
+                      result: _out<T>(item, cell, pulse, 'ExhaustMapLatest'),
+                      token: token,
+                    );
+                  }
+                });
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              } finally {
+                state.busy = false;
+                final next = state.takePending();
+                if (next != null) {
+                  await run(next.$1, next.$2, cell, future, token);
+                }
+              }
             }
-          });
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        } finally {
-          state.busy = false;
-          final next = state.takePending();
-          if (next != null) {
-            await run(next.$1, next.$2, cell, future, token);
-          }
-        }
-      }
 
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        if (state.busy) {
-          state.pendingValue = payload;
-          state.pendingPulse = pulse;
-          return null;
-        }
-        Future<void>(() => run(payload, pulse, cell, future, token));
-        return null;
-      };
-    })(),
-    user: user,
-  );
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              if (state.busy) {
+                state.pendingValue = payload;
+                state.pendingPulse = pulse;
+                return null;
+              }
+              Future<void>(() => run(payload, pulse, cell, future, token));
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

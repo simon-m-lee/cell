@@ -78,13 +78,14 @@ typedef MapErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      MapErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  MapErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -250,27 +251,27 @@ class MapValue<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapValue(
-      T Function(S value) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        return _out<T>(
-          project(typed.payload as S),
-          typed,
-          cell,
-          'MapValue',
+    T Function(S value) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              return _out<T>(
+                project(typed.payload as S),
+                typed,
+                cell,
+                'MapValue',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -365,17 +366,17 @@ class MapTo<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapTo(
-      T value, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      return _out<T>(value, typed, cell, 'MapTo');
-    },
-    user: user,
-  );
+    T value, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            return _out<T>(value, typed, cell, 'MapTo');
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -472,27 +473,27 @@ class MapWithIndex<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapWithIndex(
-      T Function(S value, int index) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var index = 0;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          final result = project(typed.payload as S, index);
-          index++;
-          return _out<T>(result, typed, cell, 'MapWithIndex');
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-      };
-    })(),
-    user: user,
-  );
+    T Function(S value, int index) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var index = 0;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                final result = project(typed.payload as S, index);
+                index++;
+                return _out<T>(result, typed, cell, 'MapWithIndex');
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -592,24 +593,24 @@ class MapNotNull<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapNotNull(
-      T? Function(S value) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        final result = project(typed.payload as S);
-        if (result == null) return null;
-        return _out<T>(result, typed, cell, 'MapNotNull');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    T? Function(S value) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              final result = project(typed.payload as S);
+              if (result == null) return null;
+              return _out<T>(result, typed, cell, 'MapNotNull');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -718,25 +719,25 @@ class MapWhen<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapWhen(
-      bool Function(S value) test,
-      T Function(S value) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        if (!test(value)) return null;
-        return _out<T>(project(value), typed, cell, 'MapWhen');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    bool Function(S value) test,
+    T Function(S value) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              if (!test(value)) return null;
+              return _out<T>(project(value), typed, cell, 'MapWhen');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 /// Alias of [MapWhen] for Rx compatibility.
@@ -763,11 +764,11 @@ class MapValueIf<S, T> extends MapWhen<S, T> {
   /// - [onError]: **Error Handler.** Optional callback for handling errors.
   /// - [user]: **User Metadata.** Optional metadata.
   MapValueIf(
-      super.test,
-      super.project, {
-        super.onError,
-        super.user,
-      });
+    super.test,
+    super.project, {
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -874,29 +875,30 @@ class MapValueOr<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapValueOr(
-      T Function(S value) project, {
-        required T Function(S value, Object error) orElse,
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      final value = typed.payload as S;
-      try {
-        return _out<T>(project(value), typed, cell, 'MapValueOr');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        try {
-          return _out<T>(orElse(value, e), typed, cell, 'MapValueOr.orElse');
-        } catch (e2, stack2) {
-          onError?.call(e2, stack2);
-          return null;
-        }
-      }
-    },
-    user: user,
-  );
+    T Function(S value) project, {
+    required T Function(S value, Object error) orElse,
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            final value = typed.payload as S;
+            try {
+              return _out<T>(project(value), typed, cell, 'MapValueOr');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              try {
+                return _out<T>(
+                    orElse(value, e), typed, cell, 'MapValueOr.orElse');
+              } catch (e2, stack2) {
+                onError?.call(e2, stack2);
+                return null;
+              }
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -993,34 +995,34 @@ class MapValues<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapValues(
-      R Function(V value) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final payload = pulse.payload;
-      if (payload is! Map) {
-        onError?.call(
-          FormatException(
-            'Expected Map, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    R Function(V value) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final payload = pulse.payload;
+            if (payload is! Map) {
+              onError?.call(
+                FormatException(
+                  'Expected Map, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            try {
+              final out = <K, R>{
+                for (final e in payload.entries)
+                  e.key as K: project(e.value as V),
+              };
+              return _out<Map<K, R>>(out, pulse, cell, 'MapValues');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-        return null;
-      }
-      try {
-        final out = <K, R>{
-          for (final e in payload.entries)
-            e.key as K: project(e.value as V),
-        };
-        return _out<Map<K, R>>(out, pulse, cell, 'MapValues');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1119,34 +1121,34 @@ class MapKeys<K, V, R> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapKeys(
-      R Function(K key) project, {
-        MapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final payload = pulse.payload;
-      if (payload is! Map) {
-        onError?.call(
-          FormatException(
-            'Expected Map, got ${payload.runtimeType}',
-          ),
-          StackTrace.current,
+    R Function(K key) project, {
+    MapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final payload = pulse.payload;
+            if (payload is! Map) {
+              onError?.call(
+                FormatException(
+                  'Expected Map, got ${payload.runtimeType}',
+                ),
+                StackTrace.current,
+              );
+              return null;
+            }
+            try {
+              final out = <R, V>{
+                for (final e in payload.entries)
+                  project(e.key as K): e.value as V,
+              };
+              return _out<Map<R, V>>(out, pulse, cell, 'MapKeys');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-        return null;
-      }
-      try {
-        final out = <R, V>{
-          for (final e in payload.entries)
-            project(e.key as K): e.value as V,
-        };
-        return _out<Map<R, V>>(out, pulse, cell, 'MapKeys');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1243,7 +1245,7 @@ Future<void> main() async {
   final nums = Cell.ingress<int>();
 
   final doubled = MapValue<int, int>(
-        (n) => n * 2,
+    (n) => n * 2,
   ).toHandle(source: nums.cell);
 
   final mObs = Cell.observe(
@@ -1287,7 +1289,7 @@ Future<void> main() async {
   final letters = Cell.ingress<String>();
 
   final indexed = MapWithIndex<String, String>(
-        (s, i) => '$i:$s',
+    (s, i) => '$i:$s',
   ).toHandle(source: letters.cell);
 
   final iObs = Cell.observe(
@@ -1309,7 +1311,7 @@ Future<void> main() async {
   final maybe = Cell.ingress<int>();
 
   final evens = MapNotNull<int, int>(
-        (n) => n.isEven ? n : null,
+    (n) => n.isEven ? n : null,
   ).toHandle(source: maybe.cell);
 
   final nObs = Cell.observe(
@@ -1331,8 +1333,8 @@ Future<void> main() async {
   final when = Cell.ingress<int>();
 
   final labeled = MapWhen<int, String>(
-        (n) => n.isEven,
-        (n) => 'even-$n',
+    (n) => n.isEven,
+    (n) => 'even-$n',
   ).toHandle(source: when.cell);
 
   final wObs = Cell.observe(
@@ -1354,7 +1356,7 @@ Future<void> main() async {
   final risky = Cell.ingress<int>();
 
   final safe = MapValueOr<int, int>(
-        (n) => n == 0 ? throw StateError('zero') : 10 ~/ n,
+    (n) => n == 0 ? throw StateError('zero') : 10 ~/ n,
     orElse: (_, __) => 0,
   ).toHandle(source: risky.cell);
 
@@ -1376,7 +1378,7 @@ Future<void> main() async {
   final dict = Cell.ingress<Map<String, int>>();
 
   final doubledMap = MapValues<String, int, int>(
-        (n) => n * 2,
+    (n) => n * 2,
   ).toHandle(source: dict.cell);
 
   final vObs = Cell.observe(

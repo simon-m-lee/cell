@@ -102,7 +102,8 @@ void main() {
 
   group('ReduceSelect', () {
     test('projects a field', () async {
-      final b = bind(ReduceSelect<Map<String, Object>, Object>((m) => m['name']!));
+      final b =
+          bind(ReduceSelect<Map<String, Object>, Object>((m) => m['name']!));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync({'id': 1, 'name': 'Ann'});
       await b.probe.settle();
@@ -176,7 +177,6 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
-
 
   group('Reduce extra', () {
     test('empty source leaves the seed', () async {
@@ -311,5 +311,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

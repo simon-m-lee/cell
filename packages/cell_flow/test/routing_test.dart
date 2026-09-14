@@ -113,10 +113,12 @@ void main() {
       await b.gate.emitAsync(400);
       await b.probe.settle();
       expect(b.probe.payloads, ['small', 'mid', 'big']);
-      expect(b.probe.steps, containsAll(['RouteWhen.0', 'RouteWhen.1', 'RouteWhen.else']));
+      expect(b.probe.steps,
+          containsAll(['RouteWhen.0', 'RouteWhen.1', 'RouteWhen.else']));
     });
 
-    test('drops the pulse when nothing matches and orElse is omitted', () async {
+    test('drops the pulse when nothing matches and orElse is omitted',
+        () async {
       final b = bind(RouteWhen<int, String>([
         RouteCase((n) => n.isEven, (n) => 'even'),
       ]));
@@ -208,7 +210,8 @@ void main() {
         (matched: true, value: 2),
         (matched: false, value: 3),
       ]);
-      expect(b.probe.steps, containsAll(['PartitionTag.then', 'PartitionTag.else']));
+      expect(b.probe.steps,
+          containsAll(['PartitionTag.then', 'PartitionTag.else']));
     });
 
     test('predicate exceptions call onError', () async {
@@ -447,5 +450,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

@@ -194,7 +194,10 @@ class MaxLength extends TestRule<Never> {
   /// List<Item> items = [...];
   /// // Each item validates: items.length <= 20
   /// ```
-  const MaxLength.host(int length) : hostLength = length, length = _maxInt, super.base();
+  const MaxLength.host(int length)
+      : hostLength = length,
+        length = _maxInt,
+        super.base();
 
   /// Executes length validation on [object] and optionally [host].
   ///
@@ -420,15 +423,12 @@ class EntryPattern extends TestRule<Never> {
 
     if (object == null) {
       result = allowNull;
-    }
-    else if (object is String) {
+    } else if (object is String) {
       if (allowEmpty && object.isEmpty) {
-        result =  true;
-      }
-      else if (object.isEmpty) {
+        result = true;
+      } else if (object.isEmpty) {
         result = false;
-      }
-      else {
+      } else {
         final regex = caseSensitive
             ? RegExp(pattern)
             : RegExp(pattern, caseSensitive: false);
@@ -582,7 +582,11 @@ class Values extends TestRule<Never> {
 /// > RFC compliance, consider a custom [pattern].
 class EmailPattern extends EntryPattern {
   /// Creates a [EmailPattern].
-  const EmailPattern({super.pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', super.caseSensitive = false, super.allowEmpty = false, super.allowNull = true});
+  const EmailPattern(
+      {super.pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      super.caseSensitive = false,
+      super.allowEmpty = false,
+      super.allowNull = true});
 }
 
 /// [WebsiteUrlPattern] is a specialized [EntryPattern] metadata annotation
@@ -639,5 +643,10 @@ class EmailPattern extends EntryPattern {
 /// > mandatory subdomains/paths, consider a custom [pattern].
 class WebsiteUrlPattern extends EntryPattern {
   /// Creates a [WebsiteUrlPattern] rule.
-  const WebsiteUrlPattern({super.pattern = r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$', super.caseSensitive = false, super.allowEmpty = false, super.allowNull = true});
+  const WebsiteUrlPattern(
+      {super.pattern =
+          r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$',
+      super.caseSensitive = false,
+      super.allowEmpty = false,
+      super.allowNull = true});
 }

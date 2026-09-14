@@ -217,7 +217,6 @@ void main() {
     });
   });
 
-
   group('Interval extra', () {
     test('maxTicks 0 never ticks', () async {
       final b = bind(Interval(const Duration(milliseconds: 10), maxTicks: 0));

@@ -12,7 +12,6 @@ import 'package:cell/cell.dart';
 /// maintaining the causal integrity of the signal as it propagates through the
 /// cell graph.
 extension PulseExtension<P> on Pulse<P> {
-
   /// Transforms the payload of this pulse into a new type [T] while preserving
   /// its causal history.
   ///
@@ -153,7 +152,6 @@ extension PulseExtension<P> on Pulse<P> {
   Pulse<T> cast<T>() {
     return evolve(pulse: Pulse<T>(payload as T)) as Pulse<T>;
   }
-
 }
 
 /// Fluent extensions for collections of [Pulse] objects.
@@ -161,7 +159,6 @@ extension PulseExtension<P> on Pulse<P> {
 /// These operators provide high-level aggregation and normalization utilities for
 /// handling multiple signals simultaneously within a reactive propagation cycle.
 extension PulseIterableExtension on Iterable<Pulse> {
-
   /// Aggregates multiple signals into a single, flat [CollectivePulse].
   ///
   /// This is the fluent equivalent of calling [Pulse.batch]. It is the preferred
@@ -281,6 +278,5 @@ extension PulseIterableExtension on Iterable<Pulse> {
   /// ```
   Iterable<Pulse<T>> mapEach<T>(T Function(dynamic payload) mapper) =>
       // explicitly cast to PulseExtension to avoid conflict with Iterable.map
-  map((p) => PulseExtension(p).map<T>((payload) => mapper(payload)));
-
+      map((p) => PulseExtension(p).map<T>((payload) => mapper(payload)));
 }

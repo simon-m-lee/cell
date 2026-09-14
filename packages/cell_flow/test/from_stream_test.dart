@@ -233,7 +233,8 @@ void main() {
   group('performance', () {
     test('FromStream emits 200 events', () async {
       final sw = Stopwatch()..start();
-      final b = bind(FromStream<int>(Stream.fromIterable(List.generate(200, (i) => i))));
+      final b = bind(
+          FromStream<int>(Stream.fromIterable(List.generate(200, (i) => i))));
       addTearDown(b.probe.stop);
       await b.gate.emitAsync(null);
       await b.probe.settle();
@@ -242,7 +243,6 @@ void main() {
       expect(sw.elapsedMilliseconds, lessThan(2000));
     });
   });
-
 
   group('FromStream extra', () {
     test('empty stream is silent after arming', () async {

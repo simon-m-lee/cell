@@ -1,0 +1,40 @@
+name: cell_organ
+description: >-
+  Application Layer (Organs) for the Cell Framework — Relational models, 
+  HasMany/BelongsTo associations, cascade propagation, and mirror synchronization.
+version: 1.0.0-rc.2.0.2
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_organ
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell/tree/master/packages/cell_organ#readme
+
+topics:
+  - reactive
+  - state-management
+  - forensic-traceability
+  - relational-modeling
+  - data-associations
+
+# Use 'none' to prevent accidental publishing until the RC cycle is complete
+publish_to: none
+
+resolution: workspace
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  cell_tissue: ^1.0.0-rc.2.0.2
+  meta: ^1.11.0
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^6.0.0
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:

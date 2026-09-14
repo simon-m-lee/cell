@@ -6,7 +6,6 @@
 
 // ignore_for_file: unnecessary_library_name
 
-
 /// A high-performance reactive orchestration layer for the Cell framework (codename **Mitosis**).
 ///
 /// `cell_flow` extends the core atomicity of `package:cell` by providing a

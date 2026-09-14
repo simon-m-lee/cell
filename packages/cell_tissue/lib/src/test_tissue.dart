@@ -89,8 +89,8 @@ part of '../cell_tissue.dart';
 /// - [TestCell] – the base validation logic for all reactive cells.
 /// - [TestElementRule] – the specific interface for membership validation.
 /// - [TissueNucleus] – where these rules are attached to the reactive blueprint.
-class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElementRule<E,C> {
-
+class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
+    implements TestElementRule<E, C> {
   /// Maximum size constant used for unbounded collections.
   static const unlimitedLength = -1;
 
@@ -170,7 +170,8 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
-  Iterable<TestRule<C>> get _rules => get<Iterable<TestRule<C>>>(() => _record.rules, orElse: <TestRule<C>>[]);
+  Iterable<TestRule<C>> get _rules =>
+      get<Iterable<TestRule<C>>>(() => _record.rules, orElse: <TestRule<C>>[]);
 
   /// Creates a new [TestTissue] validation rule for reactive collections.
   ///
@@ -208,10 +209,17 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// - [rule]: The validation logic. Must return `FutureOr<bool>`.
   /// - [parent]: An optional [TestTissue] to chain after this rule.
   /// - [user]: Optional metadata for auditing or context.
-  const TestTissue(FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestTissue<E,C>? parent, dynamic user})
-      : this.fromRecord(parent != null ? user != null
-      ? (rule: rule, parent: parent, user: user) : (rule: rule, parent: parent) : (rule: rule)
-  );
+  const TestTissue(
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})
+          rule,
+      {TestTissue<E, C>? parent,
+      dynamic user})
+      : this.fromRecord(parent != null
+            ? user != null
+                ? (rule: rule, parent: parent, user: user)
+                : (rule: rule, parent: parent)
+            : (rule: rule));
 
   /// Creates a **Composite Validation Pipeline** by aggregating multiple
   /// specialised rules into a single, unified **Integrity Gate**.
@@ -252,13 +260,21 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// - [strategy]: An optional override function that takes full control of
   ///   the validation logic; if provided, the default sequential evaluation
   ///   is bypassed.
-  const TestTissue.chain(Iterable<TestRule<C>> rules, {TestTissue<E,C>? parent, dynamic user,
-    FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy})
-      : this.fromRecord(strategy != null ? parent != null
-      ? user != null ? (rules: rules, rule: strategy, parent: parent, user: user) : (rules: rules, rule: strategy, parent: parent)
-      : user != null ? (rules: rules, rule: strategy, user: user) : (rules: rules, rule: strategy)
-      : (rules: rules)
-  );
+  const TestTissue.chain(Iterable<TestRule<C>> rules,
+      {TestTissue<E, C>? parent,
+      dynamic user,
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})?
+          strategy})
+      : this.fromRecord(strategy != null
+            ? parent != null
+                ? user != null
+                    ? (rules: rules, rule: strategy, parent: parent, user: user)
+                    : (rules: rules, rule: strategy, parent: parent)
+                : user != null
+                    ? (rules: rules, rule: strategy, user: user)
+                    : (rules: rules, rule: strategy)
+            : (rules: rules));
 
   /// Internal, foundational constructor that instantiates a [TestTissue]
   /// directly from a structured [record] configuration.
@@ -266,7 +282,9 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// ### When to use
   /// You don't call this directly. It's part of the Flyweight Record Pattern
   /// used internally for memory optimisation.
-  const TestTissue.fromRecord(super.record) : _record = record, super.fromRecord();
+  const TestTissue.fromRecord(super.record)
+      : _record = record,
+        super.fromRecord();
 
   /// The primary execution entry point for the [TestTissue] validation engine.
   ///
@@ -344,14 +362,18 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// ### Returns:
   /// `true` if the element is authorised; `false` otherwise.
   @override
-  FutureOr<bool> element(covariant E? element, {required C host, Function? action}) {
+  FutureOr<bool> element(covariant E? element,
+      {required C host, Function? action}) {
     final rules = _rules.whereType<TestElementRule<E, C>>().toList();
 
     // Single-rule policies (stored as `rule` rather than `rules`) are
     // evaluated directly as element predicates.
     if (rules.isEmpty) {
-      final rule = get<FutureOr<bool> Function(dynamic, {C? host, dynamic arguments, dynamic user})?>(
-          () => _record.rule, orElse: null);
+      final rule = get<
+          FutureOr<bool> Function(dynamic,
+              {C? host,
+              dynamic arguments,
+              dynamic user})?>(() => _record.rule, orElse: null);
       if (rule != null) {
         return rule(element, host: host, arguments: action);
       }
@@ -366,7 +388,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
         if (result is Future<bool>) {
           return result.then((passed) {
             if (!passed) return false; // Fail Fast
-            return runRules(i + 1);    // Continue chain
+            return runRules(i + 1); // Continue chain
           });
         }
 
@@ -410,10 +432,9 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
   /// A new [TestTissue] representing the unified, layered logic of both
   /// contributing policies.
   @override
-  TestTissue<E,C> operator +(covariant TestRule<C> other) {
-    return TestTissue<E,C>.chain([this, other]);
+  TestTissue<E, C> operator +(covariant TestRule<C> other) {
+    return TestTissue<E, C>.chain([this, other]);
   }
-
 }
 
 /// A specialised, high‑fidelity security rule designed to govern **Member‑Level
@@ -473,7 +494,6 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C> implements TestElem
 /// - [TestActionRule] – for validating the action itself.
 /// - `TestInstruction` – for validating incoming signals.
 class TestElementRule<E, C extends Tissue<E>> extends TestRule<C> {
-
   /// Creates a specialised **Integrity Guard** for individual collection
   /// members, enforcing **Member‑Level Governance** and **Structural Invariants**.
   ///
@@ -506,11 +526,18 @@ class TestElementRule<E, C extends Tissue<E>> extends TestRule<C> {
   /// - [rule]: The validation predicate.
   /// - [parent]: An optional parent rule for inheritance.
   /// - [user]: Optional metadata passed to the rule function.
-  TestElementRule(bool Function(E? element, {required C host, Function? action, dynamic user}) rule, {super.parent, dynamic user})
+  TestElementRule(
+      bool Function(E? element,
+              {required C host, Function? action, dynamic user})
+          rule,
+      {super.parent,
+      dynamic user})
       : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-    return host != null && ((arguments is Function && object is E?) || object is E)
-        ? rule(object, host: host, action: arguments, user: user) : true;
-  });
+          return host != null &&
+                  ((arguments is Function && object is E?) || object is E)
+              ? rule(object, host: host, action: arguments, user: user)
+              : true;
+        });
 
   /// Evaluates whether a specific member [E] is authorised to participate in
   /// a structural transition within the host [Tissue].
@@ -534,5 +561,4 @@ class TestElementRule<E, C extends Tissue<E>> extends TestRule<C> {
   FutureOr<bool> element(E? element, {required C host, Function? action}) {
     return call(element, host: host, arguments: action);
   }
-
 }

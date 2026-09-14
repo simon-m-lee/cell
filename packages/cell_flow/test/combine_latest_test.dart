@@ -162,7 +162,6 @@ void main() {
     });
   });
 
-
   group('CombineLatestWith extra', () {
     test('wrong source type calls onError', () async {
       final errors = <Object>[];

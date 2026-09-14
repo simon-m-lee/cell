@@ -256,8 +256,8 @@ void main() {
 
     test('fromNucleus populates elements', () {
       final nucleus = TissueQueueNucleus.create<int, TissueQueue<int>>();
-      final u = UnmodifiableTissueQueue<int>.fromNucleus(nucleus,
-          elements: [9, 10]);
+      final u =
+          UnmodifiableTissueQueue<int>.fromNucleus(nucleus, elements: [9, 10]);
 
       expect(u.toList(), [9, 10]);
     });
@@ -350,12 +350,14 @@ void main() {
       final events = <TxApplyEvent>[];
       final tx = Cell.txApply(TxApplyOptions(onEvent: events.add));
 
-      await tx.execute(participants: [queue], body: (tx) {
-        expect(queue.toList(), isEmpty);
-        queue.apply(queue.add, positionalArguments: [1], tx: tx);
-        queue.apply(queue.add, positionalArguments: [2], tx: tx);
-        expect(queue.toList(), isEmpty); // staged, not applied until commit
-      });
+      await tx.execute(
+          participants: [queue],
+          body: (tx) {
+            expect(queue.toList(), isEmpty);
+            queue.apply(queue.add, positionalArguments: [1], tx: tx);
+            queue.apply(queue.add, positionalArguments: [2], tx: tx);
+            expect(queue.toList(), isEmpty); // staged, not applied until commit
+          });
 
       expect(queue.toList(), [1, 2]);
       expect(events.whereType<TxApplyBegun>(), isNotEmpty);
@@ -363,15 +365,19 @@ void main() {
       expect(events.whereType<TxApplyCommitted>(), isNotEmpty);
     });
 
-    test('apply with tx returns null and does not mutate before commit', () async {
+    test('apply with tx returns null and does not mutate before commit',
+        () async {
       final queue = TissueQueue<int>();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [queue], body: (tx) {
-        final result = queue.apply(queue.add, positionalArguments: [7], tx: tx);
-        expect(result, isNull);
-        expect(queue.toList(), isEmpty);
-      });
+      await tx.execute(
+          participants: [queue],
+          body: (tx) {
+            final result =
+                queue.apply(queue.add, positionalArguments: [7], tx: tx);
+            expect(result, isNull);
+            expect(queue.toList(), isEmpty);
+          });
 
       expect(queue.toList(), [7]);
     });
@@ -381,18 +387,21 @@ void main() {
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [queue], body: (tx) {
-          queue.apply(queue.add, positionalArguments: [1], tx: tx);
-          queue.apply(queue.add, positionalArguments: [2], tx: tx);
-          throw StateError('boom');
-        }),
+        tx.execute(
+            participants: [queue],
+            body: (tx) {
+              queue.apply(queue.add, positionalArguments: [1], tx: tx);
+              queue.apply(queue.add, positionalArguments: [2], tx: tx);
+              throw StateError('boom');
+            }),
         throwsStateError,
       );
 
       expect(queue.toList(), isEmpty);
     });
 
-    test('compensates unexecuted stages with compensateIfNotExecuted', () async {
+    test('compensates unexecuted stages with compensateIfNotExecuted',
+        () async {
       final queue = TissueQueue<int>();
       final tx = Cell.txApply(
         const TxApplyOptions(compensateIfNotExecuted: true),
@@ -413,33 +422,39 @@ void main() {
       expect(queue.toList(), isEmpty);
     });
 
-    test('rejects functions outside the modifiable whitelist at enqueue', () async {
+    test('rejects functions outside the modifiable whitelist at enqueue',
+        () async {
       final queue = TissueQueue<int>();
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [queue], body: (tx) {
-          queue.apply(queue.contains, positionalArguments: [1], tx: tx);
-        }),
+        tx.execute(
+            participants: [queue],
+            body: (tx) {
+              queue.apply(queue.contains, positionalArguments: [1], tx: tx);
+            }),
         throwsA(isA<TxApplyException>()),
       );
 
       expect(queue.toList(), isEmpty);
     });
 
-    test('enqueued compensation commits when the staged apply succeeds', () async {
+    test('enqueued compensation commits when the staged apply succeeds',
+        () async {
       final queue = TissueQueue<int>();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [queue], body: (tx) {
-        queue.apply(
-          queue.add,
-          positionalArguments: [5],
-          tx: tx,
-          compensate: queue.remove,
-          compensatePositional: [5],
-        );
-      });
+      await tx.execute(
+          participants: [queue],
+          body: (tx) {
+            queue.apply(
+              queue.add,
+              positionalArguments: [5],
+              tx: tx,
+              compensate: queue.remove,
+              compensatePositional: [5],
+            );
+          });
 
       expect(queue.toList(), [5]);
     });

@@ -32,7 +32,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef DebounceErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef DebounceErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -47,13 +48,14 @@ typedef DebounceErrorHandler = void Function(Object error, StackTrace? stackTrac
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      DebounceErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  DebounceErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -178,34 +180,34 @@ class Debounce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   Debounce(
-      Duration duration, {
-        DebounceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _GateState<S>();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    Duration duration, {
+    DebounceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _GateState<S>();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        state.pending = typed.payload as S;
-        state.pendingPulse = typed;
-        state.timer?.cancel();
-        state.timer = Timer(duration, () {
-          final value = state.pending;
-          final src = state.pendingPulse;
-          state.clearPending();
-          if (value == null || src == null) return;
-          future!(
-            result: _fromPayload(value, src, cell, 'Debounce'),
-            token: token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.pending = typed.payload as S;
+              state.pendingPulse = typed;
+              state.timer?.cancel();
+              state.timer = Timer(duration, () {
+                final value = state.pending;
+                final src = state.pendingPulse;
+                state.clearPending();
+                if (value == null || src == null) return;
+                future!(
+                  result: _fromPayload(value, src, cell, 'Debounce'),
+                  token: token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -280,53 +282,53 @@ class DebounceLeading<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   DebounceLeading(
-      Duration duration, {
-        DebounceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _GateState<S>();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    Duration duration, {
+    DebounceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _GateState<S>();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        final timerActive = state.timer?.isActive == true;
-        if (!timerActive) {
-          state.clearPending();
-          future!(
-            result: _mark(typed, 'DebounceLeading.leading'),
-            token: token,
-          );
-          state.timer = Timer(duration, () {
-            state.timer = null;
-          });
-          return null;
-        }
+              final timerActive = state.timer?.isActive == true;
+              if (!timerActive) {
+                state.clearPending();
+                future!(
+                  result: _mark(typed, 'DebounceLeading.leading'),
+                  token: token,
+                );
+                state.timer = Timer(duration, () {
+                  state.timer = null;
+                });
+                return null;
+              }
 
-        state.pending = typed.payload as S;
-        state.pendingPulse = typed;
-        state.timer?.cancel();
-        state.timer = Timer(duration, () {
-          final value = state.pending;
-          final src = state.pendingPulse;
-          state.clearPending();
-          state.timer = null;
-          if (value == null || src == null) return;
-          future!(
-            result: _fromPayload(
-              value,
-              src,
-              cell,
-              'DebounceLeading.trailing',
-            ),
-            token: token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.pending = typed.payload as S;
+              state.pendingPulse = typed;
+              state.timer?.cancel();
+              state.timer = Timer(duration, () {
+                final value = state.pending;
+                final src = state.pendingPulse;
+                state.clearPending();
+                state.timer = null;
+                if (value == null || src == null) return;
+                future!(
+                  result: _fromPayload(
+                    value,
+                    src,
+                    cell,
+                    'DebounceLeading.trailing',
+                  ),
+                  token: token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -400,26 +402,26 @@ class DebounceLeadingOnly<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   DebounceLeadingOnly(
-      Duration duration, {
-        DebounceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _GateState<S>();
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
+    Duration duration, {
+    DebounceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _GateState<S>();
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
 
-        if (state.timer?.isActive == true) return null;
+              if (state.timer?.isActive == true) return null;
 
-        state.timer = Timer(duration, () {
-          state.timer = null;
-        });
-        return _mark(typed, 'DebounceLeadingOnly');
-      };
-    })(),
-    user: user,
-  );
+              state.timer = Timer(duration, () {
+                state.timer = null;
+              });
+              return _mark(typed, 'DebounceLeadingOnly');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -488,46 +490,46 @@ class DebounceWith<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches or duration errors.
   /// - [user]: Optional user metadata.
   DebounceWith(
-      Duration Function(S value) durationOf, {
-        DebounceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _GateState<S>();
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final payload = typed.payload as S;
+    Duration Function(S value) durationOf, {
+    DebounceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _GateState<S>();
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final payload = typed.payload as S;
 
-        Duration wait;
-        try {
-          wait = durationOf(payload);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
+              Duration wait;
+              try {
+                wait = durationOf(payload);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
 
-        state.pending = payload;
-        state.pendingPulse = typed;
-        state.timer?.cancel();
-        final id = ++generation;
-        state.timer = Timer(wait, () {
-          if (id != generation) return;
-          final value = state.pending;
-          final src = state.pendingPulse;
-          state.clearPending();
-          if (value == null || src == null) return;
-          future!(
-            result: _fromPayload(value, src, cell, 'DebounceWith'),
-            token: token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              state.pending = payload;
+              state.pendingPulse = typed;
+              state.timer?.cancel();
+              final id = ++generation;
+              state.timer = Timer(wait, () {
+                if (id != generation) return;
+                final value = state.pending;
+                final src = state.pendingPulse;
+                state.clearPending();
+                if (value == null || src == null) return;
+                future!(
+                  result: _fromPayload(value, src, cell, 'DebounceWith'),
+                  token: token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -668,7 +670,7 @@ Future<void> main() async {
   print('4. DebounceWith - per-value wait');
   final words = Cell.ingress<String>();
   final keyed = DebounceWith<String>(
-        (s) => Duration(milliseconds: s == 'wait' ? 80 : 20),
+    (s) => Duration(milliseconds: s == 'wait' ? 80 : 20),
   ).toHandle(source: words.cell);
   final wObs = Cell.observe(
     source: keyed.cell,

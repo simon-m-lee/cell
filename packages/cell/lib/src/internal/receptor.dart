@@ -40,8 +40,8 @@ part of '../../cell.dart';
 /// - [C]: The type of the host [Cell].
 /// - [I]: The type of the incoming [Pulse].
 /// - [O]: The type of the resulting [Pulse].
-class _Instruction<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> {
-
+class _Instruction<C extends Cell, I extends Pulse, O extends Pulse>
+    extends InstructionBase<C, I, O> {
   /// Creates a standard instruction from a transformation function.
   ///
   /// ### Parameters:
@@ -56,9 +56,7 @@ class _Instruction<C extends Cell, I extends Pulse, O extends Pulse> extends Ins
   /// - [user]: Optional user metadata.
   /// - [future]: Optional future callback.
   /// - [token]: Optional token for identifying the instruction.
-  const _Instruction.future(super.instruction, {super.user})
-      : super.future();
-
+  const _Instruction.future(super.instruction, {super.user}) : super.future();
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -112,8 +110,8 @@ class _Instruction<C extends Cell, I extends Pulse, O extends Pulse> extends Ins
 /// * [C]: The type of the host [Cell] (the transformation target).
 /// * [I]: The type of the incoming [Pulse] (the input).
 /// * [O]: The type of the resulting [Pulse] (the output).
-abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse> implements Instruction<C,I,O> {
-
+abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
+    implements Instruction<C, I, O> {
   /// The internal configuration record storing the instruction logic.
   ///
   /// This record is optimized to only contain the fields actually used by
@@ -206,10 +204,11 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   /// * [InstructionBase.future]: For logic units requiring asynchronous deferral.
   /// * [InstructionChain]: For linking multiple logic gates into a pipeline.
   const InstructionBase(
-      O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})
+      O? Function(I pulse, {C? cell, dynamic user}) instruction,
+      {dynamic user})
       : _record = user != null
-        ? (instruction: instruction, user: user)
-        : (instruction: instruction);
+            ? (instruction: instruction, user: user)
+            : (instruction: instruction);
 
   /// Creates a base rule with future propagation support.
   ///
@@ -229,11 +228,17 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   /// - [instruction]: The function with access to the [future] callback.
   /// - [user]: Optional user metadata.
   const InstructionBase.future(
-      O? Function(I pulse, {C? cell, dynamic user,
-      void Function({required Pulse? result, required dynamic token})? future,
-      dynamic token
-      }) instruction, {dynamic user})
-      : _record = user != null ? (long: instruction, user: user) : (long: instruction);
+      O? Function(I pulse,
+              {C? cell,
+              dynamic user,
+              void Function({required Pulse? result, required dynamic token})?
+                  future,
+              dynamic token})
+          instruction,
+      {dynamic user})
+      : _record = user != null
+            ? (long: instruction, user: user)
+            : (long: instruction);
 
   /// Creates a base rule directly from a property record.
   ///
@@ -287,11 +292,10 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   /// ### Returns:
   /// The transformed pulse, or `null` if the signal was terminated.
   @override
-  O? call(I pulse, {
-    C? cell,
-    void Function({required Pulse? result, required dynamic token})? future,
-    dynamic token
-  }) {
+  O? call(I pulse,
+      {C? cell,
+      void Function({required Pulse? result, required dynamic token})? future,
+      dynamic token}) {
     void future_({required Pulse? result, required dynamic token}) {
       if (future != null) {
         future(result: result, token: token);
@@ -308,13 +312,14 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
       } else {
         final long = _long;
         if (long != null) {
-          result = long(pulse, cell: cell, user: _user, future: future_, token: null);
+          result = long(pulse,
+              cell: cell, user: _user, future: future_, token: null);
         }
       }
 
       if (result == null) return null;
       return result as dynamic;
-    } catch(e, stackTrace) {
+    } catch (e, stackTrace) {
       (pulse as PulseBase)._fail(e, stackTrace: stackTrace);
     }
     return null;
@@ -332,10 +337,9 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
   /// ### Returns:
   /// A new [InstructionChain] containing both rules.
   @override
-  Instruction<C,I,O> operator +(covariant Instruction other) {
-    return InstructionChain<C,I,O>([this, other]);
+  Instruction<C, I, O> operator +(covariant Instruction other) {
+    return InstructionChain<C, I, O>([this, other]);
   }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -364,7 +368,6 @@ abstract class InstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
 /// - **Type Parameter**: Uses [Never] as the cell type since it can never
 ///   be activated and thus never has a valid cell reference.
 class _PassThroughReceptor implements Receptor<Never> {
-
   /// The singleton instance.
   static const _singleton = _PassThroughReceptor();
 
@@ -402,7 +405,8 @@ class _PassThroughReceptor implements Receptor<Never> {
   /// ### Throws:
   /// [UnsupportedError] always.
   @override
-  ReceptorAsync<Never> get async => throw UnsupportedError('PassthroughSyncReceptor');
+  ReceptorAsync<Never> get async =>
+      throw UnsupportedError('PassthroughSyncReceptor');
 
   /// Executes the pass-through transformation.
   ///
@@ -452,7 +456,7 @@ class _PassThroughReceptor implements Receptor<Never> {
         if (other._record.$2 != null) {
           return false;
         }
-      } catch(_) {
+      } catch (_) {
         return true;
       }
     }
@@ -464,7 +468,6 @@ class _PassThroughReceptor implements Receptor<Never> {
   /// Returns the identity hash code of the singleton instance.
   @override
   int get hashCode => identityHashCode(_singleton);
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -494,8 +497,7 @@ class _PassThroughReceptor implements Receptor<Never> {
 ///
 /// ### Type Parameters:
 /// - [C]: The type of the host [Cell].
-class _Receptor<C extends Cell> extends ReceptorBase<C>{
-
+class _Receptor<C extends Cell> extends ReceptorBase<C> {
   /// Creates a receptor with the specified pipeline instructions.
   ///
   /// ### Parameters:
@@ -504,7 +506,14 @@ class _Receptor<C extends Cell> extends ReceptorBase<C>{
   /// - [postProcess]: Commitment/validation stage.
   /// - [reaction]: Simplified reaction function.
   /// - [user]: Optional user metadata.
-  _Receptor({super.instruction, super.preProcess, super.postProcess, super.reaction, super.init, super.user}) : super();
+  _Receptor(
+      {super.instruction,
+      super.preProcess,
+      super.postProcess,
+      super.reaction,
+      super.init,
+      super.user})
+      : super();
 
   /// Creates a receptor from a pre-configured record.
   ///
@@ -520,9 +529,7 @@ class _Receptor<C extends Cell> extends ReceptorBase<C>{
   /// A new [Receptor] instance with the same logic.
   @override
   Receptor<C> get clone => _Receptor.fromRecord(record: _record);
-
 }
-
 
 // ─────────────────────────────────────────────────────────────────────
 // ReceptorBase
@@ -569,7 +576,6 @@ class _Receptor<C extends Cell> extends ReceptorBase<C>{
 /// ### Type Parameters:
 /// * [C]: The type of the host [Cell].
 abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
-
   /// The internal configuration record storing the pipeline instructions.
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
@@ -638,9 +644,14 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
     void Function()? init,
     dynamic Function()? user,
-  }) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-      reaction: reaction, user: user, init: init)
-  );
+  }) : this.fromRecord(
+            record: mask(
+                instruction: instruction,
+                preProcess: preProcess,
+                postProcess: postProcess,
+                reaction: reaction,
+                user: user,
+                init: init));
 
   /// Creates a mask record for the receptor configuration.
   ///
@@ -657,21 +668,17 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///
   /// ### Returns:
   /// A record containing only the provided fields, optimized for memory.
-  static Record mask({
-    Instruction? instruction,
-    Instruction? preProcess,
-    Instruction? postProcess,
-    Function? reaction,
-    Function? user,
-    Function? init
-  }) {
-
-    final instructionMask = (
-        (instruction != null ? 1 : 0) |
-        (preProcess != null ? 2 : 0 ) |
+  static Record mask(
+      {Instruction? instruction,
+      Instruction? preProcess,
+      Instruction? postProcess,
+      Function? reaction,
+      Function? user,
+      Function? init}) {
+    final instructionMask = ((instruction != null ? 1 : 0) |
+        (preProcess != null ? 2 : 0) |
         (postProcess != null ? 4 : 0) |
-        (reaction != null ? 8 : 0)
-    );
+        (reaction != null ? 8 : 0));
 
     final instructionRecord = switch (instructionMask) {
       0 => (),
@@ -681,23 +688,42 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       4 => (postProcess: postProcess),
       5 => (instruction: instruction, postProcess: postProcess),
       6 => (preProcess: preProcess, postProcess: postProcess),
-      7 => (instruction: instruction, preProcess: preProcess, postProcess: postProcess),
+      7 => (
+          instruction: instruction,
+          preProcess: preProcess,
+          postProcess: postProcess
+        ),
       8 => (reaction: reaction),
       9 => (instruction: instruction, reaction: reaction),
       10 => (preProcess: preProcess, reaction: reaction),
-      11 => (instruction: instruction, preProcess: preProcess, reaction: reaction),
+      11 => (
+          instruction: instruction,
+          preProcess: preProcess,
+          reaction: reaction
+        ),
       12 => (postProcess: postProcess, reaction: reaction),
-      13 => (instruction: instruction, postProcess: postProcess, reaction: reaction),
-      14 => (preProcess: preProcess, postProcess: postProcess, reaction: reaction),
-      15 => (instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+      13 => (
+          instruction: instruction,
+          postProcess: postProcess,
+          reaction: reaction
+        ),
+      14 => (
+          preProcess: preProcess,
+          postProcess: postProcess,
+          reaction: reaction
+        ),
+      15 => (
+          instruction: instruction,
+          preProcess: preProcess,
+          postProcess: postProcess,
+          reaction: reaction
+        ),
       _ => ()
     };
 
-    final mask = (
-        (instructionMask != 0 ? 1 : 0) |
+    final mask = ((instructionMask != 0 ? 1 : 0) |
         (init != null ? 2 : 0) |
-        (user != null ? 4 : 0)
-    );
+        (user != null ? 4 : 0));
 
     final userBox = user != null ? (FinalBox()..value = user()) : null;
 
@@ -709,7 +735,12 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       4 => (user: user, userBox: userBox),
       5 => (instruction: instructionRecord, user: user, userBox: userBox),
       6 => (init: init, user: user, userBox: userBox),
-      7 => (instruction: instructionRecord, init: init, user: user, userBox: userBox),
+      7 => (
+          instruction: instructionRecord,
+          init: init,
+          user: user,
+          userBox: userBox
+        ),
       _ => ()
     };
   }
@@ -798,13 +829,14 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// The transformed pulse, or `null` if the signal was terminated.
   @override
   FutureOr<Pulse?> call(covariant Pulse incoming) {
-    assert(isActivated,
-    'Receptor call failed: The receptor must be activated before it can process pulses. '
+    assert(
+        isActivated,
+        'Receptor call failed: The receptor must be activated before it can process pulses. '
         'Verify that the host cell has been properly initialized and is not in a disposed state.');
     // assert(!cell.isInvalidated,
     // 'Receptor call failed: The [cell] the receptor is activated with is in a disposed state.');
     assert(!incoming.isInvalidated,
-    'Receptor call failed: The [incoming] pulse is in a disposed state.');
+        'Receptor call failed: The [incoming] pulse is in a disposed state.');
 
     if (incoming is Shell) {
       return incoming.scrutinize(this, null);
@@ -815,7 +847,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     }
 
     assert(incoming is PulseBase,
-    'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.');
+        'Receptor call failed: The [incoming] pulse is not implemented from PulseBase.');
 
     if (!(incoming as PulseBase)._checker.add(cell)) {
       print('DEBUG receptor: checker add false');
@@ -833,7 +865,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   }
 
   FutureOr<Pulse?> _proceed(PulseBase pulse) {
-
     // A governed cell that has already been reclaimed rejects all stimuli.
     if (cell.isGoverned && cell.isInvalidated) {
       return null;
@@ -862,7 +893,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     }
 
     return result;
-
   }
 
   bool _pulseEphemeralPolicyCheck(PulseBase pulse) {
@@ -921,10 +951,14 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     try {
       pulse._progress(cell);
 
-      final reaction= _reaction;
+      final reaction = _reaction;
       if (reaction != null) {
         final result = reaction(pulse, cell, user: _user);
-        return identical(result, pulse) ? pulse : pulse.isGoverned ? pulse.evolve(pulse: result) as PulseBase : result;
+        return identical(result, pulse)
+            ? pulse
+            : pulse.isGoverned
+                ? pulse.evolve(pulse: result) as PulseBase
+                : result;
       }
 
       // Chain logic: preProcess -> instruction -> postProcess
@@ -959,30 +993,34 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       try {
         if (identical(instruction, _instruction)) {
           if (_postProcess != null) {
-            currentPulse = instruction.call(currentPulse.last, cell: cell,
-                future: ({required result, required token}) => result != null
-                    ? _postProcess!.call(result)
-                    : null
-            ) as PulseBase?;
+            currentPulse = instruction.call(currentPulse.last,
+                    cell: cell,
+                    future: ({required result, required token}) =>
+                        result != null ? _postProcess!.call(result) : null)
+                as PulseBase?;
           } else {
-            currentPulse = instruction.call(currentPulse.last, cell: cell,
+            currentPulse = instruction.call(currentPulse.last,
+                cell: cell,
                 future: ({required result, required token}) => result != null
                     ? cell._nucleus.synapses.call(result)
-                    : null
-            ) as PulseBase?;
+                    : null) as PulseBase?;
           }
         } else {
-          currentPulse = instruction.call(currentPulse.last, cell: cell) as PulseBase?;
+          currentPulse =
+              instruction.call(currentPulse.last, cell: cell) as PulseBase?;
         }
       } catch (e, stackTrace) {
         pulse._fail(e, stackTrace: stackTrace);
         return null;
       }
-
     }
 
     if (currentPulse is! Future) {
-      return identical(currentPulse, pulse) ? pulse : pulse.isGoverned ? pulse.evolve(pulse: currentPulse) as PulseBase : currentPulse;
+      return identical(currentPulse, pulse)
+          ? pulse
+          : pulse.isGoverned
+              ? pulse.evolve(pulse: currentPulse) as PulseBase
+              : currentPulse;
     }
     return currentPulse;
   }
@@ -991,7 +1029,8 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///
   /// ### Returns:
   /// The reaction function, or `null` if not set.
-  Function? get _reaction => get<Function?>(() => _record.instruction.reaction, orElse: null);
+  Function? get _reaction =>
+      get<Function?>(() => _record.instruction.reaction, orElse: null);
 
   /// Retrieves the user metadata from the configuration.
   ///
@@ -1009,19 +1048,22 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///
   /// ### Returns:
   /// The core [Instruction], or `null` if not set.
-  Instruction? get _instruction => get<Instruction?>(() => _record.instruction.instruction, orElse: null);
+  Instruction? get _instruction =>
+      get<Instruction?>(() => _record.instruction.instruction, orElse: null);
 
   /// Retrieves the pre-process instruction from the configuration.
   ///
   /// ### Returns:
   /// The pre-process [Instruction], or `null` if not set.
-  Instruction? get _preProcess => get<Instruction?>(() => _record.instruction.preProcess, orElse: null);
+  Instruction? get _preProcess =>
+      get<Instruction?>(() => _record.instruction.preProcess, orElse: null);
 
   /// Retrieves the post-process instruction from the configuration.
   ///
   /// ### Returns:
   /// The post-process [Instruction], or `null` if not set.
-  Instruction? get _postProcess => get<Instruction?>(() => _record.instruction.postProcess, orElse: null);
+  Instruction? get _postProcess =>
+      get<Instruction?>(() => _record.instruction.postProcess, orElse: null);
 
   /// Returns an asynchronous adapter for this receptor.
   ///
@@ -1055,7 +1097,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
           })) {
             return false;
           }
-        } catch(_) {
+        } catch (_) {
           return true;
         }
       }
@@ -1087,7 +1129,7 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       this.cell = cell;
       _init?.call();
       return true;
-    } catch(_) {}
+    } catch (_) {}
     return false;
   }
 
@@ -1106,7 +1148,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     } catch (_) {}
     return false;
   }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1170,7 +1211,6 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
 /// See also:
 /// * [Receptor.async] – The getter that provides this handle.
 class ReceptorAsync<C extends Cell> implements Async {
-
   /// The underlying receptor that processes pulses synchronously.
   final ReceptorBase<C> _receptor;
 
@@ -1264,10 +1304,12 @@ class ReceptorAsync<C extends Cell> implements Async {
   /// ### See Also:
   /// - [Receptor.async]: The standard way to obtain this handle.
   /// - [Cell.txApply]: For wrapping multiple async updates in a transaction.
-  Future<void> call(Pulse incoming, {bool serializedCompletion = true, void Function({Pulse? result, required Pulse input})? hook}) async {
-
+  Future<void> call(Pulse incoming,
+      {bool serializedCompletion = true,
+      void Function({Pulse? result, required Pulse input})? hook}) async {
     if (incoming is Shell) {
-      incoming.scrutinize(_receptor, null, {#serializedCompletion: serializedCompletion});
+      incoming.scrutinize(
+          _receptor, null, {#serializedCompletion: serializedCompletion});
       return;
     }
 
@@ -1288,58 +1330,60 @@ class ReceptorAsync<C extends Cell> implements Async {
     await _queue.add(pulse);
 
     Future<void> drain() => _unawaitedLock.synchronized(() async {
-      Pulse? out;
+          Pulse? out;
 
-      while (await _queue.isNotEmpty) {
-        final p = await _queue.removeFirst();
+          while (await _queue.isNotEmpty) {
+            final p = await _queue.removeFirst();
 
-        bool wait = true;
-        Function? hook;
-        final user = p._user;
-        if (user != null) {
-          if (user.containsKey(#serializedCompletion)) {
-            wait = false;
-          }
-          if (user.containsKey(#hook)) {
-            hook = user[#hook] as Function?;
-          }
-        }
+            bool wait = true;
+            Function? hook;
+            final user = p._user;
+            if (user != null) {
+              if (user.containsKey(#serializedCompletion)) {
+                wait = false;
+              }
+              if (user.containsKey(#hook)) {
+                hook = user[#hook] as Function?;
+              }
+            }
 
-        final validation = cell.validate.call(pulse, host: cell);
-        final passed = validation is Future<bool> ? await validation : validation;
-        if (!passed) return;
+            final validation = cell.validate.call(pulse, host: cell);
+            final passed =
+                validation is Future<bool> ? await validation : validation;
+            if (!passed) return;
 
-        final lock = cell._nucleus.lock;
-        if (lock != null) {
-          out = await lock.synchronized(() async {
-            return _receptor._proceed(p);
-          });
-        } else {
-          final result = _receptor._proceed(p);
-          if (result is Future<Pulse?>) {
-            out = await result;
-          } else {
-            out = result;
-          }
-        }
-
-        final hookFn = hook as void Function({Pulse? result, required Pulse input})?;
-        hookFn?.call(result: out, input: p);
-
-        if (out != null) {
-          final synapses = cell._nucleus.synapses;
-          if (synapses != Synapses.disabled) {
-            if (wait) {
-              await synapses.async.call(out);
+            final lock = cell._nucleus.lock;
+            if (lock != null) {
+              out = await lock.synchronized(() async {
+                return _receptor._proceed(p);
+              });
             } else {
-              unawaited(synapses.async.call(out));
+              final result = _receptor._proceed(p);
+              if (result is Future<Pulse?>) {
+                out = await result;
+              } else {
+                out = result;
+              }
+            }
+
+            final hookFn =
+                hook as void Function({Pulse? result, required Pulse input})?;
+            hookFn?.call(result: out, input: p);
+
+            if (out != null) {
+              final synapses = cell._nucleus.synapses;
+              if (synapses != Synapses.disabled) {
+                if (wait) {
+                  await synapses.async.call(out);
+                } else {
+                  unawaited(synapses.async.call(out));
+                }
+              }
+            } else {
+              p._complete();
             }
           }
-        } else {
-          p._complete();
-        }
-      }
-    });
+        });
 
     // StateHandle / IngressHandle document that serializedCompletion waits
     // until this pulse has been processed, not merely queued.
@@ -1355,5 +1399,4 @@ class ReceptorAsync<C extends Cell> implements Async {
   /// This lock ensures that only one async worker loop is active at a time,
   /// preventing concurrent processing that could violate causal order.
   final Lock _unawaitedLock = Lock();
-
 }

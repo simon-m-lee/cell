@@ -12,16 +12,16 @@ part of '../../../cell.dart';
 
 /// Switches to a new dynamic reactive source.
 Cell _switchMap<S, T>(
-    Cell source,
-    Cell Function(S value) mapper, {
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Cell source,
+  Cell Function(S value) mapper, {
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   // State for the current inner cell.
-  final state = _SwitchMapState<S,T>(
+  final state = _SwitchMapState<S, T>(
     source: source,
     mapper: mapper,
     currentInner: null,
@@ -97,14 +97,14 @@ class _SwitchMapState<S, T> {
 ///
 /// [equals] defaults to `==`. Provide a custom comparator when needed.
 Cell _distinct(
-    Cell source, {
-      bool Function(dynamic previous, dynamic next)? equals,
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Cell source, {
+  bool Function(dynamic previous, dynamic next)? equals,
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   final state = _DistinctState();
   final eq = equals ?? (a, b) => a == b;
 
@@ -145,27 +145,31 @@ class _DistinctState {
 // operator - ingress
 // ─────────────────────────────────────────────────────────────
 
-IngressHandle<I> _ingress<I>({
-
-  Pulse<I?>? Function(Cell host, Pulse<I> input)? refine,
-
-  EphemeralPolicy? ephemeralPolicy,
-  Cell? bind,
-  Context context = Context.system,
-  Receptor receptor = Receptor.passThrough,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-
-  bool forceLock = false
-}) {
+IngressHandle<I> _ingress<I>(
+    {Pulse<I?>? Function(Cell host, Pulse<I> input)? refine,
+    EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context context = Context.system,
+    Receptor receptor = Receptor.passThrough,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = false}) {
   receptor = refine != null
-      ? _Receptor(reaction: (pulse, cell, {dynamic user}) => refine(cell, pulse as Pulse<I>))
+      ? _Receptor(
+          reaction: (pulse, cell, {dynamic user}) =>
+              refine(cell, pulse as Pulse<I>))
       : receptor;
-  final cell = Cell.governed(bind: bind, ephemeralPolicy: ephemeralPolicy,
-      context: context, testRule: testRule, synapses: synapses, receptor: receptor);
-  bool emit(I input) => cell._nucleus.receptor.call(Pulse<I>(input, source: cell)) != null;
+  final cell = Cell.governed(
+      bind: bind,
+      ephemeralPolicy: ephemeralPolicy,
+      context: context,
+      testRule: testRule,
+      synapses: synapses,
+      receptor: receptor);
+  bool emit(I input) =>
+      cell._nucleus.receptor.call(Pulse<I>(input, source: cell)) != null;
 
-  Future<bool> emitAsync(I input)  async {
+  Future<bool> emitAsync(I input) async {
     final lock = cell._nucleus.lock;
     if (lock != null) {
       return lock.synchronized(() => emit(input)).then((value) => value);
@@ -173,9 +177,11 @@ IngressHandle<I> _ingress<I>({
     return Future<bool>(() => emit(input)).then((value) => value);
   }
 
-  Future<void> ingest(Pulse<I> pulse, {bool serializedCompletion = true}) async {
+  Future<void> ingest(Pulse<I> pulse,
+      {bool serializedCompletion = true}) async {
     final receptor = cell._nucleus.receptor;
-    return await receptor.async.call(pulse as PulseBase<I>, serializedCompletion: serializedCompletion);
+    return await receptor.async.call(pulse as PulseBase<I>,
+        serializedCompletion: serializedCompletion);
   }
 
   return (cell: cell, emit: emit, emitAsync: emitAsync, ingest: ingest);
@@ -185,17 +191,14 @@ IngressHandle<I> _ingress<I>({
 // operator - observe
 // ─────────────────────────────────────────────────────────────
 
-EgressHandle<P> _observe<P extends Pulse>({
-  required Cell bind,
-  required void Function(P pulse) effect,
-  EphemeralPolicy? ephemeralPolicy,
-  Context context = Context.system,
-  TestCell testRule = TestCell.allowAll,
-
-  bool initiallyStarted = true,
-  bool forceLock = false
-}) {
-
+EgressHandle<P> _observe<P extends Pulse>(
+    {required Cell bind,
+    required void Function(P pulse) effect,
+    EphemeralPolicy? ephemeralPolicy,
+    Context context = Context.system,
+    TestCell testRule = TestCell.allowAll,
+    bool initiallyStarted = true,
+    bool forceLock = false}) {
   final cancel = Box<bool>(!initiallyStarted);
   bool start() => cancel.value = false;
   bool stop() => cancel.value = true;
@@ -205,8 +208,14 @@ EgressHandle<P> _observe<P extends Pulse>({
     }
     return null;
   });
-  final cell = Cell.governed(bind: bind, context: context, receptor: receptor, forceLock: forceLock,
-      ephemeralPolicy: ephemeralPolicy, testRule: testRule, synapses: Synapses.disabled);
+  final cell = Cell.governed(
+      bind: bind,
+      context: context,
+      receptor: receptor,
+      forceLock: forceLock,
+      ephemeralPolicy: ephemeralPolicy,
+      testRule: testRule,
+      synapses: Synapses.disabled);
   return (cell: cell, start: start, stop: stop);
 }
 
@@ -218,14 +227,14 @@ EgressHandle<P> _observe<P extends Pulse>({
 ///
 /// The subscription is cancelled automatically when the cell is invalidated.
 Cell _fromStream<T>(
-    Stream<T> stream, {
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-      bool cancelOnError = false,
-    }) {
+  Stream<T> stream, {
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+  bool cancelOnError = false,
+}) {
   late final Cell cell;
   StreamSubscription<T>? sub;
 
@@ -272,8 +281,7 @@ Cell _fromStream<T>(
       // passThrough is not governed, so drive the lifecycle policy here.
       lifecycle(value, cell: host);
       final limit = lifecycle.eventLimit;
-      if (host.isInvalidated ||
-          (limit != null && lifecycle.events >= limit)) {
+      if (host.isInvalidated || (limit != null && lifecycle.events >= limit)) {
         cancelSubscription();
       }
     },
@@ -299,13 +307,13 @@ Cell _fromStream<T>(
 
 /// Creates a cell that emits the result of a [Future] exactly once.
 Cell _fromFuture<T>(
-    Future<T> future, {
-      EphemeralPolicy? ephemeralPolicy,
-      Context context = Context.system,
-      TestCell testRule = TestCell.allowAll,
-      Synapses synapses = Synapses.enabled,
-      bool forceLock = false,
-    }) {
+  Future<T> future, {
+  EphemeralPolicy? ephemeralPolicy,
+  Context context = Context.system,
+  TestCell testRule = TestCell.allowAll,
+  Synapses synapses = Synapses.enabled,
+  bool forceLock = false,
+}) {
   final cell = Cell.governed(
     ephemeralPolicy: ephemeralPolicy,
     context: context,
@@ -358,23 +366,23 @@ Cell _fromFuture<T>(
 /// - Exceptions from [body] propagate after all locks are released.
 /// - Reentrant [Lock]s are safe – the same isolate may re-enter.
 Future<T> withLocks<T>(
-    Iterable<Lock?> locks,
-    Future<T> Function() body,
-    ) {
+  Iterable<Lock?> locks,
+  Future<T> Function() body,
+) {
   final ordered = locks.whereType<Lock>().toList(growable: false);
   return _withLocksAt(ordered, 0, body);
 }
 
 Future<T> _withLocksAt<T>(
-    List<Lock> locks,
-    int index,
-    Future<T> Function() body,
-    ) {
+  List<Lock> locks,
+  int index,
+  Future<T> Function() body,
+) {
   if (index >= locks.length) {
     return body();
   }
   return locks[index].synchronized(
-        () => _withLocksAt(locks, index + 1, body),
+    () => _withLocksAt(locks, index + 1, body),
   );
 }
 
@@ -383,10 +391,10 @@ Future<T> _withLocksAt<T>(
 /// [order] sorts a *copy* of [cells] before locks are read. Default is
 /// `hashCode` ascending (deadlock-free for any participant set).
 Future<T> withCellLocks<T>(
-    Iterable<Cell> cells,
-    Future<T> Function() body, {
-      int Function(Cell a, Cell b)? order,
-    }) {
+  Iterable<Cell> cells,
+  Future<T> Function() body, {
+  int Function(Cell a, Cell b)? order,
+}) {
   final sorted = List<Cell>.from(cells);
   sorted.sort(order ?? (a, b) => a.hashCode.compareTo(b.hashCode));
 

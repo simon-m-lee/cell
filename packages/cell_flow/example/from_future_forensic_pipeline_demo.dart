@@ -191,15 +191,15 @@ class ForensicEvidence {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'caseId': caseId,
-    'description': description,
-    'status': status,
-    'collectedAt': collectedAt.toIso8601String(),
-    'collectedBy': collectedBy,
-    'evidenceType': evidenceType,
-    'metadata': metadata,
-  };
+        'id': id,
+        'caseId': caseId,
+        'description': description,
+        'status': status,
+        'collectedAt': collectedAt.toIso8601String(),
+        'collectedBy': collectedBy,
+        'evidenceType': evidenceType,
+        'metadata': metadata,
+      };
 
   @override
   String toString() => 'Evidence($id) - Status: $status';
@@ -373,7 +373,8 @@ class ForensicApi {
     await Future.delayed(const Duration(milliseconds: 300));
     return {
       'system': systemId,
-      'records': List.generate(42, (i) => {'id': 'REC-${i + 1}', 'data': 'Legacy data ${i + 1}'}),
+      'records': List.generate(
+          42, (i) => {'id': 'REC-${i + 1}', 'data': 'Legacy data ${i + 1}'}),
       'version': '2.3.1',
       'lastSync': DateTime.now().toIso8601String(),
     };
@@ -395,7 +396,8 @@ class ForensicApi {
   }
 
   /// Legacy API: Create audit entry.
-  Future<ForensicAuditEntry> createAuditEntry(String action, String evidenceId, Map<String, dynamic> details) async {
+  Future<ForensicAuditEntry> createAuditEntry(
+      String action, String evidenceId, Map<String, dynamic> details) async {
     await Future.delayed(const Duration(milliseconds: 50));
     final entry = ForensicAuditEntry(
       id: 'AUD-${DateTime.now().millisecondsSinceEpoch}',
@@ -456,8 +458,10 @@ class ForensicMetrics {
       failedRequests++;
     }
     operationCounts[operation] = (operationCounts[operation] ?? 0) + 1;
-    operationTimes[operation] = (operationTimes[operation] ?? Duration.zero) + duration;
-    auditTrail.add('${DateTime.now().toIso8601String()}: $operation - ${success ? "SUCCESS" : "FAILURE"}');
+    operationTimes[operation] =
+        (operationTimes[operation] ?? Duration.zero) + duration;
+    auditTrail.add(
+        '${DateTime.now().toIso8601String()}: $operation - ${success ? "SUCCESS" : "FAILURE"}');
   }
 
   void printSummary() {
@@ -469,7 +473,8 @@ class ForensicMetrics {
     print('   Operations:');
     for (final entry in operationCounts.entries) {
       final avg = operationTimes[entry.key]! ~/ entry.value;
-      print('     ${entry.key}: ${entry.value} calls (avg ${avg.inMilliseconds}ms)');
+      print(
+          '     ${entry.key}: ${entry.value} calls (avg ${avg.inMilliseconds}ms)');
     }
     print('   Audit Trail Entries: ${auditTrail.length}');
   }
@@ -484,7 +489,8 @@ Future<void> main() async {
   final api = ForensicApi();
   final metrics = ForensicMetrics();
 
-  print('── Forensic Pipeline Demo ──────────────────────────────────────────────────\n');
+  print(
+      '── Forensic Pipeline Demo ──────────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Future Bridge - Forensic Evidence
@@ -522,7 +528,8 @@ Future<void> main() async {
     source: evidenceHandle.cell,
     effect: (Pulse p) {
       final evidence = p.payload as ForensicEvidence;
-      print('   [Forensic] ✅ Evidence retrieved: ${evidence.id} - Status: ${evidence.status}');
+      print(
+          '   [Forensic] ✅ Evidence retrieved: ${evidence.id} - Status: ${evidence.status}');
       print('   [Trace] ${p.trace.join(' -> ')}');
     },
   );
@@ -558,7 +565,8 @@ Future<void> main() async {
     create: (pulse) async {
       final evidence = pulse.payload as ForensicEvidence;
       final images = await api.fetchImages(evidence.id);
-      print('   [Forensic] Evidence: ${evidence.id} - Images loaded (${images.length} images)');
+      print(
+          '   [Forensic] Evidence: ${evidence.id} - Images loaded (${images.length} images)');
       return images;
     },
   );
@@ -569,7 +577,8 @@ Future<void> main() async {
     create: (pulse) async {
       final evidence = pulse.payload as ForensicEvidence;
       final audit = await api.fetchAuditLog(evidence.id);
-      print('   [Forensic] Evidence: ${evidence.id} - Audit log loaded (${audit.length} entries)');
+      print(
+          '   [Forensic] Evidence: ${evidence.id} - Audit log loaded (${audit.length} entries)');
       return audit;
     },
   );
@@ -579,9 +588,12 @@ Future<void> main() async {
   final reportCell = Cell.synthesis<Pulse<Map<String, dynamic>>>(
     [evidenceStep.cell, imagesStep.cell, auditStep.cell],
     aggregator: (sources, emit) {
-      final evidence = (sources.elementAt(0) as ValueCell<ForensicEvidence>).value!;
-      final images = (sources.elementAt(1) as ValueCell<List<ForensicImage>>).value!;
-      final audit = (sources.elementAt(2) as ValueCell<List<ForensicAuditEntry>>).value!;
+      final evidence =
+          (sources.elementAt(0) as ValueCell<ForensicEvidence>).value!;
+      final images =
+          (sources.elementAt(1) as ValueCell<List<ForensicImage>>).value!;
+      final audit =
+          (sources.elementAt(2) as ValueCell<List<ForensicAuditEntry>>).value!;
       return Pulse<Map<String, dynamic>>({
         'evidence': evidence,
         'images': images,
@@ -594,17 +606,17 @@ Future<void> main() async {
 
   // Create a handle for the synthesis cell
   final reportHandle = (
-  cell: reportCell,
-  emit: (input) {
-    // Simplified emit for demo
-    return true;
-  },
-  emitAsync: (input) async {
-    return true;
-  },
-  ingest: (Pulse pulse, {bool serializedCompletion = true}) async {
-    return Future.value();
-  },
+    cell: reportCell,
+    emit: (input) {
+      // Simplified emit for demo
+      return true;
+    },
+    emitAsync: (input) async {
+      return true;
+    },
+    ingest: (Pulse pulse, {bool serializedCompletion = true}) async {
+      return Future.value();
+    },
   );
 
   final custodyObserver = Cell.observe(
@@ -682,20 +694,41 @@ Future<void> main() async {
   final parallelHandle = Flow.asyncMapConcurrent<int, Map<String, dynamic>>(
     parallelInput.cell,
     mapper: (sourceId) async {
-      final delay = Duration(milliseconds: sourceId == 1 ? 500 : sourceId == 2 ? 350 : 150);
-      print('   [Forensic] Source $sourceId: Starting collection (${delay.inMilliseconds}ms)');
+      final delay = Duration(
+          milliseconds: sourceId == 1
+              ? 500
+              : sourceId == 2
+                  ? 350
+                  : 150);
+      print(
+          '   [Forensic] Source $sourceId: Starting collection (${delay.inMilliseconds}ms)');
       await Future.delayed(delay);
 
       // Simulate different data sources
       if (sourceId == 1) {
         final evidence = await api.fetchEvidence('EV-12345');
-        return {'source': sourceId, 'type': 'Evidence', 'data': evidence.id, 'time': delay.inMilliseconds};
+        return {
+          'source': sourceId,
+          'type': 'Evidence',
+          'data': evidence.id,
+          'time': delay.inMilliseconds
+        };
       } else if (sourceId == 2) {
         final images = await api.fetchImages('EV-12345');
-        return {'source': sourceId, 'type': 'Images', 'data': images.length, 'time': delay.inMilliseconds};
+        return {
+          'source': sourceId,
+          'type': 'Images',
+          'data': images.length,
+          'time': delay.inMilliseconds
+        };
       } else {
         final audit = await api.fetchAuditLog('EV-12345');
-        return {'source': sourceId, 'type': 'Audit', 'data': audit.length, 'time': delay.inMilliseconds};
+        return {
+          'source': sourceId,
+          'type': 'Audit',
+          'data': audit.length,
+          'time': delay.inMilliseconds
+        };
       }
     },
   );
@@ -705,7 +738,8 @@ Future<void> main() async {
     source: parallelHandle.cell,
     effect: (Pulse p) {
       final result = p.payload as Map<String, dynamic>;
-      final msg = '✅ Source ${result['source']}: ${result['type']} - Completed (${result['time']}ms)';
+      final msg =
+          '✅ Source ${result['source']}: ${result['type']} - Completed (${result['time']}ms)';
       parallelResults.add(msg);
       print('   [Forensic] $msg');
     },
@@ -721,7 +755,8 @@ Future<void> main() async {
   await Future.delayed(const Duration(milliseconds: 600));
   parallelStopwatch.stop();
 
-  print('   [Forensic] All sources collected in ${parallelStopwatch.elapsedMilliseconds}ms');
+  print(
+      '   [Forensic] All sources collected in ${parallelStopwatch.elapsedMilliseconds}ms');
 
   parallelObserver.stop();
   print('');
@@ -800,7 +835,8 @@ Future<void> main() async {
   await Future.delayed(const Duration(milliseconds: 900));
 
   processStopwatch.stop();
-  print('   [Forensic] Process completed in ${processStopwatch.elapsedMilliseconds}ms');
+  print(
+      '   [Forensic] Process completed in ${processStopwatch.elapsedMilliseconds}ms');
 
   processObserver.stop();
   print('');
@@ -875,7 +911,8 @@ Future<void> main() async {
       await Future.delayed(const Duration(milliseconds: 200));
 
       final data = await api.fetchLegacyData(systemId);
-      print('   [Forensic] ✅ Legacy data retrieved: ${data['records'].length} records');
+      print(
+          '   [Forensic] ✅ Legacy data retrieved: ${data['records'].length} records');
 
       // Add forensic metadata
       return {
@@ -892,7 +929,8 @@ Future<void> main() async {
     effect: (Pulse p) {
       final data = p.payload as Map<String, dynamic>;
       print('   [Forensic] ✅ Data migrated with full provenance');
-      print('   [Forensic] Source: ${data['system']} - Version: ${data['version']}');
+      print(
+          '   [Forensic] Source: ${data['system']} - Version: ${data['version']}');
       print('   [Forensic] Records: ${data['records'].length}');
       print('   [Forensic] Forensic Timestamp: ${data['forensicTimestamp']}');
     },
@@ -1015,7 +1053,8 @@ Future<void> main() async {
   metrics.printSummary();
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1026,11 +1065,11 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a deferFuture bridge with the specified future provider.
   static FlowHandle deferFuture<T>(
-      Cell source, {
-        required Future<T> Function(Pulse pulse) create,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Future<T> Function(Pulse pulse) create,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     final instruction = DeferFuture<T>(
       create,
       onError: onError,
@@ -1041,16 +1080,17 @@ extension FlowUtils on Flow {
 
   /// Creates an asyncMapConcurrent with the specified mapper.
   static FlowHandle asyncMapConcurrent<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+  }) {
     final instruction = AsyncMapConcurrent<S, T>(mapper);
     return instruction.toHandle(source: source);
   }
 }
 
 /// Error handler callback for future operations.
-typedef FutureErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef FutureErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Placeholder for DeferFuture operator.
 class DeferFuture<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
@@ -1059,66 +1099,67 @@ class DeferFuture<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   final bool _emitErrorPulse;
 
   DeferFuture(
-      this._create, {
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      })  : _onError = onError,
+    this._create, {
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  })  : _onError = onError,
         _emitErrorPulse = emitErrorPulse,
         super.future(
-            (pulse, {cell, user, future, token}) {
-          Future<void> run() async {
-            try {
-              final result = await _create(pulse);
-              future!(
-                result: _fromPayload(result, pulse, cell, 'DeferFuture'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-              if (emitErrorPulse) {
+          (pulse, {cell, user, future, token}) {
+            Future<void> run() async {
+              try {
+                final result = await _create(pulse);
                 future!(
-                  result: _errorPayload(e, pulse, cell, 'DeferFuture.error'),
+                  result: _fromPayload(result, pulse, cell, 'DeferFuture'),
                   token: token,
                 );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                if (emitErrorPulse) {
+                  future!(
+                    result: _errorPayload(e, pulse, cell, 'DeferFuture.error'),
+                    token: token,
+                  );
+                }
               }
             }
-          }
 
-          run();
-          return null;
-        },
-        user: user,
-      );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// Placeholder for AsyncMapConcurrent operator.
 class AsyncMapConcurrent<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   AsyncMapConcurrent(
-      FutureOr<T> Function(S value) mapper, {
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! S) return null;
+    FutureOr<T> Function(S value) mapper, {
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! S) return null;
 
-      Future<void> run() async {
-        try {
-          final result = await Future<T>.sync(() => mapper(payload));
-          future!(
-            result: _fromPayload(result, pulse, cell, 'AsyncMapConcurrent'),
-            token: token,
-          );
-        } catch (e) {
-          // Error handling simplified for demo
-        }
-      }
+            Future<void> run() async {
+              try {
+                final result = await Future<T>.sync(() => mapper(payload));
+                future!(
+                  result:
+                      _fromPayload(result, pulse, cell, 'AsyncMapConcurrent'),
+                  token: token,
+                );
+              } catch (e) {
+                // Error handling simplified for demo
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────────────

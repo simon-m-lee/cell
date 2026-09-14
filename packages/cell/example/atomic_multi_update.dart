@@ -39,15 +39,15 @@ class AccountCell implements Cell {
 
   @override
   dynamic apply(
-      Function function, {
-        List? positionalArguments,
-        Map<Symbol, dynamic>? namedArguments,
-        ApplyTransactionScope? tx,
-        Function? compensate,
-        List? compensatePositional,
-        Map<Symbol, dynamic>? compensateNamed,
-        Cell? compensateCell,
-      }) {
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
+    ApplyTransactionScope? tx,
+    Function? compensate,
+    List? compensatePositional,
+    Map<Symbol, dynamic>? compensateNamed,
+    Cell? compensateCell,
+  }) {
     if (tx != null) {
       tx.enqueue(
         this,

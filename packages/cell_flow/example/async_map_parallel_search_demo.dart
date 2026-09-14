@@ -138,7 +138,11 @@ class ApiSimulator {
   /// Simulates fetching a user profile.
   Future<Map<String, dynamic>> fetchUserProfile(String userId) async {
     await Future.delayed(const Duration(milliseconds: 200));
-    return {'id': userId, 'name': 'User $userId', 'email': '$userId@example.com'};
+    return {
+      'id': userId,
+      'name': 'User $userId',
+      'email': '$userId@example.com'
+    };
   }
 
   /// Simulates fetching user posts.
@@ -164,7 +168,8 @@ class ApiSimulator {
 Future<void> main() async {
   final api = ApiSimulator();
 
-  print('── AsyncMap Demo: Parallel Fetches, Search, Ordered Tasks ──────────────\n');
+  print(
+      '── AsyncMap Demo: Parallel Fetches, Search, Ordered Tasks ──────────────\n');
 
   // ========================================================================
   // 1. Parallel Fetches (asyncMapConcurrent)
@@ -179,7 +184,12 @@ Future<void> main() async {
   final parallelHandle = Flow.asyncMapConcurrent<int, String>(
     parallelInput.cell,
     mapper: (id) async {
-      final delay = Duration(milliseconds: (id == 1 ? 500 : id == 2 ? 300 : 100));
+      final delay = Duration(
+          milliseconds: (id == 1
+              ? 500
+              : id == 2
+                  ? 300
+                  : 100));
       print('   [Fetch] Starting: Product $id (${delay.inMilliseconds}ms)');
       final result = await api.fetchProduct(id);
       return 'Product ${result['id']} done in ${result['delay']}ms';
@@ -205,8 +215,10 @@ Future<void> main() async {
   await Future.delayed(const Duration(milliseconds: 600));
   parallelStopwatch.stop();
 
-  print('   Total time: ${parallelStopwatch.elapsedMilliseconds}ms (vs 900ms sequential)');
-  print('   Speedup: ${(900 / parallelStopwatch.elapsedMilliseconds).toStringAsFixed(1)}x');
+  print(
+      '   Total time: ${parallelStopwatch.elapsedMilliseconds}ms (vs 900ms sequential)');
+  print(
+      '   Speedup: ${(900 / parallelStopwatch.elapsedMilliseconds).toStringAsFixed(1)}x');
 
   parallelObserver.stop();
   print('');
@@ -274,7 +286,12 @@ Future<void> main() async {
   final taskHandle = Flow.asyncMap<int, String>(
     taskInput.cell,
     mapper: (id) async {
-      final delay = Duration(milliseconds: id == 1 ? 300 : id == 2 ? 200 : 400);
+      final delay = Duration(
+          milliseconds: id == 1
+              ? 300
+              : id == 2
+                  ? 200
+                  : 400);
       print('   [Task] Starting: Task $id (${delay.inMilliseconds}ms)');
       await Future.delayed(delay);
       final result = 'Task $id done (${delay.inMilliseconds}ms)';
@@ -302,7 +319,8 @@ Future<void> main() async {
   taskStopwatch.stop();
 
   print('   [Result] $taskResults');
-  print('   Total time: ${taskStopwatch.elapsedMilliseconds}ms (all tasks sequential)');
+  print(
+      '   Total time: ${taskStopwatch.elapsedMilliseconds}ms (all tasks sequential)');
   print('   Order preserved: ✅');
 
   taskObserver.stop();
@@ -320,10 +338,20 @@ Future<void> main() async {
   final categoryHandle = Flow.asyncMapConcurrent<String, Map<String, dynamic>>(
     categoryInput.cell,
     mapper: (category) async {
-      final delay = Duration(milliseconds: category == 'A' ? 200 : category == 'B' ? 300 : 250);
-      print('   [Parallel] Category $category started (${delay.inMilliseconds}ms)');
+      final delay = Duration(
+          milliseconds: category == 'A'
+              ? 200
+              : category == 'B'
+                  ? 300
+                  : 250);
+      print(
+          '   [Parallel] Category $category started (${delay.inMilliseconds}ms)');
       await Future.delayed(delay);
-      return {'category': category, 'results': ['Result 1', 'Result 2'], 'time': delay.inMilliseconds};
+      return {
+        'category': category,
+        'results': ['Result 1', 'Result 2'],
+        'time': delay.inMilliseconds
+      };
     },
   );
 
@@ -349,7 +377,8 @@ Future<void> main() async {
   await Future.delayed(const Duration(milliseconds: 400));
   categoryStopwatch.stop();
 
-  print('   [Result] All categories fetched in ${categoryStopwatch.elapsedMilliseconds}ms');
+  print(
+      '   [Result] All categories fetched in ${categoryStopwatch.elapsedMilliseconds}ms');
 
   categoryObserver.stop();
   print('');
@@ -384,11 +413,13 @@ Future<void> main() async {
   );
 
   // Step 3: Fetch comments (depends on user)
-  final commentsStep = Flow.asyncMap<Map<String, dynamic>, Map<String, dynamic>>(
+  final commentsStep =
+      Flow.asyncMap<Map<String, dynamic>, Map<String, dynamic>>(
     postsStep.cell,
     mapper: (userWithPosts) async {
       print('   [Enrich] Step 3/3: Fetching comments... (200ms)');
-      final comments = await api.fetchUserComments(userWithPosts['id'] as String);
+      final comments =
+          await api.fetchUserComments(userWithPosts['id'] as String);
       return {...userWithPosts, 'comments': comments};
     },
   );
@@ -494,9 +525,12 @@ Future<void> main() async {
   lStopwatch.stop();
   perfLatestObs.stop();
 
-  print('   Parallel (5 items): ${pStopwatch.elapsedMilliseconds}ms (${(1500 / pStopwatch.elapsedMilliseconds).toStringAsFixed(1)}x faster)');
-  print('   Sequential (5 items): ${sStopwatch.elapsedMilliseconds}ms (1.0x baseline)');
-  print('   Latest (cancels stale): ${perfLatestResults.length} emissions (vs 5 inputs)');
+  print(
+      '   Parallel (5 items): ${pStopwatch.elapsedMilliseconds}ms (${(1500 / pStopwatch.elapsedMilliseconds).toStringAsFixed(1)}x faster)');
+  print(
+      '   Sequential (5 items): ${sStopwatch.elapsedMilliseconds}ms (1.0x baseline)');
+  print(
+      '   Latest (cancels stale): ${perfLatestResults.length} emissions (vs 5 inputs)');
 
   print('');
 
@@ -520,7 +554,8 @@ Future<void> main() async {
     mapper: (query) async {
       // Simulate auto-suggest API with variable delay
       final delay = Duration(milliseconds: query.length * 30 + 100);
-      print('   [Suggest] Searching for: \'$query\' (${delay.inMilliseconds}ms)');
+      print(
+          '   [Suggest] Searching for: \'$query\' (${delay.inMilliseconds}ms)');
       await Future.delayed(delay);
       return [
         '$query (item 1)',
@@ -642,7 +677,8 @@ Future<void> main() async {
   🔹 Parallel: 5x faster for 5 items (300ms vs 1500ms)
   ''');
 
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -653,46 +689,46 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a debounce with the specified duration.
   static FlowHandle debounce<S>(
-      Cell source, {
-        required Duration duration,
-      }) {
+    Cell source, {
+    required Duration duration,
+  }) {
     final instruction = Debounce<S>(duration);
     return instruction.toHandle(source: source);
   }
 
   /// Creates an asyncMap with the specified mapper.
   static FlowHandle asyncMap<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+  }) {
     final instruction = AsyncMap<S, T>(mapper);
     return instruction.toHandle(source: source);
   }
 
   /// Creates an asyncMapConcurrent with the specified mapper.
   static FlowHandle asyncMapConcurrent<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+  }) {
     final instruction = AsyncMapConcurrent<S, T>(mapper);
     return instruction.toHandle(source: source);
   }
 
   /// Creates an asyncMapLatest with the specified mapper.
   static FlowHandle asyncMapLatest<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+  }) {
     final instruction = AsyncMapLatest<S, T>(mapper);
     return instruction.toHandle(source: source);
   }
 
   /// Creates an asyncMapWithFallback with the specified mapper.
   static FlowHandle asyncMapWithFallback<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        required T fallback,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    required T fallback,
+  }) {
     final instruction = AsyncMapWithFallback<S, T>(mapper, fallback: fallback);
     return instruction.toHandle(source: source);
   }

@@ -136,13 +136,14 @@ class Grouped<K, S> {
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      GroupErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  GroupErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -288,28 +289,28 @@ class GroupBy<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   GroupBy(
-      K Function(S value) keyOf, {
-        GroupErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        final value = typed.payload as S;
-        return _out<Grouped<K, S>>(
-          Grouped(keyOf(value), value),
-          typed,
-          cell,
-          'GroupBy',
+    K Function(S value) keyOf, {
+    GroupErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              final value = typed.payload as S;
+              return _out<Grouped<K, S>>(
+                Grouped(keyOf(value), value),
+                typed,
+                cell,
+                'GroupBy',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -414,43 +415,43 @@ class GroupCollect<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   GroupCollect(
-      K Function(S value) keyOf, {
-        Map<K, List<S>>? groups,
-        GroupErrorHandler? onError,
-        dynamic user,
-      }) : this._(keyOf, groups ?? <K, List<S>>{}, onError, user);
+    K Function(S value) keyOf, {
+    Map<K, List<S>>? groups,
+    GroupErrorHandler? onError,
+    dynamic user,
+  }) : this._(keyOf, groups ?? <K, List<S>>{}, onError, user);
 
   GroupCollect._(
-      K Function(S value) keyOf,
-      this.groups,
-      GroupErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final bucket = groups;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          final value = typed.payload as S;
-          final key = keyOf(value);
-          (bucket[key] ??= <S>[]).add(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return _out<Map<K, List<S>>>(
-          {
-            for (final e in bucket.entries) e.key: List<S>.from(e.value),
-          },
-          typed,
-          cell,
-          'GroupCollect',
+    K Function(S value) keyOf,
+    this.groups,
+    GroupErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final bucket = groups;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                final value = typed.payload as S;
+                final key = keyOf(value);
+                (bucket[key] ??= <S>[]).add(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return _out<Map<K, List<S>>>(
+                {
+                  for (final e in bucket.entries) e.key: List<S>.from(e.value),
+                },
+                typed,
+                cell,
+                'GroupCollect',
+              );
+            };
+          })(),
+          user: user,
         );
-      };
-    })(),
-    user: user,
-  );
 
   /// The internal groups map.
   ///
@@ -560,40 +561,40 @@ class GroupByCount<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   GroupByCount(
-      K Function(S value) keyOf,
-      int size, {
-        GroupErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final bucket = <K, List<S>>{};
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        late final K key;
-        late final List<S> list;
-        try {
-          final value = typed.payload as S;
-          key = keyOf(value);
-          list = bucket[key] ??= <S>[];
-          list.add(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        if (list.length < size) return null;
-        final window = List<S>.from(list);
-        bucket.remove(key);
-        return _out<Grouped<K, List<S>>>(
-          Grouped(key, window),
-          typed,
-          cell,
-          'GroupByCount',
+    K Function(S value) keyOf,
+    int size, {
+    GroupErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final bucket = <K, List<S>>{};
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              late final K key;
+              late final List<S> list;
+              try {
+                final value = typed.payload as S;
+                key = keyOf(value);
+                list = bucket[key] ??= <S>[];
+                list.add(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              if (list.length < size) return null;
+              final window = List<S>.from(list);
+              bucket.remove(key);
+              return _out<Grouped<K, List<S>>>(
+                Grouped(key, window),
+                typed,
+                cell,
+                'GroupByCount',
+              );
+            };
+          })(),
+          user: user,
         );
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -661,7 +662,7 @@ Future<void> main() async {
   final nums = Cell.ingress<int>();
 
   final tagged = GroupBy<int, String>(
-        (n) => n.isEven ? 'even' : 'odd',
+    (n) => n.isEven ? 'even' : 'odd',
   ).toHandle(source: nums.cell);
 
   final gObs = Cell.observe(
@@ -683,7 +684,7 @@ Future<void> main() async {
   final seq = Cell.ingress<int>();
 
   final collected = GroupCollect<int, String>(
-        (n) => n.isEven ? 'even' : 'odd',
+    (n) => n.isEven ? 'even' : 'odd',
   ).toHandle(source: seq.cell);
 
   final cObs = Cell.observe(
@@ -705,7 +706,7 @@ Future<void> main() async {
   final words = Cell.ingress<String>();
 
   final batches = GroupByCount<String, String>(
-        (s) => s[0],
+    (s) => s[0],
     2,
   ).toHandle(source: words.cell);
 

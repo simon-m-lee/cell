@@ -19,7 +19,8 @@ void main() {
       test('stores duration and leaves eventLimit unset', () {
         final policy = EphemeralPolicy(
           duration: Duration(seconds: 5),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) => true,
         );
@@ -32,7 +33,8 @@ void main() {
       test('stores eventLimit and leaves duration unset', () {
         final policy = EphemeralPolicy(
           eventLimit: 10,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -45,7 +47,8 @@ void main() {
         final policy = EphemeralPolicy(
           duration: Duration(minutes: 1),
           eventLimit: 50,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) => true,
         );
@@ -55,7 +58,8 @@ void main() {
 
       test('allows a tracking-only policy with no TTL or quota', () {
         final policy = EphemeralPolicy(
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -142,7 +146,8 @@ void main() {
 
       test('updates the events counter from onEvent', () {
         final policy = EphemeralPolicy(
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 2),
           onInvalidate: (nucleus) => true,
         );
@@ -212,7 +217,8 @@ void main() {
       test('does not reclaim below the threshold', () {
         final policy = EphemeralPolicy(
           eventLimit: 3,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -228,7 +234,8 @@ void main() {
         var invalidateCalls = 0;
         final policy = EphemeralPolicy(
           eventLimit: 3,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) {
             invalidateCalls++;
@@ -251,7 +258,8 @@ void main() {
       test('reclaims on the first counted event when eventLimit is 1', () {
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 1),
           onInvalidate: (nucleus) => true,
         );
@@ -282,7 +290,8 @@ void main() {
         var attempts = 0;
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) {
             attempts++;
@@ -300,7 +309,8 @@ void main() {
 
       test('without an eventLimit the counter never reclaims', () {
         final policy = EphemeralPolicy(
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -318,7 +328,8 @@ void main() {
         var invalidated = false;
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 30),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) {
             invalidated = true;
@@ -335,7 +346,8 @@ void main() {
       test('reclaims after duration from the first interaction', () async {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 30),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) => true,
         );
@@ -350,7 +362,8 @@ void main() {
       test('does not restart the TTL on later interactions', () async {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 40),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) => true,
         );
@@ -365,7 +378,8 @@ void main() {
       test('dispose cancels a pending TTL', () async {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 30),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (nucleus) => true,
         );
@@ -382,7 +396,8 @@ void main() {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 30),
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) {
             invalidations++;
@@ -404,7 +419,8 @@ void main() {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 80),
           eventLimit: 2,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -419,7 +435,8 @@ void main() {
         final policy = EphemeralPolicy(
           duration: Duration(milliseconds: 30),
           eventLimit: 50,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -530,7 +547,8 @@ void main() {
       test('an unused hosted policy does not invalidate the cell', () {
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 1),
           onInvalidate: (nucleus) => true,
         );
@@ -542,7 +560,8 @@ void main() {
       test('Cell and Nucleus follow a hosted policy after reclamation', () {
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -558,7 +577,8 @@ void main() {
       test('a deputy without its own policy follows the principal', () async {
         final policy = EphemeralPolicy(
           eventLimit: 1,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
@@ -575,13 +595,15 @@ void main() {
       test('two policies keep independent event counters', () {
         final a = EphemeralPolicy(
           eventLimit: 10,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );
         final b = EphemeralPolicy(
           eventLimit: 10,
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: policy.events + 1),
           onInvalidate: (nucleus) => true,
         );

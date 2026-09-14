@@ -100,7 +100,8 @@ import 'package:cell_flow/src/instruction/throttle.dart';
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── Throttle Rate Limiting Demo ──────────────────────────────────────────\n');
+  print(
+      '── Throttle Rate Limiting Demo ──────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Throttle (leading: true, trailing: false)
@@ -115,14 +116,15 @@ Future<void> main() async {
   final throttleHandle = Flow.throttle<String>(
     clickInput.cell,
     duration: const Duration(milliseconds: 50),
-    leading: true,   // Emit immediately on first event
+    leading: true, // Emit immediately on first event
     trailing: false, // Don't emit the last buffered event
   );
 
   // Observe the throttled output
   final clickObserver = Cell.observe(
     source: throttleHandle.cell,
-    effect: (Pulse p) => print('   [Throttle] ✅ Emitted: ${p.payload} (leading - immediate)'),
+    effect: (Pulse p) =>
+        print('   [Throttle] ✅ Emitted: ${p.payload} (leading - immediate)'),
   );
 
   // Simulate rapid clicks
@@ -167,7 +169,7 @@ Future<void> main() async {
   final trailingThrottle = Flow.throttle<String>(
     trailingInput.cell,
     duration: const Duration(milliseconds: 50),
-    leading: true,  // Emit immediately
+    leading: true, // Emit immediately
     trailing: true, // Emit the last buffered event
   );
 
@@ -193,11 +195,13 @@ Future<void> main() async {
   await trailingInput.emitAsync('Event #2');
 
   await Future.delayed(const Duration(milliseconds: 10));
-  print('   [User] Event #3 at ${sw2.elapsedMilliseconds}ms - BUFFERED (replaces #2)');
+  print(
+      '   [User] Event #3 at ${sw2.elapsedMilliseconds}ms - BUFFERED (replaces #2)');
   await trailingInput.emitAsync('Event #3');
 
   await Future.delayed(const Duration(milliseconds: 10));
-  print('   [User] Event #4 at ${sw2.elapsedMilliseconds}ms - BUFFERED (replaces #3)');
+  print(
+      '   [User] Event #4 at ${sw2.elapsedMilliseconds}ms - BUFFERED (replaces #3)');
   await trailingInput.emitAsync('Event #4');
 
   await Future.delayed(const Duration(milliseconds: 60));
@@ -257,7 +261,8 @@ Future<void> main() async {
 
   await Future.delayed(const Duration(milliseconds: 60));
 
-  print('   [Result] Successful calls: $successfulCalls, Dropped: $droppedCalls');
+  print(
+      '   [Result] Successful calls: $successfulCalls, Dropped: $droppedCalls');
 
   apiObserver.stop();
   sw3.stop();
@@ -332,7 +337,8 @@ Future<void> main() async {
 
   final scrollObserver = Cell.observe(
     source: scrollThrottle.cell,
-    effect: (Pulse p) => print('   [Throttle] ✅ Update: Scroll position ${p.payload}px'),
+    effect: (Pulse p) =>
+        print('   [Throttle] ✅ Update: Scroll position ${p.payload}px'),
   );
 
   // Simulate scrolling
@@ -498,7 +504,8 @@ Future<void> main() async {
 
   final slidingObserver = Cell.observe(
     source: slidingResult.cell,
-    effect: (Pulse p) => print('   [Sliding] ✅ Emitted: ${p.payload} (window starts)'),
+    effect: (Pulse p) =>
+        print('   [Sliding] ✅ Emitted: ${p.payload} (window starts)'),
   );
 
   final sw7 = Stopwatch()..start();
@@ -507,11 +514,13 @@ Future<void> main() async {
   await slidingInput.emitAsync('keypress');
 
   await Future.delayed(const Duration(milliseconds: 30));
-  print('   [User] Keypress at ${sw7.elapsedMilliseconds}ms - DROPPED (in window)');
+  print(
+      '   [User] Keypress at ${sw7.elapsedMilliseconds}ms - DROPPED (in window)');
   await slidingInput.emitAsync('keypress');
 
   await Future.delayed(const Duration(milliseconds: 30));
-  print('   [User] Keypress at ${sw7.elapsedMilliseconds}ms - DROPPED (in window)');
+  print(
+      '   [User] Keypress at ${sw7.elapsedMilliseconds}ms - DROPPED (in window)');
   await slidingInput.emitAsync('keypress');
 
   await Future.delayed(const Duration(milliseconds: 40));
@@ -573,9 +582,11 @@ Future<void> main() async {
     final form = forms[i];
     final isThrottled = i > 0 && i < 3;
     if (isThrottled) {
-      print('   [User] Form #${i + 1} (${form['name']}) at ${sw8.elapsedMilliseconds}ms - THROTTLED');
+      print(
+          '   [User] Form #${i + 1} (${form['name']}) at ${sw8.elapsedMilliseconds}ms - THROTTLED');
     } else {
-      print('   [User] Form #${i + 1} (${form['name']}) at ${sw8.elapsedMilliseconds}ms');
+      print(
+          '   [User] Form #${i + 1} (${form['name']}) at ${sw8.elapsedMilliseconds}ms');
     }
     await submitInput.emitAsync(form);
     await Future.delayed(const Duration(milliseconds: 20));
@@ -697,7 +708,8 @@ Future<void> main() async {
   🔹 Sliding window provides more precise control
   ''');
 
-  print('── Finished ──────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────');
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -708,11 +720,11 @@ Future<void> main() async {
 extension FlowUtils on Flow {
   /// Creates a throttle with the specified configuration.
   static FlowHandle throttle<S>(
-      Cell source, {
-        required Duration duration,
-        bool leading = true,
-        bool trailing = false,
-      }) {
+    Cell source, {
+    required Duration duration,
+    bool leading = true,
+    bool trailing = false,
+  }) {
     final instruction = Throttle<S>(
       duration,
       leading: leading,
@@ -723,27 +735,27 @@ extension FlowUtils on Flow {
 
   /// Creates a debounce with the specified duration.
   static FlowHandle debounce<S>(
-      Cell source, {
-        required Duration duration,
-      }) {
+    Cell source, {
+    required Duration duration,
+  }) {
     final instruction = Debounce<S>(duration);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a map transformation.
   static FlowHandle map<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+  }) {
     final instruction = MapValue<S, T>(project);
     return instruction.toHandle(source: source);
   }
 
   /// Creates a filter transformation.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     final instruction = Filter<S>(test);
     return instruction.toHandle(source: source);
   }

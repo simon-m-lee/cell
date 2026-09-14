@@ -3,9 +3,9 @@
 **Author:** Lee Man Hoi Simon (see `AUTHORS`)
 
 Catalog of **cell_flow** operators and entry points. Design intent lives
-in [`ARCHITECTURE-Flow.md`](ARCHITECTURE-Flow.md). Fluent usage:
-[`HowTo-Fluent_Operator.md`](HowTo-Fluent_Operator.md). One-Receptor
-pipelines: [`HowTo-FlowInstruction-Receptor.md`](HowTo-FlowInstruction-Receptor.md).
+in [`ARCHITECTURE-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/ARCHITECTURE-Flow.md). Fluent usage:
+[`HowTo-Fluent_Operator.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md). One-Receptor
+pipelines: [`HowTo-FlowInstruction-Receptor.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md).
 
 Import once:
 

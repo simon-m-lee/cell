@@ -54,13 +54,14 @@ typedef TapErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      TapErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  TapErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -229,23 +230,23 @@ class Tap<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   Tap(
-      void Function(S value) onValue, {
-        TapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      try {
-        onValue(typed.payload as S);
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-      return typed.withStep('Tap');
-    },
-    user: user,
-  );
+    void Function(S value) onValue, {
+    TapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            try {
+              onValue(typed.payload as S);
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+            return typed.withStep('Tap');
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -326,21 +327,21 @@ class TapAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for callback throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   TapAll(
-      void Function(Pulse pulse) onPulse, {
-        TapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      try {
-        onPulse(pulse);
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-      return pulse.withStep('TapAll');
-    },
-    user: user,
-  );
+    void Function(Pulse pulse) onPulse, {
+    TapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            try {
+              onPulse(pulse);
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+            return pulse.withStep('TapAll');
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -431,27 +432,27 @@ class TapWithIndex<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches and throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   TapWithIndex(
-      void Function(S value, int index) onValue, {
-        TapErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      var index = 0;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          onValue(typed.payload as S, index);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        index++;
-        return typed.withStep('TapWithIndex');
-      };
-    })(),
-    user: user,
-  );
+    void Function(S value, int index) onValue, {
+    TapErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            var index = 0;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                onValue(typed.payload as S, index);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              index++;
+              return typed.withStep('TapWithIndex');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -585,37 +586,37 @@ class TapState<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Integrity handler for type mismatches and fold throws.
   /// - [user]: Flyweight metadata preserved across the composition chain.
   TapState(
-      A seed,
-      A Function(A state, S value) next, {
-        TapSnapshot<A>? snapshot,
-        TapErrorHandler? onError,
-        dynamic user,
-      }) : this._(next, snapshot ?? TapSnapshot<A>(seed), onError, user);
+    A seed,
+    A Function(A state, S value) next, {
+    TapSnapshot<A>? snapshot,
+    TapErrorHandler? onError,
+    dynamic user,
+  }) : this._(next, snapshot ?? TapSnapshot<A>(seed), onError, user);
 
   /// Internal constructor that binds the already-resolved [snapshot].
   TapState._(
-      A Function(A state, S value) next,
-      this.snapshot,
-      TapErrorHandler? onError,
-      dynamic user,
-      ) : super(
-    (() {
-      final snap = snapshot;
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        try {
-          snap.value = next(snap.value, typed.payload as S);
-          snap.seen++;
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        return typed.withStep('TapState');
-      };
-    })(),
-    user: user,
-  );
+    A Function(A state, S value) next,
+    this.snapshot,
+    TapErrorHandler? onError,
+    dynamic user,
+  ) : super(
+          (() {
+            final snap = snapshot;
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              try {
+                snap.value = next(snap.value, typed.payload as S);
+                snap.seen++;
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              return typed.withStep('TapState');
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -709,7 +710,7 @@ Future<void> main() async {
   final nums = Cell.ingress<int>();
 
   final tapped = Tap<int>(
-        (n) => print('   tap $n'),
+    (n) => print('   tap $n'),
   ).toHandle(source: nums.cell);
 
   final tObs = Cell.observe(
@@ -731,7 +732,7 @@ Future<void> main() async {
   final any = Cell.ingress<Object>();
 
   final all = TapAll(
-        (p) => print('   all ${p.payload}'),
+    (p) => print('   all ${p.payload}'),
   ).toHandle(source: any.cell);
 
   final aObs = Cell.observe(
@@ -753,7 +754,7 @@ Future<void> main() async {
   final letters = Cell.ingress<String>();
 
   final indexed = TapWithIndex<String>(
-        (s, i) => print('   #$i $s'),
+    (s, i) => print('   #$i $s'),
   ).toHandle(source: letters.cell);
 
   final iObs = Cell.observe(
@@ -776,7 +777,7 @@ Future<void> main() async {
 
   final state = TapState<int, int>(
     0,
-        (acc, n) => acc + n,
+    (acc, n) => acc + n,
   );
 
   final folded = state.toHandle(source: add.cell);

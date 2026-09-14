@@ -84,7 +84,8 @@ void main() {
       });
 
       test('can return the same pulse instance', () {
-        final inst = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => pulse);
+        final inst =
+            Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => pulse);
         final pulse = Pulse<int>(7);
         expect(identical(inst.call(pulse), pulse), isTrue);
       });
@@ -109,14 +110,17 @@ void main() {
           return Pulse((pulse.payload as String).toUpperCase());
         });
         expect(
-          Instruction.chain([trim, upper]).call(Pulse<String>('  hi  '))?.payload,
+          Instruction.chain([trim, upper])
+              .call(Pulse<String>('  hi  '))
+              ?.payload,
           'HI',
         );
       });
 
       test('null short-circuits later stages', () {
         var ranSecond = false;
-        final drop = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => null);
+        final drop =
+            Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) => null);
         final second = Instruction<Cell, Pulse, Pulse>((pulse, {cell, user}) {
           ranSecond = true;
           return pulse;
@@ -204,10 +208,12 @@ void main() {
           return Pulse((pulse.payload as int) + 1);
         });
         expect(
-          Instruction.chain([addOne]).call(
-            Pulse<int>(3),
-            future: ({required result, required token}) {},
-          )?.payload,
+          Instruction.chain([addOne])
+              .call(
+                Pulse<int>(3),
+                future: ({required result, required token}) {},
+              )
+              ?.payload,
           4,
         );
       });
@@ -247,7 +253,8 @@ void main() {
           },
           user: 'later',
         );
-        inst.call(Pulse<int>(1), future: ({required result, required token}) {});
+        inst.call(Pulse<int>(1),
+            future: ({required result, required token}) {});
         expect(seenUser, 'later');
       });
 

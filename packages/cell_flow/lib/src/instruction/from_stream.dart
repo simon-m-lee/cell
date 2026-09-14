@@ -42,7 +42,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef StreamErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef StreamErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to create a success pulse with proper provenance.
 Pulse<S> _ok<S>(S value, Cell? cell, Pulse trigger, String step) {
@@ -86,7 +87,8 @@ void _fail({
   StackTrace? stack,
   required StreamErrorHandler? onError,
   required bool emitErrorPulse,
-  required void Function({required Pulse? result, required dynamic token})? future,
+  required void Function({required Pulse? result, required dynamic token})?
+      future,
   required dynamic token,
   required Cell? cell,
   required Pulse trigger,
@@ -220,45 +222,45 @@ class FromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromStream(
-      Stream<S> source, {
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var started = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started) return null;
-        started = true;
-        Future<void> run() async {
-          try {
-            await for (final event in source) {
-              future!(
-                result: _ok<S>(event, cell, pulse, 'FromStream'),
-                token: token,
-              );
-            }
-          } catch (e, stack) {
-            _fail(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'FromStream.error',
-            );
-          }
-        }
+    Stream<S> source, {
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var started = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started) return null;
+              started = true;
+              Future<void> run() async {
+                try {
+                  await for (final event in source) {
+                    future!(
+                      result: _ok<S>(event, cell, pulse, 'FromStream'),
+                      token: token,
+                    );
+                  }
+                } catch (e, stack) {
+                  _fail(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'FromStream.error',
+                  );
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -343,40 +345,40 @@ class DeferStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   DeferStream(
-      Stream<S> Function() create, {
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void> run() async {
-        try {
-          await for (final event in create()) {
-            future!(
-              result: _ok<S>(event, cell, pulse, 'DeferStream'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          _fail(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'DeferStream.error',
-          );
-        }
-      }
+    Stream<S> Function() create, {
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void> run() async {
+              try {
+                await for (final event in create()) {
+                  future!(
+                    result: _ok<S>(event, cell, pulse, 'DeferStream'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                _fail(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'DeferStream.error',
+                );
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -460,62 +462,62 @@ class ConcatFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitErrorPulse = true,
     dynamic user,
   }) : super.future(
-    (() {
-      final queue = <Stream<S>>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! Stream<S>) {
-          _fail(
-            error: FormatException(
-              'Expected Stream<$S>, got ${payload.runtimeType}',
-            ),
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'ConcatFromStream.error',
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final stream = queue.removeAt(0);
-            try {
-              await for (final event in stream) {
-                future!(
-                  result: _ok<S>(event, cell, pulse, 'ConcatFromStream'),
+          (() {
+            final queue = <Stream<S>>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! Stream<S>) {
+                _fail(
+                  error: FormatException(
+                    'Expected Stream<$S>, got ${payload.runtimeType}',
+                  ),
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
                   token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'ConcatFromStream.error',
                 );
+                return null;
               }
-            } catch (e, stack) {
-              _fail(
-                error: e,
-                stack: stack,
-                onError: onError,
-                emitErrorPulse: emitErrorPulse,
-                future: future,
-                token: token,
-                cell: cell,
-                trigger: pulse,
-                step: 'ConcatFromStream.error',
-              );
-            }
-          }
-          busy = false;
-        }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final stream = queue.removeAt(0);
+                  try {
+                    await for (final event in stream) {
+                      future!(
+                        result: _ok<S>(event, cell, pulse, 'ConcatFromStream'),
+                        token: token,
+                      );
+                    }
+                  } catch (e, stack) {
+                    _fail(
+                      error: e,
+                      stack: stack,
+                      onError: onError,
+                      emitErrorPulse: emitErrorPulse,
+                      future: future,
+                      token: token,
+                      cell: cell,
+                      trigger: pulse,
+                      step: 'ConcatFromStream.error',
+                    );
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -598,51 +600,51 @@ class MergeFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitErrorPulse = true,
     dynamic user,
   }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! Stream<S>) {
-        _fail(
-          error: FormatException(
-            'Expected Stream<$S>, got ${payload.runtimeType}',
-          ),
-          onError: onError,
-          emitErrorPulse: emitErrorPulse,
-          future: future,
-          token: token,
-          cell: cell,
-          trigger: pulse,
-          step: 'MergeFromStream.error',
-        );
-        return null;
-      }
-      Future<void> run() async {
-        try {
-          await for (final event in payload) {
-            future!(
-              result: _ok<S>(event, cell, pulse, 'MergeFromStream'),
-              token: token,
-            );
-          }
-        } catch (e, stack) {
-          _fail(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'MergeFromStream.error',
-          );
-        }
-      }
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! Stream<S>) {
+              _fail(
+                error: FormatException(
+                  'Expected Stream<$S>, got ${payload.runtimeType}',
+                ),
+                onError: onError,
+                emitErrorPulse: emitErrorPulse,
+                future: future,
+                token: token,
+                cell: cell,
+                trigger: pulse,
+                step: 'MergeFromStream.error',
+              );
+              return null;
+            }
+            Future<void> run() async {
+              try {
+                await for (final event in payload) {
+                  future!(
+                    result: _ok<S>(event, cell, pulse, 'MergeFromStream'),
+                    token: token,
+                  );
+                }
+              } catch (e, stack) {
+                _fail(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'MergeFromStream.error',
+                );
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -726,57 +728,57 @@ class SwitchFromStream<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     bool emitErrorPulse = true,
     dynamic user,
   }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! Stream<S>) {
-          _fail(
-            error: FormatException(
-              'Expected Stream<$S>, got ${payload.runtimeType}',
-            ),
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'SwitchFromStream.error',
-          );
-          return null;
-        }
-        final id = ++generation;
-        Future<void> run() async {
-          try {
-            await for (final event in payload) {
-              if (id != generation) return;
-              future!(
-                result: _ok<S>(event, cell, pulse, 'SwitchFromStream'),
-                token: token,
-              );
-            }
-          } catch (e, stack) {
-            if (id != generation) return;
-            _fail(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'SwitchFromStream.error',
-            );
-          }
-        }
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! Stream<S>) {
+                _fail(
+                  error: FormatException(
+                    'Expected Stream<$S>, got ${payload.runtimeType}',
+                  ),
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'SwitchFromStream.error',
+                );
+                return null;
+              }
+              final id = ++generation;
+              Future<void> run() async {
+                try {
+                  await for (final event in payload) {
+                    if (id != generation) return;
+                    future!(
+                      result: _ok<S>(event, cell, pulse, 'SwitchFromStream'),
+                      token: token,
+                    );
+                  }
+                } catch (e, stack) {
+                  if (id != generation) return;
+                  _fail(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'SwitchFromStream.error',
+                  );
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -864,67 +866,67 @@ class MapToStream<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapToStream(
-      Stream<T> Function(S value) project, {
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          _fail(
-            error: FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'MapToStream.error',
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              await for (final event in project(next)) {
-                future!(
-                  result: _ok<T>(event, cell, pulse, 'MapToStream'),
+    Stream<T> Function(S value) project, {
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                _fail(
+                  error: FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
                   token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'MapToStream.error',
                 );
+                return null;
               }
-            } catch (e, stack) {
-              _fail(
-                error: e,
-                stack: stack,
-                onError: onError,
-                emitErrorPulse: emitErrorPulse,
-                future: future,
-                token: token,
-                cell: cell,
-                trigger: pulse,
-                step: 'MapToStream.error',
-              );
-            }
-          }
-          busy = false;
-        }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    await for (final event in project(next)) {
+                      future!(
+                        result: _ok<T>(event, cell, pulse, 'MapToStream'),
+                        token: token,
+                      );
+                    }
+                  } catch (e, stack) {
+                    _fail(
+                      error: e,
+                      stack: stack,
+                      onError: onError,
+                      emitErrorPulse: emitErrorPulse,
+                      future: future,
+                      token: token,
+                      cell: cell,
+                      trigger: pulse,
+                      step: 'MapToStream.error',
+                    );
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1031,7 +1033,7 @@ Future<void> main() async {
   final dArm = Cell.ingress<void>();
 
   final defer = DeferStream<String>(
-        () => Stream.fromIterable(['a']),
+    () => Stream.fromIterable(['a']),
   ).toHandle(source: dArm.cell);
 
   final dObs = Cell.observe(
@@ -1097,7 +1099,7 @@ Future<void> main() async {
   final keys = Cell.ingress<String>();
 
   final mapped = MapToStream<String, String>(
-        (s) => Stream.fromIterable(['$s-1', '$s-2']),
+    (s) => Stream.fromIterable(['$s-1', '$s-2']),
   ).toHandle(source: keys.cell);
 
   final mObs = Cell.observe(

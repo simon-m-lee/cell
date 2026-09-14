@@ -5,13 +5,13 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 part of '../../cell.dart';
 
-class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
-
+class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P, L> {
   _Synapses({
     super.policy,
-    super.downstreams, super.filter, super.relay,
+    super.downstreams,
+    super.filter,
+    super.relay,
   }) : super();
-
 }
 
 /// An **Asynchronous Projection** of a [Synapses] instance for non‑blocking
@@ -61,8 +61,8 @@ class _Synapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
 /// See also:
 /// * [Synapses.async] – the getter that provides this.
 /// * [ReceptorAsync] – similar pattern for receptors.
-class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
-
+class AsyncSynapses<P extends Pulse, L extends Cell>
+    extends SynapsesBase<P, L> {
   final SynapsesBase _source;
   AsyncSynapses._(this._source);
 
@@ -83,7 +83,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
 
   @override
   Future<void> _broadcast(PulseBase pulse) async {
-
     final downstreams = _source.toList(growable: false);
     if (_source.isEmpty) {
       _stopSampleHeartbeat();
@@ -124,7 +123,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
         await Future.wait(futures);
       }
     }
-
   }
 
   @override
@@ -313,7 +311,8 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
     try {
       await _broadcast(p);
     } catch (e) {
-      final maxRetries = _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
+      final maxRetries =
+          _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
       if (attempt < maxRetries) {
         await Future.delayed(_policy!.throttleTime);
         return _retry(p, attempt: attempt + 1);
@@ -390,7 +389,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
   /// * [Synapses.link]: For managing the set of downstream observers.
   @override
   Future<void> call(covariant P pulse) async {
-
     if (_source.isEmpty) {
       final box = (pulse as PulseBase)._branches;
       if (box != null) {
@@ -416,7 +414,6 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
 
     final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
     switch (strategy) {
-
       case PropagationStrategy.immediate:
         await _broadcast(p);
         break;
@@ -468,14 +465,14 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
       case PropagationStrategy.persistent:
         final buffer = _buffer;
         if (buffer != null) {
-          buffer..clear()..add(p);
+          buffer
+            ..clear()
+            ..add(p);
         }
         await _broadcast(p);
         break;
     }
-
   }
-
 }
 
 /// The foundational base implementation for [Synapses], serving as the
@@ -543,8 +540,8 @@ class AsyncSynapses<P extends Pulse, L extends Cell> extends SynapsesBase<P,L> {
 /// * [Synapses] – the public interface.
 /// * [FilterRule] – for pulse transformation.
 /// * [PropagationPolicy] – for timing control.
-abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBase<C> implements Synapses<P,C> {
-
+abstract class SynapsesBase<P extends Pulse, C extends Cell>
+    extends IterableBase<C> implements Synapses<P, C> {
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -584,46 +581,52 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
   ///   strategy across the downstream spokes.
   SynapsesBase({
     PropagationPolicy? policy,
-
     Iterable<C>? downstreams,
     FilterRule<P>? filter,
     void Function(P pulse)? relay,
   }) : _record = mask(
-      downstreams: downstreams != null ? <C>{...downstreams} : <C>{},
-      policy: policy,
-      filter: filter,
-      relay: relay,
-  );
+          downstreams: downstreams != null ? <C>{...downstreams} : <C>{},
+          policy: policy,
+          filter: filter,
+          relay: relay,
+        );
 
-  static Record mask({PropagationPolicy? policy, required Iterable downstreams, FilterRule? filter, Function? relay}) {
+  static Record mask(
+      {PropagationPolicy? policy,
+      required Iterable downstreams,
+      FilterRule? filter,
+      Function? relay}) {
+    final buffer = policy != null &&
+            const [
+              PropagationStrategy.batched,
+              PropagationStrategy.buffered,
+              PropagationStrategy.audit,
+              PropagationStrategy.persistent,
+              PropagationStrategy.throttled,
+              PropagationStrategy.debounced,
+            ].contains(policy.strategy)
+        ? QueueList<PulseBase>()
+        : null;
 
-    final buffer = policy != null && const [
-      PropagationStrategy.batched,
-      PropagationStrategy.buffered,
-      PropagationStrategy.audit,
-      PropagationStrategy.persistent,
-      PropagationStrategy.throttled,
-      PropagationStrategy.debounced,
-    ].contains(policy.strategy) ? QueueList<PulseBase>() : null;
+    final timerBox = policy != null &&
+            const [
+              PropagationStrategy.debounced,
+              PropagationStrategy.buffered,
+              PropagationStrategy.throttled,
+              PropagationStrategy.audit,
+              PropagationStrategy.debounceLeading,
+              PropagationStrategy.exhaust,
+              PropagationStrategy.sample,
+              PropagationStrategy.resilient,
+            ].contains(policy.strategy)
+        ? Box<Timer>()
+        : null;
 
-    final timerBox = policy != null && const [
-      PropagationStrategy.debounced,
-      PropagationStrategy.buffered,
-      PropagationStrategy.throttled,
-      PropagationStrategy.audit,
-      PropagationStrategy.debounceLeading,
-      PropagationStrategy.exhaust,
-      PropagationStrategy.sample,
-      PropagationStrategy.resilient,
-    ].contains(policy.strategy) ? Box<Timer>() : null;
-
-    final mask = (
-        (policy != null   ? 1 : 0) |
-        (filter != null   ? 2 : 0) |
-        (buffer != null   ? 4 : 0) |
+    final mask = ((policy != null ? 1 : 0) |
+        (filter != null ? 2 : 0) |
+        (buffer != null ? 4 : 0) |
         (timerBox != null ? 8 : 0) |
-        (relay != null ? 16 : 0)
-    );
+        (relay != null ? 16 : 0));
 
     return switch (mask) {
       0 => (downstreams: downstreams),
@@ -633,51 +636,141 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
       4 => (downstreams: downstreams, buffer: buffer),
       5 => (downstreams: downstreams, policy: policy, buffer: buffer),
       6 => (downstreams: downstreams, filter: filter, buffer: buffer),
-      7 => (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer),
+      7 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          buffer: buffer
+        ),
       8 => (downstreams: downstreams, timerBox: timerBox),
       9 => (downstreams: downstreams, policy: policy, timerBox: timerBox),
       10 => (downstreams: downstreams, filter: filter, timerBox: timerBox),
-      11 => (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox),
+      11 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          timerBox: timerBox
+        ),
       12 => (downstreams: downstreams, buffer: buffer, timerBox: timerBox),
-      13 => (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox),
-      14 => (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox),
-      15 => (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox),
-
+      13 => (
+          downstreams: downstreams,
+          policy: policy,
+          buffer: buffer,
+          timerBox: timerBox
+        ),
+      14 => (
+          downstreams: downstreams,
+          filter: filter,
+          buffer: buffer,
+          timerBox: timerBox
+        ),
+      15 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          buffer: buffer,
+          timerBox: timerBox
+        ),
       16 => (downstreams: downstreams, relay: relay),
       17 => (downstreams: downstreams, policy: policy, relay: relay),
       18 => (downstreams: downstreams, filter: filter, relay: relay),
-      19 => (downstreams: downstreams, policy: policy, filter: filter, relay: relay),
+      19 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          relay: relay
+        ),
       20 => (downstreams: downstreams, buffer: buffer, relay: relay),
-      21 => (downstreams: downstreams, policy: policy, buffer: buffer, relay: relay),
-      22 => (downstreams: downstreams, filter: filter, buffer: buffer, relay: relay),
-      23 => (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, relay: relay),
+      21 => (
+          downstreams: downstreams,
+          policy: policy,
+          buffer: buffer,
+          relay: relay
+        ),
+      22 => (
+          downstreams: downstreams,
+          filter: filter,
+          buffer: buffer,
+          relay: relay
+        ),
+      23 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          buffer: buffer,
+          relay: relay
+        ),
       24 => (downstreams: downstreams, timerBox: timerBox, relay: relay),
-      25 => (downstreams: downstreams, policy: policy, timerBox: timerBox, relay: relay),
-      26 => (downstreams: downstreams, filter: filter, timerBox: timerBox, relay: relay),
-      27 => (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox, relay: relay),
-      28 => (downstreams: downstreams, buffer: buffer, timerBox: timerBox, relay: relay),
-      29 => (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox, relay: relay),
-      30 => (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
-      31 => (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
-
+      25 => (
+          downstreams: downstreams,
+          policy: policy,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      26 => (
+          downstreams: downstreams,
+          filter: filter,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      27 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      28 => (
+          downstreams: downstreams,
+          buffer: buffer,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      29 => (
+          downstreams: downstreams,
+          policy: policy,
+          buffer: buffer,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      30 => (
+          downstreams: downstreams,
+          filter: filter,
+          buffer: buffer,
+          timerBox: timerBox,
+          relay: relay
+        ),
+      31 => (
+          downstreams: downstreams,
+          policy: policy,
+          filter: filter,
+          buffer: buffer,
+          timerBox: timerBox,
+          relay: relay
+        ),
       _ => (downstreams: downstreams)
     };
   }
-  
+
   Function? get _relay => get<Function?>(() => _record.relay, orElse: null);
 
-  QueueList<PulseBase>? get _buffer => get<QueueList<PulseBase>?>(() => _record.buffer, orElse: null);
+  QueueList<PulseBase>? get _buffer =>
+      get<QueueList<PulseBase>?>(() => _record.buffer, orElse: null);
 
-  Box<Timer>? get _timerBox => get<Box<Timer>?>(() => _record.timerBox, orElse: null);
+  Box<Timer>? get _timerBox =>
+      get<Box<Timer>?>(() => _record.timerBox, orElse: null);
 
-  Set<C> get _downstreams => get<Set<C>>(() => _record.downstreams, orElse: const {});
+  Set<C> get _downstreams =>
+      get<Set<C>>(() => _record.downstreams, orElse: const {});
 
   @override
   Iterator<C> get iterator => _downstreams.iterator;
 
-  FilterRule<P>? get _filter => get<FilterRule<P>?>(() => _record.filter, orElse: null);
+  FilterRule<P>? get _filter =>
+      get<FilterRule<P>?>(() => _record.filter, orElse: null);
 
-  PropagationPolicy? get _policy => get<PropagationPolicy?>(() => _record.policy, orElse: null);
+  PropagationPolicy? get _policy =>
+      get<PropagationPolicy?>(() => _record.policy, orElse: null);
 
   void _flushBatch() {
     final buffer = _buffer;
@@ -710,7 +803,7 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
         }
       }
     }
-    
+
     final relay = _relay;
     if (relay != null) {
       if (every((c) => pulse._checker.contains(c))) {
@@ -729,7 +822,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
       }
       if (!notified) pulse._complete();
     }
-
   }
 
   void _debounced(PulseBase p) {
@@ -893,7 +985,8 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
     try {
       _broadcast(p);
     } catch (e) {
-      final maxRetries = _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
+      final maxRetries =
+          _policy?.batchSize ?? 3; // Use batchSize as retry limit for now
       if (attempt < maxRetries) {
         await Future.delayed(_policy!.throttleTime);
         return _retry(p, attempt: attempt + 1);
@@ -934,12 +1027,13 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
   /// - [pulse]: The pulse to broadcast.
   @override
   void call(covariant P pulse) {
-
     if (isEmpty && pulse is PulseBase) {
       if (_policy?.strategy == PropagationStrategy.persistent) {
         final buffer = _buffer;
         if (buffer != null) {
-          buffer..clear()..add(pulse);
+          buffer
+            ..clear()
+            ..add(pulse);
         }
       }
       final box = pulse._branches;
@@ -955,7 +1049,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
       }
     }
 
-
     PulseBase? p;
 
     p = pulse as PulseBase?;
@@ -967,7 +1060,6 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
 
     final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
     switch (strategy) {
-
       case PropagationStrategy.immediate:
         _broadcast(p);
         break;
@@ -1008,22 +1100,23 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
         _resilient(p);
         break;
 
-        case PropagationStrategy.debounceLeading:
+      case PropagationStrategy.debounceLeading:
         _debounceLeading(p);
         break;
 
-        case PropagationStrategy.retry:
+      case PropagationStrategy.retry:
         _retry(p);
         break;
 
       case PropagationStrategy.persistent:
         final buffer = _buffer;
         if (buffer != null) {
-          buffer..clear()..add(p);
+          buffer
+            ..clear()
+            ..add(p);
         }
         _broadcast(p);
         break;
-
     }
   }
 
@@ -1155,7 +1248,7 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
   /// await synapses.async.call(Pulse('update'));
   /// ```
   @override
-  late final AsyncSynapses<P,C> async = AsyncSynapses._(this);
+  late final AsyncSynapses<P, C> async = AsyncSynapses._(this);
 
   @override
   int get hashCode => _record.hashCode;
@@ -1166,15 +1259,15 @@ abstract class SynapsesBase<P extends Pulse, C extends Cell> extends IterableBas
     if (other is! SynapsesBase) return false;
     return _record == other._record;
   }
-
 }
 
-final class _SynapsesDisabled extends IterableBase<Never> implements Synapses<Never,Never> {
-
+final class _SynapsesDisabled extends IterableBase<Never>
+    implements Synapses<Never, Never> {
   const _SynapsesDisabled();
 
   @override
-  AsyncSynapses<Never,Never> get async => throw UnsupportedError('Disabled Synapses');
+  AsyncSynapses<Never, Never> get async =>
+      throw UnsupportedError('Disabled Synapses');
 
   @override
   bool link(Cell cell, {required Cell downstreamCell}) => false;
@@ -1187,15 +1280,15 @@ final class _SynapsesDisabled extends IterableBase<Never> implements Synapses<Ne
 
   @override
   void call(covariant PulseBase pulse) {}
-
 }
 
-final class _SynapsesEnabled extends IterableBase<Never> implements Synapses<Never,Never> {
-
+final class _SynapsesEnabled extends IterableBase<Never>
+    implements Synapses<Never, Never> {
   const _SynapsesEnabled();
 
   @override
-  AsyncSynapses<Never,Never> get async => throw UnsupportedError('Disabled Synapses');
+  AsyncSynapses<Never, Never> get async =>
+      throw UnsupportedError('Disabled Synapses');
 
   @override
   void call(covariant Never pulse) {}
@@ -1208,7 +1301,6 @@ final class _SynapsesEnabled extends IterableBase<Never> implements Synapses<Nev
 
   @override
   Iterator<Never> get iterator => const Iterable<Never>.empty().iterator;
-
 }
 
 /// Defines the tactical execution models for **Pulse Propagation** within
@@ -1283,7 +1375,6 @@ final class _SynapsesEnabled extends IterableBase<Never> implements Synapses<Nev
 /// * [PropagationPolicy] – the configuration container.
 /// * [Synapses] – the distribution network that uses the policy.
 enum PropagationStrategy {
-
   /// The **Default Synchronous** strategy. Pulses are delivered immediately
   /// and recursively within the current execution pulse.
   ///
@@ -1447,7 +1538,6 @@ enum PropagationStrategy {
   /// *   **Use Case**: Late-binding UI components or dynamic observers that
   ///     need to "catch up" to the current system state.
   persistent,
-
 }
 
 /// A declarative blueprint defining the **Temporal Dynamics** and
@@ -1517,7 +1607,6 @@ enum PropagationStrategy {
 /// * [Synapses] – the distribution network that uses the policy.
 /// {@category Advanced · Propagation Policy}
 class PropagationPolicy {
-
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -1559,8 +1648,8 @@ class PropagationPolicy {
   /// ### Returns:
   /// A [Duration] representing the required period of inactivity before
   /// signal propagation.
-  Duration get debounceTime =>
-      get<Duration>(() => _record.debounceTime, orElse: const Duration(milliseconds: 150));
+  Duration get debounceTime => get<Duration>(() => _record.debounceTime,
+      orElse: const Duration(milliseconds: 150));
 
   /// The minimum interval between consecutive signal emissions when using
   /// [PropagationStrategy.throttled].
@@ -1585,8 +1674,8 @@ class PropagationPolicy {
   ///
   /// ### Returns:
   /// A [Duration] representing the minimum gap between broadcast events.
-  Duration get throttleTime =>
-      get<Duration>(() => _record.throttleTime, orElse: const Duration(milliseconds: 200));
+  Duration get throttleTime => get<Duration>(() => _record.throttleTime,
+      orElse: const Duration(milliseconds: 200));
 
   /// The maximum capacity of the aggregation buffer before a signal flush
   /// occurs when using [PropagationStrategy.batched].
@@ -1654,29 +1743,29 @@ class PropagationPolicy {
   ///   debounceTime: Duration(milliseconds: 300),
   /// );
   /// ```
-  PropagationPolicy({
-    PropagationStrategy strategy = PropagationStrategy.immediate,
-    Duration debounceTime = const Duration(milliseconds: 150),
-    Duration throttleTime = const Duration(milliseconds: 200),
-    int batchSize = 10
-  }) : _record = mask(strategy: strategy,
-      debounceTime: debounceTime != Duration(milliseconds: 150) ? debounceTime : null,
-      throttleTime: throttleTime != Duration(milliseconds: 200) ? throttleTime : null,
-      batchSize: batchSize != 10 ? batchSize : null,
-  );
+  PropagationPolicy(
+      {PropagationStrategy strategy = PropagationStrategy.immediate,
+      Duration debounceTime = const Duration(milliseconds: 150),
+      Duration throttleTime = const Duration(milliseconds: 200),
+      int batchSize = 10})
+      : _record = mask(
+          strategy: strategy,
+          debounceTime:
+              debounceTime != Duration(milliseconds: 150) ? debounceTime : null,
+          throttleTime:
+              throttleTime != Duration(milliseconds: 200) ? throttleTime : null,
+          batchSize: batchSize != 10 ? batchSize : null,
+        );
 
-  static Record mask({
-    PropagationStrategy strategy = PropagationStrategy.immediate,
-    Duration? debounceTime,
-    Duration? throttleTime,
-    int? batchSize
-  }) {
-    final mask = (
-        (strategy != PropagationStrategy.immediate  ? 1 : 0) |
-        (debounceTime != null                       ? 2 : 0) |
-        (throttleTime != null                       ? 4 : 0) |
-        (batchSize != null                          ? 8 : 0)
-    );
+  static Record mask(
+      {PropagationStrategy strategy = PropagationStrategy.immediate,
+      Duration? debounceTime,
+      Duration? throttleTime,
+      int? batchSize}) {
+    final mask = ((strategy != PropagationStrategy.immediate ? 1 : 0) |
+        (debounceTime != null ? 2 : 0) |
+        (throttleTime != null ? 4 : 0) |
+        (batchSize != null ? 8 : 0));
 
     return switch (mask) {
       0 => (),
@@ -1686,15 +1775,36 @@ class PropagationPolicy {
       4 => (throttleTime: throttleTime),
       5 => (strategy: strategy, throttleTime: throttleTime),
       6 => (debounceTime: debounceTime, throttleTime: throttleTime),
-      7 => (strategy: strategy, debounceTime: debounceTime, throttleTime: throttleTime),
+      7 => (
+          strategy: strategy,
+          debounceTime: debounceTime,
+          throttleTime: throttleTime
+        ),
       8 => (batchSize: batchSize),
       9 => (strategy: strategy, batchSize: batchSize),
       10 => (debounceTime: debounceTime, batchSize: batchSize),
-      11 => (strategy: strategy, debounceTime: debounceTime, batchSize: batchSize),
+      11 => (
+          strategy: strategy,
+          debounceTime: debounceTime,
+          batchSize: batchSize
+        ),
       12 => (throttleTime: throttleTime, batchSize: batchSize),
-      13 => (strategy: strategy, throttleTime: throttleTime, batchSize: batchSize),
-      14 => (debounceTime: debounceTime, throttleTime: throttleTime, batchSize: batchSize),
-      15 => (strategy: strategy, debounceTime: debounceTime, throttleTime: throttleTime, batchSize: batchSize),
+      13 => (
+          strategy: strategy,
+          throttleTime: throttleTime,
+          batchSize: batchSize
+        ),
+      14 => (
+          debounceTime: debounceTime,
+          throttleTime: throttleTime,
+          batchSize: batchSize
+        ),
+      15 => (
+          strategy: strategy,
+          debounceTime: debounceTime,
+          throttleTime: throttleTime,
+          batchSize: batchSize
+        ),
       _ => ()
     };
   }
@@ -1712,5 +1822,4 @@ class PropagationPolicy {
   String toString() =>
       'PropagationPolicy(strategy: $strategy, debounceTime: $debounceTime, '
       'throttleTime: $throttleTime, batchSize: $batchSize)';
-
 }

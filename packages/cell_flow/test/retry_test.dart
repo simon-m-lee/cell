@@ -482,5 +482,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

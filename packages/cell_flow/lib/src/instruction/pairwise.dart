@@ -22,7 +22,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef PairwiseErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef PairwiseErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to validate and extract a typed payload from a pulse.
 ///
@@ -36,13 +37,14 @@ typedef PairwiseErrorHandler = void Function(Object error, StackTrace? stackTrac
 /// ### Returns:
 /// The validated pulse if the type matches, or `null` if it doesn't.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      PairwiseErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  PairwiseErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -234,29 +236,29 @@ class Pairwise<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     PairwiseErrorHandler? onError,
     dynamic user,
   }) : super(
-    (() {
-      final state = _PrevState<S>();
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (!state.hasPrev) {
-          state.prev = value;
-          state.hasPrev = true;
-          return null;
-        }
-        final previous = state.prev as S;
-        state.prev = value;
-        return _out<(S, S)>(
-          (previous, value),
-          typed,
-          cell,
-          'Pairwise',
+          (() {
+            final state = _PrevState<S>();
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (!state.hasPrev) {
+                state.prev = value;
+                state.hasPrev = true;
+                return null;
+              }
+              final previous = state.prev as S;
+              state.prev = value;
+              return _out<(S, S)>(
+                (previous, value),
+                typed,
+                cell,
+                'Pairwise',
+              );
+            };
+          })(),
+          user: user,
         );
-      };
-    })(),
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -405,38 +407,38 @@ class PairwiseWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Scan]: For accumulating values over time.
   /// - [DistinctUntilChanged]: For removing consecutive duplicates.
   PairwiseWith(
-      T Function(S previous, S current) combine, {
-        PairwiseErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _PrevState<S>();
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (!state.hasPrev) {
-          state.prev = value;
-          state.hasPrev = true;
-          return null;
-        }
-        final previous = state.prev as S;
-        state.prev = value;
-        try {
-          return _out<T>(
-            combine(previous, value),
-            typed,
-            cell,
-            'PairwiseWith',
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-      };
-    })(),
-    user: user,
-  );
+    T Function(S previous, S current) combine, {
+    PairwiseErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _PrevState<S>();
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (!state.hasPrev) {
+                state.prev = value;
+                state.hasPrev = true;
+                return null;
+              }
+              final previous = state.prev as S;
+              state.prev = value;
+              try {
+                return _out<T>(
+                  combine(previous, value),
+                  typed,
+                  cell,
+                  'PairwiseWith',
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

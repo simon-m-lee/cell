@@ -312,23 +312,23 @@ void main() {
     });
 
     test('standalone with unmodifiableElement false', () {
-      final u = UnmodifiableTissueSet<int>([1, 2, 3],
-          unmodifiableElement: false);
+      final u =
+          UnmodifiableTissueSet<int>([1, 2, 3], unmodifiableElement: false);
 
       expect(u.toSet(), {1, 2, 3});
     });
 
     test('view factory with unmodifiableElement false', () {
-      final view = UnmodifiableTissueSet<int>.view(source,
-          unmodifiableElement: false);
+      final view =
+          UnmodifiableTissueSet<int>.view(source, unmodifiableElement: false);
 
       expect(view.toSet(), {4, 5});
     });
 
     test('fromNucleus populates elements', () {
       final nucleus = TissueSetNucleus.create<int, TissueSet<int>>();
-      final u = UnmodifiableTissueSet<int>.fromNucleus(nucleus,
-          elements: [9, 10]);
+      final u =
+          UnmodifiableTissueSet<int>.fromNucleus(nucleus, elements: [9, 10]);
 
       expect(u.toSet(), {9, 10});
     });
@@ -459,12 +459,14 @@ void main() {
       final events = <TxApplyEvent>[];
       final tx = Cell.txApply(TxApplyOptions(onEvent: events.add));
 
-      await tx.execute(participants: [set], body: (tx) {
-        expect(set.toSet(), isEmpty);
-        set.apply(set.add, positionalArguments: [1], tx: tx);
-        set.apply(set.add, positionalArguments: [2], tx: tx);
-        expect(set.toSet(), isEmpty); // staged, not applied until commit
-      });
+      await tx.execute(
+          participants: [set],
+          body: (tx) {
+            expect(set.toSet(), isEmpty);
+            set.apply(set.add, positionalArguments: [1], tx: tx);
+            set.apply(set.add, positionalArguments: [2], tx: tx);
+            expect(set.toSet(), isEmpty); // staged, not applied until commit
+          });
 
       expect(set.toSet(), {1, 2});
       expect(events.whereType<TxApplyBegun>(), isNotEmpty);
@@ -472,15 +474,18 @@ void main() {
       expect(events.whereType<TxApplyCommitted>(), isNotEmpty);
     });
 
-    test('apply with tx returns null and does not mutate before commit', () async {
+    test('apply with tx returns null and does not mutate before commit',
+        () async {
       final set = TissueSet<int>.empty();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [set], body: (tx) {
-        final result = set.apply(set.add, positionalArguments: [7], tx: tx);
-        expect(result, isNull);
-        expect(set.toSet(), isEmpty);
-      });
+      await tx.execute(
+          participants: [set],
+          body: (tx) {
+            final result = set.apply(set.add, positionalArguments: [7], tx: tx);
+            expect(result, isNull);
+            expect(set.toSet(), isEmpty);
+          });
 
       expect(set.toSet(), {7});
     });
@@ -490,18 +495,21 @@ void main() {
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [set], body: (tx) {
-          set.apply(set.add, positionalArguments: [1], tx: tx);
-          set.apply(set.add, positionalArguments: [2], tx: tx);
-          throw StateError('boom');
-        }),
+        tx.execute(
+            participants: [set],
+            body: (tx) {
+              set.apply(set.add, positionalArguments: [1], tx: tx);
+              set.apply(set.add, positionalArguments: [2], tx: tx);
+              throw StateError('boom');
+            }),
         throwsStateError,
       );
 
       expect(set.toSet(), isEmpty);
     });
 
-    test('compensates unexecuted stages with compensateIfNotExecuted', () async {
+    test('compensates unexecuted stages with compensateIfNotExecuted',
+        () async {
       final set = TissueSet<int>.empty();
       final tx = Cell.txApply(
         const TxApplyOptions(compensateIfNotExecuted: true),
@@ -522,36 +530,41 @@ void main() {
       expect(set.toSet(), isEmpty);
     });
 
-    test('rejects functions outside the modifiable whitelist at enqueue', () async {
+    test('rejects functions outside the modifiable whitelist at enqueue',
+        () async {
       final set = TissueSet<int>.empty();
       final tx = Cell.txApply();
 
       await expectLater(
-        tx.execute(participants: [set], body: (tx) {
-          set.apply(set.contains, positionalArguments: [1], tx: tx);
-        }),
+        tx.execute(
+            participants: [set],
+            body: (tx) {
+              set.apply(set.contains, positionalArguments: [1], tx: tx);
+            }),
         throwsA(isA<TxApplyException>()),
       );
 
       expect(set.toSet(), isEmpty);
     });
 
-    test('enqueued compensation commits when the staged apply succeeds', () async {
+    test('enqueued compensation commits when the staged apply succeeds',
+        () async {
       final set = TissueSet<int>.empty();
       final tx = Cell.txApply();
 
-      await tx.execute(participants: [set], body: (tx) {
-        set.apply(
-          set.add,
-          positionalArguments: [5],
-          tx: tx,
-          compensate: set.remove,
-          compensatePositional: [5],
-        );
-      });
+      await tx.execute(
+          participants: [set],
+          body: (tx) {
+            set.apply(
+              set.add,
+              positionalArguments: [5],
+              tx: tx,
+              compensate: set.remove,
+              compensatePositional: [5],
+            );
+          });
 
       expect(set.toSet(), {5});
     });
   });
 }
-

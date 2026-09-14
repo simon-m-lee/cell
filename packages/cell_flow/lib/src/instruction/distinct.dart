@@ -37,7 +37,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef DistinctErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef DistinctErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper for type-safe payload extraction.
 ///
@@ -53,10 +54,10 @@ typedef DistinctErrorHandler = void Function(Object error, StackTrace? stackTrac
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      DistinctErrorHandler? onError,
-      bool allowNull = false,
-    }) {
+  Pulse pulse, {
+  DistinctErrorHandler? onError,
+  bool allowNull = false,
+}) {
   final payload = pulse.payload;
   if (payload == null) {
     if (allowNull && null is S) return pulse;
@@ -64,7 +65,8 @@ Pulse? _typedOrError<S>(
   }
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -210,28 +212,28 @@ class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     DistinctErrorHandler? onError,
     dynamic user,
   }) : super(
-    (() {
-      final state = _ConsecutiveState<S>();
-      final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        if (state.hasPrevious) {
-          try {
-            if (cmp(state.previous as S, value)) return null;
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            return null;
-          }
-        }
-        state.previous = value;
-        state.hasPrevious = true;
-        return _mark(typed, 'DistinctUntilChanged');
-      };
-    })(),
-    user: user,
-  );
+          (() {
+            final state = _ConsecutiveState<S>();
+            final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              if (state.hasPrevious) {
+                try {
+                  if (cmp(state.previous as S, value)) return null;
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  return null;
+                }
+              }
+              state.previous = value;
+              state.hasPrevious = true;
+              return _mark(typed, 'DistinctUntilChanged');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -313,7 +315,8 @@ class DistinctUntilChanged<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### See Also:
 /// - [DistinctUntilChanged]: For full value deduplication.
 /// - [DistinctKey]: For global key-based deduplication.
-class DistinctUntilKeyChanged<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+class DistinctUntilKeyChanged<S, K>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [DistinctUntilKeyChanged] instruction.
   ///
   /// ### Parameters:
@@ -332,40 +335,40 @@ class DistinctUntilKeyChanged<S, K> extends FlowInstructionBase<Cell, Pulse, Pul
   /// );
   /// ```
   DistinctUntilKeyChanged(
-      K Function(S value) keyOf, {
-        bool Function(K previous, K next)? equals,
-        DistinctErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final state = _ConsecutiveState<K>();
-      final cmp = equals ?? (K a, K b) => _defaultEquals(a, b);
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        late final K key;
-        try {
-          key = keyOf(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        if (state.hasPrevious) {
-          try {
-            if (cmp(state.previous as K, key)) return null;
-          } catch (e, stack) {
-            onError?.call(e, stack);
-            return null;
-          }
-        }
-        state.previous = key;
-        state.hasPrevious = true;
-        return _mark(typed, 'DistinctUntilKeyChanged');
-      };
-    })(),
-    user: user,
-  );
+    K Function(S value) keyOf, {
+    bool Function(K previous, K next)? equals,
+    DistinctErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final state = _ConsecutiveState<K>();
+            final cmp = equals ?? (K a, K b) => _defaultEquals(a, b);
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              late final K key;
+              try {
+                key = keyOf(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              if (state.hasPrevious) {
+                try {
+                  if (cmp(state.previous as K, key)) return null;
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                  return null;
+                }
+              }
+              state.previous = key;
+              state.hasPrevious = true;
+              return _mark(typed, 'DistinctUntilKeyChanged');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -476,27 +479,27 @@ class Distinct<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     DistinctErrorHandler? onError,
     dynamic user,
   }) : super(
-    (() {
-      final seen = <S>[];
-      final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        try {
-          for (final prior in seen) {
-            if (cmp(prior, value)) return null;
-          }
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        seen.add(value);
-        return _mark(typed, 'Distinct');
-      };
-    })(),
-    user: user,
-  );
+          (() {
+            final seen = <S>[];
+            final cmp = equals ?? (S a, S b) => _defaultEquals(a, b);
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              try {
+                for (final prior in seen) {
+                  if (cmp(prior, value)) return null;
+                }
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              seen.add(value);
+              return _mark(typed, 'Distinct');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -602,29 +605,29 @@ class DistinctKey<S, K> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   DistinctKey(
-      K Function(S value) keyOf, {
-        DistinctErrorHandler? onError,
-        dynamic user,
-      }) : super(
-    (() {
-      final seen = <K>{};
-      return (pulse, {cell, user}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final value = typed.payload as S;
-        late final K key;
-        try {
-          key = keyOf(value);
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          return null;
-        }
-        if (!seen.add(key)) return null;
-        return _mark(typed, 'DistinctKey');
-      };
-    })(),
-    user: user,
-  );
+    K Function(S value) keyOf, {
+    DistinctErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (() {
+            final seen = <K>{};
+            return (pulse, {cell, user}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final value = typed.payload as S;
+              late final K key;
+              try {
+                key = keyOf(value);
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                return null;
+              }
+              if (!seen.add(key)) return null;
+              return _mark(typed, 'DistinctKey');
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

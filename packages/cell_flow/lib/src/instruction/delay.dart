@@ -54,13 +54,14 @@ typedef DelayErrorHandler = void Function(Object error, StackTrace? stackTrace);
 /// ### Returns:
 /// The pulse if the payload type matches, otherwise `null`.
 Pulse? _typedOrError<S>(
-    Pulse pulse, {
-      DelayErrorHandler? onError,
-    }) {
+  Pulse pulse, {
+  DelayErrorHandler? onError,
+}) {
   final payload = pulse.payload;
   if (payload is! S) {
     onError?.call(
-      FormatException('Expected payload of type $S, got ${payload.runtimeType}'),
+      FormatException(
+          'Expected payload of type $S, got ${payload.runtimeType}'),
       StackTrace.current,
     );
     return null;
@@ -187,7 +188,6 @@ Future<void> _until(Object? notifier) async {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates a fixed delay instruction.
   ///
   /// ### Parameters:
@@ -195,23 +195,23 @@ class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   Delay(
-      Duration duration, {
-        DelayErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      Future<void>.delayed(duration, () {
-        future!(
-          result: typed.withStep('Delay'),
-          token: token,
+    Duration duration, {
+    DelayErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            Future<void>.delayed(duration, () {
+              future!(
+                result: typed.withStep('Delay'),
+                token: token,
+              );
+            });
+            return null;
+          },
+          user: user,
         );
-      });
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -288,7 +288,6 @@ class Delay<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates a payload-dependent delay instruction.
   ///
   /// ### Parameters:
@@ -296,30 +295,30 @@ class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches or duration errors.
   /// - [user]: Optional user metadata.
   DelayWithSelector(
-      Duration Function(S value) durationOf, {
-        DelayErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      late final Duration wait;
-      try {
-        wait = durationOf(typed.payload as S);
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-      Future<void>.delayed(wait, () {
-        future!(
-          result: typed.withStep('DelayWithSelector'),
-          token: token,
+    Duration Function(S value) durationOf, {
+    DelayErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            late final Duration wait;
+            try {
+              wait = durationOf(typed.payload as S);
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+            Future<void>.delayed(wait, () {
+              future!(
+                result: typed.withStep('DelayWithSelector'),
+                token: token,
+              );
+            });
+            return null;
+          },
+          user: user,
         );
-      });
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -415,7 +414,6 @@ class DelayWithSelector<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayLatest]: For trailing delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates a notifier-based delay instruction.
   ///
   /// ### Parameters:
@@ -423,31 +421,32 @@ class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches or notifier errors.
   /// - [user]: Optional user metadata.
   DelayWhen(
-      FutureOr<Object?> Function(S value) when, {
-        DelayErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      Future<void> run() async {
-        try {
-          final notifier = await Future.sync(() => when(typed.payload as S));
-          await _until(notifier);
-          future!(
-            result: typed.withStep('DelayWhen'),
-            token: token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-        }
-      }
+    FutureOr<Object?> Function(S value) when, {
+    DelayErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            Future<void> run() async {
+              try {
+                final notifier =
+                    await Future.sync(() => when(typed.payload as S));
+                await _until(notifier);
+                future!(
+                  result: typed.withStep('DelayWhen'),
+                  token: token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+              }
+            }
 
-      run();
-      return null;
-    },
-    user: user,
-  );
+            run();
+            return null;
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -519,7 +518,6 @@ class DelayWhen<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [DelayWhen]: For notifier-based delay.
 /// - [DelayWithTimeout]: For delay with timeout.
 class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates a trailing delay instruction.
   ///
   /// ### Parameters:
@@ -527,28 +525,28 @@ class DelayLatest<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   DelayLatest(
-      Duration duration, {
-        DelayErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final typed = _typedOrError<S>(pulse, onError: onError);
-        if (typed == null) return null;
-        final id = ++generation;
-        Future<void>.delayed(duration, () {
-          if (id != generation) return;
-          future!(
-            result: typed.withStep('DelayLatest'),
-            token: token,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Duration duration, {
+    DelayErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final typed = _typedOrError<S>(pulse, onError: onError);
+              if (typed == null) return null;
+              final id = ++generation;
+              Future<void>.delayed(duration, () {
+                if (id != generation) return;
+                future!(
+                  result: typed.withStep('DelayLatest'),
+                  token: token,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A semantic alias for [DelayLatest] that emphasizes trailing-edge behavior.
@@ -600,10 +598,10 @@ class DelayWithTrailing<S> extends DelayLatest<S> {
   /// - [onError]: Optional error handler for type mismatches.
   /// - [user]: Optional user metadata.
   DelayWithTrailing(
-      super.duration, {
-        super.onError,
-        super.user,
-      });
+    super.duration, {
+    super.onError,
+    super.user,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -678,7 +676,6 @@ class DelayWithTrailing<S> extends DelayLatest<S> {
 /// - [DelayWhen]: For notifier-based delay.
 /// - [DelayLatest]: For trailing delay.
 class DelayWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Creates a delay with timeout instruction.
   ///
   /// ### Parameters:
@@ -688,31 +685,31 @@ class DelayWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [onError]: Optional error handler for type mismatches or timeouts.
   /// - [user]: Optional user metadata.
   DelayWithTimeout(
-      Duration duration, {
-        required Duration timeout,
-        DelayErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final typed = _typedOrError<S>(pulse, onError: onError);
-      if (typed == null) return null;
-      if (duration > timeout) {
-        onError?.call(
-          TimeoutException('Delay $duration exceeds $timeout', timeout),
-          StackTrace.current,
+    Duration duration, {
+    required Duration timeout,
+    DelayErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final typed = _typedOrError<S>(pulse, onError: onError);
+            if (typed == null) return null;
+            if (duration > timeout) {
+              onError?.call(
+                TimeoutException('Delay $duration exceeds $timeout', timeout),
+                StackTrace.current,
+              );
+              return null;
+            }
+            Future<void>.delayed(duration, () {
+              future!(
+                result: typed.withStep('DelayWithTimeout'),
+                token: token,
+              );
+            });
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      Future<void>.delayed(duration, () {
-        future!(
-          result: typed.withStep('DelayWithTimeout'),
-          token: token,
-        );
-      });
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -817,7 +814,7 @@ Future<void> main() async {
   final b = Cell.ingress<String>();
 
   final selected = DelayWithSelector<String>(
-        (s) => Duration(milliseconds: s == 'slow' ? 40 : 5),
+    (s) => Duration(milliseconds: s == 'slow' ? 40 : 5),
   ).toHandle(source: b.cell);
 
   final sObs = Cell.observe(
@@ -840,7 +837,7 @@ Future<void> main() async {
   final c = Cell.ingress<String>();
 
   final when = DelayWhen<String>(
-        (_) => Future<void>.delayed(const Duration(milliseconds: 20)),
+    (_) => Future<void>.delayed(const Duration(milliseconds: 20)),
   ).toHandle(source: c.cell);
 
   final wObs = Cell.observe(

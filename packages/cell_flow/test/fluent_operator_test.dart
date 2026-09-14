@@ -198,7 +198,9 @@ void main() {
           .pluckPath<int>(path: ['user', 'id'], orElse: 0, useOrElse: true);
       final probe = _Probe(out.cell);
       addTearDown(probe.stop);
-      await src.emitAsync({'user': <String, Object>{'id': 7}});
+      await src.emitAsync({
+        'user': <String, Object>{'id': 7}
+      });
       await probe.settle();
       expect(out.cell, isNotNull);
     });
@@ -398,14 +400,16 @@ void main() {
     test('combineLatestWith / withLatestFrom bind', () async {
       final src = Cell.ingress<int>();
       final other = Cell.ingress<int>();
-      final c = src.cell.filter<int>(test: (_) => true).combineLatestWith<int, int>(
-            others: [other.cell],
-            combine: (s, latest) => s + (latest.first as int? ?? 0),
-          );
-      final w = src.cell.filter<int>(test: (_) => true).withLatestFrom<int, int>(
-            others: [other.cell],
-            combine: (s, latest) => s,
-          );
+      final c =
+          src.cell.filter<int>(test: (_) => true).combineLatestWith<int, int>(
+        others: [other.cell],
+        combine: (s, latest) => s + (latest.first as int? ?? 0),
+      );
+      final w =
+          src.cell.filter<int>(test: (_) => true).withLatestFrom<int, int>(
+        others: [other.cell],
+        combine: (s, latest) => s,
+      );
       expect(c.cell, isNotNull);
       expect(w.cell, isNotNull);
     });
@@ -455,11 +459,13 @@ void main() {
 
     test('bufferCount / bufferTime / windowCount bind', () async {
       final src = Cell.ingress<int>();
-      final bc = src.cell.filter<int>(test: (_) => true).bufferCount<int>(size: 2);
+      final bc =
+          src.cell.filter<int>(test: (_) => true).bufferCount<int>(size: 2);
       final bt = src.cell
           .filter<int>(test: (_) => true)
           .bufferTime<int>(duration: const Duration(milliseconds: 20));
-      final wc = src.cell.filter<int>(test: (_) => true).windowCount<int>(size: 2);
+      final wc =
+          src.cell.filter<int>(test: (_) => true).windowCount<int>(size: 2);
       expect(bc.cell, isNotNull);
       expect(bt.cell, isNotNull);
       expect(wc.cell, isNotNull);
@@ -479,9 +485,11 @@ void main() {
 
     test('startWith / share / shareReplay bind', () async {
       final src = Cell.ingress<int>();
-      final sw = src.cell.filter<int>(test: (_) => true).startWith<int>(value: 0);
+      final sw =
+          src.cell.filter<int>(test: (_) => true).startWith<int>(value: 0);
       final sh = src.cell.filter<int>(test: (_) => true).share<int>();
-      final sr = src.cell.filter<int>(test: (_) => true).shareReplay<int>(size: 2);
+      final sr =
+          src.cell.filter<int>(test: (_) => true).shareReplay<int>(size: 2);
       expect(sw.cell, isNotNull);
       expect(sh.cell, isNotNull);
       expect(sr.cell, isNotNull);
@@ -489,9 +497,7 @@ void main() {
 
     test('tapAll / tapWithIndex bind', () async {
       final src = Cell.ingress<int>();
-      final a = src.cell
-          .filter<int>(test: (_) => true)
-          .tapAll(onPulse: (_) {});
+      final a = src.cell.filter<int>(test: (_) => true).tapAll(onPulse: (_) {});
       final i = src.cell
           .filter<int>(test: (_) => true)
           .tapWithIndex<int>(onValue: (n, idx) {});

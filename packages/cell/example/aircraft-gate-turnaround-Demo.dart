@@ -447,10 +447,9 @@ final class TurnView {
   });
 
   @override
-  String toString() =>
-      'TurnView(flight=$flight, stand=$stand, fuel=$fuelKg, '
-          'bridge=$bridgeDocked, chocks=$chocksOn, '
-          'doors=$doorsClosed, status=${status.name})';
+  String toString() => 'TurnView(flight=$flight, stand=$stand, fuel=$fuelKg, '
+      'bridge=$bridgeDocked, chocks=$chocksOn, '
+      'doors=$doorsClosed, status=${status.name})';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -468,8 +467,7 @@ void _section(String label, String drive) {
 
 /// Awaits a short microtask-friendly delay so that observers wired with
 /// `Cell.observe` can drain before the next assertion.
-Future<void> _tick() =>
-    Future<void>.delayed(const Duration(milliseconds: 30));
+Future<void> _tick() => Future<void>.delayed(const Duration(milliseconds: 30));
 
 /// Reads the current `bool` value held by a [Cell], or `false` on failure.
 ///
@@ -716,7 +714,7 @@ class GateTurnaround {
   /// both formats — a two-letter-only pattern silently rejects the
   /// IATA form, and the ACARS channel then never sees those flights.
   static final TestCell _flightShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! FlightOnBlock) return true;
       return RegExp(r'^[A-Z][A-Z0-9][0-9]{1,4}$').hasMatch(v.flight);
@@ -730,7 +728,7 @@ class GateTurnaround {
   /// optionally with a side suffix (L = left, R = right, C = center).
   /// Anything else is a desk error and must be caught at ingress.
   static final TestCell _standShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! String) return true;
       return RegExp(r'^[A-Z][0-9]{1,2}[LRC]?$').hasMatch(v);
@@ -743,7 +741,7 @@ class GateTurnaround {
   /// Negative fuel is a sensor fault or a refuelling error. Rejecting at
   /// ingress keeps the fuel mirror's domain clean.
   static final TestCell _fuelKg = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = _payload(value);
       if (v is! int) return true;
       return v >= 0;
@@ -847,7 +845,8 @@ class GateTurnaround {
     bumperView = Cell.state<bool>(initial: false);
 
     // --- Group 2 ------------------------------------------------------------
-    bumperQuiet = Cell.debounce(bumperIn.cell, const Duration(milliseconds: 40));
+    bumperQuiet =
+        Cell.debounce(bumperIn.cell, const Duration(milliseconds: 40));
     statusDistinct = Cell.distinct(status.cell);
 
     // --- Synthesis ----------------------------------------------------------
@@ -933,7 +932,7 @@ class GateTurnaround {
     // --- switchMap (latest flight for the push path) ------------------------
     latestFlight = Cell.switchMap<FlightOnBlock, FlightOnBlock>(
       flightIn.cell,
-          (r) {
+      (r) {
         final inner = Cell.ingress<FlightOnBlock>();
         final f = _asFlight(r);
         scheduleMicrotask(() {
@@ -948,7 +947,7 @@ class GateTurnaround {
     // The walkthrough requires this operator in the graph.
     latestForAcars = Cell.switchMap<FlightOnBlock, FlightOnBlock>(
       acarsIn.cell,
-          (r) {
+      (r) {
         final inner = Cell.ingress<FlightOnBlock>();
         final f = _asFlight(r);
         scheduleMicrotask(() {
@@ -963,7 +962,7 @@ class GateTurnaround {
     // walkthrough requires.
     acars = Cell.asyncMap<FlightOnBlock, String>(
       latestForAcars!,
-          (r) async {
+      (r) async {
         await Future.delayed(const Duration(milliseconds: 5));
         final f = _asFlight(r);
         if (f == null) return 'ACARS-ACK ?';
@@ -1277,10 +1276,12 @@ class GateTurnaround {
 /// 3. Run scenarios 1–14 in order.
 /// 4. Print the trailer and dispose.
 Future<void> main() async {
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' aircraft-gate-turnaround-Demo.dart');
   print(' package:cell only — no Flow, no Tissue');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   final turn = GateTurnaround();
   await turn.install();
@@ -1334,7 +1335,8 @@ Future<void> main() async {
   _section('3', "standIn.emit('12') — TestCell reject");
   final sb0 = turn.synthBumps;
   final accepted = turn.standIn.emit('12');
-  print('  ingress accepted=$accepted  synthBumps delta=${turn.synthBumps - sb0}');
+  print(
+      '  ingress accepted=$accepted  synthBumps delta=${turn.synthBumps - sb0}');
 
   // -------------------------------------------------------------------------
   // 4 — flight on-block, doors still open, PUSH refused
@@ -1484,14 +1486,16 @@ Future<void> main() async {
   // Trailer
   // -------------------------------------------------------------------------
   print('');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
   print('status=${_statusName(turn.status.cell)} '
       'chocksOn=${_boolVal(turn.chocksOn.cell)} '
       'doorsClosed=${_boolVal(turn.doorsClosed.cell)}');
   print('auditContainsLovelace=${auditContainsLovelace.any((b) => b)}');
   print('clearance=${turn.lastClearanceId}');
   print('acarsLast=${turn.acarsLast}');
-  print('------------------------------------------------------------------------');
+  print(
+      '------------------------------------------------------------------------');
 
   turn.dispose();
 }

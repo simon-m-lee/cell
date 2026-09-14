@@ -129,7 +129,8 @@ void main() {
   });
 
   group('ExhaustMapTo', () {
-    test('ignores the payload and drops a second click while running', () async {
+    test('ignores the payload and drops a second click while running',
+        () async {
       final b = bind(ExhaustMapTo<int, String>(() async* {
         yield 'ping';
         await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -219,7 +220,8 @@ void main() {
   });
 
   group('ExhaustMapLatest', () {
-    test('runs the last skipped trigger after the current inner ends', () async {
+    test('runs the last skipped trigger after the current inner ends',
+        () async {
       final b = bind(ExhaustMapLatest<int, String>((n) async* {
         yield '$n-a';
         await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -261,7 +263,6 @@ void main() {
       expect(errors.single, isA<FormatException>());
     });
   });
-
 
   group('ExhaustMap extra', () {
     test('onError is optional when mapper throws', () async {

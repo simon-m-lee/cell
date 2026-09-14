@@ -111,9 +111,9 @@ Pulse _err(Object error, Cell? cell, Pulse trigger, String step) {
 /// - **String Special Case**: Strings are treated as values, not iterables.
 /// - **First Match**: Only the first value of type [T] is returned.
 Future<T?> _firstOf<T>(
-    Object? inner, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return null;
   if (stillLive != null && !stillLive()) return null;
 
@@ -377,37 +377,37 @@ class Race<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RaceWith]: For side competition.
   /// - [RaceUntil]: For timeout-based racing.
   Race(
-      Iterable<Object?> competitors, {
-        RaceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final started = _OnceState();
-      final gen = _GenerationState();
-      final snapshot = List<Object?>.from(competitors);
-      return (pulse, {cell, user, future, token}) {
-        if (started.done) return null;
-        started.done = true;
-        final id = ++gen.generation;
-        Future<void>(() async {
-          await _raceList<T>(
-            competitors: snapshot,
-            stillLive: () => id == gen.generation,
-            markWon: () => gen.generation++,
-            onWin: (value) {
-              future!(
-                result: _out<T>(value, cell, pulse, 'Race'),
-                token: token,
-              );
-            },
-            onError: onError,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Object?> competitors, {
+    RaceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final started = _OnceState();
+            final gen = _GenerationState();
+            final snapshot = List<Object?>.from(competitors);
+            return (pulse, {cell, user, future, token}) {
+              if (started.done) return null;
+              started.done = true;
+              final id = ++gen.generation;
+              Future<void>(() async {
+                await _raceList<T>(
+                  competitors: snapshot,
+                  stillLive: () => id == gen.generation,
+                  markWon: () => gen.generation++,
+                  onWin: (value) {
+                    future!(
+                      result: _out<T>(value, cell, pulse, 'Race'),
+                      token: token,
+                    );
+                  },
+                  onError: onError,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -524,35 +524,35 @@ class RaceFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Race]: For all values from the winner.
   /// - [RaceMap]: For dynamic competitors.
   RaceFirst(
-      Iterable<Object?> competitors, {
-        RaceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final started = _OnceState();
-      var won = false;
-      return (pulse, {cell, user, future, token}) {
-        if (started.done) return null;
-        started.done = true;
-        Future<void>(() async {
-          await _raceList<T>(
-            competitors: List<Object?>.from(competitors),
-            stillLive: () => !won,
-            markWon: () => won = true,
-            onWin: (value) {
-              future!(
-                result: _out<T>(value, cell, pulse, 'RaceFirst'),
-                token: token,
-              );
-            },
-            onError: onError,
-          );
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Object?> competitors, {
+    RaceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final started = _OnceState();
+            var won = false;
+            return (pulse, {cell, user, future, token}) {
+              if (started.done) return null;
+              started.done = true;
+              Future<void>(() async {
+                await _raceList<T>(
+                  competitors: List<Object?>.from(competitors),
+                  stillLive: () => !won,
+                  markWon: () => won = true,
+                  onWin: (value) {
+                    future!(
+                      result: _out<T>(value, cell, pulse, 'RaceFirst'),
+                      token: token,
+                    );
+                  },
+                  onError: onError,
+                );
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -672,52 +672,52 @@ class RaceMap<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Race]: For static competitors.
   /// - [RaceWith]: For side competition.
   RaceMap(
-      FutureOr<Iterable<Object?>> Function(S value) mapper, {
-        RaceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++gen.generation;
-        Future<void>(() async {
-          try {
-            final competitors = await mapper(payload);
-            if (id != gen.generation) return;
-            var won = false;
-            await _raceList<T>(
-              competitors: competitors,
-              stillLive: () => id == gen.generation && !won,
-              markWon: () => won = true,
-              onWin: (value) {
-                future!(
-                  result: _out<T>(value, cell, pulse, 'RaceMap'),
-                  token: token,
+    FutureOr<Iterable<Object?>> Function(S value) mapper, {
+    RaceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-              },
-              onError: (e, stack) {
-                if (id == gen.generation) onError?.call(e, stack);
-              },
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+                return null;
+              }
+              final id = ++gen.generation;
+              Future<void>(() async {
+                try {
+                  final competitors = await mapper(payload);
+                  if (id != gen.generation) return;
+                  var won = false;
+                  await _raceList<T>(
+                    competitors: competitors,
+                    stillLive: () => id == gen.generation && !won,
+                    markWon: () => won = true,
+                    onWin: (value) {
+                      future!(
+                        result: _out<T>(value, cell, pulse, 'RaceMap'),
+                        token: token,
+                      );
+                    },
+                    onError: (e, stack) {
+                      if (id == gen.generation) onError?.call(e, stack);
+                    },
+                  );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -832,54 +832,54 @@ class RaceWith<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Race]: For static competitors.
   /// - [RaceMap]: For dynamic competitors.
   RaceWith(
-      FutureOr<Object?> Function(S value) mapper, {
-        required FutureOr<Object?> Function() other,
-        RaceErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++gen.generation;
-        Future<void>(() async {
-          try {
-            final left = mapper(payload);
-            final right = other();
-            if (id != gen.generation) return;
-            var won = false;
-            await _raceList<T>(
-              competitors: [left, right],
-              stillLive: () => id == gen.generation && !won,
-              markWon: () => won = true,
-              onWin: (value) {
-                future!(
-                  result: _out<T>(value, cell, pulse, 'RaceWith'),
-                  token: token,
+    FutureOr<Object?> Function(S value) mapper, {
+    required FutureOr<Object?> Function() other,
+    RaceErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-              },
-              onError: (e, stack) {
-                if (id == gen.generation) onError?.call(e, stack);
-              },
-            );
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+                return null;
+              }
+              final id = ++gen.generation;
+              Future<void>(() async {
+                try {
+                  final left = mapper(payload);
+                  final right = other();
+                  if (id != gen.generation) return;
+                  var won = false;
+                  await _raceList<T>(
+                    competitors: [left, right],
+                    stillLive: () => id == gen.generation && !won,
+                    markWon: () => won = true,
+                    onWin: (value) {
+                      future!(
+                        result: _out<T>(value, cell, pulse, 'RaceWith'),
+                        token: token,
+                      );
+                    },
+                    onError: (e, stack) {
+                      if (id == gen.generation) onError?.call(e, stack);
+                    },
+                  );
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1007,65 +1007,66 @@ class RaceUntil<S, T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [RaceWith]: For side competition.
   /// - [Timeout]: For a simpler timeout pattern.
   RaceUntil(
-      FutureOr<Object?> Function(S value) mapper, {
-        required Duration timeout,
-        RaceErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++gen.generation;
-        Future<void>(() async {
-          try {
-            final inner = mapper(payload);
-            final winner = await Future.any<Object>([
-                  () async {
-                final first = await _firstOf<T>(
-                  inner,
-                  stillLive: () => id == gen.generation,
+    FutureOr<Object?> Function(S value) mapper, {
+    required Duration timeout,
+    RaceErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-                return first ?? Object();
-              }(),
-              Future<Object>.delayed(timeout, () => TimeoutException('RaceUntil', timeout)),
-            ]);
-            if (id != gen.generation) return;
-            if (winner is TimeoutException) {
-              onError?.call(winner, StackTrace.current);
-              if (emitErrorPulse) {
-                future!(
-                  result: _err(winner, cell, pulse, 'RaceUntil.error'),
-                  token: token,
-                );
+                return null;
               }
-              return;
-            }
-            if (winner is T) {
-              future!(
-                result: _out<T>(winner as T, cell, pulse, 'RaceUntil'),
-                token: token,
-              );
-            }
-          } catch (e, stack) {
-            if (id == gen.generation) onError?.call(e, stack);
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              final id = ++gen.generation;
+              Future<void>(() async {
+                try {
+                  final inner = mapper(payload);
+                  final winner = await Future.any<Object>([
+                    () async {
+                      final first = await _firstOf<T>(
+                        inner,
+                        stillLive: () => id == gen.generation,
+                      );
+                      return first ?? Object();
+                    }(),
+                    Future<Object>.delayed(
+                        timeout, () => TimeoutException('RaceUntil', timeout)),
+                  ]);
+                  if (id != gen.generation) return;
+                  if (winner is TimeoutException) {
+                    onError?.call(winner, StackTrace.current);
+                    if (emitErrorPulse) {
+                      future!(
+                        result: _err(winner, cell, pulse, 'RaceUntil.error'),
+                        token: token,
+                      );
+                    }
+                    return;
+                  }
+                  if (winner is T) {
+                    future!(
+                      result: _out<T>(winner as T, cell, pulse, 'RaceUntil'),
+                      token: token,
+                    );
+                  }
+                } catch (e, stack) {
+                  if (id == gen.generation) onError?.call(e, stack);
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1188,9 +1189,10 @@ Future<void> main() async {
   print('3. RaceMap - payload picks the field');
   final ids = Cell.ingress<int>();
   final mapped = RaceMap<int, String>((id) => [
-    Future<String>.delayed(const Duration(milliseconds: 30), () => 'net-$id'),
-    Future.value('cache'),
-  ]).toHandle(source: ids.cell);
+        Future<String>.delayed(
+            const Duration(milliseconds: 30), () => 'net-$id'),
+        Future.value('cache'),
+      ]).toHandle(source: ids.cell);
   final mObs = Cell.observe(
     source: mapped.cell,
     effect: (Pulse p) => print('   [RaceMap] ${p.payload}'),
@@ -1203,7 +1205,8 @@ Future<void> main() async {
   print('4. RaceWith - source vs other');
   final src = Cell.ingress<int>();
   final withOther = RaceWith<int, String>(
-        (n) => Future<String>.delayed(const Duration(milliseconds: 40), () => 'src-$n'),
+    (n) => Future<String>.delayed(
+        const Duration(milliseconds: 40), () => 'src-$n'),
     other: () => Future.value('side'),
   ).toHandle(source: src.cell);
   final wObs = Cell.observe(
@@ -1218,7 +1221,8 @@ Future<void> main() async {
   print('5. RaceUntil - timeout');
   final slow = Cell.ingress<void>();
   final timed = RaceUntil<void, String>(
-        (_) => Future<String>.delayed(const Duration(milliseconds: 80), () => 'late'),
+    (_) =>
+        Future<String>.delayed(const Duration(milliseconds: 80), () => 'late'),
     timeout: const Duration(milliseconds: 15),
   ).toHandle(source: slow.cell);
   final tObs = Cell.observe(

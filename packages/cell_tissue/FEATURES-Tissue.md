@@ -4,13 +4,13 @@
 **Version:** 1.0.0-rc.4  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
-**Author:** Lee Man Hoi Simon (see [`AUTHORS`](AUTHORS))  
+**Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS))  
 **Location:** `packages/cell_tissue`
 
 Categorized inventory of reactive collections in the Cell Framework.
 Tissues are **cells** that hold a Dart collection. If dartdoc and the
 factories disagree, **the source is current**. Design intent:
-[`ARCHITECTURE.md`](ARCHITECTURE.md).
+[`ARCHITECTURE.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/ARCHITECTURE-Tissue.md).
 
 ---
 
@@ -274,7 +274,7 @@ Single scalar that is both `Tissue<V>` and `ValueCell<V>`.
 
 Prefer `Cell.state` / `ValueCell` unless you need tissue validation,
 deep unmodifiable, or nested-cell linking. See
-[`docs/InDepth-CollectiveValue-vs-ValueCell.md`](docs/InDepth-CollectiveValue-vs-ValueCell.md).
+`docs/InDepth-CollectiveValue-vs-ValueCell.md`.
 
 **Non-negative guard pattern** (used in the sibling demos):
 

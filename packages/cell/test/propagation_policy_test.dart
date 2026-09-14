@@ -19,13 +19,13 @@ class RecordingCell extends CellBase {
 
   RecordingCell({super.bind})
       : super(
-    receptor: Receptor((cell, pulse, {user}) {
-      final recorder = cell as RecordingCell;
-      recorder.receivedPulses.add(pulse);
-      recorder.receivedPayloads.add(pulse.payload);
-      return pulse;
-    }),
-  );
+          receptor: Receptor((cell, pulse, {user}) {
+            final recorder = cell as RecordingCell;
+            recorder.receivedPulses.add(pulse);
+            recorder.receivedPayloads.add(pulse.payload);
+            return pulse;
+          }),
+        );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -364,7 +364,8 @@ void main() {
     });
 
     group('Strategy: buffered', () {
-      test('buffered accumulates pulses and flushes after throttleTime', () async {
+      test('buffered accumulates pulses and flushes after throttleTime',
+          () async {
         final setup = createTestSetup(
           policy: createPolicy(
             strategy: PropagationStrategy.buffered,
@@ -489,7 +490,8 @@ void main() {
     });
 
     group('Strategy: sample', () {
-      test('sample heartbeats the first pulse then stops when unlinked', () async {
+      test('sample heartbeats the first pulse then stops when unlinked',
+          () async {
         final recorder = RecordingCell();
         final synapses = Synapses(
           downstreams: [recorder],
@@ -720,7 +722,8 @@ void main() {
         expect(setup.recorder.receivedPulses.length, 1);
 
         sendPulse(setup.synapses, Pulse<int>(-1));
-        expect(setup.recorder.receivedPulses.length, 1); // Still 1, pulse was dropped
+        expect(setup.recorder.receivedPulses.length,
+            1); // Still 1, pulse was dropped
       });
     });
 

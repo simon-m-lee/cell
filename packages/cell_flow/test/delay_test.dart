@@ -221,7 +221,6 @@ void main() {
     });
   });
 
-
   group('Delay extra', () {
     test('Duration.zero still goes through the timer path', () async {
       final b = bind(Delay<int>(Duration.zero));
@@ -364,5 +363,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

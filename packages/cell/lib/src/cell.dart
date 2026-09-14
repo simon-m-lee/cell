@@ -85,7 +85,6 @@ part of '../cell.dart';
 /// {@category Demo: aircraft}
 /// {@category Demo: hotel}
 abstract interface class Cell {
-
   /// Internal evolve of the cell, encapsulating its configuration.
   /// This typically includes its [Receptor], [TestCell], [Synapses], and
   /// any bound cell. Access is protected (internal to the library).
@@ -228,17 +227,14 @@ abstract interface class Cell {
   /// ### Returns:
   /// A fully managed [Cell] instance with a dedicated policy perimeter and
   /// explicit lifecycle configuration.
-  factory Cell.governed({
-    EphemeralPolicy? ephemeralPolicy,
-    Context context,
-
-    Cell? bind,
-    Receptor receptor,
-    TestCell testRule,
-    Synapses synapses,
-
-    bool forceLock
-  }) = _Cell;
+  factory Cell.governed(
+      {EphemeralPolicy? ephemeralPolicy,
+      Context context,
+      Cell? bind,
+      Receptor receptor,
+      TestCell testRule,
+      Synapses synapses,
+      bool forceLock}) = _Cell;
 
   /// Activates a live [Cell] instance from a pre-configured [Nucleus] blueprint.
   ///
@@ -329,8 +325,7 @@ abstract interface class Cell {
   /// * [Cell.deputy] – For creating restricted views of a cell.
   /// * [Cell.governed] – For explicit governance configuration.
   /// * [Cell.fromNucleus] – The entry point for this factory.
-  factory Cell.fromNucleus(Nucleus nucleus)
-  = _Cell.fromNucleus;
+  factory Cell.fromNucleus(Nucleus nucleus) = _Cell.fromNucleus;
 
   /// Synthesizes a **Stateless Event Gateway**—the primary entry point for
   /// bridging imperative signals into the reactive graph.
@@ -400,7 +395,7 @@ abstract interface class Cell {
   ///
   /// searchGate.emit('  Hello World  '); // Prints: observer received: "hello world"
   /// ```
-  /// 
+  ///
   /// ### Parameters:
   /// * [refine]: **Optional.** The **Pre-Transformation Hook**. A function
   ///   used to normalize raw inputs or reject them (`return null`) before
@@ -539,10 +534,9 @@ abstract interface class Cell {
   }) {
     return ValueCell.create<V>(
       ValueNucleus<V>(
-        transform:
-            evolve != null
-                ? (host, input, {user}) => evolve(host, input)
-                : null,
+        transform: evolve != null
+            ? (host, input, {user}) => evolve(host, input)
+            : null,
         testRule: testRule,
       ),
       initial: initial,
@@ -658,17 +652,17 @@ abstract interface class Cell {
   ///    its lineage to downstream observers.
   ///
   /// ### Non‑obvious
-  /// - **Stateless Nature**: A derived cell does not possess its own [Box] or 
-  ///   persistent storage. It is a functional transformer that operates lazily; 
+  /// - **Stateless Nature**: A derived cell does not possess its own [Box] or
+  ///   persistent storage. It is a functional transformer that operates lazily;
   ///   it only synthesizes a value when a stimulus flows through from the [source].
-  /// - **Causal Integrity**: To maintain the **Chain of Evidence**, the 
-  ///   [project] function should return a pulse created via `input.evolve()`. 
-  ///   This preserves the **Contextual Lineage**, allowing the framework to 
-  ///   trace the resulting signal back to its primordial root for debugging 
+  /// - **Causal Integrity**: To maintain the **Chain of Evidence**, the
+  ///   [project] function should return a pulse created via `input.evolve()`.
+  ///   This preserves the **Contextual Lineage**, allowing the framework to
+  ///   trace the resulting signal back to its primordial root for debugging
   ///   and security auditing.
-  /// - **The Valve Pattern**: Returning `null` is the framework's idiomatic way 
-  ///   to implement **Signal Neutralization**. This stops the propagation 
-  ///   immediately, ensuring that downstream observers are never notified 
+  /// - **The Valve Pattern**: Returning `null` is the framework's idiomatic way
+  ///   to implement **Signal Neutralization**. This stops the propagation
+  ///   immediately, ensuring that downstream observers are never notified
   ///   of irrelevant or unauthorized state transitions.
   ///
   /// ### Example: Transforming and Filtering
@@ -813,7 +807,8 @@ abstract interface class Cell {
   ///   walkthrough of pattern matching, priority ordering, and multicast routing.
   /// {@category Core 16 Operators}
   static HubHandle hub({
-    Map<String, Pulse? Function(Cell cell, Pulse pulse, {dynamic user})>? spokes,
+    Map<String, Pulse? Function(Cell cell, Pulse pulse, {dynamic user})>?
+        spokes,
     Map<DeputyContext, Receptor>? governedSpokes,
     List<SpokeRegistration>? registrations,
     HubRouting routing = HubRouting.exact,
@@ -907,7 +902,8 @@ abstract interface class Cell {
   /// - **Example**: See `example/sanitized_demo.dart` for a complete
   ///   walkthrough of automated PII redaction and audit trails.
   /// {@category Core 16 Operators}
-  static Cell sanitized<P extends Pulse>(Cell source, {
+  static Cell sanitized<P extends Pulse>(
+    Cell source, {
     required P Function(P pulse) redact,
     Sensitivity minSensitivity = Sensitivity.confidential,
   }) {
@@ -1349,12 +1345,10 @@ abstract interface class Cell {
   /// - **Example**: See `example/valve_demo.dart` for a complete walkthrough
   ///   of conditional signal suppression.
   /// {@category Core 16 Operators}
-  static Cell valve<P extends Pulse>(
-      Cell source,
-      bool Function(P pulse) gate, {
-        Synapses synapses = Synapses.enabled
-      }) {
-    final receptor = _Receptor(reaction: (pulse, cell, {user}) => gate(pulse as P) ? pulse : null);
+  static Cell valve<P extends Pulse>(Cell source, bool Function(P pulse) gate,
+      {Synapses synapses = Synapses.enabled}) {
+    final receptor = _Receptor(
+        reaction: (pulse, cell, {user}) => gate(pulse as P) ? pulse : null);
     return Cell.governed(receptor: receptor, bind: source, synapses: synapses);
   }
 
@@ -1423,7 +1417,8 @@ abstract interface class Cell {
     Duration duration, {
     bool leading = false,
     EphemeralPolicy? ephemeralPolicy,
-  }) => _debounce(
+  }) =>
+      _debounce(
         source,
         duration,
         leading: leading,
@@ -1492,12 +1487,7 @@ abstract interface class Cell {
     bool leading = true,
     bool trailing = false,
   }) =>
-      _throttle(
-        source,
-        duration,
-        leading: leading,
-        trailing: trailing
-      );
+      _throttle(source, duration, leading: leading, trailing: trailing);
 
   /// Filters out consecutive duplicate payloads from a source [Cell].
   ///
@@ -1682,7 +1672,7 @@ abstract interface class Cell {
   ///
   /// ### See Also:
   /// - **Example**: See `example/async_map_demo.dart` for a complete
-  ///   walkthrough of managing parallel fetches, latest-only search updates, 
+  ///   walkthrough of managing parallel fetches, latest-only search updates,
   ///   and ordered sequential background tasks..
   /// * [Cell.switchMap]: To switch to a different source cell entirely.
   /// * [Cell.fromFuture]: To bridge a single, one-time async result.
@@ -1815,29 +1805,29 @@ abstract interface class Cell {
   /// The factory returns a normal [Cell]; you can freely `bind` it, observe it,
   /// or compose it with any other factory.
   ///
-  /// ### Non‑obvious  
-  /// - **Terminal Bridge**: This cell emits **at most once**. If the resulting 
-  ///   value needs to remain available for late subscribers, you should pipe 
-  ///   this result into a [Cell.state] or use a [Synapses] configuration with 
+  /// ### Non‑obvious
+  /// - **Terminal Bridge**: This cell emits **at most once**. If the resulting
+  ///   value needs to remain available for late subscribers, you should pipe
+  ///   this result into a [Cell.state] or use a [Synapses] configuration with
   ///   `PropagationStrategy.persistent`.
-  /// - **Error Ingress**: If the future completes with an error, the cell 
-  ///   captures the failure. It emits a pulse where the `type` is set to 
-  ///   `'error'` and the `payload` contains the error object, allowing 
+  /// - **Error Ingress**: If the future completes with an error, the cell
+  ///   captures the failure. It emits a pulse where the `type` is set to
+  ///   `'error'` and the `payload` contains the error object, allowing
   ///   downstream observers to handle failures reactively.
-  /// - **Signal Neutralization**: If this cell is invalidated (via its 
-  ///   [EphemeralPolicy]) before the future completes, the bridge is 
-  ///   immediately severed. The eventual result is discarded, and no pulse 
+  /// - **Signal Neutralization**: If this cell is invalidated (via its
+  ///   [EphemeralPolicy]) before the future completes, the bridge is
+  ///   immediately severed. The eventual result is discarded, and no pulse
   ///   is emitted to the graph.
-  /// - **Forensic Provenance**: The resulting pulse’s `source` is 
-  ///   automatically set to this bridge instance. This maintains the 
-  ///   **Chain of Evidence**, allowing you to trace the asynchronous 
+  /// - **Forensic Provenance**: The resulting pulse’s `source` is
+  ///   automatically set to this bridge instance. This maintains the
+  ///   **Chain of Evidence**, allowing you to trace the asynchronous
   ///   origin of a signal during debugging or auditing.
-  /// - **Lifecycle Governance**: The cell remains in the reactive graph after 
-  ///   its single emission until it is explicitly neutralized or reclaimed 
+  /// - **Lifecycle Governance**: The cell remains in the reactive graph after
+  ///   its single emission until it is explicitly neutralized or reclaimed
   ///   by its governing policy.
-  /// - **Flow Control**: While the factory signature is a simple bridge, the 
-  ///   underlying implementation respects [Synapses] configurations for 
-  ///   throttling or debouncing if the bridge is part of a complex 
+  /// - **Flow Control**: While the factory signature is a simple bridge, the
+  ///   underlying implementation respects [Synapses] configurations for
+  ///   throttling or debouncing if the bridge is part of a complex
   ///   re-synthesis.
   ///
   /// ### Example
@@ -1866,9 +1856,7 @@ abstract interface class Cell {
   /// - **Example**: See `example/async_bridge_demo.dart` for a walkthrough
   ///   of bridging legacy async APIs into forensic pipelines.
   /// {@category Core 16 Operators}
-  static Cell fromFuture<T>(
-    Future<T> future) =>
-      _fromFuture<T>(future);
+  static Cell fromFuture<T>(Future<T> future) => _fromFuture<T>(future);
 
   /// Synthesizes a **Dynamic Provider Switch**—a specialized node that
   /// swaps its data source at runtime based on the selection from another cell.
@@ -1997,15 +1985,15 @@ abstract interface class Cell {
   ///   cryptographic or logical handshake to ensure the binding is authorized.
   ///
   /// ### Non‑obvious
-  /// - **Identity Preservation**: A deputy remains logically consistent with 
-  ///   its principal. Comparisons such as `deputy == principal` evaluate to 
+  /// - **Identity Preservation**: A deputy remains logically consistent with
+  ///   its principal. Comparisons such as `deputy == principal` evaluate to
   ///   `true` to ensure predictable behavior within the reactive graph.
-  /// - **No-op Optimization**: If the requested parameters match the current 
-  ///   configuration, the method returns the current instance (this) to 
+  /// - **No-op Optimization**: If the requested parameters match the current
+  ///   configuration, the method returns the current instance (this) to
   ///   prevent "proxy nesting" and maintain a flat execution stack.
-  /// - **Contextual Authority**: While state is shared, the authority to 
-  ///   trigger [apply] is uniquely governed by the deputy's specific 
-  ///   [context], enabling granular permission modeling within a single 
+  /// - **Contextual Authority**: While state is shared, the authority to
+  ///   trigger [apply] is uniquely governed by the deputy's specific
+  ///   [context], enabling granular permission modeling within a single
   ///   state atom.
   ///
   /// ### Example: Creating a Scoped Read-Only View
@@ -2394,7 +2382,10 @@ abstract interface class Cell {
   /// * [ApplyTransactionScope]: The coordinator for atomic multi-step updates.
   /// - **Example**: See `example/atomic_multi_update.dart` for a
   ///   walkthrough of bank transfer logic and multi-node consistency.
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -2566,7 +2557,6 @@ abstract interface class Cell {
   /// a suite of asynchronous tools for command execution, state
   /// observation, and signal ingestion.
   ModifiableAsync<Cell> get async;
-
 }
 
 /// A specialized, interactive [Cell] that serves as a **Reactive Bridge** for
@@ -2598,7 +2588,6 @@ abstract interface class Cell {
 /// {@category Core}
 /// {@category Core 16 Operators}
 abstract interface class OpenCell implements Cell {
-
   /// Creates a standard open cell.
   ///
   /// - [receptor]: The logic unit for processing incoming signals.
@@ -2607,29 +2596,23 @@ abstract interface class OpenCell implements Cell {
   /// - [testRule]: The validation rule determining permissions for this cell.
   ///   This allows restricting external access to open methods like [receptor] and [link].
   /// - [synapses]: The manager for downstream connections.
-  factory OpenCell({
-    EphemeralPolicy? ephemeralPolicy,
+  factory OpenCell(
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context context,
+      Receptor receptor,
+      TestCell testRule,
+      Synapses synapses,
+      bool forceLock}) = _OpenCell;
 
-    Cell? bind,
-    Context context,
-    Receptor receptor,
-    TestCell testRule,
-    Synapses synapses,
-
-    bool forceLock
-  }) = _OpenCell;
-
-  factory OpenCell.governed({
-    EphemeralPolicy? ephemeralPolicy,
-
-    Cell? bind,
-    Context context,
-    Receptor receptor,
-    TestCell testRule,
-    Synapses synapses,
-
-    bool forceLock
-  }) = _OpenCell;
+  factory OpenCell.governed(
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context context,
+      Receptor receptor,
+      TestCell testRule,
+      Synapses synapses,
+      bool forceLock}) = _OpenCell;
 
   /// Creates an [OpenCell] that encapsulates a specific functional transformation
   /// to be executed upon the ingestion of an external [Pulse].
@@ -2665,20 +2648,19 @@ abstract interface class OpenCell implements Cell {
   /// ### Returns:
   /// A fully configured [OpenCell] capable of executing the [perform]
   /// logic upon pulse ingestion.
-  static OpenCell perform(
-      Cell source, Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform, {
-    dynamic user,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled
-  }) {
+  static OpenCell perform(Cell source,
+      Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform,
+      {dynamic user,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled}) {
     return _OpenCell(
         bind: source,
-        receptor: Receptor.pipeline(instruction: Instruction((Pulse pulse, {Cell? cell, dynamic user}) {
+        receptor: Receptor.pipeline(
+            instruction: Instruction((Pulse pulse, {Cell? cell, dynamic user}) {
           return perform(cell!, pulse, user: user);
-          }, user: user)),
+        }, user: user)),
         testRule: testRule,
-        synapses: synapses
-    );
+        synapses: synapses);
   }
 
   /// Injects a [Pulse] into the cell for processing and distribution,
@@ -2705,7 +2687,8 @@ abstract interface class OpenCell implements Cell {
 
   Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) async {
     final receptor = _nucleus.receptor;
-    return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+    return await receptor.async
+        .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
 
   /// Explicitly connects a downstream [Cell] to this node's egress stream,
@@ -2762,12 +2745,11 @@ abstract interface class OpenCell implements Cell {
   /// A new [OpenCell] instance acting as a restricted, context-aware
   /// proxy of the current cell.
   @override
-  OpenCell deputy({
-    covariant DeputyContext context = DeputyContext.system,
-    covariant TestCell testRule = TestCell.allowAll,
-    EphemeralPolicy? ephemeralPolicy,
-    Synapses synapses = Synapses.enabled
-  });
+  OpenCell deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestCell testRule = TestCell.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled});
 
   /// Provides the **Asynchronous Governance Interface** for this [OpenCell].
   ///
@@ -2786,7 +2768,4 @@ abstract interface class OpenCell implements Cell {
   /// non-blocking access to this cell's reactive capabilities.
   @override
   OpenCellAsync get async;
-
 }
-
-

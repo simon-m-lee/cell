@@ -117,10 +117,12 @@ void main() {
         expect(rec.payloads, [42]);
       });
 
-      test('debounce cancels a pending timer when the output is invalidated', () async {
+      test('debounce cancels a pending timer when the output is invalidated',
+          () async {
         final policy = EphemeralPolicy(
           duration: const Duration(milliseconds: 20),
-          onEvent: (object, {required cell, required policy, arguments, user}) =>
+          onEvent: (object,
+                  {required cell, required policy, arguments, user}) =>
               (events: 0),
           onInvalidate: (_) => true,
         );
@@ -145,7 +147,8 @@ void main() {
         expect(rec.payloads, [1]);
       });
 
-      test('debounce with leading true and zero duration emits immediately', () {
+      test('debounce with leading true and zero duration emits immediately',
+          () {
         final source = Cell.ingress<int>();
         final debounced = Cell.debounce(
           source.cell,

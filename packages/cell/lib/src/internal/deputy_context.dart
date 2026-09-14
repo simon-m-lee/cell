@@ -28,8 +28,7 @@ part of '../../cell.dart';
 /// - Static pillars (like `role`) prevent identity drift.
 ///
 /// See also: [DeputyContext], [Clearance], [Isolation], [Sovereignty].
-enum Mandate<V> with GovernanceMixin<Mandate<V>,V> implements Governance<V> {
-
+enum Mandate<V> with GovernanceMixin<Mandate<V>, V> implements Governance<V> {
   /// The specific **Functional Permission** or operational "Verb" authorized
   /// for this [Deputy].
   ///
@@ -343,7 +342,8 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>,V> implements Governance<V> {
   ///
   /// ### Returns:
   /// An iterable of [GovernanceEntry] for the provided dimensions.
-  static Iterable<GovernanceEntry> compose(GovernanceEntry? Function(Mandate dimension) resolver) {
+  static Iterable<GovernanceEntry> compose(
+      GovernanceEntry? Function(Mandate dimension) resolver) {
     final entries = values.map((g) => resolver(g)).where((en) => en != null);
     return entries.cast();
   }
@@ -380,20 +380,22 @@ enum Mandate<V> with GovernanceMixin<Mandate<V>,V> implements Governance<V> {
   ///
   /// ### Returns:
   /// An iterable of [GovernanceEntry] for the evolved dimensions.
-  static Iterable<GovernanceEntry> evolve(GovernanceEntry? Function(Mandate evolvable) resolver) {
-    final entries = values.where((g) => g.evolvable == true)
-        .map((g) => resolver(g)).where((en) => en != null);
+  static Iterable<GovernanceEntry> evolve(
+      GovernanceEntry? Function(Mandate evolvable) resolver) {
+    final entries = values
+        .where((g) => g.evolvable == true)
+        .map((g) => resolver(g))
+        .where((en) => en != null);
     return entries.cast();
   }
-
 }
 
 class _DeputyContextSystem implements DeputyContext {
-
   const _DeputyContextSystem();
 
   @override
-  DeputyContext evolve(GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others}) {
+  DeputyContext evolve(GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others}) {
     final entries = [...Ontology.evolve(resolver), ...Mandate.evolve(resolver)];
     return DeputyContext.fromEntries(entries, others: others);
   }
@@ -466,7 +468,6 @@ class _DeputyContextSystem implements DeputyContext {
 
   @override
   String? get type => null;
-  
 }
 
 /// Represents the **Formal Mandate** and declaration of intention for a [Deputy].
@@ -504,7 +505,6 @@ class _DeputyContextSystem implements DeputyContext {
 /// {@category Advanced}
 /// {@category Deputy Context}
 class DeputyContext extends ContextBase {
-
   /// The canonical system context for deputies, providing safe defaults.
   static const system = _DeputyContextSystem();
 
@@ -543,13 +543,14 @@ class DeputyContext extends ContextBase {
     Map<String, dynamic>? constraints,
     Map<String, dynamic>? others,
   }) : this.fromEntries(<GovernanceEntry>[
-    Mandate.authority.entry(authority),
-    if (role != null) Mandate.role.entry(role),
-    if (isolation != null) Mandate.isolation.entry(isolation),
-    if (clearance != Clearance.standard) Mandate.clearance.entry(clearance),
-    if (justification != null) Mandate.justification.entry(justification),
-    if (constraints != null) Mandate.constraints.entry(constraints),
-  ], others: others, parent: baseContext);
+          Mandate.authority.entry(authority),
+          if (role != null) Mandate.role.entry(role),
+          if (isolation != null) Mandate.isolation.entry(isolation),
+          if (clearance != Clearance.standard)
+            Mandate.clearance.entry(clearance),
+          if (justification != null) Mandate.justification.entry(justification),
+          if (constraints != null) Mandate.constraints.entry(constraints),
+        ], others: others, parent: baseContext);
 
   /// Synthesizes a **Delegated Governance Environment** from a collection of
   /// strongly-typed mandate entries.
@@ -1088,47 +1089,77 @@ class DeputyContext extends ContextBase {
   ///
   /// See also: [Mandate.evolve].
   @override
-  DeputyContext evolve(covariant GovernanceEntry? Function(Governance evolvable) resolver, {Map<String, dynamic>? others}) {
-    final entries = <GovernanceEntry>[...Ontology.evolve(resolver), ...Mandate.evolve(resolver)];
+  DeputyContext evolve(
+      covariant GovernanceEntry? Function(Governance evolvable) resolver,
+      {Map<String, dynamic>? others}) {
+    final entries = <GovernanceEntry>[
+      ...Ontology.evolve(resolver),
+      ...Mandate.evolve(resolver)
+    ];
     return DeputyContext.fromEntries(entries, others: others, parent: this);
   }
 
   String? get role => get<String?>(
-        () => _record.map[Mandate.role] ?? (_parent is DeputyContext ? (_parent as DeputyContext).role : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Mandate.role] ??
+            (_parent is DeputyContext ? (_parent as DeputyContext).role : null),
+        orElse: null,
+      );
 
   Isolation get isolation => get<Isolation>(
-        () => _record.map[Mandate.isolation] ?? (_parent is DeputyContext ? (_parent as DeputyContext).isolation : null),
-    orElse: Isolation.scoped,
-  );
+        () =>
+            _record.map[Mandate.isolation] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).isolation
+                : null),
+        orElse: Isolation.scoped,
+      );
 
   Sovereignty get sovereignty => get<Sovereignty>(
-        () => _record.map[Mandate.sovereignty] ?? (_parent is DeputyContext ? (_parent as DeputyContext).sovereignty : null),
-    orElse: Sovereignty.sovereign,
-  );
+        () =>
+            _record.map[Mandate.sovereignty] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).sovereignty
+                : null),
+        orElse: Sovereignty.sovereign,
+      );
 
   Clearance get clearance => get<Clearance>(
-        () => _record.map[Mandate.clearance] ?? (_parent is DeputyContext ? (_parent as DeputyContext).clearance : null),
-    orElse: Clearance.standard,
-  );
+        () =>
+            _record.map[Mandate.clearance] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).clearance
+                : null),
+        orElse: Clearance.standard,
+      );
 
   AuditLevel get auditLevel => get<AuditLevel>(
-        () => _record.map[Mandate.auditLevel] ?? (_parent is DeputyContext ? (_parent as DeputyContext).auditLevel : null),
-    orElse: AuditLevel.standard,
-  );
+        () =>
+            _record.map[Mandate.auditLevel] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).auditLevel
+                : null),
+        orElse: AuditLevel.standard,
+      );
 
   String? get justification => get<String?>(
-        () => _record.map[Mandate.justification] ?? (_parent is DeputyContext ? (_parent as DeputyContext).justification : null),
-    orElse: null,
-  );
+        () =>
+            _record.map[Mandate.justification] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).justification
+                : null),
+        orElse: null,
+      );
 
   @override
   Map<String, dynamic>? get constraints => get<Map<String, dynamic>?>(
-        () => _record.map[Mandate.constraints] ?? (_parent is DeputyContext ? (_parent as DeputyContext).constraints : null),
-    orElse: null,
-  );
-
+        () =>
+            _record.map[Mandate.constraints] ??
+            (_parent is DeputyContext
+                ? (_parent as DeputyContext).constraints
+                : null),
+        orElse: null,
+      );
 }
 
 /// Defines the **Sovereign Physical Laws** and structural boundaries of
@@ -1165,7 +1196,6 @@ class DeputyContext extends ContextBase {
 ///
 /// See also: [Mandate.clearance].
 enum Clearance {
-
   /// **Level 0: Observational (The Spectator)**
   /// The lowest tier. Allows for read-only access to public state and
   /// telemetry. This agent can perceive but cannot influence the state
@@ -1424,7 +1454,6 @@ enum AuditLevel {
   bool get isSilent => this == AuditLevel.none;
 }
 
-
 /// Defines the **Logical Pedigree** and algorithmic origin of a [Pulse].
 ///
 /// **Reasoning Strategy** allows the framework to categorize signals based on
@@ -1453,7 +1482,6 @@ enum AuditLevel {
 ///
 /// See also: [PulseContext.strategy].
 enum ReasoningStrategy {
-
   /// **Manual Intervention.**
   /// The pulse was initiated by a human actor via direct interaction. These
   /// pulses carry high subjective authority but are subject to human error.
@@ -1520,12 +1548,13 @@ enum ReasoningStrategy {
   /// system rule or immediate safety protocol.
   bool get isSystemMandated =>
       this == ReasoningStrategy.deterministic ||
-          this == ReasoningStrategy.reflexive;
+      this == ReasoningStrategy.reflexive;
 
   /// Returns `true` if the reasoning was produced by an external or
   /// non-deterministic agent (Human or AI).
   bool get isAgentic =>
-      this == ReasoningStrategy.manual || this == ReasoningStrategy.probabilistic;
+      this == ReasoningStrategy.manual ||
+      this == ReasoningStrategy.probabilistic;
 }
 
 /// Defines the **Semantic Urgency Tiers** for signal execution.
@@ -1677,5 +1706,4 @@ enum Sensitivity {
   /// Returns `true` if the data carries significant legal or security risk,
   /// requiring elevated [Clearance] for any mutation.
   bool get isHighRisk => index >= Sensitivity.restricted.index;
-
 }

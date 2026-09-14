@@ -195,9 +195,16 @@ class LoadingState<T> {
   final T? data;
   final String? error;
 
-  LoadingState.loading() : isLoading = true, data = null, error = null;
-  LoadingState.data(this.data) : isLoading = false, error = null;
-  LoadingState.error(this.error) : isLoading = false, data = null;
+  LoadingState.loading()
+      : isLoading = true,
+        data = null,
+        error = null;
+  LoadingState.data(this.data)
+      : isLoading = false,
+        error = null;
+  LoadingState.error(this.error)
+      : isLoading = false,
+        data = null;
 
   bool get hasData => data != null;
   bool get hasError => error != null;
@@ -217,7 +224,8 @@ class LoadingState<T> {
 
 /// The main demonstration function.
 Future<void> main() async {
-  print('── StartWith + Scan UI Demo ──────────────────────────────────────────────────\n');
+  print(
+      '── StartWith + Scan UI Demo ──────────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Shopping Cart Total (startWith + scan)
@@ -236,7 +244,7 @@ Future<void> main() async {
   // Step 2: scan accumulates items onto the cart state
   final cartTotal = ScanSeeded<CartItem, CartState>(
     CartState(items: [], total: 0),
-        (state, item) => state.addItem(item),
+    (state, item) => state.addItem(item),
   ).toHandle(source: withInitial.cell);
 
   final cartObserver = Cell.observe(
@@ -285,7 +293,7 @@ Future<void> main() async {
   // Step 3: build history using scan (seeded with initial history)
   final connHistory = ScanSeeded<ConnectionStatus, List<ConnectionStatus>>(
     [ConnectionStatus.disconnected],
-        (history, status) => [...history, status],
+    (history, status) => [...history, status],
   ).toHandle(source: connWithInitial.cell);
 
   // Collect history values for display
@@ -330,7 +338,9 @@ Future<void> main() async {
   // Get the final history from the collected values
   if (historyValues.isNotEmpty) {
     final finalHistory = historyValues.last;
-    final labels = finalHistory.map((s) => s.toString().split('.').last.toUpperCase()).toList();
+    final labels = finalHistory
+        .map((s) => s.toString().split('.').last.toUpperCase())
+        .toList();
     print('   [History] $labels');
   }
 
@@ -360,18 +370,18 @@ Future<void> main() async {
   // Step 3: build price history using scan (seeded with initial price)
   final priceHistory = ScanSeeded<PriceTick, List<double>>(
     [initialPrice],
-        (history, tick) => [...history, tick.price],
+    (history, tick) => [...history, tick.price],
   ).toHandle(source: priceWithInitial.cell);
 
   // Step 4: compute running average using map
   final runningAvg = MapValue<List<double>, double>(
-        (history) => history.reduce((a, b) => a + b) / history.length,
+    (history) => history.reduce((a, b) => a + b) / history.length,
   ).toHandle(source: priceHistory.cell);
 
   // Combine current price and average using combineLatest
   final combined = CombineLatestWith<PriceTick, Map<String, double>>(
     [runningAvg.cell],
-        (price, latest) {
+    (price, latest) {
       final avg = latest[0] as double? ?? initialPrice;
       return {'current': price.price, 'avg': avg};
     },
@@ -381,11 +391,13 @@ Future<void> main() async {
     source: combined.cell,
     effect: (Pulse p) {
       final data = p.payload as Map<String, double>;
-      print('   [UI] Current: \$${data['current']!.toStringAsFixed(2)} (avg: \$${data['avg']!.toStringAsFixed(2)})');
+      print(
+          '   [UI] Current: \$${data['current']!.toStringAsFixed(2)} (avg: \$${data['avg']!.toStringAsFixed(2)})');
     },
   );
 
-  print('   [UI] Initial: \$${initialPrice.toStringAsFixed(2)} (avg: \$${initialPrice.toStringAsFixed(2)})');
+  print(
+      '   [UI] Initial: \$${initialPrice.toStringAsFixed(2)} (avg: \$${initialPrice.toStringAsFixed(2)})');
 
   // Simulate price updates
   for (var i = 0; i < 3; i++) {
@@ -459,7 +471,7 @@ Future<void> main() async {
   // Step 2: scan accumulates items
   final cartState = ScanSeeded<CartItem, CartState>(
     CartState(items: [], total: 0),
-        (state, item) => state.addItem(item),
+    (state, item) => state.addItem(item),
   ).toHandle(source: cartWithInitial.cell);
 
   // Track discount separately
@@ -470,7 +482,7 @@ Future<void> main() async {
   // Combine cart and discount
   final cartWithDiscount = CombineLatestWith<CartState, String>(
     [discountState.cell],
-        (state, latest) {
+    (state, latest) {
       final discount = latest[0] as double? ?? 0.0;
       final discounted = state.discountedTotal;
       if (discount > 0) {
@@ -523,7 +535,7 @@ Future<void> main() async {
   // Step 2: scan accumulates messages
   final chatState = ScanSeeded<ChatMessage, Map<String, dynamic>>(
     {'count': 0, 'last': null as ChatMessage?},
-        (state, message) {
+    (state, message) {
       return {
         'count': state['count'] + 1,
         'last': message,
@@ -533,7 +545,7 @@ Future<void> main() async {
 
   // Format for display
   final chatDisplay = MapValue<Map<String, dynamic>, String>(
-        (state) {
+    (state) {
       final count = state['count'] as int;
       final last = state['last'] as ChatMessage?;
       if (last != null) {
@@ -583,19 +595,19 @@ Future<void> main() async {
   // Step 2: scan accumulates score
   final scoreState = ScanSeeded<int, int>(
     0,
-        (score, points) => score + points,
+    (score, points) => score + points,
   ).toHandle(source: scoreWithInitial.cell);
 
   // Step 3: track high score
   final highScore = ScanSeeded<int, int>(
     0,
-        (high, points) => points > high ? points : high,
+    (high, points) => points > high ? points : high,
   ).toHandle(source: scoreWithInitial.cell);
 
   // Combine both
   final scoreCombined = CombineLatestWith<int, Map<String, int>>(
     [highScore.cell],
-        (score, latest) {
+    (score, latest) {
       final high = latest[0] as int? ?? 0;
       return {'score': score, 'high': high};
     },
@@ -638,14 +650,16 @@ Future<void> main() async {
   ).toHandle(source: todoInput.cell);
 
   // Step 2: scan accumulates todos
-  final todoState = ScanSeeded<({String text, bool done}), List<({String text, bool done})>>(
+  final todoState =
+      ScanSeeded<({String text, bool done}), List<({String text, bool done})>>(
     [],
-        (todos, todo) => [...todos, todo],
+    (todos, todo) => [...todos, todo],
   ).toHandle(source: todoWithInitial.cell);
 
   // Step 3: compute stats
-  final todoStats = MapValue<List<({String text, bool done})>, Map<String, dynamic>>(
-        (todos) {
+  final todoStats =
+      MapValue<List<({String text, bool done})>, Map<String, dynamic>>(
+    (todos) {
       final total = todos.length;
       final done = todos.where((t) => t.done).length;
       final pending = total - done;
@@ -723,5 +737,6 @@ Future<void> main() async {
   ''');
 
   print('');
-  print('── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '── Finished ──────────────────────────────────────────────────────────────');
 }

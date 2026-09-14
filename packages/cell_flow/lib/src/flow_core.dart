@@ -70,8 +70,8 @@ part of '../cell_flow.dart';
 /// * [Instruction]: The underlying core interface from `package:cell`.
 /// {@category ICU Alarm Pipeline}
 /// {@category Pharmacy Dispense}
-abstract interface class FlowInstruction<C extends Cell, I extends Pulse, O extends Pulse> implements Instruction<C,I,O> {
-
+abstract interface class FlowInstruction<C extends Cell, I extends Pulse,
+    O extends Pulse> implements Instruction<C, I, O> {
   /// Synthesizes a synchronous **Logic Gate**—the primary mechanism for
   /// defining pulse evolution within the reactive topography.
   ///
@@ -110,7 +110,8 @@ abstract interface class FlowInstruction<C extends Cell, I extends Pulse, O exte
   /// );
   /// ```
   const factory FlowInstruction(
-      O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user}) = _FlowInstruction<C,I,O>;
+      O? Function(I pulse, {C? cell, dynamic user}) instruction,
+      {dynamic user}) = _FlowInstruction<C, I, O>;
 
   /// Creates an asynchronous [FlowInstruction].
   ///
@@ -118,16 +119,22 @@ abstract interface class FlowInstruction<C extends Cell, I extends Pulse, O exte
   /// deferred execution. It receives a `future` callback to register async results
   /// and a `token` to track specific stimuli.
   const factory FlowInstruction.future(
-      O? Function(I pulse, {C? cell, dynamic user,
-      void Function({required Pulse? result, required dynamic token})? future,
-      dynamic token
-      }) instruction, {dynamic user}) = _FlowInstruction<C,I,O>.future;
+      O? Function(I pulse,
+              {C? cell,
+              dynamic user,
+              void Function({required Pulse? result, required dynamic token})?
+                  future,
+              dynamic token})
+          instruction,
+      {dynamic user}) = _FlowInstruction<C, I, O>.future;
 
   /// Creates a composite instruction by chaining multiple [instructions] serially.
   ///
   /// This is the internal constructor used by the `+` operator.
-  const factory FlowInstruction.chain(Iterable<Instruction> instructions, {dynamic user,
-    O? Function(I pulse, {C? cell, dynamic user})? strategy}) = _FlowInstructionChain<C,I,O>;
+  const factory FlowInstruction.chain(Iterable<Instruction> instructions,
+          {dynamic user,
+          O? Function(I pulse, {C? cell, dynamic user})? strategy}) =
+      _FlowInstructionChain<C, I, O>;
 
   /// Custom metadata associated with this instruction for auditing, logging, or tracing.
   dynamic get user;
@@ -137,40 +144,42 @@ abstract interface class FlowInstruction<C extends Cell, I extends Pulse, O exte
   /// * [source]: The input cell providing pulses to this instruction.
   /// * [testRule]: An integrity gate (e.g., [TestCell.readOnly]) applied to the output cell.
   /// * [synapses]: The propagation strategy (e.g., [Synapses.enabled], [Synapses.disabled]).
-  FlowHandle<I> toHandle({Cell? source, TestCell testRule = TestCell.allowAll, Synapses synapses = Synapses.enabled});
+  FlowHandle<I> toHandle(
+      {Cell? source,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled});
 
   /// Chains this instruction with [other] to create a new serial composition.
   ///
   /// The resulting instruction will pass pulses through this one first, then through [other].
   @override
-  FlowInstruction<C,I,O> operator +(covariant FlowInstruction other);
-
+  FlowInstruction<C, I, O> operator +(covariant FlowInstruction other);
 }
 
-class _FlowInstruction<C extends Cell, I extends Pulse, O extends Pulse> extends FlowInstructionBase<C,I,O> {
-
+class _FlowInstruction<C extends Cell, I extends Pulse, O extends Pulse>
+    extends FlowInstructionBase<C, I, O> {
   const _FlowInstruction(super.instruction, {super.user}) : super();
 
-  const _FlowInstruction.future(super.future, {dynamic user})
-      : super.future();
+  const _FlowInstruction.future(super.future, {dynamic user}) : super.future();
 
   @override
-  FlowInstruction<C,I,O> operator +(covariant FlowInstruction other) {
-    return _FlowInstructionChain<C,I,O>([this, other]);
+  FlowInstruction<C, I, O> operator +(covariant FlowInstruction other) {
+    return _FlowInstructionChain<C, I, O>([this, other]);
   }
-
 }
 
-class _FlowInstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionChain<C,I,O> with FlowInstructionMixin<C,I,O> implements FlowInstruction<C,I,O> {
-
+class _FlowInstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
+    extends InstructionChain<C, I, O>
+    with FlowInstructionMixin<C, I, O>
+    implements FlowInstruction<C, I, O> {
   final dynamic _user;
 
-  const _FlowInstructionChain(super.instructions, {super.user,
-    super.strategy}) : _user = user, super();
+  const _FlowInstructionChain(super.instructions, {super.user, super.strategy})
+      : _user = user,
+        super();
 
   @override
   get user => _user;
-
 }
 
 /// The foundational implementation for creating custom reactive logic gates
@@ -208,11 +217,10 @@ class _FlowInstructionChain<C extends Cell, I extends Pulse, O extends Pulse> ex
 /// ### See Also
 /// * [FlowInstruction]: The public interface for logic gates.
 /// * [InstructionBase]: The core framework implementation from `package:cell`.
-abstract class FlowInstructionBase<C extends Cell, I extends Pulse, O extends Pulse>
-    extends InstructionBase<C,I,O>
-    with FlowInstructionMixin<C,I,O>
-    implements FlowInstruction<C,I,O> {
-
+abstract class FlowInstructionBase<C extends Cell, I extends Pulse,
+        O extends Pulse> extends InstructionBase<C, I, O>
+    with FlowInstructionMixin<C, I, O>
+    implements FlowInstruction<C, I, O> {
   final dynamic _user;
 
   /// Synthesizes a **Logic Gate Blueprint**—the foundational mechanism for
@@ -229,7 +237,9 @@ abstract class FlowInstructionBase<C extends Cell, I extends Pulse, O extends Pu
   ///
   /// ### Returns:
   /// A new [FlowInstructionBase] instance representing the stateless logic gate.
-  const FlowInstructionBase(super.instruction, {super.user}) : _user = user, super();
+  const FlowInstructionBase(super.instruction, {super.user})
+      : _user = user,
+        super();
 
   /// Synthesizes an **Asynchronous Logic Gate Blueprint**—the foundational
   /// mechanism for establishing deferred pulse evolution.
@@ -257,11 +267,11 @@ abstract class FlowInstructionBase<C extends Cell, I extends Pulse, O extends Pu
   /// ### Returns:
   /// A new [FlowInstructionBase] instance representing the asynchronous gate.
   const FlowInstructionBase.future(super.future, {super.user})
-      : _user = user, super.future();
+      : _user = user,
+        super.future();
 
   @override
   get user => _user;
-
 }
 
 /// Synthesizes a **Materialization Engine**—a specialized mixin designed to
@@ -296,8 +306,8 @@ abstract class FlowInstructionBase<C extends Cell, I extends Pulse, O extends Pu
 /// ### See Also
 /// * [FlowInstruction]: The abstract blueprint for reactive logic.
 /// * [FlowHandle]: The materialized interface for topographical ingress.
-mixin FlowInstructionMixin<C extends Cell, I extends Pulse, O extends Pulse> on Instruction<C,I,O> {
-
+mixin FlowInstructionMixin<C extends Cell, I extends Pulse, O extends Pulse>
+    on Instruction<C, I, O> {
   /// Materializes the blueprint into a live **Topographical Gateway**.
   ///
   /// This method performs the transition from a stateless instruction to
@@ -316,12 +326,17 @@ mixin FlowInstructionMixin<C extends Cell, I extends Pulse, O extends Pulse> on 
     Synapses synapses = Synapses.enabled,
   }) {
     final receptor = Receptor.instruction(this);
-    final nucleus = Nucleus(bind: source, testRule: testRule, synapses: synapses, receptor: receptor);
+    final nucleus = Nucleus(
+        bind: source,
+        testRule: testRule,
+        synapses: synapses,
+        receptor: receptor);
     final cell = Cell.fromNucleus(nucleus);
 
-    bool emit(dynamic input) => receptor.call(Pulse(input, source: cell)) != null;
+    bool emit(dynamic input) =>
+        receptor.call(Pulse(input, source: cell)) != null;
 
-    Future<bool> emitAsync(dynamic input)  async {
+    Future<bool> emitAsync(dynamic input) async {
       final lock = nucleus.lock;
       if (lock != null) {
         return lock.synchronized(() => emit(input)).then((value) => value);
@@ -330,15 +345,16 @@ mixin FlowInstructionMixin<C extends Cell, I extends Pulse, O extends Pulse> on 
     }
 
     Future<void> ingest(Pulse pulse, {bool serializedCompletion = true}) async {
-      return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+      return await receptor.async
+          .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
     }
 
     return (cell: cell, emit: emit, emitAsync: emitAsync, ingest: ingest);
   }
 
   @override
-  FlowInstruction<C,I,O> operator +(covariant FlowInstruction other) {
-    return _FlowInstructionChain<C,I,O>([this, other]);
+  FlowInstruction<C, I, O> operator +(covariant FlowInstruction other) {
+    return _FlowInstructionChain<C, I, O>([this, other]);
   }
 }
 
@@ -369,7 +385,6 @@ mixin FlowInstructionMixin<C extends Cell, I extends Pulse, O extends Pulse> on 
 ///   preservation of complex **Provenance** data, such as trace IDs,
 ///   priorities, and justification metadata.
 typedef FlowHandle<I> = ({
-
   /// The **Anchor Node** within the topography.
   ///
   /// This cell represents the live location of the materialized instruction
@@ -503,5 +518,4 @@ typedef FlowHandle<I> = ({
   /// * [Pulse]: The container for payload and topographical metadata.
   /// * [emit]: For standard, low-overhead payload injection.
   Future<void> Function(Pulse<I> pulse, {bool serializedCompletion}) ingest
-
 });

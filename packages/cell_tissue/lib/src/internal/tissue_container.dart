@@ -42,7 +42,6 @@ part of '../../cell_tissue.dart';
 /// * [I]: The type of the underlying storage this `_Container` is configured for
 ///   (e.g., `List<E>`, `Set<E>`, `ValueContainer<E>`).
 class _Container implements Container {
-
   /// The function responsible for creating/initializing the underlying store.
   ///
   /// Expected signature: `I Function<E>([dynamic initialization])`
@@ -78,11 +77,13 @@ class _Container implements Container {
   ///   `true` if the element was successfully added.
   /// - `remove`: The element removal function (assigned to `_remove`). Should
   ///   return `true` if the element was successfully removed.
-  const _Container({
-    required Function create,
-    required Function add,
-    required Function remove
-  }) : _init = create, _add = add, _remove = remove;
+  const _Container(
+      {required Function create,
+      required Function add,
+      required Function remove})
+      : _init = create,
+        _add = add,
+        _remove = remove;
 
   /// Creates a [TissueContainer] of type `<E,I>` using this `_Container`
   /// instance as its behavioral strategy.
@@ -111,8 +112,9 @@ class _Container implements Container {
   ///
   /// ### Returns:
   /// A new [TissueContainer<E,I>] configured with this `_Container`'s behavior.
-  TissueContainer<E,I> create<E,I extends Iterable<E>>({Iterable<E>? elements}) {
-    final container = TissueContainer<E,I>._(this);
+  TissueContainer<E, I> create<E, I extends Iterable<E>>(
+      {Iterable<E>? elements}) {
+    final container = TissueContainer<E, I>._(this);
     if (elements != null) {
       container.init(elements);
     }
@@ -203,6 +205,6 @@ class _Container implements Container {
   /// ### Returns:
   /// `true` if the element was removed from the transient store; `false` otherwise.
   @override
-  bool remove(covariant Tissue tissue, covariant e) => _remove(tissue, _init(), e);
-
+  bool remove(covariant Tissue tissue, covariant e) =>
+      _remove(tissue, _init(), e);
 }

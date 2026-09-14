@@ -316,7 +316,7 @@ abstract final class _robot {
 /// - Invalid values are rejected BEFORE entering the system
 /// - Creates a clean security boundary
 final TestCell ndcLike = TestCell<Cell>(
-      (value, {host, arguments, user}) {
+  (value, {host, arguments, user}) {
     final s = value is Pulse ? value.payload : value;
     if (s is! String) return true;
     final trimmed = s.trim();
@@ -336,7 +336,7 @@ final TestCell ndcLike = TestCell<Cell>(
 /// - Negative values would indicate a data corruption or system error
 /// - Blocking these prevents cascading failures
 final TestCell stockIntegrity = TestCell<Cell>(
-      (value, {host, arguments, user}) {
+  (value, {host, arguments, user}) {
     final n = value is Pulse ? value.payload : value;
     if (n is! int) return true;
     if (n < 0) {
@@ -359,7 +359,8 @@ final gun = Cell.ingress<String>(testRule: ndcLike, refine: (h, i) => i);
 /// Stock ingress with TestCell protection.
 ///
 /// Accepts integer inputs that are >= 0.
-final stockIn = Cell.ingress<int>(testRule: stockIntegrity, refine: (h, i) => i);
+final stockIn =
+    Cell.ingress<int>(testRule: stockIntegrity, refine: (h, i) => i);
 
 /// Patient state cell.
 ///
@@ -567,17 +568,16 @@ Future<void> dispenseMemory(String code) async {
     print('  │ 📝  Staged → Stock: ${onHand - 1}  |  Label: true');
 
     await tx.commit();
-    print('  │ ✅  COMMITTED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
+    print(
+        '  │ ✅  COMMITTED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
     print('  ${'─' * 70}');
 
     log('TX', '$code stock=${stock.cell.value} patient=${patient.cell.value}');
-
   } on TransactionConflictException catch (e) {
     print('  │ ❌  CONFLICT: $e');
     print('  ${'─' * 70}');
     log('CONFLICT', '$code $e');
     throw StateError('Shelf conflict — another transaction changed stock');
-
   } catch (e) {
     print('  │ ❌  TRANSACTION FAILED: $e');
     print('  ${'─' * 70}');
@@ -611,7 +611,8 @@ Future<void> restorePack(String reason) async {
   tx.update(label.cell, false);
 
   await tx.commit();
-  print('  │ ✅  RESTORED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
+  print(
+      '  │ ✅  RESTORED → Stock: ${stock.cell.value}  |  Label: ${label.cell.value}');
   print('  ${'─' * 70}');
 
   log('COMPENSATE', reason);
@@ -640,7 +641,6 @@ Future<void> openDrawer(String bin) async {
     await tx.begin([drawer.cell]);
     tx.update(drawer.cell, bin);
     await tx.commit();
-
   } catch (e) {
     if (motorOpened) {
       print('  🔄 Compensating: Closing drawer...');
@@ -707,7 +707,6 @@ Future<void> fullDispense(String code) async {
     log('OK', code);
     print('│ ✅  DISPENSE COMPLETE!');
     await closeDrawer();
-
   } catch (e) {
     print('│ ❌  DISPENSE FAILED: $e');
     log('FAIL', '$code $e');
@@ -719,7 +718,6 @@ Future<void> fullDispense(String code) async {
     try {
       await closeDrawer();
     } catch (_) {}
-
   } finally {
     print('─' * 70);
     armNextPack();
@@ -780,7 +778,8 @@ void scan(String raw) {
 Future<void> lastPackSameSnapshot() async {
   print('');
   print('═' * 70);
-  print('║  📋 SCENARIO 8: Same-snapshot last pack (repeatable-read conflict)║');
+  print(
+      '║  📋 SCENARIO 8: Same-snapshot last pack (repeatable-read conflict)║');
   print('║  ${'─' * 68}║');
   print('║  Expected: First commit succeeds, second throws conflict         ║');
   print('═' * 70);
@@ -813,8 +812,10 @@ Future<void> lastPackSameSnapshot() async {
 
   try {
     await b.commit();
-    log('NO-CONFLICT', 'B committed the same snapshot — isolation did not reject');
-    print('  ⚠️  B committed too — Cell did not throw TransactionConflictException');
+    log('NO-CONFLICT',
+        'B committed the same snapshot — isolation did not reject');
+    print(
+        '  ⚠️  B committed too — Cell did not throw TransactionConflictException');
   } on TransactionConflictException catch (e) {
     log('CONFLICT', '$e');
     print('  ✅ B TransactionConflictException — commit-time isolation works!');
@@ -866,8 +867,8 @@ Future<void> main() async {
   printScenarioComplete('Dispense successful');
 
   // ── SCENARIO 2 ──────────────────────────────────────────────────
-  printScenarioHeader('2', 'Invalid code',
-      'Code rejected by Filter (doesn\'t start with NDC)');
+  printScenarioHeader(
+      '2', 'Invalid code', 'Code rejected by Filter (doesn\'t start with NDC)');
   scan('invalid-code');
   await Future<void>.delayed(const Duration(milliseconds: 150));
   printScenarioComplete('Invalid code rejected');
@@ -880,8 +881,8 @@ Future<void> main() async {
   printScenarioComplete('Empty input rejected');
 
   // ── SCENARIO 4 ──────────────────────────────────────────────────
-  printScenarioHeader('4', 'Jam + compensate',
-      'Printer jams → compensate → stock restored');
+  printScenarioHeader(
+      '4', 'Jam + compensate', 'Printer jams → compensate → stock restored');
   _robot.jamNextPrint = true;
   scan('NDC-JAM');
   await Future<void>.delayed(const Duration(milliseconds: 400));
@@ -906,8 +907,8 @@ Future<void> main() async {
   printScenarioComplete('Stock drained, out-of-stock handled');
 
   // ── SCENARIO 6 ──────────────────────────────────────────────────
-  printScenarioHeader('6', 'stockIn.emit(-1)',
-      'TestCell blocks negative stock value');
+  printScenarioHeader(
+      '6', 'stockIn.emit(-1)', 'TestCell blocks negative stock value');
   final ok = stockIn.emit(-1);
   print('  emit(-1) accepted=$ok stock=${stock.cell.value}');
   printScenarioComplete('TestCell blocked negative value');

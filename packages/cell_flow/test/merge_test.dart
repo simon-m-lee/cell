@@ -33,7 +33,6 @@ class _Probe {
   }
 }
 
-
 ({IngressHandle<T> gate, FlowHandle<T> out, _Probe probe}) bind<T>(
   FlowInstructionBase<Cell, Pulse, Pulse> op,
 ) {
@@ -140,14 +139,16 @@ void main() {
       addTearDown(probe.stop);
       await gate.emitAsync(Stream.fromFutures([
         Future.value('slow-a'),
-        Future<String>.delayed(const Duration(milliseconds: 40), () => 'slow-b'),
+        Future<String>.delayed(
+            const Duration(milliseconds: 40), () => 'slow-b'),
       ]));
       await gate.emitAsync(Stream.fromFutures([
         Future.value('fast'),
       ]));
       await probe.settle(const Duration(milliseconds: 70));
       expect(probe.payloads, containsAll(['slow-a', 'fast', 'slow-b']));
-      expect(probe.payloads.indexOf('fast'), lessThan(probe.payloads.indexOf('slow-b')));
+      expect(probe.payloads.indexOf('fast'),
+          lessThan(probe.payloads.indexOf('slow-b')));
     });
 
     test('inner exceptions call onError', () async {
@@ -167,7 +168,6 @@ void main() {
       expect(errors.single, isA<StateError>());
     });
   });
-
 
   group('MergeWith extra', () {
     test('forwardSource false keeps only others', () async {
@@ -293,5 +293,4 @@ void main() {
       expect(b.out.cell, isNotNull);
     });
   });
-
 }

@@ -590,7 +590,8 @@ void main() {
 
     group('Cell.fromStream', () {
       test('fromStream emits stream values', () async {
-        final rec = Recorder(Cell.fromStream(Stream<int>.fromIterable([1, 2, 3])));
+        final rec =
+            Recorder(Cell.fromStream(Stream<int>.fromIterable([1, 2, 3])));
         await delay(20);
         expect(rec.payloads, [1, 2, 3]);
       });
@@ -677,8 +678,7 @@ void main() {
       });
 
       test('fromStream with derived transforms values', () async {
-        final streamCell =
-            Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]));
+        final streamCell = Cell.fromStream(Stream<int>.fromIterable([1, 2, 3]));
         final derived = Cell.derive(
           source: streamCell,
           project: (Pulse pulse) => Pulse('Value: ${pulse.payload}'),

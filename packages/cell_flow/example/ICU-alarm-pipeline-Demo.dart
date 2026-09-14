@@ -406,7 +406,7 @@ Future<void> setMoving(bool v) async {
 FlowInstruction<Cell, Pulse<Reading>, Pulse<Severity>> buildAlarmGate() {
   // Stage 1: Reading → Severity
   final toSeverity = FlowInstruction<Cell, Pulse<Reading>, Pulse<Severity>>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final reading = pulse.payload;
       if (reading == null) return null;
       // Motion artifact suppresses all alarms
@@ -428,7 +428,7 @@ FlowInstruction<Cell, Pulse<Reading>, Pulse<Severity>> buildAlarmGate() {
   bool _hasValue = false;
 
   final distinct = FlowInstruction<Cell, Pulse<Severity>, Pulse<Severity>>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       final current = pulse.payload;
       if (current == null) return null;
       if (!_hasValue) {
@@ -446,7 +446,7 @@ FlowInstruction<Cell, Pulse<Reading>, Pulse<Severity>> buildAlarmGate() {
 
   // Stage 3: Filter - only PAGE passes
   final filterPage = FlowInstruction<Cell, Pulse<Severity>, Pulse<Severity>>(
-        (pulse, {cell, user}) {
+    (pulse, {cell, user}) {
       return pulse.payload == Severity.page ? pulse : null;
     },
   );
@@ -492,7 +492,7 @@ void setupAndStartObservers() {
 
   // Create the pager pipeline (AsyncMap for async I/O)
   pages = AsyncMap<Severity, String>(
-        (severity) async {
+    (severity) async {
       await Future<void>.delayed(const Duration(milliseconds: 80));
       return 'ICU-12: Desaturation/HR alert!';
     },

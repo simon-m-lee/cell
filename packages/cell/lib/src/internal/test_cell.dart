@@ -57,7 +57,6 @@ part of '../../cell.dart';
 /// * [TestCell.allowAll] – the canonical constant.
 /// * [TestCell.readOnly] – the opposite, blocking all mutations.
 class TestPasses extends TestCell<Never> {
-
   /// Creates a constant, immutable instance of the permissive rule.
   ///
   /// This constructor is typically used internally to define [TestCell.allowAll].
@@ -70,10 +69,13 @@ class TestPasses extends TestCell<Never> {
   FutureOr<bool> call(object, {covariant Cell? host, arguments}) => true;
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments}) {
     final elements = [
-      if (arguments?.positionalArguments != null) ...arguments!.positionalArguments!,
-      if (arguments?.namedArguments != null) ...arguments!.namedArguments!.values,
+      if (arguments?.positionalArguments != null)
+        ...arguments!.positionalArguments!,
+      if (arguments?.namedArguments != null)
+        ...arguments!.namedArguments!.values,
     ];
     _checkArguments(elements, 0, host, action);
     return _checkActionRules(action, host, arguments);
@@ -93,34 +95,38 @@ class TestPasses extends TestCell<Never> {
   }
 
   @override
-  FutureOr<bool> _checkActionRules(Function action, Cell host, Arguments? arguments) {
+  FutureOr<bool> _checkActionRules(
+      Function action, Cell host, Arguments? arguments) {
     return true;
   }
 
   @override
-  FutureOr<bool> _checkArguments(List<dynamic> elements, int index, Cell host, Function action) {
+  FutureOr<bool> _checkArguments(
+      List<dynamic> elements, int index, Cell host, Function action) {
     return true;
   }
-
 }
 
 class _TestCellReadOnly extends TestCell<Never> {
-
   const _TestCellReadOnly() : super.fromRecord(());
 
   @override
   TestCell<Never> operator +(covariant TestRule<Cell> other) {
-    return TestCell<Never>((object, {Cell? host, dynamic arguments, dynamic user}) {
+    return TestCell<Never>((object,
+        {Cell? host, dynamic arguments, dynamic user}) {
       return other.call(object, host: host, arguments: arguments);
     });
   }
 
   @override
-  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments}) {
     if (host.modifiable.contains(action)) return false;
     final elements = [
-      if (arguments?.positionalArguments != null) ...arguments!.positionalArguments!,
-      if (arguments?.namedArguments != null) ...arguments!.namedArguments!.values,
+      if (arguments?.positionalArguments != null)
+        ...arguments!.positionalArguments!,
+      if (arguments?.namedArguments != null)
+        ...arguments!.namedArguments!.values,
     ];
     _checkArguments(elements, 0, host, action);
     return _checkActionRules(action, host, arguments);
@@ -145,13 +151,14 @@ class _TestCellReadOnly extends TestCell<Never> {
   }
 
   @override
-  FutureOr<bool> _checkActionRules(Function action, Cell host, Arguments? arguments) {
+  FutureOr<bool> _checkActionRules(
+      Function action, Cell host, Arguments? arguments) {
     return true;
   }
 
   @override
-  FutureOr<bool> _checkArguments(List<dynamic> elements, int index, Cell host, Function action) {
+  FutureOr<bool> _checkArguments(
+      List<dynamic> elements, int index, Cell host, Function action) {
     return true;
   }
-
 }

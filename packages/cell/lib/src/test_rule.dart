@@ -16,7 +16,10 @@ import '../cell.dart';
 /// Contains:
 /// - positionalArguments: List of positional arguments
 /// - namedArguments: Map of named arguments (using Symbols as keys)
-typedef Arguments = ({List? positionalArguments, Map<Symbol, dynamic>? namedArguments});
+typedef Arguments = ({
+  List? positionalArguments,
+  Map<Symbol, dynamic>? namedArguments
+});
 
 /// A fundamental architectural component representing an **Integrity Gate** or
 /// **Validation Guard**, responsible for enforcing structural and business
@@ -95,7 +98,6 @@ typedef Arguments = ({List? positionalArguments, Map<Symbol, dynamic>? namedArgu
 ///
 /// {@category Testing & Validation}
 class TestRule<C> {
-
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
   final _record;
 
@@ -105,15 +107,16 @@ class TestRule<C> {
   }
 
   /// The next rule in the validation chain, evaluated if this rule passes.
-  TestRule<C>? get _parent => get<TestRule<C>?>(() => _record.parent, orElse: null);
+  TestRule<C>? get _parent =>
+      get<TestRule<C>?>(() => _record.parent, orElse: null);
 
   /// Optional user-defined data that can be accessed within the `_rule`
   dynamic get _user => get<dynamic>(() => _record.user, orElse: null);
 
   /// The collection of rules managed by this object.
   Iterable<TestRule<C>> get _rules =>
-      get<Iterable<TestRule<C>>>(
-              () => _record.rules, orElse: const Iterable.empty());
+      get<Iterable<TestRule<C>>>(() => _record.rules,
+          orElse: const Iterable.empty());
 
   /// Synthesizes a new [TestRule] instance to encapsulate a specific
   /// **Validation Predicate**.
@@ -190,15 +193,19 @@ class TestRule<C> {
   ///   facilitating **Chain of Responsibility** composition.
   /// - [user]: Optional metadata or configuration data passed back to
   ///   the [rule] during execution.
-  const TestRule(FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
-    TestRule<C>? parent, dynamic user
-  }) : _record = parent != null
-      ? user != null
-          ? (rule: rule, parent: parent, user: user)
-          : (rule: rule, parent: parent)
-      : user != null
-          ? (rule: rule, user: user)
-          : (rule: rule);
+  const TestRule(
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})
+          rule,
+      {TestRule<C>? parent,
+      dynamic user})
+      : _record = parent != null
+            ? user != null
+                ? (rule: rule, parent: parent, user: user)
+                : (rule: rule, parent: parent)
+            : user != null
+                ? (rule: rule, user: user)
+                : (rule: rule);
 
   /// Synthesizes a **Composite Validation Pipeline** from a collection of rules.
   ///
@@ -273,12 +280,21 @@ class TestRule<C> {
   /// - [user]: Optional metadata or configuration data passed to the [strategy].
   /// - [strategy]: An optional validation function that overrides the
   ///   default sequential execution of the [rules] collection.
-  const TestRule.chain(Iterable<TestRule<C>> rules, {
-    TestRule<C>? parent, dynamic user,
-    FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
-  }) : _record = strategy != null ? parent != null ? user != null
-      ? (rule: strategy, parent: parent, user: user) : (rule: strategy, parent: parent) : (rule: strategy)
-      : parent != null ? (rules: rules, parent: parent) : (rules: rules);
+  const TestRule.chain(Iterable<TestRule<C>> rules,
+      {TestRule<C>? parent,
+      dynamic user,
+      FutureOr<bool> Function(dynamic object,
+              {C? host, dynamic arguments, dynamic user})?
+          strategy})
+      : _record = strategy != null
+            ? parent != null
+                ? user != null
+                    ? (rule: strategy, parent: parent, user: user)
+                    : (rule: strategy, parent: parent)
+                : (rule: strategy)
+            : parent != null
+                ? (rules: rules, parent: parent)
+                : (rules: rules);
 
   /// Reconstitutes a [TestRule] from a raw **Flyweight Record**, facilitating
   /// the restoration of validation logic from a compressed state.
@@ -486,7 +502,8 @@ class TestRule<C> {
       } on Exception {
         rethrow;
       }
-    } else { // Handle Composite Chain
+    } else {
+      // Handle Composite Chain
       final rules = _rules;
       if (rules.isNotEmpty) {
         result = _evaluateChain(rules, 0, object, host, arguments);
@@ -508,7 +525,6 @@ class TestRule<C> {
 
     // Handle Hierarchical Delegation
     return _parent?.call(object, host: host, arguments: arguments) ?? true;
-
   }
 
   /// Internal helper to process the chain while preserving FutureOr semantics.
@@ -516,7 +532,8 @@ class TestRule<C> {
       dynamic object, dynamic host, dynamic arguments) {
     for (var i = index; i < rules.length; i++) {
       try {
-        final result = rules.elementAt(i).call(object, host: host, arguments: arguments);
+        final result =
+            rules.elementAt(i).call(object, host: host, arguments: arguments);
 
         if (result is Future<bool>) {
           // Switch to Async mode for the remainder of the chain
@@ -612,5 +629,4 @@ class TestRule<C> {
         other.runtimeType == runtimeType &&
         other._record == _record;
   }
-
 }

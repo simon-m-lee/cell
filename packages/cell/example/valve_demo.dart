@@ -27,7 +27,8 @@ class SystemEvent {
   }) : timestamp = timestamp ?? DateTime.now();
 
   @override
-  String toString() => '[${category.toUpperCase()}] $message (priority: $priority)';
+  String toString() =>
+      '[${category.toUpperCase()}] $message (priority: $priority)';
 }
 
 /// Represents a user action.
@@ -83,12 +84,12 @@ class GateState {
 
 /// Creates a valve cell using Cell.fromNucleus with a custom receptor.
 Cell createValve<P>(
-    bool Function(P pulse) gate, {
-      required Cell source,
-      Synapses synapses = Synapses.enabled,
-    }) {
+  bool Function(P pulse) gate, {
+  required Cell source,
+  Synapses synapses = Synapses.enabled,
+}) {
   final receptor = Receptor(
-        (cell, pulse, {user}) {
+    (cell, pulse, {user}) {
       final payload = pulse.payload as P;
       final passes = gate(payload);
 
@@ -196,7 +197,7 @@ Future<void> main() async {
   final eventSource = Cell.ingress<SystemEvent>();
 
   final highPriorityValve = createValve<SystemEvent>(
-        (event) => event.priority >= 80,
+    (event) => event.priority >= 80,
     source: eventSource.cell,
   );
 
@@ -209,11 +210,24 @@ Future<void> main() async {
   );
 
   final events = [
-    SystemEvent(id: '1', category: 'critical', priority: 95, message: 'System failure detected'),
-    SystemEvent(id: '2', category: 'warning', priority: 80, message: 'Memory usage high'),
-    SystemEvent(id: '3', category: 'info', priority: 30, message: 'User logged in'),
+    SystemEvent(
+        id: '1',
+        category: 'critical',
+        priority: 95,
+        message: 'System failure detected'),
+    SystemEvent(
+        id: '2',
+        category: 'warning',
+        priority: 80,
+        message: 'Memory usage high'),
+    SystemEvent(
+        id: '3', category: 'info', priority: 30, message: 'User logged in'),
     SystemEvent(id: '4', category: 'debug', priority: 10, message: 'Cache hit'),
-    SystemEvent(id: '5', category: 'info', priority: 40, message: 'Background task completed'),
+    SystemEvent(
+        id: '5',
+        category: 'info',
+        priority: 40,
+        message: 'Background task completed'),
   ];
 
   for (final event in events) {
@@ -234,7 +248,7 @@ Future<void> main() async {
   final actionSource = Cell.ingress<UserAction>();
 
   final adminOnlyValve = createValve<UserAction>(
-        (action) => action.userId.startsWith('admin'),
+    (action) => action.userId.startsWith('admin'),
     source: actionSource.cell,
   );
 
@@ -273,7 +287,7 @@ Future<void> main() async {
   final apiSource = Cell.ingress<String>();
 
   final rateLimitValve = createValve<String>(
-        (call) {
+    (call) {
       final now = DateTime.now();
       if (now.difference(rateState.windowStart) > Duration(seconds: 1)) {
         rateState.count = 0;
@@ -320,7 +334,7 @@ Future<void> main() async {
   final dataSource = Cell.ingress<DataPacket>();
 
   final publicOnlyValve = createValve<DataPacket>(
-        (packet) => packet.sensitivity == Sensitivity.public,
+    (packet) => packet.sensitivity == Sensitivity.public,
     source: dataSource.cell,
   );
 
@@ -333,10 +347,20 @@ Future<void> main() async {
   );
 
   final packets = [
-    DataPacket(id: 'PII-001', payload: 'johndoe@email.com', sensitivity: Sensitivity.confidential),
-    DataPacket(id: 'PUB-001', payload: 'Hello World', sensitivity: Sensitivity.public),
-    DataPacket(id: 'SEC-001', payload: 'Secret API Key', sensitivity: Sensitivity.restricted),
-    DataPacket(id: 'PUB-002', payload: 'Public announcement', sensitivity: Sensitivity.public),
+    DataPacket(
+        id: 'PII-001',
+        payload: 'johndoe@email.com',
+        sensitivity: Sensitivity.confidential),
+    DataPacket(
+        id: 'PUB-001', payload: 'Hello World', sensitivity: Sensitivity.public),
+    DataPacket(
+        id: 'SEC-001',
+        payload: 'Secret API Key',
+        sensitivity: Sensitivity.restricted),
+    DataPacket(
+        id: 'PUB-002',
+        payload: 'Public announcement',
+        sensitivity: Sensitivity.public),
   ];
 
   for (final packet in packets) {
@@ -359,7 +383,7 @@ Future<void> main() async {
   final messageSource = Cell.ingress<String>();
 
   final gateValve = createValve<String>(
-        (_) => gateState.isOpen,
+    (_) => gateState.isOpen,
     source: messageSource.cell,
   );
 

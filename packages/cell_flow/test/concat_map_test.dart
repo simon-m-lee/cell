@@ -261,7 +261,6 @@ void main() {
     });
   });
 
-
   group('ConcatMap extra', () {
     test('onError is optional when mapper throws', () async {
       final b = bind(ConcatMap<int, int>((n) => throw StateError('m')));

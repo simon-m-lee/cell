@@ -116,8 +116,6 @@
 /// ```
 library;
 
-
-
 import 'dart:async';
 
 import 'package:cell_flow/cell_flow.dart';
@@ -378,7 +376,8 @@ void _fanIn<T>(List<Cell> sources, IngressHandle<T> bus) {
 /// 7. **Type-Aware Transformation** - Handles different types in one stream
 /// 8. **Real-Time Dashboard** - Aggregates events for dashboard updates
 Future<void> main() async {
-  print('── Stream Merging Demo ──────────────────────────────────────────────────────\n');
+  print(
+      '── Stream Merging Demo ──────────────────────────────────────────────────────\n');
 
   // ========================================================================
   // 1. Basic Merge - Two Sources
@@ -520,7 +519,8 @@ Future<void> main() async {
     source: bus4.cell,
     effect: (Pulse p) {
       final e = p.payload as SensorReadingEvent;
-      print('   [${e.sensorId}] ${e.sensorType}: ${e.value.toStringAsFixed(1)}');
+      print(
+          '   [${e.sensorId}] ${e.sensorType}: ${e.value.toStringAsFixed(1)}');
     },
   );
 
@@ -698,5 +698,6 @@ Future<void> main() async {
 
   obs8.stop();
 
-  print('\n── Finished ──────────────────────────────────────────────────────────────');
+  print(
+      '\n── Finished ──────────────────────────────────────────────────────────────');
 }

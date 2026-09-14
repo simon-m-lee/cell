@@ -58,7 +58,6 @@ part of '../cell_flow.dart';
 /// * [FlowOperators]: Extensions for continuing evolution from a handle.
 /// * [FlowHandle]: The materialized interface for topographical ingress.
 extension CellFlowOperators on Cell {
-
   /// Synthesizes a **Fixed Sequence Bridge** from a provided collection.
   ///
   /// This operator initiates a topography branch that immediately evolves
@@ -980,7 +979,8 @@ extension FlowOperators on FlowHandle {
     bool leading = true,
     bool trailing = false,
   }) =>
-      Flow.throttle<S>(_src, duration: duration, leading: leading, trailing: trailing);
+      Flow.throttle<S>(_src,
+          duration: duration, leading: leading, trailing: trailing);
 
   /// Materializes a **Boundary Sampling Gate**—an instruction that evolves
   /// the latest stimulus from the source only when the [notifier] cell pulses.
@@ -1238,5 +1238,4 @@ extension FlowOperators on FlowHandle {
     TapErrorHandler? onError,
   }) =>
       Flow.tapWithIndex<S>(_src, onValue: onValue, onError: onError);
-
 }

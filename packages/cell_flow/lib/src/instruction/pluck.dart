@@ -233,26 +233,26 @@ class Pluck<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PluckAll]: For extracting multiple fields.
   /// - [PluckPath]: For extracting nested fields.
   Pluck(
-      Object key, {
-        PluckErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      try {
-        final value = _read(pulse.payload, key);
-        if (value is! T) {
-          throw FormatException(
-            'Expected plucked $key of type $T, got ${value.runtimeType}',
-          );
-        }
-        return _out<T>(value, pulse, cell, 'Pluck');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+    Object key, {
+    PluckErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            try {
+              final value = _read(pulse.payload, key);
+              if (value is! T) {
+                throw FormatException(
+                  'Expected plucked $key of type $T, got ${value.runtimeType}',
+                );
+              }
+              return _out<T>(value, pulse, cell, 'Pluck');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return null;
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -374,25 +374,25 @@ class PluckOr<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PluckAll]: For extracting multiple fields.
   /// - [PluckPath]: For extracting nested fields.
   PluckOr(
-      Object key, {
-        required T orElse,
-        PluckErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      try {
-        final value = _read(pulse.payload, key);
-        if (value is T) {
-          return _out<T>(value, pulse, cell, 'PluckOr');
-        }
-        return _out<T>(orElse, pulse, cell, 'PluckOr.orElse');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return _out<T>(orElse, pulse, cell, 'PluckOr.orElse');
-      }
-    },
-    user: user,
-  );
+    Object key, {
+    required T orElse,
+    PluckErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            try {
+              final value = _read(pulse.payload, key);
+              if (value is T) {
+                return _out<T>(value, pulse, cell, 'PluckOr');
+              }
+              return _out<T>(orElse, pulse, cell, 'PluckOr.orElse');
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              return _out<T>(orElse, pulse, cell, 'PluckOr.orElse');
+            }
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -521,34 +521,34 @@ class PluckAll extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PluckOr]: For single field extraction with default.
   /// - [PluckPath]: For nested field extraction.
   PluckAll(
-      Iterable<Object> keys, {
-        Object? orElse,
-        bool useOrElse = false,
-        PluckErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      final out = <Object, Object?>{};
-      try {
-        for (final key in keys) {
-          try {
-            out[key] = _read(pulse.payload, key);
-          } catch (e, stack) {
-            if (useOrElse) {
-              out[key] = orElse;
-            } else {
+    Iterable<Object> keys, {
+    Object? orElse,
+    bool useOrElse = false,
+    PluckErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            final out = <Object, Object?>{};
+            try {
+              for (final key in keys) {
+                try {
+                  out[key] = _read(pulse.payload, key);
+                } catch (e, stack) {
+                  if (useOrElse) {
+                    out[key] = orElse;
+                  } else {
+                    onError?.call(e, stack);
+                  }
+                }
+              }
+              return _out<Map<Object, Object?>>(out, pulse, cell, 'PluckAll');
+            } catch (e, stack) {
               onError?.call(e, stack);
+              return null;
             }
-          }
-        }
-        return _out<Map<Object, Object?>>(out, pulse, cell, 'PluckAll');
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return null;
-      }
-    },
-    user: user,
-  );
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -705,37 +705,37 @@ class PluckPath<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [PluckOr]: For single field extraction with default.
   /// - [PluckAll]: For extracting multiple fields.
   PluckPath(
-      Iterable<Object> path, {
-        T? orElse,
-        bool useOrElse = false,
-        PluckErrorHandler? onError,
-        dynamic user,
-      }) : super(
-        (pulse, {cell, user}) {
-      try {
-        Object? current = pulse.payload;
-        for (final key in path) {
-          current = _read(current, key);
-        }
-        if (current is T) {
-          return _out<T>(current, pulse, cell, 'PluckPath');
-        }
-        if (useOrElse) {
-          return _out<T>(orElse as T, pulse, cell, 'PluckPath.orElse');
-        }
-        throw FormatException(
-          'Expected path $path of type $T, got ${current.runtimeType}',
+    Iterable<Object> path, {
+    T? orElse,
+    bool useOrElse = false,
+    PluckErrorHandler? onError,
+    dynamic user,
+  }) : super(
+          (pulse, {cell, user}) {
+            try {
+              Object? current = pulse.payload;
+              for (final key in path) {
+                current = _read(current, key);
+              }
+              if (current is T) {
+                return _out<T>(current, pulse, cell, 'PluckPath');
+              }
+              if (useOrElse) {
+                return _out<T>(orElse as T, pulse, cell, 'PluckPath.orElse');
+              }
+              throw FormatException(
+                'Expected path $path of type $T, got ${current.runtimeType}',
+              );
+            } catch (e, stack) {
+              onError?.call(e, stack);
+              if (useOrElse) {
+                return _out<T>(orElse as T, pulse, cell, 'PluckPath.orElse');
+              }
+              return null;
+            }
+          },
+          user: user,
         );
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        if (useOrElse) {
-          return _out<T>(orElse as T, pulse, cell, 'PluckPath.orElse');
-        }
-        return null;
-      }
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -882,7 +882,8 @@ Future<void> main() async {
 
   final nested = Cell.ingress<Map<String, Object>>();
 
-  final deep = PluckPath<String>(['user', 'name']).toHandle(source: nested.cell);
+  final deep =
+      PluckPath<String>(['user', 'name']).toHandle(source: nested.cell);
 
   final pObs = Cell.observe(
     source: deep.cell,

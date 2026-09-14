@@ -46,7 +46,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef FutureErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef FutureErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to create a success pulse with proper provenance.
 Pulse<S> _ok<S>(S value, Cell? cell, String step, {Pulse? trigger}) {
@@ -78,10 +79,10 @@ Future<S> _withTimeout<S>(Future<S> future, Duration? timeout) {
 
 /// Helper to retry a future with exponential backoff.
 Future<S> _withRetry<S>(
-    Future<S> Function() start, {
-      required int maxAttempts,
-      required Duration delay,
-    }) async {
+  Future<S> Function() start, {
+  required int maxAttempts,
+  required Duration delay,
+}) async {
   final attempts = maxAttempts < 1 ? 1 : maxAttempts;
   Object? lastError;
   StackTrace? lastStack;
@@ -105,7 +106,8 @@ void _emitError({
   StackTrace? stack,
   required FutureErrorHandler? onError,
   required bool emitErrorPulse,
-  required void Function({required Pulse? result, required dynamic token})? future,
+  required void Function({required Pulse? result, required dynamic token})?
+      future,
   required dynamic token,
   required Cell? cell,
   required Pulse trigger,
@@ -250,54 +252,56 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromFuture(
-      Future<S> source, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : this._launch(
-        () => source,
-    timeout: timeout,
-    onError: onError,
-    emitErrorPulse: emitErrorPulse,
-    user: user,
-  );
+    Future<S> source, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : this._launch(
+          () => source,
+          timeout: timeout,
+          onError: onError,
+          emitErrorPulse: emitErrorPulse,
+          user: user,
+        );
 
   FromFuture._launch(
-      Future<S> Function() launch, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _OnceState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.started) return null;
-        state.started = true;
-        Future<void>(() async {
-          try {
-            final value = await _withTimeout(launch(), timeout);
-            future!(result: _ok(value, cell, 'FromFuture', trigger: pulse), token: token);
-          } catch (e, stack) {
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'FromFuture.error',
-            );
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Future<S> Function() launch, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _OnceState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.started) return null;
+              state.started = true;
+              Future<void>(() async {
+                try {
+                  final value = await _withTimeout(launch(), timeout);
+                  future!(
+                      result: _ok(value, cell, 'FromFuture', trigger: pulse),
+                      token: token);
+                } catch (e, stack) {
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'FromFuture.error',
+                  );
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// Creates a [FromFuture] that emits a value on the first trigger.
   ///
@@ -316,11 +320,11 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   emit a pulse with `type: 'error'`.
   /// - [user]: **User Metadata.** Optional metadata.
   factory FromFuture.value(
-      S value, {
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) =>
+    S value, {
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) =>
       FromFuture<S>(
         Future<S>.value(value),
         onError: onError,
@@ -344,11 +348,11 @@ class FromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [error]: The error to throw.
   /// - [stackTrace]: Optional stack trace.
   factory FromFuture.error(
-      Object error, [
-        StackTrace? stackTrace,
-      ]) =>
+    Object error, [
+    StackTrace? stackTrace,
+  ]) =>
       FromFuture<S>._launch(
-            () => Future<S>.error(error, stackTrace),
+        () => Future<S>.error(error, stackTrace),
       );
 }
 
@@ -470,35 +474,37 @@ class DeferFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   DeferFuture(
-      Future<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void>(() async {
-        try {
-          final value = await _withTimeout(compute(pulse), timeout);
-          future!(result: _ok(value, cell, 'DeferFuture', trigger: pulse), token: token);
-        } catch (e, stack) {
-          _emitError(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'DeferFuture.error',
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void>(() async {
+              try {
+                final value = await _withTimeout(compute(pulse), timeout);
+                future!(
+                    result: _ok(value, cell, 'DeferFuture', trigger: pulse),
+                    token: token);
+              } catch (e, stack) {
+                _emitError(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'DeferFuture.error',
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that accepts `FutureOr<S>` — sync values emit
@@ -602,47 +608,49 @@ class FromFutureOr<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromFutureOr(
-      FutureOr<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      try {
-        final result = compute(pulse);
-        if (result is Future<S>) {
-          Future<void>(() async {
+    FutureOr<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
             try {
-              final value = await _withTimeout(result, timeout);
-              future!(
-                result: _ok(value, cell, 'FromFutureOr', trigger: pulse),
-                token: token,
-              );
+              final result = compute(pulse);
+              if (result is Future<S>) {
+                Future<void>(() async {
+                  try {
+                    final value = await _withTimeout(result, timeout);
+                    future!(
+                      result: _ok(value, cell, 'FromFutureOr', trigger: pulse),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    _emitError(
+                      error: e,
+                      stack: stack,
+                      onError: onError,
+                      emitErrorPulse: emitErrorPulse,
+                      future: future,
+                      token: token,
+                      cell: cell,
+                      trigger: pulse,
+                      step: 'FromFutureOr.error',
+                    );
+                  }
+                });
+                return null;
+              }
+              return _ok(result, cell, 'FromFutureOr', trigger: pulse);
             } catch (e, stack) {
-              _emitError(
-                error: e,
-                stack: stack,
-                onError: onError,
-                emitErrorPulse: emitErrorPulse,
-                future: future,
-                token: token,
-                cell: cell,
-                trigger: pulse,
-                step: 'FromFutureOr.error',
-              );
+              onError?.call(e, stack);
+              return emitErrorPulse
+                  ? _err(e, cell, 'FromFutureOr.error', trigger: pulse)
+                  : null;
             }
-          });
-          return null;
-        }
-        return _ok(result, cell, 'FromFutureOr', trigger: pulse);
-      } catch (e, stack) {
-        onError?.call(e, stack);
-        return emitErrorPulse ? _err(e, cell, 'FromFutureOr.error', trigger: pulse) : null;
-      }
-    },
-    user: user,
-  );
+          },
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -747,41 +755,42 @@ class ConcatFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ConcatFromFuture(
-      Future<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final queue = _AsyncQueueState();
-      return (pulse, {cell, user, future, token}) {
-        queue.enqueue(() async {
-          try {
-            final value = await _withTimeout(compute(pulse), timeout);
-            future!(
-              result: _ok(value, cell, 'ConcatFromFuture', trigger: pulse),
-              token: token,
-            );
-          } catch (e, stack) {
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'ConcatFromFuture.error',
-            );
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final queue = _AsyncQueueState();
+            return (pulse, {cell, user, future, token}) {
+              queue.enqueue(() async {
+                try {
+                  final value = await _withTimeout(compute(pulse), timeout);
+                  future!(
+                    result:
+                        _ok(value, cell, 'ConcatFromFuture', trigger: pulse),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'ConcatFromFuture.error',
+                  );
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that executes futures in parallel, emitting results
@@ -870,38 +879,38 @@ class MergeFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MergeFromFuture(
-      Future<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void>(() async {
-        try {
-          final value = await _withTimeout(compute(pulse), timeout);
-          future!(
-            result: _ok(value, cell, 'MergeFromFuture', trigger: pulse),
-            token: token,
-          );
-        } catch (e, stack) {
-          _emitError(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'MergeFromFuture.error',
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void>(() async {
+              try {
+                final value = await _withTimeout(compute(pulse), timeout);
+                future!(
+                  result: _ok(value, cell, 'MergeFromFuture', trigger: pulse),
+                  token: token,
+                );
+              } catch (e, stack) {
+                _emitError(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'MergeFromFuture.error',
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that only emits the latest future result
@@ -991,44 +1000,45 @@ class SwitchFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   SwitchFromFuture(
-      Future<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final gen = _GenerationState();
-      return (pulse, {cell, user, future, token}) {
-        final id = ++gen.generation;
-        Future<void>(() async {
-          try {
-            final value = await _withTimeout(compute(pulse), timeout);
-            if (id != gen.generation) return;
-            future!(
-              result: _ok(value, cell, 'SwitchFromFuture', trigger: pulse),
-              token: token,
-            );
-          } catch (e, stack) {
-            if (id != gen.generation) return;
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'SwitchFromFuture.error',
-            );
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final gen = _GenerationState();
+            return (pulse, {cell, user, future, token}) {
+              final id = ++gen.generation;
+              Future<void>(() async {
+                try {
+                  final value = await _withTimeout(compute(pulse), timeout);
+                  if (id != gen.generation) return;
+                  future!(
+                    result:
+                        _ok(value, cell, 'SwitchFromFuture', trigger: pulse),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  if (id != gen.generation) return;
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'SwitchFromFuture.error',
+                  );
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that ignores triggers while a future is in flight
@@ -1119,45 +1129,46 @@ class ExhaustFromFuture<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   ExhaustFromFuture(
-      Future<S> Function(Pulse trigger) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _BusyState();
-      return (pulse, {cell, user, future, token}) {
-        if (state.busy) return null;
-        state.busy = true;
-        Future<void>(() async {
-          try {
-            final value = await _withTimeout(compute(pulse), timeout);
-            future!(
-              result: _ok(value, cell, 'ExhaustFromFuture', trigger: pulse),
-              token: token,
-            );
-          } catch (e, stack) {
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'ExhaustFromFuture.error',
-            );
-          } finally {
-            state.busy = false;
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _BusyState();
+            return (pulse, {cell, user, future, token}) {
+              if (state.busy) return null;
+              state.busy = true;
+              Future<void>(() async {
+                try {
+                  final value = await _withTimeout(compute(pulse), timeout);
+                  future!(
+                    result:
+                        _ok(value, cell, 'ExhaustFromFuture', trigger: pulse),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'ExhaustFromFuture.error',
+                  );
+                } finally {
+                  state.busy = false;
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1242,46 +1253,46 @@ class FromFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// ]).toHandle();
   /// ```
   FromFutures(
-      Iterable<Future<S>> futures, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _OnceState();
-      final list = List<Future<S>>.from(futures);
-      return (pulse, {cell, user, future, token}) {
-        if (state.started) return null;
-        state.started = true;
-        for (final item in list) {
-          Future<void>(() async {
-            try {
-              final value = await _withTimeout(item, timeout);
-              future!(
-                result: _ok(value, cell, 'FromFutures', trigger: pulse),
-                token: token,
-              );
-            } catch (e, stack) {
-              _emitError(
-                error: e,
-                stack: stack,
-                onError: onError,
-                emitErrorPulse: emitErrorPulse,
-                future: future,
-                token: token,
-                cell: cell,
-                trigger: pulse,
-                step: 'FromFutures.error',
-              );
-            }
-          });
-        }
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Future<S>> futures, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _OnceState();
+            final list = List<Future<S>>.from(futures);
+            return (pulse, {cell, user, future, token}) {
+              if (state.started) return null;
+              state.started = true;
+              for (final item in list) {
+                Future<void>(() async {
+                  try {
+                    final value = await _withTimeout(item, timeout);
+                    future!(
+                      result: _ok(value, cell, 'FromFutures', trigger: pulse),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    _emitError(
+                      error: e,
+                      stack: stack,
+                      onError: onError,
+                      emitErrorPulse: emitErrorPulse,
+                      future: future,
+                      token: token,
+                      cell: cell,
+                      trigger: pulse,
+                      step: 'FromFutures.error',
+                    );
+                  }
+                });
+              }
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that emits values in input-list order after each
@@ -1368,46 +1379,47 @@ class FromFuturesInOrder<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// ]).toHandle();
   /// ```
   FromFuturesInOrder(
-      Iterable<Future<S>> futures, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _OnceState();
-      final list = List<Future<S>>.from(futures);
-      return (pulse, {cell, user, future, token}) {
-        if (state.started) return null;
-        state.started = true;
-        Future<void>(() async {
-          for (final item in list) {
-            try {
-              final value = await _withTimeout(item, timeout);
-              future!(
-                result: _ok(value, cell, 'FromFuturesInOrder', trigger: pulse),
-                token: token,
-              );
-            } catch (e, stack) {
-              _emitError(
-                error: e,
-                stack: stack,
-                onError: onError,
-                emitErrorPulse: emitErrorPulse,
-                future: future,
-                token: token,
-                cell: cell,
-                trigger: pulse,
-                step: 'FromFuturesInOrder.error',
-              );
-            }
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Future<S>> futures, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _OnceState();
+            final list = List<Future<S>>.from(futures);
+            return (pulse, {cell, user, future, token}) {
+              if (state.started) return null;
+              state.started = true;
+              Future<void>(() async {
+                for (final item in list) {
+                  try {
+                    final value = await _withTimeout(item, timeout);
+                    future!(
+                      result: _ok(value, cell, 'FromFuturesInOrder',
+                          trigger: pulse),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    _emitError(
+                      error: e,
+                      stack: stack,
+                      onError: onError,
+                      emitErrorPulse: emitErrorPulse,
+                      future: future,
+                      token: token,
+                      cell: cell,
+                      trigger: pulse,
+                      step: 'FromFuturesInOrder.error',
+                    );
+                  }
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that emits one `List<S>` when every future has
@@ -1492,46 +1504,47 @@ class ForkJoinFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// ]).toHandle();
   /// ```
   ForkJoinFutures(
-      Iterable<Future<S>> futures, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _OnceState();
-      final list = List<Future<S>>.from(futures);
-      return (pulse, {cell, user, future, token}) {
-        if (state.started) return null;
-        state.started = true;
-        Future<void>(() async {
-          try {
-            final values = await Future.wait(
-              list.map((f) => _withTimeout(f, timeout)),
-            );
-            future!(
-              result: _ok(values, cell, 'ForkJoinFutures', trigger: pulse),
-              token: token,
-            );
-          } catch (e, stack) {
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'ForkJoinFutures.error',
-            );
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Future<S>> futures, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _OnceState();
+            final list = List<Future<S>>.from(futures);
+            return (pulse, {cell, user, future, token}) {
+              if (state.started) return null;
+              state.started = true;
+              Future<void>(() async {
+                try {
+                  final values = await Future.wait(
+                    list.map((f) => _withTimeout(f, timeout)),
+                  );
+                  future!(
+                    result:
+                        _ok(values, cell, 'ForkJoinFutures', trigger: pulse),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'ForkJoinFutures.error',
+                  );
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that emits the first future to complete
@@ -1613,44 +1626,44 @@ class RaceFutures<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// ]).toHandle();
   /// ```
   RaceFutures(
-      Iterable<Future<S>> futures, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-    (() {
-      final state = _OnceState();
-      final list = List<Future<S>>.from(futures);
-      return (pulse, {cell, user, future, token}) {
-        if (state.started) return null;
-        state.started = true;
-        Future<void>(() async {
-          try {
-            final value = await _withTimeout(Future.any(list), timeout);
-            future!(
-              result: _ok(value, cell, 'RaceFutures', trigger: pulse),
-              token: token,
-            );
-          } catch (e, stack) {
-            _emitError(
-              error: e,
-              stack: stack,
-              onError: onError,
-              emitErrorPulse: emitErrorPulse,
-              future: future,
-              token: token,
-              cell: cell,
-              trigger: pulse,
-              step: 'RaceFutures.error',
-            );
-          }
-        });
-        return null;
-      };
-    })(),
-    user: user,
-  );
+    Iterable<Future<S>> futures, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (() {
+            final state = _OnceState();
+            final list = List<Future<S>>.from(futures);
+            return (pulse, {cell, user, future, token}) {
+              if (state.started) return null;
+              state.started = true;
+              Future<void>(() async {
+                try {
+                  final value = await _withTimeout(Future.any(list), timeout);
+                  future!(
+                    result: _ok(value, cell, 'RaceFutures', trigger: pulse),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  _emitError(
+                    error: e,
+                    stack: stack,
+                    onError: onError,
+                    emitErrorPulse: emitErrorPulse,
+                    future: future,
+                    token: token,
+                    cell: cell,
+                    trigger: pulse,
+                    step: 'RaceFutures.error',
+                  );
+                }
+              });
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1746,44 +1759,45 @@ class FromFutureWithRetry<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromFutureWithRetry(
-      Future<S> Function(Pulse trigger) compute, {
-        int maxAttempts = 3,
-        Duration delay = const Duration(milliseconds: 50),
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void>(() async {
-        try {
-          final value = await _withRetry(
-                () => _withTimeout(compute(pulse), timeout),
-            maxAttempts: maxAttempts,
-            delay: delay,
-          );
-          future!(
-            result: _ok(value, cell, 'FromFutureWithRetry', trigger: pulse),
-            token: token,
-          );
-        } catch (e, stack) {
-          _emitError(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'FromFutureWithRetry.error',
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    int maxAttempts = 3,
+    Duration delay = const Duration(milliseconds: 50),
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void>(() async {
+              try {
+                final value = await _withRetry(
+                  () => _withTimeout(compute(pulse), timeout),
+                  maxAttempts: maxAttempts,
+                  delay: delay,
+                );
+                future!(
+                  result:
+                      _ok(value, cell, 'FromFutureWithRetry', trigger: pulse),
+                  token: token,
+                );
+              } catch (e, stack) {
+                _emitError(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'FromFutureWithRetry.error',
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that fails if [compute] does not finish within
@@ -1865,38 +1879,39 @@ class FromFutureWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   FromFutureWithTimeout(
-      Future<S> Function(Pulse trigger) compute, {
-        required Duration timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void>(() async {
-        try {
-          final value = await compute(pulse).timeout(timeout);
-          future!(
-            result: _ok(value, cell, 'FromFutureWithTimeout', trigger: pulse),
-            token: token,
-          );
-        } catch (e, stack) {
-          _emitError(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'FromFutureWithTimeout.error',
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    required Duration timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void>(() async {
+              try {
+                final value = await compute(pulse).timeout(timeout);
+                future!(
+                  result:
+                      _ok(value, cell, 'FromFutureWithTimeout', trigger: pulse),
+                  token: token,
+                );
+              } catch (e, stack) {
+                _emitError(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'FromFutureWithTimeout.error',
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that emits a fallback value on failure.
@@ -1956,7 +1971,8 @@ class FromFutureWithTimeout<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// ### See Also:
 /// - [FromFutureWithRetry]: For retry logic.
 /// - [FromFutureWithTimeout]: For timeout handling.
-class FromFutureWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
+class FromFutureWithFallback<S>
+    extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// Creates a [FromFutureWithFallback] instruction with the specified
   /// [compute] and [fallback].
   ///
@@ -1978,37 +1994,38 @@ class FromFutureWithFallback<S> extends FlowInstructionBase<Cell, Pulse, Pulse> 
   /// );
   /// ```
   FromFutureWithFallback(
-      Future<S> Function(Pulse trigger) compute, {
-        required S fallback,
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      Future<void>(() async {
-        try {
-          final value = await _withTimeout(compute(pulse), timeout);
-          future!(
-            result: _ok(value, cell, 'FromFutureWithFallback', trigger: pulse),
-            token: token,
-          );
-        } catch (e, stack) {
-          onError?.call(e, stack);
-          future!(
-            result: _ok(
-              fallback,
-              cell,
-              'FromFutureWithFallback.fallback',
-              trigger: pulse,
-            ),
-            token: token,
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
+    Future<S> Function(Pulse trigger) compute, {
+    required S fallback,
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            Future<void>(() async {
+              try {
+                final value = await _withTimeout(compute(pulse), timeout);
+                future!(
+                  result: _ok(value, cell, 'FromFutureWithFallback',
+                      trigger: pulse),
+                  token: token,
+                );
+              } catch (e, stack) {
+                onError?.call(e, stack);
+                future!(
+                  result: _ok(
+                    fallback,
+                    cell,
+                    'FromFutureWithFallback.fallback',
+                    trigger: pulse,
+                  ),
+                  token: token,
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
+        );
 }
 
 /// A [Receptor] instruction that maps a trigger payload into a future
@@ -2096,46 +2113,47 @@ class MapToFuture<I, S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// );
   /// ```
   MapToFuture(
-      Future<S> Function(I input) compute, {
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-        dynamic user,
-      }) : super.future(
-        (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! I) {
-        onError?.call(
-          FormatException('Expected payload of type $I, got ${payload.runtimeType}'),
-          StackTrace.current,
+    Future<S> Function(I input) compute, {
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+    dynamic user,
+  }) : super.future(
+          (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! I) {
+              onError?.call(
+                FormatException(
+                    'Expected payload of type $I, got ${payload.runtimeType}'),
+                StackTrace.current,
+              );
+              return null;
+            }
+            Future<void>(() async {
+              try {
+                final value = await _withTimeout(compute(payload), timeout);
+                future!(
+                  result: _ok(value, cell, 'MapToFuture', trigger: pulse),
+                  token: token,
+                );
+              } catch (e, stack) {
+                _emitError(
+                  error: e,
+                  stack: stack,
+                  onError: onError,
+                  emitErrorPulse: emitErrorPulse,
+                  future: future,
+                  token: token,
+                  cell: cell,
+                  trigger: pulse,
+                  step: 'MapToFuture.error',
+                );
+              }
+            });
+            return null;
+          },
+          user: user,
         );
-        return null;
-      }
-      Future<void>(() async {
-        try {
-          final value = await _withTimeout(compute(payload), timeout);
-          future!(
-            result: _ok(value, cell, 'MapToFuture', trigger: pulse),
-            token: token,
-          );
-        } catch (e, stack) {
-          _emitError(
-            error: e,
-            stack: stack,
-            onError: onError,
-            emitErrorPulse: emitErrorPulse,
-            future: future,
-            token: token,
-            cell: cell,
-            trigger: pulse,
-            step: 'MapToFuture.error',
-          );
-        }
-      });
-      return null;
-    },
-    user: user,
-  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -2290,7 +2308,7 @@ Future<void> main() async {
   print('3. DeferFuture - Per-trigger lookup');
   final ids = Cell.ingress<int>();
   final deferred = DeferFuture<String>(
-        (p) async => 'user-${p.payload}',
+    (p) async => 'user-${p.payload}',
   ).toHandle(source: ids.cell);
   final defObs = Cell.observe(
     source: deferred.cell,
@@ -2310,7 +2328,8 @@ Future<void> main() async {
   }
 
   final concatIn = Cell.ingress<String>();
-  final concat = ConcatFromFuture<String>(paced).toHandle(source: concatIn.cell);
+  final concat =
+      ConcatFromFuture<String>(paced).toHandle(source: concatIn.cell);
   final concatObs = Cell.observe(
     source: concat.cell,
     effect: (Pulse p) => print('   [Concat] ${p.payload}'),
@@ -2420,7 +2439,7 @@ Future<void> main() async {
   print('8. Retry / Fallback / MapToFuture');
   var attempts = 0;
   final retry = FromFutureWithRetry<int>(
-        (_) async {
+    (_) async {
       attempts++;
       if (attempts < 3) throw Exception('transient');
       return 8;
@@ -2437,7 +2456,7 @@ Future<void> main() async {
   retryObs.stop();
 
   final fallback = FromFutureWithFallback<int>(
-        (_) async => throw Exception('x'),
+    (_) async => throw Exception('x'),
     fallback: -1,
   ).toHandle();
   final fbObs = Cell.observe(

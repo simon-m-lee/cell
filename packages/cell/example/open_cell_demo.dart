@@ -62,7 +62,7 @@ Future<void> main() async {
 
   final gate = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         // Transform / tag manual commands
         final cmd = pulse.payload;
         print('   [Gate]    received payload=$cmd type=${pulse.type}');
@@ -77,7 +77,7 @@ Future<void> main() async {
   // Downstream logger linked at runtime
   final logger = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         print('   [Logger]  ${pulse.payload}');
         return pulse;
       },
@@ -102,7 +102,7 @@ Future<void> main() async {
 
   final metrics = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         print('   [Metrics] count+1 payload=${pulse.payload}');
         return pulse;
       },
@@ -144,7 +144,7 @@ Future<void> main() async {
   Future<void Function()?> attachPanel(String name) async {
     final panel = Cell.open(
       receptor: Receptor(
-            (cell, pulse, {user}) {
+        (cell, pulse, {user}) {
           print('   [Panel:$name] ${pulse.payload}');
           return pulse;
         },
@@ -181,7 +181,7 @@ Future<void> main() async {
   final hybrid = Cell.open(
     source: sensor.cell,
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         print('   [Hybrid]  payload=${pulse.payload} type=${pulse.type}');
         return pulse;
       },
@@ -190,7 +190,7 @@ Future<void> main() async {
 
   final hybridOut = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         print('   [HybridOut] ${pulse.payload}');
         return pulse;
       },
@@ -223,7 +223,7 @@ Future<void> main() async {
 
   final commands = OpenCell.perform(
     account.cell,
-        (on, pulse, {user}) {
+    (on, pulse, {user}) {
       final op = pulse.payload as Map<String, dynamic>? ?? {};
       final current = account.cell.value ?? 0;
       final next = switch (op['op']) {
@@ -250,7 +250,7 @@ Future<void> main() async {
 
   final underTest = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         final n = pulse.payload as int? ?? 0;
         return Pulse(n * n, type: 'squared');
       },
@@ -260,7 +260,7 @@ Future<void> main() async {
   final results = <int>[];
   final probe = Cell.open(
     receptor: Receptor(
-          (cell, pulse, {user}) {
+      (cell, pulse, {user}) {
         results.add(pulse.payload as int);
         return pulse;
       },

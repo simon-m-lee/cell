@@ -212,8 +212,7 @@ class ProcessingResult {
   });
 
   @override
-  String toString() =>
-      'ProcessingResult(success: $success, message: $message)';
+  String toString() => 'ProcessingResult(success: $success, message: $message)';
 }
 
 /// Custom exception for document processing errors.
@@ -223,10 +222,10 @@ class DocumentProcessingException implements Exception {
   final int code;
 
   DocumentProcessingException(
-      this.message, {
-        this.documentId,
-        this.code = 500,
-      });
+    this.message, {
+    this.documentId,
+    this.code = 500,
+  });
 
   @override
   String toString() =>
@@ -246,18 +245,18 @@ class DocumentCell extends CellBase {
     required Receptor receptor,
     Context context = Context.system,
     TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled ,
+    Synapses synapses = Synapses.enabled,
     EphemeralPolicy? ephemeralPolicy,
   }) : this.fromNucleus(Nucleus(
-      receptor: receptor,
-      context: context,
-      testRule: testRule,
-      synapses: synapses,
-      ephemeralPolicy: ephemeralPolicy
-  ));
+            receptor: receptor,
+            context: context,
+            testRule: testRule,
+            synapses: synapses,
+            ephemeralPolicy: ephemeralPolicy));
 
-  DocumentCell.fromNucleus(super.nucleus) 
-      : _nucleus = nucleus, super.fromNucleus();
+  DocumentCell.fromNucleus(super.nucleus)
+      : _nucleus = nucleus,
+        super.fromNucleus();
 
   Document? get document => _document;
 
@@ -277,7 +276,8 @@ class DocumentCell extends CellBase {
     final receptor = _nucleus.receptor;
     final completer = Completer<Pulse?>();
 
-    await receptor.async.call(pulse as PulseBase, hook: ({Pulse? result, required input}) {
+    await receptor.async.call(pulse as PulseBase,
+        hook: ({Pulse? result, required input}) {
       // Complete with the transformed pulse (or null if rejected)
       completer.complete(result);
     });
@@ -448,8 +448,8 @@ class ProcessDocumentInstruction extends InstructionBase<Cell, Pulse, Pulse> {
       status: 'processed',
       metadata: Map<String, dynamic>.from(doc.metadata)
         ..['processedAt'] = DateTime.now().toIso8601String()
-        ..['processingTimeMs'] = (DateTime.now().difference(doc.processedAt))
-            .inMilliseconds,
+        ..['processingTimeMs'] =
+            (DateTime.now().difference(doc.processedAt)).inMilliseconds,
     );
 
     print('   [Instruction] ✓ Document processed');
@@ -469,7 +469,7 @@ Receptor<Cell> createPassThroughReceptor() {
 /// A simple transformer receptor that updates document status.
 Receptor<Cell> createSimpleTransformerReceptor() {
   return Receptor(
-        (cell, pulse, {user}) {
+    (cell, pulse, {user}) {
       final doc = pulse.payload as Document?;
       if (doc == null) {
         print('   [Simple] No document to transform');
@@ -492,7 +492,7 @@ Receptor<Cell> createSimpleTransformerReceptor() {
 Receptor<Cell> createTypeSafeReceptor() {
   return Receptor.typed<Cell, Pulse<Document>, Pulse<Document>>(
     Instruction<Cell, Pulse<Document>, Pulse<Document>>(
-          (pulse, {cell, user}) {
+      (pulse, {cell, user}) {
         final doc = pulse.payload;
         print('   [Typed] Type-safe processing: ${doc?.id}');
 
@@ -521,7 +521,7 @@ Receptor<Cell> createDocumentPipelineReceptor() {
 /// A receptor with error recovery and logging.
 Receptor<Cell> createResilientReceptor() {
   return Receptor(
-        (cell, pulse, {user}) {
+    (cell, pulse, {user}) {
       try {
         final doc = pulse.payload as Document?;
         if (doc == null) {
@@ -619,21 +619,24 @@ Future<void> main() async {
   final passResult = passThrough.call(Pulse(testDoc));
   if (passResult != null && (passResult as Pulse?)?.payload is Document) {
     final resultDoc = passResult?.payload as Document;
-    print('   [Test] Pass-through: ${resultDoc.title} (status: ${resultDoc.status})');
+    print(
+        '   [Test] Pass-through: ${resultDoc.title} (status: ${resultDoc.status})');
   }
 
   // Test the simple transformer
   final transResult = simpleTransformer.call(Pulse(testDoc));
   if (transResult != null && (transResult as Pulse?)?.payload is Document) {
     final resultDoc = transResult?.payload as Document;
-    print('   [Test] Simple transformer: ${resultDoc.title} (status: ${resultDoc.status})');
+    print(
+        '   [Test] Simple transformer: ${resultDoc.title} (status: ${resultDoc.status})');
   }
 
   // Test the type-safe receptor
   final typedResult = typeSafe.call(Pulse(testDoc));
   if (typedResult != null && (typedResult as Pulse?)?.payload is Document) {
     final resultDoc = typedResult?.payload as Document;
-    print('   [Test] Type-safe: ${resultDoc.id} (status: ${resultDoc.status})\n');
+    print(
+        '   [Test] Type-safe: ${resultDoc.id} (status: ${resultDoc.status})\n');
   }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -728,7 +731,7 @@ Future<void> main() async {
 
   // Create a receptor with some stateful behavior
   final originalReceptor = Receptor(
-        (cell, pulse, {user}) {
+    (cell, pulse, {user}) {
       final doc = pulse.payload as Document?;
       if (doc == null) return null;
       print('   [Clone] Processing: ${doc.id}');

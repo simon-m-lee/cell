@@ -466,7 +466,6 @@ void main() {
     });
   });
 
-
   group('FromFuture extra', () {
     test('completed future still emits after arming', () async {
       final b = bind<void>(FromFuture<int>(Future.value(5)));

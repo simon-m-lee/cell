@@ -38,7 +38,6 @@ typedef OpenCellBase = _OpenCell;
 /// ### Type Parameters:
 /// * [I]: The raw input data type accepted by this gateway.
 typedef IngressHandle<I> = ({
-
   /// The source node ("cell") that anchors this entry point to the graph.
   Cell cell,
 
@@ -125,7 +124,6 @@ typedef HubHandle = ({
   ///     spokes happens as a background task, maximizing throughput for
   ///     high-frequency telemetry or logging scenes.
   Future<void> Function(Pulse pulse, {bool serializedCompletion}) ingest
-
 });
 
 /// A management handle for an **Output Terminal**, providing a controlled
@@ -215,27 +213,25 @@ class Modifiable {
   const Modifiable();
 }
 
-
 class _Cell extends CellBase {
-
   _Cell({
     EphemeralPolicy? ephemeralPolicy,
-
     Cell? bind,
     Context context = Context.system,
     Receptor receptor = Receptor.passThrough,
     TestCell testRule = TestCell.allowAll,
     Synapses synapses = Synapses.enabled,
-
     bool forceLock = false,
-  }) : this.fromNucleus(Nucleus(ephemeralPolicy: ephemeralPolicy,
-      receptor: receptor, bind: bind, testRule: testRule, context: context,
-      synapses: synapses == Synapses.enabled ? Synapses() : synapses,
-      forceLock: forceLock
-  ));
+  }) : this.fromNucleus(Nucleus(
+            ephemeralPolicy: ephemeralPolicy,
+            receptor: receptor,
+            bind: bind,
+            testRule: testRule,
+            context: context,
+            synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+            forceLock: forceLock));
 
   _Cell.fromNucleus(super.evolve) : super.fromNucleus();
-
 }
 
 /// The foundational abstract implementation of the [Cell] interface.
@@ -266,7 +262,6 @@ class _Cell extends CellBase {
 /// Subclasses extend this to define specific behavior while relying on this
 /// class for standard interface compliance.
 abstract class CellBase implements Cell {
-
   @override
   final Nucleus _nucleus;
 
@@ -283,16 +278,18 @@ abstract class CellBase implements Cell {
   ///   is passed (default), a new [Synapses] instance is created.
   CellBase({
     EphemeralPolicy? ephemeralPolicy,
-
     Cell? bind,
     Context context = Context.system,
     Receptor receptor = Receptor.passThrough,
     TestCell testRule = TestCell.allowAll,
     Synapses synapses = Synapses.enabled,
-  }) : this.fromNucleus(Nucleus(ephemeralPolicy: ephemeralPolicy,
-      receptor: receptor, bind: bind, testRule: testRule, context: context,
-      synapses: synapses == Synapses.enabled ? Synapses() : synapses
-  ));
+  }) : this.fromNucleus(Nucleus(
+            ephemeralPolicy: ephemeralPolicy,
+            receptor: receptor,
+            bind: bind,
+            testRule: testRule,
+            context: context,
+            synapses: synapses == Synapses.enabled ? Synapses() : synapses));
 
   /// Initializes a [CellBase] instance using a pre-configured [Nucleus]
   /// blueprint, formally integrating it into the reactive data-flow graph.
@@ -345,7 +342,8 @@ abstract class CellBase implements Cell {
   /// - [nucleus]: The [Nucleus] record defining the behavioral logic,
   ///   synchronization lock, execution [context], and relational links
   ///   for this cell.
-  CellBase.fromNucleus(Nucleus nucleus) : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
+  CellBase.fromNucleus(Nucleus nucleus)
+      : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
     try {
       _nucleus.activate(this);
       final bind = _nucleus.bind;
@@ -353,21 +351,25 @@ abstract class CellBase implements Cell {
         final synapses = bind._nucleus.synapses;
         synapses.link(bind, downstreamCell: this);
       }
-    } catch(_) {}
+    } catch (_) {}
   }
 
   @override
-  FutureOr<Cell> deputy({
-    EphemeralPolicy? ephemeralPolicy,
-    covariant DeputyContext context = DeputyContext.system,
-    covariant TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled
-  }) {
+  FutureOr<Cell> deputy(
+      {EphemeralPolicy? ephemeralPolicy,
+      covariant DeputyContext context = DeputyContext.system,
+      covariant TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled}) {
     return (ephemeralPolicy != null ||
             !identical(context, DeputyContext.system) ||
             !identical(testRule, TestCell.allowAll) ||
             !identical(synapses, Synapses.enabled))
-        ? _CellDeputy(bind: this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses)
+        ? _CellDeputy(
+            bind: this,
+            context: context,
+            testRule: testRule,
+            ephemeralPolicy: ephemeralPolicy,
+            synapses: synapses)
         : this;
   }
 
@@ -423,18 +425,19 @@ abstract class CellBase implements Cell {
     if (other is! Cell) return false;
 
     return _nucleus == other._nucleus;
-
   }
 
   @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
     Map<Symbol, dynamic>? compensateNamed,
     Cell? compensateCell,
   }) {
-
     if (tx != null) {
       tx.enqueue(
         this,
@@ -451,17 +454,19 @@ abstract class CellBase implements Cell {
 
     if (modifiable.contains(function)) {
       // 1. Capture the FutureOr validation result from the Integrity Gate
-      final validation = _nucleus.testRule.action(
-          function,
+      final validation = _nucleus.testRule.action(function,
           host: this,
-          arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)
-      );
+          arguments: (
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments
+          ));
 
       // 2. Branch: Asynchronous Path
       if (validation is Future<bool>) {
         return validation.then((passed) {
           if (passed) {
-            return Function.apply(function, positionalArguments, namedArguments);
+            return Function.apply(
+                function, positionalArguments, namedArguments);
           }
           return null; // Action blocked by policy
         });
@@ -474,7 +479,6 @@ abstract class CellBase implements Cell {
     // Standard execution for sync path or non-modifiable functions
     return Function.apply(function, positionalArguments, namedArguments);
   }
-
 
   @override
   Iterable<Function> get modifiable => <Function>{apply};
@@ -496,7 +500,6 @@ abstract class CellBase implements Cell {
 
   @override
   String toString() => '$runtimeType($hashCode)';
-
 }
 
 /// Represents a **Synthesis Cell**—a specialized structural node that aggregates
@@ -522,8 +525,9 @@ abstract class CellBase implements Cell {
 /// - The synthesis cell does not store state – it's a pure transform.
 /// - The aggregator is called for every pulse from any source.
 /// - The cell automatically links to all provided sources on construction.
-class SynthesisCell extends CellBase with IterableMixin<Cell> implements Iterable<Cell> {
-
+class SynthesisCell extends CellBase
+    with IterableMixin<Cell>
+    implements Iterable<Cell> {
   final Set<Cell> _sources;
 
   /// Creates a [SynthesisCell] that binds to the provided [cells].
@@ -540,39 +544,36 @@ class SynthesisCell extends CellBase with IterableMixin<Cell> implements Iterabl
   /// * [forceLock]: If `true`, ensures the creation of an **Atomic
   ///   Transaction Domain** via a mandatory [Lock], preventing race conditions
   ///   during multi-source ingestion.
-  SynthesisCell(Iterable<Cell> cells, {
-    EphemeralPolicy? ephemeralPolicy,
-
-    Cell? bind,
-    Context context = Context.system,
-    Receptor receptor = Receptor.passThrough,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled,
-    bool forceLock = false
-  }) : _sources = cells is Set<Cell> ? cells : Set<Cell>.from(cells), super.fromNucleus(Nucleus(
-    ephemeralPolicy: ephemeralPolicy,
-    testRule: testRule,
-    receptor: receptor,
-    bind: bind,
-    context: context,
-    synapses: synapses == Synapses.enabled ? Synapses() : synapses,
-    forceLock: forceLock
-  )) {
+  SynthesisCell(Iterable<Cell> cells,
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context context = Context.system,
+      Receptor receptor = Receptor.passThrough,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled,
+      bool forceLock = false})
+      : _sources = cells is Set<Cell> ? cells : Set<Cell>.from(cells),
+        super.fromNucleus(Nucleus(
+            ephemeralPolicy: ephemeralPolicy,
+            testRule: testRule,
+            receptor: receptor,
+            bind: bind,
+            context: context,
+            synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+            forceLock: forceLock)) {
     for (var c in cells) {
       c._nucleus.synapses.link(c, downstreamCell: this);
     }
   }
 
-  static SynthesisHandle handle(Iterable<Cell> cells, {
-    EphemeralPolicy? ephemeralPolicy,
-
-    Cell? bind,
-    Context context = Context.system,
-    Receptor receptor = Receptor.passThrough,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled,
-    bool forceLock = false
-  }) {
+  static SynthesisHandle handle(Iterable<Cell> cells,
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context context = Context.system,
+      Receptor receptor = Receptor.passThrough,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled,
+      bool forceLock = false}) {
     // 1. Maintain a local set of sources to track membership
     final sourceSet = Set<Cell>.from(cells);
 
@@ -584,8 +585,7 @@ class SynthesisCell extends CellBase with IterableMixin<Cell> implements Iterabl
         receptor: receptor,
         testRule: testRule,
         synapses: synapses,
-        forceLock: forceLock
-    );
+        forceLock: forceLock);
 
     // 3. Define the manipulation logic
     bool add(Cell c) {
@@ -679,7 +679,6 @@ class SynthesisCell extends CellBase with IterableMixin<Cell> implements Iterabl
 /// * [SynthesisCell]: The node type managed by this handle.
 /// * [Synapses]: The underlying mechanism used to link and unlink cells.
 typedef SynthesisHandle = ({
-
   /// The underlying [SynthesisCell] node managed by this handle.
   SynthesisCell cell,
 
@@ -709,46 +708,44 @@ typedef SynthesisHandle = ({
 
   /// Re-establishes reactive links for all members in the current list.
   void Function() start,
-
 });
 
-
-class _OpenCell
-    extends CellBase
+class _OpenCell extends CellBase
     with OpenReceptorMixin, OpenSynapsesMixin
     implements OpenCell {
-
-  _OpenCell({
-    EphemeralPolicy? ephemeralPolicy,
-
-    Cell? bind,
-    Context context = Context.system,
-    Receptor receptor = Receptor.passThrough,
-    TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled,
-    bool forceLock = false
-  }) : super.fromNucleus(Nucleus(
-    ephemeralPolicy: ephemeralPolicy,
-    testRule: testRule,
-    receptor: receptor,
-    bind: bind,
-    context: context,
-    synapses: synapses,
-    forceLock: forceLock
-  ));
+  _OpenCell(
+      {EphemeralPolicy? ephemeralPolicy,
+      Cell? bind,
+      Context context = Context.system,
+      Receptor receptor = Receptor.passThrough,
+      TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled,
+      bool forceLock = false})
+      : super.fromNucleus(Nucleus(
+            ephemeralPolicy: ephemeralPolicy,
+            testRule: testRule,
+            receptor: receptor,
+            bind: bind,
+            context: context,
+            synapses: synapses,
+            forceLock: forceLock));
 
   @override
-  OpenCell deputy({
-    EphemeralPolicy? ephemeralPolicy,
-    covariant DeputyContext context = DeputyContext.system,
-    covariant TestCell testRule = TestCell.allowAll,
-    Synapses synapses = Synapses.enabled
-  }) {
+  OpenCell deputy(
+      {EphemeralPolicy? ephemeralPolicy,
+      covariant DeputyContext context = DeputyContext.system,
+      covariant TestCell testRule = TestCell.allowAll,
+      Synapses synapses = Synapses.enabled}) {
     return (ephemeralPolicy != null ||
             !identical(context, DeputyContext.system) ||
             !identical(testRule, TestCell.allowAll) ||
             !identical(synapses, Synapses.enabled))
-        ? _OpenCellDeputy(bind: this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses)
+        ? _OpenCellDeputy(
+            bind: this,
+            context: context,
+            testRule: testRule,
+            ephemeralPolicy: ephemeralPolicy,
+            synapses: synapses)
         : this;
   }
 
@@ -757,12 +754,11 @@ class _OpenCell
 
   @override
   Iterable<Function> get modifiable => <Function>{
-    link,       // Now defined in OpenSynapsesMixin
-    emit,   // Defined in OpenReceptorMixin
-    ingest, // Defined in OpenReceptorMixin
-    ...super.modifiable
-  };
-
+        link, // Now defined in OpenSynapsesMixin
+        emit, // Defined in OpenReceptorMixin
+        ingest, // Defined in OpenReceptorMixin
+        ...super.modifiable
+      };
 }
 
 /// Provides asynchronous execution of operations on a [Cell].
@@ -790,7 +786,6 @@ class _OpenCell
 /// ## Type Parameters
 /// * [C]: The specific type of [Cell] being wrapped.
 class ModifiableAsync<C extends Cell> implements Async {
-
   /// The underlying cell instance being wrapped.
   final C _cell;
 
@@ -809,20 +804,25 @@ class ModifiableAsync<C extends Cell> implements Async {
   ///
   /// Returns:
   ///   A [Future] that completes with the result of the function application.
-    Future apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  Future apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
     Map<Symbol, dynamic>? compensateNamed,
     Cell? compensateCell,
-    }) async {
-
+  }) async {
     final lock = _cell._nucleus.lock;
     return lock != null
-        ? lock.synchronized(() => _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments))
-        : Future(() => _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments));
+        ? lock.synchronized(() => _cell.apply(function,
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments))
+        : Future(() => _cell.apply(function,
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments));
   }
-
 }
 
 /// Represents the **Asynchronous Governance Interface** for an [OpenCell].
@@ -852,7 +852,6 @@ class ModifiableAsync<C extends Cell> implements Async {
 /// gateway to handle thousands of concurrent requests without blocking the
 /// core **Collection**'s internal logic.
 class OpenCellAsync extends ModifiableAsync<OpenCell> {
-
   /// Creates an asynchronous executor for an [OpenCell].
   const OpenCellAsync(super.cell) : super();
 
@@ -884,9 +883,9 @@ class OpenCellAsync extends ModifiableAsync<OpenCell> {
 
   Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) async {
     final receptor = _cell._nucleus.receptor;
-    return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+    return await receptor.async
+        .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
-
 }
 
 /// A mixin that implements the **Manual Control Interface** for the reactive network.
@@ -919,7 +918,6 @@ class OpenCellAsync extends ModifiableAsync<OpenCell> {
 /// - **Signal Termination**: If a pulse fails validation or the transformation
 ///   logic returns no value, the update is dropped and nothing is broadcast.
 mixin OpenReceptorMixin on Cell {
-
   /// Processes and broadcasts an incoming [Pulse] through the cell's
   /// transformation logic.
   ///
@@ -1034,9 +1032,9 @@ mixin OpenReceptorMixin on Cell {
   /// * [Cell.open]: The factory used to create cells that support this method.
   Future<void> ingest(Pulse pulse, {bool serializedCompletion = false}) async {
     final receptor = _nucleus.receptor;
-    return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+    return await receptor.async
+        .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
-
 }
 
 /// A mixin that implements the **Reactive Topology Interface** for [OpenCell] architectures.
@@ -1060,7 +1058,6 @@ mixin OpenReceptorMixin on Cell {
 /// - The unlinker removes the link when called.
 /// - If the validation is asynchronous, the method returns a `Future`.
 mixin OpenSynapsesMixin on Cell {
-
   /// Establishes a governed reactive connection between this cell and a
   /// downstream [cell].
   ///
@@ -1091,4 +1088,3 @@ mixin OpenSynapsesMixin on Cell {
     return result ? unlinker : null;
   }
 }
-

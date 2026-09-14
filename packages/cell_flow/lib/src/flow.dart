@@ -118,9 +118,9 @@ abstract class Flow extends CellBase {
   /// - [range]: For emitting a numeric range.
   /// - [repeat]: For emitting a repeated value.
   static FlowHandle of<T>(
-      Cell source, {
-        required Iterable<T> values,
-      }) {
+    Cell source, {
+    required Iterable<T> values,
+  }) {
     return Of<T>(values).toHandle(source: source);
   }
 
@@ -179,9 +179,9 @@ abstract class Flow extends CellBase {
   /// - [range]: For emitting a numeric range.
   /// - [repeat]: For emitting a repeated value.
   static FlowHandle fromIterable<T>(
-      Cell source, {
-        required Iterable<T> iterable,
-      }) {
+    Cell source, {
+    required Iterable<T> iterable,
+  }) {
     return FromIterable<T>(iterable).toHandle(source: source);
   }
 
@@ -253,11 +253,11 @@ abstract class Flow extends CellBase {
   /// - [fromIterable]: For emitting from an iterable.
   /// - [repeat]: For emitting a repeated value.
   static FlowHandle range(
-      Cell source, {
-        required int start,
-        required int count,
-        int step = 1,
-      }) {
+    Cell source, {
+    required int start,
+    required int count,
+    int step = 1,
+  }) {
     return Range(start, count, step: step).toHandle(source: source);
   }
 
@@ -319,10 +319,10 @@ abstract class Flow extends CellBase {
   /// - [fromIterable]: For emitting from an iterable.
   /// - [range]: For emitting a numeric range.
   static FlowHandle repeat<T>(
-      Cell source, {
-        required T value,
-        int count = 1,
-      }) {
+    Cell source, {
+    required T value,
+    int count = 1,
+  }) {
     return Repeat<T>(value, count: count).toHandle(source: source);
   }
 
@@ -402,12 +402,12 @@ abstract class Flow extends CellBase {
   /// - [deferFuture]: For creating a new future on each trigger.
   /// - [fromStream]: For bridging a continuous stream.
   static FlowHandle fromFuture<S>(
-      Cell source, {
-        required Future<S> future,
-        Duration? timeout,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Future<S> future,
+    Duration? timeout,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return FromFuture<S>(
       future,
       timeout: timeout,
@@ -485,11 +485,11 @@ abstract class Flow extends CellBase {
   /// - [fromFuture]: For one-shot future loading.
   /// - [asyncMap]: For mapping each value through an async function.
   static FlowHandle deferFuture<S>(
-      Cell source, {
-        required Future<S> Function(Pulse trigger) create,
-        FutureErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Future<S> Function(Pulse trigger) create,
+    FutureErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return DeferFuture<S>(
       create,
       onError: onError,
@@ -561,11 +561,11 @@ abstract class Flow extends CellBase {
   /// - [deferStream]: For creating a new stream on each trigger.
   /// - [fromFuture]: For bridging a single future.
   static FlowHandle fromStream<S>(
-      Cell source, {
-        required Stream<S> stream,
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Stream<S> stream,
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return FromStream<S>(
       stream,
       onError: onError,
@@ -630,11 +630,11 @@ abstract class Flow extends CellBase {
   /// - [fromStream]: For a single stream subscription.
   /// - [deferFuture]: For creating a new future on each trigger.
   static FlowHandle deferStream<S>(
-      Cell source, {
-        required Stream<S> Function() create,
-        StreamErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Stream<S> Function() create,
+    StreamErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return DeferStream<S>(
       create,
       onError: onError,
@@ -729,19 +729,19 @@ abstract class Flow extends CellBase {
   /// - [mapNotNull]: For dropping null results.
   /// - [mapWhen]: For conditional mapping.
   static FlowHandle map<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+    MapErrorHandler? onError,
+  }) {
     return MapValue<S, T>(project, onError: onError).toHandle(source: source);
   }
 
   /// Alias of [map] using the MapValue name.
   static FlowHandle mapValue<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+    MapErrorHandler? onError,
+  }) {
     return map<S, T>(source, project: project, onError: onError);
   }
 
@@ -801,10 +801,10 @@ abstract class Flow extends CellBase {
   /// - [map]: For transforming inputs.
   /// - [mapWithIndex]: For indexed mapping.
   static FlowHandle mapTo<S, T>(
-      Cell source, {
-        required T value,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required T value,
+    MapErrorHandler? onError,
+  }) {
     return MapTo<S, T>(value, onError: onError).toHandle(source: source);
   }
 
@@ -869,11 +869,12 @@ abstract class Flow extends CellBase {
   /// - [mapTo]: For constant mapping.
   /// - [mapNotNull]: For dropping null results.
   static FlowHandle mapWithIndex<S, T>(
-      Cell source, {
-        required T Function(S value, int index) project,
-        MapErrorHandler? onError,
-      }) {
-    return MapWithIndex<S, T>(project, onError: onError).toHandle(source: source);
+    Cell source, {
+    required T Function(S value, int index) project,
+    MapErrorHandler? onError,
+  }) {
+    return MapWithIndex<S, T>(project, onError: onError)
+        .toHandle(source: source);
   }
 
   /// Projects each payload and suppresses the pulse if the result is `null`.
@@ -937,10 +938,10 @@ abstract class Flow extends CellBase {
   /// - [map]: For standard mapping.
   /// - [mapWhen]: For conditional mapping.
   static FlowHandle mapNotNull<S, T>(
-      Cell source, {
-        required T? Function(S value) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required T? Function(S value) project,
+    MapErrorHandler? onError,
+  }) {
     return MapNotNull<S, T>(project, onError: onError).toHandle(source: source);
   }
 
@@ -1008,21 +1009,22 @@ abstract class Flow extends CellBase {
   /// - [map]: For standard mapping.
   /// - [mapNotNull]: For dropping null results.
   static FlowHandle mapWhen<S, T>(
-      Cell source, {
-        required bool Function(S value) test,
-        required T Function(S value) project,
-        MapErrorHandler? onError,
-      }) {
-    return MapWhen<S, T>(test, project, onError: onError).toHandle(source: source);
+    Cell source, {
+    required bool Function(S value) test,
+    required T Function(S value) project,
+    MapErrorHandler? onError,
+  }) {
+    return MapWhen<S, T>(test, project, onError: onError)
+        .toHandle(source: source);
   }
 
   /// [MapWhen] under the MapValue name.
   static FlowHandle mapValueIf<S, T>(
-      Cell source, {
-        required bool Function(S value) test,
-        required T Function(S value) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    required T Function(S value) project,
+    MapErrorHandler? onError,
+  }) {
     return MapValueIf<S, T>(test, project, onError: onError)
         .toHandle(source: source);
   }
@@ -1091,11 +1093,11 @@ abstract class Flow extends CellBase {
   /// - [map]: For standard mapping.
   /// - [mapNotNull]: For dropping null results.
   static FlowHandle mapValueOr<S, T>(
-      Cell source, {
-        required T Function(S value) project,
-        required T Function(S value, Object error) orElse,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required T Function(S value) project,
+    required T Function(S value, Object error) orElse,
+    MapErrorHandler? onError,
+  }) {
     return MapValueOr<S, T>(
       project,
       orElse: orElse,
@@ -1161,10 +1163,10 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [mapKeys]: For transforming map keys.
   static FlowHandle mapValues<K, V, R>(
-      Cell source, {
-        required R Function(V value) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required R Function(V value) project,
+    MapErrorHandler? onError,
+  }) {
     return MapValues<K, V, R>(project, onError: onError)
         .toHandle(source: source);
   }
@@ -1229,10 +1231,10 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [mapValues]: For transforming map values.
   static FlowHandle mapKeys<K, V, R>(
-      Cell source, {
-        required R Function(K key) project,
-        MapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required R Function(K key) project,
+    MapErrorHandler? onError,
+  }) {
     return MapKeys<K, V, R>(project, onError: onError).toHandle(source: source);
   }
 
@@ -1292,10 +1294,10 @@ abstract class Flow extends CellBase {
   /// - [pluckAll]: For extracting multiple fields.
   /// - [pluckPath]: For extracting nested fields.
   static FlowHandle pluck<T>(
-      Cell source, {
-        required Object key,
-        PluckErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Object key,
+    PluckErrorHandler? onError,
+  }) {
     return Pluck<T>(key, onError: onError).toHandle(source: source);
   }
 
@@ -1357,11 +1359,11 @@ abstract class Flow extends CellBase {
   /// - [pluckAll]: For extracting multiple fields.
   /// - [pluckPath]: For extracting nested fields.
   static FlowHandle pluckOr<T>(
-      Cell source, {
-        required Object key,
-        required T orElse,
-        PluckErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Object key,
+    required T orElse,
+    PluckErrorHandler? onError,
+  }) {
     return PluckOr<T>(key, orElse: orElse, onError: onError)
         .toHandle(source: source);
   }
@@ -1430,12 +1432,12 @@ abstract class Flow extends CellBase {
   /// - [pluckOr]: For single field extraction with default.
   /// - [pluckPath]: For nested field extraction.
   static FlowHandle pluckAll(
-      Cell source, {
-        required Iterable<Object> keys,
-        Object? orElse,
-        bool useOrElse = false,
-        PluckErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Iterable<Object> keys,
+    Object? orElse,
+    bool useOrElse = false,
+    PluckErrorHandler? onError,
+  }) {
     return PluckAll(
       keys,
       orElse: orElse,
@@ -1517,12 +1519,12 @@ abstract class Flow extends CellBase {
   /// - [pluckOr]: For single field extraction with default.
   /// - [pluckAll]: For extracting multiple fields.
   static FlowHandle pluckPath<T>(
-      Cell source, {
-        required Iterable<Object> path,
-        T? orElse,
-        bool useOrElse = false,
-        PluckErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Iterable<Object> path,
+    T? orElse,
+    bool useOrElse = false,
+    PluckErrorHandler? onError,
+  }) {
     return PluckPath<T>(
       path,
       orElse: orElse,
@@ -1591,9 +1593,9 @@ abstract class Flow extends CellBase {
   /// - [reduce]: For using an explicit seed value.
   /// - [pairwise]: For emitting adjacent pairs.
   static FlowHandle scan<S, A>(
-      Cell source, {
-        required A Function(A acc, S value) accumulate,
-      }) {
+    Cell source, {
+    required A Function(A acc, S value) accumulate,
+  }) {
     return Scan<S, A>(accumulate).toHandle(source: source);
   }
 
@@ -1655,10 +1657,10 @@ abstract class Flow extends CellBase {
   /// - [scan]: For seedless accumulation.
   /// - [pairwise]: For emitting adjacent pairs.
   static FlowHandle reduce<S, A>(
-      Cell source, {
-        required A seed,
-        required A Function(A acc, S value) accumulate,
-      }) {
+    Cell source, {
+    required A seed,
+    required A Function(A acc, S value) accumulate,
+  }) {
     return Reduce<S, A>(seed, accumulate).toHandle(source: source);
   }
 
@@ -1805,10 +1807,10 @@ abstract class Flow extends CellBase {
   /// - [asyncMapConcurrent]: For concurrent mapping.
   /// - [asyncMapLatest]: For latest-only mapping.
   static FlowHandle asyncMap<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMap<S, T>(mapper, onError: onError).toHandle(source: source);
   }
 
@@ -1871,10 +1873,10 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping.
   /// - [asyncMapLatest]: For latest-only mapping.
   static FlowHandle asyncMapConcurrent<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapConcurrent<S, T>(mapper, onError: onError)
         .toHandle(source: source);
   }
@@ -1942,10 +1944,10 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping.
   /// - [asyncMapConcurrent]: For concurrent mapping.
   static FlowHandle asyncMapLatest<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapLatest<S, T>(mapper, onError: onError)
         .toHandle(source: source);
   }
@@ -2009,10 +2011,10 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping without index.
   /// - [mapWithIndex]: For synchronous indexed mapping.
   static FlowHandle asyncMapWithIndex<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value, int index) mapper,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value, int index) mapper,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapWithIndex<S, T>(mapper, onError: onError)
         .toHandle(source: source);
   }
@@ -2072,11 +2074,11 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping.
   /// - [retry]: For general retry logic.
   static FlowHandle asyncMapWithRetry<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        int count = 3,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    int count = 3,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapWithRetry<S, T>(mapper, count: count, onError: onError)
         .toHandle(source: source);
   }
@@ -2136,11 +2138,11 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping.
   /// - [timeout]: For idle timeout.
   static FlowHandle asyncMapWithTimeout<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        required Duration duration,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    required Duration duration,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapWithTimeout<S, T>(
       mapper,
       duration: duration,
@@ -2203,11 +2205,11 @@ abstract class Flow extends CellBase {
   /// - [asyncMap]: For sequential mapping.
   /// - [asyncMapWithRetry]: For retry logic.
   static FlowHandle asyncMapWithFallback<S, T>(
-      Cell source, {
-        required FutureOr<T> Function(S value) mapper,
-        required T fallback,
-        AsyncMapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<T> Function(S value) mapper,
+    required T fallback,
+    AsyncMapErrorHandler? onError,
+  }) {
     return AsyncMapWithFallback<S, T>(
       mapper,
       fallback: fallback,
@@ -2278,10 +2280,10 @@ abstract class Flow extends CellBase {
   /// - [asyncExpandLatest]: For latest-only flattening.
   /// - [asyncExpandExhaust]: For exhaust flattening.
   static FlowHandle asyncExpand<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) expand,
-        ExpandErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) expand,
+    ExpandErrorHandler? onError,
+  }) {
     return AsyncExpand<S, T>(expand, onError: onError).toHandle(source: source);
   }
 
@@ -2345,10 +2347,10 @@ abstract class Flow extends CellBase {
   /// - [asyncExpandLatest]: For latest-only flattening.
   /// - [asyncExpandExhaust]: For exhaust flattening.
   static FlowHandle asyncExpandConcurrent<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) expand,
-        ExpandErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) expand,
+    ExpandErrorHandler? onError,
+  }) {
     return AsyncExpandConcurrent<S, T>(expand, onError: onError)
         .toHandle(source: source);
   }
@@ -2416,10 +2418,10 @@ abstract class Flow extends CellBase {
   /// - [asyncExpandConcurrent]: For concurrent flattening.
   /// - [asyncExpandExhaust]: For exhaust flattening.
   static FlowHandle asyncExpandLatest<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) expand,
-        ExpandErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) expand,
+    ExpandErrorHandler? onError,
+  }) {
     return AsyncExpandLatest<S, T>(expand, onError: onError)
         .toHandle(source: source);
   }
@@ -2488,10 +2490,10 @@ abstract class Flow extends CellBase {
   /// - [asyncExpandConcurrent]: For concurrent flattening.
   /// - [asyncExpandLatest]: For latest-only flattening.
   static FlowHandle asyncExpandExhaust<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) expand,
-        ExpandErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) expand,
+    ExpandErrorHandler? onError,
+  }) {
     return AsyncExpandExhaust<S, T>(expand, onError: onError)
         .toHandle(source: source);
   }
@@ -2566,12 +2568,12 @@ abstract class Flow extends CellBase {
   /// - [Flow.asyncFoldLatest]: For latest-only accumulation.
   /// - [Flow.asyncFoldExhaust]: For exhaust accumulation.
   static FlowHandle asyncFold<S, A>(
-      Cell source, {
-        required A seed,
-        required FutureOr<A> Function(A acc, S value) accumulate,
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-      }) {
+    Cell source, {
+    required A seed,
+    required FutureOr<A> Function(A acc, S value) accumulate,
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+  }) {
     return AsyncFold<S, A>(
       seed,
       accumulate,
@@ -2605,12 +2607,12 @@ abstract class Flow extends CellBase {
   /// - **State Persistence**: The snapshot is updated only by the latest
   ///   generation.
   static FlowHandle asyncFoldLatest<S, A>(
-      Cell source, {
-        required A seed,
-        required FutureOr<A> Function(A acc, S value) accumulate,
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-      }) {
+    Cell source, {
+    required A seed,
+    required FutureOr<A> Function(A acc, S value) accumulate,
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+  }) {
     return AsyncFoldLatest<S, A>(
       seed,
       accumulate,
@@ -2635,12 +2637,12 @@ abstract class Flow extends CellBase {
   /// 2. While the accumulation is running, new triggers are dropped.
   /// 3. When the accumulation completes, the next trigger is accepted.
   static FlowHandle asyncFoldExhaust<S, A>(
-      Cell source, {
-        required A seed,
-        required FutureOr<A> Function(A acc, S value) accumulate,
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-      }) {
+    Cell source, {
+    required A seed,
+    required FutureOr<A> Function(A acc, S value) accumulate,
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+  }) {
     return AsyncFoldExhaust<S, A>(
       seed,
       accumulate,
@@ -2705,11 +2707,12 @@ abstract class Flow extends CellBase {
   /// ### See Also:
   /// - [asyncFold]: For seeded accumulation.
   static FlowHandle asyncReduce<S>(
-      Cell source, {
-        required FutureOr<S> Function(S acc, S value) accumulate,
-        FoldErrorHandler? onError,
-      }) {
-    return AsyncReduce<S>(accumulate, onError: onError).toHandle(source: source);
+    Cell source, {
+    required FutureOr<S> Function(S acc, S value) accumulate,
+    FoldErrorHandler? onError,
+  }) {
+    return AsyncReduce<S>(accumulate, onError: onError)
+        .toHandle(source: source);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -2774,9 +2777,9 @@ abstract class Flow extends CellBase {
   /// - [mapWhen]: For conditional mapping.
   /// - [takeWhile]: For taking until a condition fails.
   static FlowHandle filter<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     return Filter<S>(test).toHandle(source: source);
   }
 
@@ -2837,9 +2840,9 @@ abstract class Flow extends CellBase {
   /// - [takeWhile]: For conditional taking.
   /// - [takeUntil]: For event-based taking.
   static FlowHandle take<S>(
-      Cell source, {
-        required int count,
-      }) {
+    Cell source, {
+    required int count,
+  }) {
     return Take<S>(count).toHandle(source: source);
   }
 
@@ -2904,9 +2907,9 @@ abstract class Flow extends CellBase {
   /// - [take]: For count-based taking.
   /// - [takeUntil]: For event-based taking.
   static FlowHandle takeWhile<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     return TakeWhile<S>(test).toHandle(source: source);
   }
 
@@ -2968,9 +2971,9 @@ abstract class Flow extends CellBase {
   /// - [takeWhile]: For conditional taking.
   /// - [take]: For count-based taking.
   static FlowHandle takeUntil<S>(
-      Cell source, {
-        required Cell notifier,
-      }) {
+    Cell source, {
+    required Cell notifier,
+  }) {
     return TakeUntil<S>(notifier).toHandle(source: source);
   }
 
@@ -3030,9 +3033,9 @@ abstract class Flow extends CellBase {
   /// - [skipWhile]: For conditional skipping.
   /// - [skipUntil]: For event-based skipping.
   static FlowHandle skip<S>(
-      Cell source, {
-        required int count,
-      }) {
+    Cell source, {
+    required int count,
+  }) {
     return Skip<S>(count).toHandle(source: source);
   }
 
@@ -3100,9 +3103,9 @@ abstract class Flow extends CellBase {
   /// - [skip]: For count-based skipping.
   /// - [skipUntil]: For event-based skipping.
   static FlowHandle skipWhile<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     return SkipWhile<S>(test).toHandle(source: source);
   }
 
@@ -3166,9 +3169,9 @@ abstract class Flow extends CellBase {
   /// - [skipWhile]: For conditional skipping.
   /// - [skip]: For count-based skipping.
   static FlowHandle skipUntil<S>(
-      Cell source, {
-        required Cell notifier,
-      }) {
+    Cell source, {
+    required Cell notifier,
+  }) {
     return SkipUntil<S>(notifier).toHandle(source: source);
   }
 
@@ -3284,9 +3287,9 @@ abstract class Flow extends CellBase {
   /// - [skipWhile]: For conditional prefix skipping.
   /// - [filter]: For passing when a condition is true.
   static FlowHandle skipWhen<S>(
-      Cell source, {
-        required bool Function(S value) test,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+  }) {
     return SkipWhen<S>(test).toHandle(source: source);
   }
 
@@ -3442,9 +3445,9 @@ abstract class Flow extends CellBase {
   /// - [switchMap]: For latest-only flattening.
   /// - [exhaustMap]: For exhaust flattening.
   static FlowHandle concatMap<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) project,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) project,
+  }) {
     return ConcatMap<S, T>(project).toHandle(source: source);
   }
 
@@ -3508,10 +3511,10 @@ abstract class Flow extends CellBase {
   /// - [concatMap]: For per-trigger sequences.
   /// - [concatAll]: For dynamic sequence concatenation.
   static FlowHandle concat<T>(
-      Cell source, {
-        required Iterable<Object?> inners,
-        ConcatErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Iterable<Object?> inners,
+    ConcatErrorHandler? onError,
+  }) {
     return Concat<T>(inners, onError: onError).toHandle(source: source);
   }
 
@@ -3682,9 +3685,9 @@ abstract class Flow extends CellBase {
   /// - [switchMap]: For latest-only flattening.
   /// - [exhaustMap]: For exhaust flattening.
   static FlowHandle mergeMap<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) project,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) project,
+  }) {
     return MergeMap<S, T>(project).toHandle(source: source);
   }
 
@@ -3770,9 +3773,9 @@ abstract class Flow extends CellBase {
   /// - [mergeMap]: For concurrent flattening.
   /// - [exhaustMap]: For exhaust flattening.
   static FlowHandle switchMap<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) project,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) project,
+  }) {
     return SwitchMap<S, T>(project).toHandle(source: source);
   }
 
@@ -3841,9 +3844,9 @@ abstract class Flow extends CellBase {
   /// - [mergeMap]: For concurrent flattening.
   /// - [switchMap]: For latest-only flattening.
   static FlowHandle exhaustMap<S, T>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) project,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) project,
+  }) {
     return ExhaustMap<S, T>(project).toHandle(source: source);
   }
 
@@ -3908,9 +3911,9 @@ abstract class Flow extends CellBase {
   /// - [merge]: For merging extra sources only.
   /// - [mergeAll]: For flattening inner sequences.
   static FlowHandle mergeWith<T>(
-      Cell source, {
-        required List<Cell> others,
-      }) {
+    Cell source, {
+    required List<Cell> others,
+  }) {
     return MergeWith<T>(others).toHandle(source: source);
   }
 
@@ -3969,9 +3972,9 @@ abstract class Flow extends CellBase {
   /// - [mergeWith]: For merging source with others.
   /// - [mergeAll]: For flattening inner sequences.
   static FlowHandle merge<T>(
-      Cell source, {
-        required List<Cell> sources,
-      }) {
+    Cell source, {
+    required List<Cell> sources,
+  }) {
     return Merge<T>(sources).toHandle(source: source);
   }
 
@@ -4030,9 +4033,9 @@ abstract class Flow extends CellBase {
   /// - [mergeWith]: For merging cells.
   /// - [concatAll]: For sequential flattening.
   static FlowHandle mergeAll<T>(
-      Cell source, {
-        MergeErrorHandler? onError,
-      }) {
+    Cell source, {
+    MergeErrorHandler? onError,
+  }) {
     return MergeAll<T>(onError: onError).toHandle(source: source);
   }
 
@@ -4102,11 +4105,11 @@ abstract class Flow extends CellBase {
   /// - [zipAll]: For zipping values from a single source by count.
   /// - [combineLatestWith]: For combining the latest values.
   static FlowHandle zipWith<R>(
-      Cell source, {
-        required List<Cell> others,
-        R Function(List<Object?> row)? project,
-        ZipErrorHandler? onError,
-      }) {
+    Cell source, {
+    required List<Cell> others,
+    R Function(List<Object?> row)? project,
+    ZipErrorHandler? onError,
+  }) {
     return ZipWith<R>(
       others,
       project: project,
@@ -4174,11 +4177,11 @@ abstract class Flow extends CellBase {
   /// - [zipWith]: For zipping the source with other cells.
   /// - [zipAll]: For zipping values from a single source by count.
   static FlowHandle zip<R>(
-      Cell source, {
-        required List<Cell> sources,
-        R Function(List<Object?> row)? project,
-        ZipErrorHandler? onError,
-      }) {
+    Cell source, {
+    required List<Cell> sources,
+    R Function(List<Object?> row)? project,
+    ZipErrorHandler? onError,
+  }) {
     return Zip<R>(
       sources,
       project: project,
@@ -4246,10 +4249,10 @@ abstract class Flow extends CellBase {
   /// - [zip]: For zipping extra sources with an arm.
   /// - [bufferCount]: For more flexible count-based buffering.
   static FlowHandle zipAll<T>(
-      Cell source, {
-        required int width,
-        ZipErrorHandler? onError,
-      }) {
+    Cell source, {
+    required int width,
+    ZipErrorHandler? onError,
+  }) {
     return ZipAll<T>(width, onError: onError).toHandle(source: source);
   }
 
@@ -4320,11 +4323,11 @@ abstract class Flow extends CellBase {
   /// - [withLatestFrom]: For source-driven combination.
   /// - [zipWith]: For index-based pairing.
   static FlowHandle combineLatestWith<S, R>(
-      Cell source, {
-        required List<Cell> others,
-        required R Function(S sourceValue, List<Object?> latest) combine,
-        CombineErrorHandler? onError,
-      }) {
+    Cell source, {
+    required List<Cell> others,
+    required R Function(S sourceValue, List<Object?> latest) combine,
+    CombineErrorHandler? onError,
+  }) {
     return CombineLatestWith<S, R>(
       others,
       combine,
@@ -4396,11 +4399,11 @@ abstract class Flow extends CellBase {
   /// - [combineLatestWith]: For any-update-driven combination.
   /// - [zipWith]: For index-based pairing.
   static FlowHandle withLatestFrom<S, R>(
-      Cell source, {
-        required List<Cell> others,
-        required R Function(S sourceValue, List<Object?> latest) combine,
-        CombineErrorHandler? onError,
-      }) {
+    Cell source, {
+    required List<Cell> others,
+    required R Function(S sourceValue, List<Object?> latest) combine,
+    CombineErrorHandler? onError,
+  }) {
     return WithLatestFrom<S, R>(
       others,
       combine,
@@ -4468,9 +4471,9 @@ abstract class Flow extends CellBase {
   /// start.emit(null); // Emits 'fast'
   /// ```
   static FlowHandle race<T>(
-      Cell source, {
-        required List<Object?> competitors,
-      }) {
+    Cell source, {
+    required List<Object?> competitors,
+  }) {
     return Race<T>(competitors).toHandle(source: source);
   }
 
@@ -4535,10 +4538,10 @@ abstract class Flow extends CellBase {
   /// - [delayWhen]: For notifier-based delay.
   /// - [delayLatest]: For trailing delay.
   static FlowHandle delay<S>(
-      Cell source, {
-        required Duration duration,
-        DelayErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration duration,
+    DelayErrorHandler? onError,
+  }) {
     return Delay<S>(duration, onError: onError).toHandle(source: source);
   }
 
@@ -4599,10 +4602,10 @@ abstract class Flow extends CellBase {
   /// - [delayWhen]: For notifier-based delay.
   /// - [delayLatest]: For trailing delay.
   static FlowHandle delayWithSelector<S>(
-      Cell source, {
-        required Duration Function(S value) durationOf,
-        DelayErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration Function(S value) durationOf,
+    DelayErrorHandler? onError,
+  }) {
     return DelayWithSelector<S>(durationOf, onError: onError)
         .toHandle(source: source);
   }
@@ -4666,10 +4669,10 @@ abstract class Flow extends CellBase {
   /// - [delayWithSelector]: For payload-dependent delay.
   /// - [delayLatest]: For trailing delay.
   static FlowHandle delayWhen<S>(
-      Cell source, {
-        required FutureOr<Object?> Function(S value) when,
-        DelayErrorHandler? onError,
-      }) {
+    Cell source, {
+    required FutureOr<Object?> Function(S value) when,
+    DelayErrorHandler? onError,
+  }) {
     return DelayWhen<S>(when, onError: onError).toHandle(source: source);
   }
 
@@ -4734,10 +4737,10 @@ abstract class Flow extends CellBase {
   /// - [delayWithSelector]: For payload-dependent delay.
   /// - [delayWhen]: For notifier-based delay.
   static FlowHandle delayLatest<S>(
-      Cell source, {
-        required Duration duration,
-        DelayErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration duration,
+    DelayErrorHandler? onError,
+  }) {
     return DelayLatest<S>(duration, onError: onError).toHandle(source: source);
   }
 
@@ -4805,9 +4808,9 @@ abstract class Flow extends CellBase {
   /// - [throttle]: For rate limiting.
   /// - [sample]: For sampling on notifier.
   static FlowHandle debounce<S>(
-      Cell source, {
-        required Duration duration,
-      }) {
+    Cell source, {
+    required Duration duration,
+  }) {
     return Debounce<S>(duration).toHandle(source: source);
   }
 
@@ -4876,11 +4879,11 @@ abstract class Flow extends CellBase {
   /// - [debounce]: For silence-based emission.
   /// - [sample]: For sampling on notifier.
   static FlowHandle throttle<S>(
-      Cell source, {
-        required Duration duration,
-        bool leading = true,
-        bool trailing = false,
-      }) {
+    Cell source, {
+    required Duration duration,
+    bool leading = true,
+    bool trailing = false,
+  }) {
     return Throttle<S>(
       duration,
       leading: leading,
@@ -4950,10 +4953,10 @@ abstract class Flow extends CellBase {
   /// - [sampleTime]: For time-based sampling.
   /// - [audit]: For audit on notifier.
   static FlowHandle sample<S>(
-      Cell source, {
-        required Cell notifier,
-        SampleErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Cell notifier,
+    SampleErrorHandler? onError,
+  }) {
     return Sample<S>(notifier, onError: onError).toHandle(source: source);
   }
 
@@ -5015,10 +5018,10 @@ abstract class Flow extends CellBase {
   /// - [sample]: For notifier-based sampling.
   /// - [interval]: For emitting values at a fixed interval.
   static FlowHandle sampleTime<S>(
-      Cell source, {
-        required Duration period,
-        SampleErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration period,
+    SampleErrorHandler? onError,
+  }) {
     return SampleTime<S>(period, onError: onError).toHandle(source: source);
   }
 
@@ -5084,10 +5087,10 @@ abstract class Flow extends CellBase {
   /// - [sample]: For sampling on notifier.
   /// - [auditTime]: For time-based audit.
   static FlowHandle audit<S>(
-      Cell source, {
-        required Cell notifier,
-        SampleErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Cell notifier,
+    SampleErrorHandler? onError,
+  }) {
     return Audit<S>(notifier, onError: onError).toHandle(source: source);
   }
 
@@ -5149,10 +5152,10 @@ abstract class Flow extends CellBase {
   /// - [audit]: For audit on notifier.
   /// - [debounce]: For resetting the timer on each pulse.
   static FlowHandle auditTime<S>(
-      Cell source, {
-        required Duration duration,
-        SampleErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration duration,
+    SampleErrorHandler? onError,
+  }) {
     return AuditTime<S>(duration, onError: onError).toHandle(source: source);
   }
 
@@ -5216,11 +5219,11 @@ abstract class Flow extends CellBase {
   /// - [timeoutWithFallback]: For fallback on timeout.
   /// - [timeout]: For overall deadline from first pulse.
   static FlowHandle timeout<S>(
-      Cell source, {
-        required Duration duration,
-        TimeoutErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required Duration duration,
+    TimeoutErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return Timeout<S>(
       duration,
       onError: onError,
@@ -5287,11 +5290,11 @@ abstract class Flow extends CellBase {
   /// - [timeout]: For standard timeout with error.
   /// - [timeout]: For custom error on timeout.
   static FlowHandle timeoutWithFallback<S>(
-      Cell source, {
-        required Duration duration,
-        required S fallback,
-        bool once = false,
-      }) {
+    Cell source, {
+    required Duration duration,
+    required S fallback,
+    bool once = false,
+  }) {
     return TimeoutWithFallback<S>(
       duration,
       fallback: fallback,
@@ -5355,9 +5358,9 @@ abstract class Flow extends CellBase {
   /// - [interval]: For custom value emission.
   /// - [interval]: For stateful interval emissions.
   static FlowHandle interval(
-      Cell source, {
-        required Duration period,
-      }) {
+    Cell source, {
+    required Duration period,
+  }) {
     return Interval(period).toHandle(source: source);
   }
 
@@ -5439,11 +5442,11 @@ abstract class Flow extends CellBase {
   /// - [bufferTime]: For time-based buffering.
   /// - [bufferWhen]: For trigger-based buffering.
   static FlowHandle bufferCount<S>(
-      Cell source, {
-        required int size,
-        int? skip,
-        BufferErrorHandler? onError,
-      }) {
+    Cell source, {
+    required int size,
+    int? skip,
+    BufferErrorHandler? onError,
+  }) {
     return BufferCount<S>(size, skip: skip, onError: onError)
         .toHandle(source: source);
   }
@@ -5509,11 +5512,11 @@ abstract class Flow extends CellBase {
   /// - [bufferCount]: For count-based buffering.
   /// - [bufferWhen]: For trigger-based buffering.
   static FlowHandle bufferTime<S>(
-      Cell source, {
-        required Duration duration,
-        bool emitEmpty = false,
-        BufferErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration duration,
+    bool emitEmpty = false,
+    BufferErrorHandler? onError,
+  }) {
     return BufferTime<S>(
       duration,
       emitEmpty: emitEmpty,
@@ -5582,11 +5585,11 @@ abstract class Flow extends CellBase {
   /// - [bufferCount]: For count-based buffering.
   /// - [bufferTime]: For time-based buffering.
   static FlowHandle bufferWhen<S>(
-      Cell source, {
-        required Cell closer,
-        bool emitEmpty = false,
-        BufferErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Cell closer,
+    bool emitEmpty = false,
+    BufferErrorHandler? onError,
+  }) {
     return BufferWhen<S>(
       closer,
       emitEmpty: emitEmpty,
@@ -5657,11 +5660,11 @@ abstract class Flow extends CellBase {
   /// - [bufferCount]: For count-based buffering.
   /// - [bufferTime]: For time-based buffering.
   static FlowHandle bufferWithPredicate<S>(
-      Cell source, {
-        required bool Function(S value) test,
-        bool includeTrigger = true,
-        BufferErrorHandler? onError,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    bool includeTrigger = true,
+    BufferErrorHandler? onError,
+  }) {
     return BufferWithPredicate<S>(
       test,
       includeTrigger: includeTrigger,
@@ -5729,12 +5732,12 @@ abstract class Flow extends CellBase {
   /// - [bufferCount]: For count-based buffering.
   /// - [bufferTime]: For time-based buffering.
   static FlowHandle bufferWithTimeAndCount<S>(
-      Cell source, {
-        required Duration duration,
-        required int count,
-        bool emitEmpty = false,
-        BufferErrorHandler? onError,
-      }) {
+    Cell source, {
+    required Duration duration,
+    required int count,
+    bool emitEmpty = false,
+    BufferErrorHandler? onError,
+  }) {
     return BufferWithTimeAndCount<S>(
       duration: duration,
       count: count,
@@ -5804,10 +5807,10 @@ abstract class Flow extends CellBase {
   /// - [windowTime]: For time-based windows.
   /// - [bufferCount]: For count-based buffering.
   static FlowHandle windowCount<S>(
-      Cell source, {
-        required int size,
-        int? skip,
-      }) {
+    Cell source, {
+    required int size,
+    int? skip,
+  }) {
     return WindowCount<S>(size, skip: skip).toHandle(source: source);
   }
 
@@ -5865,9 +5868,9 @@ abstract class Flow extends CellBase {
   /// - [windowCount]: For count-based windows.
   /// - [bufferTime]: For time-based buffering.
   static FlowHandle windowTime<S>(
-      Cell source, {
-        required Duration duration,
-      }) {
+    Cell source, {
+    required Duration duration,
+  }) {
     return WindowTime<S>(duration).toHandle(source: source);
   }
 
@@ -5930,10 +5933,10 @@ abstract class Flow extends CellBase {
   /// - [groupCollect]: For collecting values by group.
   /// - [groupByCount]: For batching values by group.
   static FlowHandle groupBy<S, K>(
-      Cell source, {
-        required K Function(S value) keyOf,
-        GroupErrorHandler? onError,
-      }) {
+    Cell source, {
+    required K Function(S value) keyOf,
+    GroupErrorHandler? onError,
+  }) {
     return GroupBy<S, K>(keyOf, onError: onError).toHandle(source: source);
   }
 
@@ -5998,11 +6001,11 @@ abstract class Flow extends CellBase {
   /// - [groupBy]: For tagging values with group keys.
   /// - [groupByCount]: For batching values by group.
   static FlowHandle groupCollect<S, K>(
-      Cell source, {
-        required K Function(S value) keyOf,
-        Map<K, List<S>>? groups,
-        GroupErrorHandler? onError,
-      }) {
+    Cell source, {
+    required K Function(S value) keyOf,
+    Map<K, List<S>>? groups,
+    GroupErrorHandler? onError,
+  }) {
     return GroupCollect<S, K>(
       keyOf,
       groups: groups,
@@ -6072,11 +6075,11 @@ abstract class Flow extends CellBase {
   /// - [groupBy]: For tagging values with group keys.
   /// - [groupCollect]: For accumulating values by group.
   static FlowHandle groupByCount<S, K>(
-      Cell source, {
-        required K Function(S value) keyOf,
-        required int size,
-        GroupErrorHandler? onError,
-      }) {
+    Cell source, {
+    required K Function(S value) keyOf,
+    required int size,
+    GroupErrorHandler? onError,
+  }) {
     return GroupByCount<S, K>(keyOf, size, onError: onError)
         .toHandle(source: source);
   }
@@ -6143,10 +6146,10 @@ abstract class Flow extends CellBase {
   /// - [partitionMap]: For mapping matched/unmatched values differently.
   /// - [partitionOnly]: For filtering by match status.
   static FlowHandle partition<S>(
-      Cell source, {
-        required bool Function(S value) test,
-        PartitionErrorHandler? onError,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    PartitionErrorHandler? onError,
+  }) {
     return Partition<S>(test, onError: onError).toHandle(source: source);
   }
 
@@ -6216,12 +6219,12 @@ abstract class Flow extends CellBase {
   /// - [partition]: For tagging values with match status.
   /// - [partitionOnly]: For filtering by match status.
   static FlowHandle partitionMap<S, T>(
-      Cell source, {
-        required bool Function(S value) test,
-        required T Function(S value) thenMap,
-        required T Function(S value) elseMap,
-        PartitionErrorHandler? onError,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    required T Function(S value) thenMap,
+    required T Function(S value) elseMap,
+    PartitionErrorHandler? onError,
+  }) {
     return PartitionMap<S, T>(
       test,
       thenMap: thenMap,
@@ -6292,11 +6295,11 @@ abstract class Flow extends CellBase {
   /// - [partition]: For tagging values with match status.
   /// - [partitionMap]: For mapping matched/unmatched values differently.
   static FlowHandle partitionOnly<S>(
-      Cell source, {
-        required bool Function(S value) test,
-        bool matched = true,
-        PartitionErrorHandler? onError,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    bool matched = true,
+    PartitionErrorHandler? onError,
+  }) {
     return PartitionOnly<S>(
       test,
       matched: matched,
@@ -6371,11 +6374,11 @@ abstract class Flow extends CellBase {
   /// - [partition]: For tagging with match status.
   /// - [iif]: For multi-path routing.
   static FlowHandle iif<S, T>(
-      Cell source, {
-        required bool Function(S value) test,
-        required T Function(S value) thenMap,
-        required T Function(S value) elseMap,
-      }) {
+    Cell source, {
+    required bool Function(S value) test,
+    required T Function(S value) thenMap,
+    required T Function(S value) elseMap,
+  }) {
     return Iif<S, T>(
       test,
       thenMap: thenMap,
@@ -6448,10 +6451,10 @@ abstract class Flow extends CellBase {
   /// - [startWith]: For prefixing multiple values.
   /// - [startWith]: For dynamic prefixing.
   static FlowHandle startWith<S>(
-      Cell source, {
-        required S value,
-        bool replaceFirst = false,
-      }) {
+    Cell source, {
+    required S value,
+    bool replaceFirst = false,
+  }) {
     return StartWith<S>(value, replaceFirst: replaceFirst)
         .toHandle(source: source);
   }
@@ -6569,9 +6572,9 @@ abstract class Flow extends CellBase {
   /// - [share]: For sharing without buffering.
   /// - [share]: For sharing only the latest value.
   static FlowHandle shareReplay<S>(
-      Cell source, {
-        int size = 1,
-      }) {
+    Cell source, {
+    int size = 1,
+  }) {
     return ShareReplay<S>(size: size).toHandle(source: source);
   }
 
@@ -6640,12 +6643,12 @@ abstract class Flow extends CellBase {
   /// - [retry]: For retries with a fixed delay.
   /// - [retry]: For retries with exponential backoff.
   static FlowHandle retry<S, T>(
-      Cell source, {
-        required RetryTask<S, T> task,
-        int count = 3,
-        RetryErrorHandler? onError,
-        bool emitErrorPulse = true,
-      }) {
+    Cell source, {
+    required RetryTask<S, T> task,
+    int count = 3,
+    RetryErrorHandler? onError,
+    bool emitErrorPulse = true,
+  }) {
     return Retry<S, T>(
       task,
       count: count,
@@ -6713,10 +6716,10 @@ abstract class Flow extends CellBase {
   /// - [tapAll]: For side effects on all pulses.
   /// - [tapWithIndex]: For indexed side effects.
   static FlowHandle tap<S>(
-      Cell source, {
-        required void Function(S value) onValue,
-        TapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required void Function(S value) onValue,
+    TapErrorHandler? onError,
+  }) {
     return Tap<S>(onValue, onError: onError).toHandle(source: source);
   }
 
@@ -6775,10 +6778,10 @@ abstract class Flow extends CellBase {
   /// - [tap]: For typed side effects.
   /// - [tapWithIndex]: For indexed side effects.
   static FlowHandle tapAll(
-      Cell source, {
-        required void Function(Pulse pulse) onPulse,
-        TapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required void Function(Pulse pulse) onPulse,
+    TapErrorHandler? onError,
+  }) {
     return TapAll(onPulse, onError: onError).toHandle(source: source);
   }
 
@@ -6841,10 +6844,10 @@ abstract class Flow extends CellBase {
   /// - [tap]: For simple side effects.
   /// - [tapAll]: For side effects on all pulses.
   static FlowHandle tapWithIndex<S>(
-      Cell source, {
-        required void Function(S value, int index) onValue,
-        TapErrorHandler? onError,
-      }) {
+    Cell source, {
+    required void Function(S value, int index) onValue,
+    TapErrorHandler? onError,
+  }) {
     return TapWithIndex<S>(onValue, onError: onError).toHandle(source: source);
   }
 }

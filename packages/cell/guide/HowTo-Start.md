@@ -422,30 +422,30 @@ await tx.commit();  // All or nothing
 #### 🟢 Essential (The Basics)
 | Guide | Description |
 |-------|-------------|
-| [HowTo-Start.md](./HowTo-Start.md) | Getting started with the Mitosis framework |
-| [HowTo-16_Essential_Operators.md](./HowTo-16_Essential_Operators.md) | The "Core 16" API reference and learning path |
-| [HowTo-Pulse.md](./HowTo-Pulse.md) | Understanding immutable signals and causal tracing |
-| [HowTo-Receptor.md](./HowTo-Receptor.md) | Building basic transformation pipelines |
-| [HowTo-Instruction.md](./HowTo-Instruction.md) | Reusable logic units for signal processing |
+| [HowTo-Start.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md) | Getting started with the Mitosis framework |
+| [HowTo-16_Essential_Operators.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-16_Essential_Operators.md) | The "Core 16" API reference and learning path |
+| [HowTo-Pulse.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Pulse.md) | Understanding immutable signals and causal tracing |
+| [HowTo-Receptor.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Receptor.md) | Building basic transformation pipelines |
+| [HowTo-Instruction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Instruction.md) | Reusable logic units for signal processing |
 
 #### 🟡 Intermediate (Logic & Flow)
 | Guide | Description |
 |-------|-------------|
-| [HowTo-TestCell.md](./HowTo-TestCell.md) | Implementing validation and business rules |
-| [HowTo-Synapses.md](./HowTo-Synapses.md) | Signal distribution and propagation control |
-| [HowTo-Nucleus.md](./HowTo-Nucleus.md) | Understanding cell blueprints and structural integrity |
-| [HowTo-Transaction.md](./HowTo-Transaction.md) | Atomic multi-cell updates and state isolation |
-| [HowTo-PropagationPolicy.md](./HowTo-PropagationPolicy.md) | Managing temporal behavior (debounce, throttle) |
-| [HowTo-TransactionOnApply.md](./HowTo-TransactionOnApply.md) | Batching mutations with transactional application |
+| [HowTo-TestCell.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TestCell.md) | Implementing validation and business rules |
+| [HowTo-Synapses.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Synapses.md) | Signal distribution and propagation control |
+| [HowTo-Nucleus.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Nucleus.md) | Understanding cell blueprints and structural integrity |
+| [HowTo-Transaction.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md) | Atomic multi-cell updates and state isolation |
+| [HowTo-PropagationPolicy.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PropagationPolicy.md) | Managing temporal behavior (debounce, throttle) |
+| [HowTo-TransactionOnApply.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md) | Batching mutations with transactional application |
 
 #### 🔴 Advanced (Governance & Security)
 | Guide | Description |
 |-------|-------------|
-| [HowTo-Context.md](./HowTo-Context.md) | Defining security tiers and operational boundaries |
-| [HowTo-PulseContext.md](./HowTo-PulseContext.md) | Contextual metadata for individual signals |
-| [HowTo-DeputyContext.md](./HowTo-DeputyContext.md) | Privilege attenuation and authority delegation |
-| [HowTo-EphemeralPolicy.md](./HowTo-EphemeralPolicy.md) | Automatic cleanup and TTL for stateful cells |
-| [HowTo-PulseEphemeralPolicy.md](./HowTo-PulseEphemeralPolicy.md) | Lifecycle management for transient signals |
+| [HowTo-Context.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Context.md) | Defining security tiers and operational boundaries |
+| [HowTo-PulseContext.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PulseContext.md) | Contextual metadata for individual signals |
+| [HowTo-DeputyContext.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-DeputyContext.md) | Privilege attenuation and authority delegation |
+| [HowTo-EphemeralPolicy.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-EphemeralPolicy.md) | Automatic cleanup and TTL for stateful cells |
+| [HowTo-PulseEphemeralPolicy.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-PulseEphemeralPolicy.md) | Lifecycle management for transient signals |
 
 ### 2. Run the Examples
 
@@ -575,8 +575,8 @@ See `ARCHITECTURE.md` for deputies, transactions, and isolation.
 
 If you have questions or need help:
 
-1. Check the [How-To guides](./HowTo-Start.md)
-2. Browse the [example/](./example/) directory
+1. Check the [How-To guides](https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md)
+2. Browse the [example/](https://github.com/simon-m-lee/cell/tree/master/packages/cell/example) directory
 3. Open an issue on GitHub
 4. Join the community discussion
 

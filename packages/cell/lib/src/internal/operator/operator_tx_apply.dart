@@ -100,10 +100,10 @@ class TxApplyCompensationException implements Exception {
   final Object? cause;
 
   TxApplyCompensationException(
-      this.message,
-      this.failures, [
-        this.cause,
-      ]);
+    this.message,
+    this.failures, [
+    this.cause,
+  ]);
 
   @override
   String toString() =>
@@ -124,7 +124,8 @@ class TxApplyOptions {
   final int Function(Cell a, Cell b)? comparator;
   final bool compensateIfNotExecuted;
   final CompensationErrorPolicy compensationErrorPolicy;
-  final void Function(List<CompensationFailure> failures)? onCompensationFailures;
+  final void Function(List<CompensationFailure> failures)?
+      onCompensationFailures;
   final int compensationMaxAttempts;
   final Duration Function(int attempt)? compensationBackoff;
   final bool Function(Object error)? isRetryableCompensationError;
@@ -157,7 +158,8 @@ bool _defaultIsRetryableCompensationError(Object error) {
   return true;
 }
 
-bool _isApplyRejected(dynamic result) => identical(result, ApplyRejected.instance);
+bool _isApplyRejected(dynamic result) =>
+    identical(result, ApplyRejected.instance);
 
 // ── Staging ──────────────────────────────────────────────────
 
@@ -200,15 +202,15 @@ abstract class ApplyTransactionScope {
   Future<void> begin(Iterable<Cell> participants);
 
   void enqueue(
-      Cell cell,
-      Function function,
-      List? positionalArguments,
-      Map<Symbol, dynamic>? namedArguments, {
-        Cell? compensateCell,
-        Function? compensateFunction,
-        List? compensatePositional,
-        Map<Symbol, dynamic>? compensateNamed,
-      });
+    Cell cell,
+    Function function,
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments, {
+    Cell? compensateCell,
+    Function? compensateFunction,
+    List? compensatePositional,
+    Map<Symbol, dynamic>? compensateNamed,
+  });
 
   Future<void> commit();
   Future<void> rollback({Object? savepoint});
@@ -255,15 +257,15 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
 
   @override
   void enqueue(
-      Cell cell,
-      Function function,
-      List? positionalArguments,
-      Map<Symbol, dynamic>? namedArguments, {
-        Cell? compensateCell,
-        Function? compensateFunction,
-        List? compensatePositional,
-        Map<Symbol, dynamic>? compensateNamed,
-      }) {
+    Cell cell,
+    Function function,
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments, {
+    Cell? compensateCell,
+    Function? compensateFunction,
+    List? compensatePositional,
+    Map<Symbol, dynamic>? compensateNamed,
+  }) {
     _ensureOpen();
     if (!_participants.contains(cell)) {
       throw TxApplyException(
@@ -291,7 +293,7 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
       positionalArguments: positionalArguments,
       namedArguments: namedArguments,
       compensateCell:
-      compensateFunction == null ? null : (compensateCell ?? cell),
+          compensateFunction == null ? null : (compensateCell ?? cell),
       compensateFunction: compensateFunction,
       compensatePositional: compensatePositional,
       compensateNamed: compensateNamed,
@@ -313,8 +315,7 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
         : options.compensationMaxAttempts;
     final isRetryable = options.isRetryableCompensationError ??
         _defaultIsRetryableCompensationError;
-    final backoff =
-        options.compensationBackoff ?? _defaultCompensationBackoff;
+    final backoff = options.compensationBackoff ?? _defaultCompensationBackoff;
 
     Object? lastError;
     StackTrace? lastSt;
@@ -362,18 +363,16 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
   }
 
   Future<List<CompensationFailure>> _runCompensations(
-      int fromIndexInclusive, {
-        required bool onlyExecuted,
-      }) async {
+    int fromIndexInclusive, {
+    required bool onlyExecuted,
+  }) async {
     final failures = <CompensationFailure>[];
 
     for (var i = _staged.length - 1; i >= fromIndexInclusive; i--) {
       final call = _staged[i];
       if (!call.hasCompensation) continue;
       if (onlyExecuted && !call.executed) continue;
-      if (!onlyExecuted &&
-          !call.executed &&
-          !options.compensateIfNotExecuted) {
+      if (!onlyExecuted && !call.executed && !options.compensateIfNotExecuted) {
         continue;
       }
 

@@ -69,8 +69,7 @@ part of '../cell_tissue.dart';
 /// - [TissueMap] – the reactive map instance governed by this nucleus.
 /// - [TissueReceptor] – the engine that processes mutation signals.
 /// - [TestTissue] – the validation logic for collection elements.
-abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
-
+abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
   /// Primary architectural factory for instantiating a [TissueMapNucleus],
   /// defining the **"Reactive DNA"** for a [TissueMap].
   ///
@@ -111,16 +110,15 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A concrete [TissueMapNucleus<K, V>] instance strictly configured
   /// according to the provided reactive blueprint.
-  factory TissueMapNucleus({
-    Cell? bind,
-    Context context,
-    TissueReceptor<V, TissueMap<K, V>> receptor,
-    TestTissue<V, TissueMap<K, V>> testRule,
-    Synapses synapses,
-    bool identityMap,
-    EphemeralPolicy? ephemeralPolicy,
-    Record? user
-  }) = _TissueMapNucleus<K,V,TissueMap<K,V>>;
+  factory TissueMapNucleus(
+      {Cell? bind,
+      Context context,
+      TissueReceptor<V, TissueMap<K, V>> receptor,
+      TestTissue<V, TissueMap<K, V>> testRule,
+      Synapses synapses,
+      bool identityMap,
+      EphemeralPolicy? ephemeralPolicy,
+      Record? user}) = _TissueMapNucleus<K, V, TissueMap<K, V>>;
 
   /// Architectural factory for deriving a new [TissueMapNucleus] from a
   /// [principal] through the **Mutation‑Based Derivation** pattern.
@@ -177,18 +175,16 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A new [TissueMapNucleus<K, V>] instance that acts as a specialised
   /// behavioral layer over the [principal].
-  factory TissueMapNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,TissueMap<K, V>>? receptor,
-    TestTissue<V,TissueMap<K, V>>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    TissueMapNucleus<K,V>? override,
-    required TissueMapNucleus<K,V> principal
-  }) = _TissueMapNucleus<K,V,TissueMap<K,V>>.evolve;
+  factory TissueMapNucleus.evolve(
+          {Cell? bind,
+          Context? context,
+          TissueReceptor<V, TissueMap<K, V>>? receptor,
+          TestTissue<V, TissueMap<K, V>>? testRule,
+          Synapses? synapses,
+          EphemeralPolicy? ephemeralPolicy,
+          TissueMapNucleus<K, V>? override,
+          required TissueMapNucleus<K, V> principal}) =
+      _TissueMapNucleus<K, V, TissueMap<K, V>>.evolve;
 
   /// A static utility factory that produces a type‑safe nucleus configuration
   /// for a specific key type [K], value type [V], and a specialised [TissueMap]
@@ -232,21 +228,19 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
   /// ### Returns:
   /// A nucleus instance strictly configured for the specified key, value, and
   /// tissue types.
-  static TissueMapNucleusBase<K,V,C> create<K,V,C extends TissueMap<K,V>>({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    EphemeralPolicy? ephemeralPolicy,
-    forceLock = false,
-    TissueMapNucleusBase<K,V,C>? principal
-  }) {
+  static TissueMapNucleusBase<K, V, C> create<K, V, C extends TissueMap<K, V>>(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      EphemeralPolicy? ephemeralPolicy,
+      forceLock = false,
+      TissueMapNucleusBase<K, V, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<V,TissueMap<K,V>,C>(
+      final local = TissueNucleusBase.local<V, TissueMap<K, V>, C>(
         container: container,
         bind: bind,
         context: context,
@@ -257,12 +251,11 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
         user: user,
         ephemeralPolicy: ephemeralPolicy,
       );
-      return _TissueMapNucleus<K,V,C>.fromRecord(
-          (local: local, principal: principal)
-      );
+      return _TissueMapNucleus<K, V, C>.fromRecord(
+          (local: local, principal: principal));
     }
 
-    return _TissueMapNucleus<K,V,C>(
+    return _TissueMapNucleus<K, V, C>(
         bind: bind,
         context: context ?? Context.system,
         receptor: receptor ?? TissueReceptor.passThrough,
@@ -271,8 +264,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
         identityMap: container == Container.identityMap,
         user: user,
         ephemeralPolicy: ephemeralPolicy,
-        forceLock: forceLock
-    );
+        forceLock: forceLock);
   }
 
   /// Creates an independent, decoupled clone of the current [TissueMapNucleus]
@@ -306,7 +298,7 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
   /// logic and storage strategy, but an isolated lifecycle and an
   /// independent synchronisation lock.
   @override
-  TissueMapNucleus<K,V> get clone;
+  TissueMapNucleus<K, V> get clone;
 
   /// Retrieves the physical storage strategy ([Container]) defining the
   /// uniqueness and allocation policy for the [TissueMap].
@@ -332,7 +324,6 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
   ///   uses [identical]).
   @override
   Container get containerType;
-
 }
 
 /// A high‑performance, reactive [Map]‑like structure that implements [Tissue<V>],
@@ -439,10 +430,9 @@ abstract interface class TissueMapNucleus<K,V> implements TissueNucleus<V> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueMapNucleus] – the blueprint and configuration for the map.
 /// - [UnmodifiableTissueMap] – a read‑only deputy variant.
-abstract interface class TissueMap<K,V> implements Tissue<V> {
-
+abstract interface class TissueMap<K, V> implements Tissue<V> {
   @override
-  TissueMapNucleus<K,V> get _nucleus;
+  TissueMapNucleus<K, V> get _nucleus;
 
   /// The primary architectural factory for instantiating a [TissueMap],
   /// materializing a reactive associative state node governed by the
@@ -477,8 +467,9 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// final map = TissueMap<String, int>();
   /// map['a'] = 1;
   /// ```
-  factory TissueMap({TissueMapNucleus<K,V>? properties, Iterable<MapEntry<K, V>>? entries})
-  = _TissueMap<K,V,TissueMap<K,V>>;
+  factory TissueMap(
+      {TissueMapNucleus<K, V>? properties,
+      Iterable<MapEntry<K, V>>? entries}) = _TissueMap<K, V, TissueMap<K, V>>;
 
   /// Factory constructor to create a new, pre‑populated [TissueMap] from an
   /// existing Dart [Map].
@@ -506,8 +497,8 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// ```dart
   /// final map = TissueMap.from({'a': 1, 'b': 2}, nucleus: ...);
   /// ```
-  factory TissueMap.from(Map<K,V> map, {TissueMapNucleus<K,V>? properties})
-  = _TissueMap<K,V,TissueMap<K,V>>.from;
+  factory TissueMap.from(Map<K, V> map, {TissueMapNucleus<K, V>? properties}) =
+      _TissueMap<K, V, TissueMap<K, V>>.from;
 
   /// Factory constructor to create a new, pre‑populated [TissueMap] from an
   /// [Iterable] of [MapEntry] objects.
@@ -536,8 +527,9 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// final entries = [MapEntry('a', 1), MapEntry('b', 2)];
   /// final map = TissueMap.fromEntries(entries);
   /// ```
-  factory TissueMap.fromEntries(Iterable<MapEntry<K, V>> entries, {TissueMapNucleus<K,V>? properties})
-  = _TissueMap<K,V,TissueMap<K,V>>.fromEntries;
+  factory TissueMap.fromEntries(Iterable<MapEntry<K, V>> entries,
+          {TissueMapNucleus<K, V>? properties}) =
+      _TissueMap<K, V, TissueMap<K, V>>.fromEntries;
 
   /// Architectural factory for instantiating a [TissueMap] that utilises
   /// **Referential Identity** ([identical]) for key lookups and uniqueness.
@@ -565,8 +557,8 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// map[key] = 42;
   /// print(map[key]); // 42
   /// ```
-  factory TissueMap.identity({Iterable<MapEntry<K, V>>? entries})
-  = _TissueMap<K,V,TissueMap<K,V>>.identity;
+  factory TissueMap.identity({Iterable<MapEntry<K, V>>? entries}) =
+      _TissueMap<K, V, TissueMap<K, V>>.identity;
 
   /// Primary architectural factory for materialising a [TissueMap] from an
   /// existing [TissueMapNucleus] (the "Reactive DNA").
@@ -603,8 +595,9 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   ///
   /// ### Returns:
   /// A concrete [TissueMap<K, V>] instance.
-  factory TissueMap.fromNucleus(TissueMapNucleus<K,V> properties, {Iterable<MapEntry<K, V>>? entries})
-  = _TissueMap<K,V,TissueMap<K,V>>.fromNucleus;
+  factory TissueMap.fromNucleus(TissueMapNucleus<K, V> properties,
+          {Iterable<MapEntry<K, V>>? entries}) =
+      _TissueMap<K, V, TissueMap<K, V>>.fromNucleus;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueMap].
@@ -638,8 +631,9 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// // readOnly['a'] = 1; // blocked
   /// source['a'] = 1; // readOnly reflects the change
   /// ```
-  factory TissueMap.unmodifiable(TissueMap<K,V> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueMap<K,V,TissueMap<K,V>>.view;
+  factory TissueMap.unmodifiable(TissueMap<K, V> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueMap<K, V, TissueMap<K, V>>.view;
 
   /// A high‑level architectural factory for creating a specialised, type‑safe
   /// reactive map with explicit control over its behavioural and structural blueprint.
@@ -687,21 +681,18 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   ///   testRule: TestTissue<int>((v) => v > 0),
   /// );
   /// ```
-  static TissueMapBase<K,V,C> create<K,V,C extends TissueMap<K,V>>({
-    Iterable<MapEntry<K,V>>? entries,
-
-    Cell? bind,
-    Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueMapNucleusBase<K,V,C>? principal
-  }) {
-    final properties = TissueMapNucleus.create<K,V,C>(
+  static TissueMapBase<K, V, C> create<K, V, C extends TissueMap<K, V>>(
+      {Iterable<MapEntry<K, V>>? entries,
+      Cell? bind,
+      Context? context,
+      TissueReceptor<V, C>? receptor,
+      TestTissue<V, C>? testRule,
+      Synapses? synapses,
+      Container? container,
+      Record? user,
+      forceLock = false,
+      TissueMapNucleusBase<K, V, C>? principal}) {
+    final properties = TissueMapNucleus.create<K, V, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -710,9 +701,8 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _TissueMap<K,V,C>.fromNucleus(properties, entries: entries);
+        principal: principal);
+    return _TissueMap<K, V, C>.fromNucleus(properties, entries: entries);
   }
 
   /// Creates a delegated view (deputy) of this map with specialised behavioural
@@ -752,7 +742,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// source['a'] = 1; // readOnly reflects the change
   /// ```
   @override
-  FutureOr<TissueMap<K,V>> deputy({
+  FutureOr<TissueMap<K, V>> deputy({
     covariant DeputyContext context = DeputyContext.system,
     covariant TestTissue testRule = TestTissue.allowAll,
     EphemeralPolicy? ephemeralPolicy,
@@ -820,7 +810,8 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// Updates the value associated with [key] using the given [update] function.
   ///
   /// Returns the updated value.
-  V update(K key, covariant V Function(V value) update, {covariant V Function()? ifAbsent});
+  V update(K key, covariant V Function(V value) update,
+      {covariant V Function()? ifAbsent});
 
   /// Updates all entries in this map with the given [update] function.
   void updateAll(covariant V Function(K key, V value) update);
@@ -876,8 +867,7 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
   /// await map.async.add('a', 42);
   /// ```
   @override
-  ModifiableMapAsync<K,V> get async;
-
+  ModifiableMapAsync<K, V> get async;
 }
 
 /// A specialised, reactive projection of a [TissueMap] that enforces a
@@ -947,8 +937,8 @@ abstract interface class TissueMap<K,V> implements Tissue<V> {
 /// See also:
 /// - [TissueMap] – the mutable counterpart.
 /// - [UnmodifiableTissue] – the general contract for read‑only tissues.
-abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, Unmodifiable {
-
+abstract interface class UnmodifiableTissueMap<K, V>
+    implements TissueMap<K, V>, Unmodifiable {
   /// The primary architectural factory for instantiating an [UnmodifiableTissueMap],
   /// materializing a read‑only, reactive associative node from an initial
   /// collection of [entries].
@@ -988,10 +978,11 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  factory UnmodifiableTissueMap(Iterable<MapEntry<K,V>> entries, {
-    TissueMapNucleus<K,V>? properties,
+  factory UnmodifiableTissueMap(
+    Iterable<MapEntry<K, V>> entries, {
+    TissueMapNucleus<K, V>? properties,
     bool unmodifiableElement,
-  }) = _UnmodifiableTissueMap<K,V,TissueMap<K,V>>;
+  }) = _UnmodifiableTissueMap<K, V, TissueMap<K, V>>;
 
   /// A high‑fidelity architectural factory for creating a **Deeply
   /// Immodifiable Reactive View** (Deputy) of an existing [TissueMap].
@@ -1023,8 +1014,9 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   /// final source = TissueMap<String, int>();
   /// final readOnly = UnmodifiableTissueMap.view(source);
   /// ```
-  factory UnmodifiableTissueMap.view(TissueMap<K,V> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissueMap<K,V,TissueMap<K,V>>.view;
+  factory UnmodifiableTissueMap.view(TissueMap<K, V> bind,
+          {Context? context, bool unmodifiableElement}) =
+      _UnmodifiableTissueMap<K, V, TissueMap<K, V>>.view;
 
   /// A low‑level architectural factory for materializing an
   /// [UnmodifiableTissueMap] directly from a pre‑constructed
@@ -1062,8 +1054,9 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   /// );
   /// final readOnlyMap = UnmodifiableTissueMap.fromNucleus(readOnlyNucleus);
   /// ```
-  factory UnmodifiableTissueMap.fromNucleus(TissueMapNucleus<K,V> properties, {bool unmodifiableElement, Iterable<MapEntry<K,V>> entries})
-  = _UnmodifiableTissueMap<K,V,TissueMap<K,V>>.fromNucleus;
+  factory UnmodifiableTissueMap.fromNucleus(TissueMapNucleus<K, V> properties,
+          {bool unmodifiableElement, Iterable<MapEntry<K, V>> entries}) =
+      _UnmodifiableTissueMap<K, V, TissueMap<K, V>>.fromNucleus;
 
   /// An advanced architectural factory for creating a specialised, type‑safe
   /// [UnmodifiableTissueMap] with granular control over its behavioural
@@ -1112,37 +1105,32 @@ abstract interface class UnmodifiableTissueMap<K,V> implements TissueMap<K,V>, U
   ///   unmodifiableElement: true,
   /// );
   /// ```
-  static UnmodifiableTissueMapBase<K,V,C> create<K,V,C extends TissueMap<K,V>>({
-    Iterable<MapEntry<K,V>>? entries,
+  static UnmodifiableTissueMapBase<K, V, C>
+      create<K, V, C extends TissueMap<K, V>>({
+    Iterable<MapEntry<K, V>>? entries,
     bool unmodifiableElement = true,
-
     Cell? bind,
     Context? context,
-    TissueReceptor<V,C>? receptor,
-    TestTissue<V,C>? testRule,
+    TissueReceptor<V, C>? receptor,
+    TestTissue<V, C>? testRule,
     Synapses? synapses,
-
     Container? container,
     Record? user,
     forceLock = false,
-    TissueMapNucleusBase<K,V,C>? principal,
+    TissueMapNucleusBase<K, V, C>? principal,
   }) {
-    return _UnmodifiableTissueMap<K,V,C>.fromNucleus(
-        TissueMapNucleus.create<K,V,C>(
+    return _UnmodifiableTissueMap<K, V, C>.fromNucleus(
+        TissueMapNucleus.create<K, V, C>(
             bind: bind,
             context: context,
             testRule: testRule,
             receptor: receptor,
             synapses: synapses,
-
             container: container,
             user: user,
             forceLock: forceLock,
-            principal: principal
-        ),
+            principal: principal),
         unmodifiableElement: unmodifiableElement,
-        entries: entries
-    );
+        entries: entries);
   }
-
 }

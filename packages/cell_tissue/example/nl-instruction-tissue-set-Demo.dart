@@ -218,10 +218,10 @@ class NlTissueHarness {
 
   /// Offline factory — deterministic stub interpreter, no network.
   static NlTissueHarness offline() => NlTissueHarness(
-    interpreter: StubInterpreter(),
-    modeLabel: 'offline stub (pass --live for HTTP)',
-    isStub: true,
-  );
+        interpreter: StubInterpreter(),
+        modeLabel: 'offline stub (pass --live for HTTP)',
+        isStub: true,
+      );
 
   /// Live factory — HTTP interpreter against an OpenAI-compatible
   /// chat-completions endpoint.
@@ -324,8 +324,8 @@ class NlTissueHarness {
 
   /// Element shape: `>= 0`.
   static final TestTissue<int, TissueSet<int>> _elementRule =
-  TestTissue<int, TissueSet<int>>(
-        (value, {host, arguments, user}) {
+      TestTissue<int, TissueSet<int>>(
+    (value, {host, arguments, user}) {
       if (value is int) return value >= 0;
       return true;
     },
@@ -337,7 +337,7 @@ class NlTissueHarness {
 
   /// Command shape: non-empty, ≤ 200 chars.
   static final TestCell<Cell> _commandShape = TestCell<Cell>(
-        (value, {host, arguments, user}) {
+    (value, {host, arguments, user}) {
       final v = value is Pulse ? value.payload : value;
       if (v is! String) return false;
       if (v.isEmpty) return false;
@@ -379,9 +379,11 @@ class NlTissueHarness {
         } else if (interpreter is StubInterpreter) {
           (interpreter as StubInterpreter).log.error(e);
         } else {
-          print('    ┌─ ERROR ────────────────────────────────────────────────');
+          print(
+              '    ┌─ ERROR ────────────────────────────────────────────────');
           print('    │ $e');
-          print('    └────────────────────────────────────────────────────────');
+          print(
+              '    └────────────────────────────────────────────────────────');
         }
       },
     );
@@ -476,15 +478,15 @@ class NlTissueHarness {
   }
 
   Map<TissueVerb, Function> _registry(TissueSet<int> host) => {
-    TissueVerb.add: host.add,
-    TissueVerb.addAll: host.addAll,
-    TissueVerb.remove: host.remove,
-    TissueVerb.removeAll: host.removeAll,
-    TissueVerb.clear: host.clear,
-    TissueVerb.retainAll: host.retainAll,
-    TissueVerb.removeWhere: host.removeWhere,
-    TissueVerb.retainWhere: host.retainWhere,
-  };
+        TissueVerb.add: host.add,
+        TissueVerb.addAll: host.addAll,
+        TissueVerb.remove: host.remove,
+        TissueVerb.removeAll: host.removeAll,
+        TissueVerb.clear: host.clear,
+        TissueVerb.retainAll: host.retainAll,
+        TissueVerb.removeWhere: host.removeWhere,
+        TissueVerb.retainWhere: host.retainWhere,
+      };
 
   // ───────────────────────────────────────────────────────────
   // Bus
@@ -682,11 +684,13 @@ Future<void> main(List<String> args) async {
   // assigns to `h` exactly once, no matter which branch fired.
   final h = _selectHarness(live: live, configPath: configPath);
 
-  print('========================================================================');
+  print(
+      '========================================================================');
   print(' nl-instruction-tissue-set-Demo.dart');
   print(' Flow owns the interpretation. Tissue owns the set.');
   print(' mode: ${h.modeLabel}');
-  print('========================================================================');
+  print(
+      '========================================================================');
 
   try {
     await h.install();

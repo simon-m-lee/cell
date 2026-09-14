@@ -11,7 +11,8 @@ import 'dart:collection';
 
 import 'package:synchronized/synchronized.dart';
 
-Map<String, dynamic> mapMerge<K,V>(Map<String, dynamic> map, Map<String, dynamic> other) {
+Map<String, dynamic> mapMerge<K, V>(
+    Map<String, dynamic> map, Map<String, dynamic> other) {
   final m = Map<String, dynamic>.from(map);
 
   for (var en in other.entries) {
@@ -312,7 +313,8 @@ class AsyncQueueList<E> {
 
   Future<Queue<R>> cast<R>() => _lock.synchronized(() => _queue.cast<R>());
 
-  Future<List<E>> toList({bool growable = true}) => _lock.synchronized(() => _queue.toList(growable: growable));
+  Future<List<E>> toList({bool growable = true}) =>
+      _lock.synchronized(() => _queue.toList(growable: growable));
 
   Future<List<E>> toListAndClear({bool growable = true}) =>
       _lock.synchronized(() {
@@ -1276,7 +1278,6 @@ class FunctionObject {
   /// Creates a FunctionObject containing function data
   const FunctionObject(this.record);
 }
-
 
 /// A robust functional utility for safely executing operations of type [T]
 /// with multi-stage recovery logic and hierarchical fallbacks.

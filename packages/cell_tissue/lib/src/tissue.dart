@@ -128,7 +128,6 @@ part of '../cell_tissue.dart';
 /// ### Type Parameters:
 /// * [E] – The type of elements held within the collection.
 abstract interface class Tissue<E> implements Cell, Iterable<E> {
-
   @override
   Iterable<E> followedBy(covariant Iterable<E> other);
 
@@ -136,10 +135,12 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   E reduce(covariant E Function(E value, E element) combine);
 
   @override
-  E firstWhere(covariant bool Function(E element) test, {covariant E Function()? orElse});
+  E firstWhere(covariant bool Function(E element) test,
+      {covariant E Function()? orElse});
 
   @override
-  E lastWhere(covariant bool Function(E element) test, {covariant E Function()? orElse});
+  E lastWhere(covariant bool Function(E element) test,
+      {covariant E Function()? orElse});
 
   /// The internal configuration and state storage for this tissue.
   ///
@@ -177,12 +178,12 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// print(list.length); // 3
   /// ```
   factory Tissue(
-      Iterable<E> elements, {
-        Cell? bind,
-        TissueReceptor<E, Tissue<E>> receptor,
-        TestTissue<E, Tissue<E>> testRule,
-        Synapses synapses,
-      }) = _Tissue<E,Iterable<E>,Tissue<E>>;
+    Iterable<E> elements, {
+    Cell? bind,
+    TissueReceptor<E, Tissue<E>> receptor,
+    TestTissue<E, Tissue<E>> testRule,
+    Synapses synapses,
+  }) = _Tissue<E, Iterable<E>, Tissue<E>>;
 
   /// Creates a [Tissue] with explicit governance and lifecycle policies.
   ///
@@ -214,16 +215,14 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// );
   /// ```
   factory Tissue.governed(
-      Iterable<E> elements, {
-        EphemeralPolicy? ephemeralPolicy,
-
-        Cell? bind,
-        Context context,
-        TissueReceptor<E, Tissue<E>> receptor,
-        TestTissue<E, Tissue<E>> testRule,
-        Synapses synapses,
-      }) = _Tissue<E,Iterable<E>,Tissue<E>>;
-
+    Iterable<E> elements, {
+    EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context context,
+    TissueReceptor<E, Tissue<E>> receptor,
+    TestTissue<E, Tissue<E>> testRule,
+    Synapses synapses,
+  }) = _Tissue<E, Iterable<E>, Tissue<E>>;
 
   /// Creates an empty [Tissue] container, initializing a reactive node
   /// with no initial members but a fully established behavioral blueprint.
@@ -268,15 +267,14 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
     TestTissue<E, Tissue<E>> testRule = TestTissue.allowAll,
     Synapses synapses = Synapses.enabled,
   }) {
-    if (bind == null && testRule == TestTissue.allowAll && synapses == Synapses.disabled && context == Context.system) {
+    if (bind == null &&
+        testRule == TestTissue.allowAll &&
+        synapses == Synapses.disabled &&
+        context == Context.system) {
       return const TissueNever();
     }
-    return _Tissue<E, Iterable<E>,Tissue<E>>.empty(
-        bind: bind,
-        context: context,
-        receptor: receptor,
-        testRule: testRule
-    );
+    return _Tissue<E, Iterable<E>, Tissue<E>>.empty(
+        bind: bind, context: context, receptor: receptor, testRule: testRule);
   }
 
   /// Creates a [Tissue] from a pre‑configured [TissueNucleus] blueprint.
@@ -305,8 +303,10 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// );
   /// final list = Tissue.fromNucleus(nucleus, elements: [1, 2, 3]);
   /// ```
-  factory Tissue.fromNucleus(TissueNucleus<E> nucleus, {Iterable<E>? elements,})
-  = _Tissue<E,Iterable<E>,Tissue<E>>.fromNucleus;
+  factory Tissue.fromNucleus(
+    TissueNucleus<E> nucleus, {
+    Iterable<E>? elements,
+  }) = _Tissue<E, Iterable<E>, Tissue<E>>.fromNucleus;
 
   /// Creates a read‑only, reactive projection (Deputy) of an existing [Tissue].
   ///
@@ -340,8 +340,9 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// source.add(4);
   /// print(readOnly.length); // 4 (automatically updated)
   /// ```
-  factory Tissue.unmodifiable(Tissue<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissue<E, Tissue<E>>.view;
+  factory Tissue.unmodifiable(Tissue<E> bind,
+      {Context? context,
+      bool unmodifiableElement}) = _UnmodifiableTissue<E, Tissue<E>>.view;
 
   /// A low‑level factory for creating a [Tissue] with explicit control over
   /// its internal implementation types and storage.
@@ -386,21 +387,19 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   ///   elements: [1, 2, 3],
   /// );
   /// ```
-  static TissueBase<E,I,C> create<E, I extends Iterable<E>, C extends Tissue<E>>({
-    Iterable<E>? elements,
-
-    Cell? bind,
-    Context? context = Context.system,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    Container? container,
-    Record? user,
-    forceLock = false,
-    TissueNucleusBase<E,I,C>? principal
-  }) {
-    final nucleus = TissueNucleus.create<E,I,C>(
+  static TissueBase<E, I, C>
+      create<E, I extends Iterable<E>, C extends Tissue<E>>(
+          {Iterable<E>? elements,
+          Cell? bind,
+          Context? context = Context.system,
+          TissueReceptor<E, C>? receptor,
+          TestTissue<E, C>? testRule,
+          Synapses? synapses,
+          Container? container,
+          Record? user,
+          forceLock = false,
+          TissueNucleusBase<E, I, C>? principal}) {
+    final nucleus = TissueNucleus.create<E, I, C>(
         bind: bind,
         context: context,
         receptor: receptor,
@@ -409,10 +408,8 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
         container: container,
         user: user,
         forceLock: forceLock,
-        principal: principal
-    );
-    return _Tissue<E,I,C>.fromNucleus(nucleus, elements: elements);
-
+        principal: principal);
+    return _Tissue<E, I, C>.fromNucleus(nucleus, elements: elements);
   }
 
   /// Synthesizes a specialised **Mandate Handle** (Deputy) of this collection,
@@ -602,7 +599,10 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// The result of the mutation (usually the return value of [function]),
   /// or `null` if the action was rejected by the [testRule].
   @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -636,7 +636,6 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// ```
   @override
   ModifiableAsync<Cell> get async;
-
 }
 
 /// A read‑only, reactive projection of a [Tissue] – a "security shadow"
@@ -730,8 +729,8 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
 ///   [UnmodifiableTissueQueue], [UnmodifiableTissueValue] – concrete
 ///   implementations for each collection type.
 /// - [Unmodifiable] – the marker interface for all read‑only proxies.
-abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiable {
-
+abstract interface class UnmodifiableTissue<E>
+    implements Tissue<E>, Unmodifiable {
   /// Creates a permanently read‑only reactive collection from a fixed set of elements.
   ///
   /// ### When to use
@@ -794,10 +793,11 @@ abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiabl
   /// ### Returns:
   /// A new [UnmodifiableTissue<E>] instance that is live, observable, but
   /// strictly immutable.
-  factory UnmodifiableTissue(Iterable<E> elements, {
+  factory UnmodifiableTissue(
+    Iterable<E> elements, {
     TissueNucleus<E>? nucleus,
     bool unmodifiableElement,
-  }) = _UnmodifiableTissue<E,Tissue<E>>;
+  }) = _UnmodifiableTissue<E, Tissue<E>>;
 
   /// Creates a live, read‑only "view" (deputy) of an existing mutable tissue.
   ///
@@ -859,8 +859,9 @@ abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiabl
   ///
   /// ### Returns:
   /// A read‑only deputy that stays live‑synced with the source.
-  factory UnmodifiableTissue.view(Tissue<E> bind, {Context? context, bool unmodifiableElement})
-  = _UnmodifiableTissue<E,Tissue<E>>.view;
+  factory UnmodifiableTissue.view(Tissue<E> bind,
+      {Context? context,
+      bool unmodifiableElement}) = _UnmodifiableTissue<E, Tissue<E>>.view;
 
   /// Instantiates an unmodifiable tissue from a pre‑built reactive blueprint.
   ///
@@ -920,7 +921,7 @@ abstract interface class UnmodifiableTissue<E> implements Tissue<E>, Unmodifiabl
   ///
   /// ### Returns:
   /// An unmodifiable tissue instance governed by the provided nucleus.
-  factory UnmodifiableTissue.fromNucleus(TissueNucleus<E> nucleus, {bool unmodifiableElement, Iterable<E>? elements})
-  = _UnmodifiableTissue<E,Tissue<E>>.fromNucleus;
-
+  factory UnmodifiableTissue.fromNucleus(TissueNucleus<E> nucleus,
+      {bool unmodifiableElement,
+      Iterable<E>? elements}) = _UnmodifiableTissue<E, Tissue<E>>.fromNucleus;
 }

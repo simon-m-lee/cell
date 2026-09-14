@@ -29,55 +29,60 @@ part of '../../cell_tissue.dart';
 /// * [E]: The element type.
 /// * [I]: The internal storage type.
 /// * [C]: The concrete tissue interface.
-class _Tissue<E,I extends Iterable<E>, C extends Tissue<E>> extends UnmodifiableTissueBase<E,I,C> {
-
-  _Tissue(Iterable<E> elements, {
+class _Tissue<E, I extends Iterable<E>, C extends Tissue<E>>
+    extends UnmodifiableTissueBase<E, I, C> {
+  _Tissue(
+    Iterable<E> elements, {
     EphemeralPolicy? ephemeralPolicy,
-
     Cell? bind,
     Context context = Context.system,
-    TissueReceptor<E,C> receptor = TissueReceptor.passThrough,
-    TestTissue<E,C> testRule = TestTissue.allowAll,
+    TissueReceptor<E, C> receptor = TissueReceptor.passThrough,
+    TestTissue<E, C> testRule = TestTissue.allowAll,
     Synapses synapses = Synapses.enabled,
-  }) : this.fromNucleus(_TissueNucleus<E,I,C>(
-
-    bind: bind,
-    context: context,
-    testRule: testRule,
-    receptor: receptor,
-    synapses: synapses,
-    ephemeralPolicy: ephemeralPolicy,
-  ), elements: elements);
+  }) : this.fromNucleus(
+            _TissueNucleus<E, I, C>(
+              bind: bind,
+              context: context,
+              testRule: testRule,
+              receptor: receptor,
+              synapses: synapses,
+              ephemeralPolicy: ephemeralPolicy,
+            ),
+            elements: elements);
 
   _Tissue.empty({
     Cell? bind,
     Context context = Context.system,
-    TissueReceptor<E,C> receptor = TissueReceptor.passThrough,
-    TestTissue<E,C> testRule = TestTissue.allowAll,
+    TissueReceptor<E, C> receptor = TissueReceptor.passThrough,
+    TestTissue<E, C> testRule = TestTissue.allowAll,
     Synapses synapses = Synapses.enabled,
-  }) : this.fromNucleus(_TissueNucleus<E,I,C>(
-      bind: bind,
-      context: context,
-      testRule: testRule,
-      receptor: receptor,
-      synapses: synapses
-  ));
+  }) : this.fromNucleus(_TissueNucleus<E, I, C>(
+            bind: bind,
+            context: context,
+            testRule: testRule,
+            receptor: receptor,
+            synapses: synapses));
 
   _Tissue.fromNucleus(TissueNucleus<E> nucleus, {super.elements})
-      : super(nucleus as TissueNucleusBase<E,I,C>);
+      : super(nucleus as TissueNucleusBase<E, I, C>);
 
   @override
   FutureOr<Tissue<E>> deputy({
     covariant DeputyContext context = DeputyContext.system,
-    covariant TestTissue<E,C> testRule = TestTissue.allowAll,
+    covariant TestTissue<E, C> testRule = TestTissue.allowAll,
     EphemeralPolicy? ephemeralPolicy,
     Synapses synapses = Synapses.enabled,
   }) {
-    return _TissueDeputy<E,I,C>._(this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+    return _TissueDeputy<E, I, C>._(this,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 
   @override
-  TissueModifiableAsync<E,Tissue<E>> get async => TissueModifiableAsync<E,Tissue<E>>(this);
+  TissueModifiableAsync<E, Tissue<E>> get async =>
+      TissueModifiableAsync<E, Tissue<E>>(this);
 
   @override
   Iterable<R> cast<R>() => _nucleus.container.cast<R>();
@@ -89,20 +94,21 @@ class _Tissue<E,I extends Iterable<E>, C extends Tissue<E>> extends Unmodifiable
   E get first => _nucleus.container.first;
 
   @override
-  void forEach(void Function(E element) action) => _nucleus.container.forEach(action);
+  void forEach(void Function(E element) action) =>
+      _nucleus.container.forEach(action);
 
   @override
   E get last => _nucleus.container.last;
 
   @override
-  Iterable<T> map<T>(T Function(E e) toElement) => _nucleus.container.map(toElement);
+  Iterable<T> map<T>(T Function(E e) toElement) =>
+      _nucleus.container.map(toElement);
 
   @override
   Tissue<E> get unmodifiable => this;
 
   @override
-  TestTissue<E,C> get validate => _nucleus.testRule;
-
+  TestTissue<E, C> get validate => _nucleus.testRule;
 }
 
 /// A concrete implementation of a deputy (restricted view) of a [Tissue].
@@ -126,36 +132,39 @@ class _Tissue<E,I extends Iterable<E>, C extends Tissue<E>> extends Unmodifiable
 /// * [E]: The element type.
 /// * [I]: The internal storage type.
 /// * [C]: The concrete tissue interface.
-class _TissueDeputy<E,I extends Iterable<E>, C extends Tissue<E>> extends _Tissue<E,I,C> with Deputy<Tissue<E>> {
-
-  _TissueDeputy._(TissueBase<E,Iterable<E>,C> bind, {
-    Context context = Context.system,
-    TestTissue<E,C> testRule = TestTissue.allowAll,
-    EphemeralPolicy? ephemeralPolicy,
-    Synapses synapses = Synapses.enabled
-  })
-      : super.fromNucleus(_TissueNucleus<E,Iterable<E>,C>.evolve(
-      override: _TissueNucleus<E,Iterable<E>,C>.fromRecord(
-        (local: TissueNucleusBase.local<E,Iterable<E>,C>(
-          bind: bind,
-          context: context,
-          testRule: bind._nucleus.testRule + testRule,
-          synapses: synapses,
-          ephemeralPolicy: ephemeralPolicy,
-        ))
-      ),
-      principal: bind._nucleus as TissueNucleusBase<E,Iterable<E>,Tissue<E>>
-  ));
+class _TissueDeputy<E, I extends Iterable<E>, C extends Tissue<E>>
+    extends _Tissue<E, I, C> with Deputy<Tissue<E>> {
+  _TissueDeputy._(TissueBase<E, Iterable<E>, C> bind,
+      {Context context = Context.system,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled})
+      : super.fromNucleus(_TissueNucleus<E, Iterable<E>, C>.evolve(
+            override: _TissueNucleus<E, Iterable<E>, C>.fromRecord((
+              local: TissueNucleusBase.local<E, Iterable<E>, C>(
+                bind: bind,
+                context: context,
+                testRule: bind._nucleus.testRule + testRule,
+                synapses: synapses,
+                ephemeralPolicy: ephemeralPolicy,
+              )
+            )),
+            principal:
+                bind._nucleus as TissueNucleusBase<E, Iterable<E>, Tissue<E>>));
 
   @override
-  FutureOr<Tissue<E>> deputy({covariant DeputyContext context = DeputyContext.system, TestTissue<E,C> testRule = TestTissue.allowAll,
-    EphemeralPolicy? ephemeralPolicy,
-    Synapses synapses = Synapses.enabled
-  }) {
-    return _TissueDeputy<E,I,C>._(_nucleus.bind as TissueBase<E,Iterable<E>,C>,
-        context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<Tissue<E>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueDeputy<E, I, C>._(
+        _nucleus.bind as TissueBase<E, Iterable<E>, C>,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
-
 }
 
 /// A specialised, highly optimised implementation of a [Tissue] that represents
@@ -206,8 +215,8 @@ class _TissueDeputy<E,I extends Iterable<E>, C extends Tissue<E>> extends _Tissu
 /// print(empty.isEmpty); // true
 /// empty.add(1); // no effect, returns false silently
 /// ```
-class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never, Never> {
-
+class TissueNever extends IterableBase<Never>
+    implements TissueBase<Never, Never, Never> {
   /// Creates a constant instance of the empty tissue.
   const TissueNever();
 
@@ -216,7 +225,8 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
   /// This provides a [TissueNucleusBase] configured with an
   /// empty container and no active synapses.
   @override
-  TissueNucleusBase<Never, Never, Never> get _nucleus => const TissueNucleusNever();
+  TissueNucleusBase<Never, Never, Never> get _nucleus =>
+      const TissueNucleusNever();
 
   /// A no‑op implementation of the [Cell.apply] method.
   ///
@@ -224,7 +234,10 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
   /// functions to, and the tissue itself provides no dynamic
   /// callable behaviour.
   @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -246,7 +259,12 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
   /// [testRule] applied to it is vacuously true or irrelevant.
   /// Therefore, the most efficient deputy of "nothing" is "nothing".
   @override
-  FutureOr<Tissue<Never>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<dynamic, Tissue<dynamic>> testRule = TestTissue.allowAll, EphemeralPolicy<Cell>? ephemeralPolicy, Synapses<Pulse<dynamic>, Cell> synapses = Synapses.enabled}) {
+  FutureOr<Tissue<Never>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<dynamic, Tissue<dynamic>> testRule =
+          TestTissue.allowAll,
+      EphemeralPolicy<Cell>? ephemeralPolicy,
+      Synapses<Pulse<dynamic>, Cell> synapses = Synapses.enabled}) {
     return this;
   }
 
@@ -306,7 +324,6 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
 
   @override
   bool get isGoverned => false;
-
 }
 
 /// The foundational abstract base implementation of the [Tissue] interface,
@@ -367,16 +384,14 @@ class TissueNever extends IterableBase<Never> implements TissueBase<Never, Never
 /// - [TissueReceptor] – the command engine that drives state evolution.
 /// - [TestTissue] – the security authority governing mutations.
 abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
-    extends CellBase
-    with IterableMixin<E>
-    implements Tissue<E> {
+    extends CellBase with IterableMixin<E> implements Tissue<E> {
   /// The internal configuration and state storage for this tissue.
   ///
   /// This property holds the [TissueNucleusBase] which encapsulates
   /// the underlying [Container], the validation [TestTissue] logic,
   /// and the [Synapses] registry for child cell tracking.
   @override
-  final TissueNucleusBase<E,I,C> _nucleus;
+  final TissueNucleusBase<E, I, C> _nucleus;
 
   /// Primary internal constructor for [TissueBase], responsible for
   /// bootstrapping a reactive collection and establishing its initial state
@@ -416,9 +431,11 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// - [elements]: Optional initial [Iterable] of data points to populate the
   ///   collection. These elements are subjected to structural ingestion and
   ///   reactive discovery.
-  TissueBase(TissueNucleusBase<E,I,C> super.nucleus, {Iterable<E>? elements})
-      : _nucleus = nucleus, super.fromNucleus() {
-    final container = get<Container?>(() => _nucleus.record.local.container, orElse: null);
+  TissueBase(TissueNucleusBase<E, I, C> super.nucleus, {Iterable<E>? elements})
+      : _nucleus = nucleus,
+        super.fromNucleus() {
+    final container =
+        get<Container?>(() => _nucleus.record.local.container, orElse: null);
     if (container != null) {
       _nucleus.container.init(elements);
     }
@@ -471,7 +488,7 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   @override
   FutureOr<Tissue<E>> deputy({
     covariant DeputyContext context = DeputyContext.system,
-    covariant TestTissue testRule= TestTissue.allowAll,
+    covariant TestTissue testRule = TestTissue.allowAll,
     EphemeralPolicy? ephemeralPolicy,
     Synapses synapses = Synapses.enabled,
   });
@@ -557,34 +574,53 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue interface.
-class _UnmodifiableTissue<E, C extends Tissue<E>> extends UnmodifiableTissueBase<E,Iterable<E>, C> {
-
-  _UnmodifiableTissue(Iterable<E> elements, {bool unmodifiableElement = true, TissueNucleus<E>? nucleus})
+class _UnmodifiableTissue<E, C extends Tissue<E>>
+    extends UnmodifiableTissueBase<E, Iterable<E>, C> {
+  _UnmodifiableTissue(Iterable<E> elements,
+      {bool unmodifiableElement = true, TissueNucleus<E>? nucleus})
       : this.fromNucleus(
-      (nucleus ?? TissueNucleus.create<E,Iterable<E>,C>(container: Container.iterable)) as TissueNucleusBase<E,Iterable<E>,C>,
-      unmodifiableElement: unmodifiableElement,
-      elements: elements
-  );
+            (nucleus ??
+                    TissueNucleus.create<E, Iterable<E>, C>(
+                        container: Container.iterable))
+                as TissueNucleusBase<E, Iterable<E>, C>,
+            unmodifiableElement: unmodifiableElement,
+            elements: elements);
 
-  _UnmodifiableTissue.view(Tissue<E> bind, {Context? context, bool unmodifiableElement = true})
-      : this.fromNucleus(TissueNucleus.create<E,Iterable<E>,C>(bind: bind,
-      context: context,
-      synapses: bind._nucleus.synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
-      principal: bind._nucleus as TissueNucleusBase<E,Iterable<E>,C>
-  ), unmodifiableElement: unmodifiableElement,
-      elements: unmodifiableElement ? bind.map<E>((e) => e is Cell ? e.unmodifiable as E : e) : null
-  );
+  _UnmodifiableTissue.view(Tissue<E> bind,
+      {Context? context, bool unmodifiableElement = true})
+      : this.fromNucleus(
+            TissueNucleus.create<E, Iterable<E>, C>(
+                bind: bind,
+                context: context,
+                synapses: bind._nucleus.synapses == Synapses.disabled
+                    ? Synapses.disabled
+                    : Synapses.enabled,
+                principal:
+                    bind._nucleus as TissueNucleusBase<E, Iterable<E>, C>),
+            unmodifiableElement: unmodifiableElement,
+            elements: unmodifiableElement
+                ? bind.map<E>((e) => e is Cell ? e.unmodifiable as E : e)
+                : null);
 
-  _UnmodifiableTissue.fromNucleus(TissueNucleus<E> nucleus, {super.unmodifiableElement, super.elements})
-      : super(nucleus as TissueNucleusBase<E,Iterable<E>,C>);
+  _UnmodifiableTissue.fromNucleus(TissueNucleus<E> nucleus,
+      {super.unmodifiableElement, super.elements})
+      : super(nucleus as TissueNucleusBase<E, Iterable<E>, C>);
 
   @override
-  FutureOr<Tissue<E>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueDeputy<E,Iterable<E>,C>._(this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<Tissue<E>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueDeputy<E, Iterable<E>, C>._(this,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 
   @override
-  TestTissue<E,C> get validate => _nucleus.testRule;
+  TestTissue<E, C> get validate => _nucleus.testRule;
 
   @override
   Tissue<E> get unmodifiable => this;
@@ -629,9 +665,9 @@ class _UnmodifiableTissue<E, C extends Tissue<E>> extends UnmodifiableTissueBase
 /// * [I]: The internal [Iterable] implementation type (e.g., `List<E>`, `Set<E>`).
 /// * [C]: The specific implementation interface of the [Tissue]
 ///   (e.g., `TissueList<E>`), used for self‑referential type safety.
-abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
-    extends TissueBase<E,I,C> implements UnmodifiableTissue<E> {
-
+abstract class UnmodifiableTissueBase<E, I extends Iterable<E>,
+        C extends Tissue<E>> extends TissueBase<E, I, C>
+    implements UnmodifiableTissue<E> {
   /// Returns an empty iterable of functions, indicating that this tissue
   /// does not support any modifiable operations.
   @override
@@ -657,7 +693,8 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
   ///   elements are mapped to their read‑only versions before being stored
   ///   in the container.
   UnmodifiableTissueBase(super.nucleus,
-      {this.unmodifiableElement = true, Iterable<E>? elements}) : super(elements: elements) {
+      {this.unmodifiableElement = true, Iterable<E>? elements})
+      : super(elements: elements) {
     if (unmodifiableElement) {
       final bind = get<Cell?>(() => _nucleus.record.local.bind, orElse: null);
       if (bind != null && elements != null && identical(bind, elements)) {
@@ -666,7 +703,6 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
             .forEach((e) => _nucleus.synapses.link(e, downstreamCell: this));
       }
     }
-
   }
 
   /// Compares this unmodifiable tissue with another object for equality.
@@ -748,12 +784,16 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
   ///   from the tissue.
   @override
   Iterator<E> get iterator {
-    final container = get<TissueContainer?>(() => _nucleus.record.local.container, orElse: null);
+    final container = get<TissueContainer?>(
+        () => _nucleus.record.local.container,
+        orElse: null);
     if (container != null) {
       return (container.store as Iterable).map((e) => e as E).iterator;
     }
     if (unmodifiableElement) {
-      final elements = _nucleus.container.map((e) => e is Cell ? e.unmodifiable : e).cast<E>();
+      final elements = _nucleus.container
+          .map((e) => e is Cell ? e.unmodifiable : e)
+          .cast<E>();
       return elements.iterator;
     }
     return _nucleus.container.iterator;
@@ -802,8 +842,7 @@ abstract class UnmodifiableTissueBase<E, I extends Iterable<E>, C extends Tissue
 /// ### Type Parameters:
 /// * [E]: The type of elements contained within the targeted tissue.
 /// * [C]: The specific implementation type of the [Tissue] being modified.
-class TissueModifiableAsync<E,C extends Tissue<E>> extends ModifiableAsync<C> {
-
+class TissueModifiableAsync<E, C extends Tissue<E>> extends ModifiableAsync<C> {
   /// The target tissue instance that this async handler manages.
   final C _tissue;
 
@@ -814,7 +853,5 @@ class TissueModifiableAsync<E,C extends Tissue<E>> extends ModifiableAsync<C> {
   ///
   /// * [tissue]: The [Tissue] that will be the target of asynchronous
   ///   modifications.
-  const TissueModifiableAsync(super.tissue)
-      : _tissue = tissue;
-
+  const TissueModifiableAsync(super.tissue) : _tissue = tissue;
 }

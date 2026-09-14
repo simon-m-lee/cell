@@ -44,7 +44,8 @@ import 'package:cell_flow/cell_flow.dart';
 ///   if (stack != null) print(stack);
 /// });
 /// ```
-typedef ConcatErrorHandler = void Function(Object error, StackTrace? stackTrace);
+typedef ConcatErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
 
 /// Helper to create an output pulse with proper provenance.
 Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
@@ -82,10 +83,10 @@ Pulse<T> _out<T>(T value, Cell? cell, Pulse trigger, String step) {
 /// - **String Special Case**: Strings are treated as values, not iterables,
 ///   to avoid character-by-character iteration.
 Future<void> _drain(
-    Object? inner,
-    void Function(dynamic value) onData, {
-      bool Function()? stillLive,
-    }) async {
+  Object? inner,
+  void Function(dynamic value) onData, {
+  bool Function()? stillLive,
+}) async {
   if (inner == null) return;
   if (stillLive != null && !stillLive()) return;
 
@@ -227,7 +228,6 @@ Future<List<dynamic>> _collect(Object? inner) async {
 /// - [ConcatLatest]: For last item only.
 /// - [ConcatMap]: For per-item mapping.
 class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Static Sequential Concatenator**—a specialized
   /// orchestration instruction designed to play a fixed lineage of
   /// sequences in strict topographical order.
@@ -257,38 +257,38 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   ///   the priority and source of the original arming pulse,
   ///   tagged with the `'Concat'` step.
   Concat(
-      Iterable<Object?> inners, {
-        ConcatErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      var armed = false;
-      return (pulse, {cell, user, future, token}) {
-        if (armed) return null;
-        armed = true;
-        Future<void> run() async {
-          for (final inner in inners) {
-            try {
-              await _drain(inner, (item) {
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'Concat'),
-                    token: token,
-                  );
+    Iterable<Object?> inners, {
+    ConcatErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            var armed = false;
+            return (pulse, {cell, user, future, token}) {
+              if (armed) return null;
+              armed = true;
+              Future<void> run() async {
+                for (final inner in inners) {
+                  try {
+                    await _drain(inner, (item) {
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'Concat'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
                 }
-              });
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-        }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -355,7 +355,6 @@ class Concat<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatLatest]: For last item only.
 /// - [AsyncExpand]: For flattening with different strategies.
 class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Sequential Expansion Gate** for dynamic pulse evolution.
   ///
   /// This constructor initializes an orchestrator that treats each incoming
@@ -372,38 +371,38 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ConcatErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final queue = <Object?>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        queue.add(pulse.payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final inner = queue.removeAt(0);
-            try {
-              await _drain(inner, (item) {
-                if (item is T) {
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'ConcatAll'),
-                    token: token,
-                  );
+          (() {
+            final queue = <Object?>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              queue.add(pulse.payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final inner = queue.removeAt(0);
+                  try {
+                    await _drain(inner, (item) {
+                      if (item is T) {
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'ConcatAll'),
+                          token: token,
+                        );
+                      }
+                    });
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
                 }
-              });
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -468,7 +467,6 @@ class ConcatAll<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatAll]: For dynamic sequence concatenation.
 /// - [ConcatLatest]: For last item only.
 class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Head-Selection Expansion Gate** for ordered pulse evolution.  ///
   /// This constructor initializes an orchestrator that treats each incoming
   /// stimulus as a potential **Inner Sequence**. It materializes and evolves
@@ -495,41 +493,41 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ConcatErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final queue = <Object?>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        queue.add(pulse.payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final inner = queue.removeAt(0);
-            try {
-              var taken = false;
-              await _drain(inner, (item) {
-                if (taken) return;
-                if (item is T) {
-                  taken = true;
-                  future!(
-                    result: _out<T>(item, cell, pulse, 'ConcatFirst'),
-                    token: token,
-                  );
+          (() {
+            final queue = <Object?>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              queue.add(pulse.payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final inner = queue.removeAt(0);
+                  try {
+                    var taken = false;
+                    await _drain(inner, (item) {
+                      if (taken) return;
+                      if (item is T) {
+                        taken = true;
+                        future!(
+                          result: _out<T>(item, cell, pulse, 'ConcatFirst'),
+                          token: token,
+                        );
+                      }
+                    }, stillLive: () => !taken);
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
                 }
-              }, stillLive: () => !taken);
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -594,7 +592,6 @@ class ConcatFirst<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [ConcatAll]: For dynamic sequence concatenation.
 /// - [ConcatFirst]: For first item only.
 class ConcatLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Tail-Selection Expansion Gate** for ordered pulse evolution.
   ///
   /// This constructor initializes an orchestrator that treats each incoming
@@ -621,41 +618,41 @@ class ConcatLatest<T> extends FlowInstructionBase<Cell, Pulse, Pulse> {
     ConcatErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      final queue = <Object?>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        queue.add(pulse.payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final inner = queue.removeAt(0);
-            try {
-              final items = await _collect(inner);
-              final last = items.cast<dynamic>().lastWhere(
-                    (e) => e is T,
-                orElse: () => null,
-              );
-              if (last is T) {
-                future!(
-                  result: _out<T>(last, cell, pulse, 'ConcatLatest'),
-                  token: token,
-                );
+          (() {
+            final queue = <Object?>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              queue.add(pulse.payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final inner = queue.removeAt(0);
+                  try {
+                    final items = await _collect(inner);
+                    final last = items.cast<dynamic>().lastWhere(
+                          (e) => e is T,
+                          orElse: () => null,
+                        );
+                    if (last is T) {
+                      future!(
+                        result: _out<T>(last, cell, pulse, 'ConcatLatest'),
+                        token: token,
+                      );
+                    }
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
               }
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────

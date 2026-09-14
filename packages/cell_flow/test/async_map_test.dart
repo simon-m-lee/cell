@@ -330,7 +330,6 @@ void main() {
     });
   });
 
-
   group('AsyncMap extra', () {
     test('onError is optional when mapper throws', () async {
       final b = bind(AsyncMap<int, int>((n) async => throw StateError('x')));

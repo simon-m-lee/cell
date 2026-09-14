@@ -123,7 +123,8 @@ TestCell<Cell> nonNegativeRule() {
 Matcher isValidationException({dynamic value, int? count}) {
   var matcher = isA<TransactionValidationException>();
   if (count != null) {
-    matcher = matcher.having((e) => e.failures.length, 'failures.length', count);
+    matcher =
+        matcher.having((e) => e.failures.length, 'failures.length', count);
   }
   if (value != null) {
     matcher = matcher.having(
@@ -171,7 +172,8 @@ void main() {
 
         expect(tx.pending(accounts.a), 50);
         expect(tx.pending(accounts.b), 250);
-        expect(accounts.a.value, 100, reason: 'live value stays buffered until commit');
+        expect(accounts.a.value, 100,
+            reason: 'live value stays buffered until commit');
         expect(accounts.b.value, 200);
         expect(accounts.a.updateCount, 0);
 
@@ -310,7 +312,8 @@ void main() {
 
         await commitLive(accounts.a, 175);
         expect(accounts.a.value, 175);
-        expect(tx.read(accounts.a), 175, reason: 'readCommitted sees live writes');
+        expect(tx.read(accounts.a), 175,
+            reason: 'readCommitted sees live writes');
 
         tx.update(accounts.b, 201);
         await tx.commit();
@@ -330,7 +333,8 @@ void main() {
 
         await commitLive(accounts.a, 175);
         expect(accounts.a.value, 175);
-        expect(tx.read(accounts.a), 100, reason: 'repeatableRead returns the begin snapshot');
+        expect(tx.read(accounts.a), 100,
+            reason: 'repeatableRead returns the begin snapshot');
 
         await tx.rollback();
         expect(accounts.a.value, 175);
@@ -372,10 +376,12 @@ void main() {
           throwsA(isConflictException(value: 50)),
         );
         expect(accounts.a.value, 50);
-        expect(accounts.b.value, 200, reason: 'buffered write to b is discarded');
+        expect(accounts.b.value, 200,
+            reason: 'buffered write to b is discarded');
       });
 
-      test('serializable ignores unread, unwritten participant changes', () async {
+      test('serializable ignores unread, unwritten participant changes',
+          () async {
         final accounts = createAccountPair();
         final tx = Cell.transaction(TransactionOptions(
           isolation: IsolationLevel.serializable,
@@ -411,7 +417,8 @@ void main() {
         expect(accounts.b.value, 220);
 
         tx2.update(accounts.a, 1);
-        await expectLater(tx2.commit(), throwsA(isA<TransactionConflictException>()));
+        await expectLater(
+            tx2.commit(), throwsA(isA<TransactionConflictException>()));
         expect(accounts.a.value, 110);
         expect(accounts.b.value, 220);
       });
@@ -476,7 +483,8 @@ void main() {
         tx.update(cell2, 20);
         await tx.commit();
 
-        expect(comparisons, greaterThan(0), reason: 'commit sorts locks with the comparator');
+        expect(comparisons, greaterThan(0),
+            reason: 'commit sorts locks with the comparator');
         expect(cell1.value, 10);
         expect(cell2.value, 20);
       });
@@ -553,7 +561,8 @@ void main() {
           tx.commit(),
           throwsA(isValidationException(value: -5)),
         );
-        expect(cell1.value, 10, reason: 'no partial apply on validation failure');
+        expect(cell1.value, 10,
+            reason: 'no partial apply on validation failure');
         expect(cell2.value, 20);
       });
 
@@ -1083,7 +1092,8 @@ void main() {
         await tx.commit();
 
         expect(cell.value, 30);
-        expect(cell.updateCount, 3, reason: 'each buffered write is applied in order');
+        expect(cell.updateCount, 3,
+            reason: 'each buffered write is applied in order');
       });
 
       test('rollback when no transaction active is no-op', () async {

@@ -123,7 +123,7 @@ receptor/instruction walkthroughs.
 
 **1115** tests in **20** files under `test/`. Last full run: **1115 passed /
 0 failed / 0 skipped** (~7 s with coverage). Measured `lib/` line coverage:
-**95.9%** (3397 / 3541). Inventory: [TEST_VERIFICATION.md](TEST_VERIFICATION.md).
+**95.9%** (3397 / 3541). Inventory: [TEST_VERIFICATION.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md).
 
 Files are named `test_*.dart`, not `*_test.dart`. Therefore:
 
@@ -180,10 +180,10 @@ fixture). `dart analyze lib` is clean except unused `_pin` (3 warnings).
 
 | File | Role                                   |
 |------|----------------------------------------|
-| [README.md](README.md) | Status bullets (subset of this list)   |
-| [CHANGELOG.md](CHANGELOG.md) | Mitosis `1.0.0-rc.4` RC notes          |
-| [FEATURES.md](FEATURES.md) | Catalog (RC `1.0.0-rc.4`)              |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Intent; intro/§7 may lag README status |
-| [TEST_VERIFICATION.md](TEST_VERIFICATION.md) | Test inventory, coverage, run commands |
+| [README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md) | Status bullets (subset of this list)   |
+| [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/CHANGELOG.md) | Mitosis `1.0.0-rc.4` RC notes          |
+| [FEATURES.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/FEATURES.md) | Catalog (RC `1.0.0-rc.4`)              |
+| [ARCHITECTURE.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md) | Intent; intro/§7 may lag README status |
+| [TEST_VERIFICATION.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md) | Test inventory, coverage, run commands |
 
 

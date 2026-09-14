@@ -91,8 +91,8 @@ part of '../cell.dart';
 ///
 /// {@category Instructions}
 /// {@category Pipelines & Internal}
-abstract interface class Instruction<C extends Cell, I extends Pulse, O extends Pulse> {
-
+abstract interface class Instruction<C extends Cell, I extends Pulse,
+    O extends Pulse> {
   /// Creates an [Instruction] from a standalone transformation function.
   ///
   /// ### When to use
@@ -139,7 +139,8 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom instructions (including synchronous/asynchronous) and scheduling logic..
   const factory Instruction(
-      O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user}) = _Instruction<C,I,O>;
+      O? Function(I pulse, {C? cell, dynamic user}) instruction,
+      {dynamic user}) = _Instruction<C, I, O>;
 
   /// Creates an [Instruction] with asynchronous future propagation support.
   ///
@@ -204,10 +205,14 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom asynchronous instructions and scheduling logic.
   const factory Instruction.future(
-      O? Function(I pulse, {C? cell, dynamic user,
-      void Function({required Pulse? result, required dynamic token})? future,
-      dynamic token
-      }) instruction, {dynamic user}) = _Instruction<C,I,O>.future;
+      O? Function(I pulse,
+              {C? cell,
+              dynamic user,
+              void Function({required Pulse? result, required dynamic token})?
+                  future,
+              dynamic token})
+          instruction,
+      {dynamic user}) = _Instruction<C, I, O>.future;
 
   /// Creates an [InstructionChain] that orchestrates multiple instructions.
   ///
@@ -268,8 +273,10 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   ///   },
   /// );
   /// ```
-  const factory Instruction.chain(Iterable<Instruction> instructions, {dynamic user,
-    O? Function(I pulse, {C? cell, dynamic user})? strategy}) = InstructionChain<C,I,O>;
+  const factory Instruction.chain(Iterable<Instruction> instructions,
+          {dynamic user,
+          O? Function(I pulse, {C? cell, dynamic user})? strategy}) =
+      InstructionChain<C, I, O>;
 
   /// Executes the transformation logic of this instruction synchronously.
   ///
@@ -318,11 +325,10 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// final result = doubleValue.call(Pulse(10));
   /// print((result as Pulse).payload); // 20
   /// ```
-  O? call(I pulse, {
-    C? cell,
-    void Function({required Pulse? result, required dynamic token})? future,
-    dynamic token
-  });
+  O? call(I pulse,
+      {C? cell,
+      void Function({required Pulse? result, required dynamic token})? future,
+      dynamic token});
 
   /// Combines this instruction with another to create an [InstructionChain].
   ///
@@ -357,8 +363,7 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
   /// ```dart
   /// final pipeline = trim + validate + persist;
   /// ```
-  Instruction<C,I,O> operator +(covariant Instruction other);
-
+  Instruction<C, I, O> operator +(covariant Instruction other);
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -426,8 +431,8 @@ abstract interface class Instruction<C extends Cell, I extends Pulse, O extends 
 /// * [Instruction] – The individual building blocks.
 /// * [Instruction.chain] – The factory for creating chains with custom logic.
 // class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> with InstructionChainMixin<C,I,O> {
-class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends InstructionBase<C,I,O> {
-
+class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse>
+    extends InstructionBase<C, I, O> {
   /// Internal constructor for creating an [InstructionChain].
   ///
   /// ### When to use
@@ -451,18 +456,19 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
   ///   },
   /// );
   /// ```
-  const InstructionChain(Iterable<Instruction> instructions, {dynamic user,
-    O? Function(I pulse, {C? cell, dynamic user})? strategy})
-      : super.fromRecord(
-      user != null
-          ? strategy != null
-              ? (instructions: instructions, user: user, instruction: strategy)
-              : (instructions: instructions, user: user)
-          : strategy != null
-              ? (instructions: instructions, instruction: strategy)
-              : (instructions: instructions)
-  );
-
+  const InstructionChain(Iterable<Instruction> instructions,
+      {dynamic user, O? Function(I pulse, {C? cell, dynamic user})? strategy})
+      : super.fromRecord(user != null
+            ? strategy != null
+                ? (
+                    instructions: instructions,
+                    user: user,
+                    instruction: strategy
+                  )
+                : (instructions: instructions, user: user)
+            : strategy != null
+                ? (instructions: instructions, instruction: strategy)
+                : (instructions: instructions));
 
   /// Retrieves the custom strategy or default chain rule.
   ///
@@ -479,7 +485,8 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
   /// ### Returns:
   /// An iterable of [Instruction] objects in execution order, or `null`
   /// if no instructions are stored.
-  Iterable<Instruction>? get _instructions => get<Iterable<Instruction>?>(() => _record.instructions, orElse: null);
+  Iterable<Instruction>? get _instructions =>
+      get<Iterable<Instruction>?>(() => _record.instructions, orElse: null);
 
   /// Executes the transformation chain synchronously with future propagation support.
   ///
@@ -524,12 +531,12 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
   /// ### Returns:
   /// The final transformed pulse, or `null` if terminated.
   @override
-  O? call(I pulse, {
+  O? call(
+    I pulse, {
     C? cell,
     void Function({required Pulse? result, required dynamic token})? future,
     dynamic token,
   }) {
-
     void future_({required Pulse? result, required dynamic token}) {
       future?.call(result: result, token: token);
     }
@@ -572,14 +579,17 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
   ///
   /// ### Returns:
   /// The final transformed pulse, or `null` if terminated.
-  O? _chainRule(I pulse, {C? cell, dynamic user, void Function({required Pulse? result, required dynamic token})? future}) {
+  O? _chainRule(I pulse,
+      {C? cell,
+      dynamic user,
+      void Function({required Pulse? result, required dynamic token})?
+          future}) {
     final instructions = _instructions;
     if (instructions != null) {
-
-      void future_({required  Pulse? result, required dynamic token}) {
+      void future_({required Pulse? result, required dynamic token}) {
         if (token is Function) {
           Instruction instruction;
-          for (int i=0; i<instructions.length; i++) {
+          for (int i = 0; i < instructions.length; i++) {
             instruction = instructions.elementAt(i);
 
             if (!identical(token, instruction)) {
@@ -587,11 +597,13 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
             }
 
             try {
-              result = instruction.call(result as Pulse, cell: cell,
+              result = instruction.call(result as Pulse,
+                  cell: cell,
                   future: future_,
-                  token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
-              );
-            } catch(_) {
+                  token: (i + 1) < instructions.length
+                      ? instructions.elementAt(i + 1)
+                      : null);
+            } catch (_) {
               result = instruction.call(result as Pulse, cell: cell);
             }
 
@@ -607,13 +619,15 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
       Pulse? result = pulse;
       Instruction instruction;
 
-      for (int i=0; i<instructions.length; i++) {
+      for (int i = 0; i < instructions.length; i++) {
         instruction = instructions.elementAt(i);
         try {
-          result = instruction.call(result as Pulse, cell: cell,
+          result = instruction.call(result as Pulse,
+              cell: cell,
               future: future_,
-              token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
-          );
+              token: (i + 1) < instructions.length
+                  ? instructions.elementAt(i + 1)
+                  : null);
         } catch (e, stackTrace) {
           try {
             result = instruction.call(result as Pulse, cell: cell);
@@ -630,7 +644,6 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
     }
     return pulse as dynamic;
   }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -679,8 +692,8 @@ class InstructionChain<C extends Cell, I extends Pulse, O extends Pulse> extends
 /// * [C]: The type of the host [Cell].
 /// * [I]: The type of the incoming [Pulse].
 /// * [O]: The type of the resulting [Pulse].
-mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on InstructionBase<C,I,O> {
-
+mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse>
+    on InstructionBase<C, I, O> {
   /// Retrieves the custom strategy or default chain rule.
   ///
   /// ### Returns:
@@ -696,7 +709,8 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
   /// ### Returns:
   /// An iterable of [Instruction] objects in execution order, or `null`
   /// if no instructions are stored.
-  Iterable<Instruction>? get _instructions => get<Iterable<Instruction>?>(() => _record.instructions, orElse: null);
+  Iterable<Instruction>? get _instructions =>
+      get<Iterable<Instruction>?>(() => _record.instructions, orElse: null);
 
   /// Executes the transformation chain synchronously with future propagation support.
   ///
@@ -741,12 +755,12 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
   /// ### Returns:
   /// The final transformed pulse, or `null` if terminated.
   @override
-  O? call(I pulse, {
+  O? call(
+    I pulse, {
     C? cell,
     void Function({required Pulse? result, required dynamic token})? future,
     dynamic token,
   }) {
-
     void future_({required Pulse? result, required dynamic token}) {
       future?.call(result: result, token: token);
     }
@@ -789,14 +803,17 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
   ///
   /// ### Returns:
   /// The final transformed pulse, or `null` if terminated.
-  O? _chainRule(I pulse, {C? cell, dynamic user, void Function({required Pulse? result, required dynamic token})? future}) {
+  O? _chainRule(I pulse,
+      {C? cell,
+      dynamic user,
+      void Function({required Pulse? result, required dynamic token})?
+          future}) {
     final instructions = _instructions;
     if (instructions != null) {
-
-      void future_({required  Pulse? result, required dynamic token}) {
+      void future_({required Pulse? result, required dynamic token}) {
         if (token is Function) {
           Instruction instruction;
-          for (int i=0; i<instructions.length; i++) {
+          for (int i = 0; i < instructions.length; i++) {
             instruction = instructions.elementAt(i);
 
             if (!identical(token, instruction)) {
@@ -804,11 +821,13 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
             }
 
             try {
-              result = instruction.call(result as Pulse, cell: cell,
+              result = instruction.call(result as Pulse,
+                  cell: cell,
                   future: future_,
-                  token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
-              );
-            } catch(_) {
+                  token: (i + 1) < instructions.length
+                      ? instructions.elementAt(i + 1)
+                      : null);
+            } catch (_) {
               result = instruction.call(result as Pulse, cell: cell);
             }
 
@@ -824,13 +843,15 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
       Pulse? result = pulse;
       Instruction instruction;
 
-      for (int i=0; i<instructions.length; i++) {
+      for (int i = 0; i < instructions.length; i++) {
         instruction = instructions.elementAt(i);
         try {
-          result = instruction.call(result as Pulse, cell: cell,
+          result = instruction.call(result as Pulse,
+              cell: cell,
               future: future_,
-              token: (i + 1) < instructions.length ? instructions.elementAt(i+1) : null
-          );
+              token: (i + 1) < instructions.length
+                  ? instructions.elementAt(i + 1)
+                  : null);
         } catch (e, stackTrace) {
           try {
             result = instruction.call(result as Pulse, cell: cell);
@@ -847,7 +868,6 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
     }
     return pulse as dynamic;
   }
-
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -925,7 +945,6 @@ mixin InstructionChainMixin<C extends Cell, I extends Pulse, O extends Pulse> on
 ///
 /// {@category Pipelines & Internal}
 abstract interface class Receptor<C extends Cell> {
-
   /// A canonical, stateless [Receptor] that performs an **Identity
   /// Transformation** on all incoming signals.
   ///
@@ -995,8 +1014,10 @@ abstract interface class Receptor<C extends Cell> {
   ///   return Pulse(value * 2);
   /// });
   /// ```
-  factory Receptor(Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
-    return _Receptor<C>(instruction: Instruction<C,Pulse,Pulse>((pulse, {C? cell, future, token, dynamic user}) {
+  factory Receptor(
+      Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
+    return _Receptor<C>(instruction: Instruction<C, Pulse, Pulse>((pulse,
+        {C? cell, future, token, dynamic user}) {
       return instruction.call(cell!, pulse, user: user);
     }));
   }
@@ -1050,7 +1071,8 @@ abstract interface class Receptor<C extends Cell> {
   /// // Bind it to a receptor
   /// final receptor = Receptor.instruction(auditor, user: 'SecurityLog');
   /// ```
-  factory Receptor.instruction(Instruction<C,Pulse,Pulse> instruction, {dynamic user}) {
+  factory Receptor.instruction(Instruction<C, Pulse, Pulse> instruction,
+      {dynamic user}) {
     return _Receptor<C>(instruction: instruction, user: user);
   }
 
@@ -1104,22 +1126,20 @@ abstract interface class Receptor<C extends Cell> {
   ///   postProcess: Instruction((p, {cell, user}) => p.payload.length > 5 ? p : null),
   /// );
   /// ```
-  factory Receptor.pipeline({
-    Instruction? instruction,
-    Instruction? preProcess,
-    Instruction? postProcess,
-    Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
-    void Function()? init,
-    dynamic Function()? user
-  }) {
+  factory Receptor.pipeline(
+      {Instruction? instruction,
+      Instruction? preProcess,
+      Instruction? postProcess,
+      Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
+      void Function()? init,
+      dynamic Function()? user}) {
     return _Receptor<C>(
-      instruction: instruction,
-      preProcess: preProcess,
-      postProcess: postProcess,
-      reaction: reaction,
-      init: init,
-      user: user
-    );
+        instruction: instruction,
+        preProcess: preProcess,
+        postProcess: postProcess,
+        reaction: reaction,
+        init: init,
+        user: user);
   }
 
   /// Returns a shallow, unactivated copy of the current [Receptor].
@@ -1207,7 +1227,8 @@ abstract interface class Receptor<C extends Cell> {
   ///   Instruction((p, {cell, user}) => Pulse(p.payload.length))
   /// );
   /// ```
-  static Receptor<C> typed<C extends Cell, I extends Pulse, O extends Pulse>(Instruction<C,I,O> instruction) {
+  static Receptor<C> typed<C extends Cell, I extends Pulse, O extends Pulse>(
+      Instruction<C, I, O> instruction) {
     return _Receptor<C>(instruction: instruction);
   }
 
@@ -1385,8 +1406,8 @@ abstract interface class Receptor<C extends Cell> {
   ///
   /// ### Returns:
   /// A pass-through instruction that forwards pulses unchanged.
-  static Instruction<Cell, Pulse, Pulse> get passThroughRule => const _PulseRulePassThrough();
-
+  static Instruction<Cell, Pulse, Pulse> get passThroughRule =>
+      const _PulseRulePassThrough();
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1410,8 +1431,7 @@ abstract interface class Receptor<C extends Cell> {
 /// - **Singleton Pattern**: This is typically used as a singleton instance
 ///   to minimize memory overhead.
 /// - **Identity Transformation**: The operation is O(1) and has no side effects.
-class _PulseRulePassThrough implements Instruction<Cell,Pulse,Pulse> {
-
+class _PulseRulePassThrough implements Instruction<Cell, Pulse, Pulse> {
   /// Creates a pass-through instruction.
   ///
   /// This constructor is typically used to create a singleton instance.
@@ -1428,7 +1448,8 @@ class _PulseRulePassThrough implements Instruction<Cell,Pulse,Pulse> {
   /// ### Returns:
   /// The [other] instruction, as the pass-through has no effect.
   @override
-  Instruction<Cell,Pulse,Pulse> operator +(covariant Instruction<Cell, Pulse<dynamic>, Pulse<dynamic>> other) {
+  Instruction<Cell, Pulse, Pulse> operator +(
+      covariant Instruction<Cell, Pulse<dynamic>, Pulse<dynamic>> other) {
     return other;
   }
 
@@ -1445,8 +1466,11 @@ class _PulseRulePassThrough implements Instruction<Cell,Pulse,Pulse> {
   /// ### Returns:
   /// The input pulse unchanged.
   @override
-  Pulse<dynamic>? call(Pulse<dynamic> pulse, {Cell? cell, void Function({required Pulse<dynamic>? result, required dynamic token})? future, dynamic token}) {
+  Pulse<dynamic>? call(Pulse<dynamic> pulse,
+      {Cell? cell,
+      void Function({required Pulse<dynamic>? result, required dynamic token})?
+          future,
+      dynamic token}) {
     return pulse;
   }
-
 }

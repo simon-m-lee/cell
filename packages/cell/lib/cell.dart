@@ -155,4 +155,3 @@ part 'src/internal/operator/operator_debounce.dart';
 part 'src/internal/operator/operator_transaction.dart';
 part 'src/internal/operator/operator_hub.dart';
 part 'src/internal/operator/operator_tx_apply.dart';
-

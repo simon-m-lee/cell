@@ -226,7 +226,6 @@ class FoldSnapshot<A> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [Reduce]: For synchronous accumulation.
 class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Sequential Asynchronous Accumulator**—a stateful logic
   /// gate designed for ordered, multi-step pulse evolution.
   ///
@@ -291,63 +290,63 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncFoldLatest]: For switch-style behavior (cancelling pending steps).
   /// - [AsyncFoldExhaust]: For ignoring inputs while an accumulation is busy.
   AsyncFold(
-      A seed,
-      AsyncAccumulator<A, S> accumulate, {
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-        dynamic user,
-      }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
+    A seed,
+    AsyncAccumulator<A, S> accumulate, {
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
   /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFold._(
-      AsyncAccumulator<A, S> accumulate,
-      this.snapshot,
-      FoldErrorHandler? onError,
-      dynamic user,
-      ) : super.future(
-    (() {
-      final snap = snapshot;
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            try {
-              snap.value = await Future<A>.sync(
-                    () => accumulate(snap.value, next),
-              );
-              snap.generation++;
-              future!(
-                result: _out<A>(snap.value, pulse, cell, 'AsyncFold'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+    AsyncAccumulator<A, S> accumulate,
+    this.snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  ) : super.future(
+          (() {
+            final snap = snapshot;
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  try {
+                    snap.value = await Future<A>.sync(
+                      () => accumulate(snap.value, next),
+                    );
+                    snap.generation++;
+                    future!(
+                      result: _out<A>(snap.value, pulse, cell, 'AsyncFold'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -424,7 +423,6 @@ class AsyncFold<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [Reduce]: For synchronous accumulation.
 class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Seedless Asynchronous Accumulator**—a stateful logic gate
   /// that uses the first available stimulus as its initial topographic seed.
   ///
@@ -486,60 +484,61 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [Reduce]: For synchronous seedless accumulation.
   /// - [AsyncFoldLatest]: For switch-style behavior (cancelling pending steps).
   AsyncReduce(
-      FutureOr<S> Function(S acc, S value) accumulate, {
-        FoldErrorHandler? onError,
-        dynamic user,
-      }) : super.future(
-    (() {
-      S? acc;
-      var has = false;
-      final queue = <S>[];
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        queue.add(payload);
-        Future<void> pump() async {
-          if (busy) return;
-          busy = true;
-          while (queue.isNotEmpty) {
-            final next = queue.removeAt(0);
-            if (!has) {
-              has = true;
-              acc = next;
-              future!(
-                result: _out<S>(next, pulse, cell, 'AsyncReduce.seed'),
-                token: token,
-              );
-              continue;
-            }
-            try {
-              acc = await Future<S>.sync(() => accumulate(acc as S, next));
-              future!(
-                result: _out<S>(acc as S, pulse, cell, 'AsyncReduce'),
-                token: token,
-              );
-            } catch (e, stack) {
-              onError?.call(e, stack);
-            }
-          }
-          busy = false;
-        }
+    FutureOr<S> Function(S acc, S value) accumulate, {
+    FoldErrorHandler? onError,
+    dynamic user,
+  }) : super.future(
+          (() {
+            S? acc;
+            var has = false;
+            final queue = <S>[];
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              queue.add(payload);
+              Future<void> pump() async {
+                if (busy) return;
+                busy = true;
+                while (queue.isNotEmpty) {
+                  final next = queue.removeAt(0);
+                  if (!has) {
+                    has = true;
+                    acc = next;
+                    future!(
+                      result: _out<S>(next, pulse, cell, 'AsyncReduce.seed'),
+                      token: token,
+                    );
+                    continue;
+                  }
+                  try {
+                    acc =
+                        await Future<S>.sync(() => accumulate(acc as S, next));
+                    future!(
+                      result: _out<S>(acc as S, pulse, cell, 'AsyncReduce'),
+                      token: token,
+                    );
+                  } catch (e, stack) {
+                    onError?.call(e, stack);
+                  }
+                }
+                busy = false;
+              }
 
-        pump();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              pump();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -622,7 +621,6 @@ class AsyncReduce<S> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldExhaust]: For exhaust accumulation.
 /// - [AsyncFoldLatest]: The latest-only variant.
 class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes a **Preemptive Asynchronous Accumulator**—a stateful logic
   /// gate designed for latest-only, switch-style pulse evolution.
   ///
@@ -689,57 +687,58 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncFoldExhaust]: For ignoring new inputs while an accumulation is busy.
   /// - [AsyncReduce]: For seedless asynchronous accumulation.
   AsyncFoldLatest(
-      A seed,
-      AsyncAccumulator<A, S> accumulate, {
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-        dynamic user,
-      }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
+    A seed,
+    AsyncAccumulator<A, S> accumulate, {
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
   /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFoldLatest._(
-      AsyncAccumulator<A, S> accumulate,
-      this.snapshot,
-      FoldErrorHandler? onError,
-      dynamic user,
-      ) : super.future(
-    (() {
-      final snap = snapshot;
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        final id = ++generation;
-        final base = snap.value;
-        Future<void> run() async {
-          try {
-            final next = await Future<A>.sync(() => accumulate(base, payload));
-            if (id != generation) return;
-            snap.value = next;
-            snap.generation++;
-            future!(
-              result: _out<A>(next, pulse, cell, 'AsyncFoldLatest'),
-              token: token,
-            );
-          } catch (e, stack) {
-            if (id == generation) onError?.call(e, stack);
-          }
-        }
+    AsyncAccumulator<A, S> accumulate,
+    this.snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  ) : super.future(
+          (() {
+            final snap = snapshot;
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              final id = ++generation;
+              final base = snap.value;
+              Future<void> run() async {
+                try {
+                  final next =
+                      await Future<A>.sync(() => accumulate(base, payload));
+                  if (id != generation) return;
+                  snap.value = next;
+                  snap.generation++;
+                  future!(
+                    result: _out<A>(next, pulse, cell, 'AsyncFoldLatest'),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  if (id == generation) onError?.call(e, stack);
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -827,7 +826,6 @@ class AsyncFoldLatest<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
 /// - [AsyncFoldLatest]: For latest-only accumulation.
 /// - [AsyncFoldExhaust]: The exhaust variant.
 class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
-
   /// Synthesizes an **Exclusive Asynchronous Accumulator**—a stateful logic
   /// gate designed for prioritized, first-come-first-served pulse evolution.
   ///
@@ -893,59 +891,60 @@ class AsyncFoldExhaust<S, A> extends FlowInstructionBase<Cell, Pulse, Pulse> {
   /// - [AsyncFoldLatest]: For switch-style behavior (superseding old work).
   /// - [AsyncReduce]: For seedless asynchronous accumulation.
   AsyncFoldExhaust(
-      A seed,
-      AsyncAccumulator<A, S> accumulate, {
-        FoldSnapshot<A>? snapshot,
-        FoldErrorHandler? onError,
-        dynamic user,
-      }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
+    A seed,
+    AsyncAccumulator<A, S> accumulate, {
+    FoldSnapshot<A>? snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  }) : this._(accumulate, snapshot ?? FoldSnapshot<A>(seed), onError, user);
 
   /// Internal constructor that binds the already-resolved [snapshot].
   AsyncFoldExhaust._(
-      AsyncAccumulator<A, S> accumulate,
-      this.snapshot,
-      FoldErrorHandler? onError,
-      dynamic user,
-      ) : super.future(
-    (() {
-      final snap = snapshot;
-      var busy = false;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          onError?.call(
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-        if (busy) return null;
-        busy = true;
-        Future<void> run() async {
-          try {
-            snap.value = await Future<A>.sync(
-                  () => accumulate(snap.value, payload),
-            );
-            snap.generation++;
-            future!(
-              result: _out<A>(snap.value, pulse, cell, 'AsyncFoldExhaust'),
-              token: token,
-            );
-          } catch (e, stack) {
-            onError?.call(e, stack);
-          } finally {
-            busy = false;
-          }
-        }
+    AsyncAccumulator<A, S> accumulate,
+    this.snapshot,
+    FoldErrorHandler? onError,
+    dynamic user,
+  ) : super.future(
+          (() {
+            final snap = snapshot;
+            var busy = false;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                onError?.call(
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+              if (busy) return null;
+              busy = true;
+              Future<void> run() async {
+                try {
+                  snap.value = await Future<A>.sync(
+                    () => accumulate(snap.value, payload),
+                  );
+                  snap.generation++;
+                  future!(
+                    result:
+                        _out<A>(snap.value, pulse, cell, 'AsyncFoldExhaust'),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  onError?.call(e, stack);
+                } finally {
+                  busy = false;
+                }
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// The shared snapshot containing the current state.
   ///
@@ -1030,7 +1029,7 @@ Future<void> main() async {
 
   final folded = AsyncFold<int, int>(
     0,
-        (acc, n) async => acc + n,
+    (acc, n) async => acc + n,
   ).toHandle(source: nums.cell);
 
   final fObs = Cell.observe(
@@ -1053,7 +1052,7 @@ Future<void> main() async {
   final seq = Cell.ingress<int>();
 
   final reduced = AsyncReduce<int>(
-        (acc, n) async => acc + n,
+    (acc, n) async => acc + n,
   ).toHandle(source: seq.cell);
 
   final rObs = Cell.observe(
@@ -1077,7 +1076,7 @@ Future<void> main() async {
 
   final latest = AsyncFoldLatest<int, int>(
     0,
-        (acc, n) async {
+    (acc, n) async {
       await Future<void>.delayed(Duration(milliseconds: n == 1 ? 40 : 5));
       return acc + n * 10;
     },
@@ -1104,7 +1103,7 @@ Future<void> main() async {
 
   final exhaust = AsyncFoldExhaust<int, int>(
     0,
-        (acc, n) async {
+    (acc, n) async {
       await Future<void>.delayed(const Duration(milliseconds: 40));
       return acc + n;
     },

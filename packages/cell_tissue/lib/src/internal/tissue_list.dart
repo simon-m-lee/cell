@@ -22,42 +22,42 @@ part of '../../cell_tissue.dart';
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue list type.
-class _TissueListNucleus<E,C extends TissueList<E>> extends TissueListNucleusBase<E,C> {
-
+class _TissueListNucleus<E, C extends TissueList<E>>
+    extends TissueListNucleusBase<E, C> {
   _TissueListNucleus({
     super.bind,
     super.context,
     super.receptor,
     super.testRule,
     super.synapses,
-
     super.ephemeralPolicy,
     super.forceLock,
     super.user,
-
     super.growable,
   }) : super();
 
-  _TissueListNucleus.evolve({
-    Cell? bind,
-    Context? context,
-    TissueReceptor<E,C>? receptor,
-    TestTissue<E,C>? testRule,
-    Synapses? synapses,
-
-    EphemeralPolicy? ephemeralPolicy,
-
-    bool forceLock = true,
-
-    TissueListNucleus<E>? override,
-    required super.principal
-  }) : super.evolve(
-      override: override ?? _TissueListNucleus<E,C>.fromRecord(
-          (local: TissueNucleusBase.local<E,List<E>,C>(
-              bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock,
-              ephemeralPolicy: ephemeralPolicy
-          )))
-  );
+  _TissueListNucleus.evolve(
+      {Cell? bind,
+      Context? context,
+      TissueReceptor<E, C>? receptor,
+      TestTissue<E, C>? testRule,
+      Synapses? synapses,
+      EphemeralPolicy? ephemeralPolicy,
+      bool forceLock = true,
+      TissueListNucleus<E>? override,
+      required super.principal})
+      : super.evolve(
+            override: override ??
+                _TissueListNucleus<E, C>.fromRecord((
+                  local: TissueNucleusBase.local<E, List<E>, C>(
+                      bind: bind,
+                      context: context,
+                      receptor: receptor,
+                      testRule: testRule,
+                      synapses: synapses,
+                      forceLock: forceLock,
+                      ephemeralPolicy: ephemeralPolicy)
+                )));
 
   _TissueListNucleus.fromRecord(super.record) : super.fromRecord();
 
@@ -76,20 +76,21 @@ class _TissueListNucleus<E,C extends TissueList<E>> extends TissueListNucleusBas
   /// ### Returns:
   /// A new [TissueListNucleusBase] instance with identical behavioural logic.
   @override
-  TissueListNucleusBase<E,C> get clone {
+  TissueListNucleusBase<E, C> get clone {
     final p = principal;
-    return TissueListNucleus.create<E,C>(
-        container: containerType,
-        context: context,
-        receptor: receptor,
-        testRule: testRule,
-        synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
-        user: user,
-        forceLock: false,
-        ephemeralPolicy: _hostedEphemeralPolicy,
-        // A deputy clone must keep the principal chain and bind.
-        bind: p != null ? bind : null,
-        principal: p == null ? null : this,
+    return TissueListNucleus.create<E, C>(
+      container: containerType,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses:
+          synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
+      user: user,
+      forceLock: false,
+      ephemeralPolicy: _hostedEphemeralPolicy,
+      // A deputy clone must keep the principal chain and bind.
+      bind: p != null ? bind : null,
+      principal: p == null ? null : this,
     );
   }
 }
@@ -145,9 +146,7 @@ class _TissueListNucleus<E,C extends TissueList<E>> extends TissueListNucleusBas
 /// ### Returns:
 /// A nucleus instance that governs a reactive list.
 abstract class TissueListNucleusBase<E, C extends TissueList<E>>
-    extends TissueNucleusBase<E, List<E>, C>
-    implements TissueListNucleus<E> {
-
+    extends TissueNucleusBase<E, List<E>, C> implements TissueListNucleus<E> {
   /// Primary constructor for a [TissueListNucleusBase] configuration.
   ///
   /// This constructor initializes the behavioral and structural metadata
@@ -188,17 +187,19 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// - [forceLock]: If `true`, shares the principal's lock (optimisation
   ///   for deputies); if `false` (default), allocates a new lock.
   /// - [user]: Optional custom metadata (e.g., UI hints, serialisation tags).
-  TissueListNucleusBase({
-    super.bind,
-    super.context,
-    super.receptor,
-    super.testRule,
-    super.synapses,
-    bool growable = true,
-    super.ephemeralPolicy,
-    super.forceLock,
-    super.user
-  }) : super(container: growable ? Container.growableTrue : Container.growableFalse);
+  TissueListNucleusBase(
+      {super.bind,
+      super.context,
+      super.receptor,
+      super.testRule,
+      super.synapses,
+      bool growable = true,
+      super.ephemeralPolicy,
+      super.forceLock,
+      super.user})
+      : super(
+            container:
+                growable ? Container.growableTrue : Container.growableFalse);
 
   /// **Low‑level Record Constructor** – instantiates a nucleus from a
   /// pre‑packed property record.
@@ -306,10 +307,9 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// - [synapses]: Optional override for propagation behaviour.
   /// - (Other parameters like [forceLock] and [user] are typically
   ///   inherited from the principal or taken from [override]).
-  TissueListNucleusBase.evolve({
-    super.override,
-    required TissueListNucleus<E> super.principal
-  }) : super.evolve();
+  TissueListNucleusBase.evolve(
+      {super.override, required TissueListNucleus<E> super.principal})
+      : super.evolve();
 
   /// Retrieves the hierarchical principal configuration of this list's properties.
   ///
@@ -358,7 +358,8 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// The parent nucleus that this configuration extends, or `null` if this is
   /// a root nucleus with no ancestors.
   @override
-  TissueListNucleusBase<E,C>? get principal => super.principal as TissueListNucleusBase<E,C>?;
+  TissueListNucleusBase<E, C>? get principal =>
+      super.principal as TissueListNucleusBase<E, C>?;
 
   /// The physical storage strategy (growable or fixed) used by this list.
   ///
@@ -377,9 +378,10 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
   /// - Defaults to [Container.growableTrue] if not set.
   @override
   Container get containerType {
-    return get<Container>(() => record.local.inheritable.container, fallback: () => principal?.containerType, orElse: Container.growableTrue);
+    return get<Container>(() => record.local.inheritable.container,
+        fallback: () => principal?.containerType,
+        orElse: Container.growableTrue);
   }
-
 }
 
 /// A concrete implementation of a mutable [TissueList].
@@ -402,48 +404,56 @@ abstract class TissueListNucleusBase<E, C extends TissueList<E>>
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue list type.
-class _TissueList<E,C extends TissueList<E>> extends TissueListBase<E,C> {
+class _TissueList<E, C extends TissueList<E>> extends TissueListBase<E, C> {
+  _TissueList(
+      {Cell? bind,
+      Context context = Context.system,
+      TissueReceptor<E, C> receptor = TissueReceptor.passThrough,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      Synapses synapses = Synapses.enabled,
+      bool growable = true})
+      : super(_TissueListNucleus<E, C>(
+            bind: bind,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            growable: growable));
 
-  _TissueList({
-    Cell? bind,
-    Context context = Context.system,
-    TissueReceptor<E,C> receptor = TissueReceptor.passThrough,
-    TestTissue<E,C> testRule = TestTissue.allowAll,
-    Synapses synapses= Synapses.enabled,
-    bool growable = true
-  }) : super(_TissueListNucleus<E,C>(
-      bind: bind,
-      receptor: receptor,
-      testRule: testRule,
-      synapses: synapses,
-      growable: growable
-  ));
-
-  _TissueList.of(Iterable<E> elements, {
-    Cell? bind,
-    Context context = Context.system,
-    TissueReceptor<E,C> receptor = TissueReceptor.passThrough,
-    TestTissue<E,C> testRule = TestTissue.allowAll,
-    Synapses synapses= Synapses.enabled,
-    bool growable = true
-  }) : super(_TissueListNucleus<E,C>(
-      bind: bind,
-      receptor: receptor,
-      testRule: testRule,
-      synapses: synapses,
-      growable: growable
-  ), elements: elements);
+  _TissueList.of(Iterable<E> elements,
+      {Cell? bind,
+      Context context = Context.system,
+      TissueReceptor<E, C> receptor = TissueReceptor.passThrough,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      Synapses synapses = Synapses.enabled,
+      bool growable = true})
+      : super(
+            _TissueListNucleus<E, C>(
+                bind: bind,
+                receptor: receptor,
+                testRule: testRule,
+                synapses: synapses,
+                growable: growable),
+            elements: elements);
 
   _TissueList.fromNucleus(TissueListNucleus<E> properties, {super.elements})
-      : super(properties as TissueListNucleusBase<E,C>);
+      : super(properties as TissueListNucleusBase<E, C>);
 
   @override
-  FutureOr<TissueList<E>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueListDeputy<E,C>._(this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<TissueList<E>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueListDeputy<E, C>._(this,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
 
   @override
-  late final TissueList<E> unmodifiable = _UnmodifiableTissueList<E,C>.view(this, unmodifiableElement: true);
+  late final TissueList<E> unmodifiable =
+      _UnmodifiableTissueList<E, C>.view(this, unmodifiableElement: true);
 
   /// Combines this list with another list to create a new list.
   ///
@@ -464,9 +474,9 @@ class _TissueList<E,C extends TissueList<E>> extends TissueListBase<E,C> {
   /// A new [TissueList] containing all elements from both lists.
   @override
   TissueList<E> operator +(covariant TissueList<E> other) {
-    return _TissueList.fromNucleus(_nucleus.clone, elements: [...this, ...other]);
+    return _TissueList.fromNucleus(_nucleus.clone,
+        elements: [...this, ...other]);
   }
-
 }
 
 /// The foundational reactive engine for all indexable collections in the
@@ -530,11 +540,10 @@ class _TissueList<E,C extends TissueList<E>> extends TissueListBase<E,C> {
 /// - [E]: The type of elements contained in the list.
 /// - [C]: The specific [Tissue] implementation type (usually `TissueList<E>`),
 ///   allowing for type‑safe pulse processing within the hierarchy.
-abstract class TissueListBase<E,C extends TissueList<E>>
+abstract class TissueListBase<E, C extends TissueList<E>>
     extends TissueBase<E, List<E>, C>
-    with ListMixin<E>, TissueListMixin<E,C>
+    with ListMixin<E>, TissueListMixin<E, C>
     implements TissueList<E> {
-
   /// Accesses the underlying properties specific to tissue lists.
   ///
   /// This overrides the base properties to provide access to list-specific
@@ -550,9 +559,9 @@ abstract class TissueListBase<E,C extends TissueList<E>>
   /// - [elements]: Optional initial elements to populate the list. These
   ///   will be added to the internal container during initialization.
   TissueListBase(
-      TissueListNucleusBase<E, C> super.properties, {
-        super.elements,
-      }) : super();
+    TissueListNucleusBase<E, C> super.properties, {
+    super.elements,
+  }) : super();
 
   /// Returns an unmodifiable version of this tissue list.
   ///
@@ -578,7 +587,6 @@ abstract class TissueListBase<E,C extends TissueList<E>>
   /// based on the [TestTissue] rules defined in [_nucleus].
   @override
   TestTissue<E, C> get validate => _nucleus.testRule;
-
 }
 
 /// A concrete implementation of a deputy (restricted view) of a [TissueList].
@@ -601,22 +609,34 @@ abstract class TissueListBase<E,C extends TissueList<E>>
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue list type.
-class _TissueListDeputy<E,C extends TissueList<E>> extends _TissueList<E,C> with Deputy<TissueList<E>> {
-
-  _TissueListDeputy._(TissueListBase<E,C> bind, {Context context = Context.system, TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled})
-      : super.fromNucleus(_TissueListNucleus<E,C>.evolve(
-      bind: bind,
-      testRule: bind._nucleus.testRule + testRule,
-      synapses: bind._nucleus.synapses != Synapses.disabled ? synapses : Synapses.disabled,
-      ephemeralPolicy: ephemeralPolicy,
-      principal: bind._nucleus
-  ));
+class _TissueListDeputy<E, C extends TissueList<E>> extends _TissueList<E, C>
+    with Deputy<TissueList<E>> {
+  _TissueListDeputy._(TissueListBase<E, C> bind,
+      {Context context = Context.system,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled})
+      : super.fromNucleus(_TissueListNucleus<E, C>.evolve(
+            bind: bind,
+            testRule: bind._nucleus.testRule + testRule,
+            synapses: bind._nucleus.synapses != Synapses.disabled
+                ? synapses
+                : Synapses.disabled,
+            ephemeralPolicy: ephemeralPolicy,
+            principal: bind._nucleus));
 
   @override
-  FutureOr<TissueList<E>> deputy({covariant DeputyContext context = DeputyContext.system, TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
-    return _TissueListDeputy<E,C>._(_nucleus.bind as TissueListBase<E,C>, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+  FutureOr<TissueList<E>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
+    return _TissueListDeputy<E, C>._(_nucleus.bind as TissueListBase<E, C>,
+        context: context,
+        testRule: testRule,
+        ephemeralPolicy: ephemeralPolicy,
+        synapses: synapses);
   }
-
 }
 
 /// A concrete implementation of an unmodifiable (read‑only) list view.
@@ -641,40 +661,56 @@ class _TissueListDeputy<E,C extends TissueList<E>> extends _TissueList<E,C> with
 /// ### Type Parameters:
 /// * [E]: The element type.
 /// * [C]: The concrete tissue list type.
-class _UnmodifiableTissueList<E,C extends TissueList<E>> extends UnmodifiableTissueListBase<E,C> {
-
-  _UnmodifiableTissueList(Iterable<E> elements, {bool unmodifiableElement = true, TissueListNucleus<E>? properties})
+class _UnmodifiableTissueList<E, C extends TissueList<E>>
+    extends UnmodifiableTissueListBase<E, C> {
+  _UnmodifiableTissueList(Iterable<E> elements,
+      {bool unmodifiableElement = true, TissueListNucleus<E>? properties})
       : this.fromNucleus(
-      (properties ?? TissueListNucleus.create<E,C>()) as TissueListNucleusBase<E,C>,
-      unmodifiableElement: unmodifiableElement,
-      elements: elements
-  );
+            (properties ?? TissueListNucleus.create<E, C>())
+                as TissueListNucleusBase<E, C>,
+            unmodifiableElement: unmodifiableElement,
+            elements: elements);
 
-  _UnmodifiableTissueList.view(TissueList<E> bind, {Context? context, bool unmodifiableElement = true})
-      : this.fromNucleus(TissueListNucleus.create<E,C>(bind: bind,
-      container: unmodifiableElement ? bind._nucleus.containerType : null,
-      context: context,
-      synapses: bind._nucleus.synapses == Synapses.disabled ? Synapses.disabled : Synapses.enabled,
-      principal: bind._nucleus as TissueListNucleusBase<E,C>
-  ), unmodifiableElement: unmodifiableElement,
-      elements: unmodifiableElement ? bind.map<E>((e) => e is Cell ? e.unmodifiable as E : e) : null
-  );
+  _UnmodifiableTissueList.view(TissueList<E> bind,
+      {Context? context, bool unmodifiableElement = true})
+      : this.fromNucleus(
+            TissueListNucleus.create<E, C>(
+                bind: bind,
+                container:
+                    unmodifiableElement ? bind._nucleus.containerType : null,
+                context: context,
+                synapses: bind._nucleus.synapses == Synapses.disabled
+                    ? Synapses.disabled
+                    : Synapses.enabled,
+                principal: bind._nucleus as TissueListNucleusBase<E, C>),
+            unmodifiableElement: unmodifiableElement,
+            elements: unmodifiableElement
+                ? bind.map<E>((e) => e is Cell ? e.unmodifiable as E : e)
+                : null);
 
-  _UnmodifiableTissueList.fromNucleus(TissueListNucleus<E> properties, {super.unmodifiableElement, super.elements})
-      : super(properties as TissueListNucleusBase<E,C>);
+  _UnmodifiableTissueList.fromNucleus(TissueListNucleus<E> properties,
+      {super.unmodifiableElement, super.elements})
+      : super(properties as TissueListNucleusBase<E, C>);
 
   @override
-  FutureOr<TissueList<E>> deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue<E,C> testRule = TestTissue.allowAll, EphemeralPolicy? ephemeralPolicy, Synapses synapses = Synapses.enabled}) {
+  FutureOr<TissueList<E>> deputy(
+      {covariant DeputyContext context = DeputyContext.system,
+      covariant TestTissue<E, C> testRule = TestTissue.allowAll,
+      EphemeralPolicy? ephemeralPolicy,
+      Synapses synapses = Synapses.enabled}) {
     final bind = _nucleus.bind;
     if (bind is TissueListBase<E, C>) {
-      return _TissueListDeputy<E,C>._(bind, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses);
+      return _TissueListDeputy<E, C>._(bind,
+          context: context,
+          testRule: testRule,
+          ephemeralPolicy: ephemeralPolicy,
+          synapses: synapses);
     }
     return this;
   }
 
   @override
-  TestTissue<E,C> get validate => _nucleus.testRule;
-
+  TestTissue<E, C> get validate => _nucleus.testRule;
 }
 
 /// A foundational architectural base class that provides the skeletal
@@ -726,11 +762,10 @@ class _UnmodifiableTissueList<E,C extends TissueList<E>> extends UnmodifiableTis
 /// ### Type Parameters:
 /// - [E]: The type of elements contained in the list.
 /// - [C]: The specific [Tissue] implementation type (usually `TissueList<E>`).
-abstract class UnmodifiableTissueListBase<E,C extends TissueList<E>>
+abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
     extends UnmodifiableTissueBase<E, List<E>, C>
     with ListMixin<E>, TissueListMixin<E, C>
     implements UnmodifiableTissueList<E> {
-
   /// Provides access to the list-specific configuration properties.
   ///
   /// Overrides the base properties to provide a typed
@@ -786,9 +821,8 @@ abstract class UnmodifiableTissueListBase<E,C extends TissueList<E>>
   /// - [elements]: Optional. Pre‑computed elements to populate the
   ///   storage container. Used for optimisation when the list is created
   ///   with a known immutable set.
-  UnmodifiableTissueListBase(
-      TissueListNucleusBase<E,C> super.properties, {
-        super.unmodifiableElement, super.elements}) {
+  UnmodifiableTissueListBase(TissueListNucleusBase<E, C> super.properties,
+      {super.unmodifiableElement, super.elements}) {
     // Initial population is performed by TissueBase via `elements`.
   }
 
@@ -827,7 +861,6 @@ abstract class UnmodifiableTissueListBase<E,C extends TissueList<E>>
   /// Returns:
   ///   The [TestTissue] rule defined in this list's properties.
 }
-
 
 /// A core reactive mixin that provides the implementation for [TissueList] operations.
 ///
@@ -882,10 +915,8 @@ abstract class UnmodifiableTissueListBase<E,C extends TissueList<E>>
 /// 3. It calls `_add(42)`, which validates the element, updates the container,
 ///    and emits an `ElementAddedEvent`.
 /// 4. The event is dispatched through the receptor to all observers.
-mixin TissueListMixin<E,C extends TissueList<E>>
-on TissueBase<E, List<E>, C>
-implements TissueList<E> {
-
+mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
+    implements TissueList<E> {
   /// Provides type-safe access to the list-specific configuration properties.
   ///
   /// This must be implemented by the host class to return an instance of
@@ -903,12 +934,12 @@ implements TissueList<E> {
   /// being performed on the collection.
   @override
   Iterable<Function> get modifiable => <Function>{
-    add, addAll, clear, remove, removeWhere,
-    retainWhere, fillRange, insert, insertAll, removeAt,
-    removeLast, removeRange, replaceRange,
-    setValueAt, setFirst, setAll, setRange, sort, shuffle,
-    // ...super.modifiable
-  };
+        add, addAll, clear, remove, removeWhere,
+        retainWhere, fillRange, insert, insertAll, removeAt,
+        removeLast, removeRange, replaceRange,
+        setValueAt, setFirst, setAll, setRange, sort, shuffle,
+        // ...super.modifiable
+      };
 
   /// Retrieves the element at the specified [index].
   ///
@@ -952,7 +983,8 @@ implements TissueList<E> {
   /// - [index]: The position to be updated.
   /// - [value]: The new value to be stored at that position.
   @override
-  void setValueAt(int index, E value) => apply(setValueAt, positionalArguments: [index, value]);
+  void setValueAt(int index, E value) =>
+      apply(setValueAt, positionalArguments: [index, value]);
 
   /// Sets the first element of the list to [value] after validation.
   ///
@@ -971,7 +1003,8 @@ implements TissueList<E> {
   /// - [index]: The position to update.
   /// - [value]: The new element to store.
   @override
-  void operator []=(int index, E value) => apply(setValueAt, positionalArguments: [index, value]);
+  void operator []=(int index, E value) =>
+      apply(setValueAt, positionalArguments: [index, value]);
 
   /// Appends [element] to the end of the list through the reactive system.
   ///
@@ -989,7 +1022,8 @@ implements TissueList<E> {
   /// ### Parameters:
   /// - [iterable]: The collection of elements to add.
   @override
-  void addAll(Iterable<E> iterable) => apply(addAll, positionalArguments: [iterable]);
+  void addAll(Iterable<E> iterable) =>
+      apply(addAll, positionalArguments: [iterable]);
 
   /// Removes all elements from the list.
   ///
@@ -1015,14 +1049,16 @@ implements TissueList<E> {
   /// ### Parameters:
   /// - [test]: A function returning `true` for items to be removed.
   @override
-  void removeWhere(bool Function(E element) test) => apply(removeWhere, positionalArguments: [test]);
+  void removeWhere(bool Function(E element) test) =>
+      apply(removeWhere, positionalArguments: [test]);
 
   /// Retains only the elements that satisfy the given [test] predicate.
   ///
   /// ### Parameters:
   /// - [test]: A function returning `true` for items to keep.
   @override
-  void retainWhere(bool Function(E element) test) => apply(retainWhere, positionalArguments: [test]);
+  void retainWhere(bool Function(E element) test) =>
+      apply(retainWhere, positionalArguments: [test]);
 
   /// Replaces a range of elements with [fillValue].
   ///
@@ -1031,7 +1067,8 @@ implements TissueList<E> {
   /// - [end]: Ending index (exclusive).
   /// - [fillValue]: The value used to overwrite the range.
   @override
-  void fillRange(int start, int end, [E? fillValue]) => apply(fillRange, positionalArguments: [start, end, fillValue]);
+  void fillRange(int start, int end, [E? fillValue]) =>
+      apply(fillRange, positionalArguments: [start, end, fillValue]);
 
   /// Inserts [element] at the specified [index].
   ///
@@ -1041,7 +1078,8 @@ implements TissueList<E> {
   /// - [index]: The position where the element should be placed.
   /// - [element]: The element to insert.
   @override
-  void insert(int index, E element) => apply(insert, positionalArguments: [index, element]);
+  void insert(int index, E element) =>
+      apply(insert, positionalArguments: [index, element]);
 
   /// Inserts a collection of elements starting at the specified [index].
   ///
@@ -1049,7 +1087,8 @@ implements TissueList<E> {
   /// - [index]: The position where insertion begins.
   /// - [iterable]: The elements to insert.
   @override
-  void insertAll(int index, Iterable<E> iterable) => apply(insertAll, positionalArguments: [index, iterable]);
+  void insertAll(int index, Iterable<E> iterable) =>
+      apply(insertAll, positionalArguments: [index, iterable]);
 
   /// Removes the element at the given [index] and returns it.
   ///
@@ -1086,7 +1125,8 @@ implements TissueList<E> {
   /// - [start]: The beginning index (inclusive).
   /// - [end]: The ending index (exclusive).
   @override
-  void removeRange(int start, int end) => apply(removeRange, positionalArguments: [start, end]);
+  void removeRange(int start, int end) =>
+      apply(removeRange, positionalArguments: [start, end]);
 
   /// Replaces a specified range of elements with the contents of [newContents].
   ///
@@ -1095,7 +1135,8 @@ implements TissueList<E> {
   /// - [end]: The end of the replacement range (exclusive).
   /// - [newContents]: The iterable providing the new elements.
   @override
-  void replaceRange(int start, int end, Iterable<E> newContents) => apply(replaceRange, positionalArguments: [start, end, newContents]);
+  void replaceRange(int start, int end, Iterable<E> newContents) =>
+      apply(replaceRange, positionalArguments: [start, end, newContents]);
 
   /// Overwrites elements with the objects of [iterable] starting at [index].
   ///
@@ -1103,7 +1144,8 @@ implements TissueList<E> {
   /// - [index]: The start index to begin overwriting.
   /// - [iterable]: The source elements.
   @override
-  void setAll(int index, Iterable<E> iterable) => apply(setAll, positionalArguments: [index, iterable]);
+  void setAll(int index, Iterable<E> iterable) =>
+      apply(setAll, positionalArguments: [index, iterable]);
 
   /// Writes some elements of [iterable] into a range of this list.
   ///
@@ -1122,21 +1164,26 @@ implements TissueList<E> {
   /// ### Parameters:
   /// - [random]: An optional [Random] number generator to use.
   @override
-  void shuffle([Random? random]) => apply(shuffle, positionalArguments: [random]);
+  void shuffle([Random? random]) =>
+      apply(shuffle, positionalArguments: [random]);
 
   /// Sorts this list according to the order specified by the [compare] function.
   ///
   /// ### Parameters:
   /// - [compare]: An optional comparison function.
   @override
-  void sort([int Function(E a, E b)? compare]) => apply(sort, positionalArguments: [compare]);
+  void sort([int Function(E a, E b)? compare]) =>
+      apply(sort, positionalArguments: [compare]);
 
   // ... (private mutation methods _setValueAt, _add, _addAll, _clear, etc.)
   // These methods follow the same pattern and are documented in the mixin
   // overview above.
 
   @override
-  dynamic apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  dynamic apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -1144,55 +1191,83 @@ implements TissueList<E> {
     Cell? compensateCell,
   }) {
     if (tx != null) {
-      return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
-          tx: tx, compensate: compensate, compensatePositional: compensatePositional, compensateNamed: compensateNamed, compensateCell: compensateCell
-      );
+      return super.apply(function,
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments,
+          tx: tx,
+          compensate: compensate,
+          compensatePositional: compensatePositional,
+          compensateNamed: compensateNamed,
+          compensateCell: compensateCell);
     }
 
     if (modifiable.contains(function)) {
       try {
-        if (validate.action(function, host: this as C, arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)) == true) {
+        if (validate.action(function, host: this as C, arguments: (
+              positionalArguments: positionalArguments,
+              namedArguments: namedArguments
+            )) ==
+            true) {
           final notification = namedArguments?[#$notification] ?? true;
           final deputy = namedArguments?[#deputy];
 
           if (function == add) {
-            return Function.apply(_add, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_add, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == addAll) {
-            return Function.apply(_addAll, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_addAll, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == clear) {
-            return Function.apply(_clear, null, {#notification: notification, #deputy: deputy});
+            return Function.apply(
+                _clear, null, {#notification: notification, #deputy: deputy});
           } else if (function == remove) {
-            return Function.apply(_remove, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_remove, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == removeWhere) {
-            return Function.apply(_removeWhere, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_removeWhere, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == retainWhere) {
-            return Function.apply(_retainWhere, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_retainWhere, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == fillRange) {
-            return Function.apply(_fillRange, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_fillRange, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == insert) {
-            return Function.apply(_insert, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_insert, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == insertAll) {
-            return Function.apply(_insertAll, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_insertAll, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == removeAt) {
-            return Function.apply(_removeAt, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_removeAt, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == removeLast) {
-            return Function.apply(_removeLast, null, {#notification: notification, #deputy: deputy});
+            return Function.apply(_removeLast, null,
+                {#notification: notification, #deputy: deputy});
           } else if (function == removeRange) {
-            return Function.apply(_removeRange, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_removeRange, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == replaceRange) {
-            return Function.apply(_replaceRange, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_replaceRange, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == setValueAt) {
-            return Function.apply(_setValueAt, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_setValueAt, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == setFirst) {
-            return Function.apply(_setFirst, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_setFirst, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == setAll) {
-            return Function.apply(_setAll, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_setAll, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == setRange) {
-            return Function.apply(_setRange, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_setRange, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == sort) {
-            return Function.apply(_sort, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_sort, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           } else if (function == shuffle) {
-            return Function.apply(_shuffle, positionalArguments, {#notification: notification, #deputy: deputy});
+            return Function.apply(_shuffle, positionalArguments,
+                {#notification: notification, #deputy: deputy});
           }
         }
       } catch (e) {
@@ -1206,7 +1281,8 @@ implements TissueList<E> {
   }
 
   TissuePulse? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && validate.element(element, host: this as C, action: add) == true) {
+    if (this is! Unmodifiable &&
+        validate.element(element, host: this as C, action: add) == true) {
       _nucleus.container.store.add(element);
       final cell = element;
       if (cell is Cell) {
@@ -1221,7 +1297,8 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _addAll(Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _addAll(Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1236,8 +1313,11 @@ implements TissueList<E> {
         }
       }
       if (added.isNotEmpty) {
-        final events = added.map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e)).toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = added
+            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .toList();
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1258,7 +1338,8 @@ implements TissueList<E> {
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1267,12 +1348,15 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _remove(Object? object,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && object is E) {
       final index = _nucleus.container.store.indexOf(object);
-      if (index >= 0 && validate.element(object, host: this as C, action: remove) == true) {
+      if (index >= 0 &&
+          validate.element(object, host: this as C, action: remove) == true) {
         _nucleus.container.store.removeAt(index);
-        final event = ElementRemoved<E>._(source: deputy ?? this, payload: object);
+        final event =
+            ElementRemoved<E>._(source: deputy ?? this, payload: object);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1282,7 +1366,8 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final events = <ElementRemoved<E>>[];
@@ -1294,7 +1379,8 @@ implements TissueList<E> {
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1303,13 +1389,19 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
-    return _removeWhere((e) => !test(e), notification: notification, deputy: deputy);
+  TissuePulse? _retainWhere(bool Function(E element) test,
+      {bool notification = true, Tissue<E>? deputy}) {
+    return _removeWhere((e) => !test(e),
+        notification: notification, deputy: deputy);
   }
 
-  TissuePulse? _setValueAt(int index, E value, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && index >= 0 && index < _nucleus.container.store.length) {
-      if (validate.element(value, host: this as C, action: setValueAt) == true) {
+  TissuePulse? _setValueAt(int index, E value,
+      {bool notification = true, Tissue<E>? deputy}) {
+    if (this is! Unmodifiable &&
+        index >= 0 &&
+        index < _nucleus.container.store.length) {
+      if (validate.element(value, host: this as C, action: setValueAt) ==
+          true) {
         _nucleus.container.store[index] = value;
         final event = ElementAdded<E>._(source: deputy ?? this, payload: value);
         if (notification) {
@@ -1321,17 +1413,23 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _setFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setFirst(E value,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (_nucleus.container.store.isEmpty) {
       return null;
     }
     return _setValueAt(0, value, notification: notification, deputy: deputy);
   }
 
-  TissuePulse? _fillRange(int start, int end, E? fillValue, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && fillValue != null && validate.element(fillValue, host: this as C, action: fillRange) == true) {
+  TissuePulse? _fillRange(int start, int end, E? fillValue,
+      {bool notification = true, Tissue<E>? deputy}) {
+    if (this is! Unmodifiable &&
+        fillValue != null &&
+        validate.element(fillValue, host: this as C, action: fillRange) ==
+            true) {
       _nucleus.container.store.fillRange(start, end, fillValue);
-      final event = ElementAdded<E>._(source: deputy ?? this, payload: fillValue);
+      final event =
+          ElementAdded<E>._(source: deputy ?? this, payload: fillValue);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1340,8 +1438,10 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _insert(int index, E element, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && validate.element(element, host: this as C, action: insert) == true) {
+  TissuePulse? _insert(int index, E element,
+      {bool notification = true, Tissue<E>? deputy}) {
+    if (this is! Unmodifiable &&
+        validate.element(element, host: this as C, action: insert) == true) {
       _nucleus.container.store.insert(index, element);
       final cell = element;
       if (cell is Cell) {
@@ -1356,7 +1456,8 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _insertAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _insertAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1367,8 +1468,11 @@ implements TissueList<E> {
         }
       }
       if (added.isNotEmpty) {
-        final events = added.map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e)).toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = added
+            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .toList();
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1378,7 +1482,9 @@ implements TissueList<E> {
   }
 
   E? _removeAt(int index, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable && index >= 0 && index < _nucleus.container.store.length) {
+    if (this is! Unmodifiable &&
+        index >= 0 &&
+        index < _nucleus.container.store.length) {
       final e = _nucleus.container.store[index];
       if (validate.element(e, host: this as C, action: removeAt) == true) {
         _nucleus.container.store.removeAt(index);
@@ -1394,12 +1500,14 @@ implements TissueList<E> {
 
   E? _removeLast({bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && _nucleus.container.store.isNotEmpty) {
-      return _removeAt(_nucleus.container.store.length - 1, notification: notification, deputy: deputy);
+      return _removeAt(_nucleus.container.store.length - 1,
+          notification: notification, deputy: deputy);
     }
     return null;
   }
 
-  TissuePulse? _removeRange(int start, int end, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeRange(int start, int end,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final events = <ElementRemoved<E>>[];
@@ -1411,7 +1519,8 @@ implements TissueList<E> {
         }
       }
       if (events.isNotEmpty) {
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1420,14 +1529,21 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final replacement = newContents.where((e) => validate.element(e, host: this as C, action: add) == true).toList();
+      final replacement = newContents
+          .where(
+              (e) => validate.element(e, host: this as C, action: add) == true)
+          .toList();
       _nucleus.container.store.replaceRange(start, end, replacement);
       if (replacement.isNotEmpty) {
-        final events = replacement.map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e)).toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = replacement
+            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .toList();
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1436,14 +1552,21 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _setAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setAll(int index, Iterable<E> iterable,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final values = iterable.where((e) => validate.element(e, host: this as C, action: add) == true).toList();
+      final values = iterable
+          .where(
+              (e) => validate.element(e, host: this as C, action: add) == true)
+          .toList();
       _nucleus.container.store.setAll(index, values);
       if (values.isNotEmpty) {
-        final events = values.map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e)).toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = values
+            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .toList();
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1452,14 +1575,24 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _setRange(int start, int end, Iterable<E> iterable, int skipCount, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setRange(
+      int start, int end, Iterable<E> iterable, int skipCount,
+      {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final values = iterable.skip(skipCount).take(end - start).where((e) => validate.element(e, host: this as C, action: add) == true).toList();
+      final values = iterable
+          .skip(skipCount)
+          .take(end - start)
+          .where(
+              (e) => validate.element(e, host: this as C, action: add) == true)
+          .toList();
       _nucleus.container.store.setRange(start, end, values, skipCount);
       if (values.isNotEmpty) {
-        final events = values.map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e)).toList();
-        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        final events = values
+            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .toList();
+        result =
+            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1468,13 +1601,15 @@ implements TissueList<E> {
     return result;
   }
 
-  TissuePulse? _sort(int Function(E a, E b)? compare, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _sort(int Function(E a, E b)? compare,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.sort(compare);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = ElementAdded<E>._(source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = ElementAdded<E>._(
+          source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1483,13 +1618,15 @@ implements TissueList<E> {
     return null;
   }
 
-  TissuePulse? _shuffle(Random? random, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _shuffle(Random? random,
+      {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.shuffle(random);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = ElementAdded<E>._(source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = ElementAdded<E>._(
+          source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1497,7 +1634,6 @@ implements TissueList<E> {
     }
     return null;
   }
-
 }
 
 /// An asynchronous facade for performing reactive mutation operations on a [TissueList].
@@ -1553,8 +1689,7 @@ implements TissueList<E> {
 /// See also:
 /// - [TissueList.async] – the typical way to access an instance of this class.
 /// - [TissueModifiableAsync] – the base class providing common async wrapping.
-class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
-
+class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// Creates an asynchronous callable wrapper for a [TissueList].
   ///
   /// This constructor is typically not called directly. Instead, instances are
@@ -1616,7 +1751,8 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
   /// This operation is treated as an atomic batch. If multiple elements are
   /// valid, they are bundled into a single [TissuePulse.batch], ensuring
   /// observers receive one forensic update for the entire set of additions.
-  Future<void> addAll(Iterable<E> elements) => Future<void>(() => _tissue.addAll(elements));
+  Future<void> addAll(Iterable<E> elements) =>
+      Future<void>(() => _tissue.addAll(elements));
 
   /// Asynchronously removes all elements from this list.
   ///
@@ -1630,7 +1766,8 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
   /// ### Returns:
   /// A [Future<bool>] that completes with `true` if [element] was in the list
   /// and was successfully removed, and `false` otherwise.
-  Future<bool> remove(Object? element) => Future<bool>(() => _tissue.remove(element));
+  Future<bool> remove(Object? element) =>
+      Future<bool>(() => _tissue.remove(element));
 
   /// Asynchronously removes all elements that satisfy the [test] predicate.
   ///
@@ -1671,7 +1808,8 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
   /// ### Returns:
   /// A [Future] that resolves once the element is removed and the
   /// [ElementRemoved] event has propagated.
-  Future<void> removeAt(int index) => Future<void>(() => _tissue.removeAt(index));
+  Future<void> removeAt(int index) =>
+      Future<void>(() => _tissue.removeAt(index));
 
   /// Asynchronously removes and returns the last element in the list.
   Future<void> removeLast() => Future<void>(() => _tissue.removeLast());
@@ -1689,7 +1827,8 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
       Future<void>(() => _tissue.setAll(index, iterable));
 
   /// Asynchronously overwrites a specific range with elements from [iterable].
-  Future<void> setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) =>
+  Future<void> setRange(int start, int end, Iterable<E> iterable,
+          [int skipCount = 0]) =>
       Future<void>(() => _tissue.setRange(start, end, iterable, skipCount));
 
   /// Asynchronously shuffles the elements of this list.
@@ -1697,7 +1836,8 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
   /// ### Non‑obvious
   /// Although the order changes, this triggers a forensic update to notify
   /// observers that the structural sequence has been randomized.
-  Future<void> shuffle([Random? random]) => Future<void>(() => _tissue.shuffle(random));
+  Future<void> shuffle([Random? random]) =>
+      Future<void>(() => _tissue.shuffle(random));
 
   /// Asynchronously sorts the list according to [compare].
   ///
@@ -1706,7 +1846,6 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
   /// a signal is sent through the [Synapses] to notify reactive dependencies.
   Future<void> sort([int Function(E a, E b)? compare]) =>
       Future<void>(() => _tissue.sort(compare));
-
 }
 
 /// An unmodifiable async facade that throws [UnsupportedError] on any mutation.
@@ -1724,7 +1863,6 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E,TissueList<E>> {
 /// - Read operations are not provided by this class – they are handled by the
 ///   synchronous view.
 class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
-
   const _UnmodifiableModifiableListAsync();
 
   /// Async sets the value at the given [index] in the list to [value].
@@ -1809,7 +1947,8 @@ class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
   }
 
   @override
-  Future<void> setRange(int start, int end, Iterable newContents, [int skipCount = 0]) async {
+  Future<void> setRange(int start, int end, Iterable newContents,
+      [int skipCount = 0]) async {
     return Future.error(UnsupportedError('Unmodifiable operation'));
   }
 
@@ -1827,7 +1966,10 @@ class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
   TissueList<E> get _tissue => throw UnimplementedError();
 
   @override
-  Future apply(Function function, {List? positionalArguments, Map<Symbol, dynamic>? namedArguments,
+  Future apply(
+    Function function, {
+    List? positionalArguments,
+    Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,
     Function? compensate,
     List? compensatePositional,
@@ -1836,5 +1978,4 @@ class _UnmodifiableModifiableListAsync<E> implements ModifiableListAsync<E> {
   }) async {
     return Future.error(UnsupportedError('Unmodifiable operation'));
   }
-
 }

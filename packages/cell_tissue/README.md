@@ -59,7 +59,7 @@ Add `cell_tissue` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell_tissue: ^1.0.0-rc.4
+  cell_tissue: ^1.0.0-rc.5
 ```
 
 Then run:
@@ -465,7 +465,7 @@ twice.
 `resetDistinct()` without calling `toHandle` again. A second `toHandle`
 would double every downstream effect.
 
-For the full pattern, see the four sibling demos in [`/example`](./example)
+For the full pattern, see the four sibling demos in [`/example`](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example)
 and the per-demo `*-ARCHITECTURE.md` companions.
 
 ---
@@ -515,7 +515,7 @@ and the per-demo `*-ARCHITECTURE.md` companions.
 8. The pulse propagates through the tissue's `Synapses` to downstream
    observers.
 
-For the full design intent, see [`ARCHITECTURE-Tissue.md`](ARCHITECTURE-Tissue.md).
+For the full design intent, see [`ARCHITECTURE-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/ARCHITECTURE-Tissue.md).
 
 ---
 
@@ -608,16 +608,16 @@ For the full design intent, see [`ARCHITECTURE-Tissue.md`](ARCHITECTURE-Tissue.m
 
 ## Example Demos
 
-Four end-to-end demos live under [`/example`](./example). Each is a
+Four end-to-end demos live under [`/example`](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example). A minimal, runnable quick start is available at [`example/cell_tissue_example.dart`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/cell_tissue_example.dart). Each demo is a
 complete, runnable illustration of the Flow + Tissue seam with a different
 domain:
 
 | Demo | Domain | What it teaches |
 |------|--------|-----------------|
-| [`card-auth-pipeline(tissue)-Demo.dart`](./example/card-auth-pipeline(tissue)-Demo.dart) | Payments | Authorize, hold, capture, void — with the money invariant `available + held + captured == 250000`. |
-| [`ride-hail-dispatch(tissue)-Demo.dart`](./example/ride-hail-dispatch(tissue)-Demo.dart) | Mobility | Match a rider to a driver, hold a surge banner, keep an auditable trip log. |
-| [`grid-demand-response(tissue)-Demo.dart`](./example/grid-demand-response(tissue)-Demo.dart) | Energy | Shed interruptible load, protect hospital feeders, restore after the shift-lead ACK. |
-| [`nl-instruction-tissue-set-Demo.dart`](./example/nl-instruction-tissue-set-Demo.dart) | Command surface | Translate a natural-language sentence into a verb, then dispatch it against a governed `TissueSet<int>`. |
+| [`card-auth-pipeline(tissue)-Demo.dart`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-Demo.dart) | Payments | Authorize, hold, capture, void — with the money invariant `available + held + captured == 250000`. |
+| [`ride-hail-dispatch(tissue)-Demo.dart`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-Demo.dart) | Mobility | Match a rider to a driver, hold a surge banner, keep an auditable trip log. |
+| [`grid-demand-response(tissue)-Demo.dart`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-Demo.dart) | Energy | Shed interruptible load, protect hospital feeders, restore after the shift-lead ACK. |
+| [`nl-instruction-tissue-set-Demo.dart`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/nl-instruction-tissue-set-Demo.dart) | Command surface | Translate a natural-language sentence into a verb, then dispatch it against a governed `TissueSet<int>`. |
 
 Each demo ships with three companions:
 
@@ -627,7 +627,7 @@ Each demo ships with three companions:
 | `*-FEATURES.md` | The operator catalogue and feature index. |
 | `*-ARCHITECTURE.md` | The layering, ownership, locking, and failure-semantics note. |
 
-See [`DEMO_GUIDE-Tissue.md`](DEMO_GUIDE-Tissue.md) for a progressive walk-through of
+See [`DEMO_GUIDE-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/DEMO_GUIDE-Tissue.md) for a progressive walk-through of
 the demos, or read the demos themselves in this order:
 
 1. Skim the class doc.
@@ -639,7 +639,7 @@ the demos, or read the demos themselves in this order:
 
 ## Status & Known Gaps
 
-**Release Candidate.**
+**Release Candidate** — published to pub.dev.
 
 - `example/` ships four demos; `test/` remains minimal.
 - Some dartdoc snippets are stale — use `TissueList.of([...])` rather than
@@ -662,7 +662,7 @@ the demos, or read the demos themselves in this order:
 
 If you rely on a guarantee here, verify it against the current source and
 the header of the demo that exercises it. See
-[`ARCHITECTURE-Tissue.md § Current status`](ARCHITECTURE-Tissue.md#9-current-status-and-known-gaps)
+[`ARCHITECTURE-Tissue.md § Current status`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/ARCHITECTURE-Tissue.md#9-current-status-and-known-gaps)
 for the full list.
 
 ---
@@ -718,13 +718,13 @@ Released under the terms of either:
 - **MIT License**
 - **Apache License 2.0**
 
-See `LICENSE` for the full text.
+See [LICENSE](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/LICENSE) for the full text.
 
 ---
 
 ## Author
 
-**Lee Man Hoi Simon** — see `AUTHORS` for details.
+**Lee Man Hoi Simon** — see [AUTHORS](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS) for details.
 
 ---
 

@@ -137,6 +137,7 @@ void main() {
       void add(int n) {
         total += n;
       }
+
       final deputy = await cell.deputy(
         testRule: TestCell((object, {host, arguments, user}) => true),
       );

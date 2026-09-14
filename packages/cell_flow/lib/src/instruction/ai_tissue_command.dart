@@ -83,10 +83,10 @@ Pulse<T> _out<T>(T value, Pulse trigger, Cell? cell, String step) {
 /// the null check explicit and silences false positives about the
 /// null-aware operator.
 void _invokeOnError(
-    AiTissueCommandErrorHandler? onError,
-    Object error,
-    StackTrace stack,
-    ) {
+  AiTissueCommandErrorHandler? onError,
+  Object error,
+  StackTrace stack,
+) {
   final handler = onError;
   if (handler != null) handler(error, stack);
 }
@@ -141,10 +141,8 @@ void _invokeOnError(
 /// ### See Also
 /// - [AiTissueCommandBatch]: Batch of sentences in one port call.
 /// - [AiTissueCommandWithRetry]: Retry policy over the port call.
-class AiTissueCommand<S>
-    extends FlowInstructionBase<Cell, Pulse, Pulse>
+class AiTissueCommand<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
     with FlowInstructionMixin<Cell, Pulse, Pulse> {
-
   /// The wrapped interpreter.
   final Interpreter interpreter;
 
@@ -166,71 +164,71 @@ class AiTissueCommand<S>
     AiTissueCommandErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          _invokeOnError(
-            onError,
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-
-        final id = ++generation;
-
-        Future<void> run() async {
-          try {
-            final reply = await interpreter.complete(
-              text: payload as String,
-              verbs: verbs,
-            );
-
-            if (id != generation) return;
-
-            if (reply.command != null) {
-              future!(
-                result: _out<TissueCommand>(
-                  reply.command!,
-                  pulse,
-                  cell,
-                  'AiTissueCommand',
-                ),
-                token: token,
-              );
-              return;
-            }
-
-            final reject = reply.reject ??
-                Reject(
-                  source: payload.toString(),
-                  reason: 'empty-reply',
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                _invokeOnError(
+                  onError,
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
                 );
-            future!(
-              result: _out<Reject>(
-                reject,
-                pulse,
-                cell,
-                'AiTissueCommand.rejected',
-              ),
-              token: token,
-            );
-          } catch (e, stack) {
-            if (id != generation) return;
-            _invokeOnError(onError, e, stack);
-          }
-        }
+                return null;
+              }
 
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              final id = ++generation;
+
+              Future<void> run() async {
+                try {
+                  final reply = await interpreter.complete(
+                    text: payload as String,
+                    verbs: verbs,
+                  );
+
+                  if (id != generation) return;
+
+                  if (reply.command != null) {
+                    future!(
+                      result: _out<TissueCommand>(
+                        reply.command!,
+                        pulse,
+                        cell,
+                        'AiTissueCommand',
+                      ),
+                      token: token,
+                    );
+                    return;
+                  }
+
+                  final reject = reply.reject ??
+                      Reject(
+                        source: payload.toString(),
+                        reason: 'empty-reply',
+                      );
+                  future!(
+                    result: _out<Reject>(
+                      reject,
+                      pulse,
+                      cell,
+                      'AiTissueCommand.rejected',
+                    ),
+                    token: token,
+                  );
+                } catch (e, stack) {
+                  if (id != generation) return;
+                  _invokeOnError(onError, e, stack);
+                }
+              }
+
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// Builds an [AiTissueCommand] from an [AiConfig].
   ///
@@ -314,10 +312,8 @@ class AiTissueCommand<S>
 /// ### See Also
 /// - [AiTissueCommand]: Single-sentence sibling.
 /// - [AiTissueCommandWithRetry]: Retry sibling.
-class AiTissueCommandBatch<S>
-    extends FlowInstructionBase<Cell, Pulse, Pulse>
+class AiTissueCommandBatch<S> extends FlowInstructionBase<Cell, Pulse, Pulse>
     with FlowInstructionMixin<Cell, Pulse, Pulse> {
-
   /// The wrapped interpreter.
   final Interpreter interpreter;
 
@@ -336,77 +332,77 @@ class AiTissueCommandBatch<S>
     AiTissueCommandErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! Iterable<S>) {
-          _invokeOnError(
-            onError,
-            FormatException(
-              'Expected payload of type Iterable<$S>, '
-                  'got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
-
-        final sentences = List<S>.from(payload);
-        final id = ++generation;
-
-        Future<void> run() async {
-          final results = <Object>[];
-          for (final sentence in sentences) {
-            if (id != generation) return;
-
-            try {
-              final reply = await interpreter.complete(
-                text: sentence as String,
-                verbs: verbs,
-              );
-
-              if (reply.command != null) {
-                results.add(reply.command!);
-              } else if (reply.reject != null) {
-                results.add(reply.reject!);
-              } else {
-                results.add(
-                  Reject(
-                    source: sentence.toString(),
-                    reason: 'empty-reply',
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! Iterable<S>) {
+                _invokeOnError(
+                  onError,
+                  FormatException(
+                    'Expected payload of type Iterable<$S>, '
+                    'got ${payload.runtimeType}',
                   ),
+                  StackTrace.current,
+                );
+                return null;
+              }
+
+              final sentences = List<S>.from(payload);
+              final id = ++generation;
+
+              Future<void> run() async {
+                final results = <Object>[];
+                for (final sentence in sentences) {
+                  if (id != generation) return;
+
+                  try {
+                    final reply = await interpreter.complete(
+                      text: sentence as String,
+                      verbs: verbs,
+                    );
+
+                    if (reply.command != null) {
+                      results.add(reply.command!);
+                    } else if (reply.reject != null) {
+                      results.add(reply.reject!);
+                    } else {
+                      results.add(
+                        Reject(
+                          source: sentence.toString(),
+                          reason: 'empty-reply',
+                        ),
+                      );
+                    }
+                  } catch (e, stack) {
+                    _invokeOnError(onError, e, stack);
+                    results.add(
+                      Reject(
+                        source: sentence.toString(),
+                        reason: 'interpreter-error',
+                      ),
+                    );
+                  }
+                }
+
+                if (id != generation) return;
+                future!(
+                  result: _out<List<Object>>(
+                    results,
+                    pulse,
+                    cell,
+                    'AiTissueCommandBatch',
+                  ),
+                  token: token,
                 );
               }
-            } catch (e, stack) {
-              _invokeOnError(onError, e, stack);
-              results.add(
-                Reject(
-                  source: sentence.toString(),
-                  reason: 'interpreter-error',
-                ),
-              );
-            }
-          }
 
-          if (id != generation) return;
-          future!(
-            result: _out<List<Object>>(
-              results,
-              pulse,
-              cell,
-              'AiTissueCommandBatch',
-            ),
-            token: token,
-          );
-        }
-
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// Builds an [AiTissueCommandBatch] from an [AiConfig].
   ///
@@ -469,7 +465,6 @@ class AiTissueCommandBatch<S>
 class AiTissueCommandWithRetry<S>
     extends FlowInstructionBase<Cell, Pulse, Pulse>
     with FlowInstructionMixin<Cell, Pulse, Pulse> {
-
   /// The wrapped interpreter.
   final Interpreter interpreter;
 
@@ -490,107 +485,104 @@ class AiTissueCommandWithRetry<S>
     AiTissueCommandErrorHandler? onError,
     dynamic user,
   }) : super.future(
-    (() {
-      var generation = 0;
-      return (pulse, {cell, user, future, token}) {
-        final payload = pulse.payload;
-        if (payload is! S) {
-          _invokeOnError(
-            onError,
-            FormatException(
-              'Expected payload of type $S, got ${payload.runtimeType}',
-            ),
-            StackTrace.current,
-          );
-          return null;
-        }
+          (() {
+            var generation = 0;
+            return (pulse, {cell, user, future, token}) {
+              final payload = pulse.payload;
+              if (payload is! S) {
+                _invokeOnError(
+                  onError,
+                  FormatException(
+                    'Expected payload of type $S, got ${payload.runtimeType}',
+                  ),
+                  StackTrace.current,
+                );
+                return null;
+              }
 
-        final id = ++generation;
+              final id = ++generation;
 
-        Future<void> run() async {
-          var attempt = 0;
-          Object? lastError;
-          StackTrace? lastStack;
+              Future<void> run() async {
+                var attempt = 0;
+                Object? lastError;
+                StackTrace? lastStack;
 
-          while (true) {
-            if (id != generation) return;
+                while (true) {
+                  if (id != generation) return;
 
-            try {
-              final reply = await interpreter.complete(
-                text: payload as String,
-                verbs: verbs,
-              );
+                  try {
+                    final reply = await interpreter.complete(
+                      text: payload as String,
+                      verbs: verbs,
+                    );
 
-              if (id != generation) return;
+                    if (id != generation) return;
 
-              if (reply.command != null) {
+                    if (reply.command != null) {
+                      future!(
+                        result: _out<TissueCommand>(
+                          reply.command!,
+                          pulse,
+                          cell,
+                          'AiTissueCommandWithRetry',
+                        ),
+                        token: token,
+                      );
+                      return;
+                    }
+
+                    final reject = reply.reject ??
+                        Reject(
+                          source: payload.toString(),
+                          reason: 'empty-reply',
+                        );
+                    future!(
+                      result: _out<Reject>(
+                        reject,
+                        pulse,
+                        cell,
+                        'AiTissueCommandWithRetry.rejected',
+                      ),
+                      token: token,
+                    );
+                    return;
+                  } catch (e, stack) {
+                    lastError = e;
+                    lastStack = stack;
+                    _invokeOnError(onError, e, stack);
+                    if (attempt >= count) break;
+                    attempt++;
+                  }
+                }
+
+                if (id != generation) return;
+
+                final frame = lastStack.toString().split('\n').firstWhere(
+                      (l) => l.trim().isNotEmpty,
+                      orElse: () => '',
+                    );
+                final frameSuffix = frame.isNotEmpty ? ' @ $frame' : '';
+
                 future!(
-                  result: _out<TissueCommand>(
-                    reply.command!,
+                  result: _out<Reject>(
+                    Reject(
+                      source: payload.toString(),
+                      reason: 'retries-exhausted: $lastError$frameSuffix',
+                    ),
                     pulse,
                     cell,
-                    'AiTissueCommandWithRetry',
+                    'AiTissueCommandWithRetry.exhausted',
                   ),
                   token: token,
                 );
-                return;
               }
 
-              final reject = reply.reject ??
-                  Reject(
-                    source: payload.toString(),
-                    reason: 'empty-reply',
-                  );
-              future!(
-                result: _out<Reject>(
-                  reject,
-                  pulse,
-                  cell,
-                  'AiTissueCommandWithRetry.rejected',
-                ),
-                token: token,
-              );
-              return;
-            } catch (e, stack) {
-              lastError = e;
-              lastStack = stack;
-              _invokeOnError(onError, e, stack);
-              if (attempt >= count) break;
-              attempt++;
-            }
-          }
-
-          if (id != generation) return;
-
-          final frame = lastStack
-              .toString()
-              .split('\n')
-              .firstWhere(
-                (l) => l.trim().isNotEmpty,
-            orElse: () => '',
-          );
-          final frameSuffix = frame.isNotEmpty ? ' @ $frame' : '';
-
-          future!(
-            result: _out<Reject>(
-              Reject(
-                source: payload.toString(),
-                reason: 'retries-exhausted: $lastError$frameSuffix',
-              ),
-              pulse,
-              cell,
-              'AiTissueCommandWithRetry.exhausted',
-            ),
-            token: token,
-          );
-        }
-
-        run();
-        return null;
-      };
-    })(),
-    user: user,
-  );
+              run();
+              return null;
+            };
+          })(),
+          user: user,
+        );
 
   /// Builds an [AiTissueCommandWithRetry] from an [AiConfig].
   ///
@@ -822,8 +814,7 @@ Future<void> main() async {
     },
   );
 
-  await batchIn.emitAsync(
-      ['add 1', 'add 2', 'clear', 'hack the nucleus']);
+  await batchIn.emitAsync(['add 1', 'add 2', 'clear', 'hack the nucleus']);
   await Future<void>.delayed(const Duration(milliseconds: 30));
   batchObs.stop();
 
@@ -968,9 +959,8 @@ Future<void> main() async {
     effect: (Pulse p) {
       final v = p.payload;
       if (v is Reject) {
-        final short = v.reason.length > 60
-            ? '${v.reason.substring(0, 60)}...'
-            : v.reason;
+        final short =
+            v.reason.length > 60 ? '${v.reason.substring(0, 60)}...' : v.reason;
         print('   [retry] Reject(reason=$short)');
       } else if (v is TissueCommand) {
         print('   [retry] TissueCommand(${v.verb.name}, args=${v.args})');
@@ -1062,5 +1052,5 @@ class _AlwaysFailsInterpreter implements Interpreter {
 }
 
 /// Error handler callback for the AI-bridged interpretation gates.
-typedef AiTissueCommandErrorHandler =
-void Function(Object error, StackTrace? stackTrace);
+typedef AiTissueCommandErrorHandler = void Function(
+    Object error, StackTrace? stackTrace);
