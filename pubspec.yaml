@@ -1,29 +1,38 @@
-name: cell_framework
+name: mitosis
 description: >-
-  A programming framework provides a comprehensive reactive programming 
-  solution for Dart, with particular strength in managing complex state 
-  and data flow in applications.
-
+  Umbrella package for the Mitosis reactive framework — Cell (core),
+  Flow (orchestration), and Tissue (application) layers for Dart.
 version: 1.0.0-rc.5
+
+homepage: https://github.com/simon-m-lee/cell
+repository: https://github.com/simon-m-lee/cell
+issue_tracker: https://github.com/simon-m-lee/cell/issues
+documentation: https://github.com/simon-m-lee/cell#readme
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
 
+dependencies:
+  cell: ^1.0.0-rc.5
+  cell_flow: ^1.0.0-rc.5
+  cell_tissue: ^1.0.0-rc.5
+
 topics:
   - reactive
-  - collection
-  - codegen
+  - state-management
+  - streams
+  - collections
   - framework
-  - relation
 
-repository: https://github.com/simon-m-lee/cell
-
-documentation: https://pub.dev/documentation/cell/latest/
-
-issue_tracker: https://github.com/simon-m-lee/cell/issues
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:
 
 workspace:
   - packages/cell
   - packages/cell_flow
   - packages/cell_tissue
-  - packages/cell_organ

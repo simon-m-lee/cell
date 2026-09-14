@@ -162,7 +162,18 @@ dart pub global activate melos
 
 ### Using from pub.dev
 
-All three layers are published on pub.dev — no monorepo checkout required:
+The umbrella package re-exports all three layers in one import:
+
+```yaml
+dependencies:
+  mitosis: ^1.0.0-rc.5
+```
+
+```dart
+import 'package:mitosis/mitosis.dart';
+```
+
+Prefer the individual layers when you want fine-grained dependencies:
 
 ```yaml
 dependencies:
