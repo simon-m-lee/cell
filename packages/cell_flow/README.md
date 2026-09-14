@@ -1,6 +1,6 @@
 # cell_flow
 
-**Codename: Mitosis** · `1.0.0-rc.5`
+**Codename: Mitosis** · `1.0.0-rc.6`
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE)
@@ -19,7 +19,7 @@ Add both packages to your `pubspec.yaml`:
 ```yaml
 dependencies:
   cell: ^1.0.0-rc.5
-  cell_flow: ^1.0.0-rc.5
+  cell_flow: ^1.0.0-rc.6
 ```
 
 Import once in your Dart file:
@@ -413,7 +413,7 @@ dart run example/filter_data_quality_demo.dart
 | Package | Version      | Status |
 |---|--------------|---|
 | `cell` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
-| `cell_flow` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
+| `cell_flow` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
 
 **Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. The stable release on pub.dev will be `1.0.0`.
 

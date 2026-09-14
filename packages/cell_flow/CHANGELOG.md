@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.6)] - Release Candidate
+
+Pub.dev WASM-compatibility release. No public API changes.
+
+### Fixed
+
+- **WASM compatibility**: Removed the unconditional `dart:io` dependency from
+  the AI tissue-command domain by moving `HttpInterpreter`, `AiConfig.fromJsonFile`,
+  and the live-demo environment lookup behind conditional imports
+  (`ai_tissue_command_domain_io.dart` on native, `ai_tissue_command_domain_stub.dart`
+  on web/WASM). The package now compiles to WebAssembly (`dart compile wasm`).
+
 ## [Mitosis (1.0.0-rc.5)] - Release Candidate
 
 Pub.dev score remediation release. No public API changes.
