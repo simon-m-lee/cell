@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the zipAll method from the Flow class, for the Dart programming language.">
+  <title>zipAll method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">zipAll&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">zipAll</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">zipAll&lt;<wbr><span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">zipAll</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="zipAll-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="zipAll-param-width"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span>, </span></li>
+<li><span class="parameter" id="zipAll-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Pack <code>width</code> source values into a list.</p>
+<p><a href="../../mitosis/Flow/zipAll.html">zipAll</a> is the simplest zip operator. It collects values from a
+single source into batches of <code>width</code> and emits them as a list.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/zipAll.html">zipAll</a> when you want to collect values from a single source
+into batches by count.</p>
+<ul>
+<li><strong>Batching</strong>: Batching values into fixed-size lists.</li>
+<li><strong>Chunking</strong>: Chunking data into chunks of a fixed size.</li>
+<li><strong>Pagination</strong>: Creating pages of data.</li>
+<li><strong>Collection</strong>: Collecting values into groups.</li>
+<li><strong>Aggregation</strong>: Aggregating values into lists.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The payload is added to the current row.</li>
+<li>When the row reaches <code>width</code>, it's emitted as a list.</li>
+<li>The row is cleared.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Batching</strong>: Values are batched by count.</li>
+<li><strong>Single Source</strong>: Only one source is used.</li>
+<li><strong>No Overlap</strong>: Each value appears in exactly one batch.</li>
+<li><strong>Memory Usage</strong>: Only holds up to <code>width</code> values at a time.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>width</code>: <strong>Batch Size.</strong> The number of values in each batch.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the batches.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.zipAll&lt;int&gt;(
+  input.cell,
+  width: 3,
+);
+
+input.emit(1); // no output
+input.emit(2); // no output
+input.emit(3); // -&gt; [1, 2, 3]
+input.emit(4); // no output
+input.emit(5); // no output
+input.emit(6); // -&gt; [4, 5, 6]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/zipWith.html">zipWith</a>: For zipping the source with other cells.</li>
+<li><a href="../../mitosis/Flow/zip.html">zip</a>: For zipping extra sources with an arm.</li>
+<li><a href="../../mitosis/Flow/bufferCount.html">bufferCount</a>: For more flexible count-based buffering.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle zipAll&lt;T&gt;(
+  Cell source, {
+  required int width,
+  ZipErrorHandler? onError,
+}) {
+  return ZipAll&lt;T&gt;(width, onError: onError).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">zipAll&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

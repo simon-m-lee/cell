@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="mitosis API docs, for the Dart programming language.">
+  <title>mitosis - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/simon-m-lee/cell">mitosis package</a></li>
+  </ol>
+  <div class="self-name">mitosis</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="mitosis">Mitosis</h1>
+<blockquote>
+<p><strong>Formerly the Cell Framework.</strong> One reactive graph. Three layers. Zero broken causal chains.</p>
+</blockquote>
+<p><a href="https://github.com/simon-m-lee/cell/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="https://dart.dev"><img src="https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg" alt="Dart SDK"></a>
+<a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-1.0.0--rc.6-yellow.svg" alt="Status"></a>
+<a href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg" alt="Melos"></a>
+<a href="#-contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a></p>
+<p><strong>Mitosis</strong> is a reactive application framework for Dart that treats state, events, and their <strong>causal history</strong> as one coherent, observable graph. It is an umbrella monorepo built from three layers — <strong>Cell</strong>, <strong>Flow</strong>, and <strong>Tissue</strong> — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.</p>
+<p>Mitosis is designed for systems where <em>why something happened</em> matters as much as <em>what happened</em>: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#-why-the-name-mitosis">Why the name "Mitosis"?</a></li>
+<li><a href="#-the-three-pillars">The Three Pillars</a></li>
+<li><a href="#-repository-layout">Repository Layout</a></li>
+<li><a href="#-architecture-philosophy">Architecture Philosophy</a></li>
+<li><a href="#-design-principles">Design Principles</a></li>
+<li><a href="#-quick-start">Quick Start</a></li>
+<li><a href="#-development-commands">Development Commands</a></li>
+<li><a href="#-documentation-map">Documentation Map</a></li>
+<li><a href="#-project-status--cadence">Project Status &amp; Cadence</a></li>
+<li><a href="#-vision--roadmap">Vision &amp; Roadmap</a></li>
+<li><a href="#-honest-caveats">Honest Caveats</a></li>
+<li><a href="#-contributing">Contributing</a></li>
+<li><a href="#-license">License</a></li>
+<li><a href="#-authors">Authors</a></li>
+<li><a href="#-links">Links</a></li>
+</ul>
+<hr>
+<h2 id="-why-the-name-mitosis">🧬 Why the name "Mitosis"?</h2>
+<p>In biology, <strong>mitosis</strong> is the process by which a cell divides into two daughter cells, each carrying a <strong>complete, faithful copy of the parent's DNA</strong>. Nothing is lost; every new state inherits a lineage.</p>
+<p>That is exactly the contract this framework enforces for software state:</p>
+<ul>
+<li>every change is a <strong>Pulse</strong> — an immutable message carrying value, provenance, and context;</li>
+<li>every propagation <strong>preserves the causal chain</strong> — you can always ask <em>who</em>, <em>why</em>, <em>under which authority</em>, and <em>what happened downstream</em>;</li>
+<li>every layer built on top — Flow, Tissue, and beyond — <strong>inherits the same DNA</strong> (validation, governance, traceability) rather than re-inventing it.</li>
+</ul>
+<p>The project was previously known as the <strong>Cell Framework</strong>. The rename to <strong>Mitosis</strong> reflects the move from "a reactive state library" to a broader ambition: a <strong>causally intelligible runtime</strong> for composing complex reactive systems.</p>
+<p>The name is also a promise about the project itself: <strong>mitosis keeps dividing</strong>. The ecosystem is still growing — three layers today, and more will come online as the framework matures.</p>
+<hr>
+<h2 id="-the-three-pillars">🧱 The Three Pillars</h2>
+<p>Mitosis is organized into three specialized layers. Each layer is a separate package with a single, well-scoped responsibility — and each depends on the layer below it.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Package</th>
+<th>Version</th>
+<th>Biological Analogue</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Core</strong></td>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell"><strong>cell</strong></a></td>
+<td><code>1.0.0-rc.5</code></td>
+<td>The <strong>cell</strong></td>
+<td>Reactive primitives (<code>Cell</code>, <code>Pulse</code>, <code>Receptor</code>, <code>Nucleus</code>, <code>Synapses</code>), validation gates (<code>TestCell</code>), authority context (<code>Context</code>), deputies, transactions, and the causal integrity engine.</td>
+</tr>
+<tr>
+<td><strong>Orchestration</strong></td>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow"><strong>cell_flow</strong></a></td>
+<td><code>1.0.0-rc.6</code></td>
+<td>The <strong>nervous system</strong></td>
+<td>90+ Rx-shaped operators (<code>map</code>, <code>filter</code>, <code>debounce</code>, <code>throttle</code>, <code>switchMap</code>, <code>mergeMap</code>, <code>zip</code>, <code>retry</code>, <code>buffer</code>, …) as <code>FlowInstruction</code>s compiled into the <em>same</em> Cell graph — no translation layer.</td>
+</tr>
+<tr>
+<td><strong>Application</strong></td>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue"><strong>cell_tissue</strong></a></td>
+<td><code>1.0.0-rc.5</code></td>
+<td>The <strong>body</strong></td>
+<td>Governed reactive collections (<code>TissueList</code>, <code>TissueSet</code>, <code>TissueMap</code>, <code>TissueQueue</code>, <code>TissueValue</code>) with validation, read-only views, deputies, capacity/backpressure, and async mutations.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> the graph, locks, validation, and provenance live in <strong>cell</strong>. Flow only decides <em>which</em> pulses leave and <em>when</em>. Tissue decides <em>where they are recorded and under which invariants</em>. The layers compose without duplicating governance.</p>
+<blockquote>
+<p>🌱 <strong>Still dividing.</strong> Like the biological process it is named after, Mitosis keeps growing. These three pillars are the foundation — more layers will come online as the ecosystem matures.</p>
+</blockquote>
+<hr>
+<h2 id="-repository-layout">📦 Repository Layout</h2>
+<pre class="language-text"><code class="language-text">cell/                          # Umbrella monorepo: "Mitosis"
+├── packages/
+│   ├── cell/                  # Core layer — reactive primitives &amp; causal integrity
+│   │   ├── lib/               #   cell.dart, pulse, receptor, nucleus, synapses…
+│   │   ├── example/           #   Runnable demos (state, asyncMap, transaction…)
+│   │   ├── guide/             #   HowTo-*.md learning path
+│   │   └── test/
+│   ├── cell_flow/             # Orchestration layer — 90+ Flow operators
+│   │   ├── lib/               #   flow.dart, flow_core, fluent_operator, instruction/
+│   │   ├── example/           #   Search, checkout, ICU alarm, batching demos…
+│   │   ├── guide/
+│   │   └── test/
+│   └── cell_tissue/           # Application layer — reactive collections
+│       ├── lib/               #   tissue_list, tissue_map, tissue_queue, …
+│       ├── example/           #   Flow + Tissue seam demos (payments, dispatch, grid)
+│       ├── guide/
+│       └── test/
+├── example/                   # Umbrella demos — (Cell) instruction-side editions
+│   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
+│   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
+│   ├── ride-hail-dispatch(Cell)-*   #   custom MatchDecisionInstruction
+├── DEMO_GUIDE-mitosis.md      # Mitosis demo guide (decision-side learning path)
+├── melos.yaml                 # Monorepo scripts (analyze, test, format, build)
+├── pubspec.yaml               # Dart workspace definition (pub workspaces)
+├── CHANGELOG.md
+├── AUTHORS
+└── LICENSE
+</code></pre>
+<p>The repository is managed with <strong><a href="https://melos.invertase.dev/">Melos</a></strong> on top of Dart's native <strong>pub workspaces</strong>.</p>
+<hr>
+<h2 id="-architecture-philosophy">🏗️ Architecture Philosophy</h2>
+<p>Mitosis uses a biological metaphor to separate concerns while keeping a strict forensic trail:</p>
+<pre class="language-text"><code class="language-text">┌──────────────────────────────────────────────────────────────────────┐
+│  APPLICATION LAYER  (Tissue)      The "Body"                         │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                  │
+│  │ TissueList   │ │ TissueSet    │ │ TissueMap    │                  │
+│  │ (Ordered)    │ │ (Unique)     │ │ (Key-Value)  │                  │
+│  └──────────────┘ └──────────────┘ └──────────────┘                  │
+│  ┌──────────────┐ ┌──────────────┐                                   │
+│  │ TissueQueue  │ │ TissueValue  │   Governed collections:           │
+│  │ (FIFO/bound) │ │ (Scalar)     │   observable · validated ·        │
+│  └──────────────┘ └──────────────┘   deputy-able · thread-safe       │
+├──────────────────────────────────────────────────────────────────────┤
+│  ORCHESTRATION LAYER  (Flow)       The "Nervous System"              │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │  90+ operators: map, filter, debounce, throttle, asyncMap,     │  │
+│  │  switchMap, mergeMap, concatMap, exhaustMap, zip, combineLatest│  │
+│  │  groupBy, bufferCount, retry, timeout, sample, scan, …         │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│  Decides WHICH pulses leave and WHEN — nothing more.                 │
+├──────────────────────────────────────────────────────────────────────┤
+│  CORE LAYER  (Cell)                The "Cell / DNA"                  │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │  Cell, Pulse, Receptor, Synapses, Nucleus, TestCell, Context,  │  │
+│  │  Deputy, Modifiable, transactions, causal integrity engine     │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+│  Owns the graph, the locks, the validation, and the provenance.      │
+└──────────────────────────────────────────────────────────────────────┘
+        ▲                                                              ▲
+        └────────────  one graph · one causal trail · one DNA  ────────┘
+</code></pre>
+<p><strong>One DNA across all three layers.</strong> The same graph, locks, validation, and provenance are shared by Cell, Flow, and Tissue — every layer you build on top inherits the same causal guarantees instead of re-inventing them.</p>
+<hr>
+<h2 id="-design-principles">🧭 Design Principles</h2>
+<p>These are the non-negotiables that shape every package in the monorepo:</p>
+<ol>
+<li><strong>Progressive disclosure.</strong> A counter app needs only <code>Cell.state</code>. You should not have to learn <code>Nucleus</code>, <code>TestCell</code>, or <code>Synapses</code> until you need them. Defaults are pass-through and allow-all.</li>
+<li><strong>Causal integrity.</strong> Every state transition travels as an immutable <code>Pulse</code> that carries what changed, what caused it, and the context/authority under which it occurred. The trail is a property of the graph, not a logging afterthought.</li>
+<li><strong>Governance as a gate, not a callback.</strong> Validation (<code>TestCell</code>, <code>TestTissue</code>) is enforced by the graph before a mutation commits — it cannot be forgotten.</li>
+<li><strong>Deputies narrow authority.</strong> Share restricted, read-only, or ephemeral views of the same data (<code>deputy</code>, <code>unmodifiable</code>) without copying it. A deputy can only <em>narrow</em> what the principal allows — never widen it.</li>
+<li><strong>Forensic traceability.</strong> Pulses, provenance, and context make systems auditable and reconstructable — a chain of computation you can inspect, not just a final value.</li>
+<li><strong>Biological scaling.</strong> Each layer is a <em>scale of composition</em>, not a feature silo. Higher layers inherit the DNA of lower layers instead of replacing it.</li>
+</ol>
+<hr>
+<h2 id="-quick-start">🚀 Quick Start</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li><strong>Dart SDK</strong>: <code>&gt;=3.6.0 &lt;4.0.0</code> for the workspace root (individual packages allow <code>&gt;=3.5.0</code>).</li>
+<li><strong>Melos</strong>: install globally to manage the monorepo:</li>
+</ul>
+<pre class="language-bash"><code class="language-bash">dart pub global activate melos
+</code></pre>
+<h3 id="using-from-pubdev">Using from pub.dev</h3>
+<p>The umbrella package re-exports all three layers in one import:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  mitosis: ^1.0.0-rc.5
+</code></pre>
+<pre class="language-dart"><code class="language-dart">import 'package:mitosis/mitosis.dart';
+</code></pre>
+<p>Prefer the individual layers when you want fine-grained dependencies:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  cell: ^1.0.0-rc.5
+  cell_flow: ^1.0.0-rc.6
+  cell_tissue: ^1.0.0-rc.5
+</code></pre>
+<p>The workspace setup below is only needed for contributors working on the framework itself.</p>
+<h3 id="workspace-setup">Workspace Setup</h3>
+<pre class="language-bash"><code class="language-bash"># 1. Clone the repository
+git clone https://github.com/simon-m-lee/cell.git
+cd cell
+
+# 2. Bootstrap the workspace (install dependencies + cross-link local packages)
+melos bootstrap
+
+# 3. Verify everything is healthy
+melos analyze
+melos test
+</code></pre>
+<h3 id="hello-mitosis--all-three-layers-in-one-flow">Hello Mitosis — all three layers in one flow</h3>
+<p>The canonical pattern: <strong>Flow decides. Tissue records. The observer is the only glue.</strong></p>
+<pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart';     // Cell + Flow operators
+import 'package:cell_tissue/cell_tissue.dart'; // Tissue collections
+
+Future&lt;void&gt; main() async {
+  // 1. CELL — events enter the graph through an ingress
+  final commands = Cell.ingress&lt;String&gt;();
+
+  // 2. FLOW — orchestration: normalize, gate, deduplicate, debounce
+  final accepted = commands.cell
+      .map&lt;String, String&gt;(project: (c) =&gt; c.trim())
+      .filter&lt;String&gt;(test: (c) =&gt; c.isNotEmpty)
+      .distinct&lt;String&gt;()
+      .debounce&lt;String&gt;(duration: const Duration(milliseconds: 150));
+
+  // 3. TISSUE — application state: a governed, observable collection
+  final ledger = TissueList.of(&lt;String&gt;[]);
+
+  Cell.observe(
+    source: accepted.cell,
+    effect: (pulse) =&gt; ledger.add('ACCEPTED: ${pulse.payload}'),
+  );
+
+  await commands.emitAsync('  deploy mitosis  ');
+  await commands.emitAsync('  deploy mitosis  '); // distinct + debounce
+
+  await Future&lt;void&gt;.delayed(const Duration(milliseconds: 200));
+  print(ledger); // [ACCEPTED: deploy mitosis]
+}
+</code></pre>
+<p>Each package's README has deeper walkthroughs:</p>
+<ul>
+<li><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md"><code>packages/cell/guide/HowTo-Start.md</code></a> — core concepts</li>
+<li><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md"><code>packages/cell_flow/guide/HowTo-Start.md</code></a> — 15-minute pipeline tutorial</li>
+<li><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md"><code>packages/cell_tissue/README.md</code></a> — collections, deputies, and the Flow + Tissue seam</li>
+</ul>
+<hr>
+<h2 id="-development-commands">🛠️ Development Commands</h2>
+<p>Melos scripts run across every package in the workspace:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Analyze</strong></td>
+<td><code>melos analyze</code></td>
+<td>Static analysis on all packages</td>
+</tr>
+<tr>
+<td><strong>Test</strong></td>
+<td><code>melos test</code></td>
+<td>Run all package test suites</td>
+</tr>
+<tr>
+<td><strong>Format</strong></td>
+<td><code>melos format</code></td>
+<td>Format the entire codebase</td>
+</tr>
+<tr>
+<td><strong>Build</strong></td>
+<td><code>melos build</code></td>
+<td>Regenerate generated code (build_runner)</td>
+</tr>
+<tr>
+<td><strong>Lint</strong></td>
+<td><code>melos lint</code></td>
+<td>Alias for <code>melos analyze</code></td>
+</tr>
+<tr>
+<td><strong>Check all</strong></td>
+<td><code>melos check</code></td>
+<td>Run analysis <strong>and</strong> tests</td>
+</tr>
+<tr>
+<td><strong>Clean</strong></td>
+<td><code>melos clean</code></td>
+<td>Clean all packages</td>
+</tr>
+</tbody>
+</table>
+<p>Single-package workflows are also supported, e.g.:</p>
+<pre class="language-bash"><code class="language-bash">cd packages/cell_flow
+dart test
+dart run example/stability_search_demo.dart
+</code></pre>
+<hr>
+<h2 id="-documentation-map">📚 Documentation Map</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md">packages/cell/README.md</a></td>
+<td>Core layer: operators, governance, deputies, transactions</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/README.md">packages/cell_flow/README.md</a></td>
+<td>Orchestration layer: full operator catalog, patterns, testing</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md">packages/cell_tissue/README.md</a></td>
+<td>Application layer: collections, validation, Flow + Tissue seam</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-mitosis.md">DEMO_GUIDE-mitosis.md</a></td>
+<td>Mitosis demo guide — the <code>(Cell)</code> instruction-side learning path</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md">CHANGELOG.md</a></td>
+<td>Umbrella release history</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>If a guide and the source disagree, <strong>the source is current</strong>.</p>
+</blockquote>
+<hr>
+<h2 id="-project-status--cadence">📌 Project Status &amp; Cadence</h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mitosis</code></td>
+<td><code>1.0.0-rc.6</code></td>
+<td>Release Candidate — on pub.dev</td>
+</tr>
+<tr>
+<td><code>cell</code></td>
+<td><code>1.0.0-rc.5</code></td>
+<td>Release Candidate — on pub.dev</td>
+</tr>
+<tr>
+<td><code>cell_flow</code></td>
+<td><code>1.0.0-rc.6</code></td>
+<td>Release Candidate — on pub.dev</td>
+</tr>
+<tr>
+<td><code>cell_tissue</code></td>
+<td><code>1.0.0-rc.5</code></td>
+<td>Release Candidate — on pub.dev</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitosis</strong> is the umbrella codename for the release line. It is <em>not</em> part of the SemVer string. All three pillars — <code>cell</code>, <code>cell_flow</code>, and <code>cell_tissue</code> — are published on pub.dev under the <code>1.0.0</code> RC line; the stable <code>1.0.0</code> release is next. Breaking changes remain possible before <code>1.0.0</code> stable.</p>
+<hr>
+<h2 id="-vision--roadmap">🔭 Vision &amp; Roadmap</h2>
+<p>Mitosis is not aiming to be "another state-management library". The ambition is a <strong>layered platform for causally intelligible reactive systems</strong> — where application behavior is composable, traceable, governable, and explainable from the same graph.</p>
+<h3 id="how-the-platform-grows">How the platform grows</h3>
+<p>The three pillars define the roadmap. New capability lands inside the layer that already owns it — Cell stays the reactive core, Flow stays the orchestration layer, Tissue stays the governed body.</p>
+<table>
+<thead>
+<tr>
+<th>Horizon</th>
+<th>Cell</th>
+<th>Flow</th>
+<th>Tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Now (RC)</strong></td>
+<td>Reactive core: state, pulses, governance</td>
+<td>90+ orchestration operators</td>
+<td>Reactive, validated collections</td>
+</tr>
+<tr>
+<td><strong>Next (post-1.0)</strong></td>
+<td>Multi-isolate cells</td>
+<td>Deeper combinators, backpressure</td>
+<td>Causal replay &amp; state snapshots</td>
+</tr>
+<tr>
+<td><strong>Later</strong></td>
+<td>Distributed cells</td>
+<td>Cross-runtime flows</td>
+<td>Digital-twin state fabrics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-1--stabilize-the-rc-line-toward-100">Phase 1 — Stabilize the RC line (toward <code>1.0.0</code>)</h3>
+<ul>
+<li><strong>API freeze</strong> across <code>cell</code>, <code>cell_flow</code>, and <code>cell_tissue</code> after the RC cycle.</li>
+<li><strong>Full test matrix</strong> and coverage reporting for every package.</li>
+<li><strong>Flutter adapters &amp; recipes</strong> — bind cells, flows, and tissues to widgets with minimal glue.</li>
+<li><strong>Stable <code>1.0.0</code> release</strong> — all three pillars are already on pub.dev under the RC line; the stable release is next.</li>
+</ul>
+<h3 id="phase-2--deepen-the-platform-post-100">Phase 2 — Deepen the platform (post-<code>1.0.0</code>)</h3>
+<ul>
+<li><strong>Causal replay &amp; simulation</strong> — reconstruct any historical state by replaying the pulse chain; run "what-if" branches against Tissue state.</li>
+<li><strong>Multi-isolate &amp; distributed cells</strong> — flows and tissues that cross isolate or network boundaries while preserving provenance.</li>
+<li><strong>Storage &amp; persistence adapters</strong> — snapshot and restore graph state without leaving the causal model.</li>
+<li><strong>Developer tooling</strong> — a visual graph debugger, CLI scaffolding, and IDE support that render the causal trail in real time.</li>
+<li><strong>Performance &amp; memory work</strong> — zero-copy views, lock refinements, and large-graph benchmarks.</li>
+</ul>
+<h3 id="phase-3--a-runtime-for-complex-autonomous-systems-long-term">Phase 3 — A runtime for complex, autonomous systems (long term)</h3>
+<ul>
+<li><strong>Multi-agent orchestration</strong> — an agent, its tool calls, and its effects modeled as cells, flows, and tissues; agentic systems become inspectable, governable graphs.</li>
+<li><strong>Edge / serverless deployment</strong> — migrate cells and tissues across runtime boundaries without losing lineage.</li>
+<li><strong>Digital twins &amp; complex adaptive simulations</strong> — large networks of governed tissues with emergent behavior from local rules.</li>
+<li><strong>Compliance-grade audit pipelines</strong> — provenance and context feeding formal audit, attestation, and verification tooling.</li>
+</ul>
+<h3 id="target-domains">Target domains</h3>
+<p>Mitosis pays for itself first in systems where the causal trail is a requirement, not a nicety:</p>
+<ul>
+<li>💳 <strong>Payments &amp; fintech</strong> — holds, captures, invariants (<code>available + held + captured == constant</code>)</li>
+<li>🏥 <strong>Safety-critical telemetry</strong> — alarm pipelines, sensor fusion, escalation logic</li>
+<li>⚡ <strong>Energy &amp; real-time grids</strong> — demand response, shed/restore decisions, audit logs</li>
+<li>🚗 <strong>Mobility &amp; dispatch</strong> — matching, surge control, trip logs</li>
+<li>🔐 <strong>Security-sensitive services</strong> — authority tiers, redaction, restricted deputies</li>
+<li>🤖 <strong>Agents &amp; automation</strong> — tool-call graphs with traceable intent and effect</li>
+</ul>
+<hr>
+<h2 id="-honest-caveats">🧾 Honest Caveats</h2>
+<p>Mitosis is an RC. Some things to know before you bet production on it:</p>
+<ul>
+<li><strong>APIs may still change</strong> before <code>1.0.0</code> stable.</li>
+<li><strong><code>Context</code> metadata is not a compliance certification.</strong> <code>Context.describe(...)</code> stores classification, actor, and purpose text; it does not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation.</li>
+<li><strong>Some Tissue behaviors are build-dependent</strong> (observer delivery on tissue cells, <code>.unmodifiable</code> liveliness, queue draining). Verify against current source and demo headers before relying on them — see the <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md">cell_tissue README</a>.</li>
+<li><strong>The framework is deliberately layered.</strong> For a couple of flags or a single form, plain Dart or a lightweight notifier may be the better tool. Mitosis earns its complexity at scale.</li>
+</ul>
+<hr>
+<h2 id="-contributing">🤝 Contributing</h2>
+<p>Contributions are welcome across all layers:</p>
+<ol>
+<li>Fork the repository and create a topic branch.</li>
+<li>Run <code>melos analyze</code> and <code>melos test</code> locally.</li>
+<li>Add tests for new behavior.</li>
+<li>Submit a pull request with a clear description.</li>
+</ol>
+<p>See the individual package READMEs for package-specific conventions.</p>
+<hr>
+<h2 id="-license">📄 License</h2>
+<p>Dual-licensed under either of:</p>
+<ul>
+<li><strong>MIT License</strong></li>
+<li><strong>Apache License, Version 2.0</strong></li>
+</ul>
+<p>See the <a href="https://github.com/simon-m-lee/cell/blob/master/LICENSE">LICENSE</a> file for full text. Operator <em>names</em> follow ReactiveX vocabulary; implementations are original.</p>
+<hr>
+<h2 id="-authors">👤 Authors</h2>
+<p>Lee Man Hoi Simon — see <a href="https://github.com/simon-m-lee/cell/blob/master/AUTHORS">AUTHORS</a> for copyright holders.</p>
+<hr>
+<h2 id="-links">🔗 Links</h2>
+<ul>
+<li>🏠 <strong>Repository:</strong> <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
+<li>🐛 <strong>Issues:</strong> <a href="https://github.com/simon-m-lee/cell/issues">github.com/simon-m-lee/cell/issues</a></li>
+<li>📦 <strong>pub.dev:</strong> <a href="https://pub.dev/packages/cell">cell</a> · <a href="https://pub.dev/packages/cell_flow">cell_flow</a> · <a href="https://pub.dev/packages/cell_tissue">cell_tissue</a></li>
+<li>📖 <strong>Core layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell">packages/cell</a></li>
+<li>🔀 <strong>Orchestration layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">packages/cell_flow</a></li>
+<li>🧩 <strong>Application layer:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue">packages/cell_tissue</a></li>
+</ul>
+<hr>
+<p><em>Mitosis — reactive state that remembers how it got there.</em></p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <h3>Walkthroughs</h3>
+          <p>DEMO_GUIDE-mitosis.md (Mitosis Edition)</p>
+            <dt id="mitosis">
+  <span class="name"><a href="mitosis/">mitosis</a></span> 
+    <span class="category walkthroughs cp-0 linked" title="This is part of the Walkthroughs topic."><a href="topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+
+</dt>
+<dd>🧬 <strong>Mitosis</strong> — the unified reactive framework for Dart.
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/simon-m-lee/cell">mitosis package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">mitosis</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Walkthroughs</li>
+        <li class="section-subitem"><a href="mitosis/">mitosis</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

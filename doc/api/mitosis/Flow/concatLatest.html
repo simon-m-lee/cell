@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the concatLatest method from the Flow class, for the Dart programming language.">
+  <title>concatLatest method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">concatLatest&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">concatLatest</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">concatLatest&lt;<wbr><span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">concatLatest</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="concatLatest-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Last item of each inner.</p>
+<p><a href="../../mitosis/Flow/concatLatest.html">concatLatest</a> processes each inner and only emits its last item.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/concatLatest.html">concatLatest</a> when you only need the last item from each
+sequence.</p>
+<ul>
+<li><strong>Last Value</strong>: Getting the last value from each source.</li>
+<li><strong>Tail Extraction</strong>: Extracting the tail of each sequence.</li>
+<li><strong>Final State</strong>: Getting the final state from each source.</li>
+<li><strong>Completion</strong>: Getting the completion value from each sequence.</li>
+<li><strong>Aggregation</strong>: Getting the last value for aggregation.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source pulse adds its payload to a queue.</li>
+<li>The queue is processed one inner at a time.</li>
+<li>The inner is fully drained and collected.</li>
+<li>The last typed value of type <code>T</code> is emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Last Only</strong>: Only the last item of each inner is emitted.</li>
+<li><strong>Full Drain</strong>: The entire inner is drained to find the last.</li>
+<li><strong>Type Filtering</strong>: Only values of type <code>T</code> are considered.</li>
+<li><strong>Memory Usage</strong>: Drains the full inner into memory.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the last values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final lists = Cell.ingress&lt;List&lt;String&gt;&gt;();
+
+final handle = Flow.concatLatest&lt;String&gt;(lists.cell);
+
+lists.emit(['a', 'b', 'c']); // -&gt; c
+lists.emit(['d', 'e']);      // -&gt; e
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/concatAll.html">concatAll</a>: For all items of each inner.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle concatLatest&lt;T&gt;(Cell source) {
+  return ConcatLatest&lt;T&gt;().toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">concatLatest&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

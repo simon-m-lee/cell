@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FlowInstructionBase.future constructor from Class FlowInstructionBase from the mitosis library, for the Dart programming language.">
+  <title>FlowInstructionBase.future constructor - FlowInstructionBase - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/FlowInstructionBase-class.html">FlowInstructionBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">FlowInstructionBase.future const constructor</li>
+  </ol>
+  <div class="self-name">FlowInstructionBase.future</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="mitosis&#47;FlowInstructionBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FlowInstructionBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.future</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      const
+      <span class="name ">FlowInstructionBase&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;.future</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="future-param-future"><span class="type-annotation">O?</span> <span class="parameter-name">future</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pulse"><span class="type-annotation">I</span> <span class="parameter-name">pulse</span>, {</span></li>
+<li><span class="parameter" id="param-cell"><span class="type-annotation">C?</span> <span class="parameter-name">cell</span>, </span></li>
+<li><span class="parameter" id="param-future"><span class="type-annotation">void</span> <span class="parameter-name">future</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-result"><span>required</span> <span class="type-annotation"><a href="../../mitosis/Pulse-class.html">Pulse</a>?</span> <span class="parameter-name">result</span>, </span></li>
+<li><span class="parameter" id="param-token"><span>required</span> <span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+</ol>})?, </span></li>
+<li><span class="parameter" id="param-token"><span class="type-annotation">dynamic</span> <span class="parameter-name">token</span>, </span></li>
+<li><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>}), {</span></li>
+<li><span class="parameter" id="future-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Synthesizes an <strong>Asynchronous Logic Gate Blueprint</strong>—the foundational
+mechanism for establishing deferred pulse evolution.</p>
+<p>This constructor initializes the concrete machinery required to transform
+a multi-stage <code>instruction</code> closure into a composable, stateless unit
+of async logic. It is the primary building block for temporal operators
+(like <code>Delay</code> or <code>Debounce</code>) and external resource bridges.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The orchestrator intercepts an incoming
+pulse and immediately provides a <code>future</code> callback.</li>
+<li><strong>Deferred Materialization</strong>: The logic within the <code>instruction</code>
+triggers a background evolution (e.g., a Timer or API call).</li>
+<li><strong>Pulse Materialization</strong>: Once the background work completes, the
+logic invokes the callback to propagate the <strong>Evolved Pulse</strong>
+into the downstream topography.</li>
+</ol>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>instruction</code>: The <strong>Async Evolution Orchestrator</strong>—a closure
+defining how an incoming stimulus <code>I</code> is transformed over time.</li>
+<li><code>user</code>: Optional flyweight metadata preserved across the topography
+for <strong>Topographical Auditing</strong> and provenance tracing.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A new <a href="../../mitosis/FlowInstructionBase-class.html">FlowInstructionBase</a> instance representing the asynchronous gate.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">const FlowInstructionBase.future(super.future, {super.user})
+    : _user = user,
+      super.future();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/FlowInstructionBase-class.html">FlowInstructionBase<span class="signature">&lt;<wbr><span class="type-parameter">C extends Cell</span>, <span class="type-parameter">I extends Pulse</span>, <span class="type-parameter">O extends Pulse</span>&gt;</span></a></li>
+    <li class="self-crumb">FlowInstructionBase.future const constructor</li>
+</ol>
+
+    <h5>FlowInstructionBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

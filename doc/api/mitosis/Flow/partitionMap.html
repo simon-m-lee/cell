@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the partitionMap method from the Flow class, for the Dart programming language.">
+  <title>partitionMap method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">partitionMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">partitionMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">partitionMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">partitionMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="partitionMap-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="partitionMap-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="partitionMap-param-thenMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">thenMap</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="partitionMap-param-elseMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">elseMap</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="partitionMap-param-onError"><span class="type-annotation">PartitionErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Map matched / unmatched with different projectors.</p>
+<p><a href="../../mitosis/Flow/partitionMap.html">partitionMap</a> is similar to <a href="../../mitosis/Flow/partition.html">partition</a> but instead of emitting
+a <code>Split</code> record, it applies different mapping functions to
+matched and unmatched values.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/partitionMap.html">partitionMap</a> when you need to transform matched and
+unmatched values differently.</p>
+<ul>
+<li><strong>Conditional Formatting</strong>: Formatting values based on predicate.</li>
+<li><strong>Different Processing</strong>: Processing matched/unmatched differently.</li>
+<li><strong>Type Conversion</strong>: Converting to different types based on status.</li>
+<li><strong>Labeling</strong>: Labeling values based on match status.</li>
+<li><strong>Data Enrichment</strong>: Enriching values differently based on status.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>test</code> is called with the payload.</li>
+<li>If <code>test</code> returns <code>true</code>, <code>thenMap</code> is called with the value.</li>
+<li>If <code>test</code> returns <code>false</code>, <code>elseMap</code> is called with the value.</li>
+<li>The result is emitted.</li>
+<li>If <code>test</code>, <code>thenMap</code>, or <code>elseMap</code> throws, the pulse is dropped.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>No State</strong>: No state is maintained between pulses.</li>
+<li><strong>Per-Item Emit</strong>: Emits one value for each input.</li>
+<li><strong>Different Mappers</strong>: Two different mapping functions.</li>
+<li><strong>Type Safety</strong>: Generic over value type <code>S</code> and output type <code>T</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>Predicate Function.</strong> Called with each typed payload,
+returns <code>true</code> for matched values.</li>
+<li><code>thenMap</code>: <strong>Matched Mapper.</strong> Called with values where <code>test</code>
+returns <code>true</code>.</li>
+<li><code>elseMap</code>: <strong>Unmatched Mapper.</strong> Called with values where <code>test</code>
+returns <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.partitionMap&lt;int, String&gt;(
+  input.cell,
+  test: (n) =&gt; n.isEven,
+  thenMap: (n) =&gt; 'even-$n',
+  elseMap: (n) =&gt; 'odd-$n',
+);
+
+input.emit(1); // -&gt; odd-1
+input.emit(2); // -&gt; even-2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/partition.html">partition</a>: For tagging values with match status.</li>
+<li><a href="../../mitosis/Flow/partitionOnly.html">partitionOnly</a>: For filtering by match status.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle partitionMap&lt;S, T&gt;(
+  Cell source, {
+  required bool Function(S value) test,
+  required T Function(S value) thenMap,
+  required T Function(S value) elseMap,
+  PartitionErrorHandler? onError,
+}) {
+  return PartitionMap&lt;S, T&gt;(
+    test,
+    thenMap: thenMap,
+    elseMap: elseMap,
+    onError: onError,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">partitionMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="mitosis library API docs, for the Dart programming language.">
+  <title>mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">mitosis</a></li>
+    <li class="self-crumb">mitosis.dart</li>
+  </ol>
+  <div class="self-name">mitosis</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="mitosis&#47;mitosis-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">mitosis</span>
+        library 
+ 
+    <span class="category walkthroughs cp-0 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>🧬 <strong>Mitosis</strong> — the unified reactive framework for Dart.</p>
+<p>Mitosis is the umbrella package for the three public layers of the
+framework. One import brings in the whole organism:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:mitosis/mitosis.dart';
+</code></pre>
+<h3 id="-the-three-layers">🏗️ The three layers</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Package</th>
+<th>Biological analogue</th>
+<th>Key types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core</td>
+<td><code>cell</code></td>
+<td>The brain &amp; synapses</td>
+<td><a href="../mitosis/Cell-class.html">Cell</a>, <a href="../mitosis/Pulse-class.html">Pulse</a>, <a href="../mitosis/Receptor-class.html">Receptor</a>, <a href="../mitosis/TestCell-class.html">TestCell</a>, <a href="../mitosis/Context-class.html">Context</a></td>
+</tr>
+<tr>
+<td>Orchestration</td>
+<td><code>cell_flow</code></td>
+<td>The nervous system</td>
+<td><a href="../mitosis/Flow-class.html">Flow</a>, <a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a></td>
+</tr>
+<tr>
+<td>Application</td>
+<td><code>cell_tissue</code></td>
+<td>The body</td>
+<td><a href="../mitosis/TissueList-class.html">TissueList</a>, <a href="../mitosis/TissueSet-class.html">TissueSet</a>, <a href="../mitosis/TissueMap-class.html">TissueMap</a>, <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>, <a href="../mitosis/TissueValue-class.html">TissueValue</a></td>
+</tr>
+</tbody>
+</table>
+<p>Every layer shares the same graph, locks, validation, and provenance:
+a <a href="../mitosis/Pulse-class.html">Pulse</a> is the immutable message that moves a change, <a href="../mitosis/TestCell-class.html">TestCell</a> /
+<a href="../mitosis/TestTissue-class.html">TestTissue</a> gates are enforced before a mutation commits, and the
+<a href="../mitosis/Pulse/trace.html">Pulse.trace</a> keeps the causal chain inspectable end to end.</p>
+<h3 id="-hello-mitosis">🚀 Hello Mitosis</h3>
+<pre class="language-dart"><code class="language-dart">Future&lt;void&gt; main() async {
+  // Cell — state with an explicit update path.
+  final counter = Cell.state&lt;int&gt;(
+    initial: 0,
+    evolve: (host, input) =&gt;
+        Pulse((host.value ?? 0) + (input.payload ?? 1)),
+  );
+
+  // Observe — side effects react to accepted pulses.
+  final observer = Cell.observe&lt;Pulse&lt;int&gt;&gt;(
+    source: counter.cell,
+    effect: (pulse) =&gt; print('Counter: ${pulse.payload}'),
+  );
+
+  await counter.updateAsync(5); // prints: Counter: 5
+  observer.stop();
+}
+</code></pre>
+<h3 id="-which-layer-do-i-need">🧭 Which layer do I need?</h3>
+<ul>
+<li>Reach for <a href="../mitosis/Cell-class.html">Cell</a> for state atoms, events, validation gates, deputies,
+and multi-cell transactions.</li>
+<li>Reach for <a href="../mitosis/Flow-class.html">Flow</a> when you need temporal or combinatorial operators
+(<code>debounce</code>, <code>switchMap</code>, <code>mergeMap</code>, <code>zip</code>, <code>retry</code>, <code>buffer</code>, ...).</li>
+<li>Reach for <a href="../mitosis/TissueList-class.html">TissueList</a> and friends when you need governed, observable
+collections — ordered, unique, keyed, queued, or scalar — with the same
+causal trail.</li>
+</ul>
+<p>Flutter has no dedicated widgets here; bind with <a href="../mitosis/Cell/observe.html">Cell.observe</a> and drive
+<code>setState</code> or your existing state library.</p>
+<h3 id="-documentation">📚 Documentation</h3>
+<ul>
+<li>Core layer: <a href="https://pub.dev/packages/cell">pub.dev/packages/cell</a></li>
+<li>Orchestration layer: <a href="https://pub.dev/packages/cell_flow">pub.dev/packages/cell_flow</a></li>
+<li>Application layer: <a href="https://pub.dev/packages/cell_tissue">pub.dev/packages/cell_tissue</a></li>
+<li>Repository: <a href="https://github.com/simon-m-lee/cell">github.com/simon-m-lee/cell</a></li>
+</ul>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="AiConfig">
+  <span class="name "><a href="../mitosis/AiConfig-class.html">AiConfig</a></span> 
+
+</dt>
+<dd>
+  A JSON-shaped configuration for an <a href="../mitosis/HttpInterpreter-class.html">HttpInterpreter</a>.
+</dd>
+
+          <dt id="AiTissueCommand">
+  <span class="name "><a href="../mitosis/AiTissueCommand-class.html">AiTissueCommand</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a> that turns a natural-language sentence into
+a <a href="../mitosis/TissueCommand-class.html">TissueCommand</a> by asking an <a href="../mitosis/Interpreter-class.html">Interpreter</a> (a live AI chatbot
+over HTTP, or a deterministic offline stub) to choose a verb
+from a closed list.
+</dd>
+
+          <dt id="AiTissueCommandBatch">
+  <span class="name "><a href="../mitosis/AiTissueCommandBatch-class.html">AiTissueCommandBatch</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a> that turns a <strong>batch</strong> of natural-language
+sentences into a batch of <a href="../mitosis/TissueCommand-class.html">TissueCommand</a>s in a single port call.
+</dd>
+
+          <dt id="AiTissueCommandWithRetry">
+  <span class="name "><a href="../mitosis/AiTissueCommandWithRetry-class.html">AiTissueCommandWithRetry</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a> that turns a natural-language sentence into
+a <a href="../mitosis/TissueCommand-class.html">TissueCommand</a>, retrying the port call up to <code>count</code> extra
+times on failure.
+</dd>
+
+          <dt id="ApplyRejected">
+  <span class="name "><a href="../mitosis/ApplyRejected-class.html">ApplyRejected</a></span> 
+
+</dt>
+<dd>
+  Explicit soft-reject from <a href="../mitosis/Cell/apply.html">Cell.apply</a> (not the same as void → null).
+</dd>
+
+          <dt id="ApplyTransactionScope">
+  <span class="name "><a href="../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Async">
+  <span class="name "><a href="../mitosis/Async-class.html">Async</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A foundational marker interface and architectural contract representing
+an <strong>Asynchronous Proxy</strong> or <strong>Controller</strong> for a core component <code>C</code>.
+</dd>
+
+          <dt id="AsyncPriorityQueue">
+  <span class="name "><a href="../mitosis/AsyncPriorityQueue-class.html">AsyncPriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncQueueList">
+  <span class="name "><a href="../mitosis/AsyncQueueList-class.html">AsyncQueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="AsyncSynapses">
+  <span class="name "><a href="../mitosis/AsyncSynapses-class.html">AsyncSynapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An <strong>Asynchronous Projection</strong> of a <a href="../mitosis/Synapses-class.html">Synapses</a> instance for non‑blocking
+signal distribution.
+</dd>
+
+          <dt id="Box">
+  <span class="name "><a href="../mitosis/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, lightweight container used to provide a mutable state
+anchor within the framework's immutable <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> architecture.
+</dd>
+
+          <dt id="Cell">
+  <span class="name "><a href="../mitosis/Cell-class.html">Cell</a></span> 
+
+</dt>
+<dd>
+  A reactive node: holds state (or relays signals), validates every
+incoming change against a policy, and broadcasts accepted changes to
+whatever else is listening.
+</dd>
+
+          <dt id="CellBase">
+  <span class="name "><a href="../mitosis/CellBase-class.html">CellBase</a></span> 
+
+</dt>
+<dd>
+  The foundational abstract implementation of the <a href="../mitosis/Cell-class.html">Cell</a> interface.
+</dd>
+
+          <dt id="CollectivePulse">
+  <span class="name "><a href="../mitosis/CollectivePulse-class.html">CollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <strong>Collective Pulse</strong> — a flat bundle of independent pulses travelling
+together as a single atomic wave.
+</dd>
+
+          <dt id="CollectivePulseBase">
+  <span class="name "><a href="../mitosis/CollectivePulseBase-class.html">CollectivePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../mitosis/CollectivePulse-class.html">CollectivePulse</a> implementations.
+</dd>
+
+          <dt id="CollectiveTissueEventBase">
+  <span class="name "><a href="../mitosis/CollectiveTissueEventBase-class.html">CollectiveTissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The base implementation for a flat bundle of multiple independent
+<a href="../mitosis/TissuePulse-class.html">TissuePulse</a>s that travel together as a single atomic wave.
+</dd>
+
+          <dt id="CollectiveTissuePulse">
+  <span class="name "><a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A batch of multiple independent <a href="../mitosis/TissuePulse-class.html">TissuePulse</a>s that travel together as a
+single atomic wave.
+</dd>
+
+          <dt id="CompensationFailure">
+  <span class="name "><a href="../mitosis/CompensationFailure-class.html">CompensationFailure</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Container">
+  <span class="name "><a href="../mitosis/Container-class.html">Container</a></span> 
+
+</dt>
+<dd>
+  A strategic architectural contract that defines how <a href="../mitosis/Tissue-class.html">Tissue</a> data is
+physically stored, initialised, and manipulated.
+</dd>
+
+          <dt id="Context">
+  <span class="name "><a href="../mitosis/Context-class.html">Context</a></span> 
+
+</dt>
+<dd>
+  Metadata describing a <a href="../mitosis/Cell-class.html">Cell</a>'s tier, domain, and operational
+boundaries — used by <a href="../mitosis/TestCell-class.html">TestCell</a> rules to make context-aware decisions.
+</dd>
+
+          <dt id="ContextBase">
+  <span class="name "><a href="../mitosis/ContextBase-class.html">ContextBase</a></span> 
+
+</dt>
+<dd>
+  The foundational implementation of the <strong>Operational Environment</strong>, providing
+the core logic for <strong>Prototype-based Inheritance</strong> and <strong>Ontological Resolution</strong>.
+</dd>
+
+          <dt id="CycleChecker">
+  <span class="name "><a href="../mitosis/CycleChecker-class.html">CycleChecker</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Traversal Guard</strong> and <strong>Topology Validator</strong>, responsible for
+preventing infinite recursion and ensuring the reactive graph remains a
+<strong>Directed Acyclic Graph (DAG)</strong> during signal propagation.
+</dd>
+
+          <dt id="DefaultValue">
+  <span class="name "><a href="../mitosis/DefaultValue-class.html">DefaultValue</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/DefaultValue-class.html">DefaultValue</a> is a metadata annotation primarily used by the code generation
+framework (such as <code>build_model</code>) to define a fallback or initial value for
+fields in a model class.
+</dd>
+
+          <dt id="DeputyContext">
+  <span class="name "><a href="../mitosis/DeputyContext-class.html">DeputyContext</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../mitosis/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="ElementAdded">
+  <span class="name "><a href="../mitosis/ElementAdded-class.html">ElementAdded</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying the addition of new elements
+to a reactive collection.
+</dd>
+
+          <dt id="ElementRemoved">
+  <span class="name "><a href="../mitosis/ElementRemoved-class.html">ElementRemoved</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying the removal or disposal of an
+element from a reactive collection.
+</dd>
+
+          <dt id="ElementUpdated">
+  <span class="name "><a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying a discrete state transition or value
+evolution within the reactive framework.
+</dd>
+
+          <dt id="EmailPattern">
+  <span class="name "><a href="../mitosis/EmailPattern-class.html">EmailPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/EmailPattern-class.html">EmailPattern</a> is a specialized <a href="../mitosis/EntryPattern-class.html">EntryPattern</a> metadata annotation designed
+to validate whether a string conforms to a standard email address format.
+</dd>
+
+          <dt id="EntryPattern">
+  <span class="name "><a href="../mitosis/EntryPattern-class.html">EntryPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/EntryPattern-class.html">EntryPattern</a> is a specialized <a href="../mitosis/TestRule-class.html">TestRule</a> metadata annotation that validates
+whether a string input matches a specific Regular Expression (<a href="https://api.flutter.dev/flutter/dart-core/RegExp-class.html">RegExp</a>).
+</dd>
+
+          <dt id="EphemeralPolicy">
+  <span class="name "><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.
+</dd>
+
+          <dt id="EvolvedPulse">
+  <span class="name "><a href="../mitosis/EvolvedPulse-class.html">EvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An immutable signal derived from a previous pulse through a transformation
+step — a causal link in the signal's journey.
+</dd>
+
+          <dt id="EvolvedPulseBase">
+  <span class="name "><a href="../mitosis/EvolvedPulseBase-class.html">EvolvedPulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The abstract base class for <a href="../mitosis/EvolvedPulse-class.html">EvolvedPulse</a> implementations.
+</dd>
+
+          <dt id="EvolvedTissueEventBase">
+  <span class="name "><a href="../mitosis/EvolvedTissueEventBase-class.html">EvolvedTissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The base implementation for a single <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> that has been derived
+from a previous event, preserving its full causal lineage.
+</dd>
+
+          <dt id="EvolvedTissuePulse">
+  <span class="name "><a href="../mitosis/EvolvedTissuePulse-class.html">EvolvedTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> that has been derived from a previous event, preserving
+its full causal lineage — the parent‑child chain that explains how the
+signal evolved.
+</dd>
+
+          <dt id="FilterRule">
+  <span class="name "><a href="../mitosis/FilterRule-class.html">FilterRule</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A filter that can transform, redact, or suppress a <a href="../mitosis/Pulse-class.html">Pulse</a> before it is
+broadcast to downstream observers.
+</dd>
+
+          <dt id="FinalBox">
+  <span class="name "><a href="../mitosis/FinalBox-class.html">FinalBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized, write-once container providing a thread-safe, immutable
+anchor for state that is initialized after construction.
+</dd>
+
+          <dt id="Flow">
+  <span class="name "><a href="../mitosis/Flow-class.html">Flow</a></span> 
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../mitosis/Cell-class.html">Cell</a> topographies.
+</dd>
+
+          <dt id="FlowInstruction">
+  <span class="name "><a href="../mitosis/FlowInstruction-class.html">FlowInstruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Synthesizes a <strong>Composite Logic Blueprint</strong>—a specialized instruction
+wrapper designed for fluent orchestration and pipeline assembly.
+</dd>
+
+          <dt id="FlowInstructionBase">
+  <span class="name "><a href="../mitosis/FlowInstructionBase-class.html">FlowInstructionBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation for creating custom reactive logic gates
+within the <strong>Mitosis</strong> topography.
+</dd>
+
+          <dt id="FunctionObject">
+  <span class="name "><a href="../mitosis/FunctionObject-class.html">FunctionObject</a></span> 
+
+</dt>
+<dd>
+  Simple wrapper for functions or records containing function information.
+Used to pass function metadata through the system.
+</dd>
+
+          <dt id="FunctionTypeObject">
+  <span class="name "><a href="../mitosis/FunctionTypeObject-class.html">FunctionTypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Lazy-evaluated version of TypeObject that executes a function to get the value.
+Useful for deferred initialization or expensive object creation.
+</dd>
+
+          <dt id="Governance">
+  <span class="name "><a href="../mitosis/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational <strong>Authority Protocol</strong> for defining structural and
+behavioral guardrails within the framework's <a href="../mitosis/Mandate.html">Mandate</a> ontology.
+</dd>
+
+          <dt id="GovernanceEntry">
+  <span class="name "><a href="../mitosis/GovernanceEntry-class.html">GovernanceEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../mitosis/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A strongly-typed key-value pair that represents a single dimension of
+governance within the framework's <strong>Scene-Driven Ontology</strong>.
+</dd>
+
+          <dt id="HttpInterpreter">
+  <span class="name "><a href="../mitosis/HttpInterpreter-class.html">HttpInterpreter</a></span> 
+
+</dt>
+<dd>
+  Web/WASM stub for the live HTTP interpreter.
+</dd>
+
+          <dt id="Identity">
+  <span class="name "><a href="../mitosis/Identity-class.html">Identity</a></span> 
+
+</dt>
+<dd>
+  A utility for materializing unique identities within the somatic graph.
+</dd>
+
+          <dt id="Inheritable">
+  <span class="name "><a href="../mitosis/Inheritable-class.html">Inheritable</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Instruction">
+  <span class="name "><a href="../mitosis/Instruction-class.html">Instruction</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A discrete logic unit that defines how a <a href="../mitosis/Receptor-class.html">Receptor</a> reacts to a <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="InstructionBase">
+  <span class="name "><a href="../mitosis/InstructionBase-class.html">InstructionBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation and architectural base for all <a href="../mitosis/Instruction-class.html">Instruction</a>
+variants.
+</dd>
+
+          <dt id="InstructionChain">
+  <span class="name "><a href="../mitosis/InstructionChain-class.html">InstructionChain</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A composite <a href="../mitosis/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="Interpreter">
+  <span class="name "><a href="../mitosis/Interpreter-class.html">Interpreter</a></span> 
+
+</dt>
+<dd>
+  The interpreter port — the seam between the NL sentence and the
+closed verb list.
+</dd>
+
+          <dt id="Lock">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a></span> 
+
+</dt>
+<dd>
+  Object providing the implicit lock.
+</dd>
+
+          <dt id="MapStore">
+  <span class="name "><a href="../mitosis/MapStore-class.html">MapStore</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A physical map storage that is both an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> over its values and a
+map-like accessor for keys. It bridges the gap between the generic
+<a href="../mitosis/TissueContainer-class.html">TissueContainer</a> (which requires an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> store) and the map‑shaped
+storage needs of <a href="../mitosis/TissueMap-class.html">TissueMap</a>.
+</dd>
+
+          <dt id="MaxLength">
+  <span class="name "><a href="../mitosis/MaxLength-class.html">MaxLength</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/MaxLength-class.html">MaxLength</a> is a specialized <a href="../mitosis/TestRule-class.html">TestRule</a> metadata annotation used primarily by
+the code generation framework (such as <code>build_model</code>) to enforce structural
+and data-integrity constraints on model fields.
+</dd>
+
+          <dt id="Modifiable">
+  <span class="name "><a href="../mitosis/Modifiable-class.html">Modifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized architectural marker and base interface for objects that support
+controlled mutation through the framework's dynamic command pattern.
+</dd>
+
+          <dt id="ModifiableAsync">
+  <span class="name "><a href="../mitosis/ModifiableAsync-class.html">ModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Provides asynchronous execution of operations on a <a href="../mitosis/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="ModifiableListAsync">
+  <span class="name "><a href="../mitosis/ModifiableListAsync-class.html">ModifiableListAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous facade for performing reactive mutation operations on a <a href="../mitosis/TissueList-class.html">TissueList</a>.
+</dd>
+
+          <dt id="ModifiableMapAsync">
+  <span class="name "><a href="../mitosis/ModifiableMapAsync-class.html">ModifiableMapAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous facade for performing reactive mutation operations on a <a href="../mitosis/TissueMap-class.html">TissueMap</a>.
+</dd>
+
+          <dt id="ModifiableQueueAsync">
+  <span class="name "><a href="../mitosis/ModifiableQueueAsync-class.html">ModifiableQueueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous facade for performing reactive mutation operations on a <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>.
+</dd>
+
+          <dt id="ModifiableSetAsync">
+  <span class="name "><a href="../mitosis/ModifiableSetAsync-class.html">ModifiableSetAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous facade for performing reactive mutation operations on a <a href="../mitosis/TissueSet-class.html">TissueSet</a>.
+</dd>
+
+          <dt id="ModifiableValueAsync">
+  <span class="name "><a href="../mitosis/ModifiableValueAsync-class.html">ModifiableValueAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous facade for performing reactive mutation operations on a <a href="../mitosis/TissueValue-class.html">TissueValue</a>.
+</dd>
+
+          <dt id="MultiLock">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/MultiLock-class.html">MultiLock</a></span> 
+
+</dt>
+<dd>
+  A multi lock that locks multiple locks at the same time.
+</dd>
+
+          <dt id="Nucleolus">
+  <span class="name "><a href="../mitosis/Nucleolus-class.html">Nucleolus</a></span> 
+
+</dt>
+<dd>
+  A specialized, terminal implementation of the <a href="../mitosis/Nucleus-class.html">Nucleus</a> contract representing
+the framework's "zero-state" and <strong>Ontological Root</strong>.
+</dd>
+
+          <dt id="Nucleus">
+  <span class="name "><a href="../mitosis/Nucleus-class.html">Nucleus</a></span> 
+
+</dt>
+<dd>
+  The immutable blueprint underlying every <a href="../mitosis/Cell-class.html">Cell</a> — its <a href="../mitosis/Nucleus/receptor.html">receptor</a>,
+<a href="../mitosis/Nucleus/testRule.html">testRule</a>, <a href="../mitosis/Nucleus/context.html">context</a>, <a href="../mitosis/Nucleus/synapses.html">synapses</a>, and lifecycle policy, stored
+separately from the live cell instance.
+</dd>
+
+          <dt id="NucleusBase">
+  <span class="name "><a href="../mitosis/NucleusBase-class.html">NucleusBase</a></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of the <a href="../mitosis/Nucleus-class.html">Nucleus</a> contract, providing
+a memory-optimized storage engine for reactive cell properties.
+</dd>
+
+          <dt id="OpenCell">
+  <span class="name "><a href="../mitosis/OpenCell-class.html">OpenCell</a></span> 
+
+</dt>
+<dd>
+  A specialized, interactive <a href="../mitosis/Cell-class.html">Cell</a> that serves as a <strong>Reactive Bridge</strong> for
+external stimulus injection and dynamic topology management.
+</dd>
+
+          <dt id="OpenCellAsync">
+  <span class="name "><a href="../mitosis/OpenCellAsync-class.html">OpenCellAsync</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Asynchronous Governance Interface</strong> for an <a href="../mitosis/OpenCell-class.html">OpenCell</a>.
+</dd>
+
+          <dt id="PriorityQueue">
+  <span class="name "><a href="../mitosis/PriorityQueue-class.html">PriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A collection of elements that maintains a <strong>Deterministic Priority Order</strong>,
+serving as a specialized <strong>Ranked Execution Buffer</strong> for the reactive fabric.
+</dd>
+
+          <dt id="PropagationPolicy">
+  <span class="name "><a href="../mitosis/PropagationPolicy-class.html">PropagationPolicy</a></span> 
+
+</dt>
+<dd>
+  A declarative blueprint defining the <strong>Temporal Dynamics</strong> and
+<strong>Operational Governance</strong> of pulse propagation.
+</dd>
+
+          <dt id="Pulse">
+  <span class="name "><a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive signal — the fundamental unit of communication in the framework.
+</dd>
+
+          <dt id="PulseBase">
+  <span class="name "><a href="../mitosis/PulseBase-class.html">PulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="PulseContext">
+  <span class="name "><a href="../mitosis/PulseContext-class.html">PulseContext</a></span> 
+
+</dt>
+<dd>
+  Represents the <strong>Causal Identity</strong> and ontological <strong>Provenance</strong> of a <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="PulseEphemeralPolicy">
+  <span class="name "><a href="../mitosis/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a></span> 
+
+</dt>
+<dd>
+  A governance policy that defines the <strong>Lifecycle Constraints</strong> and <strong>Termination Logic</strong>
+for a <a href="../mitosis/Pulse-class.html">Pulse</a> as it traverses the reactive graph.
+</dd>
+
+          <dt id="PulseShell">
+  <span class="name "><a href="../mitosis/PulseShell-class.html">PulseShell</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>, <span class="type-parameter">R extends <a href="../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../mitosis/Shell-class.html">Shell</a> providing a <strong>Perceptual Projection</strong> of a <a href="../mitosis/Pulse-class.html">Pulse</a> to
+facilitate pre-execution validation and security gating.
+</dd>
+
+          <dt id="QueueList">
+  <span class="name "><a href="../mitosis/QueueList-class.html">QueueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="Receptor">
+  <span class="name "><a href="../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The transformation pipeline that decides how a <a href="../mitosis/Cell-class.html">Cell</a> responds to an
+incoming <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="ReceptorAsync">
+  <span class="name "><a href="../mitosis/ReceptorAsync-class.html">ReceptorAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An asynchronous execution handle for a <a href="../mitosis/Receptor-class.html">Receptor</a> that facilitates
+non‑blocking pulse processing and lifecycle synchronization.
+</dd>
+
+          <dt id="ReceptorBase">
+  <span class="name "><a href="../mitosis/ReceptorBase-class.html">ReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation of <a href="../mitosis/Receptor-class.html">Receptor</a> that provides the
+core synchronization and pulse propagation engine.
+</dd>
+
+          <dt id="Reject">
+  <span class="name "><a href="../mitosis/Reject-class.html">Reject</a></span> 
+
+</dt>
+<dd>
+  An interpreter refusal.
+</dd>
+
+          <dt id="Shell">
+  <span class="name "><a href="../mitosis/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
+a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="StubInterpreter">
+  <span class="name "><a href="../mitosis/StubInterpreter-class.html">StubInterpreter</a></span> 
+
+</dt>
+<dd>
+  A deterministic offline interpreter that simulates the HTTP
+traffic a live chatbot would produce.
+</dd>
+
+          <dt id="Synapses">
+  <span class="name "><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">L extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The distribution fabric for a <a href="../mitosis/Cell-class.html">Cell</a>'s outgoing signals—defining how,
+when, and to whom a pulse is delivered.
+</dd>
+
+          <dt id="SynapsesBase">
+  <span class="name "><a href="../mitosis/SynapsesBase-class.html">SynapsesBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base implementation for <a href="../mitosis/Synapses-class.html">Synapses</a>, serving as the
+<strong>Transmission Engine</strong> of the <code>cell.core</code> reactive framework.
+</dd>
+
+          <dt id="SyncBox">
+  <span class="name "><a href="../mitosis/SyncBox-class.html">SyncBox</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A synchronized variant of <a href="../mitosis/Box-class.html">Box</a> providing <strong>Thread-Safe Access</strong> and
+facilitating <strong>Atomic State Transitions</strong> across concurrent execution boundaries.
+</dd>
+
+          <dt id="SyncCycleChecker">
+  <span class="name "><a href="../mitosis/SyncCycleChecker-class.html">SyncCycleChecker</a></span> 
+
+</dt>
+<dd>
+  A thread-safe, <strong>Synchronized Circular Dependency Guard</strong> for asynchronous
+reactive flows.
+</dd>
+
+          <dt id="SyncQueue">
+  <span class="name "><a href="../mitosis/SyncQueue-class.html">SyncQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="../mitosis/PriorityQueue-class.html">PriorityQueue</a>, providing <strong>Synchronized
+Access</strong> for prioritized collection-based state.
+</dd>
+
+          <dt id="SyncSet">
+  <span class="name "><a href="../mitosis/SyncSet-class.html">SyncSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A thread-safe implementation of a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a>, providing <strong>Synchronized Access</strong>
+for collection-based state.
+</dd>
+
+          <dt id="SynthesisCell">
+  <span class="name "><a href="../mitosis/SynthesisCell-class.html">SynthesisCell</a></span> 
+
+</dt>
+<dd>
+  Represents a <strong>Synthesis Cell</strong>—a specialized structural node that aggregates
+signals from multiple source cells into a single unified stream.
+</dd>
+
+          <dt id="TestActionRule">
+  <span class="name "><a href="../mitosis/TestActionRule-class.html">TestActionRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating imperative logic and
+functional <a href="../mitosis/TestActionRule/action.html">action</a> execution within the reactive graph.
+</dd>
+
+          <dt id="TestCell">
+  <span class="name "><a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The central validation gate for a <a href="../mitosis/Cell-class.html">Cell</a> – it decides what's allowed.
+</dd>
+
+          <dt id="TestElementRule">
+  <span class="name "><a href="../mitosis/TestElementRule-class.html">TestElementRule</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, high‑fidelity security rule designed to govern <strong>Member‑Level
+Integrity</strong> within a <a href="../mitosis/Tissue-class.html">Tissue</a> container.
+</dd>
+
+          <dt id="TestLinkRule">
+  <span class="name "><a href="../mitosis/TestLinkRule-class.html">TestLinkRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized behavioral guard for validating <strong>Topological Synapses</strong> and
+graph formation within the reactive framework.
+</dd>
+
+          <dt id="TestPasses">
+  <span class="name "><a href="../mitosis/TestPasses-class.html">TestPasses</a></span> 
+
+</dt>
+<dd>
+  A sentinel implementation of <a href="../mitosis/TestCell-class.html">TestCell</a> that always authorises every operation.
+</dd>
+
+          <dt id="TestPulseRule">
+  <span class="name "><a href="../mitosis/TestPulseRule-class.html">TestPulseRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A rule that validates incoming <a href="../mitosis/Pulse-class.html">Pulse</a> signals before they reach a cell.
+</dd>
+
+          <dt id="TestRule">
+  <span class="name "><a href="../mitosis/TestRule-class.html">TestRule</a><span class="signature">&lt;<wbr><span class="type-parameter">C</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A fundamental architectural component representing an <strong>Integrity Gate</strong> or
+<strong>Validation Guard</strong>, responsible for enforcing structural and business
+invariants across the reactive graph.
+</dd>
+
+          <dt id="TestTissue">
+  <span class="name "><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, multi‑vector <strong>Security and Validation Engine</strong> designed to
+govern the structural integrity and operational boundaries of <a href="../mitosis/Tissue-class.html">Tissue</a>
+containers (Lists, Sets, Maps, Queues, Values).
+</dd>
+
+          <dt id="Tissue">
+  <span class="name "><a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+          <dt id="TissueBase">
+  <span class="name "><a href="../mitosis/TissueBase-class.html">TissueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational abstract base implementation of the <a href="../mitosis/Tissue-class.html">Tissue</a> interface,
+providing the core reactive engine and synchronisation domain for all
+high‑fidelity collections in the <code>cell</code> ecosystem.
+</dd>
+
+          <dt id="TissueCommand">
+  <span class="name "><a href="../mitosis/TissueCommand-class.html">TissueCommand</a></span> 
+
+</dt>
+<dd>
+  A successfully interpreted command.
+</dd>
+
+          <dt id="TissueContainer">
+  <span class="name "><a href="../mitosis/TissueContainer-class.html">TissueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A concrete, strategy‑based implementation of the <a href="../mitosis/Container-class.html">Container</a> interface that
+manages the physical storage and structural lifecycle of <a href="../mitosis/Tissue-class.html">Tissue</a> elements.
+</dd>
+
+          <dt id="TissueEventBase">
+  <span class="name "><a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational implementation for all <a href="../mitosis/TissuePulse-class.html">TissuePulse</a>s – the standard
+signal that carries a collection change through the reactive graph.
+</dd>
+
+          <dt id="TissueEventShell">
+  <span class="name "><a href="../mitosis/TissueEventShell-class.html">TissueEventShell</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A defensive, read‑only shell that wraps a <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> and forces any
+receiver to authenticate itself before the event's payload is revealed.
+</dd>
+
+          <dt id="TissueList">
+  <span class="name "><a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive, observable, and optionally constrained implementation of the
+standard Dart <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> interface.
+</dd>
+
+          <dt id="TissueListBase">
+  <span class="name "><a href="../mitosis/TissueListBase-class.html">TissueListBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational reactive engine for all indexable collections in the
+<code>cell_tissue</code> ecosystem.
+</dd>
+
+          <dt id="TissueListNucleus">
+  <span class="name "><a href="../mitosis/TissueListNucleus-class.html">TissueListNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, configuration‑centric interface that defines the behavioural
+blueprint, security constraints, and execution strategy for a <a href="../mitosis/TissueList-class.html">TissueList</a>.
+</dd>
+
+          <dt id="TissueListNucleusBase">
+  <span class="name "><a href="../mitosis/TissueListNucleusBase-class.html">TissueListNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A foundational base class for implementing <a href="../mitosis/TissueListNucleus-class.html">TissueListNucleus</a>.
+</dd>
+
+          <dt id="TissueMap">
+  <span class="name "><a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A high‑performance, reactive <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a>‑like structure that implements <a href="../mitosis/Tissue-class.html">Tissue&lt;V&gt;</a>,
+enabling type‑safe, event‑driven management of key‑value pairs.
+</dd>
+
+          <dt id="TissueMapBase">
+  <span class="name "><a href="../mitosis/TissueMapBase-class.html">TissueMapBase</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational reactive engine for all associative collections in the
+<code>cell_tissue</code> ecosystem.
+</dd>
+
+          <dt id="TissueMapNucleus">
+  <span class="name "><a href="../mitosis/TissueMapNucleus-class.html">TissueMapNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, configuration‑centric interface that defines the behavioural
+blueprint, security constraints, and execution strategy for a <a href="../mitosis/TissueMap-class.html">TissueMap</a>.
+</dd>
+
+          <dt id="TissueMapNucleusBase">
+  <span class="name "><a href="../mitosis/TissueMapNucleusBase-class.html">TissueMapNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint that defines the behaviour and constraints of a
+reactive <a href="../mitosis/TissueMap-class.html">TissueMap</a>.
+</dd>
+
+          <dt id="TissueModifiableAsync">
+  <span class="name "><a href="../mitosis/TissueModifiableAsync-class.html">TissueModifiableAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised handler for performing asynchronous mutation operations on a <a href="../mitosis/Tissue-class.html">Tissue</a>.
+</dd>
+
+          <dt id="TissueNever">
+  <span class="name "><a href="../mitosis/TissueNever-class.html">TissueNever</a></span> 
+
+</dt>
+<dd>
+  A specialised, highly optimised implementation of a <a href="../mitosis/Tissue-class.html">Tissue</a> that represents
+a permanently empty, immutable, and non‑allocating reactive node.
+</dd>
+
+          <dt id="TissueNucleus">
+  <span class="name "><a href="../mitosis/TissueNucleus-class.html">TissueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The comprehensive architectural blueprint and behavioural metadata interface
+for <a href="../mitosis/Tissue-class.html">Tissue</a> instances.
+</dd>
+
+          <dt id="TissueNucleusBase">
+  <span class="name "><a href="../mitosis/TissueNucleusBase-class.html">TissueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint that defines the behaviour, storage strategy,
+and governance of a reactive collection.
+</dd>
+
+          <dt id="TissueNucleusNever">
+  <span class="name "><a href="../mitosis/TissueNucleusNever-class.html">TissueNucleusNever</a></span> 
+
+</dt>
+<dd>
+  A terminal, immutable representation of empty tissue properties.
+</dd>
+
+          <dt id="TissuePulse">
+  <span class="name "><a href="../mitosis/TissuePulse-class.html">TissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A structural signal emitted by a <a href="../mitosis/Tissue-class.html">Tissue</a> when its internal state changes.
+</dd>
+
+          <dt id="TissueQueue">
+  <span class="name "><a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive, high‑performance, and synchronised implementation of a
+<strong>Double‑Ended Queue (Deque)</strong> that adheres to the standard Dart <a href="https://api.flutter.dev/flutter/dart-collection/Queue-class.html">Queue</a> contract.
+</dd>
+
+          <dt id="TissueQueueBase">
+  <span class="name "><a href="../mitosis/TissueQueueBase-class.html">TissueQueueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational reactive engine for all double‑ended buffers in the
+<code>cell_tissue</code> ecosystem.
+</dd>
+
+          <dt id="TissueQueueNucleus">
+  <span class="name "><a href="../mitosis/TissueQueueNucleus-class.html">TissueQueueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised architectural configuration interface that defines the behavioural
+constraints, security protocols, and reactive strategies for a <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>.
+</dd>
+
+          <dt id="TissueQueueNucleusBase">
+  <span class="name "><a href="../mitosis/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint that defines the behaviour, storage strategy,
+and governance of a reactive <a href="../mitosis/TissueQueue-class.html">TissueQueue</a>.
+</dd>
+
+          <dt id="TissueReceptor">
+  <span class="name "><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The strategic contract for a <a href="../mitosis/Receptor-class.html">Receptor</a> specialised for orchestrating
+pulse evolution and state synchronisation within a <a href="../mitosis/Tissue-class.html">Tissue</a> context.
+</dd>
+
+          <dt id="TissueReceptorBase">
+  <span class="name "><a href="../mitosis/TissueReceptorBase-class.html">TissueReceptorBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational pulse‑processing engine for all reactive collections.
+</dd>
+
+          <dt id="TissueSet">
+  <span class="name "><a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A high‑performance, reactive implementation of a <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> that integrates the standard
+Dart <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> contract with the <code>cell_tissue</code> conactive signalling ecosystem.
+</dd>
+
+          <dt id="TissueSetBase">
+  <span class="name "><a href="../mitosis/TissueSetBase-class.html">TissueSetBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational reactive engine for all unique collections in the
+<code>cell_tissue</code> ecosystem.
+</dd>
+
+          <dt id="TissueSetNucleus">
+  <span class="name "><a href="../mitosis/TissueSetNucleus-class.html">TissueSetNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised architectural configuration interface that defines the behavioural
+DNA, security protocols, and reactive strategies for a <a href="../mitosis/TissueSet-class.html">TissueSet</a>.
+</dd>
+
+          <dt id="TissueSetNucleusBase">
+  <span class="name "><a href="../mitosis/TissueSetNucleusBase-class.html">TissueSetNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint that defines the behaviour, storage strategy,
+and governance of a reactive <a href="../mitosis/TissueSet-class.html">TissueSet</a>.
+</dd>
+
+          <dt id="TissueValue">
+  <span class="name "><a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, terminal architectural interface for a <strong>Governed Reactive
+Value Cell</strong>.
+</dd>
+
+          <dt id="TissueValueBase">
+  <span class="name "><a href="../mitosis/TissueValueBase-class.html">TissueValueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational reactive engine for all single‑value containers in the
+<code>cell_tissue</code> ecosystem.
+</dd>
+
+          <dt id="TissueValueNucleus">
+  <span class="name "><a href="../mitosis/TissueValueNucleus-class.html">TissueValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised architectural configuration interface that defines the behavioural
+DNA, security protocols, and reactive strategies for a <a href="../mitosis/TissueValue-class.html">TissueValue</a>.
+</dd>
+
+          <dt id="TissueValueNucleusBase">
+  <span class="name "><a href="../mitosis/TissueValueNucleusBase-class.html">TissueValueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational blueprint that defines the behaviour, storage strategy,
+and governance of a reactive single‑value cell.
+</dd>
+
+          <dt id="TrafficLog">
+  <span class="name "><a href="../mitosis/TrafficLog-class.html">TrafficLog</a></span> 
+
+</dt>
+<dd>
+  Prints HTTP request/response traffic in a human-readable form.
+</dd>
+
+          <dt id="TransactionBegun">
+  <span class="name "><a href="../mitosis/TransactionBegun-class.html">TransactionBegun</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction begins.
+</dd>
+
+          <dt id="TransactionCommitted">
+  <span class="name "><a href="../mitosis/TransactionCommitted-class.html">TransactionCommitted</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction commits successfully.
+</dd>
+
+          <dt id="TransactionEvent">
+  <span class="name "><a href="../mitosis/TransactionEvent-class.html">TransactionEvent</a></span> 
+
+</dt>
+<dd>
+  Base class for all transaction lifecycle events.
+</dd>
+
+          <dt id="TransactionOptions">
+  <span class="name "><a href="../mitosis/TransactionOptions-class.html">TransactionOptions</a></span> 
+
+</dt>
+<dd>
+  Configuration options for a <a href="../mitosis/Cell/transaction.html">Cell.transaction</a>.
+</dd>
+
+          <dt id="TransactionRolledBack">
+  <span class="name "><a href="../mitosis/TransactionRolledBack-class.html">TransactionRolledBack</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction is rolled back.
+</dd>
+
+          <dt id="TransactionTimedOut">
+  <span class="name "><a href="../mitosis/TransactionTimedOut-class.html">TransactionTimedOut</a></span> 
+
+</dt>
+<dd>
+  Emitted when a transaction times out.
+</dd>
+
+          <dt id="TransactionUpdated">
+  <span class="name "><a href="../mitosis/TransactionUpdated-class.html">TransactionUpdated</a></span> 
+
+</dt>
+<dd>
+  Emitted when a cell is updated during a transaction.
+</dd>
+
+          <dt id="TxApplyBegun">
+  <span class="name "><a href="../mitosis/TxApplyBegun-class.html">TxApplyBegun</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCommitted">
+  <span class="name "><a href="../mitosis/TxApplyCommitted-class.html">TxApplyCommitted</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationFailed">
+  <span class="name "><a href="../mitosis/TxApplyCompensationFailed-class.html">TxApplyCompensationFailed</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyCompensationRetry">
+  <span class="name "><a href="../mitosis/TxApplyCompensationRetry-class.html">TxApplyCompensationRetry</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyEvent">
+  <span class="name "><a href="../mitosis/TxApplyEvent-class.html">TxApplyEvent</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyOptions">
+  <span class="name "><a href="../mitosis/TxApplyOptions-class.html">TxApplyOptions</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRejected">
+  <span class="name "><a href="../mitosis/TxApplyRejected-class.html">TxApplyRejected</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyRolledBack">
+  <span class="name "><a href="../mitosis/TxApplyRolledBack-class.html">TxApplyRolledBack</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyStaged">
+  <span class="name "><a href="../mitosis/TxApplyStaged-class.html">TxApplyStaged</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TypeObject">
+  <span class="name "><a href="../mitosis/TypeObject-class.html">TypeObject</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper class for holding typed objects.
+Provides type safety when working with generic containers.
+</dd>
+
+          <dt id="Unmodifiable">
+  <span class="name "><a href="../mitosis/Unmodifiable-class.html">Unmodifiable</a></span> 
+
+</dt>
+<dd>
+  A specialized <strong>Marker Interface</strong> and architectural anchor used to identify
+reactive nodes and data structures that have been restricted to <strong>Read-Only</strong>
+access.
+</dd>
+
+          <dt id="UnmodifiableCollectivePulse">
+  <span class="name "><a href="../mitosis/UnmodifiableCollectivePulse-class.html">UnmodifiableCollectivePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableEvolvedPulse">
+  <span class="name "><a href="../mitosis/UnmodifiableEvolvedPulse-class.html">UnmodifiableEvolvedPulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiablePulse">
+  <span class="name "><a href="../mitosis/UnmodifiablePulse-class.html">UnmodifiablePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only projection of a pulse that enforces structural finality.
+</dd>
+
+          <dt id="UnmodifiablePulseBase">
+  <span class="name "><a href="../mitosis/UnmodifiablePulseBase-class.html">UnmodifiablePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="UnmodifiableTissue">
+  <span class="name "><a href="../mitosis/UnmodifiableTissue-class.html">UnmodifiableTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only, reactive projection of a <a href="../mitosis/Tissue-class.html">Tissue</a> – a "security shadow"
+that shares physical storage but prohibits all mutations.
+</dd>
+
+          <dt id="UnmodifiableTissueBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueBase-class.html">UnmodifiableTissueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised foundational base class for constructing high‑fidelity,
+<strong>Read‑Only Reactive Projections</strong> (Deputies) of a <a href="../mitosis/Tissue-class.html">Tissue</a>.
+</dd>
+
+          <dt id="UnmodifiableTissueEventBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueEventBase-class.html">UnmodifiableTissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only, immutable projection of a <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> that guarantees no
+further evolution or mutation.
+</dd>
+
+          <dt id="UnmodifiableTissueList">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueList-class.html">UnmodifiableTissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, terminal architectural interface for a <strong>Deeply
+Immodifiable Reactive Sequence</strong>.
+</dd>
+
+          <dt id="UnmodifiableTissueListBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueListBase-class.html">UnmodifiableTissueListBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A foundational architectural base class that provides the skeletal
+implementation for unmodifiable, reactive <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> entities.
+</dd>
+
+          <dt id="UnmodifiableTissueMap">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueMap-class.html">UnmodifiableTissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, reactive projection of a <a href="../mitosis/TissueMap-class.html">TissueMap</a> that enforces a
+strict read‑only contract while maintaining full synchronicity with its
+underlying source.
+</dd>
+
+          <dt id="UnmodifiableTissueMapBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueMapBase-class.html">UnmodifiableTissueMapBase</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base class for all read‑only reactive map views.
+</dd>
+
+          <dt id="UnmodifiableTissuePulse">
+  <span class="name "><a href="../mitosis/UnmodifiableTissuePulse-class.html">UnmodifiableTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only, immutable projection of a <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> that guarantees no
+further evolution or mutation.
+</dd>
+
+          <dt id="UnmodifiableTissueQueue">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueQueue-class.html">UnmodifiableTissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised architectural interface for a <strong>Deeply Immodifiable, Reactive
+Double‑Ended Queue (Deque)</strong>.
+</dd>
+
+          <dt id="UnmodifiableTissueQueueBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base class for all read‑only reactive queue views.
+</dd>
+
+          <dt id="UnmodifiableTissueSet">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueSet-class.html">UnmodifiableTissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A read‑only, reactive <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> that reflects the state of a source collection
+but prohibits direct structural mutations.
+</dd>
+
+          <dt id="UnmodifiableTissueSetBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueSetBase-class.html">UnmodifiableTissueSetBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base class for all read‑only reactive set views.
+</dd>
+
+          <dt id="UnmodifiableTissueValue">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialised, terminal architectural interface for a <strong>Deeply Immodifiable
+Reactive Value Cell</strong>.
+</dd>
+
+          <dt id="UnmodifiableTissueValueBase">
+  <span class="name "><a href="../mitosis/UnmodifiableTissueValueBase-class.html">UnmodifiableTissueValueBase</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The foundational base class for all read‑only reactive value views.
+</dd>
+
+          <dt id="UnmodifiableValueCell">
+  <span class="name "><a href="../mitosis/UnmodifiableValueCell-class.html">UnmodifiableValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized read‑only proxy of a <code>ValueCell</code> that enforces immutability.
+</dd>
+
+          <dt id="ValidationFailure">
+  <span class="name "><a href="../mitosis/ValidationFailure-class.html">ValidationFailure</a></span> 
+
+</dt>
+<dd>
+  Represents a validation failure for a specific cell.
+</dd>
+
+          <dt id="ValueCell">
+  <span class="name "><a href="../mitosis/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A state‑bearing reactive node – the primary way to manage persistent
+state in the Cell Framework.
+</dd>
+
+          <dt id="ValueCellAsync">
+  <span class="name "><a href="../mitosis/ValueCellAsync-class.html">ValueCellAsync</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized asynchronous controller for <a href="../mitosis/ValueCell-class.html">ValueCell</a>, providing a
+thread‑safe and non‑blocking interface for state interaction.
+</dd>
+
+          <dt id="ValueContainer">
+  <span class="name "><a href="../mitosis/ValueContainer-class.html">ValueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A lightweight, single‑element storage vessel designed to bridge the
+gap between scalar values and the <a href="../mitosis/Tissue-class.html">Tissue</a> reactive ecosystem.
+</dd>
+
+          <dt id="ValueNucleus">
+  <span class="name "><a href="../mitosis/ValueNucleus-class.html">ValueNucleus</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A specialized <a href="../mitosis/Nucleus-class.html">Nucleus</a> blueprint designed to manage and propagate a
+discrete, persistent state value of type <code>V</code>.
+</dd>
+
+          <dt id="ValueRange">
+  <span class="name "><a href="../mitosis/ValueRange-class.html">ValueRange</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/ValueRange-class.html">ValueRange</a> is a specialized <a href="../mitosis/TestRule-class.html">TestRule</a> metadata annotation designed to
+validate whether a numeric input falls within a specific inclusive boundary.
+</dd>
+
+          <dt id="Values">
+  <span class="name "><a href="../mitosis/Values-class.html">Values</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/Values-class.html">Values</a> is a specialized <a href="../mitosis/TestRule-class.html">TestRule</a> that validates whether a given input
+is present within a predefined collection of allowed values.
+</dd>
+
+          <dt id="WebsiteUrlPattern">
+  <span class="name "><a href="../mitosis/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../mitosis/WebsiteUrlPattern-class.html">WebsiteUrlPattern</a> is a specialized <a href="../mitosis/EntryPattern-class.html">EntryPattern</a> metadata annotation
+designed to validate whether a string conforms to a standard web URL format.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="AuditLevel">
+  <span class="name "><a href="../mitosis/AuditLevel.html">AuditLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Observability Granularity</strong> and <strong>XAI Verbosity</strong>
+required for a <a href="../mitosis/Deputy-mixin.html">Deputy</a>'s operations.
+</dd>
+
+          <dt id="Clearance">
+  <span class="name "><a href="../mitosis/Clearance.html">Clearance</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Sovereign Physical Laws</strong> and structural boundaries of
+reactive operations within the framework.
+</dd>
+
+          <dt id="CompensationErrorPolicy">
+  <span class="name "><a href="../mitosis/CompensationErrorPolicy.html">CompensationErrorPolicy</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="HubRouting">
+  <span class="name "><a href="../mitosis/HubRouting.html">HubRouting</a></span> 
+
+</dt>
+<dd>
+  Defines how a <a href="../mitosis/Cell/hub.html">Cell.hub</a> decides which spoke (child cell) should receive
+an incoming signal.
+</dd>
+
+          <dt id="Isolation">
+  <span class="name "><a href="../mitosis/Isolation.html">Isolation</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Architectural Boundary &amp; State Visibility</strong> of a <a href="../mitosis/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="IsolationLevel">
+  <span class="name "><a href="../mitosis/IsolationLevel.html">IsolationLevel</a></span> 
+
+</dt>
+<dd>
+  Defines the consistency and visibility guarantees for a transaction.
+</dd>
+
+          <dt id="LineageArgument">
+  <span class="name "><a href="../mitosis/LineageArgument.html">LineageArgument</a></span> 
+
+</dt>
+<dd>
+  Defines the specific data field to be extracted when traversing a <a href="../mitosis/Pulse-class.html">Pulse</a>'s
+<strong>Causal History</strong> via the <code>lineage</code> method.
+</dd>
+
+          <dt id="LockOrdering">
+  <span class="name "><a href="../mitosis/LockOrdering.html">LockOrdering</a></span> 
+
+</dt>
+<dd>
+  Defines the order in which locks are acquired during commit.
+</dd>
+
+          <dt id="Mandate">
+  <span class="name "><a href="../mitosis/Mandate.html">Mandate</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Capability Profile and Authorization Scope</strong> for a <a href="../mitosis/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="Ontology">
+  <span class="name "><a href="../mitosis/Ontology.html">Ontology</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Structural Taxonomy, Static Identity, and Architectural Shape</strong>
+of a <a href="../mitosis/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="PriorityTier">
+  <span class="name "><a href="../mitosis/PriorityTier.html">PriorityTier</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Semantic Urgency Tiers</strong> for signal execution.
+</dd>
+
+          <dt id="PropagationStrategy">
+  <span class="name "><a href="../mitosis/PropagationStrategy.html">PropagationStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the tactical execution models for <strong>Pulse Propagation</strong> within
+the Cell framework's reactive graph.
+</dd>
+
+          <dt id="Provenance">
+  <span class="name "><a href="../mitosis/Provenance.html">Provenance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Causal Accountability, Audit Trail, and Operational Intent</strong>
+of a <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="ReasoningStrategy">
+  <span class="name "><a href="../mitosis/ReasoningStrategy.html">ReasoningStrategy</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Logical Pedigree</strong> and algorithmic origin of a <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sensitivity">
+  <span class="name "><a href="../mitosis/Sensitivity.html">Sensitivity</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Information Classification</strong> and data-privacy tier of a <a href="../mitosis/Pulse-class.html">Pulse</a>.
+</dd>
+
+          <dt id="Sovereignty">
+  <span class="name "><a href="../mitosis/Sovereignty.html">Sovereignty</a></span> 
+
+</dt>
+<dd>
+  Defines the <strong>Commitment Authority</strong> and <strong>Escalation Protocol</strong>
+assigned to a <a href="../mitosis/Deputy-mixin.html">Deputy</a>.
+</dd>
+
+          <dt id="TissueVerb">
+  <span class="name "><a href="../mitosis/TissueVerb.html">TissueVerb</a></span> 
+
+</dt>
+<dd>
+  Domain types shared by the AI-assisted tissue-command pipeline.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="mixins">
+      <h2>Mixins</h2>
+      <dl>
+          <dt id="Deputy">
+  <span class="name "><a href="../mitosis/Deputy-mixin.html">Deputy</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The mixin implementing proxy behavior for <a href="../mitosis/Cell/deputy.html">Cell.deputy</a> — you don't
+use this directly.
+</dd>
+
+          <dt id="FlowInstructionMixin">
+  <span class="name "><a href="../mitosis/FlowInstructionMixin-mixin.html">FlowInstructionMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Synthesizes a <strong>Materialization Engine</strong>—a specialized mixin designed to
+bridge stateless instructions with live reactive topographies.
+</dd>
+
+          <dt id="GovernanceMixin">
+  <span class="name "><a href="../mitosis/GovernanceMixin-mixin.html">GovernanceMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">G extends <a href="../mitosis/Governance-class.html">Governance</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A convenient mixin that provides default implementations for the
+<a href="../mitosis/Governance-class.html">Governance</a> interface methods.
+</dd>
+
+          <dt id="InstructionChainMixin">
+  <span class="name "><a href="../mitosis/InstructionChainMixin-mixin.html">InstructionChainMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>, <span class="type-parameter">I extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter">O extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core execution engine for composite instructions.
+</dd>
+
+          <dt id="OpenReceptorMixin">
+  <span class="name "><a href="../mitosis/OpenReceptorMixin-mixin.html">OpenReceptorMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Manual Control Interface</strong> for the reactive network.
+</dd>
+
+          <dt id="OpenSynapsesMixin">
+  <span class="name "><a href="../mitosis/OpenSynapsesMixin-mixin.html">OpenSynapsesMixin</a></span> 
+
+</dt>
+<dd>
+  A mixin that implements the <strong>Reactive Topology Interface</strong> for <a href="../mitosis/OpenCell-class.html">OpenCell</a> architectures.
+</dd>
+
+          <dt id="TissueListMixin">
+  <span class="name "><a href="../mitosis/TissueListMixin-mixin.html">TissueListMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueList-class.html">TissueList</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A core reactive mixin that provides the implementation for <a href="../mitosis/TissueList-class.html">TissueList</a> operations.
+</dd>
+
+          <dt id="TissueMapMixin">
+  <span class="name "><a href="../mitosis/TissueMapMixin-mixin.html">TissueMapMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueMap-class.html">TissueMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides a standard <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> interface implementation for
+reactive maps.
+</dd>
+
+          <dt id="TissueQueueMixin">
+  <span class="name "><a href="../mitosis/TissueQueueMixin-mixin.html">TissueQueueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueQueue-class.html">TissueQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides queue operations for <a href="../mitosis/TissueBase-class.html">TissueBase</a> implementations.
+</dd>
+
+          <dt id="TissueSetMixin">
+  <span class="name "><a href="../mitosis/TissueSetMixin-mixin.html">TissueSetMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueSet-class.html">TissueSet</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core implementation of the <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> interface for
+tissue set types.
+</dd>
+
+          <dt id="TissueValueMixin">
+  <span class="name "><a href="../mitosis/TissueValueMixin-mixin.html">TissueValueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A mixin that provides the core implementation for <a href="../mitosis/TissueValue-class.html">TissueValue</a> behaviors,
+particularly for accessing and modifying the single value it holds.
+</dd>
+
+      </dl>
+    </section>
+
+
+    <section class="summary offset-anchor" id="extensions">
+      <h2>Extensions</h2>
+      <dl>
+          <dt id="CellFlowOperators">
+  <span class="name "><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a></span>
+  on <a href="../mitosis/Cell-class.html">Cell</a>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Fluent Topographical Ingress</strong>—a specialized orchestration
+extension designed to initiate pulse evolution directly from a <a href="../mitosis/Cell-class.html">Cell</a>.
+</dd>
+
+          <dt id="FlowOperators">
+  <span class="name "><a href="../mitosis/FlowOperators.html">FlowOperators</a></span>
+  on <a href="../mitosis/FlowHandle.html">FlowHandle</a>
+  
+
+</dt>
+<dd>
+  Synthesizes a <strong>Fluent Topographical Continuation</strong>—a specialized orchestration
+extension designed to chain pulse evolution from an existing <a href="../mitosis/FlowHandle.html">FlowHandle</a>.
+</dd>
+
+          <dt id="PulseExtension">
+  <span class="name "><a href="../mitosis/PulseExtension.html">PulseExtension</a></span>
+  on <a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">P</span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Provides a fluent, functional API for operating on individual <a href="../mitosis/Pulse-class.html">Pulse</a> instances.
+</dd>
+
+          <dt id="PulseIterableExtension">
+  <span class="name "><a href="../mitosis/PulseIterableExtension.html">PulseIterableExtension</a></span>
+  on <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;</span>
+  
+
+</dt>
+<dd>
+  Fluent extensions for collections of <a href="../mitosis/Pulse-class.html">Pulse</a> objects.
+</dd>
+
+          <dt id="TekartikLockExtension">
+  <span class="name "><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/TekartikLockExtension.html">TekartikLockExtension</a></span>
+  on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>
+  
+
+</dt>
+<dd>
+  Extension on <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> to provide synchronous execution when possible
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="verbByName" class="constant">
+    <span class="name "><a href="../mitosis/verbByName-constant.html">verbByName</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../mitosis/TissueVerb.html">TissueVerb</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Lookup table from a verb string to the enum value.
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+      <dl class="callables">
+          <dt id="get" class="callable">
+  <span class="name"><a href="../mitosis/get.html">get</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="get-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">fn</span>, {</span><span class="parameter" id="get-param-fallback"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">fallback</span>, </span><span class="parameter" id="get-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span></span>})
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A robust functional utility for safely executing operations of type <code>T</code>
+with multi-stage recovery logic and hierarchical fallbacks.
+  
+
+</dd>
+
+          <dt id="groupBy" class="callable">
+  <span class="name"><a href="../mitosis/groupBy.html">groupBy</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="groupBy-param-values"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">values</span>, </span><span class="parameter" id="groupBy-param-key"><span class="type-annotation">T</span> <span class="parameter-name">key</span>(<span class="parameter" id="param-"><span class="type-annotation">S</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Groups the elements of an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> into a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> based on a specified key
+selection function.
+  
+
+</dd>
+
+          <dt id="mapMerge" class="callable">
+  <span class="name"><a href="../mitosis/mapMerge.html">mapMerge</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="mapMerge-param-map"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">map</span>, </span><span class="parameter" id="mapMerge-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  
+  
+
+</dd>
+
+          <dt id="systemPrompt" class="callable">
+  <span class="name"><a href="../mitosis/systemPrompt.html">systemPrompt</a></span><span class="signature">(<wbr><span class="parameter" id="systemPrompt-param-verbs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">verbs</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds the system prompt sent to the live AI chatbot.
+  
+
+</dd>
+
+          <dt id="withCellLocks" class="callable">
+  <span class="name"><a href="../mitosis/withCellLocks.html">withCellLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withCellLocks-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="withCellLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>(), {</span><span class="parameter" id="withCellLocks-param-order"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">order</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">b</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Convenience: acquire the locks of <code>cells</code> in a deterministic order.
+  
+
+</dd>
+
+          <dt id="withLocks" class="callable">
+  <span class="name"><a href="../mitosis/withLocks.html">withLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withLocks-param-locks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>&gt;</span></span> <span class="parameter-name">locks</span>, </span><span class="parameter" id="withLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Acquires <code>locks</code> in the given order, runs <code>body</code>, then releases them
+in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="typedefs">
+      <h2>Typedefs</h2>
+      <dl>
+          
+  <dt id="AiTissueCommandErrorHandler" class="callable">
+    <span class="name"><a href="../mitosis/AiTissueCommandErrorHandler.html">AiTissueCommandErrorHandler</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Error handler callback for the AI-bridged interpretation gates.
+    
+
+  </dd>
+
+          
+  <dt id="Arguments" class="">
+  <span class="name"><a href="../mitosis/Arguments.html">Arguments</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="field-name">namedArguments</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="field-name">positionalArguments</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Represents a tuple of positional and named arguments for function calls.
+Used when validating or processing function applications in cells.
+  
+
+</dd>
+
+
+          
+  <dt id="EgressHandle" class="">
+  <span class="name"><a href="../mitosis/EgressHandle.html">EgressHandle</a></span>&lt;<wbr><span class="type-parameter">S extends <a href="../mitosis/Pulse-class.html">Pulse</a></span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Output Terminal</strong>, providing a controlled
+interface to manage an external side-effect listener.
+  
+
+</dd>
+
+
+          
+  <dt id="ElementUpdatedRecord" class="">
+  <span class="name"><a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a></span>&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;
+    = (<span class="field">{<span class="type-annotation">V?</span> <span class="field-name">after</span>, </span><span class="field"><span class="type-annotation">V?</span> <span class="field-name">before</span>, </span><span class="field"><span class="type-annotation">E</span> <span class="field-name">value</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A record that captures a before‑and‑after snapshot of a reactive value
+change, delivered as the payload of a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a>.
+  
+
+</dd>
+
+
+          
+  <dt id="FlowHandle" class="">
+  <span class="name"><a href="../mitosis/FlowHandle.html">FlowHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A specialized record representing a <strong>Topographical Ingress Handle</strong>.
+  
+
+</dd>
+
+
+          
+  <dt id="FunctionType" class="callable">
+    <span class="name"><a href="../mitosis/FunctionType.html">FunctionType</a></span>&lt;<wbr><span class="type-parameter">R</span>&gt;<span class="signature">
+      <span class="returntype parameter">= R Function<span class="signature">()</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Generic function type that takes no parameters and returns RNA.
+Used in FunctionTypeObject for lazy evaluation.
+    
+
+  </dd>
+
+          
+  <dt id="HubHandle" class="">
+  <span class="name"><a href="../mitosis/HubHandle.html">HubHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a>?</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">root</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">spokes</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for a <strong>Signal Distribution Hub</strong>, providing a unified
+interface to control a multi-destination routing cluster.
+  
+
+</dd>
+
+
+          
+  <dt id="IngressHandle" class="">
+  <span class="name"><a href="../mitosis/IngressHandle.html">IngressHandle</a></span>&lt;<wbr><span class="type-parameter">I</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emit</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation">I</span> <span class="parameter-name">input</span></span>)</span></span> <span class="field-name">emitAsync</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">I</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management handle for an <strong>Input Gateway</strong>, providing a controlled
+interface for injecting external imperative stimuli into the reactive graph.
+  
+
+</dd>
+
+
+          
+  <dt id="InheritableHandle" class="">
+  <span class="name"><a href="../mitosis/InheritableHandle.html">InheritableHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="field-name">bind</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a></span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">ephemeralPolicy</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">receptor</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/TestCell-class.html">TestCell</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="field-name">testRule</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A structured grouping of the <strong>Governance &amp; Logic</strong> properties that define
+a node's operational identity and can be cascaded through the inheritance chain.
+  
+
+</dd>
+
+
+          
+  <dt id="InterpreterReply" class="">
+  <span class="name"><a href="../mitosis/InterpreterReply.html">InterpreterReply</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/TissueCommand-class.html">TissueCommand</a>?</span> <span class="field-name">command</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Reject-class.html">Reject</a>?</span> <span class="field-name">reject</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The reply from the interpreter port.
+  
+
+</dd>
+
+
+          
+  <dt id="NucleusSimplest" class="">
+  <span class="name"><a href="../mitosis/NucleusSimplest.html">NucleusSimplest</a></span>
+    = <a href="../mitosis/Nucleolus-class.html">Nucleolus</a>
+  </span>
+  
+
+</dt>
+<dd>
+  A semantic type alias representing the framework's <strong>Zero-Overhead Root</strong>
+and the terminal ancestor of all reactive blueprints.
+  
+
+</dd>
+
+
+          
+  <dt id="OpenCellBase" class="">
+  <span class="name"><a href="../mitosis/OpenCellBase.html">OpenCellBase</a></span>
+    = _OpenCell
+  </span>
+  
+
+</dt>
+<dd>
+  Base class for all <a href="../mitosis/OpenCell-class.html">OpenCell</a> types.
+  
+
+</dd>
+
+
+          
+  <dt id="SpokeRegistration" class="">
+  <span class="name"><a href="../mitosis/SpokeRegistration.html">SpokeRegistration</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/DeputyContext-class.html">DeputyContext</a>?</span> <span class="field-name">context</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a>? Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>?</span> <span class="field-name">handler</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span></span>)</span>?</span> <span class="field-name">match</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">priority</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/Receptor-class.html">Receptor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="field-name">receptor</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A configuration record for an individual <strong>Spoke (Destination)</strong>
+within a <a href="../mitosis/Cell/hub.html">Cell.hub</a>.
+  
+
+</dd>
+
+
+          
+  <dt id="StateHandle" class="">
+  <span class="name"><a href="../mitosis/StateHandle.html">StateHandle</a></span>&lt;<wbr><span class="type-parameter">V</span>&gt;
+    = (<span class="field">{<span class="type-annotation"><a href="../mitosis/ValueCell-class.html">ValueCell</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">pulse</span>, {</span><span class="parameter" id="param-serializedCompletion"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">serializedCompletion</span></span>})</span></span> <span class="field-name">ingest</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">updateAsync</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A management record that bundles a <a href="../mitosis/ValueCell-class.html">ValueCell</a> with its imperative update
+functions — the standard way to create and interact with a state atom.
+  
+
+</dd>
+
+
+          
+  <dt id="SynthesisHandle" class="">
+  <span class="name"><a href="../mitosis/SynthesisHandle.html">SynthesisHandle</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">add</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">addAll</span>, </span><span class="field"><span class="type-annotation"><a href="../mitosis/SynthesisCell-class.html">SynthesisCell</a></span> <span class="field-name">cell</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">clear</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">()</span></span> <span class="field-name">isEmpty</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">remove</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">removeAll</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">start</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">()</span></span> <span class="field-name">stop</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">toList</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  An Administrative Record providing a control interface for dynamic
+<a href="../mitosis/SynthesisCell-class.html">SynthesisCell</a> topographies.
+  
+
+</dd>
+
+
+          
+  <dt id="TestTissueBase" class="">
+  <span class="name"><a href="../mitosis/TestTissueBase.html">TestTissueBase</a></span>&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;
+    = <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Base type for Tissue test rules
+  
+
+</dd>
+
+
+          
+  <dt id="TransactionScope" class="">
+  <span class="name"><a href="../mitosis/TransactionScope.html">TransactionScope</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span></span>)</span></span> <span class="field-name">begin</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span></span> <span class="field-name">commit</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">pending</span>, </span><span class="field"><span class="type-annotation">dynamic Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span></span>)</span></span> <span class="field-name">read</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-savepoint"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">savepoint</span></span>})</span></span> <span class="field-name">rollback</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a> Function<span class="signature">()</span></span> <span class="field-name">savepoint</span>, </span><span class="field"><span class="type-annotation">void Function<span class="signature">(<span class="parameter" id="param-cell"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span></span> <span class="field-name">update</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A handle for coordinating atomic, multi‑cell transactions.
+  
+
+</dd>
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="exceptions">
+      <h2>Exceptions / Errors</h2>
+      <dl>
+          <dt id="TransactionConflictException">
+  <span class="name "><a href="../mitosis/TransactionConflictException-class.html">TransactionConflictException</a></span> 
+
+</dt>
+<dd>
+  Thrown when an isolation conflict is detected during commit.
+</dd>
+
+          <dt id="TransactionTimeoutException">
+  <span class="name "><a href="../mitosis/TransactionTimeoutException-class.html">TransactionTimeoutException</a></span> 
+
+</dt>
+<dd>
+  Thrown when a transaction exceeds its <a href="../mitosis/TransactionTimeoutException/timeout.html">timeout</a> duration.
+</dd>
+
+          <dt id="TransactionValidationException">
+  <span class="name "><a href="../mitosis/TransactionValidationException-class.html">TransactionValidationException</a></span> 
+
+</dt>
+<dd>
+  Thrown when validation of buffered writes fails during commit.
+</dd>
+
+          <dt id="TxApplyCompensationException">
+  <span class="name "><a href="../mitosis/TxApplyCompensationException-class.html">TxApplyCompensationException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+          <dt id="TxApplyException">
+  <span class="name "><a href="../mitosis/TxApplyException-class.html">TxApplyException</a></span> 
+
+</dt>
+<dd>
+  
+</dd>
+
+      </dl>
+    </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">mitosis</a></li>
+    <li class="self-crumb">mitosis.dart</li>
+</ol>
+
+    <h5><span class="package-name">mitosis</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Walkthroughs</li>
+        <li class="section-subitem"><a href="../mitosis/">mitosis</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>mitosis library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

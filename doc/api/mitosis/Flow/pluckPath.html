@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the pluckPath method from the Flow class, for the Dart programming language.">
+  <title>pluckPath method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">pluckPath&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">pluckPath</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">pluckPath&lt;<wbr><span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">pluckPath</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="pluckPath-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="pluckPath-param-path"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">path</span>, </span></li>
+<li><span class="parameter" id="pluckPath-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span>, </span></li>
+<li><span class="parameter" id="pluckPath-param-useOrElse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useOrElse</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="pluckPath-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Walk a nested <code>path</code>.</p>
+<p><a href="../../mitosis/Flow/pluckPath.html">pluckPath</a> navigates nested structures by following a sequence
+of keys. This allows extracting deeply nested fields from complex
+objects.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/pluckPath.html">pluckPath</a> when you need to extract a deeply nested field
+from a complex object.</p>
+<ul>
+<li><strong>Deep Navigation</strong>: Extracting deeply nested values.</li>
+<li><strong>JSON Traversal</strong>: Navigating JSON responses.</li>
+<li><strong>Object Graph</strong>: Traversing object graphs.</li>
+<li><strong>Nested Data</strong>: Extracting data from nested structures.</li>
+<li><strong>Data Unwrapping</strong>: Unwrapping nested data containers.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is used as the starting point.</li>
+<li>For each key in <code>path</code>, the current value is read using that key.</li>
+<li>The value becomes the new current value for the next key.</li>
+<li>After all keys are processed, the final value is emitted.</li>
+<li>If any step fails, <code>onError</code> is called and the pulse is dropped.</li>
+<li>If <code>useOrElse</code> is <code>true</code>, <code>orElse</code> is emitted on failure.</li>
+<li>The pulse gets the step <code>'PluckPath'</code> (or <code>'PluckPath.orElse'</code> for defaults).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Path Traversal</strong>: The path is walked left to right.</li>
+<li><strong>Any Step Failure</strong>: If any step in the path fails, the whole
+extraction fails.</li>
+<li><strong>Type Safety</strong>: The final value must match type <code>T</code>.</li>
+<li><strong>Error Handling</strong>: Missing keys or type mismatches can trigger
+error handlers or fallbacks.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the payloads.</li>
+<li><code>path</code>: <strong>The Navigation Path.</strong> An iterable of keys to follow.</li>
+<li><code>orElse</code>: <strong>Default Value.</strong> Used when <code>useOrElse</code> is <code>true</code>.</li>
+<li><code>useOrElse</code>: <strong>Use Default.</strong> If <code>true</code>, missing path steps get
+<code>orElse</code>. If <code>false</code>, missing steps trigger <code>onError</code>. Defaults
+to <code>false</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The expected type of the final extracted value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the extracted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final users = Cell.ingress&lt;Map&lt;String, Object&gt;&gt;();
+
+final handle = Flow.pluckPath&lt;String&gt;(
+  users.cell,
+  path: ['user', 'profile', 'name'],
+);
+
+users.emit({
+  'user': {
+    'profile': {
+      'name': 'Alice',
+      'age': 30
+    }
+  }
+});
+// -&gt; Alice
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/pluck.html">pluck</a>: For single field extraction.</li>
+<li><a href="../../mitosis/Flow/pluckOr.html">pluckOr</a>: For single field extraction with default.</li>
+<li><a href="../../mitosis/Flow/pluckAll.html">pluckAll</a>: For extracting multiple fields.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle pluckPath&lt;T&gt;(
+  Cell source, {
+  required Iterable&lt;Object&gt; path,
+  T? orElse,
+  bool useOrElse = false,
+  PluckErrorHandler? onError,
+}) {
+  return PluckPath&lt;T&gt;(
+    path,
+    orElse: orElse,
+    useOrElse: useOrElse,
+    onError: onError,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">pluckPath&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

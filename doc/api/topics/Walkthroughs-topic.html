@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="Walkthroughs topic docs, for the Dart programming language.">
+  <title>Walkthroughs topic - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">mitosis</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+  </ol>
+  <div class="self-name">Walkthroughs</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div id="dartdoc-main-content" class="main-content">
+  <h1><span class="kind-category">Walkthroughs</span> topic</h1>
+  
+<section class="desc markdown">
+  <h1 id="demo_guide-mitosismd-mitosis-edition">DEMO_GUIDE-mitosis.md (Mitosis Edition)</h1>
+<h1 id="cell--flow--tissue-demo-guide--mitosis-edition">(Cell + Flow + Tissue) Demo Guide — Mitosis Edition</h1>
+<h2 id="from-reactive-cells-to-a-single-composed-instruction">From Reactive Cells to a Single Composed Instruction</h2>
+<p>A comprehensive guide to the <strong>decision side</strong> of the Cell Framework:
+how a requirement paragraph becomes a Cell, how Instructions are
+composed into a <code>FlowInstructionChain</code>, and how the <code>(Cell)</code> demos in
+the umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a> directory relate to their <code>(tissue)</code>
+counterparts in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>packages/cell_tissue/example/</code></a>.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#the-purpose-of-the-cell-counterparts">The Purpose of the (Cell) Counterparts</a></li>
+<li><a href="#core-concepts">Core Concepts</a></li>
+<li><a href="#mitosis-learning-path">Mitosis Learning Path</a></li>
+<li><a href="#level-1-cell-ingress-and-pulse">Level 1: Cell Ingress and Pulse</a></li>
+<li><a href="#level-2-stock-instructions-and-chains">Level 2: Stock Instructions and Chains</a></li>
+<li><a href="#level-3-custom-instruction--extending-flowinstructionbase">Level 3: Custom Instruction — Extending FlowInstructionBase</a></li>
+<li><a href="#level-4-chain--cell--tohandle-and-the-public-api">Level 4: Chain → Cell — toHandle and the Public API</a></li>
+<li><a href="#level-5-real-world-applications">Level 5: Real-World Applications</a></li>
+<li><a href="#cell--flow-instruction-reference">Cell / Flow Instruction Reference</a></li>
+<li><a href="#combining-patterns">Combining Patterns</a></li>
+<li><a href="#common-pitfalls">Common Pitfalls</a></li>
+<li><a href="#next-steps">Next Steps</a></li>
+</ol>
+<hr>
+<h2 id="introduction">Introduction</h2>
+<p>The Cell Framework provides a reactive programming model where <strong>Cells</strong>
+hold state, <strong>Pulses</strong> carry signals, <strong>Flow</strong> orchestrates decisions,
+and <strong>Tissue</strong> keeps governed books. The umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a> directory
+holds the <strong>Mitosis (Cell) editions</strong> of the demos whose <strong>Tissue
+editions</strong> live in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>packages/cell_tissue/example/</code></a>.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ul>
+<li>What the <code>(Cell)</code> counterparts are <strong>for</strong>, and how they differ from
+the <code>(tissue)</code> originals.</li>
+<li>How to compose stock Instructions with <code>operator +</code> into one
+<code>FlowInstructionChain</code>.</li>
+<li>How to extend <code>FlowInstructionBase</code> with a single custom Instruction
+that encapsulates policy + latch + filter, the way <code>AsyncMap</code> does.</li>
+<li>How <code>toHandle</code> materialises the blueprint into a live Cell, and which
+public API the harness uses around that moment.</li>
+<li>The golden rule and the two-lock discipline, unchanged from the
+Tissue edition.</li>
+</ul>
+<h3 id="the-two-subsystem-split">The Two Subsystem Split</h3>
+<p>Every demo follows the same architectural pattern:</p>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Responsibility</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flow</strong></td>
+<td>Decision, interpretation, transformation</td>
+<td><code>MapValue</code>, <code>DistinctUntilChanged</code>, <code>Filter</code>, <code>Tap</code>, custom instructions</td>
+</tr>
+<tr>
+<td><strong>Tissue</strong></td>
+<td>Durable state, validation, audit trail</td>
+<td><code>TissueList</code>, <code>TissueValue</code>, <code>TissueMap</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The Golden Rule:</strong> Flow decides. Tissue records. The observer is the
+only glue. Never mix these responsibilities.</p>
+<p><strong>TestCell vs TestTissue — do not swap:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Host</th>
+<th>Rule type</th>
+<th>Parameter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cell.ingress</code> / <code>toHandle</code></td>
+<td><code>TestCell</code></td>
+<td><code>testRule:</code></td>
+</tr>
+<tr>
+<td><code>TissueList</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> / <code>Value</code></td>
+<td><code>TestTissue&lt;E, C&gt;</code></td>
+<td><code>testRule:</code></td>
+</tr>
+<tr>
+<td><code>tissue.deputy(...)</code></td>
+<td><code>TestTissue</code></td>
+<td><code>testRule:</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>TestCell</code> is the integrity rule on a <strong>Cell</strong> (shape of an incoming
+pulse). <code>TestTissue</code> is the integrity rule on a <strong>Tissue</strong> (shape of a
+mutation, a member, a value write). Grep for <code>testRule: TestCell</code> on a
+Tissue constructor: zero hits.</p>
+<hr>
+<h2 id="the-purpose-of-the-cell-counterparts">The Purpose of the (Cell) Counterparts</h2>
+<p>The <code>(tissue)</code> demos in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>packages/cell_tissue/example/</code></a> teach the
+<strong>books side</strong>: Tissue collections, <code>TestTissue</code> rules, deputies, and
+the money/fleet/reserve write protocols. Their <code>(Cell)</code> counterparts in
+the umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a> directory exist to teach the <strong>decision side</strong>
+of the very same seam:</p>
+<blockquote>
+<p><strong>The <code>(Cell)</code> demos are not replacements. They are the same seam,
+same scenarios, and same books — viewed from the instruction side of
+the Flow layer.</strong></p>
+</blockquote>
+<p>Specifically:</p>
+<table>
+<thead>
+<tr>
+<th>Tissue edition (in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>packages/cell_tissue/example/</code></a>)</th>
+<th>Cell edition (in umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a>)</th>
+<th>Purpose of the Cell edition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-Demo.dart"><code>card-auth-pipeline(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a></td>
+<td>Demonstrates the <strong>stock-operator chain</strong>: <code>MapValue + DistinctUntilChanged + Filter + Tap + MapValue</code> composed into <strong>one <code>FlowInstructionChain</code></strong>, materialised once with <code>toHandle</code>. The whole risk gate is one reusable blueprint; the books stay in the <code>Tap</code> side effect and observers.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-Demo.dart"><code>grid-demand-response(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/grid-demand-response(Cell)-Demo.dart"><code>grid-demand-response(Cell)-Demo.dart</code></a></td>
+<td>Demonstrates the <strong>custom instruction</strong>: <code>GridDecisionInstruction extends FlowInstructionBase</code> encapsulates type-check, <code>policyOf</code>, the distinct latch, and the hold filter in one class, exactly like <code>AsyncMap</code>; it is chained with a stock <code>MapValue</code> and materialised with <code>toHandle</code>. Public API: <code>policyOf</code>, <code>lastDecision</code>, <code>reset</code>, <code>pass</code>, <code>protected</code>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-Demo.dart"><code>ride-hail-dispatch(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/ride-hail-dispatch(Cell)-Demo.dart"><code>ride-hail-dispatch(Cell)-Demo.dart</code></a></td>
+<td>Demonstrates the <strong>custom instruction</strong> in a second domain: <code>MatchDecisionInstruction</code> encapsulates <code>matchOf</code>, the distinct latch, and the idle filter; chained with <code>MapValue&lt;MatchDecision, Match&gt;</code>; public API: <code>matchOf</code>, <code>lastDecision</code>, <code>reset</code>, <code>pass</code>, <code>noGo</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>What moved from the <code>(tissue)</code> edition to the <code>(Cell)</code> edition:</p>
+<table>
+<thead>
+<tr>
+<th>In the <code>(tissue)</code> edition</th>
+<th>In the <code>(Cell)</code> edition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapValue(policy) + closure-Distinct + Filter</code> with latch fields on the harness</td>
+<td>One <code>GridDecisionInstruction</code> / <code>MatchDecisionInstruction</code> holding policy + latch + filter inside</td>
+</tr>
+<tr>
+<td>Ad-hoc gate closures owned by the harness</td>
+<td>A named, reusable instruction class with a public API</td>
+</tr>
+<tr>
+<td>The decision logic is scattered across <code>installGates</code> and latch helpers</td>
+<td>The decision logic reads as one sentence: <code>GridDecisionInstruction(protected: …, pass: Action.shed)</code></td>
+</tr>
+<tr>
+<td>The seam is demonstrated from the books outward</td>
+<td>The seam is demonstrated from the instruction inward</td>
+</tr>
+</tbody>
+</table>
+<p>What <strong>did not</strong> change: the Tissue collections, the <code>TestTissue</code>
+rules, the observers, the reserve/fleet protocols, the scenario table,
+and the trailer counts. That is deliberate — a reader can diff the two
+editions and see exactly what the Cell edition adds: <strong>a custom
+Instruction, composed into a FlowInstructionChain, turned into a Cell
+at last.</strong></p>
+<hr>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="what-is-a-cell">What is a Cell?</h3>
+<p>A Cell is the atomic reactive node. It holds state, validates incoming
+pulses with <code>TestCell</code>, and propagates evolved pulses downstream.
+Ingress Cells are created with <code>Cell.ingress&lt;T&gt;()</code>; handle Cells are
+created when an instruction chain is materialised with <code>toHandle</code>.</p>
+<pre class="language-dart"><code class="language-dart">final hzIn = Cell.ingress&lt;double&gt;(testRule: _hzRange);  // ingress Cell
+hzIn.emit(49.70);                                        // Pulse&lt;double&gt; in
+</code></pre>
+<h3 id="what-is-a-pulse">What is a Pulse?</h3>
+<p>A Pulse is the signal that travels the graph. It carries a <code>payload</code>,
+<code>source</code>, <code>type</code>, <code>priority</code>, and a provenance <code>step</code>. Users care about
+one surface: <strong>what goes into each Cell (parameters) and what comes out
+(<code>Pulse&lt;type&gt;</code>)</strong>.</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(source: shedCell, effect: (Pulse p) {
+  if (p.payload == Action.shed) { /* write the books */ }
+});
+</code></pre>
+<h3 id="what-is-an-instruction">What is an Instruction?</h3>
+<p>An Instruction is a <strong>stateless blueprint</strong> that describes how a pulse
+is transformed or filtered. It is independent of any source Cell.</p>
+<ul>
+<li><code>MapValue</code> — Rx <code>map</code>.</li>
+<li><code>DistinctUntilChanged</code> — Rx <code>distinctUntilChanged</code>.</li>
+<li><code>Filter</code> — Rx <code>filter</code>.</li>
+<li><code>Tap</code> — Rx <code>tap</code> / <code>do</code>.</li>
+</ul>
+<h3 id="what-is-a-flowinstructionchain">What is a FlowInstructionChain?</h3>
+<p>A <code>FlowInstructionChain</code> is what <code>operator +</code> builds when you compose
+Instructions:</p>
+<pre class="language-dart"><code class="language-dart">final chain = MapValue&lt;BayTick, GridDecision&gt;(decide)
+            + MapValue&lt;GridDecision, Action&gt;((d) =&gt; d.action);
+</code></pre>
+<p>Each <code>+</code> returns a <code>FlowInstruction</code>; the whole expression is <strong>one
+chain</strong>. The chain is still only a blueprint — nothing runs until
+<code>toHandle</code> materialises it.</p>
+<h3 id="what-is-flowinstructionbase">What is FlowInstructionBase?</h3>
+<p><code>FlowInstructionBase&lt;Cell, Pulse, Pulse&gt;</code> is the base class for custom
+Instructions. <code>AsyncMap</code> in
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/lib/src/instruction/async_map.dart"><code>async_map.dart</code></a> is the canonical
+template: the essential logic lives inside the instruction, and the
+class exposes a public API that the caller uses when turning the
+instruction into a Cell.</p>
+<h3 id="what-is-tohandle">What is toHandle?</h3>
+<p><code>toHandle(source: cell)</code> compiles a blueprint into a live Cell bound to
+a source. It returns a <code>FlowHandle</code> record whose <code>.cell</code> is the
+observable output Cell:</p>
+<pre class="language-dart"><code class="language-dart">final handle = chain.toHandle(source: tickIn.cell);
+final gateCell = handle.cell;   // the Cell observers subscribe to
+</code></pre>
+<p>Exactly <strong>one</strong> <code>toHandle</code> per lane. ACK resets never call <code>toHandle</code>
+again.</p>
+<hr>
+<h2 id="mitosis-learning-path">Mitosis Learning Path</h2>
+<pre class="language-dart"><code>Level 1: Cell Ingress and Pulse (Start Here)
+├── Cell.ingress        - the input parameter surface
+├── Pulse.payload       - the output Pulse&lt;type&gt;
+└── TestCell            - shape validation at the edge
+
+Level 2: Stock Instructions and Chains
+├── MapValue            - Rx map
+├── Filter              - Rx filter
+├── DistinctUntilChanged- Rx distinctUntilChanged
+├── Tap                 - Rx tap / do
+└── operator +          - builds a FlowInstructionChain
+
+Level 3: Custom Instruction — Extending FlowInstructionBase
+├── encapsulate policy  - pure decision inside the class
+├── encapsulate latch   - distinct state per instruction instance
+├── encapsulate filter  - product lane suppression
+└── public API          - policyOf / matchOf, lastDecision, reset
+
+Level 4: Chain → Cell — toHandle and the Public API
+├── + stock projection  - narrow the rich output to the seam type
+├── toHandle(source:)   - materialise the chain into a Cell
+└── harness access      - reset() on ACK, lastDecision in the trailer
+
+Level 5: Real-World Applications
+├── Card Auth           - stock-operator chain (payments)
+├── Ride-Hail Dispatch  - custom MatchDecisionInstruction (mobility)
+└── Grid Demand-Response- custom GridDecisionInstruction (energy)
+</code></pre>
+<hr>
+<h2 id="level-1-cell-ingress-and-pulse">Level 1: Cell Ingress and Pulse</h2>
+<h3 id="1-cellingress--the-input-parameter-surface">1. Cell.ingress — the Input Parameter Surface</h3>
+<p><strong>What it does:</strong> Creates an ingress Cell with an optional <code>TestCell</code>
+shape rule.</p>
+<p><strong>When to use:</strong> Every sensor, command, or ACK that enters the demo.</p>
+<pre class="language-dart"><code class="language-dart">final hzIn = Cell.ingress&lt;double&gt;(
+  testRule: TestCell&lt;Cell&gt;((value, {host, arguments, user}) {
+    final v = value is Pulse ? value.payload : value;
+    return v is num &amp;&amp; v &gt;= 49.00 &amp;&amp; v &lt;= 51.00;
+  }),
+);
+</code></pre>
+<p><strong>Key Insight:</strong> The ingress wraps the raw input in a <code>Pulse</code> before
+the rule runs, so the rule unwraps <code>Pulse.payload</code> first. The input
+parameter type (<code>double</code>) and the emitted <code>Pulse&lt;double&gt;</code> are the
+user-facing contract.</p>
+<h3 id="2-pulsepayload--the-output-surface">2. Pulse.payload — the Output Surface</h3>
+<p><strong>What it does:</strong> Carries the typed payload a downstream observer reads.</p>
+<p><strong>When to use:</strong> Every observer on a gate Cell.</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(source: shedCell, effect: (Pulse pulse) {
+  if (pulse.payload == Action.shed) { /* ... */ }
+});
+</code></pre>
+<p><strong>Key Insight:</strong> Users care about inputs (parameters) and outputs
+(<code>Pulse&lt;type&gt;</code>). The WalkThrough <code>Parts</code> table, the Demo header, and
+the FEATURES rows all state this surface.</p>
+<hr>
+<h2 id="level-2-stock-instructions-and-chains">Level 2: Stock Instructions and Chains</h2>
+<h3 id="3-mapvalue--rx-map">3. MapValue — Rx map</h3>
+<pre class="language-dart"><code class="language-dart">final toAction = MapValue&lt;GridDecision, Action&gt;((d) =&gt; d.action);
+</code></pre>
+<h3 id="4-filter--rx-filter">4. Filter — Rx filter</h3>
+<pre class="language-dart"><code class="language-dart">Filter&lt;Action&gt;((a) =&gt; a == Action.shed);
+</code></pre>
+<h3 id="5-distinctuntilchanged--rx-distinctuntilchanged">5. DistinctUntilChanged — Rx distinctUntilChanged</h3>
+<pre class="language-dart"><code class="language-dart">DistinctUntilChanged&lt;CardAuthRecord&gt;(
+  equals: (a, b) =&gt; a.decision == b.decision,
+);
+</code></pre>
+<h3 id="6-tap--rx-tap--do">6. Tap — Rx tap / do</h3>
+<pre class="language-dart"><code class="language-dart">Tap&lt;CardAuthRecord&gt;((r) {
+  if (r.decision == Decision.decline) { /* write the books */ }
+});
+</code></pre>
+<h3 id="7-operator---builds-a-flowinstructionchain">7. operator + — Builds a FlowInstructionChain</h3>
+<pre class="language-dart"><code class="language-dart">final cardAuth = MapValue&lt;AuthAttempt, CardAuthRecord&gt;(snapshot)
+               + DistinctUntilChanged&lt;CardAuthRecord&gt;(byDecision)
+               + Filter&lt;CardAuthRecord&gt;(declineOrStepUp)
+               + Tap&lt;CardAuthRecord&gt;(writeBooks)
+               + MapValue&lt;CardAuthRecord, Decision&gt;(emitDecision);
+</code></pre>
+<p><strong>Key Insight:</strong> Each <code>+</code> returns a <code>FlowInstruction</code>, so the whole
+expression is <strong>one <code>FlowInstructionChain</code></strong> — a reusable blueprint
+with no live Cell yet. This is the <a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a>
+pattern.</p>
+<hr>
+<h2 id="level-3-custom-instruction--extending-flowinstructionbase">Level 3: Custom Instruction — Extending FlowInstructionBase</h2>
+<h3 id="8-the-asyncmap-template">8. The AsyncMap Template</h3>
+<p><code>AsyncMap</code> (in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/lib/src/instruction/async_map.dart"><code>async_map.dart</code></a>)
+extends <code>FlowInstructionBase&lt;Cell, Pulse, Pulse&gt;</code>, puts the mapping
+logic inside the class, and exposes its constructor parameters as the
+public surface. The <code>(Cell)</code> demos follow the same template for a
+<strong>synchronous</strong> gate:</p>
+<pre class="language-dart"><code class="language-dart">final class GridDecisionInstruction
+    extends FlowInstructionBase&lt;Cell, Pulse, Pulse&gt; {
+  factory GridDecisionInstruction({
+    required Set&lt;String&gt; protected,
+    required Action pass,
+    dynamic user,
+  }) {
+    final state = _GridGateState();
+    return GridDecisionInstruction._(protected, pass, state, user);
+  }
+
+  GridDecisionInstruction._(
+    Set&lt;String&gt; protected,
+    Action pass,
+    _GridGateState state,
+    dynamic user,
+  )   : _protected = protected,
+        _pass = pass,
+        _state = state,
+        super(_build(protected, pass, state), user: user);
+
+  static Pulse? Function(Pulse pulse, {Cell? cell, dynamic user}) _build(
+    Set&lt;String&gt; protected,
+    Action pass,
+    _GridGateState state,
+  ) {
+    return (pulse, {cell, user}) {
+      final tick = pulse.payload;
+      if (tick is! BayTick) return null;         // type check
+      final action = policyOf(tick, protected);  // policy
+      if (state.last == action) return null;     // distinct latch
+      state.last = action;
+      if (action != pass) return null;           // product filter
+      return Pulse&lt;GridDecision&gt;(
+        GridDecision(tick: tick, action: action),
+        source: cell ?? pulse.source,
+        type: pulse.type,
+        priority: pulse.priority,
+        step: 'GridDecision.${pass.name}',
+      );
+    };
+  }
+
+  static Action policyOf(BayTick tick, Set&lt;String&gt; protected) { /* ... */ }
+  Action? get lastDecision =&gt; _state.last;
+  Action get pass =&gt; _pass;
+  Set&lt;String&gt; get protected =&gt; _protected;
+  void reset() =&gt; _state.last = null;
+}
+</code></pre>
+<p><strong>Key Insight:</strong> One class encapsulates type-check, policy, latch, and
+filter. Two instances (<code>pass: Action.shed</code> and <code>pass: Action.warn</code>)
+give two independent lanes without duplicating the logic.</p>
+<h3 id="9-ride-hail-variant">9. Ride-Hail Variant</h3>
+<p><code>MatchDecisionInstruction</code> is the same template in the mobility domain:</p>
+<pre class="language-dart"><code class="language-dart">MatchDecisionInstruction(noGo: noGo, pass: Match.dispatch);
+MatchDecisionInstruction(noGo: noGo, pass: Match.surge);
+</code></pre>
+<p>with <code>static Match matchOf(MatchTick tick, Set&lt;String&gt; noGo)</code> as the
+pure policy.</p>
+<p><strong>Key Insight:</strong> The policy stays pure and static. The live
+<code>protected</code> / <code>noGo</code> TissueSet is passed in at construction and read on
+every pulse, so ops can mutate the set at runtime without redeploying
+the graph.</p>
+<hr>
+<h2 id="level-4-chain--cell--tohandle-and-the-public-api">Level 4: Chain → Cell — toHandle and the Public API</h2>
+<h3 id="10-compose-the-custom-instruction-with-a-stock-projection">10. Compose the Custom Instruction with a Stock Projection</h3>
+<p>The custom instruction emits the <strong>rich</strong> type (<code>GridDecision</code> /
+<code>MatchDecision</code>). The seam type is the <strong>narrow</strong> <code>Action</code> / <code>Match</code>.
+A shared stock <code>MapValue</code> performs that projection:</p>
+<pre class="language-dart"><code class="language-dart">final toAction = MapValue&lt;GridDecision, Action&gt;((d) =&gt; d.action);
+final shedChain = shedGate + toAction;      // FlowInstructionChain
+final shedHandle = shedChain.toHandle(source: tickIn.cell);
+shedCell = shedHandle.cell;
+</code></pre>
+<p><strong>Key Insight:</strong> The <code>+</code> is the composition point, <code>toHandle</code> is the
+materialisation point, and the returned Cell is what observers
+subscribe to. Two lanes, two chains, two <code>toHandle</code> calls.</p>
+<h3 id="11-the-public-api-around-tohandle">11. The Public API Around toHandle</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Used when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>policyOf</code> / <code>matchOf</code></td>
+<td>unit-testing the decision with a bare tick and a plain <code>Set</code></td>
+</tr>
+<tr>
+<td><code>lastDecision</code></td>
+<td>reading the latch state in the trailer</td>
+</tr>
+<tr>
+<td><code>reset()</code></td>
+<td>ACK authority clears the latch without rebuilding the graph</td>
+</tr>
+<tr>
+<td><code>pass</code> / <code>protected</code> / <code>noGo</code></td>
+<td>docs, debug, and reuse of the blueprint</td>
+</tr>
+</tbody>
+</table>
+<p>The ACK observer calls <code>reset()</code>; it never calls <code>toHandle</code> again. The
+trailer prints <code>lastDecision</code> to prove the reset happened.</p>
+<hr>
+<h2 id="level-5-real-world-applications">Level 5: Real-World Applications</h2>
+<h3 id="12-card-auth--payments-stock-operator-chain">12. Card Auth — Payments (stock-operator chain)</h3>
+<p><strong>File:</strong> <a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a> (umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a>)</p>
+<p><strong>What it demonstrates:</strong> The whole risk gate as one
+<code>FlowInstructionChain</code> of <strong>stock</strong> Rx operators —
+<code>MapValue + DistinctUntilChanged + Filter + Tap + MapValue</code> —
+materialised once. The books are written from the <code>Tap</code> side effect and
+the observers.</p>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>Stock operators mean less code.</li>
+<li>Stock <code>DistinctUntilChanged</code> holds its own internal previous value
+and cannot be reset externally; the scenario sequence is arranged so
+this does not change the visible output (documented deviation).</li>
+<li>Exactly one <code>toHandle</code> for the gate; ACK still never re-materialises.</li>
+<li>Tissue books and money methods are unchanged from the <code>(tissue)</code>
+edition.</li>
+</ol>
+<h3 id="13-grid-demand-response--energy-custom-instruction">13. Grid Demand-Response — Energy (custom instruction)</h3>
+<p><strong>File:</strong> <a href="https://github.com/simon-m-lee/cell/blob/master/example/grid-demand-response(Cell)-Demo.dart"><code>grid-demand-response(Cell)-Demo.dart</code></a> (umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a>)</p>
+<p><strong>What it demonstrates:</strong> <code>GridDecisionInstruction extends FlowInstructionBase</code> encapsulating <code>policyOf</code>, the distinct latch, and
+the hold filter; chained with <code>MapValue&lt;GridDecision, Action&gt;</code>; two
+lanes (SHED / WARN); public API <code>policyOf</code> / <code>lastDecision</code> / <code>reset</code>.</p>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>One instruction reads as one sentence:
+<code>GridDecisionInstruction(protected: …, pass: Action.shed)</code>.</li>
+<li>Distinct-before-filter lives inside the instruction, so
+<code>hold → shed → hold → shed</code> fires twice.</li>
+<li>The instruction reads <code>protected</code> but never writes Tissue.</li>
+<li>Reserve invariant and compensation ladder are unchanged.</li>
+</ol>
+<h3 id="14-ride-hail-dispatch--mobility-custom-instruction">14. Ride-Hail Dispatch — Mobility (custom instruction)</h3>
+<p><strong>File:</strong> <a href="https://github.com/simon-m-lee/cell/blob/master/example/ride-hail-dispatch(Cell)-Demo.dart"><code>ride-hail-dispatch(Cell)-Demo.dart</code></a> (umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a>)</p>
+<p><strong>What it demonstrates:</strong> <code>MatchDecisionInstruction</code> encapsulating
+<code>matchOf</code>, the distinct latch, and the idle filter; chained with
+<code>MapValue&lt;MatchDecision, Match&gt;</code>; two lanes (DISPATCH / SURGE); public
+API <code>matchOf</code> / <code>lastDecision</code> / <code>reset</code>.</p>
+<p><strong>Key Lessons:</strong></p>
+<ol>
+<li>The custom instruction template ports across domains by renaming the
+domain types and rewriting the policy.</li>
+<li>The no-go <code>TissueSet</code> is a live policy input, not a const.</li>
+<li>The push pump, fleet protocol, and auditor deputy are unchanged from
+the <code>(tissue)</code> edition.</li>
+</ol>
+<hr>
+<h2 id="cell--flow-instruction-reference">Cell / Flow Instruction Reference</h2>
+<h3 id="stock-instructions-used">Stock Instructions Used</h3>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Rx analogue</th>
+<th>Used in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapValue&lt;S, T&gt;</code></td>
+<td><code>map</code></td>
+<td>every <code>(Cell)</code> demo</td>
+</tr>
+<tr>
+<td><code>DistinctUntilChanged&lt;S&gt;</code></td>
+<td><code>distinctUntilChanged</code></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a></td>
+</tr>
+<tr>
+<td><code>Filter&lt;S&gt;</code></td>
+<td><code>filter</code></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a></td>
+</tr>
+<tr>
+<td><code>Tap&lt;S&gt;</code></td>
+<td><code>tap</code> / <code>do</code></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="custom-instructions">Custom Instructions</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Domain</th>
+<th>Encapsulates</th>
+<th>Public API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GridDecisionInstruction</code></td>
+<td>Energy</td>
+<td>type-check, <code>policyOf</code>, latch, hold filter</td>
+<td><code>policyOf</code>, <code>lastDecision</code>, <code>reset</code>, <code>pass</code>, <code>protected</code></td>
+</tr>
+<tr>
+<td><code>MatchDecisionInstruction</code></td>
+<td>Mobility</td>
+<td>type-check, <code>matchOf</code>, latch, idle filter</td>
+<td><code>matchOf</code>, <code>lastDecision</code>, <code>reset</code>, <code>pass</code>, <code>noGo</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="chain-materialisation">Chain Materialisation</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>API</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compose</td>
+<td><code>operator +</code></td>
+<td>builds a <code>FlowInstructionChain</code></td>
+</tr>
+<tr>
+<td>Materialise</td>
+<td><code>toHandle(source: cell)</code></td>
+<td>returns <code>FlowHandle</code>; <code>.cell</code> is the output Cell</td>
+</tr>
+<tr>
+<td>Observe</td>
+<td><code>Cell.observe(source: gateCell, ...)</code></td>
+<td>the only glue to Tissue</td>
+</tr>
+<tr>
+<td>Reset</td>
+<td><code>instruction.reset()</code></td>
+<td>ACK path; never <code>toHandle</code> again</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="combining-patterns">Combining Patterns</h2>
+<h3 id="pattern-stock-operator-gate">Pattern: Stock-Operator Gate</h3>
+<pre class="language-dart"><code class="language-dart">final gate = MapValue&lt;AuthAttempt, CardAuthRecord&gt;(snapshot)
+           + DistinctUntilChanged&lt;CardAuthRecord&gt;(byDecision)
+           + Filter&lt;CardAuthRecord&gt;(actionable)
+           + Tap&lt;CardAuthRecord&gt;(writeBooks)
+           + MapValue&lt;CardAuthRecord, Decision&gt;(emitDecision);
+
+final cell = gate.toHandle(source: attemptIn.cell).cell;
+</code></pre>
+<p>Use when the stock operators cover the policy and you accept their
+internal state semantics.</p>
+<h3 id="pattern-custom-instruction--stock-projection">Pattern: Custom Instruction + Stock Projection</h3>
+<pre class="language-dart"><code class="language-dart">final shedGate = GridDecisionInstruction(
+  protected: protected,
+  pass: Action.shed,
+);
+
+final chain = shedGate + MapValue&lt;GridDecision, Action&gt;((d) =&gt; d.action);
+final shedCell = chain.toHandle(source: tickIn.cell).cell;
+</code></pre>
+<p>Use when the policy + latch + filter should be one named, reusable
+class with an externally resettable latch.</p>
+<h3 id="pattern-two-lanes-two-latches-one-shared-projection">Pattern: Two Lanes, Two Latches, One Shared Projection</h3>
+<pre class="language-dart"><code class="language-dart">final toMatch = MapValue&lt;MatchDecision, Match&gt;((d) =&gt; d.match);
+final dispatchChain = dispatchGate + toMatch;  // lane 1
+final surgeChain = surgeGate + toMatch;        // lane 2 (shared projection)
+</code></pre>
+<p>Use for two-product demos. The shared <code>MapValue</code> is stateless, so
+reusing it across lanes is safe.</p>
+<h3 id="pattern-ack-resets-the-instruction-not-the-graph">Pattern: ACK Resets the Instruction, Not the Graph</h3>
+<pre class="language-dart"><code class="language-dart">Cell.observe(source: ackIn.cell, effect: (pulse) {
+  shedGate.reset();
+  warnGate.reset();
+  // optionally restore / accept
+});
+</code></pre>
+<p>Never call <code>toHandle</code> from the observer.</p>
+<hr>
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+<table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Why it breaks the lesson</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Writing Tissue inside the custom instruction</td>
+<td>Collapses the seam; the instruction must stay pure Flow.</td>
+</tr>
+<tr>
+<td>Scattering the policy across <code>MapValue</code> closures in the harness</td>
+<td>The <code>(Cell)</code> edition exists to encapsulate it in one instruction.</td>
+</tr>
+<tr>
+<td>Calling <code>toHandle</code> from the ACK observer</td>
+<td>Doubles every downstream effect. ACK calls <code>reset()</code>.</td>
+</tr>
+<tr>
+<td>Reusing one instruction instance for both lanes</td>
+<td>The two latches collapse into one.</td>
+</tr>
+<tr>
+<td>Returning the narrow seam type directly from the custom instruction</td>
+<td>The chain's <code>MapValue</code> then has nothing to project; emit the rich type (<code>GridDecision</code> / <code>MatchDecision</code>).</td>
+</tr>
+<tr>
+<td>Storing the latch in a <code>Cell</code>/<code>Tissue</code></td>
+<td>Adds lock traffic and rebuild complexity for a one-field assignment.</td>
+</tr>
+<tr>
+<td>Using a boolean for two products</td>
+<td>Two products need two lanes; a boolean cannot express the middle state.</td>
+</tr>
+<tr>
+<td>Passing <code>TestCell</code> to a Tissue constructor</td>
+<td>Wrong rule family; Tissue wants <code>TestTissue</code>.</td>
+</tr>
+<tr>
+<td>Holding the Receptor lock across a Tissue write</td>
+<td>Violates the two-lock discipline.</td>
+</tr>
+<tr>
+<td>Making <code>policyOf</code> / <code>matchOf</code> async</td>
+<td>Purity is the lesson; async reads belong at ingress.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="next-steps">Next Steps</h2>
+<h3 id="for-dart-developers-new-to-cell">For Dart Developers New to Cell</h3>
+<ol>
+<li>Read the <code>(Cell)</code> header of <a href="https://github.com/simon-m-lee/cell/blob/master/example/grid-demand-response(Cell)-Demo.dart"><code>grid-demand-response(Cell)-Demo.dart</code></a>.</li>
+<li>Read <code>GridDecisionInstruction</code> in isolation — it is pure.</li>
+<li>Trace one SHED from <code>setHz</code> through the chain to <code>events.add</code>.</li>
+<li>Diff it against <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-Demo.dart"><code>grid-demand-response(tissue)-Demo.dart</code></a> to see what
+moved from harness closures into the instruction.</li>
+</ol>
+<h3 id="for-framework-extenders">For Framework Extenders</h3>
+<ol>
+<li>Read <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/lib/src/instruction/async_map.dart"><code>async_map.dart</code></a> — the
+<code>FlowInstructionBase</code> template.</li>
+<li>Read <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/lib/src/flow_core.dart"><code>flow_core.dart</code></a> — <code>toHandle</code>,
+<code>FlowHandle</code>, and the <code>+</code> composition.</li>
+<li>Read <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/lib/src/instruction/map.dart"><code>map.dart</code></a> — the sync
+instruction closure contract.</li>
+<li>Write a custom Instruction for your own policy.</li>
+</ol>
+<h3 id="for-domain-porters">For Domain Porters</h3>
+<ol>
+<li>Pick the closest <code>(Cell)</code> sibling.</li>
+<li>Rename the domain types (<code>BayTick</code> / <code>MatchTick</code> → <code>YourTick</code>).</li>
+<li>Rewrite the policy (<code>policyOf</code> / <code>matchOf</code> → <code>yourPolicy</code>).</li>
+<li>Keep the seam: one custom instruction per product lane, one stock
+<code>MapValue</code> projection, one <code>toHandle</code> per lane, one observer per
+gate, one <code>TestTissue</code> per collection.</li>
+<li>Keep the two-lock discipline and the golden rule.</li>
+</ol>
+<h3 id="sibling-demos">Sibling Demos</h3>
+<table>
+<thead>
+<tr>
+<th>Cell edition (umbrella <a href="https://github.com/simon-m-lee/cell/tree/master/example"><code>example/</code></a>)</th>
+<th>Tissue edition (<a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>packages/cell_tissue/example/</code></a>)</th>
+<th>Domain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-Demo.dart"><code>card-auth-pipeline(Cell)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-Demo.dart"><code>card-auth-pipeline(tissue)-Demo.dart</code></a></td>
+<td>Payments — stock-operator chain</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/ride-hail-dispatch(Cell)-Demo.dart"><code>ride-hail-dispatch(Cell)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-Demo.dart"><code>ride-hail-dispatch(tissue)-Demo.dart</code></a></td>
+<td>Mobility — custom <code>MatchDecisionInstruction</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/example/grid-demand-response(Cell)-Demo.dart"><code>grid-demand-response(Cell)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-Demo.dart"><code>grid-demand-response(tissue)-Demo.dart</code></a></td>
+<td>Energy — custom <code>GridDecisionInstruction</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="companion-documents">Companion Documents</h3>
+<p>For each demo, the following companions exist:</p>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*-Demo.dart</code></td>
+<td>Executable implementation</td>
+</tr>
+<tr>
+<td><code>*-WalkThrough.md</code></td>
+<td>Requirement document and scenario contract</td>
+</tr>
+<tr>
+<td><code>*-ARCHITECTURE.md</code></td>
+<td>Layering, ownership, locking, failure semantics, anti-patterns</td>
+</tr>
+<tr>
+<td><code>*-FEATURES.md</code></td>
+<td>Operator catalogue and feature index</td>
+</tr>
+</tbody>
+</table>
+<p>Read them in this order:</p>
+<ol>
+<li><strong>This file</strong> — the guide in ten minutes.</li>
+<li><strong><code>*-Demo.dart</code></strong> — skim the class doc, then read the custom
+instruction and the gate installation.</li>
+<li><strong><code>*-WalkThrough.md</code></strong> — the requirement and the scenario contract.</li>
+<li><strong><code>*-FEATURES.md</code></strong> — the operator catalogue.</li>
+<li><strong><code>*-ARCHITECTURE.md</code></strong> — the layering and ownership note.</li>
+</ol>
+<hr>
+<p><em>End of DEMO_GUIDE-mitosis.md (Mitosis Edition).</em></p>
+</section>
+
+
+  <section class="summary offset-anchor" id="libraries">
+    <h2>Libraries</h2>
+    <dl>
+      <dt id="mitosis">
+  <span class="name"><a href="../mitosis/">mitosis</a></span> 
+    <span class="category walkthroughs cp-0 linked" title="This is part of the Walkthroughs topic."><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></span>
+
+</dt>
+<dd>🧬 <strong>Mitosis</strong> — the unified reactive framework for Dart.
+</dd>
+
+    </dl>
+  </section>
+
+  <section class="summary offset-anchor" id="classes">
+    <h2>Classes</h2>
+    <dl>
+      <dt id="Flow">
+  <span class="name "><a href="../mitosis/Flow-class.html">Flow</a></span> 
+
+</dt>
+<dd>
+  The Transcription Orchestrator for the Cell framework, responsible for
+converting (transcribing) external stimuli, persistent state, and logic
+into reactive <a href="../mitosis/Cell-class.html">Cell</a> topographies.
+</dd>
+
+      <dt id="Tissue">
+  <span class="name "><a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A reactive collection that behaves like a normal Dart <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> but is
+fully governed, observable, and thread‑safe – the foundation of all
+reactive containers in <code>cell_tissue</code>.
+</dd>
+
+    </dl>
+  </section>
+
+
+
+
+
+
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">mitosis</a></li>
+    <li class="self-crumb">Walkthroughs topic</li>
+</ol>
+
+  <h5><span class="package-name">mitosis</span> <span class="package-kind">package</span></h5>
+  <ol>
+      <li class="section-title">Topics</li>
+        <li><a href="../topics/Walkthroughs-topic.html">Walkthroughs</a></li>
+      <li class="section-title">Libraries</li>
+      <li class="section-subtitle">Walkthroughs</li>
+        <li class="section-subitem"><a href="../mitosis/">mitosis</a></li>
+</ol>
+
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>Walkthroughs topic</h5>
+  <ol>
+    <li class="section-title"><a href="../topics/Walkthroughs-topic.html#libraries">Libraries</a></li>
+      <li><a href="../mitosis/">mitosis</a></li>
+
+    <li class="section-title"><a href="../topics/Walkthroughs-topic.html#classes">Classes</a></li>
+      <li><a href="../mitosis/Flow-class.html">Flow</a></li>
+      <li><a href="../mitosis/Tissue-class.html">Tissue</a></li>
+
+
+
+
+
+
+
+
+
+</ol>
+
+</div>
+<!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the zipWith method from the Flow class, for the Dart programming language.">
+  <title>zipWith method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">zipWith&lt;<wbr><span class="type-parameter">R</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">zipWith</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">zipWith&lt;<wbr><span class="type-parameter">R</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">zipWith</span>&lt;<wbr><span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="zipWith-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="zipWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span></li>
+<li><span class="parameter" id="zipWith-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="zipWith-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Zip <code>source</code> with <code>others</code> by index (Rx <code>zipWith</code>).</p>
+<p><a href="../../mitosis/Flow/zipWith.html">zipWith</a> pairs values from the bound source with values from
+other cells by index. A value is emitted when all sources have
+produced a value at the same ordinal position.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/zipWith.html">zipWith</a> when you need to combine values from multiple
+sources by index.</p>
+<ul>
+<li><strong>Combining Streams</strong>: Combining multiple data streams.</li>
+<li><strong>Synchronization</strong>: Synchronizing events from different sources.</li>
+<li><strong>Data Alignment</strong>: Aligning data from different sources.</li>
+<li><strong>Join Operations</strong>: Joining data from multiple sources.</li>
+<li><strong>Correlation</strong>: Correlating events from different sources.</li>
+<li><strong>Multi-source Aggregation</strong>: Aggregating data from multiple sources.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each source has a queue of pending values.</li>
+<li>When a value arrives, it's added to the corresponding queue.</li>
+<li>If every queue has at least one value:
+a. One value is removed from each queue.
+b. The values are combined using <code>project</code>.
+c. The result is emitted.</li>
+<li>The slowest source determines the emission rate.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Index Pairing</strong>: Values are paired by position (index).</li>
+<li><strong>Queueing</strong>: Values are queued until all sources have a value.</li>
+<li><strong>Synchronization</strong>: The slowest source determines the emission rate.</li>
+<li><strong>Memory Usage</strong>: Queues hold values until all sources have one.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>Other Sources.</strong> The cells to zip with the bound source.</li>
+<li><code>project</code>: <strong>Projection Function.</strong> Optional. Combines the row
+of values into the output type. If not provided, the row is
+emitted as a List.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>R</code>: The type of the output value.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the zipped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final left = Cell.ingress&lt;int&gt;();
+final right = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.zipWith&lt;String&gt;(
+  left.cell,
+  others: [right.cell],
+  project: (row) =&gt; '${row[0]}-${row[1]}',
+);
+
+left.emit(1);
+right.emit('a'); // -&gt; '1-a'
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/zip.html">zip</a>: For zipping extra sources with an arm.</li>
+<li><a href="../../mitosis/Flow/zipAll.html">zipAll</a>: For zipping values from a single source by count.</li>
+<li><a href="../../mitosis/Flow/combineLatestWith.html">combineLatestWith</a>: For combining the latest values.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle zipWith&lt;R&gt;(
+  Cell source, {
+  required List&lt;Cell&gt; others,
+  R Function(List&lt;Object?&gt; row)? project,
+  ZipErrorHandler? onError,
+}) {
+  return ZipWith&lt;R&gt;(
+    others,
+    project: project,
+    onError: onError,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">zipWith&lt;<wbr><span class="type-parameter">R</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

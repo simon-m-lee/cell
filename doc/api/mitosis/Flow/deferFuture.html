@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the deferFuture method from the Flow class, for the Dart programming language.">
+  <title>deferFuture method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">deferFuture&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">deferFuture</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">deferFuture&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">deferFuture</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="deferFuture-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="deferFuture-param-create"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">create</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-trigger"><span class="type-annotation"><a href="../../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">trigger</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="deferFuture-param-onError"><span class="type-annotation">FutureErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+<li><span class="parameter" id="deferFuture-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes <code>create</code> to start a new future on every pulse received from
+<code>source</code> (Rx <code>defer</code> for futures).</p>
+<p><a href="../../mitosis/Flow/deferFuture.html">deferFuture</a> acts as an <strong>Asynchronous Per-Trigger Loader</strong>. Each
+trigger pulse starts a <strong>new</strong> <code>Future</code> from <code>create</code>. The trigger
+payload is passed through so the factory can depend on the stimulus.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/deferFuture.html">deferFuture</a> when you need a new future for each trigger:</p>
+<ul>
+<li><strong>Per-Request Loading</strong>: Loading data for each user request</li>
+<li><strong>Dynamic Loading</strong>: Loading data based on the trigger payload</li>
+<li><strong>Refresh Operations</strong>: Reloading data on each refresh trigger</li>
+<li><strong>Lazy Evaluation</strong>: Evaluating a future only when triggered</li>
+<li><strong>Search Operations</strong>: Performing a new search for each query</li>
+<li><strong>Pagination</strong>: Loading the next page on each trigger</li>
+<li><strong>Form Submissions</strong>: Submitting each form as a separate operation</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each trigger pulse calls <code>create</code> with the pulse.</li>
+<li>The <code>create</code> function returns a <code>Future&lt;S&gt;</code>.</li>
+<li>The future is awaited (optionally under <a href="../../mitosis/Flow/timeout.html">timeout</a>).</li>
+<li>Success emits <code>Pulse&lt;S&gt;</code> with step <code>DeferFuture</code>.</li>
+<li>Failure is reported through <code>onError</code> and optionally an error pulse.</li>
+<li>Results are emitted in input order (sequential processing).</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Per-Trigger</strong>: Each trigger starts a new future.</li>
+<li><strong>Sequential</strong>: The instruction processes inputs one at a time.
+Each async operation must complete before the next starts.</li>
+<li><strong>Payload Access</strong>: The trigger payload is passed to <code>create</code> so
+the future can depend on the stimulus.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code> and optionally
+as error pulses with <code>type: 'error'</code>.</li>
+<li><strong>Timeout</strong>: Optional timeout can be applied to each future operation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers each future.</li>
+<li><code>create</code>: <strong>The Future Factory.</strong> Takes the trigger pulse and returns
+a <code>Future&lt;S&gt;</code>.</li>
+<li><a href="../../mitosis/Flow/timeout.html">timeout</a>: <strong>Timeout Duration.</strong> Optional. If provided, the operation
+will fail if it exceeds this duration.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code> (default), errors
+emit a pulse with <code>type: 'error'</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the output payload from the future.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final userIds = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.deferFuture&lt;UserProfile&gt;(
+  userIds.cell,
+  create: (p) async =&gt; await api.fetchUser(p.payload as int),
+);
+
+userIds.emit(1); // Loads user 1
+userIds.emit(2); // Loads user 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/fromFuture.html">fromFuture</a>: For one-shot future loading.</li>
+<li><a href="../../mitosis/Flow/asyncMap.html">asyncMap</a>: For mapping each value through an async function.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle deferFuture&lt;S&gt;(
+  Cell source, {
+  required Future&lt;S&gt; Function(Pulse trigger) create,
+  FutureErrorHandler? onError,
+  bool emitErrorPulse = true,
+}) {
+  return DeferFuture&lt;S&gt;(
+    create,
+    onError: onError,
+    emitErrorPulse: emitErrorPulse,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">deferFuture&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

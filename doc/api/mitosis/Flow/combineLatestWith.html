@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the combineLatestWith method from the Flow class, for the Dart programming language.">
+  <title>combineLatestWith method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">combineLatestWith&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">combineLatestWith</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">combineLatestWith&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">combineLatestWith</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="combineLatestWith-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="combineLatestWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span></li>
+<li><span class="parameter" id="combineLatestWith-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span></li>
+<li><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="combineLatestWith-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Combines the latest value from <code>source</code> with the latest values from
+<code>others</code> whenever any of them emit.</p>
+<p><a href="../../mitosis/Flow/combineLatestWith.html">combineLatestWith</a> acts as a <strong>Multi-Source Combiner</strong>. It combines the
+latest values from the bound source and all other cells into a single
+output using a custom <code>combine</code> function.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/combineLatestWith.html">combineLatestWith</a> when you need to combine multiple reactive sources:</p>
+<ul>
+<li><strong>Form Validation</strong>: Combining multiple form fields into a validation state</li>
+<li><strong>UI State</strong>: Combining user preferences and data to compute UI state</li>
+<li><strong>Real-time Dashboards</strong>: Combining multiple data streams</li>
+<li><strong>Dependency Tracking</strong>: Combining values from different dependencies</li>
+<li><strong>Feature Flags</strong>: Combining multiple feature flags</li>
+<li><strong>Filtering</strong>: Combining filter criteria from multiple controls</li>
+<li><strong>Search</strong>: Combining search query with filters</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction and provides the source value.</li>
+<li>Observers are started on all <code>others</code> cells.</li>
+<li>Once all cells have at least one value, the <code>combine</code> function is called.</li>
+<li>The result is emitted as a <a href="../../mitosis/Pulse-class.html">Pulse</a>.</li>
+<li>Whenever any cell updates, the <code>combine</code> function is called again.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>All Must Have Value</strong>: Emission only happens after all cells have
+at least one value.</li>
+<li><strong>Latest Values</strong>: Always uses the most recent value from each cell.</li>
+<li><strong>Any Update Triggers</strong>: Any cell update triggers a new combination.</li>
+<li><strong>Source Arming</strong>: The first source pulse is required to arm.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>others</code>: <strong>The Additional Cells.</strong> Cells to combine with the source.</li>
+<li><code>combine</code>: <strong>The Combination Function.</strong> Takes the source value and a
+list of latest values from others, returns the combined result.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the source payload.</li>
+<li><code>R</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the combined values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final username = Cell.ingress&lt;String&gt;();
+final password = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.combineLatestWith&lt;String, bool&gt;(
+  username.cell,
+  others: [password.cell],
+  combine: (username, latest) =&gt;
+      username.isNotEmpty &amp;&amp; (latest.single as String).isNotEmpty,
+);
+
+username.emit('user'); // No emission (password not set)
+password.emit('pass'); // Emits true
+username.emit('');     // Emits false
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/withLatestFrom.html">withLatestFrom</a>: For source-driven combination.</li>
+<li><a href="../../mitosis/Flow/zipWith.html">zipWith</a>: For index-based pairing.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle combineLatestWith&lt;S, R&gt;(
+  Cell source, {
+  required List&lt;Cell&gt; others,
+  required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
+  CombineErrorHandler? onError,
+}) {
+  return CombineLatestWith&lt;S, R&gt;(
+    others,
+    combine,
+    onError: onError,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">combineLatestWith&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

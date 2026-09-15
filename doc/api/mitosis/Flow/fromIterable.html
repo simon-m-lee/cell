@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the fromIterable method from the Flow class, for the Dart programming language.">
+  <title>fromIterable method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">fromIterable&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">fromIterable</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">fromIterable&lt;<wbr><span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">fromIterable</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromIterable-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="fromIterable-param-iterable"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">iterable</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Emits each element of <code>iterable</code> on the first pulse received from
+<code>source</code> (Rx <code>from</code>).</p>
+<p><a href="../../mitosis/Flow/fromIterable.html">fromIterable</a> is similar to <a href="../../mitosis/Flow/of.html">of</a> but takes an iterable source.
+It emits each element of the iterable in order on the first trigger.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/fromIterable.html">fromIterable</a> when you have an iterable source to emit.</p>
+<ul>
+<li><strong>Iterable Sources</strong>: Emitting from any iterable (List, Set, etc.).</li>
+<li><strong>Dynamic Collections</strong>: Emitting from collections that are
+built dynamically.</li>
+<li><strong>Data Loading</strong>: Emitting loaded data sequences.</li>
+<li><strong>Stream Conversion</strong>: Converting iterables to pulses.</li>
+<li><strong>Batch Processing</strong>: Processing collections as sequences.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the instruction.</li>
+<li>Each element of <code>iterable</code> is emitted in iteration order.</li>
+<li>Later pulses are ignored.</li>
+<li>Each emitted value gets the step <code>'FromIterable'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The sequence only plays on the first pulse.</li>
+<li><strong>Iterable Order</strong>: The iteration order of the iterable is used.</li>
+<li><strong>Synchronous Emission</strong>: Values are emitted synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the emission.</li>
+<li><code>iterable</code>: <strong>The Iterable Source.</strong> The iterable to emit elements from.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the elements to emit.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.fromIterable&lt;String&gt;(
+  start.cell,
+  iterable: ['a', 'b', 'c'],
+);
+
+start.emit(null);
+// Outputs: a, b, c
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/of.html">of</a>: For emitting fixed values.</li>
+<li><a href="../../mitosis/Flow/range.html">range</a>: For emitting a numeric range.</li>
+<li><a href="../../mitosis/Flow/repeat.html">repeat</a>: For emitting a repeated value.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle fromIterable&lt;T&gt;(
+  Cell source, {
+  required Iterable&lt;T&gt; iterable,
+}) {
+  return FromIterable&lt;T&gt;(iterable).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">fromIterable&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

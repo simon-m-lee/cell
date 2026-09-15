@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the UnmodifiableTissueQueueBase.new constructor from Class UnmodifiableTissueQueueBase from the mitosis library, for the Dart programming language.">
+  <title>UnmodifiableTissueQueueBase.new constructor - UnmodifiableTissueQueueBase - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueQueueBase.new constructor</li>
+  </ol>
+  <div class="self-name">UnmodifiableTissueQueueBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="mitosis&#47;UnmodifiableTissueQueueBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">UnmodifiableTissueQueueBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">UnmodifiableTissueQueueBase&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-nucleus"><span class="type-annotation"><a href="../../mitosis/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span> <span class="parameter-name">nucleus</span>, {</span></li>
+<li><span class="parameter" id="-param-unmodifiableElement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">unmodifiableElement</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span>?</span> <span class="parameter-name">elements</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes a new <a href="../../mitosis/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase</a> instance, anchoring
+a read‑only reactive queue (Double‑Ended Buffer) to its behavioral and
+structural blueprint.</p>
+<p>This constructor is the internal structural initializer for the
+unmodifiable queue hierarchy. It bridges the gap between the
+<a href="../../mitosis/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a> configuration and the live reactive
+infrastructure, ensuring that the queue enters the graph with an
+established "Read-Only" barrier.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>This is an internal constructor. You don't call it directly. It is
+invoked by the unmodifiable queue factories.</p>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Logic Activation</strong>: It binds the provided property record to the
+queue instance, activating the synchronization lock and execution
+context required for reactive operations.</li>
+<li><strong>Immutability Enforcement</strong>: It prepares the instance to strictly
+prohibit structural changes, ensuring that any attempt to mutate
+the queue is intercepted and denied.</li>
+<li><strong>Recursive Safety</strong>: The <code>unmodifiableElement</code> flag establishes
+the policy for deep immutability. If enabled, member elements that
+are themselves reactive cells are accessed only as read‑only deputies.</li>
+<li><strong>Pre‑computed Storage</strong>: If <code>elements</code> are provided, the constructor
+creates a dedicated storage container, bypassing lazy projection
+logic for optimal iteration speed.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li>The view has its own <a href="../../mitosis/Synapses-class.html">Synapses</a> registry, so observers attached to
+the view are independent of those on the source.</li>
+<li>The <code>unmodifiableElement</code> flag affects deep immutability only – the
+queue itself is always read‑only regardless of this flag.</li>
+<li>Pre‑resolved unmodifiable proxies of member cells optimise iteration
+speed for high‑frequency read operations in the UI layer.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>nucleus</code>: <strong>Required</strong>. The <a href="../../mitosis/TissueQueueNucleusBase-class.html">TissueQueueNucleusBase</a> defining
+the queue's structural strategy, its synchronization domain, and its
+reactive blueprint.</li>
+<li><code>unmodifiableElement</code>: A boolean flag. When true, reactive elements
+retrieved from the queue are automatically projected as unmodifiable deputies.</li>
+<li><code>elements</code>: Optional. A pre‑mapped set of elements used to seed a
+dedicated high‑performance storage container for this specific instance.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueQueueBase(TissueQueueNucleusBase&lt;E, C&gt; super.nucleus,
+    {super.unmodifiableElement, super.elements}) {
+  &#47;&#47; Initial population is performed by TissueBase via `elements`.
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/UnmodifiableTissueQueueBase-class.html">UnmodifiableTissueQueueBase<span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C extends TissueQueue&lt;<wbr><span class="type-parameter">E</span>&gt;</span>&gt;</span></a></li>
+    <li class="self-crumb">UnmodifiableTissueQueueBase.new constructor</li>
+</ol>
+
+    <h5>UnmodifiableTissueQueueBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

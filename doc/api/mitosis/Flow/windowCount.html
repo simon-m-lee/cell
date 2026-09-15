@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the windowCount method from the Flow class, for the Dart programming language.">
+  <title>windowCount method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">windowCount&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">windowCount</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">windowCount&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">windowCount</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="windowCount-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="windowCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span></li>
+<li><span class="parameter" id="windowCount-param-skip"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">skip</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Window by count (list payload).</p>
+<p><a href="../../mitosis/Flow/windowCount.html">windowCount</a> is similar to <a href="../../mitosis/Flow/bufferCount.html">bufferCount</a> but emits windows as lists.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/windowCount.html">windowCount</a> when you need to batch values by count and
+emit the batch as a list.</p>
+<ul>
+<li><strong>Batching</strong>: Grouping items for batch processing.</li>
+<li><strong>Pagination</strong>: Collecting items into pages.</li>
+<li><strong>Chunking</strong>: Splitting data into chunks.</li>
+<li><strong>Aggregation</strong>: Aggregating a fixed number of items.</li>
+<li><strong>Buffering</strong>: Buffering items for efficient processing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>The payload is added to the current window buffer.</li>
+<li>When the buffer reaches <code>size</code>, the window is emitted.</li>
+<li>The buffer is cleared or advanced by <code>skip</code>.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Skip</th>
+<th>Behavior</th>
+<th>Example (size=3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skip == size</code></td>
+<td>Tumbling (no overlap)</td>
+<td><code>[1, 2, 3]</code>, <code>[4, 5, 6]</code></td>
+</tr>
+<tr>
+<td><code>skip &lt; size</code></td>
+<td>Overlapping</td>
+<td><code>[1, 2, 3]</code>, <code>[2, 3, 4]</code>, <code>[3, 4, 5]</code></td>
+</tr>
+<tr>
+<td><code>skip &gt; size</code></td>
+<td>Gaps (items skipped)</td>
+<td><code>[1, 2, 3]</code>, <code>[5, 6, 7]</code> (4 skipped)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Tumbling Default</strong>: <code>skip</code> defaults to <code>size</code> (no overlap).</li>
+<li><strong>Overlap</strong>: When <code>skip</code> &lt; <code>size</code>, windows overlap.</li>
+<li><strong>Gaps</strong>: When <code>skip</code> &gt; <code>size</code>, some items are skipped.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>size</code>: <strong>Window Size.</strong> The number of items in each window.</li>
+<li><code>skip</code>: <strong>Skip Count.</strong> How many items to advance for the next
+window. Defaults to <code>size</code> (tumbling).</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the windows.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.windowCount&lt;int&gt;(
+  input.cell,
+  size: 3,
+);
+
+input.emit(1); // No output
+input.emit(2); // No output
+input.emit(3); // -&gt; [1, 2, 3]
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/windowTime.html">windowTime</a>: For time-based windows.</li>
+<li><a href="../../mitosis/Flow/bufferCount.html">bufferCount</a>: For count-based buffering.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle windowCount&lt;S&gt;(
+  Cell source, {
+  required int size,
+  int? skip,
+}) {
+  return WindowCount&lt;S&gt;(size, skip: skip).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">windowCount&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

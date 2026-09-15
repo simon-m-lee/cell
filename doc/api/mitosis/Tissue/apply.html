@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the apply method from the Tissue class, for the Dart programming language.">
+  <title>apply method - Tissue class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">apply abstract method</li>
+  </ol>
+  <div class="self-name">apply</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Tissue-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">apply</span> abstract method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">dynamic</span>
+<span class="name ">apply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="apply-param-function"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">function</span>, {</span></li>
+<li><span class="parameter" id="apply-param-positionalArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">positionalArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-namedArguments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">namedArguments</span>, </span></li>
+<li><span class="parameter" id="apply-param-tx"><span class="type-annotation"><a href="../../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a>?</span> <span class="parameter-name">tx</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">compensate</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensatePositional"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">compensatePositional</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateNamed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Symbol-class.html">Symbol</a></span>, <span class="type-parameter">dynamic</span>&gt;</span>?</span> <span class="parameter-name">compensateNamed</span>, </span></li>
+<li><span class="parameter" id="apply-param-compensateCell"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">compensateCell</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes a governed mutation on this tissue through the command gateway.</p>
+<p>This is the foundational method for all structural changes (e.g., adding
+elements, clearing the collection). It ensures that every action is
+audited, validated by the <code>testRule</code>, and correctly linked in the
+forensic causal chain.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Custom Mutations</strong>: When implementing specialized collection
+operations not covered by the standard <code>add</code>/<code>remove</code> methods.</li>
+<li><strong>Transaction Logic</strong>: When you need to bundle operations with
+<code>compensate</code> logic for self-healing or undo-capabilities.</li>
+<li><strong>Internal Logic</strong>: Used primarily by the framework's high-level
+API to route mutations through the security and auditing gates.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Whitelist Check</strong>: The provided <code>function</code> is verified against the
+<a href="../../mitosis/Tissue/modifiable.html">modifiable</a> whitelist. If the function is not registered as an
+authorized mutation, it is rejected.</li>
+<li><strong>Integrity Validation</strong>: The <code>testRule</code> (DNA) evaluates the action
+request. If the rule rejects the stimulus, the method returns <code>null</code>
+and the state remains unchanged.</li>
+<li><strong>Command Execution</strong>: The function is invoked within the tissue's
+<a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> boundary to ensure atomic state transitions.</li>
+<li><strong>Forensic Auditing</strong>: The mutation is recorded as a step in the
+resulting <a href="../../mitosis/Pulse/trace.html">Pulse.trace</a>, identifying the logic that caused the
+structural change.</li>
+</ol>
+<h3 id="forensic-integrity">Forensic Integrity</h3>
+<p>Unlike standard Dart collections where mutations are silent, <code>apply</code>
+ensures that every change creates an <strong>Audit Milestone</strong>. If this action
+is part of a larger transaction, the <code>tx</code> scope ensures that multiple
+<code>apply</code> calls are batched into a single atomic propagation wave.</p>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Compensation</strong>: The <code>compensate</code> function provides a "Reversal
+Blueprint." If a subsequent step in a transaction fails, the
+framework can invoke this logic to restore the tissue to its
+primordial state.</li>
+<li><strong>Deputy Restrictions</strong>: If called on a read-only deputy (like
+<a href="../../mitosis/Tissue/unmodifiable.html">unmodifiable</a>), <code>apply</code> will always return <code>null</code> or throw an
+<a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a>, as the whitelist for deputies is empty.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>function</code>: The specific mutation logic to execute.</li>
+<li><code>positionalArguments</code>: Arguments passed to the mutation function.</li>
+<li><code>namedArguments</code>: Named arguments passed to the mutation function.</li>
+<li><code>tx</code>: Optional <a href="../../mitosis/ApplyTransactionScope-class.html">ApplyTransactionScope</a> for batching and atomic commits.</li>
+<li><code>compensate</code>: Logic used to reverse this mutation in case of failure.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>The result of the mutation (usually the return value of <code>function</code>),
+or <code>null</code> if the action was rejected by the <code>testRule</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+dynamic apply(
+  Function function, {
+  List? positionalArguments,
+  Map&lt;Symbol, dynamic&gt;? namedArguments,
+  ApplyTransactionScope? tx,
+  Function? compensate,
+  List? compensatePositional,
+  Map&lt;Symbol, dynamic&gt;? compensateNamed,
+  Cell? compensateCell,
+});</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Tissue-class.html">Tissue<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
+    <li class="self-crumb">apply abstract method</li>
+</ol>
+
+    <h5>Tissue class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

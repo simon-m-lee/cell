@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FlowOperators extension from the mitosis library, for the Dart programming language.">
+  <title>FlowOperators extension - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis.dart</a></li>
+    <li class="self-crumb">FlowOperators extension</li>
+  </ol>
+  <div class="self-name">FlowOperators</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content extension-page"
+    data-above-sidebar="mitosis&#47;mitosis-library-sidebar.html"
+    data-below-sidebar="mitosis&#47;FlowOperators-extension-sidebar.html">
+    <div>
+<h1><span class="kind-class">FlowOperators</span> extension 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Synthesizes a <strong>Fluent Topographical Continuation</strong>—a specialized orchestration
+extension designed to chain pulse evolution from an existing <a href="../mitosis/FlowHandle.html">FlowHandle</a>.</p>
+<p><a href="../mitosis/FlowOperators.html">FlowOperators</a> allows the topography to grow linearly and declaratively.
+It captures the <a href="../mitosis/Cell-class.html">Cell</a> anchored to the current handle and uses it as the
+<strong>Stimulus Origin</strong> for the next instruction in the pipeline.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Pipeline Composition</strong>: Building complex evolution chains by
+sequentially applying transformations, filters, and async gates.</li>
+<li><strong>Branching Logic</strong>: Continuing the evolution of a materialized pulse
+path into more specific topographical sub-structures.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Anchor Extraction</strong>: The extension accesses the internal <code>cell</code>
+of the <a href="../mitosis/FlowHandle.html">FlowHandle</a>.</li>
+<li><strong>Instruction Binding</strong>: It binds a new orchestration instruction
+to that cell, creating a new downstream node.</li>
+<li><strong>Handle Materialization</strong>: Returns a new <a href="../mitosis/FlowHandle.html">FlowHandle</a> representing
+ the next stage of the topography.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Stateless Continuation</strong>: Chaining operators does not preserve
+transient pulse state; each step defines a new, stateless logic gate
+within the graph.</li>
+<li><strong>Provenance Flow</strong>: Provenance data and priorities automatically
+traverse these chained gates unless an operator explicitly
+intercepts or resets them.</li>
+</ul>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../mitosis/CellFlowOperators.html">CellFlowOperators</a>: The entry point for starting a pipeline from a Cell.</li>
+<li><a href="../mitosis/FlowHandle.html">FlowHandle</a>: The materialized interface for topographical ingress.</li>
+</ul>
+</section>
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>on</dt>
+        <dd>
+          <ul class="comma-separated clazz-relationships">
+            <li><a href="../mitosis/FlowHandle.html">FlowHandle</a></li>
+          </ul>
+        </dd>
+      </dl>
+      
+
+
+    </section>
+    
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="asyncExpand" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/asyncExpand.html">asyncExpand</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="asyncExpand-param-expand"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">expand</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncExpand-param-onError"><span class="type-annotation">ExpandErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Recursive Temporal Gate</strong>—an instruction that
+maps a payload to a sequence of asynchronous materializations.
+  
+
+</dd>
+
+        <dt id="asyncFold" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/asyncFold.html">asyncFold</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="asyncFold-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="asyncFold-param-accumulate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span></span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncFold-param-snapshot"><span class="type-annotation">FoldSnapshot<span class="signature">&lt;<wbr><span class="type-parameter">A</span>&gt;</span>?</span> <span class="parameter-name">snapshot</span>, </span><span class="parameter" id="asyncFold-param-onError"><span class="type-annotation">FoldErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Asynchronous Accumulation Gate</strong>—an instruction
+that folds stimuli into state via async logic.
+  
+
+</dd>
+
+        <dt id="asyncMap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/asyncMap.html">asyncMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="asyncMap-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMap-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Sequential Temporal Gate</strong>—an instruction that
+maps payloads through asynchronous evolution one by one.
+  
+
+</dd>
+
+        <dt id="asyncMapConcurrent" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/asyncMapConcurrent.html">asyncMapConcurrent</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="asyncMapConcurrent-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapConcurrent-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Concurrent Temporal Gate</strong>—an instruction that
+maps payloads through async evolution without waiting for completion.
+  
+
+</dd>
+
+        <dt id="asyncMapLatest" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/asyncMapLatest.html">asyncMapLatest</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="asyncMapLatest-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="asyncMapLatest-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Preemptive Temporal Gate</strong>—an instruction that
+cancels previous async evolutions when a new stimulus arrives.
+  
+
+</dd>
+
+        <dt id="auditTime" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/auditTime.html">auditTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="auditTime-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="auditTime-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Temporal Audit Gate</strong>—an instruction that evolves
+the <em>most recent</em> stimulus within a sliding temporal window.
+  
+
+</dd>
+
+        <dt id="bufferCount" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/bufferCount.html">bufferCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="bufferCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span><span class="parameter" id="bufferCount-param-skip"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">skip</span>, </span><span class="parameter" id="bufferCount-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Quantized Collection Flattener</strong>—an instruction that gathers stimulus payloads into a List of a fixed size.
+  
+
+</dd>
+
+        <dt id="bufferTime" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/bufferTime.html">bufferTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="bufferTime-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="bufferTime-param-emitEmpty"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitEmpty</span> = <span class="default-value">false</span>, </span><span class="parameter" id="bufferTime-param-onError"><span class="type-annotation">BufferErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Temporal Collection Flattener</strong>—an instruction that gathers stimuli into a List based on sliding time windows.
+  
+
+</dd>
+
+        <dt id="combineLatestWith" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/combineLatestWith.html">combineLatestWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="combineLatestWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="combineLatestWith-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="combineLatestWith-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Stateful Synthesis Bridge</strong>—an instruction
+that combines the current stimulus with the latest state of <code>others</code>.
+  
+
+</dd>
+
+        <dt id="concatAll" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/concatAll.html">concatAll</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Higher-Order Flattener</strong>—an instruction that
+treats incoming payloads as sequences and flattens them sequentially.
+  
+
+</dd>
+
+        <dt id="concatMap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/concatMap.html">concatMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="concatMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Sequential Evolution Flattener</strong>—an instruction
+that flattens nested sequences while maintaining strict order.
+  
+
+</dd>
+
+        <dt id="debounce" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/debounce.html">debounce</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="debounce-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Silence Gate</strong>—an instruction that only permits
+evolution after a period of topographical silence.
+  
+
+</dd>
+
+        <dt id="delay" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/delay.html">delay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="delay-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Temporal Displacement Bridge</strong>—an instruction that
+shifts the materialization of pulses by a specific duration.
+  
+
+</dd>
+
+        <dt id="delayWhen" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/delayWhen.html">delayWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="delayWhen-param-when"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">when</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="delayWhen-param-onError"><span class="type-annotation">DelayErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Dynamic Temporal Bridge</strong>—an instruction that shifts the
+materialization of pulses based on the resolution of a secondary evolution.
+  
+
+</dd>
+
+        <dt id="distinct" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/distinct.html">distinct</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Uniqueness Gate</strong>—an instruction that ignores
+any payload that has already traversed the gate in the past.
+  
+
+</dd>
+
+        <dt id="exhaustMap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/exhaustMap.html">exhaustMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="exhaustMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Exclusive Evolution Flattener</strong>—an instruction
+that ignores new stimuli while an inner sequence is evolving.
+  
+
+</dd>
+
+        <dt id="filter" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/filter.html">filter</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="filter-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Predicate Integrity Gate</strong>—an instruction that
+conditionally permits pulse evolution based on a <code>test</code>.
+  
+
+</dd>
+
+        <dt id="groupBy" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/groupBy.html">groupBy</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">K</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="groupBy-param-keyOf"><span>required</span> <span class="type-annotation">K</span> <span class="parameter-name">keyOf</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="groupBy-param-onError"><span class="type-annotation">GroupErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Topographical Demultiplexer</strong>—an instruction that branches the topography based on a calculated <code>keyOf</code>.
+  
+
+</dd>
+
+        <dt id="interval" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/interval.html">interval</a></span><span class="signature">(<wbr>{<span class="parameter" id="interval-param-period"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">period</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Periodic Pulse Bridge</strong>—an instruction that
+generates a sequential integer stimulus at every <code>period</code>.
+  
+
+</dd>
+
+        <dt id="map" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Projective Evolution Gate</strong>—an instruction designed
+to transform stimulus payloads.
+  
+
+</dd>
+
+        <dt id="mapNotNull" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mapNotNull.html">mapNotNull</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mapNotNull-param-project"><span>required</span> <span class="type-annotation">T?</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapNotNull-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Filtering Projective Gate</strong>—an instruction that
+transforms payloads and aborts evolution if the result is <code>null</code>.
+  
+
+</dd>
+
+        <dt id="mapTo" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mapTo.html">mapTo</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mapTo-param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="mapTo-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Static Projective Gate</strong>—an instruction that
+transforms every stimulus into a constant <code>value</code>.
+  
+
+</dd>
+
+        <dt id="mapWhen" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mapWhen.html">mapWhen</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mapWhen-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapWhen-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="mapWhen-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Guarded Projective Gate</strong>—an instruction that
+only applies transformation to pulses satisfying a <code>test</code>.
+  
+
+</dd>
+
+        <dt id="mapWithIndex" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mapWithIndex.html">mapWithIndex</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mapWithIndex-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>), </span><span class="parameter" id="mapWithIndex-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Indexed Projective Gate</strong>—an instruction that
+transforms payloads using their cumulative arrival index.
+  
+
+</dd>
+
+        <dt id="mergeAll" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mergeAll.html">mergeAll</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mergeAll-param-onError"><span class="type-annotation">MergeErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Higher-Order Convergence Bridge</strong>—an instruction
+that flattens a sequence of cells into a single merged branch.
+  
+
+</dd>
+
+        <dt id="mergeMap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mergeMap.html">mergeMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mergeMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Concurrent Evolution Flattener</strong>—an instruction
+that flattens nested sequences as they arrive, without ordering.
+  
+
+</dd>
+
+        <dt id="mergeWith" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/mergeWith.html">mergeWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mergeWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Multi-Source Convergence Bridge</strong>—an instruction
+that relays pulses from this handle and all <code>others</code>.
+  
+
+</dd>
+
+        <dt id="pairwise" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/pairwise.html">pairwise</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Binary Temporal Bridge</strong>—an instruction that
+pairs the current stimulus with its immediate predecessor.
+  
+
+</dd>
+
+        <dt id="partition" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/partition.html">partition</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="partition-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="partition-param-onError"><span class="type-annotation">PartitionErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Binary Integrity Demultiplexer</strong>—an instruction that splits the topography into two branches based on a <code>test</code>.
+  
+
+</dd>
+
+        <dt id="pluck" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/pluck.html">pluck</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="pluck-param-key"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">key</span>, </span><span class="parameter" id="pluck-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Keyed Extraction Gate</strong>—an instruction designed
+to extract a specific property <code>key</code> from a Map-like payload.
+  
+
+</dd>
+
+        <dt id="pluckOr" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/pluckOr.html">pluckOr</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="pluckOr-param-key"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">key</span>, </span><span class="parameter" id="pluckOr-param-orElse"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">orElse</span>, </span><span class="parameter" id="pluckOr-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Keyed Extraction Gate</strong> with a fallback <code>orElse</code>
+value if the key is missing.
+  
+
+</dd>
+
+        <dt id="pluckPath" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/pluckPath.html">pluckPath</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="pluckPath-param-path"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> <span class="parameter-name">path</span>, </span><span class="parameter" id="pluckPath-param-orElse"><span class="type-annotation">T?</span> <span class="parameter-name">orElse</span>, </span><span class="parameter" id="pluckPath-param-useOrElse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useOrElse</span> = <span class="default-value">false</span>, </span><span class="parameter" id="pluckPath-param-onError"><span class="type-annotation">PluckErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Deep Extraction Gate</strong>—an instruction designed
+to traverse a <code>path</code> of nested Map-like payloads.
+  
+
+</dd>
+
+        <dt id="reduce" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/reduce.html">reduce</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="reduce-param-seed"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">seed</span>, </span><span class="parameter" id="reduce-param-accumulate"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Accumulative Evolution Gate</strong> seeded with
+an initial <code>seed</code> value.
+  
+
+</dd>
+
+        <dt id="retry" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/retry.html">retry</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="retry-param-task"><span>required</span> <span class="type-annotation">RetryTask<span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">task</span>, </span><span class="parameter" id="retry-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span> = <span class="default-value">3</span>, </span><span class="parameter" id="retry-param-onError"><span class="type-annotation">RetryErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="retry-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Fault Tolerance Bridge</strong>—an instruction that attempts to re-initiate a failing evolution task.
+  
+
+</dd>
+
+        <dt id="sample" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/sample.html">sample</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="sample-param-notifier"><span>required</span> <span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span>, </span><span class="parameter" id="sample-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Boundary Sampling Gate</strong>—an instruction that evolves
+the latest stimulus from the source only when the <code>notifier</code> cell pulses.
+  
+
+</dd>
+
+        <dt id="sampleTime" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/sampleTime.html">sampleTime</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="sampleTime-param-period"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">period</span>, </span><span class="parameter" id="sampleTime-param-onError"><span class="type-annotation">SampleErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Periodic Sampling Gate</strong>—an instruction that evolves
+the latest stimulus at fixed temporal intervals.
+  
+
+</dd>
+
+        <dt id="scan" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/scan.html">scan</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">A</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="scan-param-accumulate"><span>required</span> <span class="type-annotation">A</span> <span class="parameter-name">accumulate</span>(<span class="parameter" id="param-acc"><span class="type-annotation">A</span> <span class="parameter-name">acc</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Accumulative Evolution Gate</strong>—an instruction
+that folds stimulus history into a stateful result.
+  
+
+</dd>
+
+        <dt id="share" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/share.html">share</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Synaptic Multiplexer</strong>—an instruction that allows multiple downstream branches to share a single evolution cycle.
+  
+
+</dd>
+
+        <dt id="shareReplay" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/shareReplay.html">shareReplay</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="shareReplay-param-size"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Stateful Synaptic Multiplexer</strong>—an instruction that replays the last <code>size</code> pulses to new downstream synapses.
+  
+
+</dd>
+
+        <dt id="skip" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/skip.html">skip</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="skip-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Displacement Gate</strong>—an instruction that
+ignores the first <code>count</code> stimuli.
+  
+
+</dd>
+
+        <dt id="skipRepeated" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/skipRepeated.html">skipRepeated</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Redundancy Suppression Gate</strong>—an instruction
+that ignores a pulse if its payload matches the immediate predecessor.
+  
+
+</dd>
+
+        <dt id="skipUntil" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/skipUntil.html">skipUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="skipUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Boundary Displacement Gate</strong>—an instruction
+that ignores pulses until the <code>notifier</code> cell emits a signal.
+  
+
+</dd>
+
+        <dt id="skipWhile" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/skipWhile.html">skipWhile</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="skipWhile-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Conditional Displacement Gate</strong>—an instruction
+that ignores pulses until the <code>test</code> rule is violated.
+  
+
+</dd>
+
+        <dt id="startWith" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/startWith.html">startWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="startWith-param-value"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="startWith-param-replaceFirst"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">replaceFirst</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Topographical Seeding Gate</strong>—an instruction that evolves an initial <code>value</code> immediately upon materialization.
+  
+
+</dd>
+
+        <dt id="switchMap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/switchMap.html">switchMap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="switchMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Preemptive Evolution Flattener</strong>—an instruction
+where new inner sequences cancel the evolution of existing ones.
+  
+
+</dd>
+
+        <dt id="take" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/take.html">take</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="take-param-count"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Counted Materialization Gate</strong>—an instruction
+that only allows the first <code>count</code> pulses to evolve.
+  
+
+</dd>
+
+        <dt id="takeUntil" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/takeUntil.html">takeUntil</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="takeUntil-param-notifier"><span>required</span> <span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">notifier</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Boundary Lifecycle Gate</strong>—an instruction that
+terminates evolution once the <code>notifier</code> cell materializes a pulse.
+  
+
+</dd>
+
+        <dt id="takeWhile" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/takeWhile.html">takeWhile</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="takeWhile-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Conditional Lifecycle Gate</strong>—an instruction that
+evolves pulses as long as the <code>test</code> integrity rule is met.
+  
+
+</dd>
+
+        <dt id="tap" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/tap.html">tap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Passive Observation Gate</strong>—an instruction that performs side-effects without altering pulse evolution.
+  
+
+</dd>
+
+        <dt id="tapAll" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/tapAll.html">tapAll</a></span><span class="signature">(<wbr>{<span class="parameter" id="tapAll-param-onPulse"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onPulse</span>(<span class="parameter" id="param-pulse"><span class="type-annotation"><a href="../mitosis/Pulse-class.html">Pulse</a></span> <span class="parameter-name">pulse</span></span>), </span><span class="parameter" id="tapAll-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Forensic Observation Gate</strong>—an instruction that exposes the full <a href="../mitosis/Pulse-class.html">Pulse</a> container for metadata auditing.
+  
+
+</dd>
+
+        <dt id="tapWithIndex" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/tapWithIndex.html">tapWithIndex</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tapWithIndex-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>), </span><span class="parameter" id="tapWithIndex-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes an <strong>Indexed Observation Gate</strong>—an instruction that performs side-effects using the pulse's sequence index.
+  
+
+</dd>
+
+        <dt id="throttle" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/throttle.html">throttle</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="throttle-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Frequency Control Gate</strong>—an instruction that
+limits evolution to a specific temporal window.
+  
+
+</dd>
+
+        <dt id="timeout" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/timeout.html">timeout</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="timeout-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="timeout-param-onError"><span class="type-annotation">TimeoutErrorHandler?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="timeout-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Temporal Integrity Gate</strong>—an instruction that
+aborts evolution if a stimulus does not arrive within a window.
+  
+
+</dd>
+
+        <dt id="windowCount" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/windowCount.html">windowCount</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="windowCount-param-size"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">size</span>, </span><span class="parameter" id="windowCount-param-skip"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">skip</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Topographical Window Flattener</strong>—an instruction that partitions the source into multiple sub-cell sequences.
+  
+
+</dd>
+
+        <dt id="withLatestFrom" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/withLatestFrom.html">withLatestFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="withLatestFrom-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="withLatestFrom-param-combine"><span>required</span> <span class="type-annotation">R</span> <span class="parameter-name">combine</span>(<span class="parameter" id="param-sourceValue"><span class="type-annotation">S</span> <span class="parameter-name">sourceValue</span>, </span><span class="parameter" id="param-latest"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">latest</span></span>), </span><span class="parameter" id="withLatestFrom-param-onError"><span class="type-annotation">CombineErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Sampling Synthesis Bridge</strong>—an instruction that
+takes the latest state from <code>others</code> only when this handle emits.
+  
+
+</dd>
+
+        <dt id="zipWith" class="callable">
+  <span class="name"><a href="../mitosis/FlowOperators/zipWith.html">zipWith</a></span><span class="signature">&lt;<wbr><span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="zipWith-param-others"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">others</span>, </span><span class="parameter" id="zipWith-param-project"><span class="type-annotation">R</span> <span class="parameter-name">project</span>(<span class="parameter" id="param-row"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">row</span></span>)?, </span><span class="parameter" id="zipWith-param-onError"><span class="type-annotation">ZipErrorHandler?</span> <span class="parameter-name">onError</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../mitosis/FlowHandle.html">FlowHandle</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../mitosis/FlowHandle.html">FlowHandle</a>,
+        provided by the <a href="../mitosis/FlowOperators.html">FlowOperators</a> extension</span>
+      </p>
+  Materializes a <strong>Synchronized Synthesis Bridge</strong>—an instruction
+that waits for all sources to emit before producing a combined pulse.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+    
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis</a></li>
+    <li class="self-crumb">FlowOperators extension</li>
+</ol>
+
+  <h5>mitosis library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
+
+

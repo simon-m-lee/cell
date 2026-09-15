@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the race method from the Flow class, for the Dart programming language.">
+  <title>race method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">race&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">race</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">race&lt;<wbr><span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">race</span>&lt;<wbr><span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="race-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="race-param-competitors"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">competitors</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>First inner to emit wins (Rx <code>race</code>).</p>
+<p><a href="../../mitosis/Flow/race.html">race</a> acts as a <strong>Competitive Selector</strong>. Multiple competitors are
+started concurrently, and the first one to produce a value of type <code>T</code>
+wins. All other competitors are ignored.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/race.html">race</a> when you have multiple sources of the same data and you want
+the fastest one:</p>
+<ul>
+<li><strong>Fastest Response</strong>: You want the fastest response from multiple sources</li>
+<li><strong>Redundant Services</strong>: You have redundant services for reliability</li>
+<li><strong>Cache vs Network</strong>: You want to race cache against network</li>
+<li><strong>Multiple APIs</strong>: You want to try multiple APIs in parallel</li>
+<li><strong>Fallback Sources</strong>: You want to try primary then fallback</li>
+<li><strong>Load Balancing</strong>: You want to pick the fastest replica</li>
+<li><strong>Performance Optimization</strong>: You want to minimize latency</li>
+<li><strong>Reliability</strong>: You want to tolerate failures from individual sources</li>
+</ul>
+<h3 id="supported-competitor-types">Supported Competitor Types</h3>
+<p>Each competitor can be any of the following:</p>
+<ul>
+<li><code>Stream&lt;T&gt;</code>: The first event in the stream wins.</li>
+<li><code>Future&lt;T&gt;</code>: The future's value wins.</li>
+<li><code>Iterable&lt;T&gt;</code>: The first element wins.</li>
+<li><code>T</code>: The value itself wins immediately.</li>
+<li><code>null</code>: The competitor is ignored (no emission).</li>
+<li><strong>Nested combinations</strong>: Recursively expanded.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>One-Shot</strong>: The race is started on the first trigger only.</li>
+<li><strong>Concurrent</strong>: All competitors are started concurrently.</li>
+<li><strong>First Value Wins</strong>: Only the first value from any competitor is emitted.</li>
+<li><strong>Streams are Cancelled</strong>: Streams that lose are cancelled.</li>
+<li><strong>Error Handling</strong>: Errors are reported via <code>onError</code>.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the trigger.</li>
+<li><code>competitors</code>: <strong>The Competitors.</strong> An iterable of sources to race.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>T</code>: The type of the output payload from the winner.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the winner's value.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final start = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.race&lt;String&gt;(
+  start.cell,
+  competitors: [
+    Future.delayed(Duration(milliseconds: 40), () =&gt; 'slow'),
+    Future.delayed(Duration(milliseconds: 5), () =&gt; 'fast'),
+  ],
+);
+
+start.emit(null); // Emits 'fast'
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle race&lt;T&gt;(
+  Cell source, {
+  required List&lt;Object?&gt; competitors,
+}) {
+  return Race&lt;T&gt;(competitors).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">race&lt;<wbr><span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

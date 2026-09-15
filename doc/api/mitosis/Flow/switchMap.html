@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the switchMap method from the Flow class, for the Dart programming language.">
+  <title>switchMap method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">switchMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">switchMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="switchMap-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="switchMap-param-project"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Maps each payload to an inner sequence and always switches to the
+<strong>latest</strong> one (Rx <code>switchMap</code>).</p>
+<p><a href="../../mitosis/Flow/switchMap.html">switchMap</a> is a powerful flattening operator that "cancels" the previous
+inner sequence whenever a new source pulse arrives.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/switchMap.html">switchMap</a> for scenarios where only the most recent request is relevant:</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Cancel stale API calls when the user keeps typing.</li>
+<li><strong>Navigation</strong>: Stop loading data for the previous page when the user moves.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>A new source pulse triggers the <code>project</code> function.</li>
+<li>The resulting inner sequence (Future/Stream) is subscribed to.</li>
+<li>Any previous active inner sequence is immediately abandoned/cancelled.</li>
+<li>Only values from the current (latest) inner are emitted.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Generation ID</strong>: Internally uses incrementing IDs to ignore stale results.</li>
+<li><strong>Cancellation</strong>: For Streams, it cancels the subscription. For Futures,
+it ignores the result.</li>
+</ul>
+<p><a href="../../mitosis/Flow/switchMap.html">switchMap</a> acts as a <strong>Latest-Only Flattener</strong>. A new trigger
+cancels emission from the previous inner sequence.</p>
+<h3 id="when-to-use-2">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/switchMap.html">switchMap</a> when you only care about the most recent operation:</p>
+<ul>
+<li><strong>Search-as-you-type</strong>: Only the latest search query matters</li>
+<li><strong>Real-time Filtering</strong>: Only the most recent filter applies</li>
+<li><strong>Navigation</strong>: Only the latest route matters</li>
+<li><strong>Form Validation</strong>: Only the latest input should be validated</li>
+<li><strong>Live Updates</strong>: Only the most recent update is relevant</li>
+<li><strong>Selection Changes</strong>: Only the latest selection should be processed</li>
+<li><strong>Tab Switching</strong>: Only the latest tab's data should be loaded</li>
+</ul>
+<h3 id="how-it-works-2">How it works</h3>
+<ol>
+<li>Each trigger pulse starts a new inner sequence with a unique ID.</li>
+<li>If a new trigger arrives while a sequence is in flight, the previous
+sequence's ID is marked as stale.</li>
+<li>Only the sequence with the current ID can emit results.</li>
+<li>Stale sequences' items are silently dropped.</li>
+</ol>
+<h3 id="nonobvious-2">Non‑obvious</h3>
+<ul>
+<li><strong>Silent Cancellation</strong>: Cancelled sequences do not throw exceptions.
+They simply don't emit results.</li>
+<li><strong>Generation ID Tracking</strong>: Each sequence gets a unique ID. Only the
+sequence with the current ID can emit.</li>
+<li><strong>Memory Safety</strong>: The state only holds the current generation ID.</li>
+<li><strong>Error Handling</strong>: Only errors from the latest sequence are reported.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>The Flattening Logic.</strong> Takes an input value and returns
+an inner sequence.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the flattened values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final searchInput = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.switchMap&lt;String, Result&gt;(
+  searchInput.cell,
+  project: (q) async =&gt; await api.search(q),
+);
+
+searchInput.emit('dart');  // Starts search
+searchInput.emit('flutter'); // Cancels previous, starts new
+// Only 'flutter' results are emitted
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/concatMap.html">concatMap</a>: For sequential flattening.</li>
+<li><a href="../../mitosis/Flow/mergeMap.html">mergeMap</a>: For concurrent flattening.</li>
+<li><a href="../../mitosis/Flow/exhaustMap.html">exhaustMap</a>: For exhaust flattening.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle switchMap&lt;S, T&gt;(
+  Cell source, {
+  required FutureOr&lt;Object?&gt; Function(S value) project,
+}) {
+  return SwitchMap&lt;S, T&gt;(project).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">switchMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

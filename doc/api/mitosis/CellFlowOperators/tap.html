@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the tap method from the CellFlowOperators extension, for the Dart programming language.">
+  <title>tap method - CellFlowOperators extension - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
+    <li class="self-crumb">tap&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
+  </ol>
+  <div class="self-name">tap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;CellFlowOperators-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">tap&lt;<wbr><span class="type-parameter">S</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">tap</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="tap-param-onValue"><span>required</span> <span class="type-annotation">void</span> <span class="parameter-name">onValue</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="tap-param-onError"><span class="type-annotation">TapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Materializes a <strong>Passive Observation Gate</strong>—a specialized orchestration
+instruction designed to perform side-effects without altering pulse evolution.</p>
+<p><a href="../../mitosis/CellFlowOperators/tap.html">tap</a> (analogous to Rx <code>tap</code> or <code>do</code>) intercepts every incoming pulse from
+the source cell and executes the provided <code>onValue</code> logic. Unlike <code>map</code>,
+it does not transform the payload; the original stimulus is propagated
+downstream exactly as it arrived.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Forensic Logging</strong>: Auditing pulse data as it traverses a specific
+topographical branch without interfering with downstream logic.</li>
+<li><strong>External Synchronization</strong>: Triggering side-effects in non-reactive
+systems, such as tracking analytics or updating global state.</li>
+<li><strong>Evolution Debugging</strong>: Inserting observation points to inspect the
+state of pulses at various stages of a pipeline.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The gate intercepts a pulse originating
+from the source cell.</li>
+<li><strong>Observation Logic</strong>: The <code>onValue</code> orchestrator is invoked
+synchronously with the pulse payload.</li>
+<li><strong>Provenance Preservation</strong>: The original pulse—maintaining its
+full trace history, source, and priority—is propagated to
+downstream synapses.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Synchronous Blocking</strong>: The side-effect occurs within the same
+execution frame as the ingress. Heavy logic here will block the
+reactive engine's evolution cycle.</li>
+<li><strong>Integrity Safeguard</strong>: If the observation logic throws an error,
+the evolution is aborted, and the error is routed to the <code>onError</code>
+orchestrator.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Stimulus Payload Type</strong>. The type of the payload arriving
+at the gate for observation.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>onValue</code>: The <strong>Observation Logic</strong> defining the side-effect.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked if the side-effect
+violates topographical integrity.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> representing the anchored observation node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><a href="../../mitosis/CellFlowOperators/map.html">map</a>: For transforming payloads during evolution.</li>
+<li><a href="../../mitosis/CellFlowOperators/filter.html">filter</a>: For conditionally permitting pulse evolution.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FlowHandle tap&lt;S&gt;({
+  required void Function(S value) onValue,
+  TapErrorHandler? onError,
+}) =&gt;
+    Flow.tap&lt;S&gt;(this, onValue: onValue, onError: onError);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
+    <li class="self-crumb">tap&lt;<wbr><span class="type-parameter">S</span>&gt; method</li>
+</ol>
+
+    <h5>CellFlowOperators extension on <a href="../../mitosis/Cell-class.html">Cell</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

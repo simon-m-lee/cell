@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the distinct method from the Flow class, for the Dart programming language.">
+  <title>distinct method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">distinct&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">distinct</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">distinct&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">distinct</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="distinct-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Suppresses pulses that have been seen before (globally or consecutively
+depending on configuration).</p>
+<p><a href="../../mitosis/Flow/distinct.html">distinct</a> acts as a <strong>Global Duplicate Filter</strong>. It keeps track of all
+values that have ever been emitted and drops any value that has been seen
+before, regardless of position.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/distinct.html">distinct</a> when you need to ensure each value is emitted only once.</p>
+<ul>
+<li><strong>Unique Items</strong>: Processing unique items from a stream.</li>
+<li><strong>Set-Like Deduplication</strong>: Implementing set-like deduplication.</li>
+<li><strong>Event Tracking</strong>: Tracking unique events.</li>
+<li><strong>ID Deduplication</strong>: Deduplicating IDs.</li>
+<li><strong>Data Cleaning</strong>: Removing duplicates from a stream.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each typed pulse's payload is extracted.</li>
+<li>The payload is compared to all previously seen values using <code>equals</code>.</li>
+<li>If a match is found, the pulse is dropped.</li>
+<li>If no match is found, the pulse passes through and the value is stored.</li>
+</ol>
+<h3 id="memory-considerations">Memory Considerations</h3>
+<ul>
+<li><strong>O(n) Memory</strong>: The instruction stores all seen values in a list.</li>
+<li><strong>Unbounded Growth</strong>: Memory grows with the number of unique values.</li>
+<li><strong>Use <a href="../../mitosis/Flow/skipRepeated.html">skipRepeated</a></strong> when only consecutive repeats matter to avoid
+unbounded memory growth.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Global Scope</strong>: Any previously seen value is dropped, even if it
+appeared long ago.</li>
+<li><strong>Memory Growth</strong>: The instruction stores all seen values, so memory
+grows with the number of unique values.</li>
+<li><strong>Custom Comparator</strong>: Providing an <code>equals</code> function allows for
+custom comparison logic.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the filtered values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final nums = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.distinct&lt;int&gt;(nums.cell);
+
+nums.emit(1); // passes through
+nums.emit(2); // passes through
+nums.emit(1); // dropped
+nums.emit(3); // passes through
+nums.emit(2); // dropped
+// Result: `[1, 2, 3]`
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/skipRepeated.html">skipRepeated</a>: For consecutive-only deduplication.</li>
+<li><a href="../../mitosis/Flow/filter.html">filter</a>: For general filtering.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle distinct&lt;S&gt;(Cell source) {
+  return Distinct&lt;S&gt;().toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">distinct&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

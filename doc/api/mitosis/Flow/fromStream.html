@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the fromStream method from the Flow class, for the Dart programming language.">
+  <title>fromStream method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">fromStream&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">fromStream</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">fromStream&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">fromStream</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fromStream-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="fromStream-param-stream"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">stream</span>, </span></li>
+<li><span class="parameter" id="fromStream-param-onError"><span class="type-annotation">StreamErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+<li><span class="parameter" id="fromStream-param-emitErrorPulse"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">emitErrorPulse</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Subscribes to <code>stream</code> on the first pulse received from <code>source</code>
+(Rx <code>fromStream</code>).</p>
+<p><a href="../../mitosis/Flow/fromStream.html">fromStream</a> bridges a Dart <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a> into the reactive graph.
+It starts listening to the stream on the first trigger pulse and
+emits each event as a pulse.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/fromStream.html">fromStream</a> when you want to bridge an existing Stream
+into the Cell graph.</p>
+<ul>
+<li><strong>External Events</strong>: Bridging external event streams.</li>
+<li><strong>WebSocket</strong>: Bridging WebSocket messages.</li>
+<li><strong>File Watchers</strong>: Bridging file system events.</li>
+<li><strong>Timers</strong>: Bridging periodic timers.</li>
+<li><strong>Third-Party SDKs</strong>: Bridging SDK event streams.</li>
+<li><strong>Hardware Events</strong>: Bridging hardware event streams.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first source pulse arms the subscription.</li>
+<li>The stream is listened to.</li>
+<li>Each event is emitted as a pulse.</li>
+<li>If the stream errors, an error pulse is emitted.</li>
+<li>The instruction stops after the first trigger.</li>
+<li>Each emitted event gets the step <code>'FromStream'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The stream only starts on the first trigger.</li>
+<li><strong>Single Subscription</strong>: Only one subscription is created.</li>
+<li><strong>Error Handling</strong>: Stream errors are caught and reported.</li>
+<li><strong>Provenance Preservation</strong>: Each emitted event preserves the
+source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Trigger Source.</strong> The cell that triggers the subscription.</li>
+<li><code>stream</code>: <strong>The Stream Source.</strong> The stream to bridge into the
+reactive graph.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+<li><code>emitErrorPulse</code>: <strong>Emit Error Pulse.</strong> If <code>true</code>, emits an error
+pulse on stream error. Defaults to <code>true</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the stream events.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the emitted values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final connect = Cell.ingress&lt;void&gt;();
+
+final handle = Flow.fromStream&lt;int&gt;(
+  connect.cell,
+  stream: Stream.periodic(Duration(seconds: 1), (i) =&gt; i),
+);
+
+connect.emit(null);
+// Outputs: 0, 1, 2, 3, ...
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/deferStream.html">deferStream</a>: For creating a new stream on each trigger.</li>
+<li><a href="../../mitosis/Flow/fromFuture.html">fromFuture</a>: For bridging a single future.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle fromStream&lt;S&gt;(
+  Cell source, {
+  required Stream&lt;S&gt; stream,
+  StreamErrorHandler? onError,
+  bool emitErrorPulse = true,
+}) {
+  return FromStream&lt;S&gt;(
+    stream,
+    onError: onError,
+    emitErrorPulse: emitErrorPulse,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">fromStream&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

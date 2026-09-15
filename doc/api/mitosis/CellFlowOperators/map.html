@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the map method from the CellFlowOperators extension, for the Dart programming language.">
+  <title>map method - CellFlowOperators extension - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
+    <li class="self-crumb">map&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; method</li>
+  </ol>
+  <div class="self-name">map</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;CellFlowOperators-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">map&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">map</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="map-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="map-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Materializes a <strong>Projective Evolution Gate</strong>—a fundamental instruction
+designed to transform stimulus payloads as they traverse the topography.</p>
+<p><a href="../../mitosis/CellFlowOperators/map.html">map</a> (analogous to Rx <code>map</code>) intercepts every incoming pulse from the
+source cell and applies a synchronous <code>project</code> function to its payload.
+The resulting value is then evolved into a new pulse and propagated
+downstream.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Data Normalization</strong>: Converting raw stimuli (e.g., JSON strings)
+into typed models or domain objects.</li>
+<li><strong>View Logic</strong>: Transforming internal state into UI-ready
+representations (e.g., formatting a <code>DateTime</code> into a localized string).</li>
+<li><strong>Topographical Filtering</strong>: Returning specific properties from
+complex objects to simplify downstream logic.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li><strong>Stimulus Interception</strong>: The gate intercepts a pulse originating
+from the source cell.</li>
+<li><strong>Projective Evolution</strong>: The <code>project</code> orchestrator is invoked
+synchronously with the pulse payload.</li>
+<li><strong>Pulse Materialization</strong>: The result of the projection is wrapped
+in a new pulse, inheriting the <strong>Provenance</strong> of the original
+trigger and tagged with the <code>'Map'</code> step.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Synchronous Integrity</strong>: The projection occurs within the same
+execution frame as the ingress. Heavy logic here will block the
+reactive engine's evolution cycle.</li>
+<li><strong>Type Integrity</strong>: If the projection throws an error, the
+evolution is aborted, and the error is routed to the <code>onError</code>
+orchestrator.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters</h3>
+<ul>
+<li><code>S</code>: <strong>Source Stimulus Type</strong>. The type of the payload arriving
+at the gate.</li>
+<li><code>T</code>: <strong>Evolved Materialization Type</strong>. The type of the payload
+exiting the gate.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>project</code>: The <strong>Evolution Orchestrator</strong> defining the transformation.</li>
+<li><code>onError</code>: The <strong>Failure Orchestrator</strong> invoked if the transformation
+violates topographical integrity.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> representing the anchored transformation node.</p>
+<h3 id="see-also">See Also</h3>
+<ul>
+<li><code>AsyncMap</code>: For projections involving asynchronous evolution.</li>
+<li><code>Filter</code>: For conditional evolution without transformation.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FlowHandle map&lt;S, T&gt;({
+  required T Function(S value) project,
+  MapErrorHandler? onError,
+}) =&gt;
+    Flow.map&lt;S, T&gt;(this, project: project, onError: onError);</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/CellFlowOperators.html">CellFlowOperators</a></li>
+    <li class="self-crumb">map&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; method</li>
+</ol>
+
+    <h5>CellFlowOperators extension on <a href="../../mitosis/Cell-class.html">Cell</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

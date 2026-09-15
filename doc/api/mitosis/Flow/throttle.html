@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the throttle method from the Flow class, for the Dart programming language.">
+  <title>throttle method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">throttle&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">throttle</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">throttle&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">throttle</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="throttle-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="throttle-param-duration"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span> <span class="parameter-name">duration</span>, </span></li>
+<li><span class="parameter" id="throttle-param-leading"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">leading</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="throttle-param-trailing"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">trailing</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Limits the rate of emissions by enforcing a silent window of <code>duration</code>
+after a pulse.</p>
+<p><a href="../../mitosis/Flow/throttle.html">throttle</a> acts as a <strong>Rate Limiter</strong> with fixed time windows. It controls
+the emission rate by allowing at most one value per time window, with
+configurable leading and trailing emissions.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/throttle.html">throttle</a> when you need to limit the rate of emissions:</p>
+<ul>
+<li><strong>Scroll Events</strong>: Limiting scroll events to prevent UI jank</li>
+<li><strong>API Rate Limiting</strong>: Enforcing API call rate limits</li>
+<li><strong>Sensor Data</strong>: Limiting sensor readings to a manageable rate</li>
+<li><strong>UI Events</strong>: Limiting resize, mousemove, or drag events</li>
+<li><strong>Network Requests</strong>: Preventing excessive network requests</li>
+<li><strong>Resource Protection</strong>: Protecting resources from overload</li>
+<li><strong>Real-time Updates</strong>: Controlling update frequency</li>
+<li><strong>Telemetry</strong>: Limiting telemetry emissions</li>
+</ul>
+<h3 id="throttle-modes">Throttle Modes</h3>
+<ul>
+<li><strong>Leading Only</strong> (<code>leading: true, trailing: false</code>): Emit first value,
+ignore rest during window.</li>
+<li><strong>Trailing Only</strong> (<code>leading: false, trailing: true</code>): Emit last value
+after window, skip first.</li>
+<li><strong>Both</strong> (<code>leading: true, trailing: true</code>): Emit first and last.</li>
+<li><strong>Neither</strong> (<code>leading: false, trailing: false</code>): No emissions during window.</li>
+</ul>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Fixed Windows</strong>: Windows are fixed duration and do not reset.</li>
+<li><strong>Leading Emission</strong>: The first pulse in a window is emitted immediately.</li>
+<li><strong>Trailing Emission</strong>: The last pulse in a window is emitted when the
+window closes.</li>
+<li><strong>Pending Value</strong>: Only the most recent value in the window is kept.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>duration</code>: <strong>The Time Window.</strong> The minimum time between emissions.</li>
+<li><code>leading</code>: <strong>Leading Emission.</strong> If <code>true</code>, emit the first value immediately.</li>
+<li><code>trailing</code>: <strong>Trailing Emission.</strong> If <code>true</code>, emit the last value after
+the window.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the throttled values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final scrollEvents = Cell.ingress&lt;ScrollEvent&gt;();
+
+final handle = Flow.throttle&lt;ScrollEvent&gt;(
+  scrollEvents.cell,
+  duration: Duration(milliseconds: 100),
+  leading: true,
+  trailing: true,
+);
+
+// Emits first scroll event immediately, then last after 100ms
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/debounce.html">debounce</a>: For silence-based emission.</li>
+<li><a href="../../mitosis/Flow/sample.html">sample</a>: For sampling on notifier.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle throttle&lt;S&gt;(
+  Cell source, {
+  required Duration duration,
+  bool leading = true,
+  bool trailing = false,
+}) {
+  return Throttle&lt;S&gt;(
+    duration,
+    leading: leading,
+    trailing: trailing,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">throttle&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

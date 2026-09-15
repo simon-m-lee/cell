@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the asyncMap method from the Flow class, for the Dart programming language.">
+  <title>asyncMap method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">asyncMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">asyncMap</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="asyncMap-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="asyncMap-param-mapper"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">mapper</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="asyncMap-param-onError"><span class="type-annotation">AsyncMapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Maps each payload through an asynchronous <code>mapper</code>.</p>
+<p><a href="../../mitosis/Flow/asyncMap.html">asyncMap</a> processes pulses <strong>sequentially</strong>. If a new pulse arrives while a
+mapper is still running, it is queued until the previous one completes.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/asyncMap.html">asyncMap</a> when you need to perform I/O or heavy computation where
+order must be strictly preserved.</p>
+<ul>
+<li><strong>Database Writes</strong>: Ensuring records are saved in order.</li>
+<li><strong>API Requests</strong>: When the server requires sequential processing.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Incoming pulses are added to an internal queue.</li>
+<li>The <code>mapper</code> is called for the first item in the queue.</li>
+<li>The instruction waits for the resulting <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a> to resolve.</li>
+<li>Once resolved, the next item in the queue is processed.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Backpressure</strong>: Rapid inputs will cause the queue to grow.</li>
+<li><strong>Serialization</strong>: Guaranteed to process only one future at a time.</li>
+<li><strong>Error Isolation</strong>: A failure in one mapper does not stop the queue.</li>
+</ul>
+<p><a href="../../mitosis/Flow/asyncMap.html">asyncMap</a> is the foundational asynchronous mapping operator. It
+processes inputs one at a time, waiting for each async operation
+to complete before starting the next.</p>
+<h3 id="when-to-use-2">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/asyncMap.html">asyncMap</a> when you need to perform async operations on each
+value and order matters.</p>
+<ul>
+<li><strong>Network Requests</strong>: Making sequential API calls.</li>
+<li><strong>Database Operations</strong>: Sequential database queries.</li>
+<li><strong>File I/O</strong>: Reading/writing files sequentially.</li>
+<li><strong>Data Enrichment</strong>: Enriching data with async sources.</li>
+<li><strong>Image Processing</strong>: Processing images sequentially.</li>
+<li><strong>Encryption/Decryption</strong>: Applying async crypto operations.</li>
+</ul>
+<h3 id="how-it-works-2">How it works</h3>
+<ol>
+<li>Each incoming pulse triggers the <code>mapper</code>.</li>
+<li>The async operation is awaited.</li>
+<li>The result is emitted.</li>
+<li>Inputs are queued while processing.</li>
+<li>If <code>mapper</code> throws an error, it's reported and the instruction
+continues with the next input.</li>
+<li>Each emitted value gets the step <code>'AsyncMap'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious-2">Non‑obvious</h3>
+<ul>
+<li><strong>Sequential Processing</strong>: Operations run one after another.</li>
+<li><strong>Queueing</strong>: Inputs are queued while processing.</li>
+<li><strong>No Cancellation</strong>: Previous operations are not cancelled.</li>
+<li><strong>Error Isolation</strong>: Errors don't stop the queue.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>mapper</code>: <strong>Mapping Function.</strong> Called with each typed payload,
+returns a <code>FutureOr&lt;T&gt;</code>.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the mapped values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final ids = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.asyncMap&lt;int, User&gt;(
+  ids.cell,
+  mapper: (id) async =&gt; await api.getUser(id),
+);
+
+ids.emit(1); // -&gt; User 1
+ids.emit(2); // -&gt; User 2 (after User 1 completes)
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/asyncMapConcurrent.html">asyncMapConcurrent</a>: For concurrent mapping.</li>
+<li><a href="../../mitosis/Flow/asyncMapLatest.html">asyncMapLatest</a>: For latest-only mapping.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMap&lt;S, T&gt;(
+  Cell source, {
+  required FutureOr&lt;T&gt; Function(S value) mapper,
+  AsyncMapErrorHandler? onError,
+}) {
+  return AsyncMap&lt;S, T&gt;(mapper, onError: onError).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">asyncMap&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the EphemeralPolicy class from the mitosis library, for the Dart programming language.">
+  <title>EphemeralPolicy class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis.dart</a></li>
+    <li class="self-crumb">EphemeralPolicy<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">EphemeralPolicy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;mitosis-library-sidebar.html"
+    data-below-sidebar="mitosis&#47;EphemeralPolicy-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">EphemeralPolicy&lt;<wbr><span class="type-parameter">C extends Cell</span>&gt;</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Defines the <strong>Lifecycle Governance</strong> for transient reactive nodes.</p>
+<p><code>EphemeralPolicy</code> gives a <a href="../mitosis/Cell-class.html">Cell</a> — or any cell-backed node such as a
+<code>Tissue</code> collection — a finite operational life. The framework reclaims
+the node automatically when a time budget (<a href="../mitosis/EphemeralPolicy/duration.html">duration</a>) elapses or an
+event budget (<a href="../mitosis/EphemeralPolicy/eventLimit.html">eventLimit</a>) is exhausted. This prevents memory leaks and
+guarantees that transient state never outlives its usefulness.</p>
+<h3 id="what-constitutes-a-governed-cell">What constitutes a governed cell</h3>
+<p>A cell is <strong>governed</strong> when it has an <a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a>, either directly
+or inherited from upstream:</p>
+<ol>
+<li><strong>Hosted (local) policy</strong> — the policy is stored in the cell's own
+<a href="../mitosis/Nucleus-class.html">Nucleus</a>, or in its <code>principal</code> chain (which is how a deputy inherits
+the policy of the nucleus it extends). This is what
+<code>Cell.governed(ephemeralPolicy: ...)</code>,
+<code>Cell.deputy(ephemeralPolicy: ...)</code>, and the <code>Tissue*Nucleus</code> factories
+establish. The cell ticks <em>this</em> policy for its own activity.</li>
+<li><strong>Upstream (bind) policy</strong> — when the cell hosts no policy of its own,
+the framework walks up the upstream <code>Cell.bind</code> chain and adopts the
+first policy it finds there. This is the <strong>"head owns the body"</strong> rule:
+a node bound to a governed head reports <code>isGoverned == true</code> and
+mirrors the head's <code>isInvalidated</code> state.</li>
+</ol>
+<p>A hosted policy always takes precedence over one found upstream, so a
+body part can deliberately override the policy inherited from the head of
+its reactive graph.</p>
+<h3 id="how-the-policy-works">How the policy works</h3>
+<p>You provide two callbacks:</p>
+<ul>
+<li><code>onEvent</code>: invoked whenever the governed cell ticks the policy for an
+interaction (a pulse flowing through the cell, an action, a link, or a
+data mutation). Return the new <code>events</code> count — a usage meter, an error
+budget, or any other quota you choose.</li>
+<li><code>onInvalidate</code>: invoked when the policy reaches its terminal condition.
+Perform any cleanup and return <code>true</code> to confirm the node was reclaimed.</li>
+</ul>
+<h3 id="non-obvious">Non-obvious</h3>
+<ul>
+<li>The TTL timer starts lazily on the <strong>first interaction</strong>, not at policy
+creation.</li>
+<li>If both <a href="../mitosis/EphemeralPolicy/duration.html">duration</a> and <a href="../mitosis/EphemeralPolicy/eventLimit.html">eventLimit</a> are set, whichever condition fires
+first triggers invalidation.</li>
+<li>A shared policy is ticked <strong>once per pulse</strong> regardless of how many
+governed cells that pulse visits. Without this per-policy, per-pulse
+guard, a pulse emitted by the head of a bound chain would be counted
+again at every governed downstream cell that inherits the same policy.</li>
+<li>A body that hosts its own policy is governed exclusively by it: its
+<code>isInvalidated</code> reflects only the body's policy, not the head's.</li>
+</ul>
+<h3 id="example-cache-with-a-5-minute-ttl">Example: cache with a 5-minute TTL</h3>
+<pre class="language-dart"><code class="language-dart">final cachePolicy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onEvent: (object, {required cell, policy, arguments, user}) {
+    // Reset the counter on a cache hit – extends the TTL window.
+    return (events: 0);
+  },
+  onInvalidate: (nucleus) {
+    // Clear cache entries.
+    return true;
+  },
+);
+
+final cell = Cell.governed(
+  ephemeralPolicy: cachePolicy,
+  context: Context.system,
+);
+</code></pre>
+<p>See also:</p>
+<ul>
+<li><a href="../mitosis/Cell/isGoverned.html">Cell.isGoverned</a> and <a href="../mitosis/Cell/isInvalidated.html">Cell.isInvalidated</a> for how governance cascades.</li>
+<li><a href="../mitosis/Cell/Cell.governed.html">Cell.governed</a> and <a href="../mitosis/Cell/deputy.html">Cell.deputy</a> for attaching a policy to a cell.</li>
+<li><a href="../mitosis/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a> — the equivalent lifecycle for individual pulses.</li>
+</ul>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="EphemeralPolicy.new" class="callable">
+          <span class="name"><a href="../mitosis/EphemeralPolicy/EphemeralPolicy.html">EphemeralPolicy</a></span><span class="signature">({<span class="parameter" id="-param-onEvent"><span>required</span> <span class="type-annotation">(<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">events</span>}</span>)</span> <span class="parameter-name">onEvent</span>(<span class="parameter" id="param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span><span class="parameter" id="param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span>, </span><span class="parameter" id="param-cell"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="param-policy"><span>required</span> <span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>}), </span><span class="parameter" id="-param-onInvalidate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">onInvalidate</span>(<span class="parameter" id="param-nucleus"><span class="type-annotation"><a href="../mitosis/Nucleus-class.html">Nucleus</a></span> <span class="parameter-name">nucleus</span></span>), </span><span class="parameter" id="-param-eventLimit"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">eventLimit</span>, </span><span class="parameter" id="-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})</span>
+        </dt>
+        <dd>
+          Synthesizes a new <a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a> to manage the <strong>Lifecycle Reclamation</strong>
+of a transient cell.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="duration" class="property">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/duration.html">duration</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span>
+  
+
+</dt>
+<dd>
+  The maximum <strong>Time-To-Live (TTL)</strong> for the associated cell.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="eventLimit" class="property">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/eventLimit.html">eventLimit</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The maximum threshold of <code>events</code> permitted before the cell is
+automatically reclaimed.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="events" class="property">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/events.html">events</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The current count of <strong>Targeted Events</strong> tracked by the lifecycle policy.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInvalidated" class="property">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/isInvalidated.html">isInvalidated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Returns <code>true</code> if the <a href="../mitosis/Cell-class.html">Cell</a> has reached its terminal state and has
+been reclaimed.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="call" class="callable">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span><span class="parameter" id="call-param-cell"><span>required</span> <span class="type-annotation">C</span> <span class="parameter-name">cell</span>, </span><span class="parameter" id="call-param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Orchestrates the <strong>Lifecycle Reclamation Check</strong> across multiple
+interaction vectors.
+  
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Disposes of active timers to prevent memory leaks.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="mask" class="callable">
+  <span class="name"><a href="../mitosis/EphemeralPolicy/mask.html">mask</a></span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-onEvent"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">onEvent</span>, </span><span class="parameter" id="mask-param-onInvalidate"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span> <span class="parameter-name">onInvalidate</span>, </span><span class="parameter" id="mask-param-eventLimit"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">eventLimit</span>, </span><span class="parameter" id="mask-param-duration"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a>?</span> <span class="parameter-name">duration</span>, </span><span class="parameter" id="mask-param-user"><span class="type-annotation">dynamic</span> <span class="parameter-name">user</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a memory-optimized <strong>Flyweight Record</strong> for the policy.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis</a></li>
+    <li class="self-crumb">EphemeralPolicy<span class="signature">&lt;<wbr><span class="type-parameter">C extends <a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span> class</li>
+</ol>
+
+    <h5>mitosis library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

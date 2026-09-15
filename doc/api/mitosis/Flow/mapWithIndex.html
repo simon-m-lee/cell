@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mapWithIndex method from the Flow class, for the Dart programming language.">
+  <title>mapWithIndex method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">mapWithIndex&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">mapWithIndex</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">mapWithIndex&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">mapWithIndex</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="mapWithIndex-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="mapWithIndex-param-project"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">project</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="mapWithIndex-param-onError"><span class="type-annotation">MapErrorHandler?</span> <span class="parameter-name">onError</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Projects each payload along with its 0-based index.</p>
+<p><a href="../../mitosis/Flow/mapWithIndex.html">mapWithIndex</a> is similar to <a href="../../mitosis/Flow/map.html">map</a> but the transformation
+function receives the index of each value in the sequence.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/mapWithIndex.html">mapWithIndex</a> when your transformation depends on the
+position of the value.</p>
+<ul>
+<li><strong>Position Tracking</strong>: Including position in the output.</li>
+<li><strong>ID Generation</strong>: Generating IDs based on position.</li>
+<li><strong>Progress Tracking</strong>: Tracking progress through a sequence.</li>
+<li><strong>Offset Calculation</strong>: Calculating offsets based on position.</li>
+<li><strong>Enumeration</strong>: Enumerating items in a sequence.</li>
+<li><strong>Pattern Generation</strong>: Generating patterns based on index.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse is type-checked.</li>
+<li>If the type matches, <code>project</code> is called with the payload and index.</li>
+<li>The index starts at 0 and increments on each typed pulse.</li>
+<li>The result is emitted as a typed pulse.</li>
+<li>If <code>project</code> throws an error, the pulse is dropped.</li>
+<li>The emitted pulse gets the step <code>'MapWithIndex'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Index Type</strong>: The index is a 0-based integer.</li>
+<li><strong>Typed Only</strong>: Only typed pulses increment the index.</li>
+<li><strong>Error Handling</strong>: If <code>project</code> throws, the pulse is dropped
+and the index is not incremented.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>project</code>: <strong>Indexed Transformation Function.</strong> Called with each
+typed payload and its index, returns the transformed value.</li>
+<li><code>onError</code>: <strong>Error Handler.</strong> Optional callback for handling errors.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the transformed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final items = Cell.ingress&lt;String&gt;();
+
+final handle = Flow.mapWithIndex&lt;String, String&gt;(
+  items.cell,
+  project: (item, index) =&gt; 'Item #${index + 1}: $item',
+);
+
+items.emit('Apple');  // -&gt; Item #1: Apple
+items.emit('Banana'); // -&gt; Item #2: Banana
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/map.html">map</a>: For standard mapping.</li>
+<li><a href="../../mitosis/Flow/mapTo.html">mapTo</a>: For constant mapping.</li>
+<li><a href="../../mitosis/Flow/mapNotNull.html">mapNotNull</a>: For dropping null results.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle mapWithIndex&lt;S, T&gt;(
+  Cell source, {
+  required T Function(S value, int index) project,
+  MapErrorHandler? onError,
+}) {
+  return MapWithIndex&lt;S, T&gt;(project, onError: onError)
+      .toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">mapWithIndex&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

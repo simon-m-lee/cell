@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the startWith method from the Flow class, for the Dart programming language.">
+  <title>startWith method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">startWith&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">startWith</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">startWith&lt;<wbr><span class="type-parameter">S</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">startWith</span>&lt;<wbr><span class="type-parameter">S</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="startWith-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="startWith-param-value"><span>required</span> <span class="type-annotation">S</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="startWith-param-replaceFirst"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">replaceFirst</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Prepends the given <code>value</code> to the sequence before any pulses from
+<code>source</code> are emitted (Rx <code>startWith</code>).</p>
+<p><a href="../../mitosis/Flow/startWith.html">startWith</a> emits the provided <code>value</code> on the first typed pulse,
+then forwards subsequent pulses from the source.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/startWith.html">startWith</a> when you need to provide an initial value before
+the stream starts emitting.</p>
+<ul>
+<li><strong>Initial State</strong>: Providing an initial value for UI state.</li>
+<li><strong>Placeholder</strong>: Providing a placeholder before data arrives.</li>
+<li><strong>Loading State</strong>: Showing a loading indicator before data loads.</li>
+<li><strong>Default Values</strong>: Providing default values.</li>
+<li><strong>Splash Screens</strong>: Showing a splash screen before content.</li>
+<li><strong>Empty States</strong>: Showing an empty state before data arrives.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>The first typed pulse triggers the prefix emission.</li>
+<li>The <code>value</code> is emitted first.</li>
+<li>Then the pulse is forwarded.</li>
+<li>If <code>replaceFirst</code> is <code>true</code>, the original pulse is dropped.</li>
+<li>Each emitted value gets the step <code>'StartWith'</code> for provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>First Trigger Only</strong>: The prefix is emitted only on the first pulse.</li>
+<li><strong>Replace First</strong>: <code>replaceFirst</code> controls whether the original
+pulse is dropped.</li>
+<li><strong>Provenance Preservation</strong>: The emitted value preserves the
+source cell, type, and priority from the trigger pulse.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>value</code>: <strong>The Value to Prefix.</strong> The value to emit before the stream.</li>
+<li><code>replaceFirst</code>: <strong>Replace First.</strong> If <code>true</code>, the first source pulse
+is replaced by the prefix. If <code>false</code>, the prefix is emitted in
+addition to the first pulse. Defaults to <code>false</code>.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the prefixed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final input = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.startWith&lt;int&gt;(
+  input.cell,
+  value: 0,
+);
+
+input.emit(1); // -&gt; 0, 1
+input.emit(2); // -&gt; 2
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/startWith.html">startWith</a>: For prefixing multiple values.</li>
+<li><a href="../../mitosis/Flow/startWith.html">startWith</a>: For dynamic prefixing.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle startWith&lt;S&gt;(
+  Cell source, {
+  required S value,
+  bool replaceFirst = false,
+}) {
+  return StartWith&lt;S&gt;(value, replaceFirst: replaceFirst)
+      .toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">startWith&lt;<wbr><span class="type-parameter">S</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

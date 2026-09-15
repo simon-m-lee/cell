@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the iif method from the Flow class, for the Dart programming language.">
+  <title>iif method - Flow class - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis.dart</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">iif&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+  </ol>
+  <div class="self-name">iif</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="mitosis&#47;Flow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">iif&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../mitosis/FlowHandle.html">FlowHandle</a></span>
+<span class="name ">iif</span>&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="iif-param-source"><span class="type-annotation"><a href="../../mitosis/Cell-class.html">Cell</a></span> <span class="parameter-name">source</span>, {</span></li>
+<li><span class="parameter" id="iif-param-test"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="iif-param-thenMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">thenMap</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="iif-param-elseMap"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">elseMap</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-value"><span class="type-annotation">S</span> <span class="parameter-name">value</span></span></li>
+</ol>), </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>A binary router that chooses between <code>thenMap</code> and <code>elseMap</code> based on
+<code>test</code> (Rx <code>iif</code>).</p>
+<p><a href="../../mitosis/Flow/iif.html">iif</a> acts as a <strong>Conditional Router</strong>. It evaluates a predicate on the
+payload and routes the pulse to either the <code>thenMap</code> or <code>elseMap</code>
+transformation path.</p>
+<h3 id="when-to-use">When to use</h3>
+<p>Use <a href="../../mitosis/Flow/iif.html">iif</a> when you need to branch based on a boolean condition:</p>
+<ul>
+<li><strong>Success vs Error</strong>: Different handling for success and error payloads</li>
+<li><strong>Feature Flags</strong>: Different transformations based on feature flags</li>
+<li><strong>Cheap vs Expensive</strong>: Different processing for cheap vs expensive operations</li>
+<li><strong>Validation</strong>: Different handling for valid vs invalid inputs</li>
+<li><strong>Type Checking</strong>: Different handling based on payload type</li>
+<li><strong>State-Dependent Logic</strong>: Different behavior based on application state</li>
+<li><strong>User Roles</strong>: Different transformations for admin vs regular users</li>
+<li><strong>Environment</strong>: Different behavior based on environment (dev vs prod)</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<ol>
+<li>Each incoming pulse's payload is extracted and type-checked.</li>
+<li>The <code>test</code> predicate is evaluated on the payload.</li>
+<li>If the predicate returns <code>true</code>, the <code>thenMap</code> function is called.</li>
+<li>If the predicate returns <code>false</code>, the <code>elseMap</code> function is called.</li>
+<li>The result is emitted as a <a href="../../mitosis/Pulse-class.html">Pulse</a>.</li>
+<li>The instruction preserves causal provenance.</li>
+</ol>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Binary Branch</strong>: Only two paths are available: then and else.</li>
+<li><strong>Type Safety</strong>: The instruction is generic over <code>S</code> (input) and
+<code>T</code> (output), ensuring compile-time type safety.</li>
+<li><strong>Error Handling</strong>: Errors in the predicate or mappers are reported
+via <code>onError</code>.</li>
+<li><strong>Synchronous Execution</strong>: The instruction executes synchronously.</li>
+</ul>
+<h3 id="parameters">Parameters:</h3>
+<ul>
+<li><code>source</code>: <strong>The Source Cell.</strong> The cell providing the input values.</li>
+<li><code>test</code>: <strong>The Condition.</strong> Returns <code>true</code> for the <code>thenMap</code> path.</li>
+<li><code>thenMap</code>: <strong>The Then Transformation.</strong> Called when <code>test</code> is true.</li>
+<li><code>elseMap</code>: <strong>The Else Transformation.</strong> Called when <code>test</code> is false.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>S</code>: The type of the input payload.</li>
+<li><code>T</code>: The type of the output payload.</li>
+</ul>
+<h3 id="returns">Returns:</h3>
+<p>A <a href="../../mitosis/FlowHandle.html">FlowHandle</a> that can be used to observe the routed values.</p>
+<h3 id="example">Example</h3>
+<pre class="language-dart"><code class="language-dart">final status = Cell.ingress&lt;int&gt;();
+
+final handle = Flow.iif&lt;int, String&gt;(
+  status.cell,
+  test: (code) =&gt; code &lt; 400,
+  thenMap: (c) =&gt; 'ok-$c',
+  elseMap: (c) =&gt; 'err-$c',
+);
+
+status.emit(200); // -&gt; ok-200
+status.emit(404); // -&gt; err-404
+</code></pre>
+<h3 id="see-also">See Also:</h3>
+<ul>
+<li><a href="../../mitosis/Flow/partition.html">partition</a>: For tagging with match status.</li>
+<li><a href="../../mitosis/Flow/iif.html">iif</a>: For multi-path routing.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static FlowHandle iif&lt;S, T&gt;(
+  Cell source, {
+  required bool Function(S value) test,
+  required T Function(S value) thenMap,
+  required T Function(S value) elseMap,
+}) {
+  return Iif&lt;S, T&gt;(
+    test,
+    thenMap: thenMap,
+    elseMap: elseMap,
+  ).toHandle(source: source);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">mitosis</a></li>
+    <li><a href="../../mitosis/">mitosis</a></li>
+    <li><a href="../../mitosis/Flow-class.html">Flow</a></li>
+    <li class="self-crumb">iif&lt;<wbr><span class="type-parameter">S</span>, <span class="type-parameter">T</span>&gt; static method</li>
+</ol>
+
+    <h5>Flow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.6
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
