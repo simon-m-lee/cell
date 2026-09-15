@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-1.0.0--rc.5-yellow.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-1.0.0--rc.6-yellow.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -57,7 +57,7 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 | Layer | Package | Version | Biological Analogue | Responsibility |
 |---|---|---|---|---|
 | **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `1.0.0-rc.5` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, and the causal integrity engine. |
-| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.0.0-rc.5` | The **nervous system** | 90+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `buffer`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
+| **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.0.0-rc.6` | The **nervous system** | 90+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `buffer`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
 | **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.0.0-rc.5` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, and async mutations. |
 
 **Key insight:** the graph, locks, validation, and provenance live in **cell**. Flow only decides *which* pulses leave and *when*. Tissue decides *where they are recorded and under which invariants*. The layers compose without duplicating governance.
@@ -86,6 +86,11 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │       ├── example/           #   Flow + Tissue seam demos (payments, dispatch, grid)
 │       ├── guide/
 │       └── test/
+├── example/                   # Umbrella demos — (Cell) instruction-side editions
+│   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
+│   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
+│   ├── ride-hail-dispatch(Cell)-*   #   custom MatchDecisionInstruction
+├── DEMO_GUIDE-mitosis.md      # Mitosis demo guide (decision-side learning path)
 ├── melos.yaml                 # Monorepo scripts (analyze, test, format, build)
 ├── pubspec.yaml               # Dart workspace definition (pub workspaces)
 ├── CHANGELOG.md
@@ -178,7 +183,7 @@ Prefer the individual layers when you want fine-grained dependencies:
 ```yaml
 dependencies:
   cell: ^1.0.0-rc.5
-  cell_flow: ^1.0.0-rc.5
+  cell_flow: ^1.0.0-rc.6
   cell_tissue: ^1.0.0-rc.5
 ```
 
@@ -273,6 +278,7 @@ dart run example/stability_search_demo.dart
 | [packages/cell/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md) | Core layer: operators, governance, deputies, transactions |
 | [packages/cell_flow/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/README.md) | Orchestration layer: full operator catalog, patterns, testing |
 | [packages/cell_tissue/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md) | Application layer: collections, validation, Flow + Tissue seam |
+| [DEMO_GUIDE-mitosis.md](https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-mitosis.md) | Mitosis demo guide — the `(Cell)` instruction-side learning path |
 | [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md) | Umbrella release history |
 
 > If a guide and the source disagree, **the source is current**.
@@ -283,8 +289,9 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
+| `mitosis` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
 | `cell` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
-| `cell_flow` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
+| `cell_flow` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
 | `cell_tissue` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
 
 **Mitosis** is the umbrella codename for the release line. It is *not* part of the SemVer string. All three pillars — `cell`, `cell_flow`, and `cell_tissue` — are published on pub.dev under the `1.0.0` RC line; the stable `1.0.0` release is next. Breaking changes remain possible before `1.0.0` stable.
