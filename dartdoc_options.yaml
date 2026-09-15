@@ -1,44 +1,9 @@
 dartdoc:
   categories:
-    # ── Foundation ──────────────────────────────────────────────
-    "Getting Started":
-      markdown: guide/HowTo-Start.md
-      displayName: Getting Started
-    "Features":
-      markdown: FEATURES-Tissue.md
-      displayName: Features
-    "Architecture":
-      markdown: ARCHITECTURE-Tissue.md
-      displayName: Architecture
-
-    # ── Learning & Demos ──────────────────────────────────────────
     "Walkthroughs":
-      markdown: DEMO_GUIDE-Tissue.md
+      markdown: DEMO_GUIDE-Mitosis.md
       displayName: Walkthroughs
-    "Fintech Pipeline":
-      markdown: example/card-auth-pipeline(tissue)-WalkThrough.md
-      displayName: "Demo · Fintech Pipeline"
-    "Grid Demand":
-      markdown: example/grid-demand-response(tissue)-WalkThrough.md
-      displayName: "Demo · Grid Demand"
-    "Natural-Language":
-      markdown: example/nl-instruction-tissue-set-WalkThrough.md
-      displayName: "Demo · Natural-Language"
-    "Ride Hail":
-      markdown: example/ride-hail-dispatch(tissue)-WalkThrough.md
-      displayName: "Demo · Ride Hail"
-    "Examples":
-      markdown: README.md
-      displayName: Quick Start & Examples
 
   categoryOrder:
-    - "Getting Started"
-    - "Features"
-    - "Architecture"
     - "Walkthroughs"
-    - "Fintech Pipeline"
-    - "Grid Demand"
-    - "Natural-Language"
-    - "Ride Hail"
-    - "Examples"
 

@@ -65,6 +65,7 @@
 /// - Orchestration layer: <https://pub.dev/packages/cell_flow>
 /// - Application layer: <https://pub.dev/packages/cell_tissue>
 /// - Repository: <https://github.com/simon-m-lee/cell>
+/// {@category Walkthroughs}
 library;
 
 export 'package:cell/cell.dart';

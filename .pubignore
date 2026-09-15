@@ -1,8 +1,8 @@
 # Umbrella package only: exclude monorepo internals from the published package.
-packages/
 doc/
 .idea/
 .deepcode/
 *.iml
 melos.yaml
 pubspec.lock
+packages/
