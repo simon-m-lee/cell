@@ -2,7 +2,7 @@
 
 ## Mitosis (1.0.0-rc.8)
 
-- **Excluded the internal `/guide/` directory** from the published package via `.pubignore`. The guides remain in the repository for internal use and are no longer shipped in the pub.dev archive.
+- **Removed the internal `/guide/` directory** from the repository and the published package. The guides are internal and are no longer tracked in the repo or shipped in the pub.dev archive.
 
 ## Mitosis (1.0.0-rc.7)
 
