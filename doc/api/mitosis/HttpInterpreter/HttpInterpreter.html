@@ -84,6 +84,7 @@
       apiKey = apiKey,
       model = model,
       timeout = timeout,
+      log = log ?? TrafficLog(),
       extraBody = extraBody {
   throw UnsupportedError(
     &#39;HttpInterpreter requires dart:io and is not available on this platform.&#39;,
@@ -116,7 +117,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.7
+      1.0.0-rc.8
   </span>
   
 </footer>
