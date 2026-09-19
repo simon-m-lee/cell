@@ -8,7 +8,7 @@
   - Each set ships its companion `*-WalkThrough.md`, `*-ARCHITECTURE.md`, and `*-FEATURES.md`.
 - **Updated** [`card-auth-pipeline(Cell)-ARCHITECTURE.md`](<https://github.com/simon-m-lee/cell/blob/master/example/card-auth-pipeline(Cell)-ARCHITECTURE.md>) with the dedicated "How the FlowInstructionChain is made" section.
 - **New guides:**
-  - [`DEMO_GUIDE-mitosis.md`](<https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-mitosis.md>) — the Mitosis demo guide (Cell/Flow decision-side learning path) with GitHub cross-references.
+  - [`DEMO_GUIDE-Mitosis.md`](<https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-Mitosis.md>) — the Mitosis demo guide (Cell/Flow decision-side learning path) with GitHub cross-references.
 - **Docs**: Added umbrella `example/` layout and new guides to the root README.
 
 ## Mitosis (1.0.0-rc.5)

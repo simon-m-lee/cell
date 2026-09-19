@@ -1,4 +1,4 @@
-# DEMO_GUIDE-mitosis.md (Mitosis Edition)
+# DEMO_GUIDE-Mitosis.md (Mitosis Edition)
 
 # (Cell + Flow + Tissue) Demo Guide — Mitosis Edition
 
@@ -654,4 +654,4 @@ Read them in this order:
 
 ---
 
-*End of DEMO_GUIDE-mitosis.md (Mitosis Edition).*
+*End of DEMO_GUIDE-Mitosis.md (Mitosis Edition).*

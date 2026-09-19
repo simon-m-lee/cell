@@ -90,7 +90,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
 │   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
 │   ├── ride-hail-dispatch(Cell)-*   #   custom MatchDecisionInstruction
-├── DEMO_GUIDE-mitosis.md      # Mitosis demo guide (decision-side learning path)
+├── DEMO_GUIDE-Mitosis.md      # Mitosis demo guide (decision-side learning path)
 ├── melos.yaml                 # Monorepo scripts (analyze, test, format, build)
 ├── pubspec.yaml               # Dart workspace definition (pub workspaces)
 ├── CHANGELOG.md
@@ -278,7 +278,7 @@ dart run example/stability_search_demo.dart
 | [packages/cell/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/README.md) | Core layer: operators, governance, deputies, transactions |
 | [packages/cell_flow/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/README.md) | Orchestration layer: full operator catalog, patterns, testing |
 | [packages/cell_tissue/README.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md) | Application layer: collections, validation, Flow + Tissue seam |
-| [DEMO_GUIDE-mitosis.md](https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-mitosis.md) | Mitosis demo guide — the `(Cell)` instruction-side learning path |
+| [DEMO_GUIDE-Mitosis.md](https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-Mitosis.md) | Mitosis demo guide — the `(Cell)` instruction-side learning path |
 | [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md) | Umbrella release history |
 
 > If a guide and the source disagree, **the source is current**.
