@@ -26,6 +26,9 @@ class HttpInterpreter implements Interpreter {
   /// Per-request timeout (mirrored from the IO implementation).
   final Duration timeout;
 
+  /// The traffic logger (mirrored from the IO implementation).
+  final TrafficLog log;
+
   /// Optional extra fields merged into the request envelope.
   final Map<String, dynamic> extraBody;
 
@@ -42,6 +45,7 @@ class HttpInterpreter implements Interpreter {
         apiKey = apiKey,
         model = model,
         timeout = timeout,
+        log = log ?? TrafficLog(),
         extraBody = extraBody {
     throw UnsupportedError(
       'HttpInterpreter requires dart:io and is not available on this platform.',
