@@ -1,288 +1,420 @@
-# Business Requirements Document (BRD)
+# Walkthrough requirement — airport baggage handling (Cell variant)
 
-## Airport Baggage Handling — Day 1 Requirements
+**Demo:** `airport-baggage-handling(Cell)-Demo.dart` (executable; this file is its requirement)
 
-| Field | Value |
-|---|---|
-| Project name | Baggage Flow Watch |
-| Document title | Business Requirements — Airport Baggage Handling |
-| Version | 1.0 |
-| Date | 2026-09-16 |
-| Author | Operations Programme Office |
-| Reviewer(s) | Head of Terminal Ops, Baggage Services Manager, Duty Manager |
-| Approver(s) | COO, Head of Safety & Compliance |
-| Status | Approved |
+**Industry:** airport operations — baggage flow monitoring for departing bags
+(the thing terminal duty managers actually do during the morning bank:
+watch bags from check-in to aircraft hold, spot jams before they become
+missed bags, keep an incident log the airline liaison can audit).
+Think Heathrow T2 / Schiphol / Changi baggage control room, not a
+passenger-facing bag-tracking app.
 
-**Revision history**
+**Stack:** `package:cell` + `package:cell_flow` + `package:cell_tissue`
 
-| Version | Date | Author | Change summary |
+This is the **executable requirement** for an airport ops demo that
+uses **one custom FlowInstruction** for the risk/warn decision and
+**Tissue for the incident books**. The custom instruction must extend
+`FlowInstructionBase` the way `AsyncMap` does in
+`packages/cell_flow/lib/src/instruction/async_map.dart`, encapsulate
+the policy + distinct latch + hold filter, and expose a public API
+(`riskOf`, `lastDecision`, `reset`) used when turning the
+instruction into a Cell. The demo must also put the custom
+instruction together with a stock `MapValue` into a
+`FlowInstructionChain` (via `operator +`) before `toHandle`.
+
+Do not fold Tissue into the instruction. Do not fold Flow into the
+incident log. The point of this file is the seam: the instruction
+decides, the chain assembles, the observer glues.
+
+---
+
+## Contents
+
+1. [TestCell vs TestTissue (do not swap)](#testcell-vs-testtissue-do-not-swap)
+2. [Why one custom instruction + one chain](#why-one-custom-instruction--one-chain)
+3. [Design](#design)
+4. [Domain](#domain)
+5. [Parts](#parts)
+    - [Flow Cells](#flow-cells)
+    - [The custom instruction](#the-custom-instruction)
+    - [Tissue collections](#tissue-collections)
+    - [Deputies](#deputies)
+    - [Instruction](#instruction)
+    - [Receptor](#receptor)
+    - [Operators the demo must actually call](#operators-the-demo-must-actually-call)
+6. [Reserve — TissueValue + TissueMap](#reserve--tissuevalue--tissuemap-not-inside-the-instruction)
+7. [Implementation map](#implementation-map)
+8. [Scenarios](#scenarios)
+9. [Executable steps](#executable-steps)
+10. [Pulse path (scenario 2 then 3)](#pulse-path-scenario-2-then-3)
+11. [Who owns the lock](#who-owns-the-lock)
+12. [Real desk vs this file](#real-desk-vs-this-file)
+13. [Acceptance](#acceptance)
+14. [Name plate](#name-plate)
+
+---
+
+## TestCell vs TestTissue (do not swap)
+
+Collection classes in `package:cell_tissue` take **`TestTissue`**, never
+`TestCell`. `TestCell` is the integrity rule on a **Cell** (ingress /
+handle). `TestTissue` is the integrity rule on a **Tissue** (`add`,
+`remove`, `[]=`, value write). They are not subtypes you can pass
+across that seam.
+
+| Host | Rule type | Parameter | Typical use in this demo |
 |---|---|---|---|
-| 0.1 | 2026-08-20 | Ops Programme Office | First draft |
-| 1.0 | 2026-09-16 | Ops Programme Office | Approved after review with Terminal Ops and Baggage Services |
+| `Cell.ingress` / `toHandle` | `TestCell` | `testRule:` | bag tag ≥ 10 chars, flight non-empty, weight 0–5000 g |
+| `TissueList` / `Set` / `Map` / `Queue` / `Value` | `TestTissue<E, C>` | `testRule:` | append-only incidents, non-negative bag count, belt codes |
+| `tissue.deputy(...)` | `TestTissue` | `testRule:` | `TestTissue.readOnly` for Safety & Compliance |
+| `TestTissue.allowAll` | `TestTissue` | default | only when the collection has no extra rule |
+
+The custom instruction does **not** take a `TestCell` or a `TestTissue`
+parameter. It takes the live `guardedFlights` `Set<String>` and the
+product `RiskLevel` it must pass.
 
 ---
 
-## 2. Executive summary
+## Why one custom instruction + one chain
 
-Every day, tens of thousands of bags move through our airport's belts, sorters, and make-up carousels. When a bag misses its flight, the passenger is delayed, the airline is fined, and our reputation takes a hit. Today, our teams find out about a missed bag only when the airline calls — often hours later. We need a simple tool that watches baggage flow in real time, spots problems before they become missed bags, and gives the duty manager one clear view of what is happening right now. This document sets out what that tool must do, for whom, and how we will know it is working.
+The Tissue sibling builds each gate from three ad-hoc pieces
+(`MapValue` + closure-Distinct + `Filter`) with the latch state living
+in the harness. That works, but the decision logic is scattered.
 
----
+This variant compresses the essential logic into **one named
+instruction**:
 
-## 3. Business context
+```dart
+BaggageRiskInstruction(guardedFlights: guardedFlights, pass: RiskLevel.atRisk)
+```
 
-### 3.1 Background
-Our airport handles around 45,000 departing bags and 40,000 arriving bags per day. Bags travel from check-in to a sorter, then to a make-up carousel, then onto a cart and finally the aircraft hold. A bag has roughly 35 minutes to make this journey for a short-haul flight. When a bag is delayed — because a belt jammed, a tag was unreadable, or a carousel was overloaded — the bag is flagged as "at risk" and the airline has to decide whether to hold the flight or offload the bag. Both choices cost money.
+and then composes it with a stock instruction:
 
-### 3.2 Problem statement
-Right now, we have no single view of baggage flow. The belt control system, the sorters, and the carousel systems each report their own status to their own screen. The duty manager learns about a problem when the airline calls, or when a passenger complains at the gate. By then, the bag is often already missing its flight. We estimate that around 1 in 900 bags is delayed in a way that could have been prevented if we had known 10 minutes earlier.
+```dart
+final atRiskChain = riskGate + toRiskLevel;   // FlowInstructionChain
+final atRiskHandle = atRiskChain.toHandle(source: tickIn.cell);
+```
 
-### 3.3 Business drivers
-- **Airline penalties.** Missed bags cost us money in airline charges and, in some cases, contractual penalties.
-- **Passenger experience.** Baggage delay is one of the top three complaints at the airport.
-- **Regulatory pressure.** The Civil Aviation Authority has asked all UK airports to demonstrate real-time baggage performance reporting from 2027.
-- **Staffing pressure.** Our duty managers are already stretched. They need fewer screens, not more.
-
-### 3.4 Alignment with strategy
-Our 2025–2028 airport strategy names "operational visibility" as one of four pillars. This project delivers a first, concrete step in that direction, without replacing any of the systems we already have.
-
----
-
-## 4. Scope
-
-### 4.1 In scope
-- Real-time monitoring of bag movement from check-in to aircraft hold for departing bags.
-- A single duty-manager view of current baggage flow across all terminals.
-- Automatic alerts when a bag or a group of bags is at risk of missing its flight.
-- A record of every alert and every action taken by staff.
-- A daily report for the airline liaison team.
-
-### 4.2 Out of scope
-- Arriving bags and transfer bags. These will be covered in a later phase.
-- Replacing the belt control system, sorters, or carousel systems.
-- Automatic re-routing of bags. Staff will still make the decisions.
-- Passenger-facing apps or notifications.
-- Bag tracking beyond the aircraft door.
-- Anything outside the four terminals at this airport.
-
-### 4.3 Assumptions
-- The belt control system can provide bag position updates at least every 15 seconds.
-- Each bag's tag is scanned at every handover point (check-in, sorter entry, sorter exit, carousel induction, aircraft side).
-- The airline systems provide flight departure times through the existing AODB (Airport Operational Database).
-- The airport has enough Wi-Fi coverage for tablets on the apron.
-- Duty managers will use the tool on the existing tablet devices.
-
-### 4.4 Constraints
-- No new hardware on the belts in this phase.
-- Must go live before the 2027 summer schedule.
-- Must use the existing single sign-on for staff login.
-- Must not disrupt the live baggage operation during rollout.
-- Budget capped at the amount approved in the Q3 board paper.
-
-### 4.5 Dependencies
-- Belt control system must expose a real-time feed (Baggage Services team).
-- AODB must expose flight departure times (IT team, already available).
-- Apron Wi-Fi coverage confirmed for Terminals 1 and 4 (Infrastructure team).
-- Airline liaison team must agree the daily report format (Commercial team).
+Why a chain at all, when the custom instruction already does the work?
+Because the custom instruction emits the **rich** type `BaggageDecision`
+(tick + risk level), and the seam type that observers consume is the
+**narrow** `RiskLevel`. The stock `MapValue<BaggageDecision, RiskLevel>`
+is the one-line projection that would otherwise pollute the custom
+instruction. The `+` operator is the composition point: it builds a
+`FlowInstructionChain` from the two instructions, and `toHandle`
+materialises that chain into a single Cell.
 
 ---
 
-## 5. Stakeholders
+## Design
 
-| Role | Name / Group | Interest | Influence | Engagement approach |
-|---|---|---|---|---|
-| Sponsor | Chief Operating Officer | Cost, reputation, regulatory readiness | H | Monthly steering |
-| Primary user | Duty Managers (4 terminals) | One clear view, fewer calls | H | Weekly workshops |
-| Primary user | Baggage Services Supervisors | Faster response to jams | H | Weekly workshops |
-| Reviewer | Airline Liaison Team | Reporting accuracy | M | Bi-weekly review |
-| Reviewer | Safety & Compliance | No impact on safety rules | M | Sign-off before go-live |
-| Regulator | Civil Aviation Authority | Reporting from 2027 | L | Quarterly update |
+```text
+                         ┌─────────────────────────────────────────┐
+                         │       AirportBaggageHarness             │
+                         │                                         │
+  setTag/setFlight/setPos► tagIn/flightIn/posIn (TestCell ingress) │
+  setBelt/setWeight/setTerm► beltIn/weightIn/termIn (cache)         │
+                         │      │                                  │
+                         │      ▼                                  │
+                         │  publishTick() ──► tickIn (BagTick bus)  │
+                         │      │                                  │
+                         │      ├──► BaggageRiskInstruction(atRisk) │
+                         │      │        + MapValue(Decision→Risk)  │
+                         │      │        └─► toHandle ──► atRiskCell│
+                         │      │                                  │
+                         │      └──► BaggageRiskInstruction(warn)   │
+                         │               + MapValue(Decision→Risk)  │
+                         │               └─► toHandle ──► warnCell │
+                         │                                         │
+                         │  Cell.observe(atRiskCell/warnCell)       │
+                         │      │                                  │
+                         │      ▼                                  │
+                         │  events / alertQ / bagCount / incidentMap│
+                         └─────────────────────────────────────────┘
+```
 
----
-
-## 6. Users and personas
-
-### 6.1 Duty Manager — Priya
-- **Role:** Shift duty manager for Terminal 2.
-- **Context:** On her feet, on the apron and in the ops room, from 06:00 to 14:00. Carries a tablet. Handles 40–60 calls a shift.
-- **Goal:** Know within a minute when a bag flow problem starts, and know who to call.
-- **Pain today:** Learns about a problem when the airline calls. Has to check three screens to understand a single delay.
-- **Success looks like:** One screen shows her the whole terminal's baggage flow, with red flags for anything at risk.
-
-### 6.2 Baggage Services Supervisor — Marco
-- **Role:** Runs the baggage hall crew for Terminal 4.
-- **Context:** On the floor with the crew, hands-on, deals with jams and misreads.
-- **Goal:** Know where the jam is and how many bags it is affecting before the crew walks over.
-- **Pain today:** Walks to a belt to find out what is wrong. Wastes 5–10 minutes per incident.
-- **Success looks like:** An alert tells him the belt, the number of bags affected, and the flight at risk.
-
-### 6.3 Airline Liaison Officer — Chen
-- **Role:** Daily contact for airline operations teams.
-- **Context:** In an office, reviews yesterday's performance every morning.
-- **Goal:** A one-page report showing yesterday's baggage performance by airline, so he can answer airline queries without digging.
-- **Pain today:** Builds the report by hand from three systems every morning. Takes 90 minutes.
-- **Success looks like:** Opens a report, sends it, done.
+Flow owns the decision (inside the instruction). Tissue owns the books
+(behind the observers). The observer is the only glue.
 
 ---
 
-## 7. Business requirements
+## Domain
 
-### 7.1 Functional requirements
-
-| ID | Requirement | Priority | Rationale |
-|---|---|---|---|
-| FR-01 | The system shall show, in real time, the position of every departing bag from check-in to aircraft side. | Must | Core purpose of the tool. |
-| FR-02 | The system shall calculate, for every bag, the time remaining until its flight's baggage close-out. | Must | Needed to know which bags are at risk. |
-| FR-03 | The system shall flag a bag as "at risk" when the time remaining falls below the flight's minimum connection time. | Must | Consistent rule across all terminals. |
-| FR-04 | The duty manager shall be able to see all at-risk bags in their terminal on a single screen. | Must | One screen, one view. |
-| FR-05 | The system shall raise an alert to the relevant supervisor when a belt, sorter, or carousel stops for more than 60 seconds. | Must | Fast reaction to jams. |
-| FR-06 | The system shall show, for each alert, the affected belt or carousel, the number of bags affected, and the flights at risk. | Must | Give the supervisor enough to act. |
-| FR-07 | The supervisor shall be able to acknowledge an alert and record the action taken. | Must | Audit trail of staff response. |
-| FR-08 | The system shall group individual bag alerts into a single incident when they share the same cause. | Should | Prevent alert fatigue. |
-| FR-09 | The duty manager shall be able to see all open incidents across all terminals. | Should | Cross-terminal awareness. |
-| FR-10 | The system shall produce a daily baggage performance report by airline. | Must | Airline liaison requirement. |
-| FR-11 | The system shall allow the duty manager to add a free-text note to any incident. | Should | Context for later review. |
-| FR-12 | The system shall allow the duty manager to export the day's incidents as a spreadsheet. | Could | Ad-hoc requests from airlines. |
-
-### 7.2 Data requirements
-
-| ID | Requirement | Priority | Rationale |
-|---|---|---|---|
-| DR-01 | The system shall capture for every bag: bag tag number, flight number, terminal, current position, time at each scan point, and current status. | Must | Minimum dataset for flow monitoring. |
-| DR-02 | The system shall capture for every flight: airline code, flight number, scheduled departure, baggage close-out time, and terminal. | Must | Needed to compute time remaining. |
-| DR-03 | The system shall capture for every incident: start time, end time, affected belt or carousel, affected bags, flights at risk, actions taken, and the supervisor who acknowledged. | Must | Audit and reporting. |
-| DR-04 | The system shall retain incident records for 24 months. | Must | Airline contractual requirement. |
-| DR-05 | The system shall retain bag position history for 7 days. | Must | Enough for a full shift review. |
-| DR-06 | The system shall reject bag records with a missing tag number or flight number. | Must | Data quality at the source. |
-
-### 7.3 Rules and policy
-
-| ID | Rule | Source | Priority |
-|---|---|---|---|
-| BR-01 | Bags tagged as "diplomatic" or "hazardous" must never be re-routed without authorisation from the Duty Manager. | Company policy | Must |
-| BR-02 | No alert may be raised for a bag on a flight that has already closed. | Operational practice | Must |
-| BR-03 | Every alert must be acknowledged or dismissed within 15 minutes. | Service level | Must |
-| BR-04 | Baggage performance data shared with airlines must exclude passenger personal data. | Data protection | Must |
-
-### 7.4 Reporting and audit
-
-| ID | Requirement | Audience | Frequency | Retention |
-|---|---|---|---|---|
-| AR-01 | The daily baggage performance report shall show, per airline: bags handled, bags delayed, bags missed, and average processing time. | Airline liaison | Daily | 24 months |
-| AR-02 | The incident log shall show every incident with timings and actions. | Duty managers, Safety & Compliance | On demand | 24 months |
-
----
-
-## 8. Non-functional requirements
-
-| ID | Category | Requirement | Target |
-|---|---|---|---|
-| NFR-01 | Performance | The screen shall update within 5 seconds of a bag moving. | 5 s |
-| NFR-02 | Availability | The system shall be available 99.9% of the time between 04:00 and 24:00. | 99.9% |
-| NFR-03 | Capacity | The system shall handle 120,000 bag events per day across all terminals. | 120k/day |
-| NFR-04 | Security | Only authenticated staff with a "Baggage Ops" role shall see bag-level data. | Role-based |
-| NFR-05 | Auditability | Every alert acknowledgement shall record who, when, and what action was taken. | Full trace |
-| NFR-06 | Usability | A duty manager shall be able to answer "is my terminal healthy right now?" in under 10 seconds. | ≤10 s |
-| NFR-07 | Compliance | The system shall comply with UK GDPR and the CAA's 2027 reporting requirement. | Full |
-| NFR-08 | Recoverability | The system shall restore service within 30 minutes of a failure. | ≤30 min |
-
----
-
-## 9. User journeys
-
-### 9.1 Journey: Morning peak — spotting a jam
-- **Trigger:** A belt in Terminal 2 stops at 07:42 during the morning bank.
-- **Steps:** The system detects the stop after 60 seconds → raises an alert → Marco (Terminal 2 supervisor) sees the alert on his tablet → he walks to the belt with the exact location, the 34 bags affected, and the 3 flights at risk → he clears the jam in 4 minutes → he acknowledges the alert with a note "tag reader fault, cleared".
-- **Outcome:** Bags recovered, no missed flights, alert closed with a full record.
-- **Failure path:** If Marco does not acknowledge within 15 minutes, the system escalates to the duty manager.
-
-### 9.2 Journey: A bag at risk on a closing flight
-- **Trigger:** A transfer bag arrives at the sorter 8 minutes before close-out, 2 minutes short of the minimum.
-- **Steps:** The system flags the bag → the duty manager sees a red flag on the "at risk" screen → she calls the airline desk → the airline decides to hold the flight for 3 minutes → the bag is loaded → the system marks it as "recovered" with the airline decision recorded.
-- **Outcome:** Flight held by 3 minutes, bag loaded, decision recorded.
-- **Failure path:** If the airline refuses to hold, the bag is offloaded and marked "missed". The reason is recorded.
-
-### 9.3 Journey: Morning airline report
-- **Trigger:** 08:00, Chen opens his laptop.
-- **Steps:** He opens the daily report → sees yesterday's numbers per airline → exports it as a PDF → sends it to the four main airlines before 09:00.
-- **Outcome:** Report delivered on time, no manual work.
-- **Failure path:** If the report fails, he falls back to the old manual process for one day.
-
----
-
-## 10. Acceptance criteria
-
-| ID | Criterion | Method of verification |
+| Type | Kind | Meaning |
 |---|---|---|
-| AC-01 | Every bag is visible from check-in to aircraft side within 5 seconds of each scan. | Live test during a peak hour |
-| AC-02 | At-risk bags are correctly identified for 100% of test cases. | Scripted test with 50 known bags |
-| AC-03 | Alerts for belt stops are raised within 90 seconds. | Timed test with a controlled stop |
-| AC-04 | Every alert can be acknowledged and recorded. | Demo with duty managers |
-| AC-05 | Daily report matches a manual count for a full day. | Side-by-side comparison |
-| AC-06 | No personal data appears in airline reports. | Inspection by Data Protection Officer |
-| AC-07 | The system runs for 30 days with 99.9% availability. | Monthly service report |
+| `RiskLevel` | `enum` | `none`, `warn`, `atRisk` — the only type crossing the Flow→Tissue seam |
+| `BagTick` | `final class` | one complete snapshot: tag, flight, position, belt, weightG, terminal, minRemaining |
+| `BaggageDecision` | `final class` | the instruction's rich output: tick + riskLevel |
+| `BaggageEvent` | `final class` | one append-only row in the incident log |
+| `Incident` | `final class` | one open incident: belt + affectedBags + atRiskFlights |
+| `AlertJob` | `final class` | one outbound supervisor alert job: belt + action |
+
+`BaggageDecision` exists because the instruction must expose its work
+before the chain narrows it. If the instruction emitted `RiskLevel`
+directly, the harness would have no public handle on the tick the
+decision was computed from, and the chain's `MapValue` would have
+nothing to project.
 
 ---
 
-## 11. Risks and mitigations
+## Parts
 
-| ID | Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| R-01 | Belt control system feed is slower than promised. | M | H | Early technical trial with Baggage Services before full build. |
-| R-02 | Duty managers find the screen too crowded. | M | M | Co-design workshops with four duty managers from week 1. |
-| R-03 | Airline data is incomplete for some carriers. | M | M | Report incomplete data as "unknown" rather than excluding it. |
-| R-04 | Wi-Fi blackspots on the apron. | L | M | Coverage survey before go-live, tablets cached for short outages. |
-| R-05 | Staff see the tool as extra work. | M | H | Involve supervisors in design; keep the "acknowledge" step to one tap. |
+### Flow Cells
 
----
-
-## 12. Success measures
-
-| Measure | Baseline today | Target | Reviewed when |
+| Cell | Input parameter(s) | Output (`Pulse<type>`) | TestCell |
 |---|---|---|---|
-| Preventable missed bags per 1,000 | 1.1 | 0.7 | 3 months after go-live |
-| Time from belt stop to supervisor arrival | 12 min | 6 min | 3 months after go-live |
-| Daily airline report preparation time | 90 min | 5 min | 1 month after go-live |
-| Duty manager satisfaction with visibility | 2.5 / 5 | 4.0 / 5 | 3 months after go-live |
+| `tagIn` | `String` (≥ 10 chars) | `Pulse<String>` | `_tagShape` |
+| `flightIn` | `String` (non-empty) | `Pulse<String>` | `_flightShape` |
+| `posIn` | `String` (non-empty) | `Pulse<String>` | none |
+| `beltIn` | `String` | `Pulse<String>` | none |
+| `weightIn` | `int` (0–5000 g) | `Pulse<int>` | `_weightRange` |
+| `termIn` | `String` | `Pulse<String>` | none |
+| `tickIn` | `BagTick` | `Pulse<BagTick>` | none |
+| `ackIn` | `String` (belt id or `"ALL"`) | `Pulse<String>` | none |
+| `atRiskCell` | — (materialised chain) | `Pulse<RiskLevel>` | `toHandle` default |
+| `warnCell` | — (materialised chain) | `Pulse<RiskLevel>` | `toHandle` default |
+
+### The custom instruction
+
+`BaggageRiskInstruction extends FlowInstructionBase<Cell, Pulse, Pulse>`
+is the heart of this variant.
+
+| API | Kind | Used by |
+|---|---|---|
+| `BaggageRiskInstruction({required Set<String> guardedFlights, required RiskLevel pass})` | constructor | `installGates` |
+| `static RiskLevel riskOf(BagTick tick, Set<String> guardedFlights)` | pure policy | the instruction itself; unit tests |
+| `RiskLevel? get lastDecision` | latch state | the trailer |
+| `RiskLevel get pass` | product | docs/debug |
+| `Set<String> get guardedFlights` | live set | docs/debug |
+| `void reset()` | latch clear | the ACK observer |
+
+Internal order per pulse: type-check → `riskOf` → distinct latch →
+product filter → emit `Pulse<BaggageDecision>`.
+
+### Tissue collections
+
+| Tissue | TestTissue | Rule |
+|---|---|---|
+| `events` | `TissueList<BaggageEvent>` | append-only: allow `add`/`addAll`, deny `remove`/`clear`/`[]=` |
+| `bagCount` | `TissueValue<int>` | value ≥ 0 |
+| `incidentMap` | `TissueMap<String, Incident>` | affectedBags > 0 and non-empty belt |
+| `guardedFlights` | `TissueSet<String>` | uppercase `FLIGHT-N` style |
+| `alertQ` | `TissueQueue<AlertJob>` | accepts every job (future rate-limit hook) |
+
+### Deputies
+
+| Deputy | TestTissue | Use |
+|---|---|---|
+| `events.unmodifiable` | built-in read-only view | Safety & Compliance in COMPLY |
+
+### Instruction
+
+The demo uses **two** instruction objects in total, plus one shared
+stock instruction:
+
+1. `BaggageRiskInstruction(guardedFlights: guardedFlights, pass: RiskLevel.atRisk)`
+2. `BaggageRiskInstruction(guardedFlights: guardedFlights, pass: RiskLevel.warn)`
+3. `MapValue<BaggageDecision, RiskLevel>((d) => d.riskLevel)` — shared by both chains
+
+Each `+` between (1) and (3), and (2) and (3), builds one
+`FlowInstructionChain`. Two chains, two `toHandle` calls, two Cells.
+
+### Receptor
+
+`toHandle` wraps the chain in a `Receptor.instruction` and anchors it
+in a `Nucleus` bound to `tickIn.cell`. The returned handle's `cell`
+is the gate Cell the observers subscribe to.
+
+### Operators the demo must actually call
+
+| Operator | Where | Purpose |
+|---|---|---|
+| `Cell.ingress` | `install()` | 9 ingresses |
+| `operator +` | `installGates()` | compose custom instruction + `MapValue` into a `FlowInstructionChain` |
+| `FlowInstruction.toHandle` | `installGates()` | materialise each chain into a Cell |
+| `Cell.observe` | `install()` | the only glue: gate Cell → Tissue writes |
+| `TissueList.add` / `TissueValue.set` / `TissueMap[...]` / `TissueSet.add` / `TissueQueue.addLast` | writers | the books |
 
 ---
 
-## 13. Glossary
+## Reserve — TissueValue + TissueMap (not inside the instruction)
 
-| Term | Meaning |
+`raiseAlert` and `closeIncident` are **harness methods**, not instruction
+logic. The instruction never touches bag counts. The v1 write protocol:
+
+```text
+raiseAlert(belt, affectedBags, flightsAtRisk):
+  1. pre-check bagCount.value >= affectedBags      (reject before any write)
+  2. incidentMap[belt] = Incident(...)             (TissueMap write)
+  3. bagCount.set(before - affectedBags)           (TissueValue write)
+  4. on reject: incidentMap.remove(belt)           (compensate)
+
+closeIncident(belt):
+  1. look up incidentMap[belt]                     (no row → return false)
+  2. incidentMap.remove(belt)
+  3. bagCount.set(before + affectedBags)
+  4. events.add(INCIDENT-CLOSE ...)
+```
+
+Invariant after every successful pair:
+
+```text
+bagCount.value! + sum(incidentMap.values.affectedBags) == 45000
+```
+
+Scenario 11 deliberately breaks the invariant (force bagCount to 10,
+then attempt to raise 50) to prove the non-negative `TestTissue`
+rejects the write; scenario 12 restores consistency (10 → 60).
+
+---
+
+## Implementation map
+
+| WalkThrough part | Demo location |
 |---|---|
-| AODB | Airport Operational Database — the system of record for flights. |
-| Bag tag | The barcode label attached to a bag at check-in. |
-| Baggage close-out | The deadline by which a bag must be loaded onto its flight. |
-| Belt | The conveyor that moves bags between zones. |
-| Carousel | The rotating make-up area where bags are sorted into carts. |
-| Duty manager | The senior operational staff member on shift for a terminal. |
-| Incident | A group of related alerts treated as one problem. |
-| Make-up | The area where bags are loaded into carts for the aircraft. |
-| Missed bag | A bag that does not travel on its ticketed flight. |
-| Sorter | The automated system that reads bag tags and routes bags. |
-| Supervisor | The hands-on leader of the baggage hall crew. |
+| Domain types | `RiskLevel`, `BagTick`, `BaggageDecision`, `BaggageEvent`, `Incident`, `AlertJob` |
+| Custom instruction | `BaggageRiskInstruction` (extends `FlowInstructionBase`) |
+| Chain composition | `AirportBaggageHarness.installGates` (`+`, `toHandle`) |
+| Ingress + TestCell | `install()` — `tagIn`/`flightIn`/`posIn`/`beltIn`/`weightIn`/`termIn`/`tickIn`/`ackIn` |
+| Tissue + TestTissue | `install()` — `events`/`bagCount`/`incidentMap`/`guardedFlights`/`alertQ` |
+| Observers | `install()` — AT-RISK/WARN/ACK `Cell.observe` |
+| Reserve protocol | `raiseAlert` / `closeIncident` |
+| Alert pump | `_driveAlert` (retry-once over `_alertWork`) |
+| Scenarios | `main()` steps 1–13 + WARN + COMPLY |
+| Acceptance console | `main()` trailer |
 
 ---
 
-## 14. Open questions
+## Scenarios
 
-| ID | Question | Owner | Due date | Status |
-|---|---|---|---|---|
-| Q-01 | Will Terminal 3's older sorters provide the same feed as Terminals 1, 2, and 4? | Baggage Services | 2026-10-01 | Open |
-| Q-02 | Which four airlines will receive the daily report in phase 1? | Commercial | 2026-10-15 | Open |
-| Q-03 | What is the approved escalation policy when no one acknowledges an alert? | Ops Programme Office | 2026-10-20 | Open |
-
----
-
-## 15. Approvals
-
-| Role | Name | Signature | Date |
+| Banner | Drive | Result | Demonstrates |
 |---|---|---|---|
-| Business sponsor (COO) | `[name]` | | |
-| Product owner (Head of Terminal Ops) | `[name]` | | |
-| Technical lead (IT) | `[name]` | | |
-| Compliance / risk | `[name]` | | |
+| Seed | BA123 / INT-14 / 420 bags / 60 min | `events.isEmpty=true` | chain drops `none`; initial Tissue is silent |
+| 1 | repeat the same tick | `new atRisk: 0` | distinct latch suppresses repeated `none` |
+| 2 | `guardedFlights.add('VIP-1')`, 25 min on VIP-1 | `new atRisk: 0` | live guarded set feeds `riskOf` inside the instruction |
+| 3 | 25 min on INT-14 | `new atRisk: 1`, `alertQ.length=1` | `none → atRisk` fires the AT-RISK lane |
+| 4 | 25 min again | `new atRisk: 0` | latch suppresses repeated `atRisk` |
+| 5 | 22 min (still at-risk band) | `new atRisk: 0` | latch keys on `RiskLevel`, not minutes |
+| WARN | 35 min / belt JAM-3 / 200 bags | `new warns: 1` | second lane, independent latch |
+| 6 | 60 min then ACK close INT-14 | `bagCount=45000 incidents=0` | ACK calls `reset()` + `closeIncident()` |
+| 7 | 25 min on INT-14 | `new atRisk: 1` | fresh alert after reset |
+| 8 | tag `"123"`, flight `""`, weight `6000` | all `accepted=false`, `events grew: 0` | TestCell rejects at ingress |
+| 9 | ACK, recover, 25 min, alert fail-once | `new atRisk: 1`, `alertAttempts=5` | retry-once alert pump |
+| 10 | close INT-14, ACK, 25 min on INT-15 | `new atRisk: 1`, `openIncidents=1` | second belt via TissueMap |
+| 11 | force bagCount to 10, then raise 50 | `raiseAlert ok=false` | non-negative TestTissue rejects |
+| 12 | close INT-15 | `closeIncident ok=true`, `bagCount=60` | close returns bags |
+| 13 | ACK without an open incident | `unchanged=true` | ACK `"ALL"` invents no bags |
+| COMPLY | council.add blocked | `council.length=19 events.length=19` | read-only deputy is live |
+| Trailer | — | `ticks=12 atRisk=4 warns=1 events=19 alertAttempts=6` | final counts agree |
 
 ---
 
-*End of document.*
+## Executable steps
+
+`main()` performs, in order:
+
+1. Print the banner.
+2. `final h = AirportBaggageHarness(); await h.install();`
+3. Seed the caches and `publishTick()`.
+4. Scenarios 1–5 on the AT-RISK lane.
+5. WARN scenario on the WARN lane.
+6. Scenarios 6–10 (ACK/close/alert/second belt).
+7. Scenarios 11–12 (bagCount guard and close).
+8. Scenario 13 and COMPLY.
+9. Trailer, then `h.dispose()`.
+
+Each scenario prints the exact lines listed in the Demo header's
+"Expected console output". The trailer adds one line the Tissue sibling
+does not have:
+
+```text
+atRiskGate.lastDecision=null warnGate.lastDecision=null
+```
+
+which proves scenario 13's `ack('ALL')` cleared both instruction
+latches through the public `reset()` API.
+
+---
+
+## Pulse path (scenario 2 then 3)
+
+Scenario 2 — guarded flight:
+
+```text
+guardedFlights.add('VIP-1')   → TissueSet write (TestTissue passes)
+setFlight('VIP-1'), setMinRemaining(25)
+publishTick()                 → tickIn emits Pulse<BagTick>(VIP-1, 25)
+atRiskGate instruction        → riskOf → guardedFlights contains VIP-1 → none
+                              → latch none, product filter drops none
+warnGate instruction          → same, own latch, drops none
+atRiskCell/warnCell           → no emission
+```
+
+Scenario 3 — unguarded belt in the at-risk band:
+
+```text
+setFlight('INT-14')
+publishTick()                 → tickIn emits Pulse<BagTick>(INT-14, 25)
+atRiskGate instruction        → riskOf → atRisk
+                              → latch was none, now atRisk → passes
+                              → emits Pulse<BaggageDecision>(atRisk, INT-14)
+MapValue<BaggageDecision,RiskLevel> → Pulse<RiskLevel>(atRisk)
+atRiskCell                    → emits to the AT-RISK observer
+observer                      → events.add(AT-RISK) + alertQ + _driveAlert + raiseAlert
+```
+
+The WARN lane runs the same pulse through its own instruction: policy
+returns `atRisk`, its latch records `atRisk`, and the product filter
+drops it because `atRisk != warn`.
+
+---
+
+## Who owns the lock
+
+| Domain | Lock | Covers | Does not cover |
+|---|---|---|---|
+| Decision | Receptor lock on `atRiskCell` / `warnCell` | instruction closure, latch, chain projection | any Tissue write |
+| Books | Tissue lock on each collection | `events.add`, `incidentMap[...]`, `bagCount.set`, `alertQ.addLast` | any decision logic |
+
+An AT-RISK pulse crosses two lock boundaries in sequence: the chain's
+Receptor lock releases, then the observer takes the Tissue lock. The
+latch state inside `BaggageRiskInstruction` is a plain Dart field
+guarded by the Receptor lock — it is not a Cell, not a Tissue, and not
+a `Box`. That is why `reset()` works without rebuilding the graph.
+
+---
+
+## Real desk vs this file
+
+| Real desk | This file |
+|---|---|
+| Belt control feed | `setPosition` + `publishTick` |
+| Interruptible bag count | `incidentMap` + `bagCount` |
+| Guarded flight register | `guardedFlights` TissueSet |
+| Supervisor ACK | `ackIn` + `atRiskGate.reset()` / `warnGate.reset()` |
+| Alert (radio/tablet) | `_driveAlert` retry-once |
+| Safety & Compliance | `events.unmodifiable` |
+
+---
+
+## Acceptance
+
+1. `dart analyze airport-baggage-handling(Cell)-Demo.dart` reports no issues.
+2. `dart run airport-baggage-handling(Cell)-Demo.dart` prints the expected
+   console exactly, including `atRiskGate.lastDecision=null`.
+3. `BaggageRiskInstruction` extends `FlowInstructionBase<Cell, Pulse, Pulse>`.
+4. Two `toHandle` calls exist, both in `installGates`.
+5. Grep shows zero `testRule: TestCell` on Tissue constructors.
+6. The instruction contains no Tissue write; the observers contain no
+   decision logic.
+
+---
+
+## Name plate
+
+| Artifact | File |
+|---|---|
+| Requirement | `airport-baggage-handling(Cell)-WalkThrough.md` |
+| Executable | `airport-baggage-handling(Cell)-Demo.dart` |
+| Architecture | `airport-baggage-handling(Cell)-ARCHITECTURE.md` |
+| Features | `airport-baggage-handling(Cell)-FEATURES.md` |

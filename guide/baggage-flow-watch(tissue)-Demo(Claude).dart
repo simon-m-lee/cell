@@ -116,7 +116,6 @@
 library;
 
 import 'dart:async';
-import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_tissue/cell_tissue.dart';
 
 // ignore_for_file: unused_local_variable, avoid_print, unused_element

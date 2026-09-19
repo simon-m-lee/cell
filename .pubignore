@@ -1,8 +1,9 @@
 # Umbrella package only: exclude monorepo internals from the published package.
-doc/
-.idea/
-.deepcode/
+/doc/**
+/.idea/**
+/.deepcode/**
 *.iml
 melos.yaml
 pubspec.lock
-packages/
+/packages/**
+/END_GAME_PREDICTION/**

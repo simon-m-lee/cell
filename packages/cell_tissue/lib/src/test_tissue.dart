@@ -210,12 +210,10 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// - [parent]: An optional [TestTissue] to chain after this rule.
   /// - [user]: Optional metadata for auditing or context.
   const TestTissue(
-      FutureOr<bool> Function(dynamic object,
-              {C? host, dynamic arguments, dynamic user})
-          rule,
-      {TestTissue<E, C>? parent,
-      dynamic user})
-      : this.fromRecord(parent != null
+      FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
+        TestTissue<E, C>? parent,
+        dynamic user
+      }) : this.fromRecord(parent != null
             ? user != null
                 ? (rule: rule, parent: parent, user: user)
                 : (rule: rule, parent: parent)
@@ -260,13 +258,11 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// - [strategy]: An optional override function that takes full control of
   ///   the validation logic; if provided, the default sequential evaluation
   ///   is bypassed.
-  const TestTissue.chain(Iterable<TestRule<C>> rules,
-      {TestTissue<E, C>? parent,
-      dynamic user,
-      FutureOr<bool> Function(dynamic object,
-              {C? host, dynamic arguments, dynamic user})?
-          strategy})
-      : this.fromRecord(strategy != null
+  const TestTissue.chain(
+      Iterable<TestRule<C>> rules, {
+        TestTissue<E, C>? parent, dynamic user,
+        FutureOr<bool> Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
+      }) : this.fromRecord(strategy != null
             ? parent != null
                 ? user != null
                     ? (rules: rules, rule: strategy, parent: parent, user: user)

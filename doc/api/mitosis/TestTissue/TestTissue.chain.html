@@ -109,13 +109,11 @@ is bypassed.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TestTissue.chain(Iterable&lt;TestRule&lt;C&gt;&gt; rules,
-    {TestTissue&lt;E, C&gt;? parent,
-    dynamic user,
-    FutureOr&lt;bool&gt; Function(dynamic object,
-            {C? host, dynamic arguments, dynamic user})?
-        strategy})
-    : this.fromRecord(strategy != null
+  <pre class="language-dart"><code class="language-dart">const TestTissue.chain(
+    Iterable&lt;TestRule&lt;C&gt;&gt; rules, {
+      TestTissue&lt;E, C&gt;? parent, dynamic user,
+      FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user})? strategy
+    }) : this.fromRecord(strategy != null
           ? parent != null
               ? user != null
                   ? (rules: rules, rule: strategy, parent: parent, user: user)

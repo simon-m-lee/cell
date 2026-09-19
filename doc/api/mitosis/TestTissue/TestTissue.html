@@ -106,12 +106,10 @@ final policy = positiveRule + adminRule;
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const TestTissue(
-    FutureOr&lt;bool&gt; Function(dynamic object,
-            {C? host, dynamic arguments, dynamic user})
-        rule,
-    {TestTissue&lt;E, C&gt;? parent,
-    dynamic user})
-    : this.fromRecord(parent != null
+    FutureOr&lt;bool&gt; Function(dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {
+      TestTissue&lt;E, C&gt;? parent,
+      dynamic user
+    }) : this.fromRecord(parent != null
           ? user != null
               ? (rule: rule, parent: parent, user: user)
               : (rule: rule, parent: parent)
