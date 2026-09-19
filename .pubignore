@@ -6,4 +6,5 @@
 melos.yaml
 pubspec.lock
 /packages/**
+/guide/**
 /END_GAME_PREDICTION/**
