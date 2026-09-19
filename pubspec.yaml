@@ -2,7 +2,7 @@ name: mitosis
 description: >-
   Umbrella package for the Mitosis reactive framework — Cell (core),
   Flow (orchestration), and Tissue (application) layers for Dart.
-version: 1.0.0-rc.6
+version: 1.0.0-rc.7
 
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell

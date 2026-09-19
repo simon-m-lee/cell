@@ -1,5 +1,11 @@
 # Changelog
 
+## Mitosis (1.0.0-rc.7)
+
+- **Fixed dartdoc generation** for pub.dev scoring: the `Walkthroughs` category now references `DEMO_GUIDE-Mitosis.md` with the correct filename case, so `dart doc` succeeds on case-sensitive filesystems.
+- **Removed** `example/grid-demand-response(Cell)-Day1.md`.
+- **Docs**: regenerated the API docs and synced guides.
+
 ## Mitosis (1.0.0-rc.6)
 
 - **New `(Cell)` demo set** in [`example/`](<https://github.com/simon-m-lee/cell/tree/master/example>) — the instruction-side counterparts of the `cell_tissue` demos:
