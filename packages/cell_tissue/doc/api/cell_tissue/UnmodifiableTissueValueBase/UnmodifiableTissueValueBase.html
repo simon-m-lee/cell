@@ -134,9 +134,11 @@ This is typically the source's current value.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueValueBase(super.properties, {super.unmodifiableElement, V? value})
+  <pre class="language-dart"><code class="language-dart">UnmodifiableTissueValueBase(super.properties,
+    {super.unmodifiableElement, V? value})
     : super() {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
+  final container =
+      get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
   if (container != null) {
     _nucleus.container.store.value = value;
   }
@@ -176,7 +178,7 @@ This is typically the source's current value.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

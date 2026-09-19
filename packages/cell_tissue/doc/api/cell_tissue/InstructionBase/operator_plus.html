@@ -85,8 +85,8 @@ synchronous pipeline.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Instruction&lt;C,I,O&gt; operator +(covariant Instruction other) {
-  return InstructionChain&lt;C,I,O&gt;([this, other]);
+Instruction&lt;C, I, O&gt; operator +(covariant Instruction other) {
+  return InstructionChain&lt;C, I, O&gt;([this, other]);
 }</code></pre>
 </section>
 
@@ -115,7 +115,7 @@ Instruction&lt;C,I,O&gt; operator +(covariant Instruction other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

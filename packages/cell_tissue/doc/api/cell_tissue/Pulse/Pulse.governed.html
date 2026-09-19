@@ -138,15 +138,11 @@ additional validation, TTL checks, and auditing during propagation.</p>
   <pre class="language-dart"><code class="language-dart">factory Pulse.governed({
   PulseEphemeralPolicy? policy,
   PulseContext? context,
-
   P? payload,
   String? type,
-
   Cell? source,
   String? step,
-
   int? priority,
-
   void Function(Pulse pulse)? onComplete,
   void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
   void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
@@ -178,7 +174,7 @@ additional validation, TTL checks, and auditing during propagation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

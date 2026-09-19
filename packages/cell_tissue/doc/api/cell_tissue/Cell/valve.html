@@ -145,12 +145,10 @@ of conditional signal suppression.
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell valve&lt;P extends Pulse&gt;(
-    Cell source,
-    bool Function(P pulse) gate, {
-      Synapses synapses = Synapses.enabled
-    }) {
-  final receptor = _Receptor(reaction: (pulse, cell, {user}) =&gt; gate(pulse as P) ? pulse : null);
+  <pre class="language-dart"><code class="language-dart">static Cell valve&lt;P extends Pulse&gt;(Cell source, bool Function(P pulse) gate,
+    {Synapses synapses = Synapses.enabled}) {
+  final receptor = _Receptor(
+      reaction: (pulse, cell, {user}) =&gt; gate(pulse as P) ? pulse : null);
   return Cell.governed(receptor: receptor, bind: source, synapses: synapses);
 }</code></pre>
 </section>
@@ -180,7 +178,7 @@ of conditional signal suppression.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -94,14 +94,13 @@ in the default constructor.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueSet.empty({
-  Cell? bind,
-  Context context,
-  TestTissue&lt;E,TissueSet&lt;E&gt;&gt; testRule,
-  TissueReceptor&lt;E,TissueSet&lt;E&gt;&gt; receptor,
-  Synapses synapses,
-  bool identitySet
-}) = _TissueSet&lt;E,TissueSet&lt;E&gt;&gt;.empty;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueSet.empty(
+    {Cell? bind,
+    Context context,
+    TestTissue&lt;E, TissueSet&lt;E&gt;&gt; testRule,
+    TissueReceptor&lt;E, TissueSet&lt;E&gt;&gt; receptor,
+    Synapses synapses,
+    bool identitySet}) = _TissueSet&lt;E, TissueSet&lt;E&gt;&gt;.empty;</code></pre>
 </section>
 
 
@@ -129,7 +128,7 @@ in the default constructor.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

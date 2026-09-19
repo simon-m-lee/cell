@@ -126,17 +126,18 @@ confirm success.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">PulseEphemeralPolicy({
-  required ({int? hops}) Function(Cell cell,{required PulseEphemeralPolicy policy}) onEvent,
+  required ({int? hops}) Function(Cell cell,
+          {required PulseEphemeralPolicy policy})
+      onEvent,
   required bool Function(Pulse pulse) onInvalidate,
   int? hopLimit,
   Duration? duration,
   dynamic user,
 }) : _record = mask(
-        onEvent: onEvent,
-        hopLimit: hopLimit,
-        duration: duration,
-        onInvalidate: onInvalidate
-      );</code></pre>
+          onEvent: onEvent,
+          hopLimit: hopLimit,
+          duration: duration,
+          onInvalidate: onInvalidate);</code></pre>
 </section>
 
 
@@ -164,7 +165,7 @@ confirm success.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

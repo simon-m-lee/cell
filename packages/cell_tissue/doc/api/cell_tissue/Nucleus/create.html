@@ -121,33 +121,35 @@ specified reactive node.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Nucleus create&lt;C extends Cell&gt;({
-  EphemeralPolicy&lt;C&gt;? ephemeralPolicy,
-
-  Cell? bind,
-  Context? context,
-  Receptor&lt;C&gt;? receptor,
-  TestCell&lt;C&gt;? testRule,
-  Synapses? synapses,
-
-  bool forceLock = false,
-  Record? user,
-  Nucleus? principal
-}) {
+  <pre class="language-dart"><code class="language-dart">static Nucleus create&lt;C extends Cell&gt;(
+    {EphemeralPolicy&lt;C&gt;? ephemeralPolicy,
+    Cell? bind,
+    Context? context,
+    Receptor&lt;C&gt;? receptor,
+    TestCell&lt;C&gt;? testRule,
+    Synapses? synapses,
+    bool forceLock = false,
+    Record? user,
+    Nucleus? principal}) {
   if (principal != null) {
-    final local = NucleusBase.mask(bind: bind, context: context, receptor: receptor,
-      testRule: testRule, synapses: synapses, forceLock: forceLock, user: user);
+    final local = NucleusBase.mask(
+        bind: bind,
+        context: context,
+        receptor: receptor,
+        testRule: testRule,
+        synapses: synapses,
+        forceLock: forceLock,
+        user: user);
     return _Nucleus.fromRecord((local: local, principal: principal));
   }
   return _Nucleus(
-    bind: bind,
-    context: context ?? Context.system,
-    receptor: receptor ?? Receptor.passThrough,
-    testRule: testRule ?? TestCell.allowAll,
-    synapses: synapses ?? Synapses.enabled,
-    user: user,
-    forceLock: forceLock
-  );
+      bind: bind,
+      context: context ?? Context.system,
+      receptor: receptor ?? Receptor.passThrough,
+      testRule: testRule ?? TestCell.allowAll,
+      synapses: synapses ?? Synapses.enabled,
+      user: user,
+      forceLock: forceLock);
 }</code></pre>
 </section>
 
@@ -176,7 +178,7 @@ specified reactive node.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

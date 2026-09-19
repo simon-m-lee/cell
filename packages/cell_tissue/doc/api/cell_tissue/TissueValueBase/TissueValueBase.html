@@ -79,7 +79,7 @@ If <code>null</code> or omitted, the <code>TissueValue</code> is initialized wit
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TissueValueBase(TissueValueNucleus&lt;V&gt; properties, {V? value})
-    : super(properties as TissueValueNucleusBase&lt;V,C&gt;) {
+    : super(properties as TissueValueNucleusBase&lt;V, C&gt;) {
   if (value != null) {
     properties.container.store.value = value;
     if (value is Cell) {
@@ -114,7 +114,7 @@ If <code>null</code> or omitted, the <code>TissueValue</code> is initialized wit
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

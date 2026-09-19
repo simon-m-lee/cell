@@ -105,9 +105,11 @@ reactive discovery.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueBase(TissueNucleusBase&lt;E,I,C&gt; super.nucleus, {Iterable&lt;E&gt;? elements})
-    : _nucleus = nucleus, super.fromNucleus() {
-  final container = get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
+  <pre class="language-dart"><code class="language-dart">TissueBase(TissueNucleusBase&lt;E, I, C&gt; super.nucleus, {Iterable&lt;E&gt;? elements})
+    : _nucleus = nucleus,
+      super.fromNucleus() {
+  final container =
+      get&lt;Container?&gt;(() =&gt; _nucleus.record.local.container, orElse: null);
   if (container != null) {
     _nucleus.container.init(elements);
   }
@@ -144,7 +146,7 @@ reactive discovery.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

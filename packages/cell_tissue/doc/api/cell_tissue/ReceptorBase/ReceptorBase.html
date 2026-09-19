@@ -133,9 +133,14 @@ Use <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> for a
   Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
   void Function()? init,
   dynamic Function()? user,
-}) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-    reaction: reaction, user: user, init: init)
-);</code></pre>
+}) : this.fromRecord(
+          record: mask(
+              instruction: instruction,
+              preProcess: preProcess,
+              postProcess: postProcess,
+              reaction: reaction,
+              user: user,
+              init: init));</code></pre>
 </section>
 
 
@@ -163,7 +168,7 @@ Use <a href="../../cell_tissue/ReceptorAsync-class.html">ReceptorAsync</a> for a
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

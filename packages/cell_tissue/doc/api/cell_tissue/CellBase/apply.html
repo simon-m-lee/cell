@@ -162,14 +162,16 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+dynamic apply(
+  Function function, {
+  List? positionalArguments,
+  Map&lt;Symbol, dynamic&gt;? namedArguments,
   ApplyTransactionScope? tx,
   Function? compensate,
   List? compensatePositional,
   Map&lt;Symbol, dynamic&gt;? compensateNamed,
   Cell? compensateCell,
 }) {
-
   if (tx != null) {
     tx.enqueue(
       this,
@@ -186,17 +188,19 @@ dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dyna
 
   if (modifiable.contains(function)) {
     &#47;&#47; 1. Capture the FutureOr validation result from the Integrity Gate
-    final validation = _nucleus.testRule.action(
-        function,
+    final validation = _nucleus.testRule.action(function,
         host: this,
-        arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)
-    );
+        arguments: (
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments
+        ));
 
     &#47;&#47; 2. Branch: Asynchronous Path
     if (validation is Future&lt;bool&gt;) {
       return validation.then((passed) {
         if (passed) {
-          return Function.apply(function, positionalArguments, namedArguments);
+          return Function.apply(
+              function, positionalArguments, namedArguments);
         }
         return null; &#47;&#47; Action blocked by policy
       });
@@ -236,7 +240,7 @@ dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dyna
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

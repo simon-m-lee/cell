@@ -81,8 +81,7 @@
   <pre class="language-dart"><code class="language-dart">@override
 P? get payload {
   return get&lt;P?&gt;(() =&gt; _record.root.primary.payload,
-      fallback: () =&gt; _pulse?.payload ?? _parent?.payload,
-      orElse: null);
+      fallback: () =&gt; _pulse?.payload ?? _parent?.payload, orElse: null);
 }</code></pre>
 </section>
 
@@ -113,7 +112,7 @@ P? get payload {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

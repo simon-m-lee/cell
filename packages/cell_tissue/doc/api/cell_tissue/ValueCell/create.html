@@ -111,17 +111,22 @@ primitives (<code>update</code>, <code>updateAsync</code>, and <code>ingest</cod
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; create&lt;V&gt;(
-    ValueNucleus&lt;V&gt; nucleus, {V? initial}) {
+  <pre class="language-dart"><code class="language-dart">static StateHandle&lt;V&gt; create&lt;V&gt;(ValueNucleus&lt;V&gt; nucleus, {V? initial}) {
   final cell = ValueCell&lt;V&gt;.fromNucleus(nucleus, initial: initial);
   final valueCellAsync = ValueCellAsync&lt;V&gt;(cell);
   final receptor = nucleus.receptor;
 
   Future&lt;void&gt; ingest(Pulse&lt;V&gt; pulse, {bool serializedCompletion = true}) {
-    return receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+    return receptor.async
+        .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
 
-  return (cell: cell, update: cell._emit, updateAsync: valueCellAsync._emit, ingest: ingest);
+  return (
+    cell: cell,
+    update: cell._emit,
+    updateAsync: valueCellAsync._emit,
+    ingest: ingest
+  );
 }</code></pre>
 </section>
 
@@ -150,7 +155,7 @@ primitives (<code>update</code>, <code>updateAsync</code>, and <code>ingest</cod
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

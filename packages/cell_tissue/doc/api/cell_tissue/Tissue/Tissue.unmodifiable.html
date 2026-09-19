@@ -97,8 +97,9 @@ print(readOnly.length); // 4 (automatically updated)
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Tissue.unmodifiable(Tissue&lt;E&gt; bind, {Context? context, bool unmodifiableElement})
-= _UnmodifiableTissue&lt;E, Tissue&lt;E&gt;&gt;.view;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory Tissue.unmodifiable(Tissue&lt;E&gt; bind,
+    {Context? context,
+    bool unmodifiableElement}) = _UnmodifiableTissue&lt;E, Tissue&lt;E&gt;&gt;.view;</code></pre>
 </section>
 
 
@@ -126,7 +127,7 @@ print(readOnly.length); // 4 (automatically updated)
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

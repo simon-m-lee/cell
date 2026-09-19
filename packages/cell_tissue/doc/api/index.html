@@ -95,7 +95,7 @@ plumbing, and interoperates seamlessly with the rest of the Cell ecosystem.</p>
 <h2 id="installation">Installation</h2>
 <p>Add <code>cell_tissue</code> to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell_tissue: ^1.0.0-rc.4
+  cell_tissue: ^1.0.0-rc.5
 </code></pre>
 <p>Then run:</p>
 <pre class="language-bash"><code class="language-bash">dart pub get
@@ -499,7 +499,7 @@ twice.</p>
 <p><strong>ACK resets, not rebuilds.</strong> ACK clears the Distinct latches via
 <code>resetDistinct()</code> without calling <code>toHandle</code> again. A second <code>toHandle</code>
 would double every downstream effect.</p>
-<p>For the full pattern, see the four sibling demos in <a href="./example"><code>/example</code></a>
+<p>For the full pattern, see the four sibling demos in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>/example</code></a>
 and the per-demo <code>*-ARCHITECTURE.md</code> companions.</p>
 <hr>
 <h2 id="architecture">Architecture</h2>
@@ -544,7 +544,7 @@ the call is rejected.</li>
 <li>The pulse propagates through the tissue's <code>Synapses</code> to downstream
 observers.</li>
 </ol>
-<p>For the full design intent, see <a href="ARCHITECTURE-Tissue.md"><code>ARCHITECTURE-Tissue.md</code></a>.</p>
+<p>For the full design intent, see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/ARCHITECTURE-Tissue.md"><code>ARCHITECTURE-Tissue.md</code></a>.</p>
 <hr>
 <h2 id="api-reference">API Reference</h2>
 <h3 id="factories">Factories</h3>
@@ -705,7 +705,7 @@ method.</strong> The invariant breaks.</li>
 </ul>
 <hr>
 <h2 id="example-demos">Example Demos</h2>
-<p>Four end-to-end demos live under <a href="./example"><code>/example</code></a>. Each is a
+<p>Four end-to-end demos live under <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue/example"><code>/example</code></a>. A minimal, runnable quick start is available at <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/cell_tissue_example.dart"><code>example/cell_tissue_example.dart</code></a>. Each demo is a
 complete, runnable illustration of the Flow + Tissue seam with a different
 domain:</p>
 <table>
@@ -718,22 +718,22 @@ domain:</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="./example/card-auth-pipeline(tissue)-Demo.dart"><code>card-auth-pipeline(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-Demo.dart"><code>card-auth-pipeline(tissue)-Demo.dart</code></a></td>
 <td>Payments</td>
 <td>Authorize, hold, capture, void — with the money invariant <code>available + held + captured == 250000</code>.</td>
 </tr>
 <tr>
-<td><a href="./example/ride-hail-dispatch(tissue)-Demo.dart"><code>ride-hail-dispatch(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-Demo.dart"><code>ride-hail-dispatch(tissue)-Demo.dart</code></a></td>
 <td>Mobility</td>
 <td>Match a rider to a driver, hold a surge banner, keep an auditable trip log.</td>
 </tr>
 <tr>
-<td><a href="./example/grid-demand-response(tissue)-Demo.dart"><code>grid-demand-response(tissue)-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-Demo.dart"><code>grid-demand-response(tissue)-Demo.dart</code></a></td>
 <td>Energy</td>
 <td>Shed interruptible load, protect hospital feeders, restore after the shift-lead ACK.</td>
 </tr>
 <tr>
-<td><a href="./example/nl-instruction-tissue-set-Demo.dart"><code>nl-instruction-tissue-set-Demo.dart</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/nl-instruction-tissue-set-Demo.dart"><code>nl-instruction-tissue-set-Demo.dart</code></a></td>
 <td>Command surface</td>
 <td>Translate a natural-language sentence into a verb, then dispatch it against a governed <code>TissueSet&lt;int&gt;</code>.</td>
 </tr>
@@ -762,7 +762,7 @@ domain:</p>
 </tr>
 </tbody>
 </table>
-<p>See <a href="DEMO_GUIDE-Tissue.md"><code>DEMO_GUIDE-Tissue.md</code></a> for a progressive walk-through of
+<p>See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/DEMO_GUIDE-Tissue.md"><code>DEMO_GUIDE-Tissue.md</code></a> for a progressive walk-through of
 the demos, or read the demos themselves in this order:</p>
 <ol>
 <li>Skim the class doc.</li>
@@ -772,7 +772,7 @@ the demos, or read the demos themselves in this order:</p>
 </ol>
 <hr>
 <h2 id="status--known-gaps">Status &amp; Known Gaps</h2>
-<p><strong>Release Candidate.</strong></p>
+<p><strong>Release Candidate</strong> — published to pub.dev.</p>
 <ul>
 <li><code>example/</code> ships four demos; <code>test/</code> remains minimal.</li>
 <li>Some dartdoc snippets are stale — use <code>TissueList.of([...])</code> rather than
@@ -795,7 +795,7 @@ migration target.</li>
 </ul>
 <p>If you rely on a guarantee here, verify it against the current source and
 the header of the demo that exercises it. See
-<a href="ARCHITECTURE-Tissue.md#9-current-status-and-known-gaps"><code>ARCHITECTURE-Tissue.md § Current status</code></a>
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/ARCHITECTURE-Tissue.md#9-current-status-and-known-gaps"><code>ARCHITECTURE-Tissue.md § Current status</code></a>
 for the full list.</p>
 <hr>
 <h2 id="testing">Testing</h2>
@@ -836,10 +836,10 @@ orchestration. Pairs with <code>cell_tissue</code> for the Flow + Tissue seam.</
 <li><strong>MIT License</strong></li>
 <li><strong>Apache License 2.0</strong></li>
 </ul>
-<p>See <code>LICENSE</code> for the full text.</p>
+<p>See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/LICENSE">LICENSE</a> for the full text.</p>
 <hr>
 <h2 id="author">Author</h2>
-<p><strong>Lee Man Hoi Simon</strong> — see <code>AUTHORS</code> for details.</p>
+<p><strong>Lee Man Hoi Simon</strong> — see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS">AUTHORS</a> for details.</p>
 <hr>
 <p><em><code>cell_tissue</code> is part of the Cell Framework — a reactive, governable,
 conactive substrate for building resilient Dart applications.</em></p>
@@ -895,7 +895,7 @@ conactive substrate for building resilient Dart applications.</em></p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

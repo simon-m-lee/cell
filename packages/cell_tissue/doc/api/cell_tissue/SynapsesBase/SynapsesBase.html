@@ -106,16 +106,15 @@ strategy across the downstream spokes.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">SynapsesBase({
   PropagationPolicy? policy,
-
   Iterable&lt;C&gt;? downstreams,
   FilterRule&lt;P&gt;? filter,
   void Function(P pulse)? relay,
 }) : _record = mask(
-    downstreams: downstreams != null ? &lt;C&gt;{...downstreams} : &lt;C&gt;{},
-    policy: policy,
-    filter: filter,
-    relay: relay,
-);</code></pre>
+        downstreams: downstreams != null ? &lt;C&gt;{...downstreams} : &lt;C&gt;{},
+        policy: policy,
+        filter: filter,
+        relay: relay,
+      );</code></pre>
 </section>
 
 
@@ -143,7 +142,7 @@ strategy across the downstream spokes.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -125,7 +125,8 @@ every applicable provenance dimension.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Iterable&lt;GovernanceEntry&gt; compose(GovernanceEntry? Function(Provenance dimension) resolver) {
+  <pre class="language-dart"><code class="language-dart">static Iterable&lt;GovernanceEntry&gt; compose(
+    GovernanceEntry? Function(Provenance dimension) resolver) {
   final entries = values.map((g) =&gt; resolver(g)).where((en) =&gt; en != null);
   return entries.cast();
 }</code></pre>
@@ -156,7 +157,7 @@ every applicable provenance dimension.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

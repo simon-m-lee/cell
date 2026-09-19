@@ -74,16 +74,14 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static SynthesisHandle handle(Iterable&lt;Cell&gt; cells, {
-  EphemeralPolicy? ephemeralPolicy,
-
-  Cell? bind,
-  Context context = Context.system,
-  Receptor receptor = Receptor.passThrough,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  bool forceLock = false
-}) {
+  <pre class="language-dart"><code class="language-dart">static SynthesisHandle handle(Iterable&lt;Cell&gt; cells,
+    {EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context context = Context.system,
+    Receptor receptor = Receptor.passThrough,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = false}) {
   &#47;&#47; 1. Maintain a local set of sources to track membership
   final sourceSet = Set&lt;Cell&gt;.from(cells);
 
@@ -95,8 +93,7 @@
       receptor: receptor,
       testRule: testRule,
       synapses: synapses,
-      forceLock: forceLock
-  );
+      forceLock: forceLock);
 
   &#47;&#47; 3. Define the manipulation logic
   bool add(Cell c) {
@@ -181,7 +178,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

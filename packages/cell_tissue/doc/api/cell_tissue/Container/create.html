@@ -116,7 +116,7 @@ to select variants of the default strategies.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Container create&lt;E,I&gt;({
+  <pre class="language-dart"><code class="language-dart">static Container create&lt;E, I&gt;({
   I Function([dynamic initialization])? create,
   bool Function(Tissue&lt;E&gt; tissue, I container, E e)? add,
   bool Function(Tissue&lt;E&gt; tissue, I container, E e)? remove,
@@ -127,38 +127,60 @@ to select variants of the default strategies.</li>
   final type = I.toString();
 
   if (I == Iterable&lt;E&gt;) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? Container.iterable
-        : _Container(create: create ?? _iterableCreate, add: add ?? _iterableAdd, remove: remove ?? _iterableRemove);
+        : _Container(
+            create: create ?? _iterableCreate,
+            add: add ?? _iterableAdd,
+            remove: remove ?? _iterableRemove);
   }
   if (type.contains(&#39;Set&#39;)) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? (identitySet ? Container.identitySet : Container.set)
-        : _Container(create: create ?? (identitySet ? _identitySetCreate : _setCreate) , add: add ?? _setAdd, remove: remove ?? _setRemove);
+        : _Container(
+            create: create ?? (identitySet ? _identitySetCreate : _setCreate),
+            add: add ?? _setAdd,
+            remove: remove ?? _setRemove);
   }
 
   if (type.contains(&#39;List&#39;)) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? (growable ? Container.growableTrue : Container.growableFalse)
-        : _Container(create: create ?? (growable ? _growableTrueCreate : _growableFalseCreate), add: add ?? _setAdd, remove: remove ?? _setRemove);
+        : _Container(
+            create: create ??
+                (growable ? _growableTrueCreate : _growableFalseCreate),
+            add: add ?? _setAdd,
+            remove: remove ?? _setRemove);
   }
   if (type.contains(&#39;Queue&#39;)) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? Container.queue
-        : _Container(create: create ?? _queueCreate, add: add ?? _queueAdd, remove: remove ?? _queueRemove);
+        : _Container(
+            create: create ?? _queueCreate,
+            add: add ?? _queueAdd,
+            remove: remove ?? _queueRemove);
   }
   if (type.contains(&#39;Map&#39;)) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? (identityMap ? Container.identityMap : Container.map)
-        : _Container(create: create ?? (identitySet ? _identitySetCreate : _setCreate) , add: add ?? _setAdd, remove: remove ?? _setRemove);
+        : _Container(
+            create: create ?? (identitySet ? _identitySetCreate : _setCreate),
+            add: add ?? _setAdd,
+            remove: remove ?? _setRemove);
   }
   if (type.contains(&#39;?&#39;)) {
-    return [create,add,remove].every((a) =&gt; a == null)
+    return [create, add, remove].every((a) =&gt; a == null)
         ? Container.value
-        : _Container(create: create ?? _valueCreate, add: add ?? _valueAdd, remove: remove ?? _valueRemove);
+        : _Container(
+            create: create ?? _valueCreate,
+            add: add ?? _valueAdd,
+            remove: remove ?? _valueRemove);
   }
 
-  return _Container(create: create ?? _iterableCreate, add: add ?? _iterableAdd, remove: remove ?? _iterableRemove);
+  return _Container(
+      create: create ?? _iterableCreate,
+      add: add ?? _iterableAdd,
+      remove: remove ?? _iterableRemove);
 }</code></pre>
 </section>
 
@@ -187,7 +209,7 @@ to select variants of the default strategies.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -82,7 +82,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 TissueEventBase&lt;E&gt; get unmodifiable {
-  return _UnmodifiableTissueEvent&lt;E&gt;(this as TissueEventBase&lt;E&gt;) as TissueEventBase&lt;E&gt;;
+  return _UnmodifiableTissueEvent&lt;E&gt;(this as TissueEventBase&lt;E&gt;)
+      as TissueEventBase&lt;E&gt;;
 }</code></pre>
 </section>
 
@@ -113,7 +114,7 @@ TissueEventBase&lt;E&gt; get unmodifiable {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

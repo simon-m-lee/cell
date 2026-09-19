@@ -1,3 +1,13 @@
+## [Mitosis (1.0.0-rc.6)] - Release Candidate
+
+Pub.dev hygiene release. No public API changes.
+
+### Changed
+
+- **TestTissue constructor formatting**: Reformatted the `TestTissue` and `TestTissue.chain` constructor signatures for consistency and analyzer hygiene.
+
+[Mitosis (1.0.0-rc.6)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+
 ## [Mitosis (1.0.0-rc.5)] - Release Candidate
 
 Pub.dev score remediation release. No public API changes.

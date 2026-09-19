@@ -114,7 +114,8 @@ custom instructions (including synchronous/asynchronous) and scheduling logic..<
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const factory Instruction(
-    O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user}) = _Instruction&lt;C,I,O&gt;;</code></pre>
+    O? Function(I pulse, {C? cell, dynamic user}) instruction,
+    {dynamic user}) = _Instruction&lt;C, I, O&gt;;</code></pre>
 </section>
 
 
@@ -142,7 +143,7 @@ custom instructions (including synchronous/asynchronous) and scheduling logic..<
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

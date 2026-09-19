@@ -107,11 +107,11 @@ bool operator ==(Object other) {
   if (other is! Nucleus) return false;
 
   Nucleus? p = this;
-  while(p?.principal != null) {
+  while (p?.principal != null) {
     p = p!.principal;
   }
   Nucleus? p_ = other;
-  while(p_?.principal != null) {
+  while (p_?.principal != null) {
     p_ = p_!.principal;
   }
 
@@ -144,7 +144,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

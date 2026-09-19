@@ -104,13 +104,12 @@ governance parameters.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory TissueQueue({
   int? capacity,
-
   Cell? bind,
   Context context,
-  TissueReceptor&lt;E,TissueQueue&lt;E&gt;&gt; receptor,
-  TestTissue&lt;E,TissueQueue&lt;E&gt;&gt; testRule,
+  TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt; receptor,
+  TestTissue&lt;E, TissueQueue&lt;E&gt;&gt; testRule,
   Synapses synapses,
-}) = _TissueQueue&lt;E,TissueQueue&lt;E&gt;&gt;;</code></pre>
+}) = _TissueQueue&lt;E, TissueQueue&lt;E&gt;&gt;;</code></pre>
 </section>
 
 
@@ -138,7 +137,7 @@ governance parameters.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

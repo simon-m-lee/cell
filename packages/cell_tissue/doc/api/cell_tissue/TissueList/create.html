@@ -123,21 +123,18 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueListBase&lt;E,C&gt; create&lt;E,C extends TissueList&lt;E&gt;&gt;({
-  Iterable&lt;E&gt;? elements,
-
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;E,C&gt;? receptor,
-  TestTissue&lt;E,C&gt;? testRule,
-  Synapses? synapses,
-
-  Container? container,
-  Record? user,
-  forceLock = false,
-  TissueListNucleusBase&lt;E,C&gt;? principal
-}) {
-  final properties = TissueListNucleus.create&lt;E,C&gt;(
+  <pre class="language-dart"><code class="language-dart">static TissueListBase&lt;E, C&gt; create&lt;E, C extends TissueList&lt;E&gt;&gt;(
+    {Iterable&lt;E&gt;? elements,
+    Cell? bind,
+    Context? context,
+    TissueReceptor&lt;E, C&gt;? receptor,
+    TestTissue&lt;E, C&gt;? testRule,
+    Synapses? synapses,
+    Container? container,
+    Record? user,
+    forceLock = false,
+    TissueListNucleusBase&lt;E, C&gt;? principal}) {
+  final properties = TissueListNucleus.create&lt;E, C&gt;(
       bind: bind,
       context: context,
       receptor: receptor,
@@ -146,10 +143,8 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
       container: container,
       user: user,
       forceLock: forceLock,
-      principal: principal
-  );
-  return _TissueList&lt;E,C&gt;.fromNucleus(properties, elements: elements);
-
+      principal: principal);
+  return _TissueList&lt;E, C&gt;.fromNucleus(properties, elements: elements);
 }</code></pre>
 </section>
 
@@ -178,7 +173,7 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

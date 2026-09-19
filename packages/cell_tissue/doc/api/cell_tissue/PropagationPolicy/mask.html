@@ -70,18 +70,15 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask({
-  PropagationStrategy strategy = PropagationStrategy.immediate,
-  Duration? debounceTime,
-  Duration? throttleTime,
-  int? batchSize
-}) {
-  final mask = (
-      (strategy != PropagationStrategy.immediate  ? 1 : 0) |
-      (debounceTime != null                       ? 2 : 0) |
-      (throttleTime != null                       ? 4 : 0) |
-      (batchSize != null                          ? 8 : 0)
-  );
+  <pre class="language-dart"><code class="language-dart">static Record mask(
+    {PropagationStrategy strategy = PropagationStrategy.immediate,
+    Duration? debounceTime,
+    Duration? throttleTime,
+    int? batchSize}) {
+  final mask = ((strategy != PropagationStrategy.immediate ? 1 : 0) |
+      (debounceTime != null ? 2 : 0) |
+      (throttleTime != null ? 4 : 0) |
+      (batchSize != null ? 8 : 0));
 
   return switch (mask) {
     0 =&gt; (),
@@ -91,15 +88,36 @@
     4 =&gt; (throttleTime: throttleTime),
     5 =&gt; (strategy: strategy, throttleTime: throttleTime),
     6 =&gt; (debounceTime: debounceTime, throttleTime: throttleTime),
-    7 =&gt; (strategy: strategy, debounceTime: debounceTime, throttleTime: throttleTime),
+    7 =&gt; (
+        strategy: strategy,
+        debounceTime: debounceTime,
+        throttleTime: throttleTime
+      ),
     8 =&gt; (batchSize: batchSize),
     9 =&gt; (strategy: strategy, batchSize: batchSize),
     10 =&gt; (debounceTime: debounceTime, batchSize: batchSize),
-    11 =&gt; (strategy: strategy, debounceTime: debounceTime, batchSize: batchSize),
+    11 =&gt; (
+        strategy: strategy,
+        debounceTime: debounceTime,
+        batchSize: batchSize
+      ),
     12 =&gt; (throttleTime: throttleTime, batchSize: batchSize),
-    13 =&gt; (strategy: strategy, throttleTime: throttleTime, batchSize: batchSize),
-    14 =&gt; (debounceTime: debounceTime, throttleTime: throttleTime, batchSize: batchSize),
-    15 =&gt; (strategy: strategy, debounceTime: debounceTime, throttleTime: throttleTime, batchSize: batchSize),
+    13 =&gt; (
+        strategy: strategy,
+        throttleTime: throttleTime,
+        batchSize: batchSize
+      ),
+    14 =&gt; (
+        debounceTime: debounceTime,
+        throttleTime: throttleTime,
+        batchSize: batchSize
+      ),
+    15 =&gt; (
+        strategy: strategy,
+        debounceTime: debounceTime,
+        throttleTime: throttleTime,
+        batchSize: batchSize
+      ),
     _ =&gt; ()
   };
 }</code></pre>
@@ -130,7 +148,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

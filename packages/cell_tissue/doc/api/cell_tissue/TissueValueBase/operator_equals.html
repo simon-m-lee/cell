@@ -101,13 +101,14 @@ bool operator ==(Object other) {
   }
   if (other is TissueValue&lt;V&gt;) {
     if (other is Unmodifiable) {
-      if (other._nucleus.bind != null &amp;&amp; identical(this, other._nucleus.bind)) {
+      if (other._nucleus.bind != null &amp;&amp;
+          identical(this, other._nucleus.bind)) {
         return other.value == value;
       }
     }
     return other.value == value;
   }
-  if (other is V &amp;&amp; value != null ) {
+  if (other is V &amp;&amp; value != null) {
     return other == value;
   }
   return false;
@@ -139,7 +140,7 @@ bool operator ==(Object other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

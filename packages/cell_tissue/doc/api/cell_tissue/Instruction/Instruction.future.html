@@ -136,10 +136,14 @@ custom asynchronous instructions and scheduling logic.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const factory Instruction.future(
-    O? Function(I pulse, {C? cell, dynamic user,
-    void Function({required Pulse? result, required dynamic token})? future,
-    dynamic token
-    }) instruction, {dynamic user}) = _Instruction&lt;C,I,O&gt;.future;</code></pre>
+    O? Function(I pulse,
+            {C? cell,
+            dynamic user,
+            void Function({required Pulse? result, required dynamic token})?
+                future,
+            dynamic token})
+        instruction,
+    {dynamic user}) = _Instruction&lt;C, I, O&gt;.future;</code></pre>
 </section>
 
 
@@ -167,7 +171,7 @@ custom asynchronous instructions and scheduling logic.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

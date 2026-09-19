@@ -74,24 +74,84 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask({required Function onEvent, required Function onInvalidate, int? eventLimit, Duration? duration, dynamic user}) {
-final mask = (
-(eventLimit != null ? 1 : 0) |
-(duration != null ? 2 : 0) |
-(user != null ? 4 : 0)
-);
+  <pre class="language-dart"><code class="language-dart">static Record mask(
+    {required Function onEvent,
+    required Function onInvalidate,
+    int? eventLimit,
+    Duration? duration,
+    dynamic user}) {
+  final mask = ((eventLimit != null ? 1 : 0) |
+      (duration != null ? 2 : 0) |
+      (user != null ? 4 : 0));
 
-return switch (mask) {
-0 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;()),
-1 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), eventLimit: eventLimit),
-2 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), duration: duration),
-3 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), eventLimit: eventLimit, duration: duration),
-4 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), user: user),
-5 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), eventLimit: eventLimit, user: user),
-6 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), duration: duration, user: user),
-7 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;(), eventLimit: eventLimit, duration: duration, user: user),
-_ =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), events: Box&lt;int&gt;())
-};
+  return switch (mask) {
+    0 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;()
+      ),
+    1 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        eventLimit: eventLimit
+      ),
+    2 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        duration: duration
+      ),
+    3 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        eventLimit: eventLimit,
+        duration: duration
+      ),
+    4 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        user: user
+      ),
+    5 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        eventLimit: eventLimit,
+        user: user
+      ),
+    6 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        duration: duration,
+        user: user
+      ),
+    7 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;(),
+        eventLimit: eventLimit,
+        duration: duration,
+        user: user
+      ),
+    _ =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        events: Box&lt;int&gt;()
+      )
+  };
 }</code></pre>
 </section>
 
@@ -120,7 +180,7 @@ _ =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

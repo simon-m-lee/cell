@@ -104,11 +104,13 @@ upstream synapse.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Receptor receptor&lt;V&gt;(Pulse&lt;V?&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user}) transform) {
+  <pre class="language-dart"><code class="language-dart">static Receptor receptor&lt;V&gt;(
+    Pulse&lt;V?&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user})
+        transform) {
   return Receptor.pipeline(
-      instruction: Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V?&gt;&gt;((pulse, {cell, user}) =&gt; transform(cell!, pulse, user: user)),
-      postProcess: ValueCell.postProcessRule
-  );
+      instruction: Instruction&lt;ValueCell&lt;V&gt;, Pulse, Pulse&lt;V?&gt;&gt;(
+          (pulse, {cell, user}) =&gt; transform(cell!, pulse, user: user)),
+      postProcess: ValueCell.postProcessRule);
 }</code></pre>
 </section>
 
@@ -137,7 +139,7 @@ upstream synapse.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -146,7 +146,8 @@ walkthrough of automated PII redaction and audit trails.
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Cell sanitized&lt;P extends Pulse&gt;(Cell source, {
+  <pre class="language-dart"><code class="language-dart">static Cell sanitized&lt;P extends Pulse&gt;(
+  Cell source, {
   required P Function(P pulse) redact,
   Sensitivity minSensitivity = Sensitivity.confidential,
 }) {
@@ -187,7 +188,7 @@ walkthrough of automated PII redaction and audit trails.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

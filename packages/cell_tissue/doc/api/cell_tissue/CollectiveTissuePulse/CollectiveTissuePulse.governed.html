@@ -106,23 +106,19 @@ authentication challenge for the batch.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory CollectiveTissuePulse.governed(Iterable&lt;TissuePulse&lt;E&gt;&gt; events, {
+  <pre class="language-dart"><code class="language-dart">factory CollectiveTissuePulse.governed(
+  Iterable&lt;TissuePulse&lt;E&gt;&gt; events, {
   PulseEphemeralPolicy? policy,
   PulseContext? context,
-
   String? type,
-
   Tissue? source,
   String? step,
-
   int? priority,
-
   void Function(TissuePulse event)? onComplete,
-  void Function(TissuePulse event, Object error, {StackTrace? stackTrace})? onError,
+  void Function(TissuePulse event, Object error, {StackTrace? stackTrace})?
+      onError,
   void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
-
   FutureOr&lt;TissuePulse?&gt; Function(TissueReceptor receptor)? scrutinize,
-
 }) = _CollectiveTissueEvent&lt;E&gt;;</code></pre>
 </section>
 
@@ -151,7 +147,7 @@ authentication challenge for the batch.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

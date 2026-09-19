@@ -97,12 +97,13 @@ multiple observers.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void call(covariant P pulse) {
-
   if (isEmpty &amp;&amp; pulse is PulseBase) {
     if (_policy?.strategy == PropagationStrategy.persistent) {
       final buffer = _buffer;
       if (buffer != null) {
-        buffer..clear()..add(pulse);
+        buffer
+          ..clear()
+          ..add(pulse);
       }
     }
     final box = pulse._branches;
@@ -118,7 +119,6 @@ void call(covariant P pulse) {
     }
   }
 
-
   PulseBase? p;
 
   p = pulse as PulseBase?;
@@ -130,7 +130,6 @@ void call(covariant P pulse) {
 
   final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
   switch (strategy) {
-
     case PropagationStrategy.immediate:
       _broadcast(p);
       break;
@@ -171,22 +170,23 @@ void call(covariant P pulse) {
       _resilient(p);
       break;
 
-      case PropagationStrategy.debounceLeading:
+    case PropagationStrategy.debounceLeading:
       _debounceLeading(p);
       break;
 
-      case PropagationStrategy.retry:
+    case PropagationStrategy.retry:
       _retry(p);
       break;
 
     case PropagationStrategy.persistent:
       final buffer = _buffer;
       if (buffer != null) {
-        buffer..clear()..add(p);
+        buffer
+          ..clear()
+          ..add(p);
       }
       _broadcast(p);
       break;
-
   }
 }</code></pre>
 </section>
@@ -216,7 +216,7 @@ void call(covariant P pulse) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -130,20 +130,17 @@ behavioral layer over the <code>principal</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve({
-  int? capacity,
-
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
-  TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
-  Synapses? synapses,
-
-  EphemeralPolicy? ephemeralPolicy,
-
-  TissueQueueNucleus&lt;E&gt;? override,
-  required TissueQueueNucleus&lt;E&gt; principal
-}) = _TissueQueueNucleus&lt;E,TissueQueue&lt;E&gt;&gt;.evolve;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueQueueNucleus.evolve(
+        {int? capacity,
+        Cell? bind,
+        Context? context,
+        TissueReceptor&lt;E, TissueQueue&lt;E&gt;&gt;? receptor,
+        TestTissue&lt;E, TissueQueue&lt;E&gt;&gt;? testRule,
+        Synapses? synapses,
+        EphemeralPolicy? ephemeralPolicy,
+        TissueQueueNucleus&lt;E&gt;? override,
+        required TissueQueueNucleus&lt;E&gt; principal}) =
+    _TissueQueueNucleus&lt;E, TissueQueue&lt;E&gt;&gt;.evolve;</code></pre>
 </section>
 
 
@@ -171,7 +168,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

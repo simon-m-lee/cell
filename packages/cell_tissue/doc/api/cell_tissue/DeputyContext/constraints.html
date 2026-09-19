@@ -85,9 +85,13 @@ and agent behavior.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Map&lt;String, dynamic&gt;? get constraints =&gt; get&lt;Map&lt;String, dynamic&gt;?&gt;(
-      () =&gt; _record.map[Mandate.constraints] ?? (_parent is DeputyContext ? (_parent as DeputyContext).constraints : null),
-  orElse: null,
-);</code></pre>
+      () =&gt;
+          _record.map[Mandate.constraints] ??
+          (_parent is DeputyContext
+              ? (_parent as DeputyContext).constraints
+              : null),
+      orElse: null,
+    );</code></pre>
 </section>
 
   </section>
@@ -117,7 +121,7 @@ Map&lt;String, dynamic&gt;? get constraints =&gt; get&lt;Map&lt;String, dynamic&
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

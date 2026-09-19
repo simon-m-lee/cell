@@ -87,7 +87,8 @@ by walking up the principal chain if not defined locally.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Receptor get receptor {
-  return get&lt;Receptor&gt;(() =&gt; record.local.inheritable.receptor, fallback: () =&gt; principal?.receptor, orElse: Receptor.passThrough);
+  return get&lt;Receptor&gt;(() =&gt; record.local.inheritable.receptor,
+      fallback: () =&gt; principal?.receptor, orElse: Receptor.passThrough);
 }</code></pre>
 </section>
 
@@ -118,7 +119,7 @@ Receptor get receptor {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

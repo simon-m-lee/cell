@@ -116,8 +116,10 @@ unless explicitly overridden.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissueReceptor&lt;E,C&gt; get receptor {
-  return get&lt;TissueReceptor&lt;E,C&gt;&gt;(() =&gt; record.local.inheritable.receptor, fallback: () =&gt; principal?.receptor, orElse: TissueReceptor.passThrough);
+TissueReceptor&lt;E, C&gt; get receptor {
+  return get&lt;TissueReceptor&lt;E, C&gt;&gt;(() =&gt; record.local.inheritable.receptor,
+      fallback: () =&gt; principal?.receptor,
+      orElse: TissueReceptor.passThrough);
 }</code></pre>
 </section>
 
@@ -148,7 +150,7 @@ TissueReceptor&lt;E,C&gt; get receptor {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

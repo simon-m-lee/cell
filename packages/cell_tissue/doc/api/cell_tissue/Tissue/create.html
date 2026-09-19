@@ -120,21 +120,19 @@ synchronisation primitive or shares one with a principal.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueBase&lt;E,I,C&gt; create&lt;E, I extends Iterable&lt;E&gt;, C extends Tissue&lt;E&gt;&gt;({
-  Iterable&lt;E&gt;? elements,
-
-  Cell? bind,
-  Context? context = Context.system,
-  TissueReceptor&lt;E,C&gt;? receptor,
-  TestTissue&lt;E,C&gt;? testRule,
-  Synapses? synapses,
-
-  Container? container,
-  Record? user,
-  forceLock = false,
-  TissueNucleusBase&lt;E,I,C&gt;? principal
-}) {
-  final nucleus = TissueNucleus.create&lt;E,I,C&gt;(
+  <pre class="language-dart"><code class="language-dart">static TissueBase&lt;E, I, C&gt;
+    create&lt;E, I extends Iterable&lt;E&gt;, C extends Tissue&lt;E&gt;&gt;(
+        {Iterable&lt;E&gt;? elements,
+        Cell? bind,
+        Context? context = Context.system,
+        TissueReceptor&lt;E, C&gt;? receptor,
+        TestTissue&lt;E, C&gt;? testRule,
+        Synapses? synapses,
+        Container? container,
+        Record? user,
+        forceLock = false,
+        TissueNucleusBase&lt;E, I, C&gt;? principal}) {
+  final nucleus = TissueNucleus.create&lt;E, I, C&gt;(
       bind: bind,
       context: context,
       receptor: receptor,
@@ -143,10 +141,8 @@ synchronisation primitive or shares one with a principal.</li>
       container: container,
       user: user,
       forceLock: forceLock,
-      principal: principal
-  );
-  return _Tissue&lt;E,I,C&gt;.fromNucleus(nucleus, elements: elements);
-
+      principal: principal);
+  return _Tissue&lt;E, I, C&gt;.fromNucleus(nucleus, elements: elements);
 }</code></pre>
 </section>
 
@@ -175,7 +171,7 @@ synchronisation primitive or shares one with a principal.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

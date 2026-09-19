@@ -120,32 +120,34 @@ tissue types.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueSetNucleusBase&lt;E,C&gt; create&lt;E,C extends TissueSet&lt;E&gt;&gt;({
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;E,C&gt;? receptor,
-  TestTissue&lt;E,C&gt;? testRule,
-  Synapses? synapses,
-
-  Container? container,
-  Record? user,
-  EphemeralPolicy? ephemeralPolicy,
-  forceLock = false,
-  TissueSetNucleusBase&lt;E,C&gt;? principal
-}) {
-
+  <pre class="language-dart"><code class="language-dart">static TissueSetNucleusBase&lt;E, C&gt; create&lt;E, C extends TissueSet&lt;E&gt;&gt;(
+    {Cell? bind,
+    Context? context,
+    TissueReceptor&lt;E, C&gt;? receptor,
+    TestTissue&lt;E, C&gt;? testRule,
+    Synapses? synapses,
+    Container? container,
+    Record? user,
+    EphemeralPolicy? ephemeralPolicy,
+    forceLock = false,
+    TissueSetNucleusBase&lt;E, C&gt;? principal}) {
   if (principal != null) {
-    final local = TissueNucleusBase.local&lt;E,Set&lt;E&gt;,C&gt;(
+    final local = TissueNucleusBase.local&lt;E, Set&lt;E&gt;, C&gt;(
       container: container,
-      bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user,
+      bind: bind,
+      context: context,
+      receptor: receptor,
+      testRule: testRule,
+      synapses: synapses,
+      forceLock: forceLock,
+      user: user,
       ephemeralPolicy: ephemeralPolicy,
     );
-    return _TissueSetNucleus&lt;E,C&gt;.fromRecord(
-        (local: local, principal: principal)
-    );
+    return _TissueSetNucleus&lt;E, C&gt;.fromRecord(
+        (local: local, principal: principal));
   }
 
-  return _TissueSetNucleus&lt;E,C&gt;(
+  return _TissueSetNucleus&lt;E, C&gt;(
       bind: bind,
       context: context ?? Context.system,
       receptor: receptor ?? TissueReceptor.passThrough,
@@ -154,9 +156,7 @@ tissue types.</p>
       identitySet: container == Container.identitySet,
       user: user,
       ephemeralPolicy: ephemeralPolicy,
-      forceLock: forceLock
-  );
-
+      forceLock: forceLock);
 }</code></pre>
 </section>
 
@@ -185,7 +185,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

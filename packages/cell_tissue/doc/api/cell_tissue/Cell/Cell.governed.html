@@ -140,17 +140,14 @@ explicit lifecycle configuration.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Cell.governed({
-  EphemeralPolicy? ephemeralPolicy,
-  Context context,
-
-  Cell? bind,
-  Receptor receptor,
-  TestCell testRule,
-  Synapses synapses,
-
-  bool forceLock
-}) = _Cell;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory Cell.governed(
+    {EphemeralPolicy? ephemeralPolicy,
+    Context context,
+    Cell? bind,
+    Receptor receptor,
+    TestCell testRule,
+    Synapses synapses,
+    bool forceLock}) = _Cell;</code></pre>
 </section>
 
 
@@ -178,7 +175,7 @@ explicit lifecycle configuration.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

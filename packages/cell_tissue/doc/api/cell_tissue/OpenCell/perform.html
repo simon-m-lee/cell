@@ -109,20 +109,19 @@ logic upon pulse ingestion.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static OpenCell perform(
-    Cell source, Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform, {
-  dynamic user,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled
-}) {
+  <pre class="language-dart"><code class="language-dart">static OpenCell perform(Cell source,
+    Pulse? Function(Cell on, Pulse pulse, {dynamic user}) perform,
+    {dynamic user,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled}) {
   return _OpenCell(
       bind: source,
-      receptor: Receptor.pipeline(instruction: Instruction((Pulse pulse, {Cell? cell, dynamic user}) {
+      receptor: Receptor.pipeline(
+          instruction: Instruction((Pulse pulse, {Cell? cell, dynamic user}) {
         return perform(cell!, pulse, user: user);
-        }, user: user)),
+      }, user: user)),
       testRule: testRule,
-      synapses: synapses
-  );
+      synapses: synapses);
 }</code></pre>
 </section>
 
@@ -151,7 +150,7 @@ logic upon pulse ingestion.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

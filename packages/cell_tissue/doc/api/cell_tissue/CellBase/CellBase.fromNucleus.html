@@ -116,7 +116,8 @@ for this cell.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CellBase.fromNucleus(Nucleus nucleus) : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
+  <pre class="language-dart"><code class="language-dart">CellBase.fromNucleus(Nucleus nucleus)
+    : _nucleus = nucleus.isActivated ? nucleus.clone : nucleus {
   try {
     _nucleus.activate(this);
     final bind = _nucleus.bind;
@@ -124,7 +125,7 @@ for this cell.</li>
       final synapses = bind._nucleus.synapses;
       synapses.link(bind, downstreamCell: this);
     }
-  } catch(_) {}
+  } catch (_) {}
 }</code></pre>
 </section>
 
@@ -153,7 +154,7 @@ for this cell.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

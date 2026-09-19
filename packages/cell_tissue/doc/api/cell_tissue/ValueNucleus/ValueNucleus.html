@@ -108,29 +108,38 @@ traits carried by the nucleus blueprint.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ValueNucleus({
-  Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user})? transform,
-
-  Cell? bind,
-  Context context = Context.system,
-  Receptor receptor = Receptor.passThrough,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  EphemeralPolicy? ephemeralPolicy,
-
-  Record? user,
-  bool forceLock = true
-}) : this._((
-local: NucleusBase.mask(
-    bind: bind, context: context, testRule: testRule, synapses: synapses,
-    forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy,
-    receptor: transform != null
-        ? Receptor.pipeline(instruction: Instruction&lt;ValueCell&lt;V&gt;,Pulse,Pulse&lt;V&gt;&gt;((pulse, {cell, user, delayPropagation, token}) =&gt; transform(cell!, pulse, user: user)), postProcess: ValueCell.postProcessRule)
-        : receptor == Receptor.passThrough ? Receptor.pipeline(postProcess: ValueCell.postProcessRule)  : receptor,
-    others: (value: Box&lt;V&gt;())
-)
-)
-);</code></pre>
+  <pre class="language-dart"><code class="language-dart">ValueNucleus(
+    {Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user})?
+        transform,
+    Cell? bind,
+    Context context = Context.system,
+    Receptor receptor = Receptor.passThrough,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    EphemeralPolicy? ephemeralPolicy,
+    Record? user,
+    bool forceLock = true})
+    : this._((
+        local: NucleusBase.mask(
+            bind: bind,
+            context: context,
+            testRule: testRule,
+            synapses: synapses,
+            forceLock: forceLock,
+            user: user,
+            ephemeralPolicy: ephemeralPolicy,
+            receptor: transform != null
+                ? Receptor.pipeline(
+                    instruction: Instruction&lt;ValueCell&lt;V&gt;, Pulse, Pulse&lt;V&gt;&gt;(
+                        (pulse, {cell, user, delayPropagation, token}) =&gt;
+                            transform(cell!, pulse, user: user)),
+                    postProcess: ValueCell.postProcessRule)
+                : receptor == Receptor.passThrough
+                    ? Receptor.pipeline(
+                        postProcess: ValueCell.postProcessRule)
+                    : receptor,
+            others: (value: Box&lt;V&gt;()))
+      ));</code></pre>
 </section>
 
 
@@ -158,7 +167,7 @@ local: NucleusBase.mask(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -73,8 +73,8 @@ custom <code>properties</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueMapBase.from(Map&lt;K,V&gt; map, {TissueMapNucleusBase&lt;K,V,C&gt;? properties})
-    : super(properties ?? _TissueMapNucleus&lt;K,V,C&gt;()) {
+  <pre class="language-dart"><code class="language-dart">TissueMapBase.from(Map&lt;K, V&gt; map, {TissueMapNucleusBase&lt;K, V, C&gt;? properties})
+    : super(properties ?? _TissueMapNucleus&lt;K, V, C&gt;()) {
   _nucleus.container.store.addEntries(map.entries);
   for (var v in values) {
     if (v is Cell) {
@@ -109,7 +109,7 @@ custom <code>properties</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

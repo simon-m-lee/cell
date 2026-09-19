@@ -121,7 +121,8 @@ trace-logged.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Receptor&lt;C&gt; typed&lt;C extends Cell, I extends Pulse, O extends Pulse&gt;(Instruction&lt;C,I,O&gt; instruction) {
+  <pre class="language-dart"><code class="language-dart">static Receptor&lt;C&gt; typed&lt;C extends Cell, I extends Pulse, O extends Pulse&gt;(
+    Instruction&lt;C, I, O&gt; instruction) {
   return _Receptor&lt;C&gt;(instruction: instruction);
 }</code></pre>
 </section>
@@ -151,7 +152,7 @@ trace-logged.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

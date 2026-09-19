@@ -88,21 +88,17 @@ by only including fields that are actually used.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask({
-  Instruction? instruction,
-  Instruction? preProcess,
-  Instruction? postProcess,
-  Function? reaction,
-  Function? user,
-  Function? init
-}) {
-
-  final instructionMask = (
-      (instruction != null ? 1 : 0) |
-      (preProcess != null ? 2 : 0 ) |
+  <pre class="language-dart"><code class="language-dart">static Record mask(
+    {Instruction? instruction,
+    Instruction? preProcess,
+    Instruction? postProcess,
+    Function? reaction,
+    Function? user,
+    Function? init}) {
+  final instructionMask = ((instruction != null ? 1 : 0) |
+      (preProcess != null ? 2 : 0) |
       (postProcess != null ? 4 : 0) |
-      (reaction != null ? 8 : 0)
-  );
+      (reaction != null ? 8 : 0));
 
   final instructionRecord = switch (instructionMask) {
     0 =&gt; (),
@@ -112,23 +108,42 @@ by only including fields that are actually used.</p>
     4 =&gt; (postProcess: postProcess),
     5 =&gt; (instruction: instruction, postProcess: postProcess),
     6 =&gt; (preProcess: preProcess, postProcess: postProcess),
-    7 =&gt; (instruction: instruction, preProcess: preProcess, postProcess: postProcess),
+    7 =&gt; (
+        instruction: instruction,
+        preProcess: preProcess,
+        postProcess: postProcess
+      ),
     8 =&gt; (reaction: reaction),
     9 =&gt; (instruction: instruction, reaction: reaction),
     10 =&gt; (preProcess: preProcess, reaction: reaction),
-    11 =&gt; (instruction: instruction, preProcess: preProcess, reaction: reaction),
+    11 =&gt; (
+        instruction: instruction,
+        preProcess: preProcess,
+        reaction: reaction
+      ),
     12 =&gt; (postProcess: postProcess, reaction: reaction),
-    13 =&gt; (instruction: instruction, postProcess: postProcess, reaction: reaction),
-    14 =&gt; (preProcess: preProcess, postProcess: postProcess, reaction: reaction),
-    15 =&gt; (instruction: instruction, preProcess: preProcess, postProcess: postProcess, reaction: reaction),
+    13 =&gt; (
+        instruction: instruction,
+        postProcess: postProcess,
+        reaction: reaction
+      ),
+    14 =&gt; (
+        preProcess: preProcess,
+        postProcess: postProcess,
+        reaction: reaction
+      ),
+    15 =&gt; (
+        instruction: instruction,
+        preProcess: preProcess,
+        postProcess: postProcess,
+        reaction: reaction
+      ),
     _ =&gt; ()
   };
 
-  final mask = (
-      (instructionMask != 0 ? 1 : 0) |
+  final mask = ((instructionMask != 0 ? 1 : 0) |
       (init != null ? 2 : 0) |
-      (user != null ? 4 : 0)
-  );
+      (user != null ? 4 : 0));
 
   final userBox = user != null ? (FinalBox()..value = user()) : null;
 
@@ -140,7 +155,12 @@ by only including fields that are actually used.</p>
     4 =&gt; (user: user, userBox: userBox),
     5 =&gt; (instruction: instructionRecord, user: user, userBox: userBox),
     6 =&gt; (init: init, user: user, userBox: userBox),
-    7 =&gt; (instruction: instructionRecord, init: init, user: user, userBox: userBox),
+    7 =&gt; (
+        instruction: instructionRecord,
+        init: init,
+        user: user,
+        userBox: userBox
+      ),
     _ =&gt; ()
   };
 }</code></pre>
@@ -171,7 +191,7 @@ by only including fields that are actually used.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

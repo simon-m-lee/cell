@@ -124,7 +124,6 @@ framework when the pulse is created.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">PulseContext({
   Context? baseContext,
-
   String? actor,
   String? reason,
   String? purpose,
@@ -136,21 +135,21 @@ framework when the pulse is created.</li>
   AuditLevel? auditLevel,
   String? traceId,
   String? parentTraceId,
-
   Map&lt;String, dynamic&gt;? others,
 }) : this.fromEntries(&lt;GovernanceEntry&gt;[
-  if (actor != null) Provenance.actor.entry(actor),
-  if (reason != null) Provenance.reason.entry(reason),
-  if (purpose != null) Provenance.purpose.entry(purpose),
-  if (strategy != null) Provenance.strategy.entry(strategy),
-  if (confidence != null) Provenance.confidence.entry(confidence),
-  if (priority != null) Provenance.priority.entry(priority),
-  if (compliance != null) Provenance.compliance.entry(compliance),
-  if (sensitivity != null) Provenance.sensitivity.entry(sensitivity),
-  if (auditLevel != null) Provenance.auditLevel.entry(auditLevel),
-  Provenance.traceId.entry(traceId ?? Identity.next()),
-  if (parentTraceId != null) Provenance.parentTraceId.entry(parentTraceId),
-], others: others, parent: baseContext);</code></pre>
+        if (actor != null) Provenance.actor.entry(actor),
+        if (reason != null) Provenance.reason.entry(reason),
+        if (purpose != null) Provenance.purpose.entry(purpose),
+        if (strategy != null) Provenance.strategy.entry(strategy),
+        if (confidence != null) Provenance.confidence.entry(confidence),
+        if (priority != null) Provenance.priority.entry(priority),
+        if (compliance != null) Provenance.compliance.entry(compliance),
+        if (sensitivity != null) Provenance.sensitivity.entry(sensitivity),
+        if (auditLevel != null) Provenance.auditLevel.entry(auditLevel),
+        Provenance.traceId.entry(traceId ?? Identity.next()),
+        if (parentTraceId != null)
+          Provenance.parentTraceId.entry(parentTraceId),
+      ], others: others, parent: baseContext);</code></pre>
 </section>
 
 
@@ -178,7 +177,7 @@ framework when the pulse is created.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

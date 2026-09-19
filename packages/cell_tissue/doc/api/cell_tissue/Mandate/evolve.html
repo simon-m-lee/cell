@@ -97,9 +97,12 @@ evolvable dimension, or <code>null</code> to inherit.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Iterable&lt;GovernanceEntry&gt; evolve(GovernanceEntry? Function(Mandate evolvable) resolver) {
-  final entries = values.where((g) =&gt; g.evolvable == true)
-      .map((g) =&gt; resolver(g)).where((en) =&gt; en != null);
+  <pre class="language-dart"><code class="language-dart">static Iterable&lt;GovernanceEntry&gt; evolve(
+    GovernanceEntry? Function(Mandate evolvable) resolver) {
+  final entries = values
+      .where((g) =&gt; g.evolvable == true)
+      .map((g) =&gt; resolver(g))
+      .where((en) =&gt; en != null);
   return entries.cast();
 }</code></pre>
 </section>
@@ -129,7 +132,7 @@ evolvable dimension, or <code>null</code> to inherit.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

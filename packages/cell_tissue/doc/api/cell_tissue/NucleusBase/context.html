@@ -129,8 +129,7 @@ tier of this node.</p>
   <pre class="language-dart"><code class="language-dart">@override
 Context get context {
   final localCtx = get&lt;Context&gt;(() =&gt; record.local.inheritable.context,
-    fallback: () =&gt; principal?.context, orElse: Context.system
-  );
+      fallback: () =&gt; principal?.context, orElse: Context.system);
   if (localCtx != Context.system) return localCtx;
   if (bind != null) return bind!.context;
   return localCtx;
@@ -164,7 +163,7 @@ Context get context {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

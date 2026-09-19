@@ -116,7 +116,8 @@ generating reports for external regulatory bodies.</p>
     Provenance.actor.entry(actor),
     Provenance.compliance.entry(framework),
     Provenance.traceId.entry(Identity.next()),
-    if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+    if (baseContext is PulseContext)
+      Provenance.parentTraceId.entry(baseContext.traceId!),
     Provenance.sensitivity.entry(Sensitivity.confidential),
 
     &#47;&#47; --- Fluid Boundaries (Escalated for Forensics) ---
@@ -155,7 +156,7 @@ generating reports for external regulatory bodies.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

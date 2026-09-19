@@ -87,7 +87,8 @@ exactly once and then terminates.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Iterator&lt;V&gt; get iterator =&gt; value != null ? [value as V].iterator : Iterable&lt;V&gt;.empty().iterator;</code></pre>
+Iterator&lt;V&gt; get iterator =&gt;
+    value != null ? [value as V].iterator : Iterable&lt;V&gt;.empty().iterator;</code></pre>
 </section>
 
   </section>
@@ -117,7 +118,7 @@ Iterator&lt;V&gt; get iterator =&gt; value != null ? [value as V].iterator : Ite
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

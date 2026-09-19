@@ -123,19 +123,19 @@ final batch = Pulse.batch([pulse1, pulse2]);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Pulse batch&lt;P&gt;(Iterable&lt;Pulse&lt;P&gt;&gt; pulses, {
+  <pre class="language-dart"><code class="language-dart">static Pulse batch&lt;P&gt;(
+  Iterable&lt;Pulse&lt;P&gt;&gt; pulses, {
   PulseEphemeralPolicy? policy,
   PulseContext? context,
-
   String? type,
   Cell? source,
   String? step,
   int? priority,
-
   void Function(Pulse pulse)? onComplete,
   void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
   void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-}) =&gt; _CollectivePulse&lt;P&gt;(pulses);</code></pre>
+}) =&gt;
+    _CollectivePulse&lt;P&gt;(pulses);</code></pre>
 </section>
 
 
@@ -163,7 +163,7 @@ final batch = Pulse.batch([pulse1, pulse2]);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

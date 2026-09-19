@@ -81,28 +81,30 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 @override
-P? get payload {    final sourcePayload = _source.payload;
-if (sourcePayload == null) return null;
+P? get payload {
+  final sourcePayload = _source.payload;
+  if (sourcePayload == null) return null;
 
-if (sourcePayload is Unmodifiable) {
+  if (sourcePayload is Unmodifiable) {
+    return sourcePayload as P;
+  }
+
+  if (sourcePayload is Iterable&lt;Cell&gt;) {
+    return sourcePayload.map((e) =&gt; e.unmodifiable).toList(growable: false)
+        as P;
+  }
+
+  if (sourcePayload is Map) {
+    return (Map.of(sourcePayload)
+          ..updateAll((k, v) =&gt; v is Cell ? v.unmodifiable : v))
+        .cast() as P;
+  }
+
+  if (sourcePayload is Cell) {
+    return sourcePayload.unmodifiable as P;
+  }
+
   return sourcePayload as P;
-}
-
-if (sourcePayload is Iterable&lt;Cell&gt;) {
-  return sourcePayload.map((e) =&gt; e.unmodifiable).toList(growable: false) as P;
-}
-
-if (sourcePayload is Map) {
-  return (Map.of(sourcePayload)
-    ..updateAll((k, v) =&gt; v is Cell ? v.unmodifiable : v))
-      .cast() as P;
-}
-
-if (sourcePayload is Cell) {
-  return sourcePayload.unmodifiable as P;
-}
-
-return sourcePayload as P;
 }</code></pre>
 </section>
 
@@ -133,7 +135,7 @@ return sourcePayload as P;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

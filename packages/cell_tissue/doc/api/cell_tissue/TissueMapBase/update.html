@@ -81,7 +81,9 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =&gt;
-    apply(this.update, positionalArguments: [key, update], namedArguments: {#ifAbsent: ifAbsent});</code></pre>
+    apply(this.update,
+        positionalArguments: [key, update],
+        namedArguments: {#ifAbsent: ifAbsent});</code></pre>
 </section>
 
 
@@ -109,7 +111,7 @@ V update(K key, V Function(V value) update, {V Function()? ifAbsent}) =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

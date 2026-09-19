@@ -80,11 +80,37 @@
   final mask = ((hopLimit != null ? 1 : 0) | (duration != null ? 2 : 0));
 
   return switch (mask) {
-    0 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;()),
-    1 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), hopLimit: hopLimit, hops: Box&lt;int&gt;()),
-    2 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), duration: duration),
-    3 =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;(), hopLimit: hopLimit, hops: Box&lt;int&gt;(), duration: duration),
-    _ =&gt; (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox&lt;bool&gt;())
+    0 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;()
+      ),
+    1 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        hopLimit: hopLimit,
+        hops: Box&lt;int&gt;()
+      ),
+    2 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        duration: duration
+      ),
+    3 =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;(),
+        hopLimit: hopLimit,
+        hops: Box&lt;int&gt;(),
+        duration: duration
+      ),
+    _ =&gt; (
+        onEvent: onEvent,
+        onInvalidate: onInvalidate,
+        invalidated: FinalBox&lt;bool&gt;()
+      )
   };
 }</code></pre>
 </section>
@@ -114,7 +140,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

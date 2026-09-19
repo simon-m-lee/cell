@@ -2,7 +2,7 @@ name: cell_tissue
 description: >-
   Application Layer (Tissue) for the Cell Framework — Reactive collections 
   (List, Set, Map, Queue) with granular signaling and forensic traceability.
-version: 1.0.0-rc.5
+version: 1.0.0-rc.6
 
 homepage: https://github.com/simon-m-lee/cell
 repository: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue

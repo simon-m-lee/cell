@@ -118,8 +118,9 @@ print(container.length); // number of elements
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissueContainer&lt;E,I&gt; get container {
-  return get&lt;TissueContainer&lt;E,I&gt;&gt;(() =&gt; record.local.container, fallback: () =&gt; principal?.container);
+TissueContainer&lt;E, I&gt; get container {
+  return get&lt;TissueContainer&lt;E, I&gt;&gt;(() =&gt; record.local.container,
+      fallback: () =&gt; principal?.container);
 }</code></pre>
 </section>
 
@@ -150,7 +151,7 @@ TissueContainer&lt;E,I&gt; get container {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

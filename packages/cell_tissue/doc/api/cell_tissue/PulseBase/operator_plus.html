@@ -143,9 +143,13 @@ print(flat.payload.length); // 3
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 CollectivePulse operator +(covariant Pulse other) {
- return other is Pulse&lt;P&gt;
-      ? other is CollectivePulse&lt;P&gt; ? _CollectivePulse&lt;P&gt;([this, other]) : _CollectivePulse&lt;P&gt;([this, other])
-      : other is CollectivePulse ? _CollectivePulse([this, other]) : _CollectivePulse([this, other]);
+  return other is Pulse&lt;P&gt;
+      ? other is CollectivePulse&lt;P&gt;
+          ? _CollectivePulse&lt;P&gt;([this, other])
+          : _CollectivePulse&lt;P&gt;([this, other])
+      : other is CollectivePulse
+          ? _CollectivePulse([this, other])
+          : _CollectivePulse([this, other]);
 }</code></pre>
 </section>
 
@@ -174,7 +178,7 @@ CollectivePulse operator +(covariant Pulse other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -133,35 +133,30 @@ specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueNucleusBase({
-  EphemeralPolicy? ephemeralPolicy,
-
-  Container? container,
-
-  Cell? bind,
-  Context context = Context.system,
-  TissueReceptor&lt;E,C&gt; receptor = TissueReceptor.passThrough,
-  TestTissue&lt;E,C&gt; testRule = TestTissue.allowAll,
-  Synapses synapses = Synapses.enabled,
-
-  bool forceLock = false,
-  Record? user,
-  Record? others
-
-}) : super.fromRecord(
-    (local: local&lt;E,I,C&gt;(
-        container: container,
-        bind: bind,
-        context: context,
-        receptor: receptor,
-        testRule: testRule,
-        synapses: synapses,
-        forceLock: forceLock,
-        user: user,
-        others: others,
-        ephemeralPolicy: ephemeralPolicy
-    ))
-);</code></pre>
+  <pre class="language-dart"><code class="language-dart">TissueNucleusBase(
+    {EphemeralPolicy? ephemeralPolicy,
+    Container? container,
+    Cell? bind,
+    Context context = Context.system,
+    TissueReceptor&lt;E, C&gt; receptor = TissueReceptor.passThrough,
+    TestTissue&lt;E, C&gt; testRule = TestTissue.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = false,
+    Record? user,
+    Record? others})
+    : super.fromRecord((
+        local: local&lt;E, I, C&gt;(
+            container: container,
+            bind: bind,
+            context: context,
+            receptor: receptor,
+            testRule: testRule,
+            synapses: synapses,
+            forceLock: forceLock,
+            user: user,
+            others: others,
+            ephemeralPolicy: ephemeralPolicy)
+      ));</code></pre>
 </section>
 
 
@@ -189,7 +184,7 @@ specific metadata (e.g., <code>capacity</code> for queues) into the record.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -120,12 +120,23 @@ actual removal or neutralization of the cell from the system.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">EphemeralPolicy({required ({int events}) Function(dynamic object, {required C cell, dynamic arguments, required EphemeralPolicy policy, dynamic user}) onEvent,
-required bool Function(Nucleus nucleus) onInvalidate,
-int? eventLimit,
-Duration? duration,
-dynamic user
-}) : _record = mask(onEvent: onEvent, eventLimit: eventLimit, duration: duration, onInvalidate: onInvalidate, user: user);</code></pre>
+  <pre class="language-dart"><code class="language-dart">EphemeralPolicy(
+    {required ({int events}) Function(dynamic object,
+            {required C cell,
+            dynamic arguments,
+            required EphemeralPolicy policy,
+            dynamic user})
+        onEvent,
+    required bool Function(Nucleus nucleus) onInvalidate,
+    int? eventLimit,
+    Duration? duration,
+    dynamic user})
+    : _record = mask(
+          onEvent: onEvent,
+          eventLimit: eventLimit,
+          duration: duration,
+          onInvalidate: onInvalidate,
+          user: user);</code></pre>
 </section>
 
 
@@ -153,7 +164,7 @@ dynamic user
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

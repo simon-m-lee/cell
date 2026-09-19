@@ -91,12 +91,14 @@ its baseline governance and identity.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ContextBase(Iterable&lt;GovernanceEntry&gt; entries, {Map&lt;String, dynamic&gt;? others, Context? parent})
+  <pre class="language-dart"><code class="language-dart">ContextBase(Iterable&lt;GovernanceEntry&gt; entries,
+    {Map&lt;String, dynamic&gt;? others, Context? parent})
     : this.fromRecord((
         map: Map&lt;Governance, dynamic&gt;.unmodifiable(
           Map.fromEntries(entries.map((e) =&gt; e.toEntry())),
         ),
-        others: others == null ? null : Map&lt;String, dynamic&gt;.unmodifiable(others),
+        others:
+            others == null ? null : Map&lt;String, dynamic&gt;.unmodifiable(others),
         parent: parent,
       ));</code></pre>
 </section>
@@ -126,7 +128,7 @@ its baseline governance and identity.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

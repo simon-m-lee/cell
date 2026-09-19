@@ -107,13 +107,14 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
   Map&lt;String, dynamic&gt;? constraints,
   Map&lt;String, dynamic&gt;? others,
 }) : this.fromEntries(&lt;GovernanceEntry&gt;[
-  Mandate.authority.entry(authority),
-  if (role != null) Mandate.role.entry(role),
-  if (isolation != null) Mandate.isolation.entry(isolation),
-  if (clearance != Clearance.standard) Mandate.clearance.entry(clearance),
-  if (justification != null) Mandate.justification.entry(justification),
-  if (constraints != null) Mandate.constraints.entry(constraints),
-], others: others, parent: baseContext);</code></pre>
+        Mandate.authority.entry(authority),
+        if (role != null) Mandate.role.entry(role),
+        if (isolation != null) Mandate.isolation.entry(isolation),
+        if (clearance != Clearance.standard)
+          Mandate.clearance.entry(clearance),
+        if (justification != null) Mandate.justification.entry(justification),
+        if (constraints != null) Mandate.constraints.entry(constraints),
+      ], others: others, parent: baseContext);</code></pre>
 </section>
 
 
@@ -141,7 +142,7 @@ links them to the <code>baseContext</code> via prototype‑based inheritance.</p
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

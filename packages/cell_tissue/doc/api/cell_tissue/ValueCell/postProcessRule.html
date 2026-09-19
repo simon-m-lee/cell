@@ -72,7 +72,7 @@ by <code>ValueCell</code> and <code>ValueNucleus</code>. You don't need to call 
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Instruction postProcessRule =
-Instruction&lt;ValueCell,Pulse,Pulse&gt;((pulse, {cell, user}) {
+    Instruction&lt;ValueCell, Pulse, Pulse&gt;((pulse, {cell, user}) {
   cell!._nucleus.state.value = pulse.payload;
   return pulse;
 });</code></pre>
@@ -104,7 +104,7 @@ Instruction&lt;ValueCell,Pulse,Pulse&gt;((pulse, {cell, user}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

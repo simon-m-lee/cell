@@ -125,18 +125,16 @@ behavioral layer over the <code>principal</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueMapNucleus.evolve({
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;V,TissueMap&lt;K, V&gt;&gt;? receptor,
-  TestTissue&lt;V,TissueMap&lt;K, V&gt;&gt;? testRule,
-  Synapses? synapses,
-
-  EphemeralPolicy? ephemeralPolicy,
-
-  TissueMapNucleus&lt;K,V&gt;? override,
-  required TissueMapNucleus&lt;K,V&gt; principal
-}) = _TissueMapNucleus&lt;K,V,TissueMap&lt;K,V&gt;&gt;.evolve;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueMapNucleus.evolve(
+        {Cell? bind,
+        Context? context,
+        TissueReceptor&lt;V, TissueMap&lt;K, V&gt;&gt;? receptor,
+        TestTissue&lt;V, TissueMap&lt;K, V&gt;&gt;? testRule,
+        Synapses? synapses,
+        EphemeralPolicy? ephemeralPolicy,
+        TissueMapNucleus&lt;K, V&gt;? override,
+        required TissueMapNucleus&lt;K, V&gt; principal}) =
+    _TissueMapNucleus&lt;K, V, TissueMap&lt;K, V&gt;&gt;.evolve;</code></pre>
 </section>
 
 
@@ -164,7 +162,7 @@ behavioral layer over the <code>principal</code>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

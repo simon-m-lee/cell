@@ -93,7 +93,9 @@ and inherited by all deputies. A deputy cannot change a List into a Set.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Container get containerType {
-  return get&lt;Container&gt;(() =&gt; record.local.inheritable.container, fallback: () =&gt; principal?.containerType, orElse: Container.create&lt;E,I&gt;());
+  return get&lt;Container&gt;(() =&gt; record.local.inheritable.container,
+      fallback: () =&gt; principal?.containerType,
+      orElse: Container.create&lt;E, I&gt;());
 }</code></pre>
 </section>
 
@@ -124,7 +126,7 @@ Container get containerType {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

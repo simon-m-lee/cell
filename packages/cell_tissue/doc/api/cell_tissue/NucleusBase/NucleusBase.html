@@ -133,24 +133,40 @@ primitive (used when sharing a lock with a <code>principal</code>).</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">NucleusBase({
-  EphemeralPolicy? ephemeralPolicy,
-
-  Cell? bind,
-  Context context = Context.system,
-  Receptor receptor = Receptor.passThrough,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-
-  bool forceLock = true,
-
-  Record? user,
-
-  Nucleus? principal
-}) : record = principal != null
-   ? (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy), principal: principal)
-   : (local: mask(bind: bind, context: context, receptor: receptor, testRule: testRule, synapses: synapses, forceLock: forceLock, user: user, ephemeralPolicy: ephemeralPolicy)
-);</code></pre>
+  <pre class="language-dart"><code class="language-dart">NucleusBase(
+    {EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context context = Context.system,
+    Receptor receptor = Receptor.passThrough,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = true,
+    Record? user,
+    Nucleus? principal})
+    : record = principal != null
+          ? (
+              local: mask(
+                  bind: bind,
+                  context: context,
+                  receptor: receptor,
+                  testRule: testRule,
+                  synapses: synapses,
+                  forceLock: forceLock,
+                  user: user,
+                  ephemeralPolicy: ephemeralPolicy),
+              principal: principal
+            )
+          : (
+              local: mask(
+                  bind: bind,
+                  context: context,
+                  receptor: receptor,
+                  testRule: testRule,
+                  synapses: synapses,
+                  forceLock: forceLock,
+                  user: user,
+                  ephemeralPolicy: ephemeralPolicy)
+            );</code></pre>
 </section>
 
 
@@ -178,7 +194,7 @@ primitive (used when sharing a lock with a <code>principal</code>).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

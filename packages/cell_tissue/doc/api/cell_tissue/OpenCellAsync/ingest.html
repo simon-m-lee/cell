@@ -70,7 +70,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; ingest(Pulse pulse, {bool serializedCompletion = false}) async {
   final receptor = _cell._nucleus.receptor;
-  return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+  return await receptor.async
+      .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
 }</code></pre>
 </section>
 
@@ -99,7 +100,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

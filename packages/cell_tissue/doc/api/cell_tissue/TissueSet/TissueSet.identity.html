@@ -102,19 +102,17 @@ print(identitySet.length); // 2
   <pre class="language-dart"><code class="language-dart">factory TissueSet.identity({
   Cell? bind,
   Context context = Context.system,
-  TestTissue&lt;E,TissueSet&lt;E&gt;&gt; testRule = TestTissue.allowAll,
-  TissueReceptor&lt;E,TissueSet&lt;E&gt;&gt; receptor = TissueReceptor.passThrough,
+  TestTissue&lt;E, TissueSet&lt;E&gt;&gt; testRule = TestTissue.allowAll,
+  TissueReceptor&lt;E, TissueSet&lt;E&gt;&gt; receptor = TissueReceptor.passThrough,
   Synapses synapses = Synapses.enabled,
-}) =&gt; _TissueSet&lt;E,TissueSet&lt;E&gt;&gt;.fromNucleus(
-    TissueSetNucleus&lt;E&gt;(
+}) =&gt;
+    _TissueSet&lt;E, TissueSet&lt;E&gt;&gt;.fromNucleus(TissueSetNucleus&lt;E&gt;(
         bind: bind,
         context: context,
         receptor: receptor,
         testRule: testRule,
         synapses: synapses,
-        identitySet: true
-    )
-);</code></pre>
+        identitySet: true));</code></pre>
 </section>
 
 
@@ -142,7 +140,7 @@ print(identitySet.length); // 2
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -126,12 +126,12 @@ returns the result immediately.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-O? call(I pulse, {
+O? call(
+  I pulse, {
   C? cell,
   void Function({required Pulse? result, required dynamic token})? future,
   dynamic token,
 }) {
-
   void future_({required Pulse? result, required dynamic token}) {
     future?.call(result: result, token: token);
   }
@@ -183,7 +183,7 @@ O? call(I pulse, {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

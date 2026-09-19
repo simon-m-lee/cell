@@ -123,37 +123,32 @@ unmodifiable deputies.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static UnmodifiableTissueValueBase&lt;V,C&gt; create&lt;V,C extends TissueValue&lt;V&gt;&gt;({
+  <pre class="language-dart"><code class="language-dart">static UnmodifiableTissueValueBase&lt;V, C&gt; create&lt;V, C extends TissueValue&lt;V&gt;&gt;({
   V? value,
   bool unmodifiableElement = true,
-
   Cell? bind,
   Context? context,
-  TissueReceptor&lt;V,C&gt;? receptor,
-  TestTissue&lt;V,C&gt;? testRule,
+  TissueReceptor&lt;V, C&gt;? receptor,
+  TestTissue&lt;V, C&gt;? testRule,
   Synapses? synapses,
-
   Container? container,
   Record? user,
   forceLock = false,
-  TissueValueNucleusBase&lt;V,C&gt;? principal,
+  TissueValueNucleusBase&lt;V, C&gt;? principal,
 }) {
-  return _UnmodifiableTissueValue&lt;V,C&gt;.fromNucleus(
-      TissueValueNucleus.create&lt;V,C&gt;(
+  return _UnmodifiableTissueValue&lt;V, C&gt;.fromNucleus(
+      TissueValueNucleus.create&lt;V, C&gt;(
           bind: bind,
           context: context,
           testRule: testRule,
           receptor: receptor,
           synapses: synapses,
-
           container: container,
           user: user,
           forceLock: forceLock,
-          principal: principal
-      ),
+          principal: principal),
       unmodifiableElement: unmodifiableElement,
-      value: value
-  );
+      value: value);
 }</code></pre>
 </section>
 
@@ -182,7 +177,7 @@ unmodifiable deputies.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

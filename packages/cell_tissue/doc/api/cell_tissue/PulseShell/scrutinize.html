@@ -108,7 +108,8 @@ receiver to go through this scrutiny process before accessing the payload.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map&lt;Symbol, dynamic&gt;? namedArguments]) {
+dynamic scrutinize(covariant Receptor receptor, List? positionalArguments,
+    [Map&lt;Symbol, dynamic&gt;? namedArguments]) {
   final validate = _kernal._scrutinize;
   if (validate != null) {
     try {
@@ -146,7 +147,7 @@ dynamic scrutinize(covariant Receptor receptor, List? positionalArguments, [Map&
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

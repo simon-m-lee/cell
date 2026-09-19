@@ -117,7 +117,8 @@ final receptor = Receptor.instruction(auditor, user: 'SecurityLog');
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Receptor.instruction(Instruction&lt;C,Pulse,Pulse&gt; instruction, {dynamic user}) {
+  <pre class="language-dart"><code class="language-dart">factory Receptor.instruction(Instruction&lt;C, Pulse, Pulse&gt; instruction,
+    {dynamic user}) {
   return _Receptor&lt;C&gt;(instruction: instruction, user: user);
 }</code></pre>
 </section>
@@ -147,7 +148,7 @@ final receptor = Receptor.instruction(auditor, user: 'SecurityLog');
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

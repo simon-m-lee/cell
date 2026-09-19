@@ -71,9 +71,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ReasoningStrategy? get strategy =&gt; get&lt;ReasoningStrategy?&gt;(
-      () =&gt; _record.map[Provenance.strategy] ?? (_parent is PulseContext ? (_parent as PulseContext).strategy : null),
-  orElse: null,
-);</code></pre>
+      () =&gt;
+          _record.map[Provenance.strategy] ??
+          (_parent is PulseContext
+              ? (_parent as PulseContext).strategy
+              : null),
+      orElse: null,
+    );</code></pre>
 </section>
 
   </section>
@@ -103,7 +107,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -125,20 +125,21 @@ final evolved = EvolvedPulseBase(
   <pre class="language-dart"><code class="language-dart">EvolvedPulseBase({
   super.policy,
   super.context,
-
   super.payload,
   super.type,
   super.timestamp,
   super.source,
   super.step,
   super.priority,
-
   super.onComplete,
   super.onError,
   super.onProgress,
   required PulseBase pulse,
   required PulseBase parent,
-}) : _pulses = pulse is EvolvedPulseBase ? [...pulse._pulses, pulse] : [parent, pulse], super(pulse: pulse, parent: parent) {
+})  : _pulses = pulse is EvolvedPulseBase
+          ? [...pulse._pulses, pulse]
+          : [parent, pulse],
+      super(pulse: pulse, parent: parent) {
   final branches = _branches;
   if (branches != null) {
     branches.value = branches.value! + 1;
@@ -171,7 +172,7 @@ final evolved = EvolvedPulseBase(
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

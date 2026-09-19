@@ -71,9 +71,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Clearance get clearance =&gt; get&lt;Clearance&gt;(
-      () =&gt; _record.map[Mandate.clearance] ?? (_parent is DeputyContext ? (_parent as DeputyContext).clearance : null),
-  orElse: Clearance.standard,
-);</code></pre>
+      () =&gt;
+          _record.map[Mandate.clearance] ??
+          (_parent is DeputyContext
+              ? (_parent as DeputyContext).clearance
+              : null),
+      orElse: Clearance.standard,
+    );</code></pre>
 </section>
 
   </section>
@@ -103,7 +107,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

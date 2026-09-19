@@ -98,15 +98,19 @@ final policy = positiveRule + adminRule;
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const TestCell(FutureOr&lt;bool&gt; Function(
-    dynamic object, {C? host, dynamic arguments, dynamic user}) rule, {TestCell&lt;C&gt;? parent, dynamic user})
+  <pre class="language-dart"><code class="language-dart">const TestCell(
+    FutureOr&lt;bool&gt; Function(dynamic object,
+            {C? host, dynamic arguments, dynamic user})
+        rule,
+    {TestCell&lt;C&gt;? parent,
+    dynamic user})
     : this.fromRecord(parent != null
-    ? user != null
-        ? (rule: rule, parent: parent, user: user)
-        : (rule: rule, parent: parent)
-    : user != null
-        ? (rule: rule, user: user)
-        : (rule: rule));</code></pre>
+          ? user != null
+              ? (rule: rule, parent: parent, user: user)
+              : (rule: rule, parent: parent)
+          : user != null
+              ? (rule: rule, user: user)
+              : (rule: rule));</code></pre>
 </section>
 
 
@@ -134,7 +138,7 @@ final policy = positiveRule + adminRule;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

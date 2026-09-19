@@ -104,8 +104,10 @@ and optional <code>user</code> data; returns a new pulse or <code>null</code> to
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueReceptor(Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
-  return _TissueReceptor&lt;E,C&gt;(instruction: Instruction&lt;C,Pulse,Pulse&gt;((pulse, {C? cell, future, token, dynamic user}) {
+  <pre class="language-dart"><code class="language-dart">factory TissueReceptor(
+    Pulse? Function(C tissue, Pulse pulse, {dynamic user}) instruction) {
+  return _TissueReceptor&lt;E, C&gt;(instruction: Instruction&lt;C, Pulse, Pulse&gt;(
+      (pulse, {C? cell, future, token, dynamic user}) {
     return instruction(cell!, pulse, user: user);
   }));
 }</code></pre>
@@ -136,7 +138,7 @@ and optional <code>user</code> data; returns a new pulse or <code>null</code> to
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

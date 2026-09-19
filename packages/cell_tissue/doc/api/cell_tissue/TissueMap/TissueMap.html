@@ -96,8 +96,9 @@ map['a'] = 1;
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueMap({TissueMapNucleus&lt;K,V&gt;? properties, Iterable&lt;MapEntry&lt;K, V&gt;&gt;? entries})
-= _TissueMap&lt;K,V,TissueMap&lt;K,V&gt;&gt;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueMap(
+    {TissueMapNucleus&lt;K, V&gt;? properties,
+    Iterable&lt;MapEntry&lt;K, V&gt;&gt;? entries}) = _TissueMap&lt;K, V, TissueMap&lt;K, V&gt;&gt;;</code></pre>
 </section>
 
 
@@ -125,7 +126,7 @@ map['a'] = 1;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

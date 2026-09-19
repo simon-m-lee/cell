@@ -116,8 +116,10 @@ For asynchronous processing, use <a href="../../cell_tissue/Receptor/async.html"
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Receptor(Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
-  return _Receptor&lt;C&gt;(instruction: Instruction&lt;C,Pulse,Pulse&gt;((pulse, {C? cell, future, token, dynamic user}) {
+  <pre class="language-dart"><code class="language-dart">factory Receptor(
+    Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
+  return _Receptor&lt;C&gt;(instruction: Instruction&lt;C, Pulse, Pulse&gt;((pulse,
+      {C? cell, future, token, dynamic user}) {
     return instruction.call(cell!, pulse, user: user);
   }));
 }</code></pre>
@@ -148,7 +150,7 @@ For asynchronous processing, use <a href="../../cell_tissue/Receptor/async.html"
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

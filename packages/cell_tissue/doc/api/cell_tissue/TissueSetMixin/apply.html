@@ -162,7 +162,10 @@ walkthrough of bank transfer logic and multi-node consistency.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+dynamic apply(
+  Function function, {
+  List? positionalArguments,
+  Map&lt;Symbol, dynamic&gt;? namedArguments,
   ApplyTransactionScope? tx,
   Function? compensate,
   List? compensatePositional,
@@ -170,42 +173,53 @@ dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dyna
   Cell? compensateCell,
 }) {
   if (tx != null) {
-    return super.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments,
-        tx: tx, compensate: compensate, compensatePositional: compensatePositional, compensateNamed: compensateNamed, compensateCell: compensateCell
-    );
+    return super.apply(function,
+        positionalArguments: positionalArguments,
+        namedArguments: namedArguments,
+        tx: tx,
+        compensate: compensate,
+        compensatePositional: compensatePositional,
+        compensateNamed: compensateNamed,
+        compensateCell: compensateCell);
   }
 
   if (modifiable.contains(function)) {
     try {
-      if (validate.action(function, host: this, arguments: (positionalArguments: positionalArguments, namedArguments: namedArguments)) == true) {
+      if (validate.action(function, host: this, arguments: (
+            positionalArguments: positionalArguments,
+            namedArguments: namedArguments
+          )) ==
+          true) {
         final notification = namedArguments?[#$notification] ?? true;
         final deputy = namedArguments?[#deputy];
 
         if (function == add) {
-          return Function.apply(_add, positionalArguments, {#notification: notification, #deputy: deputy});
+          return Function.apply(_add, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == addAll) {
+          return Function.apply(_addAll, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == clear) {
+          return Function.apply(
+              _clear, null, {#notification: notification, #deputy: deputy});
+        } else if (function == remove) {
+          return Function.apply(_remove, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == removeAll) {
+          return Function.apply(_removeAll, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == removeWhere) {
+          return Function.apply(_removeWhere, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == retainAll) {
+          return Function.apply(_retainAll, positionalArguments,
+              {#notification: notification, #deputy: deputy});
+        } else if (function == retainWhere) {
+          return Function.apply(_retainWhere, positionalArguments,
+              {#notification: notification, #deputy: deputy});
         }
-        else if (function == addAll) {
-          return Function.apply(_addAll, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == clear) {
-          return Function.apply(_clear, null, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == remove) {
-          return Function.apply(_remove, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == removeAll) {
-          return Function.apply(_removeAll, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == removeWhere) {
-          return Function.apply(_removeWhere, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == retainAll) {
-          return Function.apply(_retainAll, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-        else if (function == retainWhere) {
-          return Function.apply(_retainWhere, positionalArguments, {#notification: notification, #deputy: deputy});
-        }
-      }} catch (_) {}
+      }
+    } catch (_) {}
     return null;
   }
   return null;
@@ -237,7 +251,7 @@ dynamic apply(Function function, {List? positionalArguments, Map&lt;Symbol, dyna
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

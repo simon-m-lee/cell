@@ -86,7 +86,13 @@ record that can be shared across multiple nuclei.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-InheritableHandle get inheritable =&gt; (bind: null, context: Context.system, receptor: Receptor.passThrough, testRule: TestCell.allowAll, ephemeralPolicy: null);</code></pre>
+InheritableHandle get inheritable =&gt; (
+      bind: null,
+      context: Context.system,
+      receptor: Receptor.passThrough,
+      testRule: TestCell.allowAll,
+      ephemeralPolicy: null
+    );</code></pre>
 </section>
 
   </section>
@@ -116,7 +122,7 @@ InheritableHandle get inheritable =&gt; (bind: null, context: Context.system, re
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -109,26 +109,27 @@ should not call it directly.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void call(dynamic object, {required C cell, dynamic arguments}) {
-if (isInvalidated) return;
+  if (isInvalidated) return;
 
 &#47;&#47; Initialize TTL timer on the first interaction if configured
-if (duration != null &amp;&amp; _ttlTimer == null) {
-_ttlTimer = Timer(duration!, () =&gt; _triggerReclamation(cell));
-}
+  if (duration != null &amp;&amp; _ttlTimer == null) {
+    _ttlTimer = Timer(duration!, () =&gt; _triggerReclamation(cell));
+  }
 
-final onEvent = get&lt;Function&gt;(() =&gt; _record.onEvent);
-final handle = onEvent(object, cell: cell, policy: this, user: _user, arguments: arguments);
+  final onEvent = get&lt;Function&gt;(() =&gt; _record.onEvent);
+  final handle = onEvent(object,
+      cell: cell, policy: this, user: _user, arguments: arguments);
 
-if (handle.events &gt;= 0) {
-_record.events.value = handle.events;
+  if (handle.events &gt;= 0) {
+    _record.events.value = handle.events;
 
 &#47;&#47; Check against Event Limit
-final limit = eventLimit;
-if (limit != null &amp;&amp; handle.events &gt;= limit) {
-_triggerReclamation(cell);
-dispose();
-}
-}
+    final limit = eventLimit;
+    if (limit != null &amp;&amp; handle.events &gt;= limit) {
+      _triggerReclamation(cell);
+      dispose();
+    }
+  }
 }</code></pre>
 </section>
 
@@ -157,7 +158,7 @@ dispose();
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

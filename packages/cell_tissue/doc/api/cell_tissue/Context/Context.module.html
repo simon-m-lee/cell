@@ -135,7 +135,8 @@ feature flags, version tags, or environment‑specific configuration).</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Context.module(String type, {String? identity, String? partOf, Map&lt;String, dynamic&gt;? others}) =&gt;
+  <pre class="language-dart"><code class="language-dart">factory Context.module(String type,
+        {String? identity, String? partOf, Map&lt;String, dynamic&gt;? others}) =&gt;
     Context.fromEntries(
       [
         Ontology.type.entry(type),
@@ -176,7 +177,7 @@ feature flags, version tags, or environment‑specific configuration).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

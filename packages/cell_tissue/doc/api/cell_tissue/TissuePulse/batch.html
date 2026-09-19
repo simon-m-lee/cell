@@ -99,22 +99,21 @@ together as one atomic unit.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissuePulse batch&lt;E&gt;(Iterable&lt;TissuePulse&lt;E&gt;&gt; events, {
+  <pre class="language-dart"><code class="language-dart">static TissuePulse batch&lt;E&gt;(
+  Iterable&lt;TissuePulse&lt;E&gt;&gt; events, {
   PulseEphemeralPolicy? policy,
   PulseContext? context,
-
   String? type,
   Tissue? source,
   String? step,
   int? priority,
-
   void Function(TissuePulse event)? onComplete,
-  void Function(TissuePulse event, Object error, {StackTrace? stackTrace})? onError,
+  void Function(TissuePulse event, Object error, {StackTrace? stackTrace})?
+      onError,
   void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
-
   FutureOr&lt;TissuePulse?&gt; Function(TissueReceptor receptor)? scrutinize,
-
-}) =&gt; _CollectiveTissueEvent&lt;E&gt;(events);</code></pre>
+}) =&gt;
+    _CollectiveTissueEvent&lt;E&gt;(events);</code></pre>
 </section>
 
 
@@ -142,7 +141,7 @@ together as one atomic unit.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

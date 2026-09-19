@@ -116,22 +116,19 @@ the collective itself. They fire once when the collective completes
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory CollectivePulse.governed(Iterable&lt;Pulse&lt;P&gt;&gt; pulses, {
+  <pre class="language-dart"><code class="language-dart">factory CollectivePulse.governed(
+  Iterable&lt;Pulse&lt;P&gt;&gt; pulses, {
   PulseEphemeralPolicy? policy,
   PulseContext? context,
-
   String? type,
-
   Cell? source,
   String? step,
-
   int? priority,
-
   void Function(Pulse pulse)? onComplete,
   void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
   void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-
-  FutureOr&lt;Pulse?&gt; Function(Receptor receptor, {bool? serializedCompletion})? scrutinize,
+  FutureOr&lt;Pulse?&gt; Function(Receptor receptor, {bool? serializedCompletion})?
+      scrutinize,
 }) = _CollectivePulse&lt;P&gt;;</code></pre>
 </section>
 
@@ -160,7 +157,7 @@ the collective itself. They fire once when the collective completes
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

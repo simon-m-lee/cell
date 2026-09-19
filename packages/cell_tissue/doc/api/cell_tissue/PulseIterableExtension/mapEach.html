@@ -80,7 +80,7 @@ final strings = pulses.mapEach((val) =&gt; 'Value: $val');
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Iterable&lt;Pulse&lt;T&gt;&gt; mapEach&lt;T&gt;(T Function(dynamic payload) mapper) =&gt;
     &#47;&#47; explicitly cast to PulseExtension to avoid conflict with Iterable.map
-map((p) =&gt; PulseExtension(p).map&lt;T&gt;((payload) =&gt; mapper(payload)));</code></pre>
+    map((p) =&gt; PulseExtension(p).map&lt;T&gt;((payload) =&gt; mapper(payload)));</code></pre>
 </section>
 
 
@@ -108,7 +108,7 @@ map((p) =&gt; PulseExtension(p).map&lt;T&gt;((payload) =&gt; mapper(payload)));<
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

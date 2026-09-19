@@ -90,15 +90,12 @@ FutureOr&lt;bool&gt; call(object, {covariant Never? host, arguments}) {
 
   if (object == null) {
     result = allowNull;
-  }
-  else if (object is String) {
+  } else if (object is String) {
     if (allowEmpty &amp;&amp; object.isEmpty) {
-      result =  true;
-    }
-    else if (object.isEmpty) {
+      result = true;
+    } else if (object.isEmpty) {
       result = false;
-    }
-    else {
+    } else {
       final regex = caseSensitive
           ? RegExp(pattern)
           : RegExp(pattern, caseSensitive: false);
@@ -134,7 +131,7 @@ FutureOr&lt;bool&gt; call(object, {covariant Never? host, arguments}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

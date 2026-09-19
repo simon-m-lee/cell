@@ -126,8 +126,8 @@ final evolved = root.evolve(step: 'sanitization', context: childContext);
 Pulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
   &#47;&#47; 1. Validate that the call is meaningful
   assert(
-  pulse != null || step != null || context != null,
-  &#39;Pulse.evolve requires at least `pulse` or `step` or `context` not null.&#39;,
+    pulse != null || step != null || context != null,
+    &#39;Pulse.evolve requires at least `pulse` or `step` or `context` not null.&#39;,
   );
 
   &#47;&#47; 2. Validate internal invariants (Example: Ensure we aren&#39;t evolving a pulse with itself)
@@ -138,17 +138,21 @@ Pulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
 
   &#47;&#47; Ensure the new context is a legitimate descendant
   assert(
-  context == null ||
-      this.context == PulseContext.system ||
-      context._parent == this.context,
-  &#39;Causal Integrity Violation: The new context must be evolved from the current pulse context.&#39;,
+    context == null ||
+        this.context == PulseContext.system ||
+        context._parent == this.context,
+    &#39;Causal Integrity Violation: The new context must be evolved from the current pulse context.&#39;,
   );
 
   if (pulse != null) {
     if (pulse is PulseBase) {
       return pulse._asEvolvedFrom(this, step: step, context: context);
     }
-    return _EvolvedPulse(context: context, step: step, pulse: pulse as PulseBase, parent: this);
+    return _EvolvedPulse(
+        context: context,
+        step: step,
+        pulse: pulse as PulseBase,
+        parent: this);
   }
   return _Pulse&lt;P&gt;(context: context, step: step, parent: this);
 }</code></pre>
@@ -179,7 +183,7 @@ Pulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

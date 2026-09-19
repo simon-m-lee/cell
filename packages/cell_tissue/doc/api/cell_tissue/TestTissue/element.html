@@ -116,14 +116,18 @@ liveness.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;bool&gt; element(covariant E? element, {required C host, Function? action}) {
+FutureOr&lt;bool&gt; element(covariant E? element,
+    {required C host, Function? action}) {
   final rules = _rules.whereType&lt;TestElementRule&lt;E, C&gt;&gt;().toList();
 
   &#47;&#47; Single-rule policies (stored as `rule` rather than `rules`) are
   &#47;&#47; evaluated directly as element predicates.
   if (rules.isEmpty) {
-    final rule = get&lt;FutureOr&lt;bool&gt; Function(dynamic, {C? host, dynamic arguments, dynamic user})?&gt;(
-        () =&gt; _record.rule, orElse: null);
+    final rule = get&lt;
+        FutureOr&lt;bool&gt; Function(dynamic,
+            {C? host,
+            dynamic arguments,
+            dynamic user})?&gt;(() =&gt; _record.rule, orElse: null);
     if (rule != null) {
       return rule(element, host: host, arguments: action);
     }
@@ -138,7 +142,7 @@ FutureOr&lt;bool&gt; element(covariant E? element, {required C host, Function? a
       if (result is Future&lt;bool&gt;) {
         return result.then((passed) {
           if (!passed) return false; &#47;&#47; Fail Fast
-          return runRules(i + 1);    &#47;&#47; Continue chain
+          return runRules(i + 1); &#47;&#47; Continue chain
         });
       }
 
@@ -177,7 +181,7 @@ FutureOr&lt;bool&gt; element(covariant E? element, {required C host, Function? a
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

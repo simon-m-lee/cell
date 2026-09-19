@@ -98,24 +98,23 @@ pulse‑related fields (rarely used directly).</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CollectiveTissueEventBase({
-  Iterable&lt;TissuePulse&lt;E&gt;&gt;? pulses,
-  super.policy,
-  super.type,
-  super.context,
-  super.timestamp,
-  super.source,
-  super.step,
-  super.onComplete,
-  super.onError,
-  super.onProgress,
-  super.pulse,
-  super.parent,
-  super.scrutinize,
-  super.user,
-  super.priority
-
-}) : super(payload: pulses) {
+  <pre class="language-dart"><code class="language-dart">CollectiveTissueEventBase(
+    {Iterable&lt;TissuePulse&lt;E&gt;&gt;? pulses,
+    super.policy,
+    super.type,
+    super.context,
+    super.timestamp,
+    super.source,
+    super.step,
+    super.onComplete,
+    super.onError,
+    super.onProgress,
+    super.pulse,
+    super.parent,
+    super.scrutinize,
+    super.user,
+    super.priority})
+    : super(payload: pulses) {
   final branches = _branches;
   if (branches != null) {
     branches.value = branches.value! + 1;
@@ -148,7 +147,7 @@ pulse‑related fields (rarely used directly).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

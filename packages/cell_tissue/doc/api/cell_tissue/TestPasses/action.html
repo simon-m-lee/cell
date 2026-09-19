@@ -151,10 +151,13 @@ print(authorized); // true or false
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arguments}) {
+FutureOr&lt;bool&gt; action(Function action,
+    {required Cell host, Arguments? arguments}) {
   final elements = [
-    if (arguments?.positionalArguments != null) ...arguments!.positionalArguments!,
-    if (arguments?.namedArguments != null) ...arguments!.namedArguments!.values,
+    if (arguments?.positionalArguments != null)
+      ...arguments!.positionalArguments!,
+    if (arguments?.namedArguments != null)
+      ...arguments!.namedArguments!.values,
   ];
   _checkArguments(elements, 0, host, action);
   return _checkActionRules(action, host, arguments);
@@ -186,7 +189,7 @@ FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arg
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

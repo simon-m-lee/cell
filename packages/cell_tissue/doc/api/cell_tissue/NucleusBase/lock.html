@@ -86,7 +86,8 @@ automatically. Use it only for advanced manual synchronization.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Lock? get lock =&gt; get&lt;Lock?&gt;(() =&gt; record.local.lock, fallback: () =&gt; principal?.lock, orElse: null);</code></pre>
+Lock? get lock =&gt; get&lt;Lock?&gt;(() =&gt; record.local.lock,
+    fallback: () =&gt; principal?.lock, orElse: null);</code></pre>
 </section>
 
   </section>
@@ -116,7 +117,7 @@ Lock? get lock =&gt; get&lt;Lock?&gt;(() =&gt; record.local.lock, fallback: () =
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

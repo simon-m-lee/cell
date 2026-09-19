@@ -124,22 +124,20 @@ use <a href="../../cell_tissue/Receptor/async.html">Receptor.async</a> for the o
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Receptor.pipeline({
-  Instruction? instruction,
-  Instruction? preProcess,
-  Instruction? postProcess,
-  Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
-  void Function()? init,
-  dynamic Function()? user
-}) {
+  <pre class="language-dart"><code class="language-dart">factory Receptor.pipeline(
+    {Instruction? instruction,
+    Instruction? preProcess,
+    Instruction? postProcess,
+    Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
+    void Function()? init,
+    dynamic Function()? user}) {
   return _Receptor&lt;C&gt;(
-    instruction: instruction,
-    preProcess: preProcess,
-    postProcess: postProcess,
-    reaction: reaction,
-    init: init,
-    user: user
-  );
+      instruction: instruction,
+      preProcess: preProcess,
+      postProcess: postProcess,
+      reaction: reaction,
+      init: init,
+      user: user);
 }</code></pre>
 </section>
 
@@ -168,7 +166,7 @@ use <a href="../../cell_tissue/Receptor/async.html">Receptor.async</a> for the o
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

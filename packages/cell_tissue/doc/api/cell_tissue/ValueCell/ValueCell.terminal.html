@@ -89,17 +89,22 @@ avoid unnecessary propagation.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ValueCell.terminal({
-  Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input, {dynamic user, Cell? bind})? transform,
+  Pulse&lt;V&gt;? Function(ValueCell&lt;V&gt; host, Pulse input,
+          {dynamic user, Cell? bind})?
+      transform,
   V? initial,
-
   Cell? bind,
   Context context = Context.system,
   Receptor receptor = Receptor.passThrough,
   TestCell testRule = TestCell.allowAll,
-}) : this(synapses: Synapses.disabled,
-    transform: transform, bind: bind, context: context, receptor: receptor, testRule: testRule,
-    initial: initial
-);</code></pre>
+}) : this(
+          synapses: Synapses.disabled,
+          transform: transform,
+          bind: bind,
+          context: context,
+          receptor: receptor,
+          testRule: testRule,
+          initial: initial);</code></pre>
 </section>
 
 
@@ -127,7 +132,7 @@ avoid unnecessary propagation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

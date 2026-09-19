@@ -123,21 +123,18 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueMapBase&lt;K,V,C&gt; create&lt;K,V,C extends TissueMap&lt;K,V&gt;&gt;({
-  Iterable&lt;MapEntry&lt;K,V&gt;&gt;? entries,
-
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;V,C&gt;? receptor,
-  TestTissue&lt;V,C&gt;? testRule,
-  Synapses? synapses,
-
-  Container? container,
-  Record? user,
-  forceLock = false,
-  TissueMapNucleusBase&lt;K,V,C&gt;? principal
-}) {
-  final properties = TissueMapNucleus.create&lt;K,V,C&gt;(
+  <pre class="language-dart"><code class="language-dart">static TissueMapBase&lt;K, V, C&gt; create&lt;K, V, C extends TissueMap&lt;K, V&gt;&gt;(
+    {Iterable&lt;MapEntry&lt;K, V&gt;&gt;? entries,
+    Cell? bind,
+    Context? context,
+    TissueReceptor&lt;V, C&gt;? receptor,
+    TestTissue&lt;V, C&gt;? testRule,
+    Synapses? synapses,
+    Container? container,
+    Record? user,
+    forceLock = false,
+    TissueMapNucleusBase&lt;K, V, C&gt;? principal}) {
+  final properties = TissueMapNucleus.create&lt;K, V, C&gt;(
       bind: bind,
       context: context,
       receptor: receptor,
@@ -146,9 +143,8 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
       container: container,
       user: user,
       forceLock: forceLock,
-      principal: principal
-  );
-  return _TissueMap&lt;K,V,C&gt;.fromNucleus(properties, entries: entries);
+      principal: principal);
+  return _TissueMap&lt;K, V, C&gt;.fromNucleus(properties, entries: entries);
 }</code></pre>
 </section>
 
@@ -177,7 +173,7 @@ existing nucleus, enabling the deputy pattern at the nucleus level.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

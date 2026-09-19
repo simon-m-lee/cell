@@ -111,15 +111,14 @@ participation in the reactive graph.</p>
   TestTissue&lt;E, Tissue&lt;E&gt;&gt; testRule = TestTissue.allowAll,
   Synapses synapses = Synapses.enabled,
 }) {
-  if (bind == null &amp;&amp; testRule == TestTissue.allowAll &amp;&amp; synapses == Synapses.disabled &amp;&amp; context == Context.system) {
+  if (bind == null &amp;&amp;
+      testRule == TestTissue.allowAll &amp;&amp;
+      synapses == Synapses.disabled &amp;&amp;
+      context == Context.system) {
     return const TissueNever();
   }
-  return _Tissue&lt;E, Iterable&lt;E&gt;,Tissue&lt;E&gt;&gt;.empty(
-      bind: bind,
-      context: context,
-      receptor: receptor,
-      testRule: testRule
-  );
+  return _Tissue&lt;E, Iterable&lt;E&gt;, Tissue&lt;E&gt;&gt;.empty(
+      bind: bind, context: context, receptor: receptor, testRule: testRule);
 }</code></pre>
 </section>
 
@@ -148,7 +147,7 @@ participation in the reactive graph.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

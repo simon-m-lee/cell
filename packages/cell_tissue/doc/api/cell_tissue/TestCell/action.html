@@ -204,12 +204,15 @@ print(authorized); // true or false
 &#47;&#47;&#47; ### Returns:
 &#47;&#47;&#47; `true` if the action is authorized; `false` otherwise.
 @override
-FutureOr&lt;bool&gt; action(Function action, {required C host, Arguments? arguments}) {
+FutureOr&lt;bool&gt; action(Function action,
+    {required C host, Arguments? arguments}) {
   &#47;&#47; Phase A: Argument Integrity
   if (arguments != null) {
     final elements = [
-      if (arguments.positionalArguments != null) ...arguments.positionalArguments!,
-      if (arguments.namedArguments != null) ...arguments.namedArguments!.values
+      if (arguments.positionalArguments != null)
+        ...arguments.positionalArguments!,
+      if (arguments.namedArguments != null)
+        ...arguments.namedArguments!.values
     ];
 
     final argResult = _checkArguments(elements, 0, host, action);
@@ -255,7 +258,7 @@ FutureOr&lt;bool&gt; action(Function action, {required C host, Arguments? argume
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

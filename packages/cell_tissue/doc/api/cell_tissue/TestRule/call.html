@@ -151,7 +151,8 @@ by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
     } on Exception {
       rethrow;
     }
-  } else { &#47;&#47; Handle Composite Chain
+  } else {
+    &#47;&#47; Handle Composite Chain
     final rules = _rules;
     if (rules.isNotEmpty) {
       result = _evaluateChain(rules, 0, object, host, arguments);
@@ -173,7 +174,6 @@ by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
 
   &#47;&#47; Handle Hierarchical Delegation
   return _parent?.call(object, host: host, arguments: arguments) ?? true;
-
 }</code></pre>
 </section>
 
@@ -202,7 +202,7 @@ by policy, and <code>false</code> indicates it is <strong>Rejected</strong>.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

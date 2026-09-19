@@ -84,7 +84,8 @@ the reactive pipeline: validation, atomic update, and event emission.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void operator []=(K key, V value) =&gt; apply(add, positionalArguments: [key, value]);</code></pre>
+void operator []=(K key, V value) =&gt;
+    apply(add, positionalArguments: [key, value]);</code></pre>
 </section>
 
 
@@ -112,7 +113,7 @@ void operator []=(K key, V value) =&gt; apply(add, positionalArguments: [key, va
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

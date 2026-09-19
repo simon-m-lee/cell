@@ -87,18 +87,24 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future apply(Function function, {List? positionalArguments, Map&lt;Symbol, dynamic&gt;? namedArguments,
+  <pre class="language-dart"><code class="language-dart">Future apply(
+  Function function, {
+  List? positionalArguments,
+  Map&lt;Symbol, dynamic&gt;? namedArguments,
   ApplyTransactionScope? tx,
   Function? compensate,
   List? compensatePositional,
   Map&lt;Symbol, dynamic&gt;? compensateNamed,
   Cell? compensateCell,
-  }) async {
-
+}) async {
   final lock = _cell._nucleus.lock;
   return lock != null
-      ? lock.synchronized(() =&gt; _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments))
-      : Future(() =&gt; _cell.apply(function, positionalArguments: positionalArguments, namedArguments: namedArguments));
+      ? lock.synchronized(() =&gt; _cell.apply(function,
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments))
+      : Future(() =&gt; _cell.apply(function,
+          positionalArguments: positionalArguments,
+          namedArguments: namedArguments));
 }</code></pre>
 </section>
 
@@ -127,7 +133,7 @@ A <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

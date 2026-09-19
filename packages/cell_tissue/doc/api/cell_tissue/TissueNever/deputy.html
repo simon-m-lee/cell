@@ -82,7 +82,12 @@ Therefore, the most efficient deputy of "nothing" is "nothing".</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;Tissue&lt;Never&gt;&gt; deputy({covariant DeputyContext context = DeputyContext.system, covariant TestTissue&lt;dynamic, Tissue&lt;dynamic&gt;&gt; testRule = TestTissue.allowAll, EphemeralPolicy&lt;Cell&gt;? ephemeralPolicy, Synapses&lt;Pulse&lt;dynamic&gt;, Cell&gt; synapses = Synapses.enabled}) {
+FutureOr&lt;Tissue&lt;Never&gt;&gt; deputy(
+    {covariant DeputyContext context = DeputyContext.system,
+    covariant TestTissue&lt;dynamic, Tissue&lt;dynamic&gt;&gt; testRule =
+        TestTissue.allowAll,
+    EphemeralPolicy&lt;Cell&gt;? ephemeralPolicy,
+    Synapses&lt;Pulse&lt;dynamic&gt;, Cell&gt; synapses = Synapses.enabled}) {
   return this;
 }</code></pre>
 </section>
@@ -112,7 +117,7 @@ FutureOr&lt;Tissue&lt;Never&gt;&gt; deputy({covariant DeputyContext context = De
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

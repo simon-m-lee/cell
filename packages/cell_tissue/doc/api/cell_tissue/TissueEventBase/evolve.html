@@ -99,7 +99,8 @@ next stage of processing.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}) {
+TissuePulse evolve(
+    {Pulse? pulse, String? step, covariant PulseContext? context}) {
   return _EvolvedTissueEvent(
     context: context,
     step: step,
@@ -134,7 +135,7 @@ TissuePulse evolve({Pulse? pulse, String? step, covariant PulseContext? context}
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

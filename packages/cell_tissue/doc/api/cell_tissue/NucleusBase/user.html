@@ -86,7 +86,8 @@ up the principal chain if not defined locally.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Record? get user =&gt; get&lt;Record?&gt;(() =&gt; record.local.user, fallback: () =&gt; principal?.user, orElse: null);</code></pre>
+Record? get user =&gt; get&lt;Record?&gt;(() =&gt; record.local.user,
+    fallback: () =&gt; principal?.user, orElse: null);</code></pre>
 </section>
 
   </section>
@@ -116,7 +117,7 @@ Record? get user =&gt; get&lt;Record?&gt;(() =&gt; record.local.user, fallback: 
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

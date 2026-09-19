@@ -97,8 +97,14 @@ hop limits.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory Pulse(P? payload, {String? type, Cell? source, int? priority, String? step})
-=&gt; _Pulse&lt;P&gt;(payload: payload, type: type, source: source, priority: priority, step: step);</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory Pulse(P? payload,
+        {String? type, Cell? source, int? priority, String? step}) =&gt;
+    _Pulse&lt;P&gt;(
+        payload: payload,
+        type: type,
+        source: source,
+        priority: priority,
+        step: step);</code></pre>
 </section>
 
 
@@ -126,7 +132,7 @@ hop limits.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

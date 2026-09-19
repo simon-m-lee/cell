@@ -77,10 +77,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;T&gt; withCellLocks&lt;T&gt;(
-    Iterable&lt;Cell&gt; cells,
-    Future&lt;T&gt; Function() body, {
-      int Function(Cell a, Cell b)? order,
-    }) {
+  Iterable&lt;Cell&gt; cells,
+  Future&lt;T&gt; Function() body, {
+  int Function(Cell a, Cell b)? order,
+}) {
   final sorted = List&lt;Cell&gt;.from(cells);
   sorted.sort(order ?? (a, b) =&gt; a.hashCode.compareTo(b.hashCode));
 
@@ -113,7 +113,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

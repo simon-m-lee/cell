@@ -78,49 +78,41 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">PulseBase({
-  PulseEphemeralPolicy? policy,
-  PulseContext? context,
+  <pre class="language-dart"><code class="language-dart">PulseBase(
+    {PulseEphemeralPolicy? policy,
+    PulseContext? context,
+    P? payload,
+    String? type,
+    DateTime? timestamp,
+    Cell? source,
+    String? step,
+    int? priority,
+    Function? onComplete, &#47;&#47; void Function(Pulse pulse)? onComplete,
+    Function?
+        onError, &#47;&#47; void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+    Function?
+        onProgress, &#47;&#47; void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
 
-  P? payload,
-  String? type,
-  DateTime? timestamp,
-  Cell? source,
-  String? step,
-  int? priority,
-
-  Function? onComplete, &#47;&#47; void Function(Pulse pulse)? onComplete,
-  Function? onError, &#47;&#47; void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
-  Function? onProgress, &#47;&#47; void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-
-  Pulse? pulse,
-  Pulse? parent,
-
-  FutureOr&lt;Pulse?&gt; Function(Receptor receptor)? scrutinize,
-  dynamic user
-}) : _record = mask(
-        policy: policy,
-        context: context,
-
-        payload: payload,
-        type: type,
-        timestamp: timestamp ?? DateTime.now(),
-
-        source: source,
-        step: step,
-        priority: priority,
-
-        onComplete: onComplete,
-        onError: onError,
-        onProgress: onProgress,
-
-        pulse: pulse,
-        parent: parent,
-
-        scrutinize: scrutinize,
-
-        user: user
-      );</code></pre>
+    Pulse? pulse,
+    Pulse? parent,
+    FutureOr&lt;Pulse?&gt; Function(Receptor receptor)? scrutinize,
+    dynamic user})
+    : _record = mask(
+          policy: policy,
+          context: context,
+          payload: payload,
+          type: type,
+          timestamp: timestamp ?? DateTime.now(),
+          source: source,
+          step: step,
+          priority: priority,
+          onComplete: onComplete,
+          onError: onError,
+          onProgress: onProgress,
+          pulse: pulse,
+          parent: parent,
+          scrutinize: scrutinize,
+          user: user);</code></pre>
 </section>
 
 
@@ -148,7 +140,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

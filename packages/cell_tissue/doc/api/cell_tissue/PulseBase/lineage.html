@@ -123,31 +123,41 @@ chronological order (Primordial -&gt; Present).</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg) {
-
   List&lt;T&gt; lineage = [];
   PulseBase? p = this;
   dynamic v;
 
   while (p != null) {
-
     switch (arg) {
       case LineageArgument.payload:
-        v = get&lt;P?&gt;(() =&gt; p!._record.root.primary.payload, fallback: () =&gt; p!._record.pulse._record.root.primary.payload, orElse: null);
+        v = get&lt;P?&gt;(() =&gt; p!._record.root.primary.payload,
+            fallback: () =&gt; p!._record.pulse._record.root.primary.payload,
+            orElse: null);
 
       case LineageArgument.source:
-        v = get&lt;Cell?&gt;(() =&gt; p!._record.root.primary.source, fallback: () =&gt; p!._record.pulse._record.root.primary.source, orElse: null);
+        v = get&lt;Cell?&gt;(() =&gt; p!._record.root.primary.source,
+            fallback: () =&gt; p!._record.pulse._record.root.primary.source,
+            orElse: null);
 
       case LineageArgument.policy:
-        v = get&lt;PulseEphemeralPolicy?&gt;(() =&gt; p!._record.root.primary.policy, fallback: () =&gt; p!._record.pulse._record.root.primary.policy,orElse: null);
+        v = get&lt;PulseEphemeralPolicy?&gt;(() =&gt; p!._record.root.primary.policy,
+            fallback: () =&gt; p!._record.pulse._record.root.primary.policy,
+            orElse: null);
 
       case LineageArgument.type:
-        v = get&lt;String?&gt;(() =&gt; p!._record.root.secondary.type, fallback: () =&gt; p!._record.pulse._record.root.secondary.type,orElse: null);
+        v = get&lt;String?&gt;(() =&gt; p!._record.root.secondary.type,
+            fallback: () =&gt; p!._record.pulse._record.root.secondary.type,
+            orElse: null);
 
       case LineageArgument.priority:
-        v = get&lt;int?&gt;(() =&gt; p!._record.root.tertiary.priority, fallback: () =&gt; p!._record.pulse._record.root.tertiary.priority,orElse: null);
+        v = get&lt;int?&gt;(() =&gt; p!._record.root.tertiary.priority,
+            fallback: () =&gt; p!._record.pulse._record.root.tertiary.priority,
+            orElse: null);
 
       case LineageArgument.context:
-        v = get&lt;Context?&gt;(() =&gt; p!._record.root.secondary.context, fallback: () =&gt; p!._record.pulse._record.root.secondary.context,orElse: null);
+        v = get&lt;Context?&gt;(() =&gt; p!._record.root.secondary.context,
+            fallback: () =&gt; p!._record.pulse._record.root.secondary.context,
+            orElse: null);
     }
 
     if (v != null) {
@@ -188,7 +198,7 @@ List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

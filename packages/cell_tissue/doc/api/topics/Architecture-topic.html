@@ -46,13 +46,13 @@
   
 <section class="desc markdown">
   <h1 id="cell_tissue--architecture">cell_tissue — Architecture</h1>
-<p><strong>Author:</strong> Lee Man Hoi Simon (see <a href="AUTHORS"><code>AUTHORS</code></a>)</p>
+<p><strong>Author:</strong> Lee Man Hoi Simon (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS"><code>AUTHORS</code></a>)</p>
 <p>This document explains the design intent behind <strong>cell_tissue</strong>: why
 collections are cells, how mutations become pulses, how deputies stay
 zero-copy, and how Flow-driven decisions wire into governed books. For a
-feature catalog, see <a href="FEATURES.md"><code>FEATURES-Tissue.md</code></a>. Core graph
-primitives live in <a href="../cell/">cell</a>; transformations live in
-<a href="../cell_flow/">cell_flow</a>.</p>
+feature catalog, see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/FEATURES-Tissue.md"><code>FEATURES-Tissue.md</code></a>. Core graph
+primitives live in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell">cell</a>; transformations live in
+<a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow">cell_flow</a>.</p>
 <hr>
 <h2 id="1-the-core-idea">1. The core idea</h2>
 <p>A Dart <code>List</code> / <code>Set</code> / <code>Map</code> / <code>Queue</code> is a bag of values. Updating it is
@@ -301,7 +301,7 @@ pulse belongs on a <code>Cell</code>. A rule that validates a mutation, a member
 or a value write belongs on a <code>Tissue</code>. Passing a <code>TestCell</code> where a
 <code>TestTissue</code> is expected is a type error; wrapping one in the other is a
 layering error.</p>
-<p><strong>TissueValue vs ValueCell</strong> (also <a href="docs/InDepth-CollectiveValue-vs-ValueCell.md"><code>docs/InDepth-CollectiveValue-vs-ValueCell.md</code></a>):
+<p><strong>TissueValue vs ValueCell</strong> (also <code>docs/InDepth-CollectiveValue-vs-ValueCell.md</code>):
 <code>TissueValue</code> implements <code>ValueCell</code> but uses <code>TissueValueNucleus</code>,
 <code>TestTissue</code>, and <code>TissueReceptor</code>. Prefer <code>Cell.state</code> / <code>ValueCell</code>
 for a lightweight scalar; prefer <code>TissueValue</code> when the scalar must
@@ -607,31 +607,31 @@ and the header of the demo that exercises it.</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="FEATURES-Tissue.md"><code>FEATURES-Tissue.md</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/FEATURES-Tissue.md"><code>FEATURES-Tissue.md</code></a></td>
 <td>Categorized feature catalog</td>
 </tr>
 <tr>
-<td><a href="DEMO_GUIDE.md"><code>DEMO_GUIDE-Tissue.md</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/DEMO_GUIDE-Tissue.md"><code>DEMO_GUIDE-Tissue.md</code></a></td>
 <td>Progressive walk-through of the demos</td>
 </tr>
 <tr>
-<td><a href="../example/card-auth-pipeline(tissue)-ARCHITECTURE.md"><code>card-auth-pipeline(tissue)-ARCHITECTURE.md</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/card-auth-pipeline(tissue)-ARCHITECTURE.md"><code>card-auth-pipeline(tissue)-ARCHITECTURE.md</code></a></td>
 <td>Payments sibling — same seam, different domain</td>
 </tr>
 <tr>
-<td><a href="../example/ride-hail-dispatch(tissue)-ARCHITECTURE.md"><code>ride-hail-dispatch(tissue)-ARCHITECTURE.md</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/ride-hail-dispatch(tissue)-ARCHITECTURE.md"><code>ride-hail-dispatch(tissue)-ARCHITECTURE.md</code></a></td>
 <td>Mobility sibling</td>
 </tr>
 <tr>
-<td><a href="../example/grid-demand-response(tissue)-ARCHITECTURE.md"><code>grid-demand-response(tissue)-ARCHITECTURE.md</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/example/grid-demand-response(tissue)-ARCHITECTURE.md"><code>grid-demand-response(tissue)-ARCHITECTURE.md</code></a></td>
 <td>Energy sibling</td>
 </tr>
 <tr>
-<td><a href="../cell/"><code>cell</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell"><code>cell</code></a></td>
 <td>Core graph primitives</td>
 </tr>
 <tr>
-<td><a href="../cell_flow/"><code>cell_flow</code></a></td>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow"><code>cell_flow</code></a></td>
 <td>Reactive operators</td>
 </tr>
 </tbody>
@@ -726,7 +726,7 @@ reactive containers in <code>cell_tissue</code>.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

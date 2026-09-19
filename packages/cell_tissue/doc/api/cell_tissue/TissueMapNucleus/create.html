@@ -120,21 +120,19 @@ tissue types.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static TissueMapNucleusBase&lt;K,V,C&gt; create&lt;K,V,C extends TissueMap&lt;K,V&gt;&gt;({
-  Cell? bind,
-  Context? context,
-  TissueReceptor&lt;V,C&gt;? receptor,
-  TestTissue&lt;V,C&gt;? testRule,
-  Synapses? synapses,
-
-  Container? container,
-  Record? user,
-  EphemeralPolicy? ephemeralPolicy,
-  forceLock = false,
-  TissueMapNucleusBase&lt;K,V,C&gt;? principal
-}) {
+  <pre class="language-dart"><code class="language-dart">static TissueMapNucleusBase&lt;K, V, C&gt; create&lt;K, V, C extends TissueMap&lt;K, V&gt;&gt;(
+    {Cell? bind,
+    Context? context,
+    TissueReceptor&lt;V, C&gt;? receptor,
+    TestTissue&lt;V, C&gt;? testRule,
+    Synapses? synapses,
+    Container? container,
+    Record? user,
+    EphemeralPolicy? ephemeralPolicy,
+    forceLock = false,
+    TissueMapNucleusBase&lt;K, V, C&gt;? principal}) {
   if (principal != null) {
-    final local = TissueNucleusBase.local&lt;V,TissueMap&lt;K,V&gt;,C&gt;(
+    final local = TissueNucleusBase.local&lt;V, TissueMap&lt;K, V&gt;, C&gt;(
       container: container,
       bind: bind,
       context: context,
@@ -145,12 +143,11 @@ tissue types.</p>
       user: user,
       ephemeralPolicy: ephemeralPolicy,
     );
-    return _TissueMapNucleus&lt;K,V,C&gt;.fromRecord(
-        (local: local, principal: principal)
-    );
+    return _TissueMapNucleus&lt;K, V, C&gt;.fromRecord(
+        (local: local, principal: principal));
   }
 
-  return _TissueMapNucleus&lt;K,V,C&gt;(
+  return _TissueMapNucleus&lt;K, V, C&gt;(
       bind: bind,
       context: context ?? Context.system,
       receptor: receptor ?? TissueReceptor.passThrough,
@@ -159,8 +156,7 @@ tissue types.</p>
       identityMap: container == Container.identityMap,
       user: user,
       ephemeralPolicy: ephemeralPolicy,
-      forceLock: forceLock
-  );
+      forceLock: forceLock);
 }</code></pre>
 </section>
 
@@ -189,7 +185,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -103,14 +103,15 @@ For more control (e.g., custom storage, context, or governance), use
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueValue(V? value, {
+  <pre class="language-dart"><code class="language-dart">factory TissueValue(
+  V? value, {
   Cell? bind,
   Context context,
-  TestTissue&lt;V,TissueValue&lt;V&gt;&gt; testRule,
-  TissueReceptor&lt;V,TissueValue&lt;V&gt;&gt; receptor,
+  TestTissue&lt;V, TissueValue&lt;V&gt;&gt; testRule,
+  TissueReceptor&lt;V, TissueValue&lt;V&gt;&gt; receptor,
   Synapses synapses,
   bool finalValue,
-}) = _TissueValue&lt;V,TissueValue&lt;V&gt;&gt;;</code></pre>
+}) = _TissueValue&lt;V, TissueValue&lt;V&gt;&gt;;</code></pre>
 </section>
 
 
@@ -138,7 +139,7 @@ For more control (e.g., custom storage, context, or governance), use
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

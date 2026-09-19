@@ -101,11 +101,18 @@ object is of type <code>E</code> and the arguments are a <a href="https://api.fl
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TestElementRule(bool Function(E? element, {required C host, Function? action, dynamic user}) rule, {super.parent, dynamic user})
+  <pre class="language-dart"><code class="language-dart">TestElementRule(
+    bool Function(E? element,
+            {required C host, Function? action, dynamic user})
+        rule,
+    {super.parent,
+    dynamic user})
     : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-  return host != null &amp;&amp; ((arguments is Function &amp;&amp; object is E?) || object is E)
-      ? rule(object, host: host, action: arguments, user: user) : true;
-});</code></pre>
+        return host != null &amp;&amp;
+                ((arguments is Function &amp;&amp; object is E?) || object is E)
+            ? rule(object, host: host, action: arguments, user: user)
+            : true;
+      });</code></pre>
 </section>
 
 
@@ -133,7 +140,7 @@ object is of type <code>E</code> and the arguments are a <a href="https://api.fl
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -103,51 +103,43 @@ authentication challenge to the event.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEventBase({
+  <pre class="language-dart"><code class="language-dart">TissueEventBase(
+    {PulseEphemeralPolicy? policy,
+    PulseContext? context,
+    E? payload,
+    String? type,
+    Tissue? source,
+    DateTime? timestamp,
+    String? step,
+    int? priority,
+    Function? onComplete, &#47;&#47; void Function(TissueEvent event)? onComplete,
+    Function?
+        onError, &#47;&#47; void Function(TissueEvent event, Object error, {StackTrace? stackTrace})? onError,
+    Function?
+        onProgress, &#47;&#47; void Function(TissueEvent event, Cell cell, {String? message})? onProgress,
 
-  PulseEphemeralPolicy? policy,
-  PulseContext? context,
-
-  E? payload,
-  String? type,
-  Tissue? source,
-  DateTime? timestamp,
-
-  String? step,
-  int? priority,
-
-  Function? onComplete, &#47;&#47; void Function(TissueEvent event)? onComplete,
-  Function? onError, &#47;&#47; void Function(TissueEvent event, Object error, {StackTrace? stackTrace})? onError,
-  Function? onProgress, &#47;&#47; void Function(TissueEvent event, Cell cell, {String? message})? onProgress,
-
-  Pulse&lt;E&gt;? pulse,
-  TissuePulse&lt;E&gt;? parent,
-
-  Function? scrutinize, &#47;&#47; FutureOr&lt;Pulse?&gt; Function(TissueReceptor receptor)? scrutinize,
-  dynamic user
-}) : this.fromRecord(
-    PulseBase.mask(
-      policy: policy,
-      context: context,
-
-      payload: payload,
-      type: type,
-      timestamp: timestamp,
-
-      source: source,
-      step: step,
-      priority: priority,
-
-      onComplete: onComplete,
-      onError: onError,
-      onProgress: onProgress,
-
-      pulse: pulse,
-      parent: parent,
-      scrutinize: scrutinize,
-      user: user,
-    )
-);</code></pre>
+    Pulse&lt;E&gt;? pulse,
+    TissuePulse&lt;E&gt;? parent,
+    Function?
+        scrutinize, &#47;&#47; FutureOr&lt;Pulse?&gt; Function(TissueReceptor receptor)? scrutinize,
+    dynamic user})
+    : this.fromRecord(PulseBase.mask(
+        policy: policy,
+        context: context,
+        payload: payload,
+        type: type,
+        timestamp: timestamp,
+        source: source,
+        step: step,
+        priority: priority,
+        onComplete: onComplete,
+        onError: onError,
+        onProgress: onProgress,
+        pulse: pulse,
+        parent: parent,
+        scrutinize: scrutinize,
+        user: user,
+      ));</code></pre>
 </section>
 
 
@@ -175,7 +167,7 @@ authentication challenge to the event.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

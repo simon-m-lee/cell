@@ -122,10 +122,11 @@ instruction at runtime to guide its behavior.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">const InstructionBase(
-    O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})
+    O? Function(I pulse, {C? cell, dynamic user}) instruction,
+    {dynamic user})
     : _record = user != null
-      ? (instruction: instruction, user: user)
-      : (instruction: instruction);</code></pre>
+          ? (instruction: instruction, user: user)
+          : (instruction: instruction);</code></pre>
 </section>
 
 
@@ -153,7 +154,7 @@ instruction at runtime to guide its behavior.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

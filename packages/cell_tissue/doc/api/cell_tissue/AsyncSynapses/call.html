@@ -133,7 +133,6 @@ when the signal reaches the observers.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Future&lt;void&gt; call(covariant P pulse) async {
-
   if (_source.isEmpty) {
     final box = (pulse as PulseBase)._branches;
     if (box != null) {
@@ -159,7 +158,6 @@ Future&lt;void&gt; call(covariant P pulse) async {
 
   final strategy = _policy?.strategy ?? PropagationStrategy.immediate;
   switch (strategy) {
-
     case PropagationStrategy.immediate:
       await _broadcast(p);
       break;
@@ -211,12 +209,13 @@ Future&lt;void&gt; call(covariant P pulse) async {
     case PropagationStrategy.persistent:
       final buffer = _buffer;
       if (buffer != null) {
-        buffer..clear()..add(p);
+        buffer
+          ..clear()
+          ..add(p);
       }
       await _broadcast(p);
       break;
   }
-
 }</code></pre>
 </section>
 
@@ -245,7 +244,7 @@ Future&lt;void&gt; call(covariant P pulse) async {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

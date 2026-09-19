@@ -120,8 +120,9 @@ print(list.validate); // the TestTissue instance
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-TestTissue&lt;E,C&gt; get testRule {
-  return get&lt;TestTissue&lt;E,C&gt;&gt;(() =&gt; record.local.inheritable.testRule, fallback: () =&gt; principal?.testRule, orElse: TestTissue.allowAll);
+TestTissue&lt;E, C&gt; get testRule {
+  return get&lt;TestTissue&lt;E, C&gt;&gt;(() =&gt; record.local.inheritable.testRule,
+      fallback: () =&gt; principal?.testRule, orElse: TestTissue.allowAll);
 }</code></pre>
 </section>
 
@@ -152,7 +153,7 @@ TestTissue&lt;E,C&gt; get testRule {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

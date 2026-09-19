@@ -81,7 +81,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;V&gt; update(K key, V Function(V value) update, {V Function()? ifAbsent}) {
+  <pre class="language-dart"><code class="language-dart">Future&lt;V&gt; update(K key, V Function(V value) update,
+    {V Function()? ifAbsent}) {
   return Future&lt;V&gt;(() =&gt; _tissue.update(key, update, ifAbsent: ifAbsent));
 }</code></pre>
 </section>
@@ -111,7 +112,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

@@ -87,24 +87,23 @@ during multi-source ingestion.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">SynthesisCell(Iterable&lt;Cell&gt; cells, {
-  EphemeralPolicy? ephemeralPolicy,
-
-  Cell? bind,
-  Context context = Context.system,
-  Receptor receptor = Receptor.passThrough,
-  TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled,
-  bool forceLock = false
-}) : _sources = cells is Set&lt;Cell&gt; ? cells : Set&lt;Cell&gt;.from(cells), super.fromNucleus(Nucleus(
-  ephemeralPolicy: ephemeralPolicy,
-  testRule: testRule,
-  receptor: receptor,
-  bind: bind,
-  context: context,
-  synapses: synapses == Synapses.enabled ? Synapses() : synapses,
-  forceLock: forceLock
-)) {
+  <pre class="language-dart"><code class="language-dart">SynthesisCell(Iterable&lt;Cell&gt; cells,
+    {EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context context = Context.system,
+    Receptor receptor = Receptor.passThrough,
+    TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled,
+    bool forceLock = false})
+    : _sources = cells is Set&lt;Cell&gt; ? cells : Set&lt;Cell&gt;.from(cells),
+      super.fromNucleus(Nucleus(
+          ephemeralPolicy: ephemeralPolicy,
+          testRule: testRule,
+          receptor: receptor,
+          bind: bind,
+          context: context,
+          synapses: synapses == Synapses.enabled ? Synapses() : synapses,
+          forceLock: forceLock)) {
   for (var c in cells) {
     c._nucleus.synapses.link(c, downstreamCell: this);
   }
@@ -136,7 +135,7 @@ during multi-source ingestion.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

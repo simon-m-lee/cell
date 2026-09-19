@@ -117,7 +117,8 @@ not absolute.</li>
     &#47;&#47; --- Static Pillars (Non-Evolvable Identity) ---
     Provenance.actor.entry(actor),
     Provenance.traceId.entry(Identity.next()),
-    if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+    if (baseContext is PulseContext)
+      Provenance.parentTraceId.entry(baseContext.traceId!),
     Provenance.sensitivity.entry(Sensitivity.internal),
 
     &#47;&#47; --- Fluid Boundaries (Evolvable Intent) ---
@@ -158,7 +159,7 @@ not absolute.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

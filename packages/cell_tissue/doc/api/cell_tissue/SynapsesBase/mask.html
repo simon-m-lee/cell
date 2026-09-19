@@ -70,35 +70,42 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask({PropagationPolicy? policy, required Iterable downstreams, FilterRule? filter, Function? relay}) {
+  <pre class="language-dart"><code class="language-dart">static Record mask(
+    {PropagationPolicy? policy,
+    required Iterable downstreams,
+    FilterRule? filter,
+    Function? relay}) {
+  final buffer = policy != null &amp;&amp;
+          const [
+            PropagationStrategy.batched,
+            PropagationStrategy.buffered,
+            PropagationStrategy.audit,
+            PropagationStrategy.persistent,
+            PropagationStrategy.throttled,
+            PropagationStrategy.debounced,
+          ].contains(policy.strategy)
+      ? QueueList&lt;PulseBase&gt;()
+      : null;
 
-  final buffer = policy != null &amp;&amp; const [
-    PropagationStrategy.batched,
-    PropagationStrategy.buffered,
-    PropagationStrategy.audit,
-    PropagationStrategy.persistent,
-    PropagationStrategy.throttled,
-    PropagationStrategy.debounced,
-  ].contains(policy.strategy) ? QueueList&lt;PulseBase&gt;() : null;
+  final timerBox = policy != null &amp;&amp;
+          const [
+            PropagationStrategy.debounced,
+            PropagationStrategy.buffered,
+            PropagationStrategy.throttled,
+            PropagationStrategy.audit,
+            PropagationStrategy.debounceLeading,
+            PropagationStrategy.exhaust,
+            PropagationStrategy.sample,
+            PropagationStrategy.resilient,
+          ].contains(policy.strategy)
+      ? Box&lt;Timer&gt;()
+      : null;
 
-  final timerBox = policy != null &amp;&amp; const [
-    PropagationStrategy.debounced,
-    PropagationStrategy.buffered,
-    PropagationStrategy.throttled,
-    PropagationStrategy.audit,
-    PropagationStrategy.debounceLeading,
-    PropagationStrategy.exhaust,
-    PropagationStrategy.sample,
-    PropagationStrategy.resilient,
-  ].contains(policy.strategy) ? Box&lt;Timer&gt;() : null;
-
-  final mask = (
-      (policy != null   ? 1 : 0) |
-      (filter != null   ? 2 : 0) |
-      (buffer != null   ? 4 : 0) |
+  final mask = ((policy != null ? 1 : 0) |
+      (filter != null ? 2 : 0) |
+      (buffer != null ? 4 : 0) |
       (timerBox != null ? 8 : 0) |
-      (relay != null ? 16 : 0)
-  );
+      (relay != null ? 16 : 0));
 
   return switch (mask) {
     0 =&gt; (downstreams: downstreams),
@@ -108,33 +115,118 @@
     4 =&gt; (downstreams: downstreams, buffer: buffer),
     5 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer),
     6 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer),
-    7 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer),
+    7 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        buffer: buffer
+      ),
     8 =&gt; (downstreams: downstreams, timerBox: timerBox),
     9 =&gt; (downstreams: downstreams, policy: policy, timerBox: timerBox),
     10 =&gt; (downstreams: downstreams, filter: filter, timerBox: timerBox),
-    11 =&gt; (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox),
+    11 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        timerBox: timerBox
+      ),
     12 =&gt; (downstreams: downstreams, buffer: buffer, timerBox: timerBox),
-    13 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox),
-    14 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox),
-    15 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox),
-
+    13 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        buffer: buffer,
+        timerBox: timerBox
+      ),
+    14 =&gt; (
+        downstreams: downstreams,
+        filter: filter,
+        buffer: buffer,
+        timerBox: timerBox
+      ),
+    15 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        buffer: buffer,
+        timerBox: timerBox
+      ),
     16 =&gt; (downstreams: downstreams, relay: relay),
     17 =&gt; (downstreams: downstreams, policy: policy, relay: relay),
     18 =&gt; (downstreams: downstreams, filter: filter, relay: relay),
-    19 =&gt; (downstreams: downstreams, policy: policy, filter: filter, relay: relay),
+    19 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        relay: relay
+      ),
     20 =&gt; (downstreams: downstreams, buffer: buffer, relay: relay),
-    21 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, relay: relay),
-    22 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, relay: relay),
-    23 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, relay: relay),
+    21 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        buffer: buffer,
+        relay: relay
+      ),
+    22 =&gt; (
+        downstreams: downstreams,
+        filter: filter,
+        buffer: buffer,
+        relay: relay
+      ),
+    23 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        buffer: buffer,
+        relay: relay
+      ),
     24 =&gt; (downstreams: downstreams, timerBox: timerBox, relay: relay),
-    25 =&gt; (downstreams: downstreams, policy: policy, timerBox: timerBox, relay: relay),
-    26 =&gt; (downstreams: downstreams, filter: filter, timerBox: timerBox, relay: relay),
-    27 =&gt; (downstreams: downstreams, policy: policy, filter: filter, timerBox: timerBox, relay: relay),
-    28 =&gt; (downstreams: downstreams, buffer: buffer, timerBox: timerBox, relay: relay),
-    29 =&gt; (downstreams: downstreams, policy: policy, buffer: buffer, timerBox: timerBox, relay: relay),
-    30 =&gt; (downstreams: downstreams, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
-    31 =&gt; (downstreams: downstreams, policy: policy, filter: filter, buffer: buffer, timerBox: timerBox, relay: relay),
-
+    25 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    26 =&gt; (
+        downstreams: downstreams,
+        filter: filter,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    27 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    28 =&gt; (
+        downstreams: downstreams,
+        buffer: buffer,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    29 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        buffer: buffer,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    30 =&gt; (
+        downstreams: downstreams,
+        filter: filter,
+        buffer: buffer,
+        timerBox: timerBox,
+        relay: relay
+      ),
+    31 =&gt; (
+        downstreams: downstreams,
+        policy: policy,
+        filter: filter,
+        buffer: buffer,
+        timerBox: timerBox,
+        relay: relay
+      ),
     _ =&gt; (downstreams: downstreams)
   };
 }</code></pre>
@@ -165,7 +257,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

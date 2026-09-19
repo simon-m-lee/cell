@@ -106,12 +106,11 @@ proxy of the current cell.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-OpenCell deputy({
-  covariant DeputyContext context = DeputyContext.system,
-  covariant TestCell testRule = TestCell.allowAll,
-  EphemeralPolicy? ephemeralPolicy,
-  Synapses synapses = Synapses.enabled
-});</code></pre>
+OpenCell deputy(
+    {covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    EphemeralPolicy? ephemeralPolicy,
+    Synapses synapses = Synapses.enabled});</code></pre>
 </section>
 
 
@@ -139,7 +138,7 @@ OpenCell deputy({
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

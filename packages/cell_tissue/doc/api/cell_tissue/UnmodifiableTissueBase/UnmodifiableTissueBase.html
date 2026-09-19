@@ -80,7 +80,8 @@ in the container.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">UnmodifiableTissueBase(super.nucleus,
-    {this.unmodifiableElement = true, Iterable&lt;E&gt;? elements}) : super(elements: elements) {
+    {this.unmodifiableElement = true, Iterable&lt;E&gt;? elements})
+    : super(elements: elements) {
   if (unmodifiableElement) {
     final bind = get&lt;Cell?&gt;(() =&gt; _nucleus.record.local.bind, orElse: null);
     if (bind != null &amp;&amp; elements != null &amp;&amp; identical(bind, elements)) {
@@ -89,7 +90,6 @@ in the container.</li>
           .forEach((e) =&gt; _nucleus.synapses.link(e, downstreamCell: this));
     }
   }
-
 }</code></pre>
 </section>
 
@@ -118,7 +118,7 @@ in the container.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

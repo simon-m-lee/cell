@@ -91,11 +91,9 @@ final set = TissueSet.from&lt;int&gt;(dynamicList);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueSet.from(Iterable elements, {
-  TissueSetNucleus&lt;E&gt;? nucleus
-}) =&gt; _TissueSet&lt;E,TissueSet&lt;E&gt;&gt;.fromNucleus(
-    nucleus ?? TissueSetNucleus&lt;E&gt;(), elements: Set&lt;E&gt;.from(elements)
-);</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueSet.from(Iterable elements, {TissueSetNucleus&lt;E&gt;? nucleus}) =&gt;
+    _TissueSet&lt;E, TissueSet&lt;E&gt;&gt;.fromNucleus(nucleus ?? TissueSetNucleus&lt;E&gt;(),
+        elements: Set&lt;E&gt;.from(elements));</code></pre>
 </section>
 
 
@@ -123,7 +121,7 @@ final set = TissueSet.from&lt;int&gt;(dynamicList);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

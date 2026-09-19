@@ -95,14 +95,13 @@ in the default constructor.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueList.of(Iterable&lt;E&gt; elements, {
-  Cell? bind,
-  Context context,
-  TissueReceptor&lt;E, TissueList&lt;E&gt;&gt; receptor,
-  TestTissue&lt;E, TissueList&lt;E&gt;&gt; testRule,
-  Synapses synapses,
-  bool growable
-}) = _TissueList&lt;E, TissueList&lt;E&gt;&gt;.of;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueList.of(Iterable&lt;E&gt; elements,
+    {Cell? bind,
+    Context context,
+    TissueReceptor&lt;E, TissueList&lt;E&gt;&gt; receptor,
+    TestTissue&lt;E, TissueList&lt;E&gt;&gt; testRule,
+    Synapses synapses,
+    bool growable}) = _TissueList&lt;E, TissueList&lt;E&gt;&gt;.of;</code></pre>
 </section>
 
 
@@ -130,7 +129,7 @@ in the default constructor.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

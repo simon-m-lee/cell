@@ -87,15 +87,15 @@ chaining (but using <code>+</code> is usually more readable).</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const FilterRule(P? Function(P pulse, {dynamic user}) rule, {
-  FilterRule&lt;P&gt;? parent, dynamic user
-}) : _record = parent != null
-    ? user != null
-        ? (rule: rule, parent: parent, user: user)
-        : (rule: rule, parent: parent)
-    : user != null
-        ? (rule: rule, user: user)
-        : (rule: rule);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const FilterRule(P? Function(P pulse, {dynamic user}) rule,
+    {FilterRule&lt;P&gt;? parent, dynamic user})
+    : _record = parent != null
+          ? user != null
+              ? (rule: rule, parent: parent, user: user)
+              : (rule: rule, parent: parent)
+          : user != null
+              ? (rule: rule, user: user)
+              : (rule: rule);</code></pre>
 </section>
 
 
@@ -123,7 +123,7 @@ chaining (but using <code>+</code> is usually more readable).</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

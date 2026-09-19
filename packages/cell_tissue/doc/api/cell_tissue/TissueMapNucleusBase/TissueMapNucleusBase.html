@@ -130,17 +130,17 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueMapNucleusBase({
-  super.bind,
-  super.context,
-  super.receptor,
-  super.testRule,
-  super.synapses,
-  bool identityMap = false,
-  super.ephemeralPolicy,
-  super.forceLock,
-  super.user
-}) : super(container: identityMap ? Container.identityMap : Container.map);</code></pre>
+  <pre class="language-dart"><code class="language-dart">TissueMapNucleusBase(
+    {super.bind,
+    super.context,
+    super.receptor,
+    super.testRule,
+    super.synapses,
+    bool identityMap = false,
+    super.ephemeralPolicy,
+    super.forceLock,
+    super.user})
+    : super(container: identityMap ? Container.identityMap : Container.map);</code></pre>
 </section>
 
 
@@ -168,7 +168,7 @@ for deputies); if <code>false</code> (default), allocates a new lock.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

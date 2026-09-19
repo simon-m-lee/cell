@@ -109,7 +109,8 @@ validation.</p>
     &#47;&#47; --- Static Pillars (Non-Evolvable Identity) ---
     Provenance.actor.entry(&#39;system_daemon&#39;),
     Provenance.traceId.entry(Identity.next()),
-    if (baseContext is PulseContext) Provenance.parentTraceId.entry(baseContext.traceId!),
+    if (baseContext is PulseContext)
+      Provenance.parentTraceId.entry(baseContext.traceId!),
     Provenance.sensitivity.entry(Sensitivity.public),
 
     &#47;&#47; --- Fluid Boundaries (Evolvable Intent) ---
@@ -148,7 +149,7 @@ validation.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

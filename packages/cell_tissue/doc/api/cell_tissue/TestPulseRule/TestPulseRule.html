@@ -131,10 +131,15 @@ expect(await pulsePolicy.pulse(invalid, host: cell), isFalse);
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TestPulseRule(bool Function(Pulse pulse, {required C host, dynamic user}) rule, {TestPulseRule&lt;C&gt;? super.parent, dynamic user})
+  <pre class="language-dart"><code class="language-dart">TestPulseRule(
+    bool Function(Pulse pulse, {required C host, dynamic user}) rule,
+    {TestPulseRule&lt;C&gt;? super.parent,
+    dynamic user})
     : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-  return host != null &amp;&amp; object is Pulse ? rule(object, host: host, user: user) : true;
-});</code></pre>
+        return host != null &amp;&amp; object is Pulse
+            ? rule(object, host: host, user: user)
+            : true;
+      });</code></pre>
 </section>
 
 
@@ -162,7 +167,7 @@ expect(await pulsePolicy.pulse(invalid, host: cell), isFalse);
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

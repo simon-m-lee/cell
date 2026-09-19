@@ -94,12 +94,19 @@ default sequential execution of the <code>rules</code> collection.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const FilterRule.chain(Iterable&lt;FilterRule&lt;P&gt;&gt; rules, {
-  FilterRule&lt;P&gt;? parent, dynamic user,
-  bool Function(P pulse, {dynamic user})? strategy
-}) : _record = strategy != null ? parent != null ? user != null
-    ? (rule: strategy, parent: parent, user: user) : (rule: strategy, parent: parent) : (rule: strategy)
-    : parent != null ? (rules: rules, parent: parent) : (rules: rules);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const FilterRule.chain(Iterable&lt;FilterRule&lt;P&gt;&gt; rules,
+    {FilterRule&lt;P&gt;? parent,
+    dynamic user,
+    bool Function(P pulse, {dynamic user})? strategy})
+    : _record = strategy != null
+          ? parent != null
+              ? user != null
+                  ? (rule: strategy, parent: parent, user: user)
+                  : (rule: strategy, parent: parent)
+              : (rule: strategy)
+          : parent != null
+              ? (rules: rules, parent: parent)
+              : (rules: rules);</code></pre>
 </section>
 
 
@@ -127,7 +134,7 @@ default sequential execution of the <code>rules</code> collection.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

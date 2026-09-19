@@ -115,8 +115,13 @@ system's causal tree.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-PulseContext evolve(covariant GovernanceEntry? Function(Governance evolvable) resolver, {Map&lt;String, dynamic&gt;? others}) {
-  final entries = &lt;GovernanceEntry&gt;[...Ontology.evolve(resolver), ...Provenance.evolve(resolver)];
+PulseContext evolve(
+    covariant GovernanceEntry? Function(Governance evolvable) resolver,
+    {Map&lt;String, dynamic&gt;? others}) {
+  final entries = &lt;GovernanceEntry&gt;[
+    ...Ontology.evolve(resolver),
+    ...Provenance.evolve(resolver)
+  ];
   return PulseContext.fromEntries(entries, others: others, parent: this);
 }</code></pre>
 </section>
@@ -146,7 +151,7 @@ PulseContext evolve(covariant GovernanceEntry? Function(Governance evolvable) re
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

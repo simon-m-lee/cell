@@ -89,17 +89,19 @@ synapse registry, so it can be used to create an independent cell.</p>
 ValueNucleus&lt;V&gt; get clone {
   final handle = inheritable;
   return ValueNucleus&lt;V&gt;._((
-  local: NucleusBase.mask(
-    bind: handle.bind,
-    context: handle.context,
-    receptor: handle.receptor.clone,
-    testRule: handle.testRule,
-    ephemeralPolicy: handle.ephemeralPolicy,
-    synapses: synapses != Synapses.disabled ? Synapses.enabled : Synapses.disabled,
-    user: user,
-    forceLock: lock != null,
-  ),
-  principal: this
+    local: NucleusBase.mask(
+      bind: handle.bind,
+      context: handle.context,
+      receptor: handle.receptor.clone,
+      testRule: handle.testRule,
+      ephemeralPolicy: handle.ephemeralPolicy,
+      synapses: synapses != Synapses.disabled
+          ? Synapses.enabled
+          : Synapses.disabled,
+      user: user,
+      forceLock: lock != null,
+    ),
+    principal: this
   ));
 }</code></pre>
 </section>
@@ -131,7 +133,7 @@ ValueNucleus&lt;V&gt; get clone {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

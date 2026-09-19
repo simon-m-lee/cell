@@ -162,17 +162,21 @@ synthesis and deferred clearance.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;Cell&gt; deputy({
-  EphemeralPolicy? ephemeralPolicy,
-  covariant DeputyContext context = DeputyContext.system,
-  covariant TestCell testRule = TestCell.allowAll,
-  Synapses synapses = Synapses.enabled
-}) {
+FutureOr&lt;Cell&gt; deputy(
+    {EphemeralPolicy? ephemeralPolicy,
+    covariant DeputyContext context = DeputyContext.system,
+    covariant TestCell testRule = TestCell.allowAll,
+    Synapses synapses = Synapses.enabled}) {
   return (ephemeralPolicy != null ||
           !identical(context, DeputyContext.system) ||
           !identical(testRule, TestCell.allowAll) ||
           !identical(synapses, Synapses.enabled))
-      ? _CellDeputy(bind: this, context: context, testRule: testRule, ephemeralPolicy: ephemeralPolicy, synapses: synapses)
+      ? _CellDeputy(
+          bind: this,
+          context: context,
+          testRule: testRule,
+          ephemeralPolicy: ephemeralPolicy,
+          synapses: synapses)
       : this;
 }</code></pre>
 </section>
@@ -202,7 +206,7 @@ FutureOr&lt;Cell&gt; deputy({
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

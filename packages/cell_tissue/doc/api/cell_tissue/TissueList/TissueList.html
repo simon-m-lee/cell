@@ -105,14 +105,13 @@ print(list.length); // 3
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory TissueList({
-  Cell? bind,
-  Context context,
-  TissueReceptor&lt;E,TissueList&lt;E&gt;&gt; receptor,
-  TestTissue&lt;E,TissueList&lt;E&gt;&gt; testRule,
-  Synapses synapses,
-  bool growable
-}) = _TissueList&lt;E,TissueList&lt;E&gt;&gt;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory TissueList(
+    {Cell? bind,
+    Context context,
+    TissueReceptor&lt;E, TissueList&lt;E&gt;&gt; receptor,
+    TestTissue&lt;E, TissueList&lt;E&gt;&gt; testRule,
+    Synapses synapses,
+    bool growable}) = _TissueList&lt;E, TissueList&lt;E&gt;&gt;;</code></pre>
 </section>
 
 
@@ -140,7 +139,7 @@ print(list.length); // 3
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>

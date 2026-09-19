@@ -100,11 +100,20 @@ and named arguments; you can validate them individually.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TestActionRule(bool Function(Function action, {required C host, Arguments? arguments, dynamic user}) rule, {super.parent, dynamic user})
+  <pre class="language-dart"><code class="language-dart">TestActionRule(
+    bool Function(Function action,
+            {required C host, Arguments? arguments, dynamic user})
+        rule,
+    {super.parent,
+    dynamic user})
     : super((dynamic object, {C? host, dynamic arguments, dynamic user}) {
-  return host != null &amp;&amp; object is Function
-      ? rule(object as Function, host: host, arguments: arguments is Arguments ? arguments : null, user: user) : true;
-});</code></pre>
+        return host != null &amp;&amp; object is Function
+            ? rule(object as Function,
+                host: host,
+                arguments: arguments is Arguments ? arguments : null,
+                user: user)
+            : true;
+      });</code></pre>
 </section>
 
 
@@ -132,7 +141,7 @@ and named arguments; you can validate them individually.</li>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.3
+      1.0.0-rc.6
   </span>
   
 </footer>
