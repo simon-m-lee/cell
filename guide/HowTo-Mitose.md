@@ -91,6 +91,8 @@ A user starts Mitose by:
 - pointing at the public copy (`HowTo-Mitose.md` under the guide URL above), **or**
 - saying “Mitose” / “run Mitose” in chat.
 
+**Manual-upload fallback.** Some AI prompts cannot access the GitHub repository remotely. In that case the user pulls the files from the local `/guide` directory and uploads them manually (as chat attachments), and the agent runs the pipeline from the uploaded copies. The uploaded copies take precedence over any remote revision.
+
 Read this file. Then search the workspace for an already-filled `<stem>-BRD.md` (any `*-BRD.md` that is not the blank template).
 
 ---

@@ -21,3 +21,7 @@ local.properties
 
 # .deepcode directory containing sensitive API keys and model settings
 .deepcode/
+
+packages/cell_organ/
+
+test/
