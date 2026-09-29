@@ -46,11 +46,14 @@
   <h1 id="cell">cell</h1>
 <p>Reactive state for Dart. A <strong>cell</strong> holds a value or relays a signal. A <strong>pulse</strong> is the immutable message that moves a change. Operators (<code>Cell.state</code>, <code>Cell.observe</code>, …) wire cells together.</p>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
-<a href="#status"><img src="https://img.shields.io/badge/Mitosis-1.0.0--rc.1-blue.svg" alt="Version"></a>
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Mitosis-1.0.0--rc.6-blue.svg" alt="Version"></a>
 <a href="#status"><img src="https://img.shields.io/badge/Status-RC-yellow.svg" alt="Status"></a></p>
 <p>Validation, deputies, provenance, and timing control are available when you need them. Defaults are pass-through and allow-all — you can ship a counter without learning <code>Nucleus</code>.</p>
 <p>This is the foundation package of the Cell Framework (Mitosis). Sibling packages add collections, relations, stream combinators, persistence, and codegen.</p>
+<blockquote>
+<p><strong>Mitose pipeline — the umbrella feature.</strong> The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a>; this package supplies the <strong>Cell layer</strong> rules via <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md"><code>guide/HowTo-Mitose-Cell.md</code></a>. See the <a href="https://github.com/simon-m-lee/cell#readme">root README</a>.</p>
+</blockquote>
 <hr>
 <h2 id="when-it-fits">When it fits</h2>
 <p>Cell is a good match if you want:</p>
@@ -67,7 +70,7 @@
 <h2 id="install">Install</h2>
 <p>The package is on pub.dev. From this monorepo:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.4
+  cell: ^1.0.0-rc.6
 </code></pre>
 <p>From git:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
@@ -102,7 +105,7 @@ void main() {
 }
 </code></pre>
 <p><code>evolve</code> returning <code>null</code> rejects the update. Omit <code>evolve</code> to treat <code>update</code> as a direct assignment.</p>
-<p>Runnable demos live in <a href="example/"><code>example/</code></a>. Start with <code>example/state_demo.dart</code>.</p>
+<p>Runnable demos live in <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell/example"><code>example/</code></a>. Start with <code>example/state_demo.dart</code>.</p>
 <hr>
 <h2 id="core-operators">Core operators</h2>
 <p>You can build most application graphs from these factories. None of them require configuring <code>Receptor</code>, <code>TestCell</code>, <code>Context</code>, or <code>Synapses</code>.</p>
@@ -209,7 +212,7 @@ void main() {
 <li><strong>Internals</strong> — <code>Nucleus</code>, <code>Cell.governed</code>, <code>Cell.fromNucleus</code>, lifecycle policies. For extending the framework or high-integrity nodes.</li>
 </ol>
 <p>A deputy is a proxy, not a copy: <code>cell == cell.deputy()</code> is true. Rules on a deputy can only <strong>narrow</strong> what the principal already allows.</p>
-<p>See <a href="ARCHITECTURE.md">ARCHITECTURE.md</a> for the design rationale.</p>
+<p>See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md">ARCHITECTURE.md</a> for the design rationale.</p>
 <hr>
 <h2 id="documentation">Documentation</h2>
 <table>
@@ -221,51 +224,51 @@ void main() {
 </thead>
 <tbody>
 <tr>
-<td><a href="guide/HowTo-Start.md">HowTo-Start.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Start.md">HowTo-Start.md</a></td>
 <td>Walkthrough of the core concepts</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-16_Essential_Operators.md">HowTo-16_Essential_Operators.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-16_Essential_Operators.md">HowTo-16_Essential_Operators.md</a></td>
 <td>Operator reference and learning path</td>
 </tr>
 <tr>
-<td><a href="FEATURES.md">FEATURES.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/FEATURES.md">FEATURES.md</a></td>
 <td>Source-checked feature catalog</td>
 </tr>
 <tr>
-<td><a href="ARCHITECTURE.md">ARCHITECTURE.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/ARCHITECTURE.md">ARCHITECTURE.md</a></td>
 <td>Why the pieces are shaped this way</td>
 </tr>
 <tr>
-<td><a href="TEST_VERIFICATION.md">TEST_VERIFICATION.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md">TEST_VERIFICATION.md</a></td>
 <td>Unit-test inventory, measured coverage, and how to run the suite</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-TestCell.md">HowTo-TestCell.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TestCell.md">HowTo-TestCell.md</a></td>
 <td>Validation rules</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-Synapses.md">HowTo-Synapses.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Synapses.md">HowTo-Synapses.md</a></td>
 <td>Linking, filters, propagation</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-Receptor.md">HowTo-Receptor.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Receptor.md">HowTo-Receptor.md</a></td>
 <td>Transformation pipelines</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-Instruction.md">HowTo-Instruction.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Instruction.md">HowTo-Instruction.md</a></td>
 <td>Instruction stages</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-Transaction.md">HowTo-Transaction.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Transaction.md">HowTo-Transaction.md</a></td>
 <td>Buffered multi-cell writes</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-TransactionOnApply.md">HowTo-TransactionOnApply.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-TransactionOnApply.md">HowTo-TransactionOnApply.md</a></td>
 <td>Staged <code>apply</code> + compensation</td>
 </tr>
 <tr>
-<td><a href="guide/HowTo-Advanced.md">HowTo-Advanced.md</a></td>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/guide/HowTo-Advanced.md">HowTo-Advanced.md</a></td>
 <td>Index of optional governance machinery</td>
 </tr>
 </tbody>
@@ -303,8 +306,8 @@ void main() {
 <p>Flutter has no dedicated widgets here. Bind with <code>Cell.observe</code> (or an adapter) and drive <code>setState</code> or your existing state library.</p>
 <hr>
 <h2 id="status">Status</h2>
-<p><strong>RC</strong> (Mitosis <code>1.0.0-rc.4</code>, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.</p>
-<p>A fuller developer list is in <a href="KNOWN_ISSUES.md">KNOWN_ISSUES.md</a>. Known limits, so this page does not over-promise:</p>
+<p><strong>RC</strong> (Mitosis <code>1.0.0-rc.6</code>, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.</p>
+<p>A fuller developer list is in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/KNOWN_ISSUES.md">KNOWN_ISSUES.md</a>. Known limits, so this page does not over-promise:</p>
 <ul>
 <li>Published to pub.dev.</li>
 <li><code>Context</code>, <code>PulseContext</code>, and <code>Sensitivity</code> let you <em>attach</em> classification, actor, and purpose. They do not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation. <code>Context.describe('…')</code> stores text; it is not a legal basis or an audit log.</li>
@@ -318,9 +321,9 @@ dart doc .
 </code></pre>
 <hr>
 <h2 id="license">License</h2>
-<p>MIT or Apache-2.0. See <a href="LICENSE">LICENSE</a>.</p>
+<p>MIT or Apache-2.0. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE">LICENSE</a>.</p>
 <h2 id="authors">Authors</h2>
-<p>Lee Man Hoi Simon. See <a href="AUTHORS">AUTHORS</a> for copyright holders.</p>
+<p>Lee Man Hoi Simon. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS">AUTHORS</a> for copyright holders.</p>
 </section>
 
 
@@ -383,7 +386,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

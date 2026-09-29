@@ -73,6 +73,9 @@ You receive them via the <code>listen</code> method on any tissue.</p>
 <li>Each event is emitted <strong>after</strong> the mutation is applied and validated.</li>
 <li>The event carries the <a href="../mitosis/Pulse/payload.html">payload</a> (the changed value(s)), the <a href="../mitosis/TissuePulse/source.html">source</a>
 tissue, and a full causal <a href="../mitosis/Pulse/trace.html">trace</a>.</li>
+<li>The event's <a href="../mitosis/Pulse/type.html">type</a> classifies the mutation using the <a href="../mitosis/TissueEvent-class.html">TissueEvent</a> enum:
+<a href="../mitosis/Tissue/elementAdded-constant.html">Tissue.elementAdded</a>, <a href="../mitosis/Tissue/elementRemoved-constant.html">Tissue.elementRemoved</a>,
+<a href="../mitosis/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a>, or <a href="../mitosis/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a>.</li>
 <li>The event is immutable – it represents a fact that has already occurred.</li>
 <li>You can <a href="../mitosis/TissuePulse/evolve.html">evolve</a> the event to add a step to its trace or change its context.</li>
 </ul>
@@ -80,11 +83,16 @@ tissue, and a full causal <a href="../mitosis/Pulse/trace.html">trace</a>.</li>
 <ul>
 <li>The event is a <a href="../mitosis/Pulse-class.html">Pulse</a> – it participates in the same reactive propagation
 system as any other signal. It can be evolved, batched, and observed.</li>
+<li>The payload shape follows the <a href="../mitosis/Pulse/type.html">type</a> classification: element mutations
+carry the element itself (a <a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a> for map add/remove), scalar value
+changes carry an <a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a>, and map entry updates carry an
+<a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a>.</li>
 <li>The event is emitted <strong>after</strong> the mutation, not before. If you need to
-capture the before state, the event's <a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a> or similar
-payload includes it.</li>
-<li>For batch operations (addAll, removeAll), the payload may be an iterable
-of elements, not a single one.</li>
+capture the before state, the event's <a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a> or
+<a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a> payload includes it.</li>
+<li>For batch operations (<code>addAll</code>, <code>removeAll</code>, <code>clear</code>), the framework emits
+a <a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> whose sub-events each retain their own
+<a href="../mitosis/TissueEvent-class.html">TissueEvent</a> classification.</li>
 <li>The event is not emitted for initial population of the tissue – only for
 mutations that happen after creation.</li>
 <li><code>null</code> values are valid payloads – they represent the removal or clearing
@@ -93,10 +101,10 @@ of a value.</li>
 <h3 id="example-listening-to-changes">Example: Listening to changes</h3>
 <pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;([1, 2, 3]);
 list.listen((event) {
-  if (event is ElementAddedEvent&lt;int&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload}');
   }
-  if (event is ElementRemovedEvent&lt;int&gt;) {
+  if (event.type == Tissue.elementRemoved) {
     print('Removed: ${event.payload}');
   }
 });
@@ -109,10 +117,14 @@ list.remove(2); // prints "Removed: 2"
 </ul>
 <p>See also:</p>
 <ul>
-<li><a href="../mitosis/ElementAdded-class.html">ElementAdded</a> – for when elements are added.</li>
-<li><a href="../mitosis/ElementRemoved-class.html">ElementRemoved</a> – for when elements are removed.</li>
-<li><a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a> – for when a scalar value changes.</li>
-<li><code>Tissue.listen</code> – the method that delivers these events.</li>
+<li><a href="../mitosis/TissueEvent-class.html">TissueEvent</a> – the classification vocabulary carried on <a href="../mitosis/Pulse/type.html">type</a>.</li>
+<li><a href="../mitosis/Tissue/elementAdded-constant.html">Tissue.elementAdded</a> – for when elements are added.</li>
+<li><a href="../mitosis/Tissue/elementRemoved-constant.html">Tissue.elementRemoved</a> – for when elements are removed.</li>
+<li><a href="../mitosis/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a> – for when a scalar value changes.</li>
+<li><a href="../mitosis/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a> – for when a map entry changes.</li>
+<li><a href="../mitosis/ElementUpdatedRecord.html">ElementUpdatedRecord</a> – the payload delivered for scalar updates.</li>
+<li><a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a> – the payload delivered for map entry updates.</li>
+<li><a href="../mitosis/CollectiveTissuePulse-class.html">CollectiveTissuePulse</a> – batches of these events.</li>
 </ul>
 </section>
 
@@ -404,7 +416,7 @@ list.remove(2); // prints "Removed: 2"
 
         <dt id="type" class="property inherited">
   <span class="name"><a href="../mitosis/Pulse/type.html">type</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
@@ -1069,7 +1081,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

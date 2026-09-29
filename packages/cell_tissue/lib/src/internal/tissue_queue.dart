@@ -559,7 +559,7 @@ class _TissueQueue<E, C extends TissueQueue<E>> extends TissueQueueBase<E, C> {
 ///   `_queueAdd` logic – when the queue is full, adding a new element drops
 ///   the oldest (circular buffer behaviour).
 /// - **Member‑level bubbling**: If the queue contains [Cell] elements, they
-///   are automatically linked, so internal changes trigger [ElementUpdated]s.
+///   are automatically linked, so internal changes trigger [Tissue.elementUpdated]s.
 ///
 /// ### Example (Internal Usage)
 /// While you never instantiate this directly, understanding it helps you
@@ -1043,7 +1043,7 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
-    return (result as ElementRemoved<E>).payload as E;
+    return result as E;
   }
 
   @override
@@ -1052,7 +1052,7 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     if (result == null) {
       throw UnsupportedError('Unmodifiable operation');
     }
-    return (result as ElementRemoved<E>).payload as E;
+    return result as E;
   }
 
   @override
@@ -1065,9 +1065,8 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
 
   //
 
-  ElementAdded<E>? _add(E value,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementAdded<E>? event;
+  TissuePulse<E>? _add(E value, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(add)) {
       if (validate.action(add, host: this, arguments: (
@@ -1077,7 +1076,7 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
           true) {
         if (validate.element(value, host: this, action: add) == true &&
             _nucleus.container.add(this, value)) {
-          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
+          event = _TissuePulse<E>(source: deputy ?? this, payload: value, type: Tissue.elementAdded);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1087,16 +1086,11 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementAdded<E>? _addFirst(E value,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementAdded<E>? event;
+  TissuePulse<E>? _addFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(addFirst)) {
-      if (validate.action(addFirst, host: this, arguments: (
-            positionalArguments: [value],
-            namedArguments: null
-          )) ==
-          true) {
+      if (validate.action(addFirst, host: this, arguments: (positionalArguments: [value], namedArguments: null)) == true) {
         if (validate.element(value, host: this, action: addFirst) == true) {
           _nucleus.container.store.addFirst(value);
 
@@ -1104,7 +1098,7 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
             _nucleus.synapses.link(value, downstreamCell: this);
           }
 
-          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
+          event = _TissuePulse<E>(source: deputy ?? this, payload: value, type: Tissue.elementAdded);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1114,9 +1108,8 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementAdded<E>? _addLast(E value,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementAdded<E>? event;
+  TissuePulse<E>? _addLast(E value, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(addLast)) {
       if (validate.action(addLast, host: this, arguments: (
@@ -1131,7 +1124,7 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
             _nucleus.synapses.link(value, downstreamCell: this);
           }
 
-          event = ElementAdded<E>._(source: deputy ?? this, payload: value);
+          event = _TissuePulse<E>(source: deputy ?? this, payload: value, type: Tissue.elementAdded);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1141,25 +1134,17 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementAdded<Iterable<E>>? _addAll(Iterable<E> elements,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementAdded<Iterable<E>>? event;
+  TissuePulse? _addAll(Iterable<E> elements, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? event;
 
     if (this is! Unmodifiable && modifiable.contains(addAll)) {
-      if (validate.action(addAll, host: this, arguments: (
-            positionalArguments: [elements],
-            namedArguments: null
-          )) ==
-          true) {
-        final adds = elements.where((e) =>
-            validate.element(e,
-                host: deputy is TissueQueue<E> ? deputy : this, action: add) ==
-            true);
-        final added =
-            adds.where((e) => _nucleus.container.add(this, e)).toList();
+      if (validate.action(addAll, host: this, arguments: (positionalArguments: [elements], namedArguments: null)) == true) {
+        final adds = elements
+            .where((e) => validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: add) == true);
+        final added = adds.where((e) => _nucleus.container.add(this, e)).toList();
         if (added.isNotEmpty) {
-          event = ElementAdded<Iterable<E>>._(
-              source: deputy ?? this, payload: added);
+          final events = added.map<TissuePulse<E>>((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+          event = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification && added.length == 1) {
             _nucleus.receptor(event);
           }
@@ -1169,24 +1154,18 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementRemoved<Iterable<E>>? _clear(
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<Iterable<E>>? event;
+  TissuePulse? _clear({bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? event;
 
     if (this is! Unmodifiable && modifiable.contains(clear)) {
       if (validate.action(clear, host: this) == true) {
         final removes = _nucleus.container
-            .where((e) =>
-                validate.element(e,
-                    host: deputy is TissueQueue<E> ? deputy : this,
-                    action: remove) ==
-                true)
+            .where((e) => validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true)
             .toList();
-        final removed =
-            removes.where((e) => _nucleus.container.remove(this, e)).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this, e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemoved<Iterable<E>>._(
-              source: deputy ?? this, payload: removed.toList(growable: false));
+          final events = removed.map<TissuePulse<E>>((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          event = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1196,17 +1175,12 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementRemoved<E>? _remove(Object? object,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<E>? event;
+  TissuePulse<E>? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse<E>? event;
 
     if (this is! Unmodifiable && modifiable.contains(remove)) {
       if (object != null &&
-          validate.action(remove, host: this, arguments: (
-                positionalArguments: [object],
-                namedArguments: null
-              )) ==
-              true) {
+          validate.action(remove, host: this, arguments: (positionalArguments: [object], namedArguments: null)) == true) {
         E? e;
         for (final candidate in _nucleus.container.store) {
           if (candidate == object) {
@@ -1215,12 +1189,9 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
           }
         }
         if (e != null &&
-            validate.element(e,
-                    host: deputy is TissueQueue<E> ? deputy : this,
-                    action: remove) ==
-                true &&
+            validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true &&
             _nucleus.container.remove(this, e)) {
-          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
+          event = _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1230,80 +1201,58 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementRemoved<E>? _removeFirst(
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<E>? event;
-
+  E _removeFirst({bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && modifiable.contains(removeFirst)) {
       if (validate.action(removeFirst, host: this) == true) {
-        final e = _nucleus.container.first;
-        if (validate.element(e,
-                    host: deputy is TissueQueue<E> ? deputy : this,
-                    action: removeFirst) ==
-                true &&
-            _nucleus.container.remove(
-                this, _nucleus.container.store.firstWhere((i) => e == i))) {
-          if (e is Cell && !_nucleus.container.contains(e)) {
-            _nucleus.synapses.unlink(e, downstreamCell: this);
+        E first = _nucleus.container.store.first;
+        if (validate.element(first, host: deputy is TissueQueue<E> ? deputy : this, action: removeFirst) == true) {
+          first = (_nucleus.container.store as Queue<E>).removeFirst();
+          if (first is Cell && !_nucleus.container.contains(first)) {
+            _nucleus.synapses.unlink(first, downstreamCell: this);
           }
-          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
+          final event = _TissuePulse<E>(source: deputy ?? this, payload: first, type: Tissue.elementRemoved);
           if (notification) {
             _nucleus.receptor(event);
           }
+          return first;
         }
       }
     }
-    return event;
+    throw UnsupportedError('Unmodifiable operation');
   }
 
-  ElementRemoved<E>? _removeLast(
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<E>? event;
-
+  E _removeLast({bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && modifiable.contains(removeLast)) {
       if (validate.action(removeLast, host: this) == true) {
-        final e = _nucleus.container.last;
-        if (validate.element(e,
-                    host: deputy is TissueQueue<E> ? deputy : this,
-                    action: removeLast) ==
-                true &&
-            _nucleus.container.remove(
-                this, _nucleus.container.store.lastWhere((i) => e == i))) {
-          if (e is Cell && !_nucleus.container.contains(e)) {
-            _nucleus.synapses.unlink(e, downstreamCell: this);
+        E last = _nucleus.container.store.last;
+        if (validate.element(last, host: deputy is TissueQueue<E> ? deputy : this, action: removeLast) == true) {
+          last = (_nucleus.container.store as Queue<E>).removeLast();
+          if (last is Cell && !_nucleus.container.contains(last)) {
+            _nucleus.synapses.unlink(last, downstreamCell: this);
           }
-          event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
+          final event = _TissuePulse<E>(source: deputy ?? this, payload: last, type: Tissue.elementRemoved);
           if (notification) {
             _nucleus.receptor(event);
           }
+          return last;
         }
       }
     }
-    return event;
+    throw UnsupportedError('Unmodifiable operation');
   }
 
-  ElementRemoved<Iterable<E>>? _removeWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<Iterable<E>>? event;
+  TissuePulse? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? event;
 
     if (this is! Unmodifiable && modifiable.contains(removeWhere)) {
-      if (validate.action(removeWhere,
-              host: this,
-              arguments: (positionalArguments: [test], namedArguments: null)) ==
-          true) {
+      if (validate.action(removeWhere, host: this, arguments: (positionalArguments: [test], namedArguments: null)) == true) {
         final removes = _nucleus.container
-            .where((e) =>
-                test(e) &&
-                validate.element(e,
-                        host: deputy is TissueQueue<E> ? deputy : this,
-                        action: remove) ==
-                    true)
+            .where((e) => test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true)
             .toList();
-        final removed =
-            removes.where((e) => _nucleus.container.remove(this, e)).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this, e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemoved<Iterable<E>>._(
-              source: deputy ?? this, payload: removed.toList(growable: false));
+          final events = removed.map<TissuePulse<E>>((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          event = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(event);
           }
@@ -1313,28 +1262,18 @@ mixin TissueQueueMixin<E, C extends TissueQueue<E>>
     return event;
   }
 
-  ElementRemoved<Iterable<E>>? _retainWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
-    ElementRemoved<Iterable<E>>? event;
+  TissuePulse? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    TissuePulse? event;
 
     if (this is! Unmodifiable && modifiable.contains(retainWhere)) {
-      if (validate.action(retainWhere,
-              host: this,
-              arguments: (positionalArguments: [test], namedArguments: null)) ==
-          true) {
+      if (validate.action(retainWhere, host: this, arguments: (positionalArguments: [test], namedArguments: null)) == true) {
         final removes = _nucleus.container
-            .where((e) =>
-                !test(e) &&
-                validate.element(e,
-                        host: deputy is TissueQueue<E> ? deputy : this,
-                        action: remove) ==
-                    true)
+            .where((e) => !test(e) && validate.element(e, host: deputy is TissueQueue<E> ? deputy : this, action: remove) == true)
             .toList();
-        final removed =
-            removes.where((e) => _nucleus.container.remove(this, e)).toList();
+        final removed = removes.where((e) => _nucleus.container.remove(this, e)).toList();
         if (removed.isNotEmpty) {
-          event = ElementRemoved<Iterable<E>>._(
-              source: deputy ?? this, payload: removed.toList(growable: false));
+          final events = removed.map<TissuePulse<E>>((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
+          event = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
           if (notification) {
             _nucleus.receptor(event);
           }

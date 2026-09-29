@@ -139,12 +139,12 @@ final handle = Flow.retry&lt;int, UserProfile&gt;(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle retry&lt;S, T&gt;(
-    Cell source, {
-      required RetryTask&lt;S, T&gt; task,
-      int count = 3,
-      RetryErrorHandler? onError,
-      bool emitErrorPulse = true,
-    }) {
+  Cell source, {
+  required RetryTask&lt;S, T&gt; task,
+  int count = 3,
+  RetryErrorHandler? onError,
+  bool emitErrorPulse = true,
+}) {
   return Retry&lt;S, T&gt;(
     task,
     count: count,
@@ -179,7 +179,7 @@ final handle = Flow.retry&lt;int, UserProfile&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

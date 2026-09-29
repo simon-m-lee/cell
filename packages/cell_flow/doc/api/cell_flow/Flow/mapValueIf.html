@@ -76,11 +76,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapValueIf&lt;S, T&gt;(
-    Cell source, {
-      required bool Function(S value) test,
-      required T Function(S value) project,
-      MapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required bool Function(S value) test,
+  required T Function(S value) project,
+  MapErrorHandler? onError,
+}) {
   return MapValueIf&lt;S, T&gt;(test, project, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -111,7 +111,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

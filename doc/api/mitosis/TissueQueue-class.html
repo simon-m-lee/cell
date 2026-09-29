@@ -115,7 +115,7 @@ print(queue.removeFirst()); // 'A'
 
 // Listen for changes
 queue.listen((event) {
-  if (event is ElementAddedEvent&lt;String&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload}');
   }
 });
@@ -1392,7 +1392,7 @@ and instantiation of a <a href="../mitosis/TissueQueueBase-class.html">TissueQue
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

@@ -88,12 +88,17 @@ a live graph node, returning a handle for stimulus ingress.</p>
   Synapses synapses = Synapses.enabled,
 }) {
   final receptor = Receptor.instruction(this);
-  final nucleus = Nucleus(bind: source, testRule: testRule, synapses: synapses, receptor: receptor);
+  final nucleus = Nucleus(
+      bind: source,
+      testRule: testRule,
+      synapses: synapses,
+      receptor: receptor);
   final cell = Cell.fromNucleus(nucleus);
 
-  bool emit(dynamic input) =&gt; receptor.call(Pulse(input, source: cell)) != null;
+  bool emit(dynamic input) =&gt;
+      receptor.call(Pulse(input, source: cell)) != null;
 
-  Future&lt;bool&gt; emitAsync(dynamic input)  async {
+  Future&lt;bool&gt; emitAsync(dynamic input) async {
     final lock = nucleus.lock;
     if (lock != null) {
       return lock.synchronized(() =&gt; emit(input)).then((value) =&gt; value);
@@ -102,7 +107,8 @@ a live graph node, returning a handle for stimulus ingress.</p>
   }
 
   Future&lt;void&gt; ingest(Pulse pulse, {bool serializedCompletion = true}) async {
-    return await receptor.async.call(pulse as PulseBase, serializedCompletion: serializedCompletion);
+    return await receptor.async
+        .call(pulse as PulseBase, serializedCompletion: serializedCompletion);
   }
 
   return (cell: cell, emit: emit, emitAsync: emitAsync, ingest: ingest);
@@ -134,7 +140,7 @@ a live graph node, returning a handle for stimulus ingress.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

@@ -25,9 +25,9 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/">tissue.dart</a></li>
-    <li><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
-    <li class="self-crumb">operator + abstract method</li>
+    <li><a href="../../cell_tissue/">cell_tissue.dart</a></li>
+    <li><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></li>
+    <li class="self-crumb">operator + method</li>
   </ol>
   <div class="self-name">operator +</div>
   <form class="search navbar-right" role="search">
@@ -49,7 +49,7 @@
     data-above-sidebar="cell_tissue&#47;TissueEvent-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">operator +</span> abstract method 
+<h1><span class="kind-method">operator +</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
@@ -58,16 +58,21 @@
 <span class="name ">operator +</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="+-param-other"><span>covariant</span> <span class="type-annotation"><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
-      <div class="features"><span class="feature">override</span></div>
+      
 
     </section>
     
+<section class="desc markdown">
+  <p>Combines this event flag with another using a bitwise OR operation.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">TissueEvent operator +(covariant TissueEvent other);</code></pre>
+  <pre class="language-dart"><code class="language-dart">TissueEvent operator +(covariant TissueEvent other) {
+  return CompositeTissueEvent._(mask | other.mask);
+}</code></pre>
 </section>
 
 
@@ -82,8 +87,8 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">cell_tissue</a></li>
     <li><a href="../../cell_tissue/">cell_tissue</a></li>
-    <li><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent<span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></a></li>
-    <li class="self-crumb">operator + abstract method</li>
+    <li><a href="../../cell_tissue/TissueEvent-class.html">TissueEvent</a></li>
+    <li class="self-crumb">operator + method</li>
 </ol>
 
     <h5>TissueEvent class</h5>
@@ -95,7 +100,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0
+      1.0.0-rc.7
   </span>
   
 </footer>

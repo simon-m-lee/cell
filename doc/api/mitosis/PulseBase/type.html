@@ -64,7 +64,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+      <span class="returntype">dynamic</span>
       get
       <span class="name ">type</span>
       <div class="features"><span class="feature">override</span></div>
@@ -72,15 +72,17 @@
     </section>
     
 <section class="desc markdown">
-  <p>Semantic type tag for pattern matching and routing.</p>
+  <p>Semantic type classification for pattern matching and routing.</p>
+<p>The value is <code>dynamic</code>: commonly a <code>String</code> tag, but any object (such as
+an enum) may be used as a classifier.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-String? get type {
-  return get&lt;String?&gt;(() =&gt; _record.root.secondary.type,
+dynamic get type {
+  return get&lt;dynamic&gt;(() =&gt; _record.root.secondary.type,
       fallback: () =&gt; _pulse?.type ?? _parent?.type, orElse: null);
 }</code></pre>
 </section>
@@ -112,7 +114,7 @@ String? get type {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

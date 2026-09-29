@@ -135,11 +135,11 @@ input.emit(2); // -&gt; {odd: [1], even: [2]}
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle groupCollect&lt;S, K&gt;(
-    Cell source, {
-      required K Function(S value) keyOf,
-      Map&lt;K, List&lt;S&gt;&gt;? groups,
-      GroupErrorHandler? onError,
-    }) {
+  Cell source, {
+  required K Function(S value) keyOf,
+  Map&lt;K, List&lt;S&gt;&gt;? groups,
+  GroupErrorHandler? onError,
+}) {
   return GroupCollect&lt;S, K&gt;(
     keyOf,
     groups: groups,
@@ -173,7 +173,7 @@ input.emit(2); // -&gt; {odd: [1], even: [2]}
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

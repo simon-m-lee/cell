@@ -6,6 +6,8 @@
 [![Dart](https://img.shields.io/badge/Dart-%3E%3D3.0-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-green.svg)](#license)
 
+> **Mitose pipeline — the umbrella feature.** The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows [`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md); this package supplies the **Tissue layer** rules via [`guide/HowTo-Mitose-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md). See the [root README](https://github.com/simon-m-lee/cell#readme).
+
 ---
 
 ## Overview
@@ -59,7 +61,7 @@ Add `cell_tissue` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell_tissue: ^1.0.0-rc.5
+  cell_tissue: ^1.0.0-rc.7
 ```
 
 Then run:

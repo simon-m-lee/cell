@@ -140,11 +140,11 @@ await actions.emitAsync('update'); // emits processed action
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle withLatestFrom&lt;S, R&gt;(
-    Cell source, {
-      required List&lt;Cell&gt; others,
-      required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
-      CombineErrorHandler? onError,
-    }) {
+  Cell source, {
+  required List&lt;Cell&gt; others,
+  required R Function(S sourceValue, List&lt;Object?&gt; latest) combine,
+  CombineErrorHandler? onError,
+}) {
   return WithLatestFrom&lt;S, R&gt;(
     others,
     combine,
@@ -178,7 +178,7 @@ await actions.emitAsync('update'); // emits processed action
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

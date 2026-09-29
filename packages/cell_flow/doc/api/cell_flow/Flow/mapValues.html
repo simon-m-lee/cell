@@ -131,10 +131,10 @@ input.emit({'a': 1, 'b': 2}); // -&gt; {'a': 2, 'b': 4}
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapValues&lt;K, V, R&gt;(
-    Cell source, {
-      required R Function(V value) project,
-      MapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required R Function(V value) project,
+  MapErrorHandler? onError,
+}) {
   return MapValues&lt;K, V, R&gt;(project, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -165,7 +165,7 @@ input.emit({'a': 1, 'b': 2}); // -&gt; {'a': 2, 'b': 4}
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

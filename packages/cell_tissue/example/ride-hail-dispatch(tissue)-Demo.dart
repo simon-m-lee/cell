@@ -517,7 +517,7 @@ final class Assignment {
 /// tissue queue does not drain via `removeFirst`, so the demo uses a
 /// plain Dart `_pushWork` list for the pump while the tissue queue
 /// serves as the **audit-side enqueue** (`addLast` →
-/// `ElementAdded<PushJob>`). That split is documented in the file
+/// `TissueEvent.elementAdded`). That split is documented in the file
 /// header.
 ///
 /// ### Validation
@@ -627,7 +627,7 @@ class RideHailDispatchHarness {
   /// The append-only trip ledger.
   ///
   /// A `TissueList<TripEntry>` guarded by `_tripAppendOnly`. Every
-  /// `add` emits an `ElementAdded<TripEntry>` pulse on the list.
+  /// `add` emits a `TissueEvent.elementAdded` pulse on the list.
   ///
   /// ### Writers
   ///
@@ -707,7 +707,7 @@ class RideHailDispatchHarness {
   ///
   /// In this build the tissue queue does **not** drain via
   /// `removeFirst`, so the demo uses it as the **audit-side enqueue**
-  /// only (`addLast` → `ElementAdded<PushJob>`). The pump runs on a
+  /// only (`addLast` → `TissueEvent.elementAdded`). The pump runs on a
   /// plain Dart `_pushWork` list. See the file header for the full
   /// rationale.
   late final TissueQueue<PushJob> pushQ;
@@ -1235,7 +1235,7 @@ class RideHailDispatchHarness {
   ///
   /// In this build `TissueQueue.removeFirst` / `remove` do not drain
   /// the container. The tissue queue stays as the audit-side enqueue
-  /// (`addLast` → `ElementAdded<PushJob>`) and the pump runs on the
+  /// (`addLast` → `TissueEvent.elementAdded`) and the pump runs on the
   /// plain Dart `_pushWork` list.
   ///
   /// ### Failure semantics

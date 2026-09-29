@@ -47,13 +47,13 @@
 <section class="desc markdown">
   <h1 id="cell-framework--feature-catalog">Cell Framework — Feature Catalog</h1>
 <p><strong>Package:</strong> <code>cell</code><br>
-<strong>Version:</strong> <code>1.0.0-rc.4</code> (RC / Mitosis Release Candidate)<br>
+<strong>Version:</strong> <code>1.0.0-rc.6</code> (RC / Mitosis Release Candidate)<br>
 <strong>SDK:</strong> Dart <code>&gt;=3.5.0 &lt;4.0.0</code><br>
 <strong>License:</strong> MIT or Apache-2.0<br>
-<strong>Author:</strong> Lee Man Hoi Simon (see <a href="AUTHORS"><code>AUTHORS</code></a>)<br>
+<strong>Author:</strong> Lee Man Hoi Simon (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/AUTHORS"><code>AUTHORS</code></a>)<br>
 <strong>Location:</strong> <code>packages/cell</code></p>
 <p>This document is a complete, categorized inventory of features in the <strong>cell</strong> package — the foundation layer of the Cell Framework. Use it to decide whether Cell covers a requirement, which operator to reach for, and what is opt-in versus on by default.</p>
-<p>It is derived from the public API in <code>lib/</code> and the guides in <code>guide/</code>. If a guide and the source disagree, <strong>the source is current</strong>. Test contracts live in <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>.</p>
+<p>It is derived from the public API in <code>lib/</code> and the guides in <code>guide/</code>. If a guide and the source disagree, <strong>the source is current</strong>. Test contracts live in <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>.</p>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
@@ -97,7 +97,7 @@
 <p>Nothing is authorized, redacted, TTL-limited, or audited unless you pass a rule. Defaults are pass-through and allow-all.</p>
 <hr>
 <h2 id="2-status-and-boundaries">2. Status and Boundaries</h2>
-<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.4</code>. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
+<p><strong>RC (Release Candidate).</strong> Package version <code>1.0.0-rc.6</code>. The core reactive engine is considered feature-complete. Causal integrity logic is now strictly enforced: <code>withStep</code> operations lengthen lineage without branching (preserving <code>isComposite: false</code>), while <code>evolve</code> operations create explicit parent-child branches via <code>EvolvedPulse</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1895,7 +1895,7 @@ Categories include Getting Started, Core, Core 16 Operators, Transactions, Gover
 <ul>
 <li><code>dart test</code> with no path finds <strong>no tests</strong></li>
 <li><code>dart test test</code> is a name filter, not a directory</li>
-<li>Pass explicit files (see <a href="TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>)</li>
+<li>Pass explicit files (see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell/TEST_VERIFICATION.md"><code>TEST_VERIFICATION.md</code></a>)</li>
 </ul>
 <p><strong>1115</strong> tests in <strong>20</strong> files. Last full run: <strong>1115 passed / 0 failed / 0 skipped</strong>. Measured <code>lib/</code> line coverage: <strong>95.9%</strong> (3397 / 3541). Suites cover Cell (including <code>valve</code> and <code>OpenCell.perform</code>), Pulse (<code>PulseExtension.map</code> / <code>cast</code> via <code>PulseExtension(pulse)</code>), Nucleus (<code>isInvalidated</code> follows a hosted <code>EphemeralPolicy</code>), Receptor (<code>pipeline</code> reaction / <code>isGoverned</code> / <code>PulseShell</code>), Instruction, Synapses (<code>FilterRule</code> parent/<code>fromRecord</code>, <code>PropagationStrategy.sample</code>), TestCell / TestRule, Context / DeputyContext / PulseContext, commons, <code>transaction</code>, <code>txApply</code>, and operator phases 1–4.</p>
 <pre class="language-bash"><code class="language-bash">dart analyze lib
@@ -2404,7 +2404,7 @@ dart doc .
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

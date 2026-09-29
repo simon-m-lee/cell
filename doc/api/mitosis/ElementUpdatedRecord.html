@@ -62,7 +62,7 @@
     
 <section class="desc markdown">
   <p>A record that captures a before‑and‑after snapshot of a reactive value
-change, delivered as the payload of a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a>.</p>
+change, delivered as the payload of a <code>elementUpdated</code>.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li>Reacting to a value change in a UI: update a label, animate a transition,
@@ -73,7 +73,7 @@ provenance).</li>
 <li>Conditional logic: compare the before and after to decide what to do next.</li>
 </ul>
 <p>You never create this record directly. It's constructed automatically by
-the framework and delivered to you as the payload of a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a>
+the framework and delivered to you as the payload of a <code>elementUpdated</code>
 when you listen to a <a href="../mitosis/TissueValue-class.html">TissueValue</a> or a <a href="../mitosis/ValueCell-class.html">ValueCell</a>. Use it to see exactly
 what changed – the old value (<code>before</code>) and the new value (<code>after</code>).</p>
 <h3 id="how-it-works">How it works</h3>
@@ -88,9 +88,10 @@ was uninitialised or if it was set to <code>null</code>.</li>
 was cleared or set to <code>null</code>.</li>
 </ul>
 <p>The record is typically destructured in the event handler:</p>
-<pre class="language-dart"><code class="language-dart">final event = ValueChangedEvent&lt;int, TissueValue&lt;int&gt;&gt;(...);
-final (cell, :before, :after) = event.payload!;
-print('$cell changed from $before to $after');
+<pre class="language-dart"><code class="language-dart">final cell = TissueValue&lt;int&gt;(0);
+final event = cell.apply(cell.set, positionalArguments: [42]);
+final (:value, :before, :after) = event.payload!;
+print('$value changed from $before to $after');
 </code></pre>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -113,10 +114,10 @@ records with the same <code>value</code>, <code>before</code>, and <code>after</
 <h3 id="example-destructuring-in-an-event-handler">Example: Destructuring in an event handler</h3>
 <pre class="language-dart"><code class="language-dart">final valueCell = TissueValue&lt;int&gt;(0);
 valueCell.listen((event) {
-  if (event is ValueChangedEvent&lt;int, TissueValue&lt;int&gt;&gt;) {
+  if (event.type == Tissue.elementUpdated) {
     // Destructure the record for easy access
-    final (cell, :before, :after) = event.payload!;
-    print('${cell.runtimeType} changed from $before to $after');
+    final (:value, :before, :after) = event.payload!;
+    print('${value.runtimeType} changed from $before to $after');
   }
 });
 
@@ -135,7 +136,7 @@ usually <code>TissueValue&lt;V&gt;</code> or a custom subtype.</li>
 </ul>
 <h3 id="see-also">See also:</h3>
 <ul>
-<li><a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a> – the event that carries this record.</li>
+<li><code>elementUpdated</code> – the event that carries this record.</li>
 <li><a href="../mitosis/TissueValue-class.html">TissueValue</a> – the reactive cell that emits these events.</li>
 <li><a href="../mitosis/Cell/unmodifiable.html">Cell.unmodifiable</a> – how deep immutability is enforced.</li>
 </ul>
@@ -174,7 +175,7 @@ usually <code>TissueValue&lt;V&gt;</code> or a custom subtype.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

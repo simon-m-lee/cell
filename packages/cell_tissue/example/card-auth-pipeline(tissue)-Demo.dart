@@ -77,7 +77,7 @@ import 'package:cell_tissue/cell_tissue.dart';
 //      adapter, and its `removeFirst` / `remove` operations do not drain
 //      the container.
 //    • The demo keeps `issuerQ` as the audit-side enqueue (addLast →
-//      ElementAdded) and uses a plain Dart working list (`_issuerWork`)
+//      TissueEvent.elementAdded) and uses a plain Dart working list (`_issuerWork`)
 //      for the pump's actual retry logic.
 //
 // 4. Trace prints:
@@ -509,7 +509,7 @@ class CardAuthHarness {
   ///
   /// The `_ledgerAppendOnly` TestTissue allows `add` / `addAll` and denies
   /// `remove` / `clear` / `[]=`. Every entry is emitted as an
-  /// `ElementAdded<LedgerEntry>` pulse on the tissue.
+  /// `TissueEvent.elementAdded` pulse on the tissue.
   late final TissueList<LedgerEntry> ledger;
 
   /// The available balance in cents.
@@ -550,7 +550,7 @@ class CardAuthHarness {
   /// The pump's working list.
   ///
   /// The tissue queue above is the audit-side enqueue (`addLast` →
-  /// `ElementAdded<IssuerJob>`). This list drives the pump's retry
+  /// `TissueEvent.elementAdded`). This list drives the pump's retry
   /// logic, because the tissue queue's `removeFirst` / `remove` do not
   /// drain the container in this build.
   final List<IssuerJob> _issuerWork = <IssuerJob>[];
@@ -950,7 +950,7 @@ class CardAuthHarness {
   /// ### Why the tissue queue is not used directly
   /// This build's `TissueQueue.removeFirst` / `remove` operations do not
   /// drain the container. The tissue queue stays as the audit record
-  /// (`addLast` → `ElementAdded<IssuerJob>`), and the pump runs on the
+  /// (`addLast` → `TissueEvent.elementAdded`), and the pump runs on the
   /// plain Dart `_issuerWork` list.
   ///
   /// ### Failure semantics

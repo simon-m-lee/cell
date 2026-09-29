@@ -128,7 +128,7 @@ physical storage update, and pulse broadcasting in a single atomic cycle.</p>
 <li>The <code>newValue</code> is submitted to the <a href="../../mitosis/TestTissue-class.html">TestTissue</a> ruleset.</li>
 <li>If the value is valid and different, it is written to the <a href="../../mitosis/ValueContainer-class.html">ValueContainer</a>.</li>
 <li>If the value is a <a href="../../mitosis/Cell-class.html">Cell</a>, the framework manages the synapse wiring.</li>
-<li>A <a href="../../mitosis/ElementUpdated-class.html">ElementUpdated</a> is dispatched to observers.</li>
+<li>A <code>elementUpdated</code> is dispatched to observers.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -175,7 +175,7 @@ counter.value = 42;
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

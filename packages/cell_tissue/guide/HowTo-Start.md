@@ -1,6 +1,6 @@
 # How to Start with cell_tissue
 
-**Quick-start guide for developers** · `cell_tissue` v1.0.0-rc.3
+**Quick-start guide for developers** · `cell_tissue` v1.0.0-rc.7
 
 Get up and running with **cell_tissue** in 15 minutes. Learn the five reactive collection types, add validation, observe granular change events, create zero-copy deputy views, and govern a tissue with a lifecycle policy.
 
@@ -50,8 +50,8 @@ Add `cell` and `cell_tissue` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.2
-  cell_tissue: ^1.0.0-rc.3
+  cell: ^1.0.0-rc.6
+  cell_tissue: ^1.0.0-rc.7
 ```
 
 Import once in your Dart file:

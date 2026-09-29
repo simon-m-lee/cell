@@ -1,0 +1,4 @@
+# Member-specific publish ignores.
+# This file overrides the workspace-root .pubignore (which excludes
+# /packages/** so the umbrella package stays lean).
+doc/

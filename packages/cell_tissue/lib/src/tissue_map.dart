@@ -389,8 +389,9 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 /// final observer = Cell.observe(
 ///   bind: map,
 ///   onPulse: (pulse, {user}) {
-///     if (pulse is ElementAddedEvent<int>) {
-///       print('Added: ${pulse.payload}');
+///     if (pulse.type == Tissue.elementAdded) {
+///       final entry = pulse.payload as MapEntry<String, int>;
+///       print('Added: ${entry.value}');
 ///     }
 ///   },
 /// );

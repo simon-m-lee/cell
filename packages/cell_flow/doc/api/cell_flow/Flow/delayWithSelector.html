@@ -130,10 +130,10 @@ input.emit('hello'); // 50ms delay
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle delayWithSelector&lt;S&gt;(
-    Cell source, {
-      required Duration Function(S value) durationOf,
-      DelayErrorHandler? onError,
-    }) {
+  Cell source, {
+  required Duration Function(S value) durationOf,
+  DelayErrorHandler? onError,
+}) {
   return DelayWithSelector&lt;S&gt;(durationOf, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -164,7 +164,7 @@ input.emit('hello'); // 50ms delay
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

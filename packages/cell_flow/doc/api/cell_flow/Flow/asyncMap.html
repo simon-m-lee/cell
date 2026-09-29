@@ -157,10 +157,10 @@ ids.emit(2); // -&gt; User 2 (after User 1 completes)
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMap&lt;S, T&gt;(
-    Cell source, {
-      required FutureOr&lt;T&gt; Function(S value) mapper,
-      AsyncMapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required FutureOr&lt;T&gt; Function(S value) mapper,
+  AsyncMapErrorHandler? onError,
+}) {
   return AsyncMap&lt;S, T&gt;(mapper, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>
@@ -190,7 +190,7 @@ ids.emit(2); // -&gt; User 2 (after User 1 completes)
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

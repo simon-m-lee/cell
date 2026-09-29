@@ -2382,8 +2382,7 @@ abstract interface class Cell {
   /// * [ApplyTransactionScope]: The coordinator for atomic multi-step updates.
   /// - **Example**: See `example/atomic_multi_update.dart` for a
   ///   walkthrough of bank transfer logic and multi-node consistency.
-  dynamic apply(
-    Function function, {
+  dynamic apply(Function function, {
     List? positionalArguments,
     Map<Symbol, dynamic>? namedArguments,
     ApplyTransactionScope? tx,

@@ -72,12 +72,12 @@ active configuration with the API key redacted by the caller.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Map&lt;String, dynamic&gt; toJson() =&gt; {
-  &#39;endpoint&#39;: endpoint.toString(),
-  &#39;apiKey&#39;: apiKey,
-  &#39;model&#39;: model,
-  &#39;timeoutSeconds&#39;: timeout.inSeconds,
-  if (extraBody.isNotEmpty) &#39;extraBody&#39;: extraBody,
-};</code></pre>
+      &#39;endpoint&#39;: endpoint.toString(),
+      &#39;apiKey&#39;: apiKey,
+      &#39;model&#39;: model,
+      &#39;timeoutSeconds&#39;: timeout.inSeconds,
+      if (extraBody.isNotEmpty) &#39;extraBody&#39;: extraBody,
+    };</code></pre>
 </section>
 
 
@@ -105,7 +105,7 @@ active configuration with the API key redacted by the caller.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

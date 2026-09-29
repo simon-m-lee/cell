@@ -132,11 +132,11 @@ final handle = Flow.timeoutWithFallback&lt;int&gt;(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle timeoutWithFallback&lt;S&gt;(
-    Cell source, {
-      required Duration duration,
-      required S fallback,
-      bool once = false,
-    }) {
+  Cell source, {
+  required Duration duration,
+  required S fallback,
+  bool once = false,
+}) {
   return TimeoutWithFallback&lt;S&gt;(
     duration,
     fallback: fallback,
@@ -170,7 +170,7 @@ final handle = Flow.timeoutWithFallback&lt;int&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

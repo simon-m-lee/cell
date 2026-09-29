@@ -134,11 +134,11 @@ flush.emit(null); // -&gt; ['a', 'b']
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferWhen&lt;S&gt;(
-    Cell source, {
-      required Cell closer,
-      bool emitEmpty = false,
-      BufferErrorHandler? onError,
-    }) {
+  Cell source, {
+  required Cell closer,
+  bool emitEmpty = false,
+  BufferErrorHandler? onError,
+}) {
   return BufferWhen&lt;S&gt;(
     closer,
     emitEmpty: emitEmpty,
@@ -172,7 +172,7 @@ flush.emit(null); // -&gt; ['a', 'b']
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

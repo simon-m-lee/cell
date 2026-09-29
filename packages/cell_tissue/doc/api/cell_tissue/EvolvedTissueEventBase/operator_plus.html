@@ -76,7 +76,7 @@ into a flat batch. Each keeps its own independent history.</p>
 <p>Use this to batch an evolved event with another event.</p>
 <h3 id="example">Example</h3>
 <pre class="language-dart"><code class="language-dart">final evolved = root.withStep('step1');
-final batch = evolved + anotherEvent; // CollectiveTissueEvent
+final batch = evolved + anotherEvent; // CollectiveTissuePulse
 </code></pre>
 <h3 id="parameters">Parameters:</h3>
 <ul>
@@ -123,7 +123,7 @@ CollectiveTissuePulse operator +(covariant TissuePulse other) {
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.6
+      1.0.0-rc.7
   </span>
   
 </footer>

@@ -129,11 +129,11 @@ final handle = Flow.asyncMapWithRetry&lt;String, String&gt;(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncMapWithRetry&lt;S, T&gt;(
-    Cell source, {
-      required FutureOr&lt;T&gt; Function(S value) mapper,
-      int count = 3,
-      AsyncMapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required FutureOr&lt;T&gt; Function(S value) mapper,
+  int count = 3,
+  AsyncMapErrorHandler? onError,
+}) {
   return AsyncMapWithRetry&lt;S, T&gt;(mapper, count: count, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -164,7 +164,7 @@ final handle = Flow.asyncMapWithRetry&lt;String, String&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

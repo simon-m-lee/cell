@@ -471,7 +471,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
       {PulseEphemeralPolicy? policy,
       PulseContext? context,
       P? payload,
-      String? type,
+      dynamic type,
       DateTime? timestamp,
       Cell? source,
       String? step,
@@ -633,10 +633,13 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
   // ───── secondary ─────
 
-  /// Semantic type tag for pattern matching and routing.
+  /// Semantic type classification for pattern matching and routing.
+  ///
+  /// The value is [dynamic]: commonly a `String` tag, but any object (such as
+  /// an enum) may be used as a classifier.
   @override
-  String? get type {
-    return get<String?>(() => _record.root.secondary.type,
+  dynamic get type {
+    return get<dynamic>(() => _record.root.secondary.type,
         fallback: () => _pulse?.type ?? _parent?.type, orElse: null);
   }
 
@@ -1003,7 +1006,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
     PulseEphemeralPolicy? policy,
     PulseContext? context,
     dynamic payload,
-    String? type,
+    dynamic type,
     DateTime? timestamp,
     Cell? source,
     String? step,
@@ -1610,7 +1613,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
 
   @override
   String toString() {
-    return 'Pulse<$P>[$type] ${payload ?? "null"}';
+    return 'Pulse<$P>[${type.toString()}] ${payload ?? "null"}';
   }
 
   @override
@@ -1651,7 +1654,7 @@ abstract class PulseBase<P> with IterableMixin<Pulse> implements Pulse<P> {
               orElse: null);
 
         case LineageArgument.type:
-          v = get<String?>(() => p!._record.root.secondary.type,
+          v = get<dynamic>(() => p!._record.root.secondary.type,
               fallback: () => p!._record.pulse._record.root.secondary.type,
               orElse: null);
 
@@ -1839,7 +1842,7 @@ abstract class UnmodifiablePulseBase<P> extends PulseBase<P>
   List<String> get trace => _source.trace;
 
   @override
-  String? get type => _source.type;
+  dynamic get type => _source.type;
 
   @override
   PulseBase<P> get unmodifiable => this;
@@ -2320,7 +2323,7 @@ class PulseShell<P, R extends Receptor>
   List<String> get trace => const [];
 
   @override
-  String? get type => _kernal.type;
+  dynamic get type => _kernal.type;
 
   @override
   Pulse<P> get unmodifiable => this;

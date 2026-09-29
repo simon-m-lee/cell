@@ -46,7 +46,7 @@ part of '../cell_tissue.dart';
 ///
 /// print(evolved.trace); // ['validation', 'transformation', 'persistence']
 /// print(evolved.parent); // the event after 'transformation'
-/// print(evolved.root);   // the original ElementAddedEvent
+/// print(evolved.root);   // the original elementAdded pulse
 /// ```
 ///
 /// ### Type Parameters:
@@ -122,8 +122,8 @@ abstract interface class EvolvedTissuePulse<E>
 /// - You need to iterate over a collection of events as a single entity.
 /// - You want to apply common metadata (context, type, priority) to all of them.
 ///
-/// You never create this directly – it's returned by [Pulse.batch] (or
-/// `TissueEvent.batch`) or the `+` operator when combining events. Use it when
+/// You never create this directly – it's returned by [TissuePulse.batch] (or
+/// `Pulse.batch`) or the `+` operator when combining events. Use it when
 /// you need to process several changes as one unit.
 ///
 /// ### How it works
@@ -152,9 +152,10 @@ abstract interface class EvolvedTissuePulse<E>
 ///
 /// ### Example: Batching two events
 /// ```dart
-/// final added = ElementAddedEvent<int>(payload: 1);
-/// final removed = ElementRemovedEvent<int>(payload: 2);
-/// final batch = CollectiveTissueEvent.from([added, removed]);
+/// final list = TissueList.of([1, 2]);
+/// final added = list.apply(list.add, positionalArguments: [3]);
+/// final removed = list.apply(list.remove, positionalArguments: [3]);
+/// final batch = CollectiveTissuePulse.from([added, removed]);
 ///
 /// // Access the events
 /// for (final event in batch) {
@@ -162,12 +163,12 @@ abstract interface class EvolvedTissuePulse<E>
 /// }
 ///
 /// // Or use the + operator
-/// final combined = added + removed; // also a CollectiveTissueEvent
+/// final combined = added + removed; // also a CollectiveTissuePulse
 /// ```
 ///
 /// ### Example: Overriding metadata
 /// ```dart
-/// final batch = CollectiveTissueEvent.governed(
+/// final batch = CollectiveTissuePulse.governed(
 ///   [added, removed],
 ///   type: 'bulk_operation',
 ///   priority: 80,
@@ -204,7 +205,7 @@ abstract interface class CollectiveTissuePulse<E>
   /// ### Example
   /// ```dart
   /// final events = [addEvent, removeEvent, updateEvent];
-  /// final batch = CollectiveTissueEvent.from(events);
+  /// final batch = CollectiveTissuePulse.from(events);
   /// ```
   factory CollectiveTissuePulse.from(Iterable<TissuePulse<E>> events) =
       _CollectiveTissueEvent<E>;
@@ -227,7 +228,7 @@ abstract interface class CollectiveTissuePulse<E>
   ///
   /// ### Example
   /// ```dart
-  /// final batch = CollectiveTissueEvent.governed(
+  /// final batch = CollectiveTissuePulse.governed(
   ///   [addEvent, removeEvent],
   ///   type: 'admin_batch',
   ///   context: PulseContext(actor: 'admin'),
@@ -285,8 +286,8 @@ abstract interface class CollectiveTissuePulse<E>
   ///
   /// ### Example
   /// ```dart
-  /// final batch1 = CollectiveTissueEvent.from([a, b]);
-  /// final batch2 = CollectiveTissueEvent.from([c, d]);
+  /// final batch1 = CollectiveTissuePulse.from([a, b]);
+  /// final batch2 = CollectiveTissuePulse.from([c, d]);
   /// final combined = batch1 + batch2; // contains a, b, c, d
   /// ```
   CollectiveTissuePulse operator +(covariant TissuePulse other);
@@ -323,7 +324,8 @@ abstract interface class CollectiveTissuePulse<E>
 ///
 /// ### Example
 /// ```dart
-/// final event = ElementAddedEvent<int>(payload: 42);
+/// final list = TissueList.of([1]);
+/// final event = list.apply(list.add, positionalArguments: [42]);
 /// final shell = event.shell;
 ///
 /// // In the receiver (e.g., a receptor):
@@ -335,9 +337,8 @@ abstract interface class CollectiveTissuePulse<E>
 ///
 /// ### Type Parameters:
 /// * [E] – The type of the event's payload.
-class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
-    implements TissuePulse<E> {
-  const TissueEventShell._(TissueEventBase<E> super.kernal) : super();
+class TissueEventShell<E> extends PulseShell<E, TissueReceptor> implements TissuePulse<E> {
+  const TissueEventShell._(TissuePulseBase<E> super.kernal) : super();
 
   @override
   Iterator<TissuePulse> get iterator => [this].iterator;
@@ -414,17 +415,25 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
 /// - Each event is emitted **after** the mutation is applied and validated.
 /// - The event carries the [payload] (the changed value(s)), the [source]
 ///   tissue, and a full causal [trace].
+/// - The event's [type] classifies the mutation using the [TissueEvent] enum:
+///   [Tissue.elementAdded], [Tissue.elementRemoved],
+///   [Tissue.elementUpdated], or [Tissue.entryUpdated].
 /// - The event is immutable – it represents a fact that has already occurred.
 /// - You can [evolve] the event to add a step to its trace or change its context.
 ///
 /// ### Non‑obvious
 /// - The event is a [Pulse] – it participates in the same reactive propagation
 ///   system as any other signal. It can be evolved, batched, and observed.
+/// - The payload shape follows the [type] classification: element mutations
+///   carry the element itself (a [MapEntry] for map add/remove), scalar value
+///   changes carry an [ElementUpdatedRecord], and map entry updates carry an
+///   [EntryUpdatedRecord].
 /// - The event is emitted **after** the mutation, not before. If you need to
-///   capture the before state, the event's [ElementUpdatedRecord] or similar
-///   payload includes it.
-/// - For batch operations (addAll, removeAll), the payload may be an iterable
-///   of elements, not a single one.
+///   capture the before state, the event's [ElementUpdatedRecord] or
+///   [EntryUpdatedRecord] payload includes it.
+/// - For batch operations (`addAll`, `removeAll`, `clear`), the framework emits
+///   a [CollectiveTissuePulse] whose sub-events each retain their own
+///   [TissueEvent] classification.
 /// - The event is not emitted for initial population of the tissue – only for
 ///   mutations that happen after creation.
 /// - `null` values are valid payloads – they represent the removal or clearing
@@ -434,10 +443,10 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
 /// ```dart
 /// final list = TissueList<int>([1, 2, 3]);
 /// list.listen((event) {
-///   if (event is ElementAddedEvent<int>) {
+///   if (event.type == Tissue.elementAdded) {
 ///     print('Added: ${event.payload}');
 ///   }
-///   if (event is ElementRemovedEvent<int>) {
+///   if (event.type == Tissue.elementRemoved) {
 ///     print('Removed: ${event.payload}');
 ///   }
 /// });
@@ -449,10 +458,14 @@ class TissueEventShell<E> extends PulseShell<E, TissueReceptor>
 /// * [E] – The type of the event's payload (the element or value that changed).
 ///
 /// See also:
-/// - [ElementAdded] – for when elements are added.
-/// - [ElementRemoved] – for when elements are removed.
-/// - [ElementUpdated] – for when a scalar value changes.
-/// - `Tissue.listen` – the method that delivers these events.
+/// - [TissueEvent] – the classification vocabulary carried on [type].
+/// - [Tissue.elementAdded] – for when elements are added.
+/// - [Tissue.elementRemoved] – for when elements are removed.
+/// - [Tissue.elementUpdated] – for when a scalar value changes.
+/// - [Tissue.entryUpdated] – for when a map entry changes.
+/// - [ElementUpdatedRecord] – the payload delivered for scalar updates.
+/// - [EntryUpdatedRecord] – the payload delivered for map entry updates.
+/// - [CollectiveTissuePulse] – batches of these events.
 abstract interface class TissuePulse<E> implements Pulse<E> {
   /// Batches multiple events into a single [CollectiveTissuePulse].
   ///
@@ -466,7 +479,7 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
   ///
   /// ### Example
   /// ```dart
-  /// final batch = TissueEvent.batch([addEvent, removeEvent]);
+  /// final batch = TissuePulse.batch([addEvent, removeEvent]);
   /// ```
   static TissuePulse batch<E>(
     Iterable<TissuePulse<E>> events, {
@@ -481,8 +494,7 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
         onError,
     void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
     FutureOr<TissuePulse?> Function(TissueReceptor receptor)? scrutinize,
-  }) =>
-      _CollectiveTissueEvent<E>(events);
+  }) => _CollectiveTissueEvent<E>(events);
 
   /// Challenges a receptor to prove its authority before revealing the event.
   ///
@@ -609,7 +621,8 @@ abstract interface class TissuePulse<E> implements Pulse<E> {
 ///
 /// ### Example
 /// ```dart
-/// final event = ElementAddedEvent<int>(payload: 42);
+/// final list = TissueList.of([1]);
+/// final event = list.apply(list.add, positionalArguments: [42]);
 /// final readOnly = event.unmodifiable;
 ///
 /// // readOnly.evolve(step: 'new'); // throws UnsupportedError
@@ -643,132 +656,124 @@ abstract interface class UnmodifiableTissuePulse<E>
   TissuePulse operator +(covariant TissuePulse other);
 }
 
-/// A specialised [TissuePulse] signifying the addition of new elements
-/// to a reactive collection.
+/// A bitmask-enabled vocabulary class representing categories of structural
+/// change events emitted by a [Tissue] collection during state mutations.
 ///
-/// In the reactive framework, the [ElementAdded] represents a
-/// **Structural Expansion**. It is dispatched by tissue nodes (such as
-/// lists, sets, or queues) whenever the internal population increases, allowing
-/// downstream [Receptor]s (Transformation Pipelines) to react specifically to
-/// the insertion of new entries.
+/// In the biological metaphor of the framework, [TissueEvent] acts as the
+/// **Nervous Signaling Vocabulary** for reactive collections. When a mutation
+/// occurs (such as an element addition or a scalar update), the tissue
+/// broadcasts one or more of these event types wrapped inside a [TissuePulse]
+/// to notify downstream observers and UI layers.
 ///
 /// ### When to use
-/// Listen for this event when you need to react to insertions – e.g., to
-/// animate a new row in a UI list, to update a summary count, or to validate
-/// that the addition complies with business rules.
+/// - **Reactive Pattern Matching**: Use these constants in `switch` statements or
+///   bitwise conditions within collection observer callbacks to handle specific mutations.
+/// - **Auditing and Logging**: Filtering out routine updates versus structural
+///   reorganizations in forensic audit pipelines.
+/// - **Event Combination**: Combine multiple event types using the `+` operator
+///   (e.g., `Tissue.elementAdded + Tissue.elementRemoved`) to observe
+///   composite mutation channels.
 ///
 /// ### How it works
-/// - The event is emitted after the element has been successfully added and
-///   validated by the collection's [TestTissue].
-/// - The [payload] is the added element (or an iterable of elements if the
-///   operation was a batch add like `addAll`).
-/// - The event carries the full causal trace, including the [source] tissue
-///   and the [timestamp].
+/// - Each event corresponds to a unique bitmask flag (powers of two).
+/// - The [mask] property stores the combined state of active event flags.
+/// - The class implements [IterableMixin], allowing you to iterate over
+///   unpacked individual events directly from a composite instance.
 ///
 /// ### Non‑obvious
-/// - For batch operations (e.g., `addAll`), the payload is an `Iterable<E>`,
-///   not a single element. The event's [isComposite] may be `true`, and you
-///   can iterate over it to process each element individually.
-/// - The event does **not** contain the index at which the element was added.
-///   If you need positional information, consider using a [TissueList] and
-///   reading the current index from the list after the event.
+/// - **Bitwise Composition**: The `+` operator performs a bitwise OR (`|`)
+///   rather than arithmetic addition, allowing clean combination of event flags.
+/// - **Dynamic Unpacking**: Iterating over a composite [TissueEvent] automatically
+///   unpacks the bitmask into individual, discrete event constants.
 ///
-/// ### Example
+/// ### Example: Bitwise combination and iteration
 /// ```dart
-/// final list = TissueList<int>();
-/// final observer = Cell.observe(
-///   bind: list,
-///   onPulse: (pulse, {user}) {
-///     if (pulse is ElementAddedEvent<int>) {
-///       print('Added: ${pulse.payload}');
-///     }
-///   },
-/// );
-/// list.add(42); // prints "Added: 42"
+/// final compositeEvent = Tissue.elementAdded + Tissue.elementRemoved;
+///
+/// for (final event in compositeEvent) {
+///   if (event == Tissue.elementAdded) {
+///     print('Unpacked: Element Added');
+///   }
+/// }
 /// ```
 ///
-/// ### Type Parameters:
-/// * [E]: The type of the element being added.
-class ElementAdded<E> extends _TissuePulse<E> {
-  ElementAdded._({
-    super.policy,
-    super.context,
-    super.payload,
-    super.timestamp,
-    super.source,
-    super.step,
-    super.onComplete,
-    super.onError,
-    super.onProgress,
-    super.pulse,
-    super.parent,
-  }) : super();
+/// See also:
+/// * [TissuePulse] – The structural signal carrying these event classifications.
+final class TissueEvent with IterableMixin<TissueEvent> {
+
+  /// Represents the absence of any structural event flags.
+  static const none = TissueEvent._(0);
+  
+  const TissueEvent._(this.mask);
+
+  /// Combines this event flag with another using a bitwise OR operation.
+  TissueEvent operator +(covariant TissueEvent other) {
+    return CompositeTissueEvent._(mask | other.mask);
+  }
+
+  /// The underlying bitmask representing the active event categories.
+  final int mask;
+
+  @override
+  Iterator<TissueEvent> get iterator => [this].iterator;
+
 }
 
-/// A specialised [TissuePulse] signifying the removal or disposal of an
-/// element from a reactive collection.
+/// A specialized subclass of [TissueEvent] that represents a composite,
+/// bitmask-combined collection of multiple structural event flags.
 ///
-/// In the reactive framework, [ElementRemoved] represents a
-/// **Structural Contraction**. It is dispatched by tissue nodes (such as
-/// lists, sets, or queues) whenever a member is removed, allowing downstream
-/// [Receptor]s to react specifically to the departure or exclusion of elements
-/// from the aggregate state.
+/// In the biological metaphor of the framework, [CompositeTissueEvent]
+/// acts as a **Multiplexed Nervous Signal**, carrying several distinct
+/// physiological changes simultaneously across the reactive graph
+/// within a single [TissuePulse].
 ///
 /// ### When to use
-/// Listen for this event when you need to react to deletions – e.g., to
-/// remove a UI row, to update a summary count, or to clean up external
-/// resources associated with the removed element.
+/// - **Batch Mutation Observation**: Automatically instantiated when observing
+///   bulk collection operations (e.g., `addAll`, `removeAll`, or custom
+///   multi-mutation batches).
+/// - **Multi-Channel Pattern Matching**: Used when an observer needs to iterate over
+///   a combined bitmask to handle distinct event types independently.
 ///
 /// ### How it works
-/// - The event is emitted after the element has been successfully removed and
-///   any necessary cleanup (like unlinking synapses) has been performed.
-/// - The [payload] is the removed element (or an iterable of elements if the
-///   operation was a batch removal like `removeAll` or `clear`).
-/// - The event carries the full causal trace.
+/// - Inherits the bitwise [mask] from [TissueEvent] via bitwise OR (`|`) composition.
+/// - Upon instantiation, it eagerly unpacks the active bitmask flags into a
+///   pre-calculated `events` list.
+/// - Overrides the [iterator] to yield each discrete [TissueEvent] directly from
+///   the unpacked collection.
 ///
 /// ### Non‑obvious
-/// - For batch removals, the payload is an `Iterable<E>`. You can iterate over
-///   it to process each removed element.
-/// - The event does **not** contain the index from which the element was removed
-///   (for lists). If you need that, capture the state before removal or use
-///   a custom listener.
-/// - The removed element is still the original object; it has not been modified
-///   by the removal operation.
+/// - **Eager Unpacking**: Unlike the base [TissueEvent] iterator which computes
+///   matching flags on demand, [CompositeTissueEvent] caches the unpacked list
+///   in `events` for high-performance iteration during frequent UI redraws.
+/// - **Immutable Construction**: The internal event list is immutable and
+///   guarantees that composite flags remain synchronized with the underlying bitmask.
 ///
-/// ### Example
-/// ```dart
-/// final list = TissueList<int>([1, 2, 3]);
-/// final observer = Cell.observe(
-///   bind: list,
-///   onPulse: (pulse, {user}) {
-///     if (pulse is ElementRemovedEvent<int>) {
-///       print('Removed: ${pulse.payload}');
-///     }
-///   },
-/// );
-/// list.removeAt(1); // prints "Removed: 2"
-/// ```
-///
-/// ### Type Parameters:
-/// * [E]: The type of the element being removed.
-class ElementRemoved<E> extends _TissuePulse<E> {
-  ElementRemoved._({
-    super.policy,
-    super.context,
-    super.payload,
-    super.timestamp,
-    super.source,
-    super.step,
-    super.onComplete,
-    super.onError,
-    super.onProgress,
-    super.pulse,
-    super.parent,
-  }) : super();
+/// See also:
+/// * [TissueEvent] – The base vocabulary class for collection mutations.
+/// * [TissuePulse] – The signal carrying these composite event classifications.
+final class CompositeTissueEvent extends TissueEvent {
+
+  CompositeTissueEvent._(int mask) : super._(mask) {
+    final List<TissueEvent> events = [];
+
+    // Check and unpack individual bitmask flags
+    if ((mask & Tissue.elementAdded.mask) != 0) events.add(Tissue.elementAdded);
+    if ((mask & Tissue.elementRemoved.mask) != 0) events.add(Tissue.elementRemoved);
+    if ((mask & Tissue.elementUpdated.mask) != 0) events.add(Tissue.elementUpdated);
+    if ((mask & Tissue.entryUpdated.mask) != 0) events.add(Tissue.entryUpdated);
+
+    _events = events;
+  }
+
+  late final List<TissueEvent> _events;
+
+  @override
+  Iterator<TissueEvent> get iterator => _events.iterator;
+
 }
 
 /// A record that captures a before‑and‑after snapshot of a reactive value
-/// change, delivered as the payload of a [ElementUpdated].
+/// change, delivered as the payload of a [Tissue.elementUpdated].
 ///
 /// ### When to use
 /// - Reacting to a value change in a UI: update a label, animate a transition,
@@ -779,7 +784,7 @@ class ElementRemoved<E> extends _TissuePulse<E> {
 /// - Conditional logic: compare the before and after to decide what to do next.
 ///
 /// You never create this record directly. It's constructed automatically by
-/// the framework and delivered to you as the payload of a [ElementUpdated]
+/// the framework and delivered to you as the payload of a [Tissue.elementUpdated]
 /// when you listen to a [TissueValue] or a [ValueCell]. Use it to see exactly
 /// what changed – the old value (`before`) and the new value (`after`).
 ///
@@ -795,9 +800,10 @@ class ElementRemoved<E> extends _TissuePulse<E> {
 ///
 /// The record is typically destructured in the event handler:
 /// ```dart
-/// final event = ValueChangedEvent<int, TissueValue<int>>(...);
-/// final (cell, :before, :after) = event.payload!;
-/// print('$cell changed from $before to $after');
+/// final cell = TissueValue<int>(0);
+/// final event = cell.apply(cell.set, positionalArguments: [42]);
+/// final (:value, :before, :after) = event.payload!;
+/// print('$value changed from $before to $after');
 /// ```
 ///
 /// ### Non‑obvious
@@ -821,10 +827,10 @@ class ElementRemoved<E> extends _TissuePulse<E> {
 /// ```dart
 /// final valueCell = TissueValue<int>(0);
 /// valueCell.listen((event) {
-///   if (event is ValueChangedEvent<int, TissueValue<int>>) {
+///   if (event.type == Tissue.elementUpdated) {
 ///     // Destructure the record for easy access
-///     final (cell, :before, :after) = event.payload!;
-///     print('${cell.runtimeType} changed from $before to $after');
+///     final (:value, :before, :after) = event.payload!;
+///     print('${value.runtimeType} changed from $before to $after');
 ///   }
 /// });
 ///
@@ -844,7 +850,7 @@ class ElementRemoved<E> extends _TissuePulse<E> {
 ///   usually `TissueValue<V>` or a custom subtype.
 ///
 /// ### See also:
-/// * [ElementUpdated] – the event that carries this record.
+/// * [Tissue.elementUpdated] – the event that carries this record.
 /// * [TissueValue] – the reactive cell that emits these events.
 /// * [Cell.unmodifiable] – how deep immutability is enforced.
 typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({
@@ -853,70 +859,56 @@ typedef ElementUpdatedRecord<V, E extends TissueValue<V>> = ({
   V? after,
 });
 
-/// A specialised [TissuePulse] signifying a discrete state transition or value
-/// evolution within the reactive framework.
-///
-/// [ElementUpdated] is the primary architectural signal for communicating
-/// **Value‑Based Deltas**. It is dispatched by reactive nodes whenever their
-/// internal state evolves, providing downstream [Receptor]s with the
-/// high‑fidelity telemetry required to reason about "Before" and "After"
-/// state transitions.
+/// A record that captures a before‑and‑after snapshot of a key‑value pair
+/// change, delivered as the payload of an [Tissue.entryUpdated] event.
 ///
 /// ### When to use
-/// - React to changes in a single scalar value – e.g., updating a progress bar,
-///   refreshing a label, or invalidating a cache.
-/// - Differentiate between an initialisation (before is null) and an update
-///   (before is not null).
-/// - Track the history of a value for undo/redo functionality.
+/// - **Map Mutation Tracking**: Reacting to key‑value insertions, modifications,
+///   or removals inside a [TissueMap].
+/// - **Auditing & History**: Recording exact key changes for forensic logs
+///   or undo/redo pipelines.
+/// - **Conditional Logic**: Comparing `before` and `after` values to trigger
+///   targeted side effects for specific map keys.
 ///
-/// You receive this event when listening to a [TissueValue]. It is emitted
-/// whenever the value changes (including when set to `null`).
+/// You never create this record directly. It's constructed automatically by
+/// the framework and delivered to you as the payload of an [Tissue.entryUpdated]
+/// event when observing a [TissueMap]. Use it to inspect exactly which key
+/// changed and how its value evolved.
 ///
 /// ### How it works
-/// - The event is emitted after the value has been validated and committed.
-/// - The [payload] is a [ElementUpdatedRecord] containing the before and after values.
-/// - The event carries the full causal trace.
+/// This is a Dart **record** (not a class), making it lightweight and immutable.
+/// The record consists of three named and positional fields:
+/// - `key`: The key within the map that underwent mutation.
+/// - `before`: The value associated with the key **before** the change.
+///   May be `null` if the key was newly inserted.
+/// - `after`: The value associated with the key **after** the change.
+///   May be `null` if the key was removed or cleared.
 ///
-/// ### Non‑obvious
-/// - The payload is a record, not a single value – you need to destructure it
-///   to access the before and after.
-/// - If the new value is identical to the old value (by `==`), the event is
-///   **not** emitted – the framework deduplicates to avoid unnecessary pulses.
-/// - The event is also emitted when the value is set to `null`, so `after` can
-///   be `null`.
-///
-/// ### Example
+/// The record is typically destructured in the event handler:
 /// ```dart
-/// final valueCell = TissueValue<int>(0);
-/// final observer = Cell.observe(
-///   bind: valueCell,
-///   onPulse: (pulse, {user}) {
-///     // Destructure the record payload for easy access
-///     if (pulse is ValueChangedEvent<int, TissueValue<int>>) {
-///       final (cell, :before, :after) = pulse.payload!;
-///       print('Cell $cell changed from $before to $after');
-///     }
-///   },
-/// );
-/// valueCell.value = 42; // prints "Cell TissueValue#1 changed from 0 to 42"
+/// mapCell.listen((event) {
+///   if (event.type == Tissue.entryUpdated) {
+///     final (:key, :before, :after) = event.payload!;
+///     print('Key "$key" changed from $before to $after');
+///   }
+/// });
 /// ```
 ///
+/// ### Non‑obvious
+/// - **Insertions vs. Deletions**: If `before` is `null` and `after` is present,
+///   it represents an insertion. If `after` is `null`, it represents a removal.
+/// - **Equality**: Because this is a record, equality is value‑based. Two
+///   records with identical `key`, `before`, and `after` values are equal.
+///
 /// ### Type Parameters:
-/// * [V]: The type of the value carried by the associated [TissueValue].
-/// * [E]: The concrete [TissueValue] implementation.
-class ElementUpdated<V, E extends TissueValue<V>>
-    extends _TissuePulse<ElementUpdatedRecord<V, E>> {
-  ElementUpdated._({
-    super.policy,
-    super.context,
-    super.payload,
-    super.timestamp,
-    super.source,
-    super.step,
-    super.onComplete,
-    super.onError,
-    super.onProgress,
-    super.pulse,
-    super.parent,
-  }) : super();
-}
+/// * [K] – The type of the map keys (e.g., `String`, `int`).
+/// * [V] – The type of the map values being tracked.
+///
+/// ### See also:
+/// * [Tissue.entryUpdated] – the event classification that carries this record.
+/// * [TissueMap] – the reactive map collection that emits these events.
+typedef EntryUpdatedRecord<K, V> = ({
+K key,
+V? before,
+V? after,
+});

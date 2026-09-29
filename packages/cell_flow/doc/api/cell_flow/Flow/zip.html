@@ -134,11 +134,11 @@ b.emit(20); // -&gt; [10, 20]
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle zip&lt;R&gt;(
-    Cell source, {
-      required List&lt;Cell&gt; sources,
-      R Function(List&lt;Object?&gt; row)? project,
-      ZipErrorHandler? onError,
-    }) {
+  Cell source, {
+  required List&lt;Cell&gt; sources,
+  R Function(List&lt;Object?&gt; row)? project,
+  ZipErrorHandler? onError,
+}) {
   return Zip&lt;R&gt;(
     sources,
     project: project,
@@ -172,7 +172,7 @@ b.emit(20); // -&gt; [10, 20]
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

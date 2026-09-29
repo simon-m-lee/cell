@@ -76,7 +76,8 @@ emit and observe — the "currency" of the switching fabric.</p>
 <h3 id="what-a-pulse-carries">What a pulse carries</h3>
 <ul>
 <li><strong><a href="../cell_flow/Pulse/payload.html">payload</a></strong>: the actual data (the signal's content).</li>
-<li><strong><a href="../cell_flow/Pulse/type.html">type</a></strong>: a semantic tag for routing and filtering.</li>
+<li><strong><a href="../cell_flow/Pulse/type.html">type</a></strong>: a semantic classification for routing and filtering. It is
+commonly a <code>String</code> tag, but may be any object (such as an enum).</li>
 <li><strong><a href="../cell_flow/Pulse/priority.html">priority</a></strong>: urgency (0‑100, higher = more urgent).</li>
 <li><strong><a href="../cell_flow/Pulse/context.html">context</a></strong>: provenance — who sent it, why, with what clearance.</li>
 <li><strong><a href="../cell_flow/Pulse/trace.html">trace</a></strong>: a breadcrumb trail of transformations.</li>
@@ -150,7 +151,7 @@ print(evolved.type); // 'counter' (inherited)
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="Pulse.new" class="callable">
-          <span class="name"><a href="../cell_flow/Pulse/Pulse.html">Pulse</a></span><span class="signature">(<span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, {</span><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span></span>})</span>
+          <span class="name"><a href="../cell_flow/Pulse/Pulse.html">Pulse</a></span><span class="signature">(<span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, {</span><span class="parameter" id="-param-type"><span class="type-annotation">dynamic</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell_flow/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span></span>})</span>
         </dt>
         <dd>
           Creates a simple, ungoverned pulse.
@@ -425,7 +426,7 @@ print(evolved.type); // 'counter' (inherited)
 
         <dt id="type" class="property">
   <span class="name"><a href="../cell_flow/Pulse/type.html">type</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
@@ -1109,7 +1110,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

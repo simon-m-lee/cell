@@ -83,77 +83,77 @@ for every sentence in the batch. Env vars are not consulted.</li>
   AiTissueCommandErrorHandler? onError,
   dynamic user,
 }) : super.future(
-  (() {
-    var generation = 0;
-    return (pulse, {cell, user, future, token}) {
-      final payload = pulse.payload;
-      if (payload is! Iterable&lt;S&gt;) {
-        _invokeOnError(
-          onError,
-          FormatException(
-            &#39;Expected payload of type Iterable&lt;$S&gt;, &#39;
-                &#39;got ${payload.runtimeType}&#39;,
-          ),
-          StackTrace.current,
-        );
-        return null;
-      }
-
-      final sentences = List&lt;S&gt;.from(payload);
-      final id = ++generation;
-
-      Future&lt;void&gt; run() async {
-        final results = &lt;Object&gt;[];
-        for (final sentence in sentences) {
-          if (id != generation) return;
-
-          try {
-            final reply = await interpreter.complete(
-              text: sentence as String,
-              verbs: verbs,
-            );
-
-            if (reply.command != null) {
-              results.add(reply.command!);
-            } else if (reply.reject != null) {
-              results.add(reply.reject!);
-            } else {
-              results.add(
-                Reject(
-                  source: sentence.toString(),
-                  reason: &#39;empty-reply&#39;,
+        (() {
+          var generation = 0;
+          return (pulse, {cell, user, future, token}) {
+            final payload = pulse.payload;
+            if (payload is! Iterable&lt;S&gt;) {
+              _invokeOnError(
+                onError,
+                FormatException(
+                  &#39;Expected payload of type Iterable&lt;$S&gt;, &#39;
+                  &#39;got ${payload.runtimeType}&#39;,
                 ),
+                StackTrace.current,
+              );
+              return null;
+            }
+
+            final sentences = List&lt;S&gt;.from(payload);
+            final id = ++generation;
+
+            Future&lt;void&gt; run() async {
+              final results = &lt;Object&gt;[];
+              for (final sentence in sentences) {
+                if (id != generation) return;
+
+                try {
+                  final reply = await interpreter.complete(
+                    text: sentence as String,
+                    verbs: verbs,
+                  );
+
+                  if (reply.command != null) {
+                    results.add(reply.command!);
+                  } else if (reply.reject != null) {
+                    results.add(reply.reject!);
+                  } else {
+                    results.add(
+                      Reject(
+                        source: sentence.toString(),
+                        reason: &#39;empty-reply&#39;,
+                      ),
+                    );
+                  }
+                } catch (e, stack) {
+                  _invokeOnError(onError, e, stack);
+                  results.add(
+                    Reject(
+                      source: sentence.toString(),
+                      reason: &#39;interpreter-error&#39;,
+                    ),
+                  );
+                }
+              }
+
+              if (id != generation) return;
+              future!(
+                result: _out&lt;List&lt;Object&gt;&gt;(
+                  results,
+                  pulse,
+                  cell,
+                  &#39;AiTissueCommandBatch&#39;,
+                ),
+                token: token,
               );
             }
-          } catch (e, stack) {
-            _invokeOnError(onError, e, stack);
-            results.add(
-              Reject(
-                source: sentence.toString(),
-                reason: &#39;interpreter-error&#39;,
-              ),
-            );
-          }
-        }
 
-        if (id != generation) return;
-        future!(
-          result: _out&lt;List&lt;Object&gt;&gt;(
-            results,
-            pulse,
-            cell,
-            &#39;AiTissueCommandBatch&#39;,
-          ),
-          token: token,
-        );
-      }
-
-      run();
-      return null;
-    };
-  })(),
-  user: user,
-);</code></pre>
+            run();
+            return null;
+          };
+        })(),
+        user: user,
+      );</code></pre>
 </section>
 
 
@@ -181,7 +181,7 @@ for every sentence in the batch. Env vars are not consulted.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

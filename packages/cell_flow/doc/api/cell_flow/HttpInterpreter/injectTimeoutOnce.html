@@ -67,9 +67,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Injects a one-shot timeout: the next <code>complete</code> call will
-throw a <a href="https://api.flutter.dev/flutter/dart-async/TimeoutException-class.html">TimeoutException</a> <strong>before</strong> the HTTP request is
-made. This keeps scenario 10 deterministic in live mode.</p>
+  <p>When called, the NEXT <code>complete</code> call throws once.</p>
+<p>Implemented by both HTTP and stub interpreters so scenario 10
+behaves identically in offline and live modes.</p>
+<h3 id="non-obvious">Non-obvious</h3>
+<p>The injection is <strong>one-shot</strong>: it fires once and clears
+itself. To exercise a retry loop that needs <code>count + 1</code>
+consecutive failures, call this method <code>count + 1</code> times
+before the next <code>complete</code>. The demo's
+<code>AiTissueCommandWithRetry</code> demo does exactly that.</p>
 </section>
 
 
@@ -77,9 +83,7 @@ made. This keeps scenario 10 deterministic in live mode.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void injectTimeoutOnce() {
-  _pendingTimeouts++;
-}</code></pre>
+void injectTimeoutOnce() {}</code></pre>
 </section>
 
 
@@ -107,7 +111,7 @@ void injectTimeoutOnce() {
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

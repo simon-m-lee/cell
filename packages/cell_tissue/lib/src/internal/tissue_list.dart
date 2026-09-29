@@ -913,7 +913,7 @@ abstract class UnmodifiableTissueListBase<E, C extends TissueList<E>>
 /// 1. `list.add` (from `ListMixin`) calls `apply(add, [42])`.
 /// 2. `apply` checks `modifiable.contains(add)` (true for mutable lists).
 /// 3. It calls `_add(42)`, which validates the element, updates the container,
-///    and emits an `ElementAddedEvent`.
+///    and emits a [Tissue.elementAdded] pulse.
 /// 4. The event is dispatched through the receptor to all observers.
 mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     implements TissueList<E> {
@@ -1280,7 +1280,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _add(E element, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         validate.element(element, host: this as C, action: add) == true) {
       _nucleus.container.store.add(element);
@@ -1288,7 +1288,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       if (cell is Cell) {
         _nucleus.synapses.link(cell, downstreamCell: this);
       }
-      final event = ElementAdded<E>._(source: deputy ?? this, payload: element);
+      final event = _TissuePulse<E>(source: deputy ?? this, payload: element, type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1297,8 +1297,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _addAll(Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _addAll(Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1314,10 +1313,9 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       }
       if (added.isNotEmpty) {
         final events = added
-            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1329,17 +1327,16 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   TissuePulse? _clear({bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final events = <ElementRemoved<E>>[];
+      final events = <TissuePulse<E>>[];
       final snapshot = _nucleus.container.store.toList();
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
+          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1348,15 +1345,12 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _remove(Object? object,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _remove(Object? object, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && object is E) {
       final index = _nucleus.container.store.indexOf(object);
-      if (index >= 0 &&
-          validate.element(object, host: this as C, action: remove) == true) {
+      if (index >= 0 && validate.element(object, host: this as C, action: remove) == true) {
         _nucleus.container.store.removeAt(index);
-        final event =
-            ElementRemoved<E>._(source: deputy ?? this, payload: object);
+        final event = _TissuePulse<E>(source: deputy ?? this, payload: object, type: Tissue.elementRemoved);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1366,21 +1360,19 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _removeWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final events = <ElementRemoved<E>>[];
+      final events = <TissuePulse<E>>[];
       final snapshot = _nucleus.container.store.where(test).toList();
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
+          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1389,21 +1381,17 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _retainWhere(bool Function(E element) test,
-      {bool notification = true, Tissue<E>? deputy}) {
-    return _removeWhere((e) => !test(e),
-        notification: notification, deputy: deputy);
+  TissuePulse? _retainWhere(bool Function(E element) test, {bool notification = true, Tissue<E>? deputy}) {
+    return _removeWhere((e) => !test(e), notification: notification, deputy: deputy);
   }
 
-  TissuePulse? _setValueAt(int index, E value,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _setValueAt(int index, E value, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         index >= 0 &&
         index < _nucleus.container.store.length) {
-      if (validate.element(value, host: this as C, action: setValueAt) ==
-          true) {
+      if (validate.element(value, host: this as C, action: setValueAt) == true) {
         _nucleus.container.store[index] = value;
-        final event = ElementAdded<E>._(source: deputy ?? this, payload: value);
+        final event = _TissuePulse<E>(source: deputy ?? this, payload: value, type: Tissue.elementAdded);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1413,23 +1401,19 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _setFirst(E value,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _setFirst(E value, {bool notification = true, Tissue<E>? deputy}) {
     if (_nucleus.container.store.isEmpty) {
       return null;
     }
     return _setValueAt(0, value, notification: notification, deputy: deputy);
   }
 
-  TissuePulse? _fillRange(int start, int end, E? fillValue,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _fillRange(int start, int end, E? fillValue, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         fillValue != null &&
-        validate.element(fillValue, host: this as C, action: fillRange) ==
-            true) {
+        validate.element(fillValue, host: this as C, action: fillRange) == true) {
       _nucleus.container.store.fillRange(start, end, fillValue);
-      final event =
-          ElementAdded<E>._(source: deputy ?? this, payload: fillValue);
+      final event = _TissuePulse<E>(source: deputy ?? this, payload: fillValue, type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1438,8 +1422,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _insert(int index, E element,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _insert(int index, E element, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable &&
         validate.element(element, host: this as C, action: insert) == true) {
       _nucleus.container.store.insert(index, element);
@@ -1447,7 +1430,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       if (cell is Cell) {
         _nucleus.synapses.link(cell, downstreamCell: this);
       }
-      final event = ElementAdded<E>._(source: deputy ?? this, payload: element);
+      final event = _TissuePulse<E>(source: deputy ?? this, payload: element, type: Tissue.elementAdded);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1456,8 +1439,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _insertAll(int index, Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _insertAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final added = <E>[];
@@ -1469,10 +1451,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       }
       if (added.isNotEmpty) {
         final events = added
-            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
-            .toList();
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1482,13 +1462,11 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
   }
 
   E? _removeAt(int index, {bool notification = true, Tissue<E>? deputy}) {
-    if (this is! Unmodifiable &&
-        index >= 0 &&
-        index < _nucleus.container.store.length) {
+    if (this is! Unmodifiable && index >= 0 && index < _nucleus.container.store.length) {
       final e = _nucleus.container.store[index];
       if (validate.element(e, host: this as C, action: removeAt) == true) {
         _nucleus.container.store.removeAt(index);
-        final event = ElementRemoved<E>._(source: deputy ?? this, payload: e);
+        final event = _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved);
         if (notification) {
           _nucleus.receptor(event);
         }
@@ -1500,27 +1478,24 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
 
   E? _removeLast({bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable && _nucleus.container.store.isNotEmpty) {
-      return _removeAt(_nucleus.container.store.length - 1,
-          notification: notification, deputy: deputy);
+      return _removeAt(_nucleus.container.store.length - 1, notification: notification, deputy: deputy);
     }
     return null;
   }
 
-  TissuePulse? _removeRange(int start, int end,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _removeRange(int start, int end, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
-      final events = <ElementRemoved<E>>[];
+      final events = <TissuePulse<E>>[];
       final snapshot = _nucleus.container.store.sublist(start, end);
       for (final e in snapshot) {
         if (validate.element(e, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(e);
-          events.add(ElementRemoved<E>._(source: deputy ?? this, payload: e));
+          events.add(_TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementRemoved));
         }
       }
       if (events.isNotEmpty) {
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification) {
           _nucleus.receptor(result);
         }
@@ -1529,21 +1504,18 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _replaceRange(int start, int end, Iterable<E> newContents, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final replacement = newContents
-          .where(
-              (e) => validate.element(e, host: this as C, action: add) == true)
+          .where((e) => validate.element(e, host: this as C, action: add) == true)
           .toList();
       _nucleus.container.store.replaceRange(start, end, replacement);
       if (replacement.isNotEmpty) {
         final events = replacement
-            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
+            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded))
             .toList();
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1552,8 +1524,7 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _setAll(int index, Iterable<E> iterable,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setAll(int index, Iterable<E> iterable, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final values = iterable
@@ -1563,10 +1534,8 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
       _nucleus.container.store.setAll(index, values);
       if (values.isNotEmpty) {
         final events = values
-            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
-            .toList();
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1575,24 +1544,18 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _setRange(
-      int start, int end, Iterable<E> iterable, int skipCount,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse? _setRange(int start, int end, Iterable<E> iterable, int skipCount, {bool notification = true, Tissue<E>? deputy}) {
     TissuePulse? result;
     if (this is! Unmodifiable) {
       final values = iterable
           .skip(skipCount)
           .take(end - start)
-          .where(
-              (e) => validate.element(e, host: this as C, action: add) == true)
-          .toList();
+          .where((e) => validate.element(e, host: this as C, action: add) == true);
       _nucleus.container.store.setRange(start, end, values, skipCount);
       if (values.isNotEmpty) {
         final events = values
-            .map((e) => ElementAdded<E>._(source: deputy ?? this, payload: e))
-            .toList();
-        result =
-            events.length == 1 ? events.first : TissuePulse.batch<E>(events);
+            .map((e) => _TissuePulse<E>(source: deputy ?? this, payload: e, type: Tissue.elementAdded));
+        result = events.length == 1 ? events.first : TissuePulse.batch<E>(events);
         if (notification && events.length == 1) {
           _nucleus.receptor(result);
         }
@@ -1601,15 +1564,13 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return result;
   }
 
-  TissuePulse? _sort(int Function(E a, E b)? compare,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _sort(int Function(E a, E b)? compare, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.sort(compare);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = ElementAdded<E>._(
-          source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = _TissuePulse<E>(source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1618,15 +1579,13 @@ mixin TissueListMixin<E, C extends TissueList<E>> on TissueBase<E, List<E>, C>
     return null;
   }
 
-  TissuePulse? _shuffle(Random? random,
-      {bool notification = true, Tissue<E>? deputy}) {
+  TissuePulse<E>? _shuffle(Random? random, {bool notification = true, Tissue<E>? deputy}) {
     if (this is! Unmodifiable) {
       _nucleus.container.store.shuffle(random);
       if (_nucleus.container.store.isEmpty) {
         return null;
       }
-      final event = ElementAdded<E>._(
-          source: deputy ?? this, payload: _nucleus.container.store.first);
+      final event = _TissuePulse<E>(source: deputy ?? this, payload: _nucleus.container.store.first);
       if (notification) {
         _nucleus.receptor(event);
       }
@@ -1737,7 +1696,7 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   /// ### How it works
   /// Schedules the addition through the tissue's command gateway. If the
   /// [element] passes the DNA integrity checks (`testRule`), a new [Pulse]
-  /// is emitted containing an `ElementAdded` event.
+  /// is emitted containing a [Tissue.elementAdded] event.
   ///
   /// ### Non‑obvious
   /// If the addition is rejected by validation, the [Future] will resolve
@@ -1807,7 +1766,7 @@ class ModifiableListAsync<E> extends TissueModifiableAsync<E, TissueList<E>> {
   ///
   /// ### Returns:
   /// A [Future] that resolves once the element is removed and the
-  /// [ElementRemoved] event has propagated.
+  /// [Tissue.elementRemoved] event has propagated.
   Future<void> removeAt(int index) =>
       Future<void>(() => _tissue.removeAt(index));
 

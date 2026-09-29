@@ -303,6 +303,15 @@ single atomic wave.
   
 </dd>
 
+          <dt id="CompositeTissueEvent">
+  <span class="name "><a href="../mitosis/CompositeTissueEvent-class.html">CompositeTissueEvent</a></span> 
+
+</dt>
+<dd>
+  A specialized subclass of <a href="../mitosis/TissueEvent-class.html">TissueEvent</a> that represents a composite,
+bitmask-combined collection of multiple structural event flags.
+</dd>
+
           <dt id="Container">
   <span class="name "><a href="../mitosis/Container-class.html">Container</a></span> 
 
@@ -356,33 +365,6 @@ fields in a model class.
 </dt>
 <dd>
   Represents the <strong>Formal Mandate</strong> and declaration of intention for a <a href="../mitosis/Deputy-mixin.html">Deputy</a>.
-</dd>
-
-          <dt id="ElementAdded">
-  <span class="name "><a href="../mitosis/ElementAdded-class.html">ElementAdded</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying the addition of new elements
-to a reactive collection.
-</dd>
-
-          <dt id="ElementRemoved">
-  <span class="name "><a href="../mitosis/ElementRemoved-class.html">ElementRemoved</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying the removal or disposal of an
-element from a reactive collection.
-</dd>
-
-          <dt id="ElementUpdated">
-  <span class="name "><a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">E extends <a href="../mitosis/TissueValue-class.html">TissueValue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
-
-</dt>
-<dd>
-  A specialised <a href="../mitosis/TissuePulse-class.html">TissuePulse</a> signifying a discrete state transition or value
-evolution within the reactive framework.
 </dd>
 
           <dt id="EmailPattern">
@@ -1018,13 +1000,13 @@ high‑fidelity collections in the <code>cell</code> ecosystem.
 manages the physical storage and structural lifecycle of <a href="../mitosis/Tissue-class.html">Tissue</a> elements.
 </dd>
 
-          <dt id="TissueEventBase">
-  <span class="name "><a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+          <dt id="TissueEvent">
+  <span class="name "><a href="../mitosis/TissueEvent-class.html">TissueEvent</a></span> 
 
 </dt>
 <dd>
-  The foundational implementation for all <a href="../mitosis/TissuePulse-class.html">TissuePulse</a>s – the standard
-signal that carries a collection change through the reactive graph.
+  A bitmask-enabled vocabulary class representing categories of structural
+change events emitted by a <a href="../mitosis/Tissue-class.html">Tissue</a> collection during state mutations.
 </dd>
 
           <dt id="TissueEventShell">
@@ -1156,6 +1138,14 @@ and governance of a reactive collection.
 </dt>
 <dd>
   A structural signal emitted by a <a href="../mitosis/Tissue-class.html">Tissue</a> when its internal state changes.
+</dd>
+
+          <dt id="TissuePulseBase">
+  <span class="name "><a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A structural signal emitted by a <a href="../mitosis/Tissue-class.html">Tissue</a> collection when its internal state changes.
 </dd>
 
           <dt id="TissueQueue">
@@ -2149,7 +2139,23 @@ interface to manage an external side-effect listener.
 </dt>
 <dd>
   A record that captures a before‑and‑after snapshot of a reactive value
-change, delivered as the payload of a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a>.
+change, delivered as the payload of a <code>elementUpdated</code>.
+  
+
+</dd>
+
+
+          
+  <dt id="EntryUpdatedRecord" class="">
+  <span class="name"><a href="../mitosis/EntryUpdatedRecord.html">EntryUpdatedRecord</a></span>&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;
+    = (<span class="field">{<span class="type-annotation">V?</span> <span class="field-name">after</span>, </span><span class="field"><span class="type-annotation">V?</span> <span class="field-name">before</span>, </span><span class="field"><span class="type-annotation">K</span> <span class="field-name">key</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A record that captures a before‑and‑after snapshot of a key‑value pair
+change, delivered as the payload of an <code>entryUpdated</code> event.
   
 
 </dd>
@@ -2435,7 +2441,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

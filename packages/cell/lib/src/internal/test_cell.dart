@@ -69,8 +69,7 @@ class TestPasses extends TestCell<Never> {
   FutureOr<bool> call(object, {covariant Cell? host, arguments}) => true;
 
   @override
-  FutureOr<bool> action(Function action,
-      {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
     final elements = [
       if (arguments?.positionalArguments != null)
         ...arguments!.positionalArguments!,
@@ -119,8 +118,7 @@ class _TestCellReadOnly extends TestCell<Never> {
   }
 
   @override
-  FutureOr<bool> action(Function action,
-      {required Cell host, Arguments? arguments}) {
+  FutureOr<bool> action(Function action, {required Cell host, Arguments? arguments}) {
     if (host.modifiable.contains(action)) return false;
     final elements = [
       if (arguments?.positionalArguments != null)

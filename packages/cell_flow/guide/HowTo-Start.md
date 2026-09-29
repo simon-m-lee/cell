@@ -1,6 +1,6 @@
 # How to Start with cell_flow
 
-**Quick-start guide for developers** · `cell_flow` v1.0.0-rc.2
+**Quick-start guide for developers** · `cell_flow` v1.0.0-rc.7
 
 Get up and running with **cell_flow** in 15 minutes. Learn the three ways to build reactive pipelines, understand when to use each approach, and copy-paste ready examples for common scenarios.
 
@@ -42,8 +42,8 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: 1.0.0-rc.2
-  cell_flow: 1.0.0-rc.2
+  cell: ^1.0.0-rc.6
+  cell_flow: ^1.0.0-rc.7
 ```
 
 Import once in your Dart file:

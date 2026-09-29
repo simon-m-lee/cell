@@ -460,7 +460,7 @@ final class Reject {
 /// ### How it works
 ///
 /// Exactly one of `command` and `reject` is non-null in every
-/// well-formed reply. The parsers in [HttpInterpreter._parse] and
+/// well-formed reply. The parsers in `HttpInterpreter._parse` and
 /// [StubInterpreter._parseEnvelope] guarantee this; the instruction
 /// tolerates the edge case where both are null by synthesising a
 /// `Reject(reason: 'empty-reply')`.
@@ -1126,7 +1126,7 @@ final class AiConfig {
   ///
   /// ### Throws
   ///
-  /// - [FileSystemException] if the file cannot be read.
+  /// - `FileSystemException` if the file cannot be read.
   /// - [FormatException] if the JSON is malformed or missing
   ///   required keys.
   static AiConfig fromJsonFile(String path) {

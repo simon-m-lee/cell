@@ -78,8 +78,8 @@ single, flat list of all events.</p>
 events from <code>this</code> followed by the events from <code>other</code>. If <code>other</code> is
 itself a collective, its events are flattened into the new one.</p>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final batch1 = CollectiveTissueEvent.from([a, b]);
-final batch2 = CollectiveTissueEvent.from([c, d]);
+<pre class="language-dart"><code class="language-dart">final batch1 = CollectiveTissuePulse.from([a, b]);
+final batch2 = CollectiveTissuePulse.from([c, d]);
 final combined = batch1 + batch2; // contains a, b, c, d
 </code></pre>
 </section>
@@ -116,7 +116,7 @@ final combined = batch1 + batch2; // contains a, b, c, d
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

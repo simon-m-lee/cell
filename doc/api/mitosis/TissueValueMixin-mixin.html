@@ -88,7 +88,7 @@ and <code>validate</code> (a <code>TestTissue</code>).</li>
 <li>The <code>set</code> method routes the mutation through the <code>apply</code> gateway, which
 validates the action and calls the private <code>_set</code> method.</li>
 <li><code>_set</code> updates the container, manages links (if the value is a <a href="../mitosis/Cell-class.html">Cell</a>),
-and dispatches a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a> via the receptor.</li>
+and dispatches a <code>elementUpdated</code> via the receptor.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
@@ -96,7 +96,7 @@ and dispatches a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</
 <li>If the host class is <a href="../mitosis/Unmodifiable-class.html">Unmodifiable</a>, the <code>value</code> setter and <code>set</code> method
 are bypassed (the host's <code>modifiable</code> is empty), so the mutation logic
 is never reached.</li>
-<li>The <code>_set</code> method returns a <a href="../mitosis/ElementUpdated-class.html">ElementUpdated</a> or <code>null</code>; the caller
+<li>The <code>_set</code> method returns a <code>elementUpdated</code> or <code>null</code>; the caller
 (usually <code>apply</code>) decides whether to dispatch it.</li>
 <li>Comparison operators (<code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>) only work for numeric values.</li>
 </ul>
@@ -1216,7 +1216,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

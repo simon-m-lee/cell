@@ -170,12 +170,12 @@ ad-hoc records.</li>
     }
   }
 
-  final inheritableMask = ((context != null &amp;&amp; context != Context.system
-          ? 1
-          : 0) |
+  final inheritableMask = (
+      (context != null &amp;&amp; context != Context.system ? 1 : 0) |
       (receptor != null &amp;&amp; receptor != Receptor.passThrough ? 2 : 0) |
       (testRule != null &amp;&amp; !identical(testRule, TestCell.allowAll) ? 4 : 0) |
-      (ephemeralPolicy != null ? 8 : 0));
+      (ephemeralPolicy != null ? 8 : 0)
+  );
 
   final inheritable = switch (inheritableMask) {
     0 =&gt; (),
@@ -556,7 +556,7 @@ ad-hoc records.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

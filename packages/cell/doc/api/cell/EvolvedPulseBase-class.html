@@ -134,7 +134,7 @@ final evolved = root.withStep('validation');
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="EvolvedPulseBase.new" class="callable">
-          <span class="name"><a href="../cell/EvolvedPulseBase/EvolvedPulseBase.html">EvolvedPulseBase</a></span><span class="signature">({<span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-onComplete"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onComplete</span>, </span><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span><span class="parameter" id="-param-pulse"><span>required</span> <span class="type-annotation"><a href="../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">parent</span></span>})</span>
+          <span class="name"><a href="../cell/EvolvedPulseBase/EvolvedPulseBase.html">EvolvedPulseBase</a></span><span class="signature">({<span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span><span class="parameter" id="-param-type"><span class="type-annotation">dynamic</span> <span class="parameter-name">type</span>, </span><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span><span class="parameter" id="-param-priority"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">priority</span>, </span><span class="parameter" id="-param-onComplete"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onComplete</span>, </span><span class="parameter" id="-param-onError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="-param-onProgress"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onProgress</span>, </span><span class="parameter" id="-param-pulse"><span>required</span> <span class="type-annotation"><a href="../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">pulse</span>, </span><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="../cell/PulseBase-class.html">PulseBase</a></span> <span class="parameter-name">parent</span></span>})</span>
         </dt>
         <dd>
           Creates a new evolved pulse that extends a causal chain.
@@ -413,12 +413,12 @@ final evolved = root.withStep('validation');
 
         <dt id="type" class="property inherited">
   <span class="name"><a href="../cell/PulseBase/type.html">type</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
 <dd class="inherited">
-  Semantic type tag for pattern matching and routing.
+  Semantic type classification for pattern matching and routing.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1062,7 +1062,7 @@ the causal chain.
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

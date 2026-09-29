@@ -84,7 +84,8 @@ waiting for the first read.</li>
 <li><strong>Deep immutability (<code>unmodifiableElement</code>)</strong>: If this flag is <code>true</code>
 and the <code>value</code> is itself a <a href="../../mitosis/Cell-class.html">Cell</a>, it calls <code>_nucleus.synapses.link</code>
 to establish a reactive dependency. This ensures that when the inner
-cell changes, this view (and its observers) receive a <code>ValueChangedEvent</code>.</li>
+cell changes, this view (and its observers) receive a
+<a href="../../mitosis/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a> pulse.</li>
 <li><strong>Lazy container resolution</strong>: The container is resolved via a helper
 (<code>get</code>) that walks up the principal chain if needed. This means the
 view shares the same physical storage as its source – <strong>zero‑copy</strong>.</li>
@@ -178,7 +179,7 @@ This is typically the source's current value.</li>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

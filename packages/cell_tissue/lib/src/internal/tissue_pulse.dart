@@ -85,7 +85,7 @@ class _CollectiveTissueEvent<E> extends CollectiveTissueEventBase<E> {
 ///
 /// ### Example: Iterating over a batch
 /// ```dart
-/// final batch = CollectiveTissueEvent.from([addEvent, removeEvent]);
+/// final batch = CollectiveTissuePulse.from([addEvent, removeEvent]);
 /// for (final event in batch) {
 ///   print(event.payload);
 /// }
@@ -100,10 +100,10 @@ class _CollectiveTissueEvent<E> extends CollectiveTissueEventBase<E> {
 /// - [EvolvedPulse] – the chain-based composite created by `+`.
 /// - [PulseBase] – the base class for all pulses.
 abstract class CollectiveTissueEventBase<E>
-    extends TissueEventBase<Iterable<Pulse<E>>>
+    extends TissuePulseBase<Iterable<Pulse<E>>>
     implements CollectiveTissuePulse<E>, CollectivePulse<E> {
   /// Creates a collective from the given [pulses] (which are actually
-  /// `TissueEvent<E>` instances).
+  /// `TissuePulse<E>` instances).
   ///
   /// ### When to use
   /// This is used internally by [TissuePulse.batch] and the `+` operator.
@@ -172,8 +172,8 @@ abstract class CollectiveTissueEventBase<E>
   ///
   /// ### Example
   /// ```dart
-  /// final batch1 = CollectiveTissueEvent.from([a, b]);
-  /// final batch2 = CollectiveTissueEvent.from([c, d]);
+  /// final batch1 = CollectiveTissuePulse.from([a, b]);
+  /// final batch2 = CollectiveTissuePulse.from([c, d]);
   /// final combined = batch1 + batch2; // contains a, b, c, d
   /// ```
   ///
@@ -268,7 +268,8 @@ class _EvolvedTissueEvent<E> extends EvolvedTissueEventBase<E> {
 ///
 /// ### Example: building a chain
 /// ```dart
-/// final root = ElementAddedEvent<int>(payload: 42);
+/// final list = TissueList.of([1]);
+/// final root = list.apply(list.add, positionalArguments: [42]);
 /// final evolved = root
 ///     .withStep('validation')
 ///     .withStep('transformation');
@@ -323,7 +324,7 @@ abstract class EvolvedTissueEventBase<E> extends _TissuePulse<E>
   /// ### Returns:
   /// The parent event in the causal chain.
   @override
-  TissueEventBase<E> get parent => _parent!;
+  TissuePulseBase<E> get parent => _parent!;
 
   /// Combines this evolved event with another [TissuePulse] to create a
   /// [CollectiveTissuePulse].
@@ -337,7 +338,7 @@ abstract class EvolvedTissueEventBase<E> extends _TissuePulse<E>
   /// ### Example
   /// ```dart
   /// final evolved = root.withStep('step1');
-  /// final batch = evolved + anotherEvent; // CollectiveTissueEvent
+  /// final batch = evolved + anotherEvent; // CollectiveTissuePulse
   /// ```
   ///
   /// ### Parameters:
@@ -356,15 +357,15 @@ abstract class EvolvedTissueEventBase<E> extends _TissuePulse<E>
 /// A concrete implementation of a standard (non‑composite) tissue event.
 ///
 /// [_TissuePulse] is the primary workhorse for all non‑composite tissue events.
-/// It is instantiated by the concrete event types like [ElementAdded],
-/// [ElementRemoved], and [ElementUpdated].
+/// It is instantiated by the concrete event types like [Tissue.elementAdded],
+/// [Tissue.elementRemoved], and [Tissue.elementUpdated].
 ///
 /// ### When to use
 /// This is an internal class. You don't instantiate it directly – use the
 /// concrete event types or the [TissuePulse] factories.
 ///
 /// ### How it works
-/// - It extends [TissueEventBase] and provides the concrete implementation.
+/// - It extends [TissuePulseBase] and provides the concrete implementation.
 /// - It implements `evolve()` to create evolved events.
 /// - It implements `withStep()` to add steps to the trace.
 /// - It provides the `shell` getter for defensive proxies.
@@ -372,7 +373,7 @@ abstract class EvolvedTissueEventBase<E> extends _TissuePulse<E>
 ///
 /// ### Type Parameters:
 /// * [E]: The type of the data payload.
-class _TissuePulse<E> extends TissueEventBase<E> {
+class _TissuePulse<E> extends TissuePulseBase<E> {
   _TissuePulse({
     super.policy,
     super.context,
@@ -430,8 +431,8 @@ class _TissuePulse<E> extends TissueEventBase<E> {
   /// ### Returns:
   /// An [UnmodifiableTissuePulse] that blocks further evolution.
   @override
-  TissueEventBase<E> get unmodifiable =>
-      _UnmodifiableTissueEvent<E>(this) as TissueEventBase<E>;
+  TissuePulseBase<E> get unmodifiable =>
+      _UnmodifiableTissueEvent<E>(this) as TissuePulseBase<E>;
 
   /// Appends a step to the event's causal trace.
   ///
@@ -441,7 +442,7 @@ class _TissuePulse<E> extends TissueEventBase<E> {
   /// ### Returns:
   /// A new [TissuePulse] with the updated trace.
   @override
-  TissueEventBase<E> withStep(String step) =>
+  TissuePulseBase<E> withStep(String step) =>
       _TissuePulse<E>(step: step, parent: this);
 }
 
@@ -458,7 +459,7 @@ class _TissuePulse<E> extends TissueEventBase<E> {
 /// - `_parent` – immediate ancestor.
 ///
 /// ### When to use
-/// This mixin is used by [TissueEventBase] and [EvolvedTissueEventBase] to
+/// This mixin is used by [TissuePulseBase] and [EvolvedTissueEventBase] to
 /// share common implementation.
 mixin _TissueEventMixin<E> on Pulse<E> {
   // ignore: prefer_typing_uninitialized_variables, strict_top_level_inference
@@ -472,7 +473,7 @@ mixin _TissueEventMixin<E> on Pulse<E> {
   /// A [TissueEventShell] that gates access to the event.
   @override
   TissueEventShell<E> get shell =>
-      TissueEventShell<E>._(this as TissueEventBase<E>);
+      TissueEventShell<E>._(this as TissuePulseBase<E>);
 
   /// Creates a new event that is a child of this one.
   ///
@@ -490,7 +491,7 @@ mixin _TissueEventMixin<E> on Pulse<E> {
       context: context,
       step: step,
       pulse: pulse,
-      parent: this as TissueEventBase<E>,
+      parent: this as TissuePulseBase<E>,
     );
   }
 
@@ -502,10 +503,10 @@ mixin _TissueEventMixin<E> on Pulse<E> {
   /// ### Returns:
   /// A new [TissuePulse] with the updated trace.
   @override
-  TissueEventBase<E> withStep(String step) {
+  TissuePulseBase<E> withStep(String step) {
     return _TissuePulse<E>(
       step: step,
-      parent: this as TissueEventBase<E>,
+      parent: this as TissuePulseBase<E>,
     );
   }
 
@@ -521,16 +522,16 @@ mixin _TissueEventMixin<E> on Pulse<E> {
   /// ### Returns:
   /// The root event in the causal chain.
   @override
-  TissueEventBase<E> get root => super.root as TissueEventBase<E>;
+  TissuePulseBase<E> get root => super.root as TissuePulseBase<E>;
 
   /// Returns a read‑only projection of this event.
   ///
   /// ### Returns:
   /// An [UnmodifiableTissuePulse] that blocks further evolution.
   @override
-  TissueEventBase<E> get unmodifiable {
-    return _UnmodifiableTissueEvent<E>(this as TissueEventBase<E>)
-        as TissueEventBase<E>;
+  TissuePulseBase<E> get unmodifiable {
+    return _UnmodifiableTissueEvent<E>(this as TissuePulseBase<E>)
+        as TissuePulseBase<E>;
   }
 
   /// Combines this event with another to create a [CollectiveTissuePulse].
@@ -551,63 +552,69 @@ mixin _TissueEventMixin<E> on Pulse<E> {
   ///
   /// ### Returns:
   /// The parent event, or `null` if this is the root.
-  TissueEventBase<E>? get _parent {
-    return get<TissueEventBase<E>?>(() => _record._parent, orElse: null);
+  TissuePulseBase<E>? get _parent {
+    return get<TissuePulseBase<E>?>(() => _record._parent, orElse: null);
   }
 }
 
-/// The foundational implementation for all [TissuePulse]s – the standard
-/// signal that carries a collection change through the reactive graph.
+/// A structural signal emitted by a [Tissue] collection when its internal state changes.
+///
+/// In the biological metaphor of the framework, [TissuePulse] acts as the
+/// **Nervous Impulse** carrying data about structural mutations across the
+/// reactive graph.
 ///
 /// ### When to use
-/// You don't call this directly. But understanding it helps you trust that
-/// every event carries accurate provenance:
-/// - The payload is resolved by walking up the parent chain – evolved events
-///   don't duplicate data.
-/// - The `source` tells you which tissue originally emitted the event.
-/// - The `trace` records every step the event has taken.
-/// - The `_onComplete`, `_onError`, and `_onProgress` callbacks are stored on
-///   the **root** event, so they fire even if the event is evolved multiple times.
+/// - Reacting to changes in a collection: update a UI, trigger a side effect,
+///   or log the change.
+/// - Implementing reactive data flows where downstream logic depends on
+///   what changed.
+/// - Auditing: recording every mutation for compliance or forensic debugging.
 ///
-/// You never create this directly. It's the base class for concrete events
-/// like [ElementAdded], [ElementRemoved], and [ElementUpdated].
-/// This class handles the heavy lifting: storing the payload, managing the
-/// causal chain, resolving properties by walking up the `_parent` chain, and
-/// firing lifecycle callbacks.
+/// You don't create these events directly – the framework emits them
+/// automatically when you mutate a collection (add, remove, clear, etc.).
+/// You receive them via observation methods on any tissue handle.
 ///
 /// ### How it works
-/// - It extends [PulseBase] to reuse the pulse's immutable record system
-///   and causal chain machinery.
-/// - It mixes in `_TissueEventMixin` to add the tissue‑specific behaviours:
-///   `source` as a `Tissue`, `shell`, `withStep`, and the `+` operator.
-/// - The constructor uses the same bitmask‑based `Record` pattern as
-///   `PulseBase` – only non‑default fields are stored, saving memory.
-/// - Property resolution (like `payload`, `context`, `source`) walks up the
-///   `_parent` chain if the property is not defined locally.
-/// - The `_branches` box tracks completion across composite events
-///   (collectives and evolved chains).
+/// - Each event is emitted **after** the mutation is successfully validated
+///   and applied.
+/// - The event carries the [payload] (the changed value(s)), the [source]
+///   tissue, and a full causal [trace].
+/// - The event is immutable – it represents a fact that has already occurred.
+/// - You can [evolve] the event to add a step to its trace or change its context.
 ///
 /// ### Non‑obvious
-/// - The `onComplete` callback is stored on the **root** of the chain.
-///   If you attach a completion callback to a derived event, it replaces the
-///   root's callback – so only the final callback in the chain matters.
-/// - The `_branches` counter is used for **both** collectives and evolved
-///   chains. It ensures that `onComplete` fires only after all branches
-///   have finished.
-/// - The `_progress` callback is fired by the receptor during processing –
-///   you can use it to track long‑running operations.
-/// - The `const TissueEventBase.type(String type)` constructor is a
-///   performance optimisation for creating typed events with minimal overhead.
+/// - The event is a [Pulse] – it participates in the same reactive propagation
+///   system as any other signal. It can be evolved, batched, and observed.
+/// - The event is emitted **after** the mutation, not before. If you need to
+///   capture the before state, records like [ElementUpdatedRecord] or [EntryUpdatedRecord]
+///   include it in the payload.
+/// - For batch operations (addAll, removeAll), the payload may be an iterable
+///   of elements, not a single one.
+/// - `null` values are valid payloads – they represent the removal or clearing
+///   of a value.
 ///
-/// ### Example: creating a simple event
+/// ### Example: Observing changes
 /// ```dart
-/// // Using the main constructor
-/// final event = ElementAddedEvent<int>._(payload: 42);
-///
-/// // Using the type‑optimised constructor
-/// final typedEvent = TissueEventBase.type('my_event');
+/// final list = TissueList<int>([1, 2, 3]);
+/// list.observe((event) {
+///   if (event.type == Tissue.elementAdded) {
+///     print('Added: ${event.payload}');
+///   }
+///   if (event.type == Tissue.elementRemoved) {
+///     print('Removed: ${event.payload}');
+///   }
+/// });
+/// list.add(4);    // prints "Added: 4"
+/// list.remove(2); // prints "Removed: 2"
 /// ```
-abstract class TissueEventBase<E> extends PulseBase<E>
+///
+/// ### Type Parameters:
+/// * [E] – The type of the event's payload (the element or value that changed).
+///
+/// See also:
+/// - [CollectiveTissuePulse] – a batch of multiple independent pulses.
+/// - [EvolvedTissuePulse] – an event with a full causal history.
+abstract class TissuePulseBase<E> extends PulseBase<E>
     with _TissueEventMixin<E>
     implements TissuePulse<E> {
   @override
@@ -617,8 +624,9 @@ abstract class TissueEventBase<E> extends PulseBase<E>
   /// Primary constructor for a tissue event.
   ///
   /// ### When to use
-  /// This is used by concrete event types (like `ElementAddedEvent`) to
-  /// initialise their base fields. You don't call it directly.
+  /// This is used by concrete tissue events (like the structural pulses
+  /// emitted for [Tissue.elementAdded]) to initialise their base fields.
+  /// You don't call it directly.
   ///
   /// ### How it works
   /// All parameters are optional and default to `null`. The framework
@@ -639,11 +647,11 @@ abstract class TissueEventBase<E> extends PulseBase<E>
   /// - [pulse], [parent]: For causal chaining (evolved events).
   /// - [scrutinize]: A custom handshake function for defensive shells.
   /// - [user]: Arbitrary metadata for custom logic.
-  TissueEventBase(
+  TissuePulseBase(
       {PulseEphemeralPolicy? policy,
       PulseContext? context,
       E? payload,
-      String? type,
+      dynamic type,
       Tissue? source,
       DateTime? timestamp,
       String? step,
@@ -663,7 +671,10 @@ abstract class TissueEventBase<E> extends PulseBase<E>
           policy: policy,
           context: context,
           payload: payload,
-          type: type,
+          // [PulseBase.mask] only accepts a String? type tag, so a
+          // [TissueEvent] classification is carried in the dynamic `user`
+          // slot and surfaced through the overridden [type] getter below.
+          type: type is TissueEvent ? null : type,
           timestamp: timestamp,
           source: source,
           step: step,
@@ -674,14 +685,25 @@ abstract class TissueEventBase<E> extends PulseBase<E>
           pulse: pulse,
           parent: parent,
           scrutinize: scrutinize,
-          user: user,
+          user: type is TissueEvent ? type : user,
         ));
+
+  /// The semantic classification of this tissue pulse.
+  ///
+  /// When the pulse represents a structural mutation, this returns the
+  /// corresponding [TissueEvent] enum value. For governed or custom pulses
+  /// carrying a string type tag, the original [Pulse.type] value is returned.
+  @override
+  dynamic get type {
+    final user = get<dynamic>(() => _record.root.tertiary.user, orElse: null);
+    return user is TissueEvent ? user : super.type;
+  }
 
   /// Low‑level constructor that takes a raw [Record].
   ///
   /// This is used internally for deserialisation and cloning. You never
   /// call it directly.
-  const TissueEventBase.fromRecord(super.record)
+  const TissuePulseBase.fromRecord(super.record)
       : _record = record,
         super.fromRecord();
 
@@ -772,7 +794,7 @@ abstract class TissueEventBase<E> extends PulseBase<E>
   /// ### Returns:
   /// A new [TissuePulse] with the updated trace.
   @override
-  TissueEventBase<E> withStep(String step) {
+  TissuePulseBase<E> withStep(String step) {
     return _TissuePulse<E>(
       step: step,
       parent: this,
@@ -796,7 +818,7 @@ abstract class TissueEventBase<E> extends PulseBase<E>
   /// ### Returns:
   /// The root event in the causal chain.
   @override
-  TissueEventBase<E> get root => super.root;
+  TissuePulseBase<E> get root => super.root;
 
   /// Returns a read‑only projection of this event that blocks further
   /// evolution and deeply projects any child [Cell]s as unmodifiable.
@@ -814,8 +836,8 @@ abstract class TissueEventBase<E> extends PulseBase<E>
   /// ### Returns:
   /// An [UnmodifiableTissuePulse] that blocks further evolution.
   @override
-  TissueEventBase<E> get unmodifiable {
-    return _UnmodifiableTissueEvent<E>(this) as TissueEventBase<E>;
+  TissuePulseBase<E> get unmodifiable {
+    return _UnmodifiableTissueEvent<E>(this) as TissuePulseBase<E>;
   }
 }
 
@@ -840,7 +862,7 @@ abstract class TissueEventBase<E> extends PulseBase<E>
 /// * [E]: The type of the data payload.
 class _UnmodifiableTissueEvent<E> extends UnmodifiableTissueEventBase<E> {
   _UnmodifiableTissueEvent(TissuePulse<E> source)
-      : super(source as TissueEventBase<E>);
+      : super(source as TissuePulseBase<E>);
 }
 
 /// A read‑only, immutable projection of a [TissuePulse] that guarantees no
@@ -877,21 +899,22 @@ class _UnmodifiableTissueEvent<E> extends UnmodifiableTissueEventBase<E> {
 ///
 /// ### Example
 /// ```dart
-/// final event = ElementAddedEvent<int>(payload: 42);
+/// final list = TissueList.of([1]);
+/// final event = list.apply(list.add, positionalArguments: [42]);
 /// final readOnly = event.unmodifiable;
 ///
 /// // readOnly.evolve(step: 'new'); // creates a NEW event, doesn't mutate
 /// print(readOnly.payload); // 42 (safe to read)
 /// ```
 abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
-    implements UnmodifiableTissuePulse<E>, TissueEventBase<E> {
+    implements UnmodifiableTissuePulse<E>, TissuePulseBase<E> {
   /// The underlying source event that this projection wraps.
-  final TissueEventBase<E> _source;
+  final TissuePulseBase<E> _source;
 
   /// Creates an unmodifiable projection of the given [source] event.
   ///
   /// This constructor is used internally by [TissuePulse.unmodifiable].
-  UnmodifiableTissueEventBase(TissueEventBase<E> super.source)
+  UnmodifiableTissueEventBase(TissuePulseBase<E> super.source)
       : _source = source;
 
   /// Returns a defensive shell that hides the event's payload.
@@ -926,7 +949,7 @@ abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
   /// ### Returns:
   /// A new [TissuePulse] with the updated trace.
   @override
-  TissueEventBase<E> withStep(String step) {
+  TissuePulseBase<E> withStep(String step) {
     return _source.withStep(step);
   }
 
@@ -942,7 +965,7 @@ abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
   /// ### Returns:
   /// The root event in the causal chain.
   @override
-  TissueEventBase<E> get root => super.root as TissueEventBase<E>;
+  TissuePulseBase<E> get root => super.root as TissuePulseBase<E>;
 
   /// Creates a new event that is a child of the source event.
   ///
@@ -966,10 +989,10 @@ abstract class UnmodifiableTissueEventBase<E> extends UnmodifiablePulseBase<E>
   /// ### Returns:
   /// This same unmodifiable event.
   @override
-  TissueEventBase<E> get unmodifiable => this;
+  TissuePulseBase<E> get unmodifiable => this;
 
   @override
-  TissueEventBase<E>? get _parent => _source._parent;
+  TissuePulseBase<E>? get _parent => _source._parent;
 
   @override
   get _record => _source._record;

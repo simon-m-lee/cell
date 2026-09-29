@@ -133,10 +133,10 @@ nums.emit(3); // -&gt; 6
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle reduce&lt;S, A&gt;(
-    Cell source, {
-      required A seed,
-      required A Function(A acc, S value) accumulate,
-    }) {
+  Cell source, {
+  required A seed,
+  required A Function(A acc, S value) accumulate,
+}) {
   return Reduce&lt;S, A&gt;(seed, accumulate).toHandle(source: source);
 }</code></pre>
 </section>
@@ -166,7 +166,7 @@ nums.emit(3); // -&gt; 6
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

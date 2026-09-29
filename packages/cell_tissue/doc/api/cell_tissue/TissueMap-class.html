@@ -117,8 +117,9 @@ print(map.length); // 2
 final observer = Cell.observe(
   bind: map,
   onPulse: (pulse, {user}) {
-    if (pulse is ElementAddedEvent&lt;int&gt;) {
-      print('Added: ${pulse.payload}');
+    if (pulse.type == Tissue.elementAdded) {
+      final entry = pulse.payload as MapEntry&lt;String, int&gt;;
+      print('Added: ${entry.value}');
     }
   },
 );
@@ -1337,7 +1338,7 @@ reactive map with explicit control over its behavioural and structural blueprint
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.6
+      1.0.0-rc.7
   </span>
   
 </footer>

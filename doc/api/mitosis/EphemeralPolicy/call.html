@@ -120,12 +120,12 @@ should not call it directly.</p>
   final handle = onEvent(object,
       cell: cell, policy: this, user: _user, arguments: arguments);
 
-  if (handle.events &gt;= 0) {
-    _record.events.value = handle.events;
+  if (handle._events &gt;= 0) {
+    _record._events.value = handle._events;
 
 &#47;&#47; Check against Event Limit
     final limit = eventLimit;
-    if (limit != null &amp;&amp; handle.events &gt;= limit) {
+    if (limit != null &amp;&amp; handle._events &gt;= limit) {
       _triggerReclamation(cell);
       dispose();
     }
@@ -158,7 +158,7 @@ should not call it directly.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

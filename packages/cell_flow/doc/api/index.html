@@ -44,18 +44,21 @@
       
 <section class="desc markdown">
   <h1 id="cell_flow">cell_flow</h1>
-<p><strong>Codename: Mitosis</strong> · <code>1.0.0-rc.2</code></p>
+<p><strong>Codename: Mitosis</strong> · <code>1.0.0-rc.7</code></p>
 <p><a href="https://dart.dev"><img src="https://img.shields.io/badge/Dart-3.5%2B-blue.svg" alt="Dart"></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
-<a href="#status"><img src="https://img.shields.io/badge/Status-RC2-green.svg" alt="Status"></a></p>
+<a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg" alt="License"></a>
+<a href="#status"><img src="https://img.shields.io/badge/Status-RC7-yellow.svg" alt="Status"></a></p>
 <p><strong>Rx-shaped operators for the <a href="https://github.com/simon-m-lee/cell">Cell</a> framework.</strong> Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as <code>FlowInstruction</code>s on the <strong>same graph</strong> as <code>package:cell</code>.</p>
+<blockquote>
+<p><strong>Mitose pipeline — the umbrella feature.</strong> The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a>; this package supplies the <strong>Flow layer</strong> rules via <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md"><code>guide/HowTo-Mitose-Flow.md</code></a>. See the <a href="https://github.com/simon-m-lee/cell#readme">root README</a>.</p>
+</blockquote>
 <hr>
 <h2 id="-quick-start">🚀 Quick Start</h2>
 <h3 id="installation">Installation</h3>
 <p>Add both packages to your <code>pubspec.yaml</code>:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.4
-  cell_flow: ^1.0.0-rc.4
+  cell: ^1.0.0-rc.6
+  cell_flow: ^1.0.0-rc.7
 </code></pre>
 <p>Import once in your Dart file:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
@@ -81,7 +84,7 @@ Cell.observe(source: results.cell, effect: (p) {
 await query.emitAsync('Dart packages');
 </code></pre>
 <blockquote>
-<p>💡 <strong>New to cell_flow?</strong> Read the <strong><a href="guide/HowTo-Start.md">How to Start Guide</a></strong> for a complete 15-minute tutorial with 5 copy-paste examples.</p>
+<p>💡 <strong>New to cell_flow?</strong> Read the <strong><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md">How to Start Guide</a></strong> for a complete 15-minute tutorial with 5 copy-paste examples.</p>
 </blockquote>
 <hr>
 <h2 id="-what-problem-does-flow-solve">🎯 What Problem Does Flow Solve?</h2>
@@ -434,7 +437,7 @@ final handle = gate.toHandle(source: box.cell);
 </tr>
 </tbody>
 </table>
-<p>📖 <strong>Full documentation:</strong> <a href="FEATURES-Flow.md"><code>FEATURES-Flow.md</code></a></p>
+<p>📖 <strong>Full documentation:</strong> <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md"><code>FEATURES-Flow.md</code></a></p>
 <hr>
 <h2 id="-common-patterns">🎓 Common Patterns</h2>
 <h3 id="pattern-1-search-as-you-type">Pattern 1: Search-as-You-Type</h3>
@@ -567,27 +570,27 @@ void main() {
 </thead>
 <tbody>
 <tr>
-<td>📘 <strong><a href="guide/HowTo-Start.md">How to Start</a></strong></td>
+<td>📘 <strong><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md">How to Start</a></strong></td>
 <td><strong>Quick-start tutorial (15 min)</strong> with 5 examples</td>
 </tr>
 <tr>
-<td>🏗️ <a href="ARCHITECTURE-Flow.md">ARCHITECTURE-Flow.md</a></td>
+<td>🏗️ <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/ARCHITECTURE-Flow.md">ARCHITECTURE-Flow.md</a></td>
 <td>Why Flow is shaped this way</td>
 </tr>
 <tr>
-<td>📋 <a href="FEATURES-Flow.md">FEATURES-Flow.md</a></td>
+<td>📋 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/FEATURES-Flow.md">FEATURES-Flow.md</a></td>
 <td>Complete operator catalog (79+ operators)</td>
 </tr>
 <tr>
-<td>🎬 <a href="DEMO_GUIDE.md">DEMO_GUIDE.md</a></td>
+<td>🎬 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/DEMO_GUIDE.md">DEMO_GUIDE.md</a></td>
 <td>High-fidelity walkthroughs</td>
 </tr>
 <tr>
-<td>🔗 <a href="guide/HowTo-Fluent_Operator.md">HowTo-Fluent_Operator.md</a></td>
+<td>🔗 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Fluent_Operator.md">HowTo-Fluent_Operator.md</a></td>
 <td>Method chaining deep dive</td>
 </tr>
 <tr>
-<td>🎯 <a href="guide/HowTo-FlowInstruction-Receptor.md">HowTo-FlowInstruction-Receptor.md</a></td>
+<td>🎯 <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-FlowInstruction-Receptor.md">HowTo-FlowInstruction-Receptor.md</a></td>
 <td>Purpose-built Receptors</td>
 </tr>
 </tbody>
@@ -663,24 +666,24 @@ dart run example/filter_data_quality_demo.dart
 <tbody>
 <tr>
 <td><code>cell</code></td>
-<td><code>1.0.0-rc.4</code></td>
-<td>Release Candidate</td>
+<td><code>1.0.0-rc.6</code></td>
+<td>Release Candidate — on pub.dev</td>
 </tr>
 <tr>
 <td><code>cell_flow</code></td>
-<td><code>1.0.0-rc.4</code></td>
-<td>Release Candidate</td>
+<td><code>1.0.0-rc.7</code></td>
+<td>Release Candidate — on pub.dev</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Mitosis</strong> is the release codename (like an Android Studio animal). It is not part of the SemVer string. Stable on pub.dev will be <code>1.0.0</code>.</p>
+<p><strong>Mitosis</strong> is the release codename (like an Android Studio animal). It is not part of the SemVer string. The stable release on pub.dev will be <code>1.0.0</code>.</p>
 <blockquote>
-<p>⚠️ <strong>Status:</strong> Release Candidate (RC4). APIs may change. Not yet on pub.dev — use path or git dependencies. Verify behaviour against source.</p>
+<p>⚠️ <strong>Status:</strong> Release Candidate (RC7) — published to pub.dev. APIs may change before <code>1.0.0</code> stable. Verify behaviour against source.</p>
 </blockquote>
 <hr>
 <h2 id="-license">📄 License</h2>
-<p><strong>Dual-licensed:</strong> MIT or Apache-2.0 — see <a href="LICENSE"><code>LICENSE</code></a> and file headers.</p>
-<p>Copyright (c) 2025-Present Lee Man Hoi Simon. See <a href="AUTHORS"><code>AUTHORS</code></a>.</p>
+<p><strong>Dual-licensed:</strong> MIT or Apache-2.0 — see <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE"><code>LICENSE</code></a> and file headers.</p>
+<p>Copyright (c) 2025-Present Lee Man Hoi Simon. See <a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/AUTHORS"><code>AUTHORS</code></a>.</p>
 <blockquote>
 <p>ℹ️ Operator <em>names</em> follow ReactiveX vocabulary. Implementations are original Cell Flow; using <code>switchMap</code> as a name does not require an RxJS copyright header.</p>
 </blockquote>
@@ -693,7 +696,7 @@ dart run example/filter_data_quality_demo.dart
 <li>📖 <strong>Cell framework:</strong> <a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell">packages/cell</a></li>
 </ul>
 <hr>
-<p><strong>Ready to build reactive pipelines?</strong> Start with the <strong><a href="guide/HowTo-Start.md">How to Start Guide</a></strong> →</p>
+<p><strong>Ready to build reactive pipelines?</strong> Start with the <strong><a href="https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md">How to Start Guide</a></strong> →</p>
 </section>
 
 
@@ -745,7 +748,7 @@ dart run example/filter_data_quality_demo.dart
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

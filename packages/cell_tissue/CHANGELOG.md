@@ -1,3 +1,34 @@
+## [Mitosis (1.0.0-rc.7)] - Release Candidate
+
+### Changed
+
+- **Unified tissue event classification**: Replaced the specialised `ElementAdded`, `ElementRemoved`, and `ElementUpdated` event classes with the `TissueEvent` enum carried on `TissuePulse.type`.
+  - `TissueEvent.elementAdded` — elements appended or inserted into a collection.
+  - `TissueEvent.elementRemoved` — elements purged or popped from a collection.
+  - `TissueEvent.elementUpdated` — a scalar value or property change.
+  - `TissueEvent.entryUpdated` — a key-value pair within a `TissueMap` mutates.
+- **Collection mutation signals**: `TissueList`, `TissueSet`, and `TissueQueue` mutations now emit `TissuePulse<T>` instances classified with the relevant `TissueEvent` instead of specialised event subclasses.
+- **Value mutation signals**: `TissueValue` changes now emit `TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>` classified as `TissueEvent.elementUpdated`.
+- **Map mutation signals**: `TissueMap` additions and removals now emit `MapEntry<K, V>` payloads, and map updates emit `EntryUpdatedRecord<K, V>` payloads classified as `TissueEvent.entryUpdated`.
+
+### Fixed
+
+- **Event classification storage**: Resolved a regression where `TissueEvent` enum values could not be stored through the underlying pulse record machinery, which caused silent mutation failures across all collection types.
+- **Map mutation casts**: Restored `TissueMap` add/update/remove operations against identity-keyed stores by using the store's map-like interface instead of an incompatible `Map<K, V>` cast.
+- **Queue removals**: Corrected `removeFirst`/`removeLast` to return the removed element again, and fixed `removeLast` validating the wrong element.
+- **Set batch removals**: Materialized lazy removal iterables in `clear`, `removeAll`, `removeWhere`, `retainAll`, and `retainWhere` so elements are no longer skipped during iteration.
+
+### Tests
+
+- **Event API coverage**: Updated `tissue_pulse_test.dart` and `tissue_receptor_test.dart` to assert the new `TissueEvent` classification API and record payloads.
+- **Full suite**: All `cell_tissue` tests pass against the unified event model.
+
+### Docs
+
+- **Mitose pipeline**: Added a prominent README callout for the umbrella **Mitose pipeline** — the AI-executable orchestration in the root [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide) that turns a business requirement into a Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. This package contributes the **Tissue-layer** rules via [`guide/HowTo-Mitose-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md).
+
+[Mitosis (1.0.0-rc.7)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+
 ## [Mitosis (1.0.0-rc.6)] - Release Candidate
 
 Pub.dev hygiene release. No public API changes.

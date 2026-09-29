@@ -139,8 +139,8 @@ abstract interface class Instruction<C extends Cell, I extends Pulse,
   /// - **HowTo**: See `guide/HowTo-Instruction.md` for a guide on implementing
   ///   custom instructions (including synchronous/asynchronous) and scheduling logic..
   const factory Instruction(
-      O? Function(I pulse, {C? cell, dynamic user}) instruction,
-      {dynamic user}) = _Instruction<C, I, O>;
+      O? Function(I pulse, {C? cell, dynamic user}) instruction, {dynamic user})
+  = _Instruction<C, I, O>;
 
   /// Creates an [Instruction] with asynchronous future propagation support.
   ///
@@ -1014,10 +1014,8 @@ abstract interface class Receptor<C extends Cell> {
   ///   return Pulse(value * 2);
   /// });
   /// ```
-  factory Receptor(
-      Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
-    return _Receptor<C>(instruction: Instruction<C, Pulse, Pulse>((pulse,
-        {C? cell, future, token, dynamic user}) {
+  factory Receptor(Pulse? Function(C cell, Pulse pulse, {dynamic user}) instruction) {
+    return _Receptor<C>(instruction: Instruction<C, Pulse, Pulse>((pulse, {C? cell, future, token, dynamic user}) {
       return instruction.call(cell!, pulse, user: user);
     }));
   }
@@ -1071,8 +1069,7 @@ abstract interface class Receptor<C extends Cell> {
   /// // Bind it to a receptor
   /// final receptor = Receptor.instruction(auditor, user: 'SecurityLog');
   /// ```
-  factory Receptor.instruction(Instruction<C, Pulse, Pulse> instruction,
-      {dynamic user}) {
+  factory Receptor.instruction(Instruction<C, Pulse, Pulse> instruction, {dynamic user}) {
     return _Receptor<C>(instruction: instruction, user: user);
   }
 

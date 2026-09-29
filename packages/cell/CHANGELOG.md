@@ -1,4 +1,19 @@
 
+## Mitosis (1.0.0-rc.6) - Release Candidate
+
+### Changed
+
+- **`Pulse.type` is now `dynamic`**: Widened the pulse's semantic classification from `String?` to `dynamic` so pulses can carry richer classifiers — such as domain enums — alongside the traditional `String` routing tags.
+  - The `Pulse` factory now accepts `dynamic type`.
+  - The `Pulse.type` interface getter and `PulseBase.type` implementation now return `dynamic`.
+  - `PulseBase.toString` renders the classification via `type.toString()` so non-`String` classifiers print safely.
+
+### Docs
+
+- **Mitose pipeline**: Added a prominent README callout for the umbrella **Mitose pipeline** — the AI-executable orchestration in the root [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide) that turns a business requirement into a Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. This package contributes the **Cell-layer** rules via [`guide/HowTo-Mitose-Cell.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md).
+
+---
+
 ## Mitosis (1.0.0-rc.5) - Release Candidate
 
 Pub.dev score remediation release. No public API changes.

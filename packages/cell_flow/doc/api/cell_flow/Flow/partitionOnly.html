@@ -136,11 +136,11 @@ input.emit(4); // -&gt; 4
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle partitionOnly&lt;S&gt;(
-    Cell source, {
-      required bool Function(S value) test,
-      bool matched = true,
-      PartitionErrorHandler? onError,
-    }) {
+  Cell source, {
+  required bool Function(S value) test,
+  bool matched = true,
+  PartitionErrorHandler? onError,
+}) {
   return PartitionOnly&lt;S&gt;(
     test,
     matched: matched,
@@ -174,7 +174,7 @@ input.emit(4); // -&gt; 4
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

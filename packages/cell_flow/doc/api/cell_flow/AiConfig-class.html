@@ -64,7 +64,7 @@ plus an optional per-request timeout and an optional
 <p>Use this when the demo (or any host process) wants to read its
 AI settings from a JSON file instead of environment variables.
 The two sources are interchangeable: <a href="../cell_flow/AiConfig/AiConfig.fromJson.html">AiConfig.fromJson</a> produces
-the same values <code>Platform.environment</code> would, and either can
+the same values <code>platformEnvironment</code> would, and either can
 build an <a href="../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a>.</p>
 <h3 id="how-it-works">How it works</h3>
 <ol>
@@ -99,7 +99,7 @@ interpreter's own default of 30 seconds.</li>
 <h3 id="no-environment-fallback">No Environment Fallback</h3>
 <p>When a config is supplied, the resulting interpreter reads
 <strong>only</strong> the values in this config. It does not consult
-<code>Platform.environment</code> and it does not merge with
+<code>platformEnvironment</code> and it does not merge with
 <code>AI_ENDPOINT</code>, <code>AI_API_KEY</code>, or <code>AI_MODEL</code>. That is deliberate:
 a host that supplies a config file is declaring its intent
 explicitly, and silent env-var substitution would mean the same
@@ -107,12 +107,12 @@ file produced different behaviour on two machines.</p>
 <p>If you want env-var fallback, do it before constructing the
 config:</p>
 <pre class="language-dart"><code class="language-dart">final merged = {
-  if (Platform.environment['AI_ENDPOINT'] != null)
-    'endpoint': Platform.environment['AI_ENDPOINT'],
-  if (Platform.environment['AI_API_KEY'] != null)
-    'apiKey': Platform.environment['AI_API_KEY'],
-  if (Platform.environment['AI_MODEL'] != null)
-    'model': Platform.environment['AI_MODEL'],
+  if (platformEnvironment['AI_ENDPOINT'] != null)
+    'endpoint': platformEnvironment['AI_ENDPOINT'],
+  if (platformEnvironment['AI_API_KEY'] != null)
+    'apiKey': platformEnvironment['AI_API_KEY'],
+  if (platformEnvironment['AI_MODEL'] != null)
+    'model': platformEnvironment['AI_MODEL'],
   ...fileConfig,
 };
 final config = AiConfig.fromJson(merged);
@@ -261,7 +261,7 @@ inside the instruction.</p>
 </dd>
 
         <dt id="toInterpreter" class="callable">
-  <span class="name"><a href="../cell_flow/AiConfig/toInterpreter.html">toInterpreter</a></span><span class="signature">(<wbr>{<span class="parameter" id="toInterpreter-param-client"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-io/HttpClient-class.html">HttpClient</a>?</span> <span class="parameter-name">client</span>, </span><span class="parameter" id="toInterpreter-param-log"><span class="type-annotation"><a href="../cell_flow/TrafficLog-class.html">TrafficLog</a>?</span> <span class="parameter-name">log</span></span>})
+  <span class="name"><a href="../cell_flow/AiConfig/toInterpreter.html">toInterpreter</a></span><span class="signature">(<wbr>{<span class="parameter" id="toInterpreter-param-client"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">client</span>, </span><span class="parameter" id="toInterpreter-param-log"><span class="type-annotation"><a href="../cell_flow/TrafficLog-class.html">TrafficLog</a>?</span> <span class="parameter-name">log</span></span>})
     <span class="returntype parameter">&#8594; <a href="../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a></span>
   </span>
   
@@ -367,7 +367,7 @@ inside the instruction.</p>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

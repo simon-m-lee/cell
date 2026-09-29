@@ -424,7 +424,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
 ///
 /// // Listen for changes
 /// queue.listen((event) {
-///   if (event is ElementAddedEvent<String>) {
+///   if (event.type == Tissue.elementAdded) {
 ///     print('Added: ${event.payload}');
 ///   }
 /// });

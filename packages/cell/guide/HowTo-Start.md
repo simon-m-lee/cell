@@ -122,7 +122,7 @@ final context = Context.secureEnclave(
 
 ### Add to `pubspec.yaml`
 
-The package is **not** on pub.dev. Depend from path or git. Package version is `1.0.0-rc.1`.
+The package is **on pub.dev**. Depend from pub.dev or git. Package version is `1.0.0-rc.6`.
 
 ```yaml
 dependencies:

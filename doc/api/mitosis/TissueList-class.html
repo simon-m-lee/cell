@@ -112,7 +112,7 @@ print(list.length); // 2
 
 // Listen for changes
 list.listen((event) {
-  if (event is ElementAddedEvent&lt;String&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload}');
   }
 });
@@ -1679,7 +1679,7 @@ reactive list with explicit control over its behavioural and structural blueprin
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

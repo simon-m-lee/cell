@@ -145,7 +145,7 @@ List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg) {
             orElse: null);
 
       case LineageArgument.type:
-        v = get&lt;String?&gt;(() =&gt; p!._record.root.secondary.type,
+        v = get&lt;dynamic&gt;(() =&gt; p!._record.root.secondary.type,
             fallback: () =&gt; p!._record.pulse._record.root.secondary.type,
             orElse: null);
 
@@ -198,7 +198,7 @@ List&lt;T&gt; lineage&lt;T&gt;(LineageArgument arg) {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

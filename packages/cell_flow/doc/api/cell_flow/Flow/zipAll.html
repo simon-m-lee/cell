@@ -132,10 +132,10 @@ input.emit(6); // -&gt; [4, 5, 6]
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle zipAll&lt;T&gt;(
-    Cell source, {
-      required int width,
-      ZipErrorHandler? onError,
-    }) {
+  Cell source, {
+  required int width,
+  ZipErrorHandler? onError,
+}) {
   return ZipAll&lt;T&gt;(width, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>
@@ -165,7 +165,7 @@ input.emit(6); // -&gt; [4, 5, 6]
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

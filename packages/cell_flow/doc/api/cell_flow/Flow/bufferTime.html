@@ -134,11 +134,11 @@ final handle = Flow.bufferTime&lt;int&gt;(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle bufferTime&lt;S&gt;(
-    Cell source, {
-      required Duration duration,
-      bool emitEmpty = false,
-      BufferErrorHandler? onError,
-    }) {
+  Cell source, {
+  required Duration duration,
+  bool emitEmpty = false,
+  BufferErrorHandler? onError,
+}) {
   return BufferTime&lt;S&gt;(
     duration,
     emitEmpty: emitEmpty,
@@ -172,7 +172,7 @@ final handle = Flow.bufferTime&lt;int&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

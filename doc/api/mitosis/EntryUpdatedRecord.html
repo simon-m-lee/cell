@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the EntryUpdatedRecord typedef from the mitosis library, for the Dart programming language.">
+  <title>EntryUpdatedRecord typedef - mitosis library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis.dart</a></li>
+    <li class="self-crumb">EntryUpdatedRecord&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt; typedef</li>
+  </ol>
+  <div class="self-name">EntryUpdatedRecord</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="mitosis&#47;mitosis-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-typedef">EntryUpdatedRecord&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span> typedef 
+ 
+</h1></div>
+    <section class="multi-line-signature">
+        
+  
+<span class="name ">EntryUpdatedRecord</span>&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt; = (<span class="field">{<span class="type-annotation">V?</span> <span class="field-name">after</span>, </span><span class="field"><span class="type-annotation">V?</span> <span class="field-name">before</span>, </span><span class="field"><span class="type-annotation">K</span> <span class="field-name">key</span>}</span>)</span>
+
+
+    </section>
+
+    
+<section class="desc markdown">
+  <p>A record that captures a before‑and‑after snapshot of a key‑value pair
+change, delivered as the payload of an <code>entryUpdated</code> event.</p>
+<h3 id="when-to-use">When to use</h3>
+<ul>
+<li><strong>Map Mutation Tracking</strong>: Reacting to key‑value insertions, modifications,
+or removals inside a <a href="../mitosis/TissueMap-class.html">TissueMap</a>.</li>
+<li><strong>Auditing &amp; History</strong>: Recording exact key changes for forensic logs
+or undo/redo pipelines.</li>
+<li><strong>Conditional Logic</strong>: Comparing <code>before</code> and <code>after</code> values to trigger
+targeted side effects for specific map keys.</li>
+</ul>
+<p>You never create this record directly. It's constructed automatically by
+the framework and delivered to you as the payload of an <code>entryUpdated</code>
+event when observing a <a href="../mitosis/TissueMap-class.html">TissueMap</a>. Use it to inspect exactly which key
+changed and how its value evolved.</p>
+<h3 id="how-it-works">How it works</h3>
+<p>This is a Dart <strong>record</strong> (not a class), making it lightweight and immutable.
+The record consists of three named and positional fields:</p>
+<ul>
+<li><code>key</code>: The key within the map that underwent mutation.</li>
+<li><code>before</code>: The value associated with the key <strong>before</strong> the change.
+May be <code>null</code> if the key was newly inserted.</li>
+<li><code>after</code>: The value associated with the key <strong>after</strong> the change.
+May be <code>null</code> if the key was removed or cleared.</li>
+</ul>
+<p>The record is typically destructured in the event handler:</p>
+<pre class="language-dart"><code class="language-dart">mapCell.listen((event) {
+  if (event.type == Tissue.entryUpdated) {
+    final (:key, :before, :after) = event.payload!;
+    print('Key "$key" changed from $before to $after');
+  }
+});
+</code></pre>
+<h3 id="nonobvious">Non‑obvious</h3>
+<ul>
+<li><strong>Insertions vs. Deletions</strong>: If <code>before</code> is <code>null</code> and <code>after</code> is present,
+it represents an insertion. If <code>after</code> is <code>null</code>, it represents a removal.</li>
+<li><strong>Equality</strong>: Because this is a record, equality is value‑based. Two
+records with identical <code>key</code>, <code>before</code>, and <code>after</code> values are equal.</li>
+</ul>
+<h3 id="type-parameters">Type Parameters:</h3>
+<ul>
+<li><code>K</code> – The type of the map keys (e.g., <code>String</code>, <code>int</code>).</li>
+<li><code>V</code> – The type of the map values being tracked.</li>
+</ul>
+<h3 id="see-also">See also:</h3>
+<ul>
+<li><a href="../mitosis/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a> – the event classification that carries this record.</li>
+<li><a href="../mitosis/TissueMap-class.html">TissueMap</a> – the reactive map collection that emits these events.</li>
+</ul>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">typedef EntryUpdatedRecord&lt;K, V&gt; = ({
+K key,
+V? before,
+V? after,
+});</code></pre>
+</section>
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">mitosis</a></li>
+    <li><a href="../mitosis/">mitosis</a></li>
+    <li class="self-crumb">EntryUpdatedRecord&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt; typedef</li>
+</ol>
+
+    <h5>mitosis library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    mitosis
+      1.0.0-rc.9
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a></span>
-<span class="name ">toInterpreter</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="toInterpreter-param-client"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-io/HttpClient-class.html">HttpClient</a>?</span> <span class="parameter-name">client</span>, </span></li>
+<span class="name ">toInterpreter</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="toInterpreter-param-client"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">client</span>, </span></li>
 <li><span class="parameter" id="toInterpreter-param-log"><span class="type-annotation"><a href="../../cell_flow/TrafficLog-class.html">TrafficLog</a>?</span> <span class="parameter-name">log</span>, </span></li>
 </ol>})
 
@@ -67,7 +67,7 @@
   <p>Builds an <a href="../../cell_flow/HttpInterpreter-class.html">HttpInterpreter</a> from this config.</p>
 <h3 id="no-environment-fallback">No Environment Fallback</h3>
 <p>The returned interpreter reads <strong>only</strong> the fields on this
-config. It does not consult <code>Platform.environment</code> at runtime
+config. It does not consult <code>platformEnvironment</code> at runtime
 and it does not merge with <code>AI_ENDPOINT</code>, <code>AI_API_KEY</code>, or
 <code>AI_MODEL</code>. Every value the interpreter uses comes from
 <a href="../../cell_flow/AiConfig/endpoint.html">endpoint</a>, <a href="../../cell_flow/AiConfig/apiKey.html">apiKey</a>, <a href="../../cell_flow/AiConfig/model.html">model</a>, <a href="../../cell_flow/AiConfig/timeout.html">timeout</a>, and <a href="../../cell_flow/AiConfig/extraBody.html">extraBody</a>.</p>
@@ -88,7 +88,7 @@ non-silent logger is created.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">HttpInterpreter toInterpreter({
-  HttpClient? client,
+  Object? client,
   TrafficLog? log,
 }) =&gt;
     HttpInterpreter(
@@ -96,7 +96,7 @@ non-silent logger is created.</li>
       apiKey: apiKey,
       model: model,
       timeout: timeout,
-      client: client,
+      client: client as dynamic,
       log: log,
       extraBody: extraBody,
     );</code></pre>
@@ -127,7 +127,7 @@ non-silent logger is created.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

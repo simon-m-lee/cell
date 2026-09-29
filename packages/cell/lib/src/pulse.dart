@@ -295,7 +295,8 @@ abstract interface class CollectivePulse<P>
 ///
 /// ### What a pulse carries
 /// - **[payload]**: the actual data (the signal's content).
-/// - **[type]**: a semantic tag for routing and filtering.
+/// - **[type]**: a semantic classification for routing and filtering. It is
+///   commonly a `String` tag, but may be any object (such as an enum).
 /// - **[priority]**: urgency (0‑100, higher = more urgent).
 /// - **[context]**: provenance — who sent it, why, with what clearance.
 /// - **[trace]**: a breadcrumb trail of transformations.
@@ -382,7 +383,8 @@ abstract interface class Pulse<P>
   ///
   /// ### Parameters:
   /// - [payload]: The data carried by the pulse.
-  /// - [type]: Optional semantic tag for routing.
+  /// - [type]: Optional semantic classification for routing. Commonly a
+  ///   `String` tag, but any object (such as an enum) may be supplied.
   /// - [source]: Optional originating cell.
   /// - [priority]: Urgency (defaults to [defaultPriority]).
   /// - [step]: Optional trace step (like an initial breadcrumb).
@@ -392,7 +394,7 @@ abstract interface class Pulse<P>
   /// final pulse = Pulse('Hello', type: 'message', priority: 60);
   /// ```
   factory Pulse(P? payload,
-          {String? type, Cell? source, int? priority, String? step}) =>
+          {dynamic type, Cell? source, int? priority, String? step}) =>
       _Pulse<P>(
           payload: payload,
           type: type,
@@ -785,7 +787,9 @@ abstract interface class Pulse<P>
   ///
   /// ### How it works
   /// The type is resolved by walking up the parent chain if not overridden.
-  /// It's a semantic tag that travels with the pulse.
+  /// It's a semantic tag that travels with the pulse. The value is [dynamic]:
+  /// most pulses use a `String` tag, but richer classifiers (for example an
+  /// enum such as a domain event type) are also supported.
   ///
   /// ### Example
   /// ```dart
@@ -799,7 +803,17 @@ abstract interface class Pulse<P>
   ///   // Handle email update
   /// }
   /// ```
-  String? get type;
+  ///
+  /// ### Example: non‑String classifier
+  /// ```dart
+  /// enum MailAction { update, archive }
+  ///
+  /// final pulse = Pulse<String>('New Email', type: MailAction.update);
+  /// if (pulse.type == MailAction.update) {
+  ///   // Handle email update
+  /// }
+  /// ```
+  dynamic get type;
 
   /// The execution priority of this pulse (0‑100, higher = more urgent).
   ///

@@ -133,10 +133,10 @@ final handle = Flow.tapWithIndex&lt;Item&gt;(
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle tapWithIndex&lt;S&gt;(
-    Cell source, {
-      required void Function(S value, int index) onValue,
-      TapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required void Function(S value, int index) onValue,
+  TapErrorHandler? onError,
+}) {
   return TapWithIndex&lt;S&gt;(onValue, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>
@@ -166,7 +166,7 @@ final handle = Flow.tapWithIndex&lt;Item&gt;(
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

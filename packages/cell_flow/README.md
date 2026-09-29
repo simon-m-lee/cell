@@ -1,12 +1,14 @@
 # cell_flow
 
-**Codename: Mitosis** · `1.0.0-rc.6`
+**Codename: Mitosis** · `1.0.0-rc.7`
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/LICENSE)
-[![Status](https://img.shields.io/badge/Status-RC5-yellow.svg)](#status)
+[![Status](https://img.shields.io/badge/Status-RC7-yellow.svg)](#status)
 
 **Rx-shaped operators for the [Cell](https://github.com/simon-m-lee/cell) framework.** Debounce, switchMap, zip, retry, buffer, and the complete reactive stream vocabulary — implemented as `FlowInstruction`s on the **same graph** as `package:cell`.
+
+> **Mitose pipeline — the umbrella feature.** The root repository ships an AI-executable pipeline that turns a business requirement into a working Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. An AI prompt agent follows [`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md); this package supplies the **Flow layer** rules via [`guide/HowTo-Mitose-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md). See the [root README](https://github.com/simon-m-lee/cell#readme).
 
 ---
 
@@ -18,8 +20,8 @@ Add both packages to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.5
-  cell_flow: ^1.0.0-rc.6
+  cell: ^1.0.0-rc.6
+  cell_flow: ^1.0.0-rc.7
 ```
 
 Import once in your Dart file:
@@ -412,12 +414,12 @@ dart run example/filter_data_quality_demo.dart
 
 | Package | Version      | Status |
 |---|--------------|---|
-| `cell` | `1.0.0-rc.5` | Release Candidate — on pub.dev |
-| `cell_flow` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
+| `cell` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
+| `cell_flow` | `1.0.0-rc.7` | Release Candidate — on pub.dev |
 
 **Mitosis** is the release codename (like an Android Studio animal). It is not part of the SemVer string. The stable release on pub.dev will be `1.0.0`.
 
-> ⚠️ **Status:** Release Candidate (RC4) — published to pub.dev. APIs may change before `1.0.0` stable. Verify behaviour against source.
+> ⚠️ **Status:** Release Candidate (RC7) — published to pub.dev. APIs may change before `1.0.0` stable. Verify behaviour against source.
 
 ---
 

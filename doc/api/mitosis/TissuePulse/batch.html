@@ -91,7 +91,7 @@ together as one atomic unit.</p>
 <li>The resulting event is a composite that can be iterated over.</li>
 </ul>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final batch = TissueEvent.batch([addEvent, removeEvent]);
+<pre class="language-dart"><code class="language-dart">final batch = TissuePulse.batch([addEvent, removeEvent]);
 </code></pre>
 </section>
 
@@ -112,8 +112,7 @@ together as one atomic unit.</p>
       onError,
   void Function(TissuePulse event, Cell cell, {String? message})? onProgress,
   FutureOr&lt;TissuePulse?&gt; Function(TissueReceptor receptor)? scrutinize,
-}) =&gt;
-    _CollectiveTissueEvent&lt;E&gt;(events);</code></pre>
+}) =&gt; _CollectiveTissueEvent&lt;E&gt;(events);</code></pre>
 </section>
 
 
@@ -141,7 +140,7 @@ together as one atomic unit.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

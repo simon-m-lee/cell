@@ -6,7 +6,7 @@ Usage (from the package root, e.g. packages/cell):
   python3 generate_test_verification.py
   python3 generate_test_verification.py --run-tests
   python3 generate_test_verification.py --coverage
-  python3 generate_test_verification.py --package-name cell --version 1.0.0-rc.2
+  python3 generate_test_verification.py --package-name cell --version 1.0.0-rc.7
 
 What is automatic
   - test file inventory (lines, size, test() / group() / async counts)

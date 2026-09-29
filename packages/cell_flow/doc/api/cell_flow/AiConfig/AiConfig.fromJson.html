@@ -116,7 +116,7 @@ wrong type.</p>
 <p>When this method is called via <a href="../../cell_flow/AiConfig/fromJsonFile.html">fromJsonFile</a> or
 <code>AiTissueCommand.fromConfig(...)</code>, the resulting interpreter
 reads <strong>only</strong> the values in this JSON. It does not consult
-<code>Platform.environment</code> and it does not merge with
+<code>platformEnvironment</code> and it does not merge with
 <code>AI_ENDPOINT</code>, <code>AI_API_KEY</code>, or <code>AI_MODEL</code>.</p>
 </section>
 
@@ -129,8 +129,8 @@ reads <strong>only</strong> the values in this JSON. It does not consult
   if (endpoint is! String || endpoint.isEmpty) {
     throw const FormatException(
       &#39;AiConfig: &quot;endpoint&quot; is required and must be a non-empty &#39;
-          &#39;String. No env-var fallback is performed when a config is &#39;
-          &#39;supplied.&#39;,
+      &#39;String. No env-var fallback is performed when a config is &#39;
+      &#39;supplied.&#39;,
     );
   }
 
@@ -138,8 +138,8 @@ reads <strong>only</strong> the values in this JSON. It does not consult
   if (apiKey is! String || apiKey.isEmpty) {
     throw const FormatException(
       &#39;AiConfig: &quot;apiKey&quot; is required and must be a non-empty &#39;
-          &#39;String. No env-var fallback is performed when a config is &#39;
-          &#39;supplied.&#39;,
+      &#39;String. No env-var fallback is performed when a config is &#39;
+      &#39;supplied.&#39;,
     );
   }
 
@@ -147,8 +147,8 @@ reads <strong>only</strong> the values in this JSON. It does not consult
   if (model is! String || model.isEmpty) {
     throw const FormatException(
       &#39;AiConfig: &quot;model&quot; is required and must be a non-empty &#39;
-          &#39;String. No env-var fallback is performed when a config is &#39;
-          &#39;supplied.&#39;,
+      &#39;String. No env-var fallback is performed when a config is &#39;
+      &#39;supplied.&#39;,
     );
   }
 
@@ -197,7 +197,7 @@ reads <strong>only</strong> the values in this JSON. It does not consult
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

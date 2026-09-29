@@ -44,7 +44,8 @@
 /// When you mutate a tissue (e.g., `list.add(42)`), the operation:
 /// 1. Passes through the [TestTissue] validation gate.
 /// 2. Is applied atomically to the physical storage.
-/// 3. Emits a [TissuePulse] (e.g., `ElementAddedEvent`).
+/// 3. Emits a [TissuePulse] (e.g., one classified as
+///    [Tissue.elementAdded]).
 /// 4. Propagates the event through the collection’s [Synapses] to all
 ///    downstream observers.
 ///
@@ -82,7 +83,7 @@
 ///
 /// // Observe additions
 /// tasks.listen((event) {
-///   if (event is ElementAddedEvent<Task>) {
+///   if (event.type == TissueEvent.elementAdded) {
 ///     print('Added: ${event.payload.title}');
 ///   }
 /// });

@@ -113,7 +113,7 @@ print(set.length); // 1
 
 // Listen for changes
 set.listen((event) {
-  if (event is ElementAddedEvent&lt;String&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload}');
   }
 });
@@ -1303,7 +1303,7 @@ reactive DNA and storage mechanics.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.6
+      1.0.0-rc.7
   </span>
   
 </footer>

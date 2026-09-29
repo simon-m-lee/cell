@@ -385,7 +385,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
 ///
 /// // Listen for changes
 /// list.listen((event) {
-///   if (event is ElementAddedEvent<String>) {
+///   if (event.type == Tissue.elementAdded) {
 ///     print('Added: ${event.payload}');
 ///   }
 /// });
@@ -664,8 +664,8 @@ abstract interface class TissueList<E> implements Tissue<E>, List<E> {
   /// ### How it works
   /// - It calls `apply` with the `setValueAt` function and the arguments.
   /// - The mutation is validated by `testRule.action` and `testRule.element`.
-  /// - If successful, it emits an `ElementAddedEvent` (since this is an update,
-  ///   it's treated as a replacement).
+  /// - If successful, it emits a [Tissue.elementAdded] pulse (since this
+  ///   is an update, it's treated as a replacement).
   ///
   /// ### Throws
   /// - [RangeError] if [index] is out of bounds.

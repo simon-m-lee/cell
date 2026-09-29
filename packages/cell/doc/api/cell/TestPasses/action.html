@@ -153,8 +153,10 @@ print(authorized); // true or false
   <pre class="language-dart"><code class="language-dart">@override
 FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arguments}) {
   final elements = [
-    if (arguments?.positionalArguments != null) ...arguments!.positionalArguments!,
-    if (arguments?.namedArguments != null) ...arguments!.namedArguments!.values,
+    if (arguments?.positionalArguments != null)
+      ...arguments!.positionalArguments!,
+    if (arguments?.namedArguments != null)
+      ...arguments!.namedArguments!.values,
   ];
   _checkArguments(elements, 0, host, action);
   return _checkActionRules(action, host, arguments);
@@ -186,7 +188,7 @@ FutureOr&lt;bool&gt; action(Function action, {required Cell host, Arguments? arg
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

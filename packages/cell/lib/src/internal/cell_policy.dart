@@ -365,72 +365,16 @@ class EphemeralPolicy<C extends Cell> {
         (user != null ? 4 : 0));
 
     return switch (mask) {
-      0 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>()
-        ),
-      1 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          eventLimit: eventLimit
-        ),
-      2 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          duration: duration
-        ),
-      3 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          eventLimit: eventLimit,
-          duration: duration
-        ),
-      4 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          user: user
-        ),
-      5 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          eventLimit: eventLimit,
-          user: user
-        ),
-      6 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          duration: duration,
-          user: user
-        ),
-      7 => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>(),
-          eventLimit: eventLimit,
-          duration: duration,
-          user: user
-        ),
-      _ => (
-          onEvent: onEvent,
-          onInvalidate: onInvalidate,
-          invalidated: FinalBox<bool>(),
-          events: Box<int>()
-        )
+      0 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>()),
+      1 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit),
+      2 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), duration: duration),
+      3 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, duration: duration),
+      4 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), user: user),
+      5 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, user: user),
+      6 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), duration: duration, user: user),
+      7 => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>(), eventLimit: eventLimit, duration: duration, user: user),
+      _ => (onEvent: onEvent, onInvalidate: onInvalidate, invalidated: FinalBox<bool>(), events: Box<int>())
     };
   }
+
 }

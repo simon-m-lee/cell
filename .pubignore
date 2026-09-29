@@ -9,3 +9,4 @@ pubspec.lock
 /guide/**
 /END_GAME_PREDICTION/**
 /test/**
+/tool/**

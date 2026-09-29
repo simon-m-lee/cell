@@ -144,22 +144,26 @@ inheritance.</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">NucleusBase.evolve({
   EphemeralPolicy? ephemeralPolicy,
-
   Cell? bind,
   Context? context,
   Receptor? receptor,
   TestCell? testRule,
   Synapses? synapses,
   Record? user,
-
   Nucleus? override,
   required Nucleus principal
 }) : this.fromRecord((
-    local: (override as NucleusBase?)?.record.local ?? NucleusBase.mask(bind: bind,
-        context: context,
-        receptor: receptor, testRule: testRule, synapses: synapses, user: user, ephemeralPolicy: ephemeralPolicy),
-    principal: principal
-));</code></pre>
+        local: (override as NucleusBase?)?.record.local ??
+            NucleusBase.mask(
+                bind: bind,
+                context: context,
+                receptor: receptor,
+                testRule: testRule,
+                synapses: synapses,
+                user: user,
+                ephemeralPolicy: ephemeralPolicy),
+        principal: principal
+      ));</code></pre>
 </section>
 
 
@@ -187,7 +191,7 @@ inheritance.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

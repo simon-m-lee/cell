@@ -84,7 +84,7 @@ final validated = TissueValue&lt;String&gt;(
 <li>Internally, it uses a <a href="../cell_tissue/TissueValueNucleus-class.html">TissueValueNucleus</a> to govern behaviour and a
 <a href="../cell_tissue/ValueContainer-class.html">ValueContainer</a> for physical storage.</li>
 <li>Every mutation (e.g., <code>value = ...</code>, <code>set(...)</code>) goes through a validation
-pipeline (<code>testRule</code>) and emits a <a href="../cell_tissue/ElementUpdated-class.html">ElementUpdated</a>.</li>
+pipeline (<code>testRule</code>) and emits a <a href="../cell_tissue/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a>.</li>
 <li>The value is thread‑safe via its internal <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
 <li>It can be <strong>deputised</strong> to create restricted views (read‑only, scoped
 authority, etc.) that share the same storage.</li>
@@ -111,7 +111,7 @@ print(counter.value); // 1
 
 // Listen for changes
 counter.listen((event) {
-  if (event is ValueChangeEvent&lt;ValueChangedRecord&lt;int&gt;&gt;) {
+  if (event.type == Tissue.elementUpdated) {
     final record = event.payload!;
     print('Changed from ${record.before} to ${record.after}');
   }
@@ -147,7 +147,7 @@ final uiView = source.deputy(testRule: TestTissue.readOnly);
 <li><a href="../cell_tissue/Tissue-class.html">Tissue</a> – the base interface for all reactive collections.</li>
 <li><a href="../cell_tissue/TissueValueNucleus-class.html">TissueValueNucleus</a> – the blueprint and configuration for the value.</li>
 <li><a href="../cell_tissue/UnmodifiableTissueValue-class.html">UnmodifiableTissueValue</a> – a read‑only deputy variant.</li>
-<li><a href="../cell_tissue/ElementUpdated-class.html">ElementUpdated</a> – the event emitted on value changes.</li>
+<li><a href="../cell_tissue/Tissue/elementUpdated-constant.html">Tissue.elementUpdated</a> – the event emitted on value changes.</li>
 </ul>
 </section>
 
@@ -1173,7 +1173,7 @@ reactive value with explicit control over its behavioural and structural bluepri
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.6
+      1.0.0-rc.7
   </span>
   
 </footer>

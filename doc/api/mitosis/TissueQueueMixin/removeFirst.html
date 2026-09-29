@@ -80,7 +80,7 @@ E removeFirst() {
   if (result == null) {
     throw UnsupportedError(&#39;Unmodifiable operation&#39;);
   }
-  return (result as ElementRemoved&lt;E&gt;).payload as E;
+  return result as E;
 }</code></pre>
 </section>
 
@@ -109,7 +109,7 @@ E removeFirst() {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

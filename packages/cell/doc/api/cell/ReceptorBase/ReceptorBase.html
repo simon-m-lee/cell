@@ -133,9 +133,14 @@ Use <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> for asynchro
   Pulse? Function(Pulse pulse, C host, {dynamic user})? reaction,
   void Function()? init,
   dynamic Function()? user,
-}) : this.fromRecord(record: mask(instruction: instruction, preProcess: preProcess, postProcess: postProcess,
-    reaction: reaction, user: user, init: init)
-);</code></pre>
+}) : this.fromRecord(
+          record: mask(
+              instruction: instruction,
+              preProcess: preProcess,
+              postProcess: postProcess,
+              reaction: reaction,
+              user: user,
+              init: init));</code></pre>
 </section>
 
 
@@ -163,7 +168,7 @@ Use <a href="../../cell/ReceptorAsync-class.html">ReceptorAsync</a> for asynchro
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

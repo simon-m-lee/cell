@@ -57,7 +57,7 @@
       <span class="name ">PulseBase&lt;<wbr><span class="type-parameter">P</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../../cell/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
 <li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="-param-payload"><span class="type-annotation">P?</span> <span class="parameter-name">payload</span>, </span></li>
-<li><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="-param-type"><span class="type-annotation">dynamic</span> <span class="parameter-name">type</span>, </span></li>
 <li><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span></li>
 <li><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../../cell/Cell-class.html">Cell</a>?</span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
@@ -78,49 +78,41 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">PulseBase({
-  PulseEphemeralPolicy? policy,
-  PulseContext? context,
+  <pre class="language-dart"><code class="language-dart">PulseBase(
+    {PulseEphemeralPolicy? policy,
+    PulseContext? context,
+    P? payload,
+    dynamic type,
+    DateTime? timestamp,
+    Cell? source,
+    String? step,
+    int? priority,
+    Function? onComplete, &#47;&#47; void Function(Pulse pulse)? onComplete,
+    Function?
+        onError, &#47;&#47; void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
+    Function?
+        onProgress, &#47;&#47; void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
 
-  P? payload,
-  String? type,
-  DateTime? timestamp,
-  Cell? source,
-  String? step,
-  int? priority,
-
-  Function? onComplete, &#47;&#47; void Function(Pulse pulse)? onComplete,
-  Function? onError, &#47;&#47; void Function(Pulse pulse, Object error, {StackTrace? stackTrace})? onError,
-  Function? onProgress, &#47;&#47; void Function(Pulse pulse, Cell cell, {String? message})? onProgress,
-
-  Pulse? pulse,
-  Pulse? parent,
-
-  FutureOr&lt;Pulse?&gt; Function(Receptor receptor)? scrutinize,
-  dynamic user
-}) : _record = mask(
-        policy: policy,
-        context: context,
-
-        payload: payload,
-        type: type,
-        timestamp: timestamp ?? DateTime.now(),
-
-        source: source,
-        step: step,
-        priority: priority,
-
-        onComplete: onComplete,
-        onError: onError,
-        onProgress: onProgress,
-
-        pulse: pulse,
-        parent: parent,
-
-        scrutinize: scrutinize,
-
-        user: user
-      );</code></pre>
+    Pulse? pulse,
+    Pulse? parent,
+    FutureOr&lt;Pulse?&gt; Function(Receptor receptor)? scrutinize,
+    dynamic user})
+    : _record = mask(
+          policy: policy,
+          context: context,
+          payload: payload,
+          type: type,
+          timestamp: timestamp ?? DateTime.now(),
+          source: source,
+          step: step,
+          priority: priority,
+          onComplete: onComplete,
+          onError: onError,
+          onProgress: onProgress,
+          pulse: pulse,
+          parent: parent,
+          scrutinize: scrutinize,
+          user: user);</code></pre>
 </section>
 
 
@@ -148,7 +140,7 @@
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.4
+      1.0.0-rc.6
   </span>
   
 </footer>

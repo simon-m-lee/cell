@@ -92,12 +92,12 @@ accepting the next.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncFoldExhaust&lt;S, A&gt;(
-    Cell source, {
-      required A seed,
-      required FutureOr&lt;A&gt; Function(A acc, S value) accumulate,
-      FoldSnapshot&lt;A&gt;? snapshot,
-      FoldErrorHandler? onError,
-    }) {
+  Cell source, {
+  required A seed,
+  required FutureOr&lt;A&gt; Function(A acc, S value) accumulate,
+  FoldSnapshot&lt;A&gt;? snapshot,
+  FoldErrorHandler? onError,
+}) {
   return AsyncFoldExhaust&lt;S, A&gt;(
     seed,
     accumulate,
@@ -132,7 +132,7 @@ accepting the next.</li>
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

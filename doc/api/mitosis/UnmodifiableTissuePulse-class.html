@@ -88,7 +88,8 @@ projections of each sub‑event.</li>
 <li>The unmodifiable view is still iterable – you can loop over it.</li>
 </ul>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final event = ElementAddedEvent&lt;int&gt;(payload: 42);
+<pre class="language-dart"><code class="language-dart">final list = TissueList.of([1]);
+final event = list.apply(list.add, positionalArguments: [42]);
 final readOnly = event.unmodifiable;
 
 // readOnly.evolve(step: 'new'); // throws UnsupportedError
@@ -401,7 +402,7 @@ print(readOnly.payload); // 42 (safe to read)
 
         <dt id="type" class="property inherited">
   <span class="name"><a href="../mitosis/Pulse/type.html">type</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
@@ -1048,7 +1049,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

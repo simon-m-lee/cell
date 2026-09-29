@@ -534,7 +534,7 @@ class _TissueValue<V, C extends TissueValue<V>> extends TissueValueBase<V, C> {
 /// - Every change to the value is:
 ///   1. Validated against the [TestTissue] rules.
 ///   2. Applied atomically to the [ValueContainer].
-///   3. Dispatched as a [ElementUpdated] to all observers.
+///   3. Dispatched as a [Tissue.elementUpdated] to all observers.
 /// - The underlying storage is a [ValueContainer<V>] (a single‑value holder).
 ///
 /// ### Non‑obvious
@@ -880,7 +880,8 @@ abstract class UnmodifiableTissueValueBase<V, C extends TissueValue<V>>
   /// 3. **Deep immutability (`unmodifiableElement`)**: If this flag is `true`
   ///    and the [value] is itself a [Cell], it calls `_nucleus.synapses.link`
   ///    to establish a reactive dependency. This ensures that when the inner
-  ///    cell changes, this view (and its observers) receive a `ValueChangedEvent`.
+  ///    cell changes, this view (and its observers) receive a
+  ///    [Tissue.elementUpdated] pulse.
   /// 4. **Lazy container resolution**: The container is resolved via a helper
   ///    (`get`) that walks up the principal chain if needed. This means the
   ///    view shares the same physical storage as its source – **zero‑copy**.
@@ -1050,14 +1051,14 @@ abstract class UnmodifiableTissueValueBase<V, C extends TissueValue<V>>
 /// - The `set` method routes the mutation through the `apply` gateway, which
 ///   validates the action and calls the private `_set` method.
 /// - `_set` updates the container, manages links (if the value is a [Cell]),
-///   and dispatches a [ElementUpdated] via the receptor.
+///   and dispatches a [Tissue.elementUpdated] via the receptor.
 ///
 /// ### Non‑obvious
 /// - The mixin does **not** hold any state itself – all state is in the nucleus.
 /// - If the host class is [Unmodifiable], the `value` setter and `set` method
 ///   are bypassed (the host's `modifiable` is empty), so the mutation logic
 ///   is never reached.
-/// - The `_set` method returns a [ElementUpdated] or `null`; the caller
+/// - The `_set` method returns a [Tissue.elementUpdated] or `null`; the caller
 ///   (usually `apply`) decides whether to dispatch it.
 /// - Comparison operators (`<`, `>`, `<=`) only work for numeric values.
 mixin TissueValueMixin<V, C extends TissueValue<V>>
@@ -1110,7 +1111,7 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
   ///
   /// This method is called by `apply` after validation. It updates the
   /// underlying container, manages links (if the value is a [Cell]), and
-  /// creates a [ElementUpdated].
+  /// creates a [Tissue.elementUpdated].
   ///
   /// ### Parameters:
   /// - [v]: The new value.
@@ -1118,11 +1119,10 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
   /// - [deputy]: The tissue that initiated the change (used for source tracking).
   ///
   /// ### Returns:
-  /// The [ElementUpdated] if the value was changed, or `null` otherwise.
+  /// The [Tissue.elementUpdated] if the value was changed, or `null` otherwise.
   @override
-  ElementUpdated<V, C>? _set(V? v,
-      {bool notification = true, Tissue<V>? deputy}) {
-    ElementUpdated<V, C>? event;
+  TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? _set(V? v, {bool notification = true, Tissue<V>? deputy}) {
+    TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? event;
 
     if (validate.action(set,
             host: this,
@@ -1141,11 +1141,11 @@ mixin TissueValueMixin<V, C extends TissueValue<V>>
             _nucleus.synapses.link(v, downstreamCell: this);
           }
 
-          event = ElementUpdated<V, C>._(source: deputy ?? this, payload: (
+          event = _TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>(source: deputy ?? this, payload: (
             value: (deputy ?? this) as C,
             before: before,
             after: v
-          ));
+          ), type: Tissue.elementUpdated);
           if (notification) {
             _nucleus.receptor(event);
           }

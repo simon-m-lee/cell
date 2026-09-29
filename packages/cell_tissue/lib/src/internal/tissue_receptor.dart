@@ -304,7 +304,7 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
     if (isActivated) {
       PulseBase? out = pulse;
 
-      if (pulse is TissueEventBase) {
+      if (pulse is TissuePulseBase) {
         out = _tissueStack<E>(tissue: cell, event: pulse) ?? pulse;
       }
 
@@ -332,9 +332,9 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
 /// 2. If the event came from a different source (typically the `bind`
 ///    principal), the mixin applies the structural deltas to the local
 ///    [TissueContainer]:
-///    - [ElementAdded] → adds the element(s) to the local container.
-///    - [ElementRemoved] → removes the element(s) from the local container.
-///    - [ElementUpdated] → updates the value in the local container.
+///    - [Tissue.elementAdded] → adds the element(s) to the local container.
+///    - [Tissue.elementRemoved] → removes the element(s) from the local container.
+///    - [Tissue.elementUpdated] → updates the value in the local container.
 /// 3. The mixin recursively flattens [CollectiveTissuePulse]s and follows
 ///    [EvolvedTissuePulse] chains, processing every nested event.
 /// 4. If some operations fail (e.g., due to validation rules or capacity
@@ -359,7 +359,9 @@ abstract class TissueReceptorBase<E, C extends Tissue<E>>
 /// ### Example (internal flow)
 /// ```dart
 /// // The principal emits an event
-/// final principalEvent = ElementAddedEvent<int>(payload: 42);
+/// final principalList = TissueList.of([1]);
+/// final principalEvent =
+///     principalList.apply(principalList.add, positionalArguments: [42]);
 ///
 /// // The deputy's receptor receives it and calls the sync engine
 /// final syncResult = _tissueStack(tissue: deputy, event: principalEvent);
@@ -385,9 +387,9 @@ mixin _TissueReceptorBaseStack {
   /// - Otherwise, it iterates through the event's structure. For collectives,
   ///   it flattens them; for evolved chains, it follows the parent links to
   ///   reach the actual delta event.
-  /// - For each delta (`ElementAdded`, `ElementRemoved`, `ValueChanged`), it
-  ///   attempts to apply it to the container using `container.add` or
-  ///   `container.remove`.
+  /// - For each delta ([Tissue.elementAdded], [Tissue.elementRemoved],
+  ///   [Tissue.elementUpdated]), it attempts to apply it to the container
+  ///   using `container.add` or `container.remove`.
   /// - If any operation fails (e.g., the element already exists, or validation
   ///   rejects it), it sets the `partial` flag.
   /// - Finally, it returns:
@@ -402,21 +404,19 @@ mixin _TissueReceptorBaseStack {
   /// - [event]: The incoming structural event from the principal.
   ///
   /// ### Returns:
-  /// A [TissueEventBase] representing the changes that were actually applied
+  /// A [TissuePulseBase] representing the changes that were actually applied
   /// to the local container, or `null` if no changes were applied.
   ///
   /// ### Example (internal)
   /// ```dart
   /// // A deputy receives a batch of changes from its principal
-  /// final batch = CollectiveTissueEvent.from([add1, add2, remove1]);
+  /// final batch = CollectiveTissuePulse.from([add1, add2, remove1]);
   /// final result = _tissueStack(tissue: deputy, event: batch);
   /// // If add2 fails validation, result will be a partial batch containing
   /// // only add1 and remove1.
   /// ```
-  TissueEventBase? _tissueStack<E>(
-      {required covariant Tissue tissue,
-      required covariant TissueEventBase event}) {
-    TissueEventBase? out;
+  TissuePulseBase? _tissueStack<E>({required covariant Tissue tissue, required covariant TissuePulseBase event}) {
+    TissuePulseBase? out;
 
     out = tissue is Unmodifiable ? event.unmodifiable : event;
 
@@ -429,23 +429,23 @@ mixin _TissueReceptorBaseStack {
       void process(TissuePulse event) {
         final payload = event.payload;
 
-        if (event is ElementAdded<E>) {
-          if (payload != null) {
+        if (event.type == Tissue.elementAdded) {
+          if (payload != null && event is TissuePulse<E>) {
             if (container.add(tissue, payload)) {
               (events ??= <TissuePulse<E>>[]).add(event);
             } else {
               partial = true;
             }
           }
-        } else if (event is ElementRemoved<E>) {
-          if (payload != null) {
+        } else if (event.type == Tissue.elementRemoved) {
+          if (payload != null && event is TissuePulse<E>) {
             if (container.remove(tissue, payload)) {
               (events ??= <TissuePulse<E>>[]).add(event);
             } else {
               partial = true;
             }
           }
-        } else if (event is ElementUpdated) {
+        } else if (event.type == Tissue.elementUpdated) {
           if (payload is ElementUpdatedRecord) {
             final e = payload.value;
             if (container.contains(payload.value)) {
@@ -453,7 +453,7 @@ mixin _TissueReceptorBaseStack {
             } else {
               if (container.add(tissue, e)) {
                 (events ??= <TissuePulse<E>>[])
-                    .add(ElementAdded<E>._(payload: e as E));
+                    .add(_TissuePulse<E>(payload: e as E, type: Tissue.elementAdded));
               } else {
                 partial = true;
               }
@@ -480,9 +480,9 @@ mixin _TissueReceptorBaseStack {
           return null;
         }
         if (applied.length == 1) {
-          return applied.first as TissueEventBase;
+          return applied.first as TissuePulseBase;
         }
-        return TissuePulse.batch<E>(applied) as TissueEventBase;
+        return TissuePulse.batch<E>(applied) as TissuePulseBase;
       }
       return event;
     }

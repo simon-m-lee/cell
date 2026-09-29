@@ -89,7 +89,8 @@ projections of each sub‑event.</li>
 the projection in a defensive shell.</li>
 </ul>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final event = ElementAddedEvent&lt;int&gt;(payload: 42);
+<pre class="language-dart"><code class="language-dart">final list = TissueList.of([1]);
+final event = list.apply(list.add, positionalArguments: [42]);
 final readOnly = event.unmodifiable;
 
 // readOnly.evolve(step: 'new'); // creates a NEW event, doesn't mutate
@@ -116,7 +117,7 @@ print(readOnly.payload); // 42 (safe to read)
   <dd>
     <ul class="comma-separated clazz-relationships">
         <li><a href="../mitosis/UnmodifiableTissuePulse-class.html">UnmodifiableTissuePulse</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></li>
-        <li><a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></li>
+        <li><a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></li>
     </ul>
   </dd>
         
@@ -139,7 +140,7 @@ print(readOnly.payload); // 42 (safe to read)
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="UnmodifiableTissueEventBase.new" class="callable">
-          <span class="name"><a href="../mitosis/UnmodifiableTissueEventBase/UnmodifiableTissueEventBase.html">UnmodifiableTissueEventBase</a></span><span class="signature">(<span class="parameter" id="-param-source"><span class="type-annotation"><a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">source</span></span>)</span>
+          <span class="name"><a href="../mitosis/UnmodifiableTissueEventBase/UnmodifiableTissueEventBase.html">UnmodifiableTissueEventBase</a></span><span class="signature">(<span class="parameter" id="-param-source"><span class="type-annotation"><a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span> <span class="parameter-name">source</span></span>)</span>
         </dt>
         <dd>
           Creates an unmodifiable projection of the given <code>source</code> event.
@@ -322,7 +323,7 @@ print(readOnly.payload); // 42 (safe to read)
 
         <dt id="root" class="property">
   <span class="name"><a href="../mitosis/UnmodifiableTissueEventBase/root.html">root</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
   
 
 </dt>
@@ -406,19 +407,19 @@ print(readOnly.payload); // 42 (safe to read)
 
         <dt id="type" class="property inherited">
   <span class="name"><a href="../mitosis/UnmodifiablePulseBase/type.html">type</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  <span class="signature">&#8594; dynamic</span>
   
 
 </dt>
 <dd class="inherited">
-  Semantic type tag for pattern matching and routing.
+  Semantic type classification for pattern matching and routing.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="unmodifiable" class="property">
   <span class="name"><a href="../mitosis/UnmodifiableTissueEventBase/unmodifiable.html">unmodifiable</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
   
 
 </dt>
@@ -961,7 +962,7 @@ predicate <code>test</code>.
 
         <dt id="withStep" class="callable">
   <span class="name"><a href="../mitosis/UnmodifiableTissueEventBase/withStep.html">withStep</a></span><span class="signature">(<wbr><span class="parameter" id="withStep-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">step</span></span>)
-    <span class="returntype parameter">&#8594; <a href="../mitosis/TissueEventBase-class.html">TissueEventBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
+    <span class="returntype parameter">&#8594; <a href="../mitosis/TissuePulseBase-class.html">TissuePulseBase</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>
   </span>
   
 
@@ -1053,7 +1054,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

@@ -3,3 +3,5 @@
 .dart_tool/
 coverage/
 *.vm.json
+
+test/

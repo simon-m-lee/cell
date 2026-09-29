@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
+## [Mitosis (1.0.0-rc.7)] - Release Candidate
+
+Docs release for the umbrella **Mitose pipeline**. No public API changes.
+
+### Docs
+
+- **Mitose pipeline**: Added a prominent README callout for the umbrella **Mitose pipeline** — the AI-executable orchestration in the root [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide) that turns a business requirement into a Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. This package contributes the **Flow-layer** rules via [`guide/HowTo-Mitose-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md).
+
+[Mitosis (1.0.0-rc.7)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
 ## [Mitosis (1.0.0-rc.6)] - Release Candidate
 
 Pub.dev WASM-compatibility release. No public API changes.

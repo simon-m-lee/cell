@@ -92,7 +92,7 @@ events in the batch.</li>
 event are used. The <code>scrutinize</code> parameter allows you to provide a custom
 authentication challenge for the batch.</p>
 <h3 id="example">Example</h3>
-<pre class="language-dart"><code class="language-dart">final batch = CollectiveTissueEvent.governed(
+<pre class="language-dart"><code class="language-dart">final batch = CollectiveTissuePulse.governed(
   [addEvent, removeEvent],
   type: 'admin_batch',
   context: PulseContext(actor: 'admin'),
@@ -147,7 +147,7 @@ authentication challenge for the batch.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

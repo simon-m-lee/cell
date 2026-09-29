@@ -108,7 +108,8 @@ behaviour.</li>
 <ol>
 <li>Passes through the <a href="../cell_tissue/TestTissue-class.html">TestTissue</a> validation gate.</li>
 <li>Is applied atomically to the physical storage under a <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>.</li>
-<li>Emits a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> (e.g., <code>ElementAddedEvent</code>).</li>
+<li>Emits a <a href="../cell_tissue/TissuePulse-class.html">TissuePulse</a> (e.g., one classified as
+<a href="../cell_tissue/Tissue/elementAdded-constant.html">Tissue.elementAdded</a>).</li>
 <li>Propagates the event through the collection's <a href="../cell_tissue/Synapses-class.html">Synapses</a> to all
 downstream observers.</li>
 </ol>
@@ -149,7 +150,7 @@ tasks.</li>
 
 // Observe additions
 tasks.listen((event) {
-  if (event is ElementAddedEvent&lt;Task&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload.title}');
   }
 });
@@ -1122,6 +1123,59 @@ its internal implementation types and storage.
   </section>
     
 
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="elementAdded" class="constant">
+    <span class="name "><a href="../cell_tissue/Tissue/elementAdded-constant.html">elementAdded</a></span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+  
+
+</dt>
+<dd>
+  An element has been added to the collection.
+  
+
+</dd>
+
+        <dt id="elementRemoved" class="constant">
+    <span class="name "><a href="../cell_tissue/Tissue/elementRemoved-constant.html">elementRemoved</a></span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+  
+
+</dt>
+<dd>
+  An element has been removed from the collection.
+  
+
+</dd>
+
+        <dt id="elementUpdated" class="constant">
+    <span class="name "><a href="../cell_tissue/Tissue/elementUpdated-constant.html">elementUpdated</a></span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+  
+
+</dt>
+<dd>
+  A scalar value or state property has changed.
+  
+
+</dd>
+
+        <dt id="entryUpdated" class="constant">
+    <span class="name "><a href="../cell_tissue/Tissue/entryUpdated-constant.html">entryUpdated</a></span>
+  <span class="signature">&#8594; const <a href="../cell_tissue/TissueEvent-class.html">TissueEvent</a></span>
+  
+
+</dt>
+<dd>
+  A key-value association has been updated in a map collection.
+  
+
+</dd>
+
+    </dl>
+  </section>
   </div> <!-- /.main-content -->
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -1145,7 +1199,7 @@ its internal implementation types and storage.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.6
+      1.0.0-rc.7
   </span>
   
 </footer>

@@ -362,7 +362,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - Internally, it uses a [TissueValueNucleus] to govern behaviour and a
 ///   [ValueContainer] for physical storage.
 /// - Every mutation (e.g., `value = ...`, `set(...)`) goes through a validation
-///   pipeline ([testRule]) and emits a [ElementUpdated].
+///   pipeline ([testRule]) and emits a [Tissue.elementUpdated].
 /// - The value is thread‑safe via its internal [Lock].
 /// - It can be **deputised** to create restricted views (read‑only, scoped
 ///   authority, etc.) that share the same storage.
@@ -389,7 +389,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 ///
 /// // Listen for changes
 /// counter.listen((event) {
-///   if (event is ValueChangeEvent<ValueChangedRecord<int>>) {
+///   if (event.type == Tissue.elementUpdated) {
 ///     final record = event.payload!;
 ///     print('Changed from ${record.before} to ${record.after}');
 ///   }
@@ -430,7 +430,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
 /// - [Tissue] – the base interface for all reactive collections.
 /// - [TissueValueNucleus] – the blueprint and configuration for the value.
 /// - [UnmodifiableTissueValue] – a read‑only deputy variant.
-/// - [ElementUpdated] – the event emitted on value changes.
+/// - [Tissue.elementUpdated] – the event emitted on value changes.
 abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// Provides access to the configuration properties of this `TissueValue`.
   ///
@@ -751,7 +751,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// - The `newValue` is submitted to the [TestTissue] ruleset.
   /// - If the value is valid and different, it is written to the [ValueContainer].
   /// - If the value is a [Cell], the framework manages the synapse wiring.
-  /// - A [ElementUpdated] is dispatched to observers.
+  /// - A [Tissue.elementUpdated] is dispatched to observers.
   ///
   /// ### Non‑obvious
   /// - If the new value is identical to the current value (by `==`), the
@@ -803,7 +803,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   bool set(V? value);
 
   // ignore: unused_element_parameter (notification and deputy are used by implementations)
-  ElementUpdated? _set(V? v, {bool notification = true, Tissue<V>? deputy});
+  TissuePulse<ElementUpdatedRecord<V, TissueValue<V>>>? _set(V? v, {bool notification = true, Tissue<V>? deputy});
 
   /// Returns a read‑only, reactive projection (Deputy) of this [TissueValue].
   ///

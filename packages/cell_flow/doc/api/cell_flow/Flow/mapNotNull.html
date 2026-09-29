@@ -134,10 +134,10 @@ input.emit(4); // -&gt; 4
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle mapNotNull&lt;S, T&gt;(
-    Cell source, {
-      required T? Function(S value) project,
-      MapErrorHandler? onError,
-    }) {
+  Cell source, {
+  required T? Function(S value) project,
+  MapErrorHandler? onError,
+}) {
   return MapNotNull&lt;S, T&gt;(project, onError: onError).toHandle(source: source);
 }</code></pre>
 </section>
@@ -167,7 +167,7 @@ input.emit(4); // -&gt; 4
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

@@ -1,7 +1,7 @@
 # cell_tissue — Feature Catalog
 
 **Package:** `cell_tissue`  
-**Version:** 1.0.0-rc.4  
+**Version:** 1.0.0-rc.7  
 **SDK:** Dart `>=3.5.0 <4.0.0`  
 **License:** MIT or Apache-2.0  
 **Author:** Lee Man Hoi Simon (see [`AUTHORS`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/AUTHORS))  

@@ -130,9 +130,9 @@ input.emit(4); // -&gt; 4
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle filter&lt;S&gt;(
-    Cell source, {
-      required bool Function(S value) test,
-    }) {
+  Cell source, {
+  required bool Function(S value) test,
+}) {
   return Filter&lt;S&gt;(test).toHandle(source: source);
 }</code></pre>
 </section>
@@ -162,7 +162,7 @@ input.emit(4); // -&gt; 4
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

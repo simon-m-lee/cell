@@ -113,7 +113,7 @@ print(set.length); // 1
 
 // Listen for changes
 set.listen((event) {
-  if (event is ElementAddedEvent&lt;String&gt;) {
+  if (event.type == Tissue.elementAdded) {
     print('Added: ${event.payload}');
   }
 });
@@ -1456,7 +1456,7 @@ reactive DNA and storage mechanics.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

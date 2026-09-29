@@ -57,7 +57,7 @@
       <span class="name ">TissueEventBase&lt;<wbr><span class="type-parameter">E</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-policy"><span class="type-annotation"><a href="../../cell_tissue/PulseEphemeralPolicy-class.html">PulseEphemeralPolicy</a>?</span> <span class="parameter-name">policy</span>, </span></li>
 <li><span class="parameter" id="-param-context"><span class="type-annotation"><a href="../../cell_tissue/PulseContext-class.html">PulseContext</a>?</span> <span class="parameter-name">context</span>, </span></li>
 <li><span class="parameter" id="-param-payload"><span class="type-annotation">E?</span> <span class="parameter-name">payload</span>, </span></li>
-<li><span class="parameter" id="-param-type"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">type</span>, </span></li>
+<li><span class="parameter" id="-param-type"><span class="type-annotation">dynamic</span> <span class="parameter-name">type</span>, </span></li>
 <li><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../../cell_tissue/Tissue-class.html">Tissue</a>?</span> <span class="parameter-name">source</span>, </span></li>
 <li><span class="parameter" id="-param-timestamp"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span> <span class="parameter-name">timestamp</span>, </span></li>
 <li><span class="parameter" id="-param-step"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">step</span>, </span></li>
@@ -75,8 +75,9 @@
 <section class="desc markdown">
   <p>Primary constructor for a tissue event.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>This is used by concrete event types (like <code>ElementAddedEvent</code>) to
-initialise their base fields. You don't call it directly.</p>
+<p>This is used by concrete tissue events (like the structural pulses
+emitted for <a href="../../cell_tissue/TissueEvent.html">TissueEvent.elementAdded</a>) to initialise their base fields.
+You don't call it directly.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>All parameters are optional and default to <code>null</code>. The framework
 uses bitmasking to store only non‑default values, minimising memory
@@ -107,7 +108,7 @@ authentication challenge to the event.</p>
     {PulseEphemeralPolicy? policy,
     PulseContext? context,
     E? payload,
-    String? type,
+    dynamic type,
     Tissue? source,
     DateTime? timestamp,
     String? step,
@@ -127,7 +128,10 @@ authentication challenge to the event.</p>
         policy: policy,
         context: context,
         payload: payload,
-        type: type,
+        &#47;&#47; [PulseBase.mask] only accepts a String? type tag, so a
+        &#47;&#47; [TissueEvent] classification is carried in the dynamic `user`
+        &#47;&#47; slot and surfaced through the overridden [type] getter below.
+        type: type is TissueEvent ? null : type,
         timestamp: timestamp,
         source: source,
         step: step,
@@ -138,7 +142,7 @@ authentication challenge to the event.</p>
         pulse: pulse,
         parent: parent,
         scrutinize: scrutinize,
-        user: user,
+        user: type is TissueEvent ? type : user,
       ));</code></pre>
 </section>
 

@@ -8,17 +8,15 @@ import 'package:test/test.dart';
 TissuePulse<int> addedEvent(TissueList<int> list, int value) =>
     list.apply(list.add, positionalArguments: [value]) as TissuePulse<int>;
 
-TissuePulse<int> removedEvent(TissueList<int> list, int value) {
-  final result = list.apply(list.remove, positionalArguments: [value]);
-  return (result as Iterable).first as TissuePulse<int>;
-}
+TissuePulse<int> removedEvent(TissueList<int> list, int value) =>
+    list.apply(list.remove, positionalArguments: [value]) as TissuePulse<int>;
 
-ElementUpdated<int, TissueValue<int>> updatedEvent(
+TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>> updatedEvent(
   TissueValue<int> value,
   int next,
 ) =>
     value.apply(value.set, positionalArguments: [next])
-        as ElementUpdated<int, TissueValue<int>>;
+        as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
 
 void main() {
   group('TissuePulse.batch and CollectiveTissuePulse', () {
@@ -292,29 +290,32 @@ void main() {
     });
   });
 
-  group('ElementAdded, ElementRemoved and ElementUpdated', () {
-    test('list add emits ElementAdded with payload', () {
+  group('TissueEvent classification', () {
+    test('list add emits elementAdded with payload', () {
       final list = TissueList.of([1]);
       final event = addedEvent(list, 2);
 
-      expect(event, isA<ElementAdded<int>>());
+      expect(event, isA<TissuePulse<int>>());
+      expect(event.type, Tissue.elementAdded);
       expect(event.payload, 2);
       expect(event.source, same(list));
     });
 
-    test('list remove emits ElementRemoved with payload', () {
+    test('list remove emits elementRemoved with payload', () {
       final list = TissueList.of([1, 2]);
       final event = removedEvent(list, 2);
 
-      expect(event, isA<ElementRemoved<int>>());
+      expect(event, isA<TissuePulse<int>>());
+      expect(event.type, Tissue.elementRemoved);
       expect(event.payload, 2);
     });
 
-    test('value set emits ElementUpdated record', () {
+    test('value set emits elementUpdated record', () {
       final value = TissueValue<int>(0);
       final event = updatedEvent(value, 42);
 
-      expect(event, isA<ElementUpdated<int, TissueValue<int>>>());
+      expect(event, isA<TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>>());
+      expect(event.type, Tissue.elementUpdated);
       expect(event.payload!.before, 0);
       expect(event.payload!.after, 42);
       expect(event.payload!.value, same(value));

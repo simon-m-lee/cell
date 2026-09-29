@@ -131,11 +131,11 @@ users.emit({'id': 2, 'name': 'Bob'});                  // -&gt; Unknown
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle pluckOr&lt;T&gt;(
-    Cell source, {
-      required Object key,
-      required T orElse,
-      PluckErrorHandler? onError,
-    }) {
+  Cell source, {
+  required Object key,
+  required T orElse,
+  PluckErrorHandler? onError,
+}) {
   return PluckOr&lt;T&gt;(key, orElse: orElse, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -166,7 +166,7 @@ users.emit({'id': 2, 'name': 'Bob'});                  // -&gt; Unknown
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

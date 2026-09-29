@@ -1,7 +1,7 @@
 # cell_flow package - Test Verification Report
 
-**Generated:** 2026-09-13
-**Package:** cell_flow (v1.0.0-rc.3)
+**Generated:** 2026-09-29
+**Package:** cell_flow (v1.0.0-rc.7)
 **Test Files Analyzed:** 43
 **Total Tests:** 1081 (0 skipped)
 
@@ -97,50 +97,50 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | ai_tissue_command_test.dart | 1,205 | 59 | 40.6 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
+| 1 | ai_tissue_command_test.dart | 1,200 | 59 | 40.2 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
 | 2 | async_expand_test.dart | 365 | 24 | 11.7 KB | async expand test; groups: AsyncExpand, AsyncExpandConcurrent, AsyncExpandLatest, AsyncExpandExhaust, edges, performance… |
 | 3 | async_fold_test.dart | 360 | 20 | 11.3 KB | async fold test; groups: AsyncFold snapshot, AsyncFoldLatest snapshot, AsyncFoldExhaust snapshot, edges, performance, AsyncFold extra… |
-| 4 | async_map_test.dart | 488 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
-| 5 | buffer_test.dart | 398 | 24 | 11.5 KB | buffer test; groups: BufferCount, BufferWithCount, BufferTime, BufferWhen, BufferWithPredicate, BufferWithTimeAndCount… |
-| 6 | combine_latest_test.dart | 273 | 13 | 8.2 KB | combine latest; groups: CombineLatestWith, CombineLatest, WithLatestFrom, CombineLatest2, CombineLatestWith extra, CombineLatest extra… |
-| 7 | concat_map_test.dart | 375 | 25 | 11.7 KB | concat map test; groups: ConcatMap, ConcatMapTo, ConcatMapLatest, ConcatMapFirst, ConcatMap extra, ConcatMapTo extra… |
-| 8 | concat_test.dart | 285 | 21 | 8.2 KB | concat test; groups: Concat, ConcatAll, ConcatFirst, ConcatLatest, edges, performance… |
-| 9 | debounce_test.dart | 310 | 21 | 10.7 KB | debounce test; groups: Debounce, DebounceLeading, DebounceLeadingOnly, DebounceWith, Debounce extra, DebounceLeading extra… |
-| 10 | delay_test.dart | 368 | 26 | 12.0 KB | delay test; groups: Delay, DelayWithSelector, DelayWhen, DelayLatest, DelayWithTrailing, DelayWithTimeout… |
-| 11 | distinct_test.dart | 356 | 23 | 11.1 KB | distinct test; groups: DistinctUntilChanged, DistinctUntilKeyChanged, Distinct, DistinctKey, DistinctUntilChanged extra, DistinctUntilKeyChanged extra… |
-| 12 | exhaust_map_test.dart | 368 | 24 | 11.8 KB | exhaust map test; groups: ExhaustMap, ExhaustMapTo, ExhaustAll, ExhaustMapFirst, ExhaustMapLatest, ExhaustMap extra… |
+| 4 | async_map_test.dart | 487 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
+| 5 | buffer_test.dart | 397 | 24 | 11.5 KB | buffer test; groups: BufferCount, BufferWithCount, BufferTime, BufferWhen, BufferWithPredicate, BufferWithTimeAndCount… |
+| 6 | combine_latest_test.dart | 272 | 13 | 8.2 KB | combine latest; groups: CombineLatestWith, CombineLatest, WithLatestFrom, CombineLatest2, CombineLatestWith extra, CombineLatest extra… |
+| 7 | concat_map_test.dart | 374 | 25 | 11.7 KB | concat map test; groups: ConcatMap, ConcatMapTo, ConcatMapLatest, ConcatMapFirst, ConcatMap extra, ConcatMapTo extra… |
+| 8 | concat_test.dart | 284 | 21 | 8.2 KB | concat test; groups: Concat, ConcatAll, ConcatFirst, ConcatLatest, edges, performance… |
+| 9 | debounce_test.dart | 312 | 21 | 10.7 KB | debounce test; groups: Debounce, DebounceLeading, DebounceLeadingOnly, DebounceWith, Debounce extra, DebounceLeading extra… |
+| 10 | delay_test.dart | 366 | 26 | 12.0 KB | delay test; groups: Delay, DelayWithSelector, DelayWhen, DelayLatest, DelayWithTrailing, DelayWithTimeout… |
+| 11 | distinct_test.dart | 355 | 23 | 11.1 KB | distinct test; groups: DistinctUntilChanged, DistinctUntilKeyChanged, Distinct, DistinctKey, DistinctUntilChanged extra, DistinctUntilKeyChanged extra… |
+| 12 | exhaust_map_test.dart | 369 | 24 | 11.9 KB | exhaust map test; groups: ExhaustMap, ExhaustMapTo, ExhaustAll, ExhaustMapFirst, ExhaustMapLatest, ExhaustMap extra… |
 | 13 | filter_test.dart | 474 | 31 | 15.1 KB | filter test; groups: Filter, FilterNotNull, FilterType, FilterAllowed / FilterBlocked, FilterByTime, AsyncFilter… |
-| 14 | flow_test.dart | 1,193 | 81 | 37.4 KB | flow test; groups: FlowHandle / toHandle, Flow create, Flow transform, Flow filter family, Flow flatten / combine, Flow time… |
-| 15 | fluent_operator_test.dart | 520 | 37 | 17.0 KB | fluent operator test; groups: CellFlowOperators, FlowOperators transform, FlowOperators async, FlowOperators filter family, FlowOperators flatten / combine, FlowOperators time / collect / control… |
-| 16 | from_future_test.dart | 573 | 37 | 18.1 KB | from future test; groups: FromFuture, DeferFuture, FromFutureOr, ConcatFromFuture, MergeFromFuture, SwitchFromFuture… |
+| 14 | flow_test.dart | 1,200 | 81 | 37.4 KB | flow test; groups: FlowHandle / toHandle, Flow create, Flow transform, Flow filter family, Flow flatten / combine, Flow time… |
+| 15 | fluent_operator_test.dart | 526 | 37 | 17.0 KB | fluent operator test; groups: CellFlowOperators, FlowOperators transform, FlowOperators async, FlowOperators filter family, FlowOperators flatten / combine, FlowOperators time / collect / control… |
+| 16 | from_future_test.dart | 572 | 37 | 18.1 KB | from future test; groups: FromFuture, DeferFuture, FromFutureOr, ConcatFromFuture, MergeFromFuture, SwitchFromFuture… |
 | 17 | from_stream_test.dart | 369 | 25 | 11.4 KB | from stream test; groups: FromStream, DeferStream, ConcatFromStream, MergeFromStream, SwitchFromStream, MapToStream… |
 | 18 | group_by_test.dart | 384 | 23 | 12.3 KB | group by test; groups: Grouped, GroupBy, GroupCollect, GroupByCount, GroupBy extra, GroupCollect extra… |
-| 19 | instruction_demo_test.dart | 104 | 39 | 5.5 KB | instruction demo test; groups: instruction demo mains emit through bodies |
-| 20 | interval_test.dart | 309 | 19 | 9.6 KB | interval test; groups: Interval, IntervalWithValue, IntervalWithState, TimerPulse, Interval extra, IntervalWithValue extra… |
-| 21 | map_test.dart | 503 | 35 | 15.2 KB | map test; groups: MapValue, MapTo, MapWithIndex, MapNotNull, MapWhen, MapValueIf… |
-| 22 | merge_map_test.dart | 320 | 20 | 9.7 KB | merge map test; groups: MergeMap, MergeMapTo, MergeScan, MergeMap extra, MergeMapTo extra, MergeScan extra… |
-| 23 | merge_test.dart | 297 | 19 | 9.2 KB | merge test; groups: MergeWith, Merge, MergeAll, MergeWith extra, Merge extra, MergeAll extra… |
+| 19 | instruction_demo_test.dart | 99 | 39 | 5.5 KB | instruction demo test; groups: instruction demo mains emit through bodies |
+| 20 | interval_test.dart | 308 | 19 | 9.6 KB | interval test; groups: Interval, IntervalWithValue, IntervalWithState, TimerPulse, Interval extra, IntervalWithValue extra… |
+| 21 | map_test.dart | 502 | 35 | 15.2 KB | map test; groups: MapValue, MapTo, MapWithIndex, MapNotNull, MapWhen, MapValueIf… |
+| 22 | merge_map_test.dart | 321 | 20 | 9.8 KB | merge map test; groups: MergeMap, MergeMapTo, MergeScan, MergeMap extra, MergeMapTo extra, MergeScan extra… |
+| 23 | merge_test.dart | 296 | 19 | 9.2 KB | merge test; groups: MergeWith, Merge, MergeAll, MergeWith extra, Merge extra, MergeAll extra… |
 | 24 | of_test.dart | 274 | 23 | 7.6 KB | of test; groups: Of, FromIterable, Range, Repeat, edges, performance… |
-| 25 | pairwise_test.dart | 214 | 13 | 6.4 KB | pairwise test; groups: Pairwise, PairwiseWith, Pairwise extra, PairwiseWith extra, composition / performance |
-| 26 | partition_test.dart | 340 | 22 | 10.2 KB | partition test; groups: Partition, PartitionMap, PartitionCollect, PartitionOnly, Partition extra, PartitionMap extra… |
+| 25 | pairwise_test.dart | 213 | 13 | 6.4 KB | pairwise test; groups: Pairwise, PairwiseWith, Pairwise extra, PairwiseWith extra, composition / performance |
+| 26 | partition_test.dart | 339 | 22 | 10.2 KB | partition test; groups: Partition, PartitionMap, PartitionCollect, PartitionOnly, Partition extra, PartitionMap extra… |
 | 27 | pluck_test.dart | 310 | 24 | 8.9 KB | pluck test; groups: Pluck, PluckOr, PluckAll, PluckPath, Pluck extra, PluckOr extra… |
 | 28 | race_test.dart | 347 | 22 | 10.7 KB | race test; groups: Race, RaceFirst, RaceMap, RaceWith, RaceUntil, Race extra… |
-| 29 | reduce_test.dart | 315 | 19 | 9.5 KB | reduce test; groups: Reduce, ReduceSelect, ReduceMachine, Reduce extra, ReduceSelect extra, ReduceMachine extra… |
-| 30 | retry_test.dart | 486 | 26 | 14.5 KB | retry test; groups: Retry, RetryWhen, RetryWithDelay, RetryWithBackoff, RetryUntil, Retry extra… |
-| 31 | routing_test.dart | 451 | 29 | 13.8 KB | routing test; groups: Iif, RouteWhen, RouteByKey, PartitionTag, Iif extra, RouteWhen extra… |
-| 32 | sample_test.dart | 264 | 16 | 8.4 KB | sample test; groups: Sample, SampleTime, Audit, AuditTime, edges, performance… |
-| 33 | scan_test.dart | 279 | 16 | 8.3 KB | scan test; groups: Scan, ScanSeeded, ScanIndexed, Scan extra, ScanSeeded extra, ScanIndexed extra… |
-| 34 | share_test.dart | 294 | 19 | 9.1 KB | share test; groups: Share, ShareLatest, ShareReplay, ShareReplayStart, Share extra, ShareLatest extra… |
-| 35 | skip_test.dart | 394 | 26 | 11.7 KB | skip test; groups: Skip, SkipWhile, SkipUntil, SkipUntilTime, SkipFirst, SkipLast… |
-| 36 | start_with_test.dart | 291 | 21 | 9.2 KB | start with test; groups: StartWith, StartWithValue, StartWithMany, StartWithFactory, StartWith extra, StartWithMany extra… |
-| 37 | switch_map_test.dart | 345 | 21 | 10.9 KB | switch map test; groups: SwitchMap, SwitchMapTo, SwitchLatest, SwitchMapState, SwitchMap extra, SwitchMapTo extra… |
-| 38 | take_test.dart | 305 | 21 | 9.2 KB | take test; groups: Take, TakeWhile, TakeUntil, TakeUntilTime, Take extra, TakeWhile extra… |
+| 29 | reduce_test.dart | 314 | 19 | 9.5 KB | reduce test; groups: Reduce, ReduceSelect, ReduceMachine, Reduce extra, ReduceSelect extra, ReduceMachine extra… |
+| 30 | retry_test.dart | 485 | 26 | 14.5 KB | retry test; groups: Retry, RetryWhen, RetryWithDelay, RetryWithBackoff, RetryUntil, Retry extra… |
+| 31 | routing_test.dart | 453 | 29 | 13.9 KB | routing test; groups: Iif, RouteWhen, RouteByKey, PartitionTag, Iif extra, RouteWhen extra… |
+| 32 | sample_test.dart | 263 | 16 | 8.4 KB | sample test; groups: Sample, SampleTime, Audit, AuditTime, edges, performance… |
+| 33 | scan_test.dart | 278 | 16 | 8.3 KB | scan test; groups: Scan, ScanSeeded, ScanIndexed, Scan extra, ScanSeeded extra, ScanIndexed extra… |
+| 34 | share_test.dart | 293 | 19 | 9.1 KB | share test; groups: Share, ShareLatest, ShareReplay, ShareReplayStart, Share extra, ShareLatest extra… |
+| 35 | skip_test.dart | 392 | 26 | 11.7 KB | skip test; groups: Skip, SkipWhile, SkipUntil, SkipUntilTime, SkipFirst, SkipLast… |
+| 36 | start_with_test.dart | 290 | 21 | 9.2 KB | start with test; groups: StartWith, StartWithValue, StartWithMany, StartWithFactory, StartWith extra, StartWithMany extra… |
+| 37 | switch_map_test.dart | 344 | 21 | 10.9 KB | switch map test; groups: SwitchMap, SwitchMapTo, SwitchLatest, SwitchMapState, SwitchMap extra, SwitchMapTo extra… |
+| 38 | take_test.dart | 303 | 21 | 9.2 KB | take test; groups: Take, TakeWhile, TakeUntil, TakeUntilTime, Take extra, TakeWhile extra… |
 | 39 | tap_test.dart | 376 | 23 | 11.1 KB | tap test; groups: Tap, TapAll, TapWithIndex, TapState, Tap extra, TapAll extra… |
-| 40 | throttle_test.dart | 222 | 14 | 7.2 KB | throttle test; groups: Throttle, ThrottleLeading, ThrottleTrailing, Throttle extra, ThrottleLeading extra, ThrottleTrailing extra… |
-| 41 | timeout_test.dart | 325 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
-| 42 | window_test.dart | 296 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
-| 43 | zip_test.dart | 250 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
-| **Total** | | **16,575** | **1081** | **517.4 KB** | |
+| 40 | throttle_test.dart | 221 | 14 | 7.2 KB | throttle test; groups: Throttle, ThrottleLeading, ThrottleTrailing, Throttle extra, ThrottleLeading extra, ThrottleTrailing extra… |
+| 41 | timeout_test.dart | 323 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
+| 42 | window_test.dart | 295 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
+| 43 | zip_test.dart | 249 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
+| **Total** | | **16,554** | **1081** | **517.3 KB** | |
 
 ---
 
@@ -2136,26 +2136,26 @@ Status: **green**.
 <details><summary>tail of test log</summary>
 
 ```
-0:14 +1069: test/timeout_test.dart: coverage extras TimeoutFirst does not reset                                                                                                                       
-00:14 +1070: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:14 +1071: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:14 +1072: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:14 +1072: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:14 +1073: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:14 +1074: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:14 +1075: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:14 +1076: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:14 +1077: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:14 +1077: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:14 +1078: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:14 +1078: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:14 +1079: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:14 +1079: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:14 +1080: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:14 +1080: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:14 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:15 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:15 +1081: All tests passed!
+0:15 +1071: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:15 +1072: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:15 +1072: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
+00:15 +1073: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
+00:15 +1074: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
+00:15 +1074: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:15 +1075: test/window_test.dart: WindowCount extra wrong types call onError and do not fill the buffer                                                                                              
+00:15 +1076: test/window_test.dart: WindowCount extra wrong types call onError and do not fill the buffer                                                                                              
+00:15 +1076: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
+00:15 +1077: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
+00:15 +1077: test/window_test.dart: WindowWhen extra wrong types call onError                                                                                                                          
+00:15 +1078: test/window_test.dart: WindowWhen extra wrong types call onError                                                                                                                          
+00:15 +1078: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:15 +1079: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:15 +1079: test/window_test.dart: composition / performance WindowCount + WindowSize is a chain                                                                                                      
+00:15 +1080: test/window_test.dart: composition / performance WindowCount + WindowSize is a chain                                                                                                      
+00:15 +1080: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:15 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:16 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:16 +1081: All tests passed!
 ```
 
 </details>
@@ -2225,51 +2225,51 @@ Status: **green**.
 
 ```
 test/
-├── ai_tissue_command_test.dart  (59 tests, 40.6 KB, 1,205 lines)
+├── ai_tissue_command_test.dart  (59 tests, 40.2 KB, 1,200 lines)
 ├── async_expand_test.dart  (24 tests, 11.7 KB, 365 lines)
 ├── async_fold_test.dart  (20 tests, 11.3 KB, 360 lines)
-├── async_map_test.dart  (30 tests, 15.1 KB, 488 lines)
-├── buffer_test.dart  (24 tests, 11.5 KB, 398 lines)
-├── combine_latest_test.dart  (13 tests, 8.2 KB, 273 lines)
-├── concat_map_test.dart  (25 tests, 11.7 KB, 375 lines)
-├── concat_test.dart  (21 tests, 8.2 KB, 285 lines)
-├── debounce_test.dart  (21 tests, 10.7 KB, 310 lines)
-├── delay_test.dart  (26 tests, 12.0 KB, 368 lines)
-├── distinct_test.dart  (23 tests, 11.1 KB, 356 lines)
-├── exhaust_map_test.dart  (24 tests, 11.8 KB, 368 lines)
+├── async_map_test.dart  (30 tests, 15.1 KB, 487 lines)
+├── buffer_test.dart  (24 tests, 11.5 KB, 397 lines)
+├── combine_latest_test.dart  (13 tests, 8.2 KB, 272 lines)
+├── concat_map_test.dart  (25 tests, 11.7 KB, 374 lines)
+├── concat_test.dart  (21 tests, 8.2 KB, 284 lines)
+├── debounce_test.dart  (21 tests, 10.7 KB, 312 lines)
+├── delay_test.dart  (26 tests, 12.0 KB, 366 lines)
+├── distinct_test.dart  (23 tests, 11.1 KB, 355 lines)
+├── exhaust_map_test.dart  (24 tests, 11.9 KB, 369 lines)
 ├── filter_test.dart  (31 tests, 15.1 KB, 474 lines)
-├── flow_test.dart  (81 tests, 37.4 KB, 1,193 lines)
-├── fluent_operator_test.dart  (37 tests, 17.0 KB, 520 lines)
-├── from_future_test.dart  (37 tests, 18.1 KB, 573 lines)
+├── flow_test.dart  (81 tests, 37.4 KB, 1,200 lines)
+├── fluent_operator_test.dart  (37 tests, 17.0 KB, 526 lines)
+├── from_future_test.dart  (37 tests, 18.1 KB, 572 lines)
 ├── from_stream_test.dart  (25 tests, 11.4 KB, 369 lines)
 ├── group_by_test.dart  (23 tests, 12.3 KB, 384 lines)
-├── instruction_demo_test.dart  (39 tests, 5.5 KB, 104 lines)
-├── interval_test.dart  (19 tests, 9.6 KB, 309 lines)
-├── map_test.dart  (35 tests, 15.2 KB, 503 lines)
-├── merge_map_test.dart  (20 tests, 9.7 KB, 320 lines)
-├── merge_test.dart  (19 tests, 9.2 KB, 297 lines)
+├── instruction_demo_test.dart  (39 tests, 5.5 KB, 99 lines)
+├── interval_test.dart  (19 tests, 9.6 KB, 308 lines)
+├── map_test.dart  (35 tests, 15.2 KB, 502 lines)
+├── merge_map_test.dart  (20 tests, 9.8 KB, 321 lines)
+├── merge_test.dart  (19 tests, 9.2 KB, 296 lines)
 ├── of_test.dart  (23 tests, 7.6 KB, 274 lines)
-├── pairwise_test.dart  (13 tests, 6.4 KB, 214 lines)
-├── partition_test.dart  (22 tests, 10.2 KB, 340 lines)
+├── pairwise_test.dart  (13 tests, 6.4 KB, 213 lines)
+├── partition_test.dart  (22 tests, 10.2 KB, 339 lines)
 ├── pluck_test.dart  (24 tests, 8.9 KB, 310 lines)
 ├── race_test.dart  (22 tests, 10.7 KB, 347 lines)
-├── reduce_test.dart  (19 tests, 9.5 KB, 315 lines)
-├── retry_test.dart  (26 tests, 14.5 KB, 486 lines)
-├── routing_test.dart  (29 tests, 13.8 KB, 451 lines)
-├── sample_test.dart  (16 tests, 8.4 KB, 264 lines)
-├── scan_test.dart  (16 tests, 8.3 KB, 279 lines)
-├── share_test.dart  (19 tests, 9.1 KB, 294 lines)
-├── skip_test.dart  (26 tests, 11.7 KB, 394 lines)
-├── start_with_test.dart  (21 tests, 9.2 KB, 291 lines)
-├── switch_map_test.dart  (21 tests, 10.9 KB, 345 lines)
-├── take_test.dart  (21 tests, 9.2 KB, 305 lines)
+├── reduce_test.dart  (19 tests, 9.5 KB, 314 lines)
+├── retry_test.dart  (26 tests, 14.5 KB, 485 lines)
+├── routing_test.dart  (29 tests, 13.9 KB, 453 lines)
+├── sample_test.dart  (16 tests, 8.4 KB, 263 lines)
+├── scan_test.dart  (16 tests, 8.3 KB, 278 lines)
+├── share_test.dart  (19 tests, 9.1 KB, 293 lines)
+├── skip_test.dart  (26 tests, 11.7 KB, 392 lines)
+├── start_with_test.dart  (21 tests, 9.2 KB, 290 lines)
+├── switch_map_test.dart  (21 tests, 10.9 KB, 344 lines)
+├── take_test.dart  (21 tests, 9.2 KB, 303 lines)
 ├── tap_test.dart  (23 tests, 11.1 KB, 376 lines)
-├── throttle_test.dart  (14 tests, 7.2 KB, 222 lines)
-├── timeout_test.dart  (19 tests, 10.6 KB, 325 lines)
-├── window_test.dart  (17 tests, 8.7 KB, 296 lines)
-├── zip_test.dart  (14 tests, 7.1 KB, 250 lines)
+├── throttle_test.dart  (14 tests, 7.2 KB, 221 lines)
+├── timeout_test.dart  (19 tests, 10.6 KB, 323 lines)
+├── window_test.dart  (17 tests, 8.7 KB, 295 lines)
+├── zip_test.dart  (14 tests, 7.1 KB, 249 lines)
 ```
 
-**Total lines of test code:** 16,575
+**Total lines of test code:** 16,554
 
-*Generated 2026-09-13 by generate_test_verification.py*
+*Generated 2026-09-29 by generate_test_verification.py*

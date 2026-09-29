@@ -49,16 +49,20 @@
 </blockquote>
 <p><a href="https://github.com/simon-m-lee/cell/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg" alt="License"></a>
 <a href="https://dart.dev"><img src="https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg" alt="Dart SDK"></a>
-<a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-1.0.0--rc.6-yellow.svg" alt="Status"></a>
+<a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-1.0.0--rc.9-yellow.svg" alt="Status"></a>
 <a href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg" alt="Melos"></a>
 <a href="#-contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a></p>
 <p><strong>Mitosis</strong> is a reactive application framework for Dart that treats state, events, and their <strong>causal history</strong> as one coherent, observable graph. It is an umbrella monorepo built from three layers — <strong>Cell</strong>, <strong>Flow</strong>, and <strong>Tissue</strong> — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.</p>
 <p>Mitosis is designed for systems where <em>why something happened</em> matters as much as <em>what happened</em>: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.</p>
+<blockquote>
+<p><strong>New — the Mitose pipeline.</strong> The <a href="guide/HowTo-Mitose.md"><code>guide/</code></a> directory ships an AI-executable orchestration script: give an AI prompt agent a business requirement, and it follows <code>HowTo-Mitose.md</code> to produce a working <strong>Cell + Flow + Tissue</strong> solution together with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. See <a href="#-the-mitose-pipeline">The Mitose Pipeline</a>.</p>
+</blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
 <ul>
 <li><a href="#-why-the-name-mitosis">Why the name "Mitosis"?</a></li>
 <li><a href="#-the-three-pillars">The Three Pillars</a></li>
+<li><a href="#-the-mitose-pipeline">The Mitose Pipeline</a></li>
 <li><a href="#-repository-layout">Repository Layout</a></li>
 <li><a href="#-architecture-philosophy">Architecture Philosophy</a></li>
 <li><a href="#-design-principles">Design Principles</a></li>
@@ -101,21 +105,21 @@
 <tr>
 <td><strong>Core</strong></td>
 <td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell"><strong>cell</strong></a></td>
-<td><code>1.0.0-rc.5</code></td>
+<td><code>1.0.0-rc.6</code></td>
 <td>The <strong>cell</strong></td>
 <td>Reactive primitives (<code>Cell</code>, <code>Pulse</code>, <code>Receptor</code>, <code>Nucleus</code>, <code>Synapses</code>), validation gates (<code>TestCell</code>), authority context (<code>Context</code>), deputies, transactions, and the causal integrity engine.</td>
 </tr>
 <tr>
 <td><strong>Orchestration</strong></td>
 <td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow"><strong>cell_flow</strong></a></td>
-<td><code>1.0.0-rc.6</code></td>
+<td><code>1.0.0-rc.7</code></td>
 <td>The <strong>nervous system</strong></td>
 <td>90+ Rx-shaped operators (<code>map</code>, <code>filter</code>, <code>debounce</code>, <code>throttle</code>, <code>switchMap</code>, <code>mergeMap</code>, <code>zip</code>, <code>retry</code>, <code>buffer</code>, …) as <code>FlowInstruction</code>s compiled into the <em>same</em> Cell graph — no translation layer.</td>
 </tr>
 <tr>
 <td><strong>Application</strong></td>
 <td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue"><strong>cell_tissue</strong></a></td>
-<td><code>1.0.0-rc.5</code></td>
+<td><code>1.0.0-rc.7</code></td>
 <td>The <strong>body</strong></td>
 <td>Governed reactive collections (<code>TissueList</code>, <code>TissueSet</code>, <code>TissueMap</code>, <code>TissueQueue</code>, <code>TissueValue</code>) with validation, read-only views, deputies, capacity/backpressure, and async mutations.</td>
 </tr>
@@ -126,8 +130,105 @@
 <p>🌱 <strong>Still dividing.</strong> Like the biological process it is named after, Mitosis keeps growing. These three pillars are the foundation — more layers will come online as the ecosystem matures.</p>
 </blockquote>
 <hr>
+<h2 id="-the-mitose-pipeline">🧫 The Mitose Pipeline</h2>
+<p><strong>From a business requirement to a Mitosis solution, with an AI prompt agent as the operator.</strong></p>
+<p>The umbrella repository ships the <strong>Mitose pipeline</strong> in <a href="guide/HowTo-Mitose.md"><code>guide/</code></a>: a set of AI-executable scripts. A user provides a business requirement, and an AI prompt agent follows <a href="guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a> to build a solution on the three pillars — <strong>Cell</strong> (core), <strong>Flow</strong> (orchestration), and <strong>Tissue</strong> (application) — and to write the project documents that go with it.</p>
+<h3 id="how-it-runs">How it runs</h3>
+<p>The agent follows the pipeline in order, with one human decision at each gate:</p>
+<ol>
+<li><strong>BRD gate</strong> — a Business Requirements Document must exist before anything else. The user can:
+<ul>
+<li>upload a filled <code>&lt;stem&gt;-BRD.md</code>,</li>
+<li>fill <a href="guide/Business_Requirements_Document(BRD).md"><code>Business_Requirements_Document(BRD).md</code></a> offline,</li>
+<li>take the guided interview in <a href="guide/BRD-AI-Interview.md"><code>BRD-AI-Interview.md</code></a>, or</li>
+<li>paste a short requirement paragraph for the agent to draft a BRD from.</li>
+</ul>
+</li>
+<li><strong>WalkThrough</strong> — the agent follows <a href="guide/WalkThrough-AI-Generator.md"><code>WalkThrough-AI-Generator.md</code></a>, consulting the layer HowTos to place every part, and writes <code>&lt;stem&gt;(Cell)-WalkThrough.md</code>. The user reviews and accepts it.</li>
+<li><strong>Demo</strong> — only after acceptance, the agent generates <code>&lt;stem&gt;(Cell)-Demo.dart</code>, treating the accepted WalkThrough as the behaviour contract and resolving live APIs from pub.dev.</li>
+<li><strong>Assessment</strong> — the agent revisits the WalkThrough against the actual Dart file and fills in the Demo Assessment and Recommendations.</li>
+<li><strong>ARCHITECTURE &amp; FEATURES</strong> — offered last and generated only on request, from the running Demo (and the WalkThrough where required).</li>
+</ol>
+<h3 id="what-the-pipeline-produces">What the pipeline produces</h3>
+<pre class="language-text"><code class="language-text">&lt;stem&gt;-BRD.md
+&lt;stem&gt;(Cell)-WalkThrough.md
+&lt;stem&gt;(Cell)-Demo.dart
+&lt;stem&gt;(Cell)-ARCHITECTURE.md
+&lt;stem&gt;(Cell)-FEATURES.md
+</code></pre>
+<h3 id="the-guide-scripts">The guide scripts</h3>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="guide/HowTo-Mitose.md"><code>HowTo-Mitose.md</code></a></td>
+<td>The orchestration script — runs the whole pipeline.</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Mitose-Cell.md"><code>HowTo-Mitose-Cell.md</code></a></td>
+<td>Where a requirement lands in the <strong>Cell</strong> layer.</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Mitose-Flow.md"><code>HowTo-Mitose-Flow.md</code></a></td>
+<td>Where a requirement lands in the <strong>Flow</strong> layer.</td>
+</tr>
+<tr>
+<td><a href="guide/HowTo-Mitose-Tissue.md"><code>HowTo-Mitose-Tissue.md</code></a></td>
+<td>Where a requirement lands in the <strong>Tissue</strong> layer.</td>
+</tr>
+<tr>
+<td><a href="guide/BRD-AI-Interview.md"><code>BRD-AI-Interview.md</code></a></td>
+<td>Guided interview that writes <code>&lt;stem&gt;-BRD.md</code>.</td>
+</tr>
+<tr>
+<td><a href="guide/Business_Requirements_Document(BRD).md"><code>Business_Requirements_Document(BRD).md</code></a></td>
+<td>Offline BRD template.</td>
+</tr>
+<tr>
+<td><a href="guide/WalkThrough-AI-Generator.md"><code>WalkThrough-AI-Generator.md</code></a></td>
+<td>Generates <code>&lt;stem&gt;(Cell)-WalkThrough.md</code>.</td>
+</tr>
+<tr>
+<td><a href="guide/ARCHITECTURE-AI-Generator.md"><code>ARCHITECTURE-AI-Generator.md</code></a></td>
+<td>Generates <code>&lt;stem&gt;(Cell)-ARCHITECTURE.md</code>.</td>
+</tr>
+<tr>
+<td><a href="guide/FEATURES-AI-Generator.md"><code>FEATURES-AI-Generator.md</code></a></td>
+<td>Generates <code>&lt;stem&gt;(Cell)-FEATURES.md</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Start the pipeline by opening <a href="guide/HowTo-Mitose.md"><code>guide/HowTo-Mitose.md</code></a> with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat.</p>
+<h3 id="start-in-one-paste">Start in one paste</h3>
+<p>If your AI chat tool does not auto-load the repository, paste this and replace the last line:</p>
+<pre class="language-text"><code class="language-text">Read guide/HowTo-Mitose.md and run the Mitose pipeline.
+The repository is the cell workspace.
+My business requirement is: &lt;paste your requirement here&gt;
+</code></pre>
+<p>In an agentic IDE (Copilot, Codex, Cursor, …), just open the repository and say “Mitose” — <a href="AGENTS.md"><code>AGENTS.md</code></a> tells the agent what to do.</p>
+<h3 id="try-a-sample-brd">Try a sample BRD</h3>
+<p><a href="example/BRD"><code>example/BRD/</code></a> ships ready-made BRDs from different industries — airport baggage handling, assembly-line downtime &amp; defect monitoring, freight rail intermodal, and hospital emergency-department capacity/flow. Read them to get familiar with the BRD format, or hand one to the agent to run the whole pipeline right away:</p>
+<pre class="language-text"><code class="language-text">Read guide/HowTo-Mitose.md and run the Mitose pipeline.
+Use example/BRD/airport_baggage_handling-BRD.md as the BRD.
+</code></pre>
+<hr>
 <h2 id="-repository-layout">📦 Repository Layout</h2>
 <pre class="language-text"><code class="language-text">cell/                          # Umbrella monorepo: "Mitosis"
+├── guide/                     # Mitose pipeline — AI-executable orchestration scripts
+│   ├── HowTo-Mitose.md        #   Pipeline orchestration: BRD → WalkThrough → Demo → ARCHITECTURE/FEATURES
+│   ├── HowTo-Mitose-Cell.md   #   Cell layer placement rules
+│   ├── HowTo-Mitose-Flow.md   #   Flow layer placement rules
+│   ├── HowTo-Mitose-Tissue.md #   Tissue layer placement rules
+│   ├── BRD-AI-Interview.md    #   Guided BRD interview
+│   ├── Business_Requirements_Document(BRD).md
+│   ├── WalkThrough-AI-Generator.md
+│   ├── ARCHITECTURE-AI-Generator.md
+│   └── FEATURES-AI-Generator.md
 ├── packages/
 │   ├── cell/                  # Core layer — reactive primitives &amp; causal integrity
 │   │   ├── lib/               #   cell.dart, pulse, receptor, nucleus, synapses…
@@ -148,10 +249,13 @@
 │   ├── card-auth-pipeline(Cell)-*   #   stock-operator FlowInstructionChain
 │   ├── grid-demand-response(Cell)-* #   custom GridDecisionInstruction
 │   ├── ride-hail-dispatch(Cell)-*   #   custom MatchDecisionInstruction
+│   ├── *-BRD.md               #   BRD companions for the (Cell) demos
+│   └── BRD/                   #   Sample BRDs by industry — learn the format, or run Mitose right away
 ├── DEMO_GUIDE-Mitosis.md      # Mitosis demo guide (decision-side learning path)
 ├── melos.yaml                 # Monorepo scripts (analyze, test, format, build)
 ├── pubspec.yaml               # Dart workspace definition (pub workspaces)
 ├── CHANGELOG.md
+├── AGENTS.md                  # AI-agent instructions — the "Mitose" trigger
 ├── AUTHORS
 └── LICENSE
 </code></pre>
@@ -212,15 +316,15 @@
 <h3 id="using-from-pubdev">Using from pub.dev</h3>
 <p>The umbrella package re-exports all three layers in one import:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  mitosis: ^1.0.0-rc.5
+  mitosis: ^1.0.0-rc.9
 </code></pre>
 <pre class="language-dart"><code class="language-dart">import 'package:mitosis/mitosis.dart';
 </code></pre>
 <p>Prefer the individual layers when you want fine-grained dependencies:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.5
-  cell_flow: ^1.0.0-rc.6
-  cell_tissue: ^1.0.0-rc.5
+  cell: ^1.0.0-rc.6
+  cell_flow: ^1.0.0-rc.7
+  cell_tissue: ^1.0.0-rc.7
 </code></pre>
 <p>The workspace setup below is only needed for contributors working on the framework itself.</p>
 <h3 id="workspace-setup">Workspace Setup</h3>
@@ -353,6 +457,26 @@ dart run example/stability_search_demo.dart
 <td>Mitosis demo guide — the <code>(Cell)</code> instruction-side learning path</td>
 </tr>
 <tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md">guide/HowTo-Mitose.md</a></td>
+<td>Mitose pipeline orchestration — AI-executable script: BRD → WalkThrough → Demo → ARCHITECTURE/FEATURES</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md">guide/HowTo-Mitose-Cell.md</a> · <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md">Flow</a> · <a href="https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md">Tissue</a></td>
+<td>Layer placement guides the Mitose pipeline consults</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/guide/BRD-AI-Interview.md">guide/BRD-AI-Interview.md</a> · <a href="https://github.com/simon-m-lee/cell/blob/master/guide/Business_Requirements_Document(BRD).md">BRD template</a></td>
+<td>BRD interview script and offline template</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/blob/master/guide/WalkThrough-AI-Generator.md">guide/WalkThrough-AI-Generator.md</a> · <a href="https://github.com/simon-m-lee/cell/blob/master/guide/ARCHITECTURE-AI-Generator.md">ARCHITECTURE</a> · <a href="https://github.com/simon-m-lee/cell/blob/master/guide/FEATURES-AI-Generator.md">FEATURES</a></td>
+<td>Document generators: WalkThrough, ARCHITECTURE, FEATURES</td>
+</tr>
+<tr>
+<td><a href="https://github.com/simon-m-lee/cell/tree/master/example/BRD">example/BRD/</a></td>
+<td>Sample BRDs by industry — learn the BRD format, or run the Mitose pipeline right away</td>
+</tr>
+<tr>
 <td><a href="https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md">CHANGELOG.md</a></td>
 <td>Umbrella release history</td>
 </tr>
@@ -374,22 +498,22 @@ dart run example/stability_search_demo.dart
 <tbody>
 <tr>
 <td><code>mitosis</code></td>
-<td><code>1.0.0-rc.6</code></td>
+<td><code>1.0.0-rc.9</code></td>
 <td>Release Candidate — on pub.dev</td>
 </tr>
 <tr>
 <td><code>cell</code></td>
-<td><code>1.0.0-rc.5</code></td>
-<td>Release Candidate — on pub.dev</td>
-</tr>
-<tr>
-<td><code>cell_flow</code></td>
 <td><code>1.0.0-rc.6</code></td>
 <td>Release Candidate — on pub.dev</td>
 </tr>
 <tr>
+<td><code>cell_flow</code></td>
+<td><code>1.0.0-rc.7</code></td>
+<td>Release Candidate — on pub.dev</td>
+</tr>
+<tr>
 <td><code>cell_tissue</code></td>
-<td><code>1.0.0-rc.5</code></td>
+<td><code>1.0.0-rc.7</code></td>
 <td>Release Candidate — on pub.dev</td>
 </tr>
 </tbody>
@@ -398,60 +522,7 @@ dart run example/stability_search_demo.dart
 <hr>
 <h2 id="-vision--roadmap">🔭 Vision &amp; Roadmap</h2>
 <p>Mitosis is not aiming to be "another state-management library". The ambition is a <strong>layered platform for causally intelligible reactive systems</strong> — where application behavior is composable, traceable, governable, and explainable from the same graph.</p>
-<h3 id="how-the-platform-grows">How the platform grows</h3>
-<p>The three pillars define the roadmap. New capability lands inside the layer that already owns it — Cell stays the reactive core, Flow stays the orchestration layer, Tissue stays the governed body.</p>
-<table>
-<thead>
-<tr>
-<th>Horizon</th>
-<th>Cell</th>
-<th>Flow</th>
-<th>Tissue</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Now (RC)</strong></td>
-<td>Reactive core: state, pulses, governance</td>
-<td>90+ orchestration operators</td>
-<td>Reactive, validated collections</td>
-</tr>
-<tr>
-<td><strong>Next (post-1.0)</strong></td>
-<td>Multi-isolate cells</td>
-<td>Deeper combinators, backpressure</td>
-<td>Causal replay &amp; state snapshots</td>
-</tr>
-<tr>
-<td><strong>Later</strong></td>
-<td>Distributed cells</td>
-<td>Cross-runtime flows</td>
-<td>Digital-twin state fabrics</td>
-</tr>
-</tbody>
-</table>
-<h3 id="phase-1--stabilize-the-rc-line-toward-100">Phase 1 — Stabilize the RC line (toward <code>1.0.0</code>)</h3>
-<ul>
-<li><strong>API freeze</strong> across <code>cell</code>, <code>cell_flow</code>, and <code>cell_tissue</code> after the RC cycle.</li>
-<li><strong>Full test matrix</strong> and coverage reporting for every package.</li>
-<li><strong>Flutter adapters &amp; recipes</strong> — bind cells, flows, and tissues to widgets with minimal glue.</li>
-<li><strong>Stable <code>1.0.0</code> release</strong> — all three pillars are already on pub.dev under the RC line; the stable release is next.</li>
-</ul>
-<h3 id="phase-2--deepen-the-platform-post-100">Phase 2 — Deepen the platform (post-<code>1.0.0</code>)</h3>
-<ul>
-<li><strong>Causal replay &amp; simulation</strong> — reconstruct any historical state by replaying the pulse chain; run "what-if" branches against Tissue state.</li>
-<li><strong>Multi-isolate &amp; distributed cells</strong> — flows and tissues that cross isolate or network boundaries while preserving provenance.</li>
-<li><strong>Storage &amp; persistence adapters</strong> — snapshot and restore graph state without leaving the causal model.</li>
-<li><strong>Developer tooling</strong> — a visual graph debugger, CLI scaffolding, and IDE support that render the causal trail in real time.</li>
-<li><strong>Performance &amp; memory work</strong> — zero-copy views, lock refinements, and large-graph benchmarks.</li>
-</ul>
-<h3 id="phase-3--a-runtime-for-complex-autonomous-systems-long-term">Phase 3 — A runtime for complex, autonomous systems (long term)</h3>
-<ul>
-<li><strong>Multi-agent orchestration</strong> — an agent, its tool calls, and its effects modeled as cells, flows, and tissues; agentic systems become inspectable, governable graphs.</li>
-<li><strong>Edge / serverless deployment</strong> — migrate cells and tissues across runtime boundaries without losing lineage.</li>
-<li><strong>Digital twins &amp; complex adaptive simulations</strong> — large networks of governed tissues with emergent behavior from local rules.</li>
-<li><strong>Compliance-grade audit pipelines</strong> — provenance and context feeding formal audit, attestation, and verification tooling.</li>
-</ul>
+<p>The <strong>Mitose pipeline</strong> in <a href="guide/HowTo-Mitose.md"><code>guide/</code></a> is the first agentic workflow shipped with the project — an AI prompt agent turns a business requirement into a Cell + Flow + Tissue solution and its full document set. It is how this umbrella repository is meant to be operated day to day.</p>
 <h3 id="target-domains">Target domains</h3>
 <p>Mitosis pays for itself first in systems where the causal trail is a requirement, not a nicety:</p>
 <ul>
@@ -550,7 +621,7 @@ dart run example/stability_search_demo.dart
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

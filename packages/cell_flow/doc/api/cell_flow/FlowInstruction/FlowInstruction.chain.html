@@ -72,8 +72,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const factory FlowInstruction.chain(Iterable&lt;Instruction&gt; instructions, {dynamic user,
-  O? Function(I pulse, {C? cell, dynamic user})? strategy}) = _FlowInstructionChain&lt;C,I,O&gt;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">const factory FlowInstruction.chain(Iterable&lt;Instruction&gt; instructions,
+        {dynamic user,
+        O? Function(I pulse, {C? cell, dynamic user})? strategy}) =
+    _FlowInstructionChain&lt;C, I, O&gt;;</code></pre>
 </section>
 
 
@@ -101,7 +103,7 @@
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

@@ -130,11 +130,12 @@ input.emit(7);  // -&gt; 15
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncReduce&lt;S&gt;(
-    Cell source, {
-      required FutureOr&lt;S&gt; Function(S acc, S value) accumulate,
-      FoldErrorHandler? onError,
-    }) {
-  return AsyncReduce&lt;S&gt;(accumulate, onError: onError).toHandle(source: source);
+  Cell source, {
+  required FutureOr&lt;S&gt; Function(S acc, S value) accumulate,
+  FoldErrorHandler? onError,
+}) {
+  return AsyncReduce&lt;S&gt;(accumulate, onError: onError)
+      .toHandle(source: source);
 }</code></pre>
 </section>
 
@@ -163,7 +164,7 @@ input.emit(7);  // -&gt; 15
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

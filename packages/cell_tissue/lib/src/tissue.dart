@@ -48,7 +48,8 @@ part of '../cell_tissue.dart';
 /// When you mutate a tissue (e.g., `list.add(42)`), the operation:
 /// 1. Passes through the [TestTissue] validation gate.
 /// 2. Is applied atomically to the physical storage under a [Lock].
-/// 3. Emits a [TissuePulse] (e.g., `ElementAddedEvent`).
+/// 3. Emits a [TissuePulse] (e.g., one classified as
+///    [Tissue.elementAdded]).
 /// 4. Propagates the event through the collection's [Synapses] to all
 ///    downstream observers.
 ///
@@ -90,7 +91,7 @@ part of '../cell_tissue.dart';
 ///
 /// // Observe additions
 /// tasks.listen((event) {
-///   if (event is ElementAddedEvent<Task>) {
+///   if (event.type == Tissue.elementAdded) {
 ///     print('Added: ${event.payload.title}');
 ///   }
 /// });
@@ -128,6 +129,19 @@ part of '../cell_tissue.dart';
 /// ### Type Parameters:
 /// * [E] – The type of elements held within the collection.
 abstract interface class Tissue<E> implements Cell, Iterable<E> {
+
+  /// An element has been added to the collection.
+  static const elementAdded = TissueEvent._(1);
+
+  /// An element has been removed from the collection.
+  static const elementRemoved = TissueEvent._(2);
+
+  /// A scalar value or state property has changed.
+  static const elementUpdated = TissueEvent._(4);
+
+  /// A key-value association has been updated in a map collection.
+  static const entryUpdated = TissueEvent._(8);
+
   @override
   Iterable<E> followedBy(covariant Iterable<E> other);
 
@@ -227,14 +241,14 @@ abstract interface class Tissue<E> implements Cell, Iterable<E> {
   /// Creates an empty [Tissue] container, initializing a reactive node
   /// with no initial members but a fully established behavioral blueprint.
   ///
-  /// The [empty] factory is a specialized architectural constructor designed
+  /// The [TissueEvent.none] factory is a specialized architectural constructor designed
   /// for **Lazy Initialization** and **Late-Binding** scenarios within the
   /// `cell_tissue` ecosystem. It facilitates the creation of a "Placeholder"
   /// reactive node—a container that possesses identity, governance (rules),
   /// and synchronization, but currently holds no physical state.
   ///
   /// ### When to use
-  /// Use [empty] when you need a tissue node that exists in the reactive graph
+  /// Use [TissueEvent.none] when you need a tissue node that exists in the reactive graph
   /// but will be populated later – e.g., for a collection that is bound to a
   /// `Future` result or a placeholder for data that loads asynchronously.
   ///

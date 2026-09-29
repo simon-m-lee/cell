@@ -105,7 +105,7 @@ never reached.</li>
 <li><code>list.add</code> (from <code>ListMixin</code>) calls <code>apply(add, [42])</code>.</li>
 <li><code>apply</code> checks <code>modifiable.contains(add)</code> (true for mutable lists).</li>
 <li>It calls <code>_add(42)</code>, which validates the element, updates the container,
-and emits an <code>ElementAddedEvent</code>.</li>
+and emits a <a href="../mitosis/Tissue/elementAdded-constant.html">Tissue.elementAdded</a> pulse.</li>
 <li>The event is dispatched through the receptor to all observers.</li>
 </ol>
 </section>
@@ -1590,7 +1590,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.8
+      1.0.0-rc.9
   </span>
   
 </footer>

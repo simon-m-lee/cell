@@ -523,7 +523,7 @@ final class Shed {
 /// `TissueQueue<RtuJob>` with `capacity: 32`. In this build the tissue
 /// queue does not drain via `removeFirst`, so the demo uses a plain
 /// Dart `_rtuWork` list for the pump while the tissue queue serves as
-/// the **audit-side enqueue** (`addLast` → `ElementAdded<RtuJob>`).
+/// the **audit-side enqueue** (`addLast` → `TissueEvent.elementAdded`).
 /// That split is documented in the file header.
 ///
 /// ### Validation
@@ -637,7 +637,7 @@ class GridDemandResponseHarness {
   /// The append-only event log.
   ///
   /// A `TissueList<GridEvent>` guarded by `_eventAppendOnly`. Every
-  /// `add` emits an `ElementAdded<GridEvent>` pulse on the list.
+  /// `add` emits a `TissueEvent.elementAdded` pulse on the list.
   ///
   /// ### Writers
   ///
@@ -721,7 +721,7 @@ class GridDemandResponseHarness {
   ///
   /// In this build the tissue queue does **not** drain via
   /// `removeFirst`, so the demo uses it as the **audit-side enqueue**
-  /// only (`addLast` → `ElementAdded<RtuJob>`). The pump runs on a
+  /// only (`addLast` → `TissueEvent.elementAdded`). The pump runs on a
   /// plain Dart `_rtuWork` list. See the file header for the full
   /// rationale.
   late final TissueQueue<RtuJob> rtuQ;
@@ -1229,7 +1229,7 @@ class GridDemandResponseHarness {
   ///
   /// In this build `TissueQueue.removeFirst` / `remove` do not drain
   /// the container. The tissue queue stays as the audit-side enqueue
-  /// (`addLast` → `ElementAdded<RtuJob>`) and the pump runs on the
+  /// (`addLast` → `TissueEvent.elementAdded`) and the pump runs on the
   /// plain Dart `_rtuWork` list.
   ///
   /// ### Failure semantics

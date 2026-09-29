@@ -355,17 +355,17 @@ abstract class NucleusBase implements Nucleus {
   /// * [Nucleus.evolve]: The high-level extension method.
   /// * [DeputyContext.evolve]: For specializing security and mandate dimensions.
   /// * [NucleusBase.fromRecord]: For restoring evolved nuclei from state.
-  NucleusBase.evolve(
-      {EphemeralPolicy? ephemeralPolicy,
-      Cell? bind,
-      Context? context,
-      Receptor? receptor,
-      TestCell? testRule,
-      Synapses? synapses,
-      Record? user,
-      Nucleus? override,
-      required Nucleus principal})
-      : this.fromRecord((
+  NucleusBase.evolve({
+    EphemeralPolicy? ephemeralPolicy,
+    Cell? bind,
+    Context? context,
+    Receptor? receptor,
+    TestCell? testRule,
+    Synapses? synapses,
+    Record? user,
+    Nucleus? override,
+    required Nucleus principal
+  }) : this.fromRecord((
           local: (override as NucleusBase?)?.record.local ??
               NucleusBase.mask(
                   bind: bind,
@@ -633,12 +633,12 @@ abstract class NucleusBase implements Nucleus {
       }
     }
 
-    final inheritableMask = ((context != null && context != Context.system
-            ? 1
-            : 0) |
+    final inheritableMask = (
+        (context != null && context != Context.system ? 1 : 0) |
         (receptor != null && receptor != Receptor.passThrough ? 2 : 0) |
         (testRule != null && !identical(testRule, TestCell.allowAll) ? 4 : 0) |
-        (ephemeralPolicy != null ? 8 : 0));
+        (ephemeralPolicy != null ? 8 : 0)
+    );
 
     final inheritable = switch (inheritableMask) {
       0 => (),

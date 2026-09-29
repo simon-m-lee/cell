@@ -83,16 +83,18 @@ is passed (default), a new <a href="../../cell_flow/Synapses-class.html">Synapse
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CellBase({
   EphemeralPolicy? ephemeralPolicy,
-
   Cell? bind,
   Context context = Context.system,
   Receptor receptor = Receptor.passThrough,
   TestCell testRule = TestCell.allowAll,
   Synapses synapses = Synapses.enabled,
-}) : this.fromNucleus(Nucleus(ephemeralPolicy: ephemeralPolicy,
-    receptor: receptor, bind: bind, testRule: testRule, context: context,
-    synapses: synapses == Synapses.enabled ? Synapses() : synapses
-));</code></pre>
+}) : this.fromNucleus(Nucleus(
+          ephemeralPolicy: ephemeralPolicy,
+          receptor: receptor,
+          bind: bind,
+          testRule: testRule,
+          context: context,
+          synapses: synapses == Synapses.enabled ? Synapses() : synapses));</code></pre>
 </section>
 
 
@@ -120,7 +122,7 @@ is passed (default), a new <a href="../../cell_flow/Synapses-class.html">Synapse
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

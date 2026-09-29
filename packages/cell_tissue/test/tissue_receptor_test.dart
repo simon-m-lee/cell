@@ -10,10 +10,8 @@ import 'package:test/test.dart';
 TissuePulse<int> addedEvent(TissueList<int> list, int value) =>
     list.apply(list.add, positionalArguments: [value]) as TissuePulse<int>;
 
-TissuePulse<int> removedEvent(TissueList<int> list, int value) {
-  final result = list.apply(list.remove, positionalArguments: [value]);
-  return (result as Iterable).first as TissuePulse<int>;
-}
+TissuePulse<int> removedEvent(TissueList<int> list, int value) =>
+    list.apply(list.remove, positionalArguments: [value]) as TissuePulse<int>;
 
 void main() {
   group('TissueReceptor.passThrough', () {
@@ -148,7 +146,7 @@ void main() {
       expect(result!.payload, 'seen:x');
     });
 
-    test('synchronises ElementAdded from another tissue', () {
+    test('synchronises elementAdded from another tissue', () {
       final target = TissueList<int>();
       final receptor = TissueReceptor<int, TissueList<int>>(
         (tissue, pulse, {user}) => pulse,
@@ -162,7 +160,7 @@ void main() {
       expect(target.toList(), [2]);
     });
 
-    test('synchronises ElementRemoved from another tissue', () {
+    test('synchronises elementRemoved from another tissue', () {
       final target = TissueList.of([2]);
       final receptor = TissueReceptor<int, TissueList<int>>(
         (tissue, pulse, {user}) => pulse,
@@ -225,11 +223,10 @@ void main() {
       expect(target.toList(), [2, 3, 4]);
     });
 
-    test('synchronises ElementUpdated into a list of cells', () {
+    test('synchronises elementUpdated into a list of cells', () {
       final sourceValue = TissueValue<int>(0);
-      final event =
-          sourceValue.apply(sourceValue.set, positionalArguments: [42])
-              as ElementUpdated<int, TissueValue<int>>;
+      final event = sourceValue.apply(sourceValue.set, positionalArguments: [42])
+          as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
 
       final target = TissueList<dynamic>();
       final receptor = TissueReceptor<dynamic, TissueList<dynamic>>(
@@ -240,9 +237,8 @@ void main() {
       receptor.call(event);
       expect(target.toList(), [sourceValue]);
 
-      final event2 =
-          sourceValue.apply(sourceValue.set, positionalArguments: [43])
-              as ElementUpdated<int, TissueValue<int>>;
+      final event2 = sourceValue.apply(sourceValue.set, positionalArguments: [43])
+          as TissuePulse<ElementUpdatedRecord<int, TissueValue<int>>>;
       receptor.call(event2);
       expect(target.toList(), [sourceValue]);
     });

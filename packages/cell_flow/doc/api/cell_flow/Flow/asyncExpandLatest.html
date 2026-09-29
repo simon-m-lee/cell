@@ -136,10 +136,10 @@ query.emit('flutter');  // Cancels previous, starts new search
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FlowHandle asyncExpandLatest&lt;S, T&gt;(
-    Cell source, {
-      required FutureOr&lt;Object?&gt; Function(S value) expand,
-      ExpandErrorHandler? onError,
-    }) {
+  Cell source, {
+  required FutureOr&lt;Object?&gt; Function(S value) expand,
+  ExpandErrorHandler? onError,
+}) {
   return AsyncExpandLatest&lt;S, T&gt;(expand, onError: onError)
       .toHandle(source: source);
 }</code></pre>
@@ -170,7 +170,7 @@ query.emit('flutter');  // Cancels previous, starts new search
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>

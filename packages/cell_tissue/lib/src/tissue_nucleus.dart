@@ -207,7 +207,7 @@ abstract interface class TissueNucleus<E> implements Nucleus {
   /// immutable configuration representing a collection that can never contain
   /// data and rejects all mutations.
   ///
-  /// The [empty] factory is a primary architectural implementation of the
+  /// The [TissueEvent.none] factory is a primary architectural implementation of the
   /// **Null Object Pattern** within the `cell_tissue` ecosystem. It is
   /// designed for scenarios where a [Tissue] identity is required by an
   /// interface or API, but the underlying state is conceptually "Never" or

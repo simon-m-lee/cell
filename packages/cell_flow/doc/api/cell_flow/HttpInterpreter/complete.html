@@ -105,68 +105,12 @@ instruction routes those to its <code>onError</code> handler and emits a
 Future&lt;InterpreterReply&gt; complete({
   required String text,
   required Set&lt;String&gt; verbs,
-}) async {
-  final prompt = systemPrompt(verbs);
-
-  log.systemPrompt(prompt);
-
-  final body = jsonEncode({
-    &#47;&#47; extraBody is merged first so the interpreter&#39;s keys win if
-    &#47;&#47; they collide. That is the same policy AiConfig.fromJson
-    &#47;&#47; documents.
-    ...extraBody,
-    &#39;model&#39;: model,
-    &#39;messages&#39;: [
-      {&#39;role&#39;: &#39;system&#39;, &#39;content&#39;: prompt},
-      {&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: text},
-    ],
-    &#39;temperature&#39;: 0,
-    &#39;response_format&#39;: {&#39;type&#39;: &#39;json_object&#39;},
-  });
-
-  log.request(
-    endpoint: endpoint.toString(),
-    model: model,
-    sentence: text,
-    body: body,
-  );
-
-  &#47;&#47; Simulated transport failure for scenario 10.
-  if (_pendingTimeouts &gt; 0) {
-    _pendingTimeouts--;
-    throw TimeoutException(
-      &#39;injected timeout (scenario 10)&#39;,
-      Duration.zero,
-    );
-  }
-
-  final request = await client.postUrl(endpoint);
-  request.headers
-    ..set(HttpHeaders.authorizationHeader, &#39;Bearer $apiKey&#39;)
-    ..set(HttpHeaders.contentTypeHeader, &#39;application&#47;json&#39;)
-    ..set(HttpHeaders.acceptHeader, &#39;application&#47;json&#39;);
-  request.add(utf8.encode(body));
-
-  final response = await request.close().timeout(timeout);
-  final replyBody =
-  await response.transform(utf8.decoder).join().timeout(timeout);
-
-  log.response(status: response.statusCode, body: replyBody);
-
-  if (response.statusCode &lt; 200 || response.statusCode &gt;= 300) {
-    throw HttpException(
-      &#39;AI endpoint returned ${response.statusCode}: $replyBody&#39;,
-    );
-  }
-
-  final reply = _parse(replyBody, source: text);
-  if (reply.command != null) {
-    log.parsed(reply.command!);
-  } else if (reply.reject != null) {
-    log.refused(reply.reject!.reason);
-  }
-  return reply;
-}</code></pre>
+}) =&gt;
+    Future&lt;InterpreterReply&gt;.error(
+      UnsupportedError(
+        &#39;HttpInterpreter requires dart:io and is not available on this platform.&#39;,
+      ),
+    );</code></pre>
 </section>
 
 
@@ -194,7 +138,7 @@ Future&lt;InterpreterReply&gt; complete({
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.4
+      1.0.0-rc.7
   </span>
   
 </footer>
