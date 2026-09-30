@@ -411,6 +411,7 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 
 Mitosis is an RC. Some things to know before you bet production on it:
 
+- **The Mitose pipeline is a proof of concept.** The AI-executable scripts in [`guide/`](guide/HowTo-Mitose.md) are early-stage agentic tooling, not a validated code-generation service. Output quality depends on the model, the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
 - **APIs may still change** before `1.0.0` stable.
 - **`Context` metadata is not a compliance certification.** `Context.describe(...)` stores classification, actor, and purpose text; it does not implement or certify GDPR, HIPAA, PCI-DSS, or any other regulation.
 - **Some Tissue behaviors are build-dependent** (observer delivery on tissue cells, `.unmodifiable` liveliness, queue draining). Verify against current source and demo headers before relying on them — see the [cell_tissue README](https://github.com/simon-m-lee/cell/blob/master/packages/cell_tissue/README.md).
