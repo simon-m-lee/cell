@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Assembly Line Downtime and Defect Monitoring
 
-## Assembly Line Downtime & Defect Monitoring
+**Template version:** 2.0
+**Stem:** `assembly-line-downtime`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Assembly-line downtime and defect watch. The tool never stops a line. At-risk is a rolling defect rate above the station threshold; downtime alert is after 3 minutes. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Line Pulse |
 | Document title | Business Requirements — Assembly Line Downtime & Defect Monitoring |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-09-27 |
 | Author | Plant Operations Programme Office |
 | Reviewer(s) | Plant Manager, Quality Manager, Production Supervisors (Lines 1–3) |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-08-30 | Plant Operations Programme Office | First draft |
-| 1.0 | 2026-09-27 | Plant Operations Programme Office | Approved after review with Production and Quality |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-08-30 | —  | Plant Operations Programme Office | First draft |
+| 1.0 | 2026-09-27 | — | Plant Operations Programme Office | Approved after review with Production and Quality |
 
 ---
 
@@ -138,6 +145,8 @@ Our 2026–2029 manufacturing strategy names "real-time visibility" as one of th
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -181,6 +190,30 @@ Our 2026–2029 manufacturing strategy names "real-time visibility" as one of th
 |---|---|---|---|---|
 | AR-01 | The shift-end summary shall show, per line: units built, defect rate by station, total downtime by cause code, and calculated OEE. | Production manager, Quality | Per shift | 24 months |
 | AR-02 | The incident log shall show every incident with timings and actions. | Supervisors, Quality, Plant Safety | On demand | 24 months |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Downtime alert | FR-05 | 3 | minutes | Plant Operations | set |  |
+| P-02 | Defect-rate threshold | FR-03 | station configured (Quality owns) | percent | Quality | set | Q-02 |
+| P-03 | Acknowledge window | BR-03 | 10 | minutes | Plant Operations | set | Q-03 |
+| P-04 | Incident retention | DR-04 | 24 | months | Quality | set |  |
+| P-05 | Status-history retention | DR-05 | 14 | days | Plant Operations | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | BR-01 system never stops a line | any alert or incident action | yes |
+| 2 | BR-02 no alert in changeover or planned maintenance | FR-05 downtime alert | yes |
+| 3 | FR-03 at-risk defect rate | ordinary running status | yes |
 
 ---
 
@@ -302,3 +335,19 @@ Our 2026–2029 manufacturing strategy names "real-time visibility" as one of th
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

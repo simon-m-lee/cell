@@ -1,5 +1,42 @@
 # WalkThrough-AI-Generator.md
 
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
+
 **File role:** An AI-executable script. An AI assistant reads this file, then reads a `<file-name>-BRD.md`, and produces `<file-name>-WalkThrough.md` — the executable-requirement companion to the Mitose document set (`HowTo-Mitose.md`). This generator does **not** require `HowTo-Mitose.md` to run; the three layer HowTos are enough to place Cell / Flow / Tissue.
 
 **Audience:** An AI assistant (LLM) with file read/write access.
@@ -13,15 +50,16 @@
 | **`HowTo-Mitose-Cell.md`** | Which `Cell.*` factories answer the BRD (ingress, observe, transaction, txApply) |
 | **`HowTo-Mitose-Flow.md`** | Stock operators vs custom `FlowInstruction` + `FlowInstructionChain` |
 | **`HowTo-Mitose-Tissue.md`** | Which of the five collections answer the books / constraints |
-| Sibling `*(Cell)-WalkThrough.md` | Shape only — copy structure, never nouns (card-auth, grid, airport, hotel) |
+| Sibling `*-WalkThrough.md` | Shape only — copy structure, never nouns (card-auth, grid, airport, hotel) |
 
 **Where the three Mitose HowTos live (resolve before designing):**
 
-1. **User-provided / workspace first:** attached files or copies under `artifacts/` / `attachments/`. Do not fetch a stale GitHub revision over a file the user just edited.
-2. **Published copies:** [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide) — expect `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, `HowTo-Mitose-Tissue.md`. **Mitose** is the German verb (to undergo mitosis), not a typo for Mitosis. Do not “correct” the filename. If that folder 404s, use the workspace copies; package HowTos also live under `packages/*/guide/`.
-3. If a **layer** HowTo is missing from both places, **stop and ask**. Do not invent Cell / Flow / Tissue APIs from memory. Missing `HowTo-Mitose.md` is **not** a stop — continue.
+1. **This directory first.** `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md` sit beside this file. Use those copies. Do not fetch a remote revision over a sibling.
+2. Workspace / attachments only if a sibling is missing.
+3. Published copies: [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide). **Mitose** is the German verb, not a typo. If that folder 404s, stop on the missing layer HowTo — do not invent APIs. Package HowTos also live under `packages/*/guide/`.
+4. Missing `HowTo-Mitose.md` is **not** a stop. Missing `LEDGER-AI-Generator.md` does not stop the WalkThrough; carry gate B1 findings only if that extract was already shown.
 
-**Output:** `<stem>(Cell)-WalkThrough.md` (or `<stem>-WalkThrough.md` if that convention is already in use). Never overwrite without asking.
+**Output:** `<stem>-WalkThrough.md`. Never overwrite without asking. The Demo to name is `<stem>-Demo.dart`.
 
 ---
 
@@ -33,9 +71,9 @@ Follow this file exactly. Do not skip steps. Do not invent business facts that a
 
 ### Rules of engagement
 
-1. **The BRD is the source of truth for *what*.** If the BRD says something, you may restate it. If the BRD does not say something, mark it `[To be confirmed from BRD]` and add a matching row to the WalkThrough's Open questions block (§5.14).
-2. **The WalkThrough is the source of truth for *how the executable must behave*.** Fill its technical sections using this generator’s §5 section order and a Cell-variant sibling WalkThrough for *shape only*. After a Demo exists, `HowTo-Mitose.md` §6 requires §5.15 (Demo Assessment & Recommendations) to be updated from the Dart source.
-3. **Mitose HowTos are the source of truth for *which layer answers the BRD*.** After extracting the nine slots, you **must** run §1b (layer map) against `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md`. Do not assign an ingress, operator, custom instruction, or collection until that check is done.
+1. **The BRD is the source of truth for *what*.** If the BRD says something, you may restate it. If the BRD does not say something, mark it `[To be confirmed from BRD]` and add a matching row to Open questions (§5.11).
+2. **The WalkThrough is the source of truth for *how the executable must behave*.** Fill its technical sections using this generator’s §5 section order and a Cell-variant sibling WalkThrough for *shape only*. After a Demo exists, `HowTo-Mitose.md` §6 requires Demo Assessment (§5.12) to be updated from the Dart source. Pulse path is §5.5. Do not cite those blocks as §8 or §15.
+3. **Mitose HowTos are the source of truth for *which layer answers the BRD*.** After extracting the nine slots, you **must** run §1b (layer map) against `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md` in this directory. Do not assign an ingress, operator, custom instruction, or collection until that check is done. If `HowTo-Mitose-Organ.md` is absent and the BRD needs identity-bearing connected entities, say so in the layer map and defer the need in Real desk. Do not assign `cell_organ` from memory.
 4. **Never invent business numbers.** If the BRD leaves a threshold, duration, or count blank, either use the BRD's `[AI SUGGESTED]` value if present, or write `[To be confirmed]`.
 5. **Use plain English in the top requirement block.** Domain, stack, seam, why this industry, products. No class names, no `Pulse<type>` yet.
 6. **Technical vocabulary is allowed below the requirement block** — `Cell`, `Pulse`, `TestCell`, `TestTissue`, `FlowInstruction`, Tissue types, stock Flow operators.
@@ -44,13 +82,14 @@ Follow this file exactly. Do not skip steps. Do not invent business facts that a
 9. **Never overwrite an existing WalkThrough.** If the file exists, ask first.
 10. **Seam sentence is load-bearing:** the instruction decides, the chain assembles, the observer glues. No Tissue writes in the instruction. No `riskOf` in `Cell.observe`.
 11. **Grep rule you must state:** zero `testRule: TestCell` on Tissue constructors.
-12. **Stop when the checklist in §7 passes.**
+12. **Stop when the checklist in §8 passes.**
+13. **Length and comprehension.** The written file opens with a short summary headed *What a reader must understand*. After the file is shown, offer the comprehension check in `COMPREHENSION-AI-Generator.md` §2 once, and write `<stem>-COMPREHENSION.md` if the user takes, skips, or declines it. Do not write the Demo in that same turn.
 
 ### Opening line
 
 Begin the session with:
 
-> I have read your BRD. I will now produce the WalkThrough document that the rest of the demo set will follow. I will consult HowTo-Mitose-Cell.md, HowTo-Mitose-Flow.md, and HowTo-Mitose-Tissue.md (workspace copies first, then GitHub `guide/` if needed) when placing Mitosis parts against the BRD. HowTo-Mitose.md is optional process — I do not block on it. First, I will show you the extraction plan and the layer map, then I will write the file.
+> I have read your BRD. I will now produce the WalkThrough document that the rest of the demo set will follow. I will consult HowTo-Mitose-Cell.md, HowTo-Mitose-Flow.md, and HowTo-Mitose-Tissue.md in this directory first when placing Mitosis parts against the BRD. HowTo-Mitose.md is optional process — I do not block on it. First, I will show you the extraction plan and the layer map, then I will write the file.
 
 Then run Step 0b, then Step 1.
 
@@ -60,8 +99,8 @@ Then run Step 0b, then Step 1.
 
 Before the nine-slot table:
 
-1. Search the workspace for `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, `HowTo-Mitose-Tissue.md`.
-2. If missing, fetch from `https://github.com/simon-m-lee/cell/tree/master/guide`. If that path 404s, say so and use only workspace copies — do not invent APIs.
+1. Read `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md` from this directory.
+2. If one is missing, then workspace attachments, then `https://github.com/simon-m-lee/cell/tree/master/guide`. If it still cannot be read, stop and name the missing file. Do not invent APIs.
 3. Skim:
    - **Cell:** required `ingress` / `observe`; decide yes/no on `transaction` and `txApply`; ignore stream operators (those are Flow).
    - **Flow:** three build styles; catalog families vs custom `FlowInstructionBase`; `+` then `toHandle` once per product.
@@ -99,8 +138,8 @@ Using the three layer HowTos, show this table before writing the file.
 | Each named feed / ACK | `Cell.ingress` + TestCell yes/no | — | — | Cell §3.1 | |
 | Decision / products | — | custom instruction vs stock; `pass` count; `+` `MapValue` `toHandle` | — | Flow §2–§4 | |
 | Glue to books | `Cell.observe` × (products + ACK) | no Tissue in instruction | writes only from observe | Cell §3.2 | |
-| Multi-value commit | `transaction` yes / no / Wave A | — | — | Cell §3.3 | |
-| Device / compensate | `txApply` yes / no / Wave A | flatten / retry adjacent? | — | Cell §3.4 | |
+| Multi-value commit | `txApply` yes / no / Wave A, on Tissue | — | Tissue books | Cell §3.4 | |
+| Device / compensate | `txApply` yes / no / Wave A, on Tissue | flatten / retry adjacent? | Tissue books | Cell §3.4 | |
 | Each book | — | instruction may **read** a Set | List / Set / Map / Queue / Value + TestTissue | Tissue §2 | |
 | Council / liaison | — | — | `.unmodifiable` / deputy | Tissue §4 | |
 | Time / chatter / latest-only | — | debounce / throttle / switchMap / field-on-tick | — | Flow §3.4–§3.6 | |
@@ -122,10 +161,12 @@ Wait, then write the file using §2–§5.
 |---|---|
 | Project / desk | <from BRD> |
 | BRD | `<stem>-BRD.md` |
-| This WalkThrough | `<stem>(Cell)-WalkThrough.md` |
-| Demo to implement next | `<stem>(Cell)-Demo.dart` |
-| Later (do not write now) | `<stem>(Cell)-ARCHITECTURE.md`, `<stem>(Cell)-FEATURES.md` |
-| Layer HowTos | HowTo-Mitose-Cell / Flow / Tissue |
+| This WalkThrough | `<stem>-WalkThrough.md` |
+| Version | `M.m.p` |
+| Supersedes | `<prior filename or none>` |
+| Demo to implement next | `<stem>-Demo.dart` |
+| Later (do not write now) | `<stem>-LEDGER.md`, `<stem>-COMPREHENSION.md`, `<stem>-ARCHITECTURE.md`, `<stem>-FEATURES.md` |
+| Layer HowTos | HowTo-Mitose-Cell / Flow / Tissue (this directory) |
 ```
 
 ---
@@ -159,7 +200,27 @@ Then one sentence: policy is not a book write; a book write is not a policy.
 
 ## 5. Cell-variant section order — writing spec
 
-Write the WalkThrough in this order. Numbers below **are** the WalkThrough headings (`## 5.1 …`). FEATURES / ARCHITECTURE refer to §8 (pulse path) and §15 (assessment / coverage) of **this** output.
+Write the WalkThrough in this order. Numbers below **are** the WalkThrough headings (`## 5.1 …`). ARCHITECTURE and FEATURES cite pulse path as §5.5 and Demo Assessment as §5.12. Do not alias them as §8 or §15.
+
+### 5.0 Summary and name plate
+
+Open the file with a short summary headed *What a reader must understand*. Then the name plate:
+
+```markdown
+# WalkThrough — <desk name> (Cell variant)
+
+| Artifact | Name |
+|---|---|
+| Project / desk | <from BRD> |
+| BRD | `<stem>-BRD.md` |
+| This WalkThrough | `<stem>-WalkThrough.md` |
+| Version | `M.m.p` |
+| Supersedes | `<prior filename or none>` |
+| Demo to implement next | `<stem>-Demo.dart` |
+| Ledger / comprehension (later) | `<stem>-LEDGER.md`, `<stem>-COMPREHENSION.md` |
+| Later (do not write now) | `<stem>-ARCHITECTURE.md`, `<stem>-FEATURES.md` |
+| Layer HowTos | HowTo-Mitose-Cell / Flow / Tissue (this directory) |
+```
 
 ### 5.1 Inputs / ingress list
 
@@ -225,9 +286,9 @@ State:
 - `MapValue` projects the rich `*Decision` to the narrow seam type. The instruction must not already emit that enum.
 - Adjacent Time / Flatten / Combine / Collect operators live **outside** `riskOf` (feed before `publishTick`, or pump after observe). Name them or defer them in §5.13.
 
-### 5.5 Pulse path (this is WalkThrough §8 for FEATURES)
+### 5.5 Pulse path
 
-ASCII only. Must match `install()` / `installGates()`, not an ideal hotel diagram.
+ASCII only. Must match `install()` / `installGates()`, not an ideal hotel diagram. ARCHITECTURE and FEATURES cite this block as §5.5.
 
 ```text
 idIn / classIn / qtyIn / …    ackIn
@@ -322,29 +383,29 @@ Table of everything the BRD asked for that v1 will **not** execute.
 | BRD need | v1 stand-in | Lands in later | Must not land in |
 |---|---|---|---|
 | Wall-clock dwell | field on tick | timer ingress / Time operator | `riskOf` I/O |
-| Device / issuer | Dart `_drive*` retry-once | `Cell.txApply` + compensate | instruction |
-| Multi-book money commit | raise/close protocol | `Cell.transaction` | `riskOf` |
+| Multi-book commit | `Cell.txApply` on Tissue, with compensate | — | `Cell.transaction`, `riskOf` |
+| Device / issuer | `Cell.txApply` on Tissue, with compensate | — | instruction |
 | Daily PDF / ICB extract | trailer print | batch operator / export job | second write path |
 | Purge after 24 months | append-only list | Wave B on a **copy** | `clear()` on `events` |
 
 Every `transaction` / `txApply` decision from the layer map gets a row: **yes in v1** / **Wave A**.
 
-### 5.11 Open questions (§5.14 in the rules)
+### 5.11 Open questions
 
 | # | Question | Why it blocks | Default if unanswered |
 |---|---|---|---|
 | Q1 | | | `[To be confirmed]` |
 
-Every `[To be confirmed from BRD]` in the nine-slot table has a row here. Do not silently pick a sibling Demo’s number.
+Every `[To be confirmed from BRD]` in the nine-slot table has a row here. Every Blocking finding carried from gate B1 (`LEDGER-AI-Generator.md` §2, extract-only) has a row here. Do not silently pick a sibling Demo’s number.
 
-### 5.12 Demo Assessment stub (§15 — fill after Demo exists)
+### 5.12 Demo Assessment stub (fill after Demo exists)
 
 In the **first** WalkThrough pass write headings only:
 
 ```markdown
 ## Demo Assessment
 
-*Filled after `<stem>(Cell)-Demo.dart` exists. Do not invent a run.*
+*Filled after `<stem>-Demo.dart` exists. Do not invent a run.*
 
 ### What the Demo implemented
 - (stub)
@@ -387,7 +448,9 @@ This is `HowTo-Mitose.md` §6. It is **not** part of the first WalkThrough write
 5. Recommendations for Enhancement map to a landing layer (Cell / Flow / Tissue / harness) using the three HowTos. Do not dump new policy into `riskOf` by default.
 6. If `main()` implemented something Wave A deferred, move that row from §5.10 to “implemented”.
 
-ARCHITECTURE and FEATURES must read this filled §15. They must not treat an unproven clause as a handled failure.
+ARCHITECTURE and FEATURES must read this filled §5.12. They must not treat an unproven clause as a handled failure.
+
+After the filled §5.12 is shown, offer the three choices in `HowTo-Mitose.md` §6 (Change path, in-place update, or skip) before the ledger is offered.
 
 ---
 
@@ -432,9 +495,10 @@ HowTos consulted: user-provided / workspace / GitHub `guide/` (say which).
 
 Per `HowTo-Mitose.md` (if that orchestration is in use; otherwise ask):
 
-1. Offer to generate `<stem>(Cell)-Demo.dart` from this WalkThrough + the three layer HowTos + live pub.dev signatures.
-2. After the Demo exists, run §6 of this file (fill §5.12).
-3. Then offer ARCHITECTURE (`ARCHITECTURE-AI-Generator.md`) and FEATURES (`FEATURES-AI-Generator.md`).
+1. Count words and report them against `COMPREHENSION-AI-Generator.md` §5. Offer the comprehension check (`COMPREHENSION-AI-Generator.md` §2) once before the user accepts. Write or update `<stem>-COMPREHENSION.md`.
+2. Offer to generate `<stem>-Demo.dart` and `<stem>-test.dart` from this WalkThrough + the three layer HowTos in this directory + live pub.dev signatures. Decision logic must stay importable so the test can import the Demo without running `main()`. Groups align to public APIs and documented contracts. The `BRD` group prints the `LEDGER` report. Do not write `<stem>-Check.dart`.
+3. After the Demo exists, run §6 of this file (fill §5.12). Ask before overwriting.
+4. Then offer the ledger (`LEDGER-AI-Generator.md`), then ARCHITECTURE (`ARCHITECTURE-AI-Generator.md`) and FEATURES (`FEATURES-AI-Generator.md`).
 
 Do not run those generators in the same silent pass unless the user asked for the whole set.
 

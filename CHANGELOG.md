@@ -1,5 +1,22 @@
 # Changelog
 
+## Mitosis (1.0.0-rc.10)
+
+- **Precision Software Engineering** — the coined term for the Mitose pipeline’s contract: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. Six components, no seventh. Documented in the README.
+  - Residual ledger (`LEDGER-AI-Generator.md`) written from `<stem>-test.dart` `BRD` group `LEDGER` lines. Verified requires executed evidence; reading code is not Verified.
+  - Comprehension checks and decision log (`COMPREHENSION-AI-Generator.md`) with gates C1–C3. Skipping is allowed and recorded.
+  - Change mode (`CHANGE-AI-Generator.md`) for requirement, upgrade, drift, or defect changes. Writes immutable `<stem>-CHANGE-<nnn>.md`.
+  - `<stem>-test.dart` is always written with the Demo. Groups align to public APIs and documented contracts. Fail-closed groups (`constraint`, `provenance`, `boundary`) fail the suite without moving a BRD row.
+  - Output names drop the `(Cell)` suffix. Executable remains the Cell variant (`Cell` + `Flow` + `Tissue`).
+  - Semantic versioning (`MAJOR.MINOR.PATCH`) on every generated file. Name plate carries `Version` and `Supersedes`. Later steps resolve only the latest version.
+  - After Demo Assessment, the agent offers three choices for recommendations: as a Change (CHANGE path + version bump), in place (no version bump, no CHANGE file), or skip.
+  - Blocked-row mitigation plan in the ledger (sequenced steps, evidence that moves the row, owner).
+  - `Cell.txApply` on Tissue is the only atomic commit. `Cell.transaction` is deferred.
+  - Length caps removed from generators. Documents open with a short summary when useful.
+- **Layer HowTos** updated for the 2.0 seam (instruction decides, chain assembles, observer glues) and for `Cell.txApply` on Tissue.
+- **Sample BRDs** remain in `example/BRD/`; worked pipeline samples (pantry-bridge, saltline-scramble, tide-warden) demonstrate the full 2.0 path including ledger and comprehension.
+- **Package releases**: ships with `cell` `1.0.0-rc.6`, `cell_flow` `1.0.0-rc.7`, `cell_tissue` `1.0.0-rc.7`.
+
 ## Mitosis (1.0.0-rc.9)
 
 - **New Mitose pipeline in [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide)** — an AI-executable orchestration script set that turns a business requirement into a Cell + Flow + Tissue solution and its project documents:

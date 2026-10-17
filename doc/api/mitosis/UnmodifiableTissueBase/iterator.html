@@ -117,7 +117,7 @@ Iterator&lt;E&gt; get iterator {
         .cast&lt;E&gt;();
     return elements.iterator;
   }
-  return _nucleus.container.iterator;
+  return (_nucleus.container as Iterable&lt;E&gt;).iterator;
 }</code></pre>
 </section>
 

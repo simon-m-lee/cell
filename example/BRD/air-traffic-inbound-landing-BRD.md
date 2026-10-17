@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Air Traffic Inbound Landing Sequence
 
-## Air Traffic Inbound Landing Sequence
+**Template version:** 2.0
+**Stem:** `air-traffic-inbound-landing`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Approach inbound-order desk. This tool never issues a clearance. A buried priority and a short wake pair are flagged; only tower can clear a runway-blocked flag. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Inbound Desk |
 | Document title | Business Requirements — Air Traffic Control Inbound Landing Sequence |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-10-01 |
 | Author | Approach Operations Programme Office |
 | Reviewer(s) | Watch Manager (Approach), Tower Watch Manager, Safety Manager (ATS) |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-09-18 | Approach Ops Programme Office | First draft after summer holding-and-go-around review |
-| 1.0 | 2026-10-01 | Approach Ops Programme Office | Approved after review with Approach, Tower, and ATS Safety |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-09-18 | —  | Approach Ops Programme Office | First draft after summer holding-and-go-around review |
+| 1.0 | 2026-10-01 | — | Approach Ops Programme Office | Approved after review with Approach, Tower, and ATS Safety |
 
 ---
 
@@ -132,6 +139,8 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” as a safety
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -182,6 +191,31 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” as a safety
 |---|---|---|---|---|
 | AR-01 | Daily summary: arrivals, at-risk pairs, stack-time flags, buried-priority flags, go-arounds, runway-blocked minutes, median time to acknowledge. | ATS Safety, unit manager | Daily | 5 years |
 | AR-02 | Incident log with timings and acknowledgements. | Watch managers, Safety, CAA | On demand | 5 years |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Published spacing table | FR-02, FR-03 | unit published table (not invented) | gap | Watch Manager Approach | set |  |
+| P-02 | Stack-time at-risk | FR-04 | 12 | minutes, not in next 20 | Watch Manager Approach | set |  |
+| P-03 | Buried priority depth | FR-06, BR-01 | first 4 of the order | places | Watch Manager Approach | set |  |
+| P-04 | Escalate unacknowledged | FR-15 | 60 | seconds | Unit duty supervisor | set |  |
+| P-05 | Incident retention | DR-03 | 5 | years | ATS Safety | set |  |
+| P-06 | Screen update | NFR-01 | 2 | seconds | ATS engineering | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | FR-05 runway blocked (tower only clears, FR-16) | FR-03 pair at-risk, FR-06 buried | yes |
+| 2 | FR-06 / BR-01 buried priority | ordinary order place | yes |
+| 3 | BR-02 never a clearance | any acknowledgement wording | yes |
 
 ---
 
@@ -308,3 +342,19 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” as a safety
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

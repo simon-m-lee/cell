@@ -1,6 +1,43 @@
 # ARCHITECTURE-AI-Generator.md
 
-**File role:** An AI-executable script. An AI assistant reads this file, then reads the running Demo and its WalkThrough, and produces `<file-name>(Cell)-ARCHITECTURE.md`.
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
+
+**File role:** An AI-executable script. An AI assistant reads this file, then reads the running Demo and its WalkThrough, and produces `<file-name>-ARCHITECTURE.md`.
 
 **Audience:** An AI assistant (LLM) with file read/write access.
 
@@ -8,23 +45,23 @@
 
 | Input | Role |
 |---|---|
-| `<stem>(Cell)-Demo.dart` | Source of truth for **what the program actually does** |
-| `<stem>(Cell)-WalkThrough.md` | Contract, seam sentence, Real desk, Wave A |
+| `<stem>-Demo.dart` | Source of truth for **what the program actually does** |
+| `<stem>-WalkThrough.md` | Contract, seam sentence, Real desk, Wave A |
 | `<stem>-BRD.md` | Business names only — do not add new rules |
 | `HowTo-Mitose.md` (optional) | Pipeline order. Not required to extract ARCHITECTURE. |
 | `HowTo-Mitose-Cell.md` | Why ingress / observe / transaction / txApply are placed as they are |
 | `HowTo-Mitose-Flow.md` | Why custom instruction + `+` + `toHandle`, not fluent policy |
 | `HowTo-Mitose-Tissue.md` | Why each of the five books exists |
-| `card-auth-pipeline(Cell)-ARCHITECTURE.md` | Structural template — do not copy card nouns |
+| `card-auth-pipeline-ARCHITECTURE.md` | Structural template — do not copy card nouns |
 
 **Where the Mitose HowTos live**
 
-1. User-attached / workspace copies first.
-2. Else [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide). If that folder 404s, stay on workspace copies; package HowTos also live under `packages/*/guide/`.
+1. This directory first (`HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, `HowTo-Mitose-Tissue.md`, and the other siblings in the table above).
+2. Else workspace attachments, else [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide). If that folder 404s, stay on this directory; do not invent APIs.
 3. **Mitose** is the German verb, not a typo. Do not rename the files.
-4. If a **layer** HowTo or the Demo is missing, **stop**. Never write ARCHITECTURE from the WalkThrough alone. Missing `HowTo-Mitose.md` is not a stop.
+4. If a **layer** HowTo or the Demo is missing, **stop**. Never write ARCHITECTURE from the WalkThrough alone. Missing `HowTo-Mitose.md` is not a stop. If `<stem>-LEDGER.md` or `<stem>-COMPREHENSION.md` exists, read them. Never describe a requirement as handled when the ledger marks it Blocked, Failed, or Unverified. Cite decision IDs; do not restate the log.
 
-**Output:** `<stem>(Cell)-ARCHITECTURE.md` (match the Demo stem). Never overwrite without asking.
+**Output:** `<stem>-ARCHITECTURE.md` (match the Demo stem). Never overwrite without asking. Pulse path is WalkThrough §5.5. Demo Assessment is WalkThrough §5.12. Do not cite those blocks as §8 or §15.
 
 ---
 
@@ -40,11 +77,12 @@ You are extracting **rationale**, not inventing a better design. The Demo knows 
 4. **Consult the three Mitose HowTos** when naming why a part lives on Cell vs Flow vs Tissue. Cite the HowTo section in the ownership / layering text.
 5. **Every lock the Demo takes must be named. Every failure the Demo handles must be named.** A lock the code does not take is an anti-pattern to list, not a section to fabricate.
 6. **Header diagram must match the Demo header / install path**, not an ideal hotel/aircraft diagram.
-7. Stop when §8 checklist passes.
+7. Open with a short summary headed *What a reader must understand*.
+8. If WalkThrough §5.12 listed a hole (`alreadyClosed` untested), ARCHITECTURE failure semantics must **not** list it as a handled failure. Put it under extending the demo or “unproven”.
 
 ### Opening line
 
-> I have the Demo and WalkThrough. I will extract `<stem>(Cell)-ARCHITECTURE.md` from the *running* program, using this generator’s section order and HowTo-Mitose-Cell / Flow / Tissue for layer rationale. HowTo-Mitose.md is optional process. First I will show the four-question extract, then I will write the file.
+> I have the Demo and WalkThrough. I will extract `<stem>-ARCHITECTURE.md` from the *running* program, using this generator’s section order and HowTo-Mitose-Cell / Flow / Tissue for layer rationale. HowTo-Mitose.md is optional process. First I will show the four-question extract, then I will write the file.
 
 Then run §1.
 
@@ -66,8 +104,8 @@ Also list:
 | HowTo check | Found in Demo? | Note |
 |---|---|---|
 | `Cell.ingress` + `Cell.observe` | | HowTo-Mitose-Cell §3 |
-| `Cell.transaction` | yes / no / deferred | Do not describe a tx the Demo never opens |
-| `Cell.txApply` | yes / no / deferred | Same |
+| `Cell.transaction` | yes / no / deferred | Mitose 2.0 expects deferred. Do not describe a tx the Demo never opens |
+| `Cell.txApply` | yes / no / deferred | The only atomic commit, on Tissue, when the Demo calls it |
 | Custom `FlowInstructionBase` + `MapValue` + `+` | | HowTo-Mitose-Flow §4 |
 | Stock Time / Flatten / Combine / Collect | name or none | |
 | TissueList / Set / Map / Queue / Value | which exist | HowTo-Mitose-Tissue §2 |
@@ -83,14 +121,16 @@ Wait, then write the file.
 
 ## 2. File shape (do not reorder)
 
-Imitate `card-auth-pipeline(Cell)-ARCHITECTURE.md`:
+Imitate `card-auth-pipeline-ARCHITECTURE.md`:
 
 ```markdown
 # Architecture — <short domain> (Cell variant)
 
-**Demo:** `<stem>(Cell)-Demo.dart`
-**Requirement:** `<stem>(Cell)-WalkThrough.md`
-**BRD:** `<stem>-BRD.md`
+**Demo:** `<stem>-Demo.dart` (latest version)
+**Requirement:** `<stem>-WalkThrough.md` (latest version)
+**BRD:** `<stem>-BRD.md` (latest version)
+**Version:** `M.m.p`
+**Supersedes:** `<prior or none>`
 **Layer guides:** HowTo-Mitose-Cell / Flow / Tissue
 ```
 
@@ -194,13 +234,13 @@ Repeat the name plate with GitHub `guide/` links for the Mitose HowTos.
 
 **May not:** extra products, extra books, extra locks, “we would use `txApply` here” presented as if it were code, BRD numbers that the Demo does not use.
 
-If WalkThrough §15 listed a hole (`alreadyClosed` untested), ARCHITECTURE §2.6 must **not** list it as a handled failure. Put it under §2.7 or “unproven”.
+If WalkThrough §5.12 listed a hole (`alreadyClosed` untested), ARCHITECTURE §2.6 must **not** list it as a handled failure. Put it under §2.7 or “unproven”. A ledger row that is Blocked, Failed, or Unverified is not a handled failure either.
 
 ---
 
 ## 4. After writing
 
-> Done. `<stem>(Cell)-ARCHITECTURE.md` is extracted from the Demo.
+> Done. `<stem>-ARCHITECTURE.md` is extracted from the Demo.
 >
 > Locks named: …
 > Failures named: …
@@ -232,7 +272,7 @@ The ARCHITECTURE pass is accepted only when all of the following hold. Show Pass
 
 | ID | Criterion | Method |
 |---|---|---|
-| G-AC-01 | `<stem>(Cell)-ARCHITECTURE.md` exists; no overwrite without asking | file inspect |
+| G-AC-01 | `<stem>-ARCHITECTURE.md` exists; no overwrite without asking | file inspect |
 | G-AC-02 | Demo source was read; file was not written from the WalkThrough alone | chat log |
 | G-AC-03 | Four-question extract was shown and confirmed before writing | chat log |
 | G-AC-04 | HowTo-Mitose-Cell / Flow / Tissue loaded | chat log |
@@ -242,7 +282,7 @@ The ARCHITECTURE pass is accepted only when all of the following hold. Show Pass
 | G-AC-08 | Failure subsections match printed banners or `ok=false` only | compare Demo header / `main()` |
 | G-AC-09 | `Cell.transaction` / `Cell.txApply` described only if the Demo calls them | grep |
 | G-AC-10 | No new business rule or third product | compare BRD / WalkThrough |
-| G-AC-11 | Unproven WalkThrough clauses are “unproven”, not handled failures | compare §15 / `main()` |
+| G-AC-11 | Unproven WalkThrough clauses are “unproven”, not handled failures | compare §5.12 / `main()` |
 | G-AC-12 | FEATURES / Demo were not rewritten in this pass | files |
 
 Fail any row → do not claim ARCHITECTURE is done.

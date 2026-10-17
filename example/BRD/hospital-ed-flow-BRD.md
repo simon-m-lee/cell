@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Hospital Emergency Department Patient Flow
 
-## Hospital Emergency Department — Patient Flow & Capacity Management
+**Template version:** 2.0
+**Stem:** `hospital-ed-flow`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. ED patient-flow desk. Clinically deteriorating is NEWS2 rise of 2 or more in 2 hours, or NEWS2 at or above 5. NEWS2 at or above 7 alerts Critical Care Outreach as well. The tool does not make clinical decisions. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 | --- | --- |
 | Project name | FlowCare ED |
 | Document title | Business Requirements — Emergency Department Patient Flow |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-09-22 |
 | Author | Clinical Operations Programme Office |
 | Reviewer(s) | ED Clinical Director, Head of Nursing, Bed Manager, Patient Safety Lead |
@@ -15,10 +22,10 @@
 
 ### Revision history
 
-| Version | Date | Author | Change summary |
+| Version | Date | Change ID | Author | Change summary |
 | --- | --- | --- | --- |
-| 0.1 | 2026-08-25 | Clinical Ops Programme Office | First draft |
-| 1.0 | 2026-09-22 | Clinical Ops Programme Office | Approved after review with ED Clinical Director and Head of Nursing |
+| 0.1.0 | 2026-08-25 | —  | Clinical Ops Programme Office | First draft |
+| 1.0 | 2026-09-22 | — | Clinical Ops Programme Office | Approved after review with ED Clinical Director and Head of Nursing |
 
 ---
 
@@ -155,6 +162,8 @@ The trust's 2025–2028 strategy names "safe, timely care" as pillar one. This p
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -204,6 +213,32 @@ The trust's 2025–2028 strategy names "safe, timely care" as pillar one. This p
 | AR-02 | Incident log: every alert, acknowledgement, and clinical action. | ED Clinical Director, Patient Safety | On demand | 8 years |
 | AR-03 | Weekly trend report: deterioration alerts, response times, missed escalations. | Clinical Governance Committee | Weekly | 8 years |
 | AR-04 | Monthly CQC return: 4-hour performance, ambulance handover times, corridor waits. | CQC, NHS England | Monthly | 8 years |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Deteriorating NEWS2 rise | FR-03 | rise of 2 or more within 2 hours, or score at or above 5 | score / hours | ED Clinical Director | set |  |
+| P-02 | Critical NEWS2 | BR-02 | 7 | score | Patient Safety Lead | set |  |
+| P-03 | Time-critical in ED | FR-04 | 3 | hours without disposition | ED Clinical Director | set |  |
+| P-04 | Bed-wait alert | FR-06 | 60 | minutes | Bed Manager | set |  |
+| P-05 | Escalate unacknowledged deterioration | FR-14, BR-03 | 10 | minutes | Clinical Director | set | Q-02 |
+| P-06 | Incident retention adult | DR-04 | 8 | years | Patient Safety | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | BR-02 NEWS2 at or above 7 alerts Consultant and Critical Care Outreach together | FR-03 ordinary deterioration | yes |
+| 2 | BR-05 safeguarding restricted access | ordinary view | yes |
+| 3 | BR-01 no discharge without authorised disposition | any close | yes |
+| 4 | FR-04 time-critical | ordinary waiting | yes |
 
 ---
 
@@ -336,3 +371,19 @@ The trust's 2025–2028 strategy names "safe, timely care" as pillar one. This p
 | Technical lead (Health Informatics) | [name] |  |  |
 | Clinical Safety Lead | [name] |  |  |
 | Caldicott Guardian | [name] |  |  |
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

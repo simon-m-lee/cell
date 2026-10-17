@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Municipal Drinking Water Distribution
 
-## Municipal Drinking Water Distribution
+**Template version:** 2.0
+**Stem:** `water-distribution-control`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Treated-water distribution desk. At-risk is residual head at or below 15 m, or free chlorine at or below 0.20 mg/L for more than 10 minutes, or an unplanned reservoir fall of more than 8% in 30 minutes. Isolation of a protected site requires Duty Manager acknowledgement. The tool does not drive valves. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Clean Water Desk |
 | Document title | Business Requirements — Municipal Drinking Water Distribution Control |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-10-01 |
 | Author | Network Operations Programme Office |
 | Reviewer(s) | Head of Treated Water, Network Control Manager, Public Health Liaison |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-09-08 | Network Ops Programme Office | First draft after August burst-and-residual incident review |
-| 1.0 | 2026-10-01 | Network Ops Programme Office | Approved after review with Treated Water, Control, and Public Health |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-09-08 | —  | Network Ops Programme Office | First draft after August burst-and-residual incident review |
+| 1.0 | 2026-10-01 | — | Network Ops Programme Office | Approved after review with Treated Water, Control, and Public Health |
 
 ---
 
@@ -128,6 +135,8 @@ The company’s 2025–2030 network strategy names “real-time treated-water vi
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -181,6 +190,33 @@ The company’s 2025–2030 network strategy names “real-time treated-water vi
 |---|---|---|---|---|
 | AR-01 | The daily event summary shall show, per works / zone: events, isolations, restores, minutes below residual, minutes below pressure, protected sites touched, median time to acknowledgement. | Public Health, DWI liaison | Daily | 5 years |
 | AR-02 | The incident log shall show every incident with timings, actions, and acknowledgements. | Controllers, Duty Managers, Safety & Compliance, Inspectorate | On demand | 5 years |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Pressure at-risk | FR-03 | 15 | metres residual head | Head of Treated Water | set |  |
+| P-02 | Residual at-risk | FR-03 | 0.20 mg/L for more than 10 minutes | mg/L / minutes | Head of Treated Water | set | Q-01 |
+| P-03 | Reservoir at-risk | FR-04 | more than 8% fall in 30 minutes, no planned draw-down | percent / minutes | Head of Treated Water | set | Q-02 |
+| P-04 | Multi-DMA warn | FR-06 | 3 | adjacent DMAs | Network Control | set |  |
+| P-05 | Escalate unacknowledged | FR-17, BR-03 | 10 | minutes | Duty Manager | set |  |
+| P-06 | Telemetry silence | BR-07 | 3 | minutes | OT | set |  |
+| P-07 | Incident retention | DR-04 | 5 | years | Regulation | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | FR-09 / BR-01 protected-site isolation needs Duty Manager | any isolation record | yes |
+| 2 | BR-07 telemetry silence is a warning, not healthy | absence of at-risk | yes |
+| 3 | FR-04 unplanned reservoir draw-down | ordinary level change | yes |
+| 4 | FR-03 pressure or residual at-risk | ordinary DMA picture | yes |
 
 ---
 
@@ -318,3 +354,19 @@ The company’s 2025–2030 network strategy names “real-time treated-water vi
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

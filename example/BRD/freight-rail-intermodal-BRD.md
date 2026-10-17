@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Freight Rail Intermodal
 
-## Freight Rail Intermodal
+**Template version:** 2.0
+**Stem:** `freight-rail-intermodal`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Intermodal yard flow watch. At-risk is time remaining below the train’s minimum connection time. Hazardous and temperature-controlled boxes are not re-routed without the Yard Master. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Rail Yard Flow Watch |
 | Document title | Business Requirements — Freight Rail Intermodal Yard Operations |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-09-27 |
 | Author | Network Operations Programme Office |
 | Reviewer(s) | Head of Terminal Operations, Yard Master, Intermodal Planning Manager |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-08-25 | Network Ops Programme Office | First draft |
-| 1.0 | 2026-09-27 | Network Ops Programme Office | Approved after review with Terminal Ops and Intermodal Planning |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-08-25 | —  | Network Ops Programme Office | First draft |
+| 1.0 | 2026-09-27 | — | Network Ops Programme Office | Approved after review with Terminal Ops and Intermodal Planning |
 
 ---
 
@@ -126,6 +133,8 @@ Our 2025–2028 network strategy names "operational visibility" as one of four p
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -169,6 +178,29 @@ Our 2025–2028 network strategy names "operational visibility" as one of four p
 |---|---|---|---|---|
 | AR-01 | The daily intermodal performance report shall show, per customer: containers handled, containers delayed, containers rolled, and average processing time. | Customer service | Daily | 24 months |
 | AR-02 | The incident log shall show every incident with timings and actions. | Yard masters, Safety & Compliance | On demand | 24 months |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Crane / block stop alert | FR-05 | 60 | seconds | Terminal Ops | set |  |
+| P-02 | Acknowledge window | BR-03 | 15 | minutes | Network Ops | set | Q-03 |
+| P-03 | Incident retention | DR-04 | 24 | months | Customer service | set |  |
+| P-04 | Position-history retention | DR-05 | 7 | days | Terminal Ops | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | BR-01 hazardous / temperature-controlled no re-route without Yard Master | ordinary at-risk handling | yes |
+| 2 | BR-02 no alert on a departed train | FR-03 at-risk | yes |
+| 3 | BR-03 acknowledge or escalate within window | open alert | yes |
 
 ---
 
@@ -284,3 +316,19 @@ Our 2025–2028 network strategy names "operational visibility" as one of four p
 | Compliance / risk | `[name]` | | |
 
 ---
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

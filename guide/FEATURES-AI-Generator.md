@@ -1,6 +1,43 @@
 # FEATURES-AI-Generator.md
 
-**File role:** An AI-executable script. An AI assistant reads this file, then reads the running Demo (and WalkThrough §8 / §15), and produces `<file-name>(Cell)-FEATURES.md`.
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
+
+**File role:** An AI-executable script. An AI assistant reads this file, then reads the running Demo (and WalkThrough §5.5 / §5.9 / §5.12), and produces `<file-name>-FEATURES.md`.
 
 **Audience:** An AI assistant (LLM) with file read/write access.
 
@@ -8,19 +45,19 @@
 
 | Input | Role |
 |---|---|
-| `<stem>(Cell)-Demo.dart` | Source of truth — **if a row cannot be grepped here, delete the row** |
-| `<stem>(Cell)-WalkThrough.md` | Scenario banners, §15 coverage, Real desk |
-| `<stem>(Cell)-ARCHITECTURE.md` | Lock / seam names to cross-link (optional if not yet written — say so) |
+| `<stem>-Demo.dart` | Source of truth — **if a row cannot be grepped here, delete the row** |
+| `<stem>-WalkThrough.md` | Scenario banners, §5.9 scenarios, §5.12 assessment, §5.13 coverage, Real desk |
+| `<stem>-ARCHITECTURE.md` | Lock / seam names to cross-link (optional if not yet written — say so) |
 | `<stem>-BRD.md` | FR/DR/BR/AC IDs for the “serves” column only |
 | `HowTo-Mitose.md` (optional) | Pipeline order. Not required to extract FEATURES. |
 | `HowTo-Mitose-Cell.md` | Ingress / observe / transaction / txApply rows |
 | `HowTo-Mitose-Flow.md` | Instruction, `+`, `toHandle`, stock operators that exist |
 | `HowTo-Mitose-Tissue.md` | Five books + TestTissue + deputy |
-| `card-auth-pipeline(Cell)-FEATURES.md` | Catalogue column shape — do not copy card nouns |
+| `card-auth-pipeline-FEATURES.md` | Catalogue column shape — do not copy card nouns |
 
-**Where the Mitose HowTos live:** user-attached copies first, else [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide). If that folder 404s, stay on workspace copies. **Mitose** is the German verb, not a typo. If the Demo is missing, **stop**. FEATURES written from a WalkThrough alone is a wish-list. Missing `HowTo-Mitose.md` is not a stop.
+**Where the Mitose HowTos live:** this directory first, else workspace attachments, else [`https://github.com/simon-m-lee/cell/tree/master/guide`](https://github.com/simon-m-lee/cell/tree/master/guide). If that folder 404s, stay on this directory. **Mitose** is the German verb, not a typo. If the Demo is missing, **stop**. FEATURES written from a WalkThrough alone is a wish-list. Missing `HowTo-Mitose.md` is not a stop. Pulse path is WalkThrough §5.5. Demo Assessment is WalkThrough §5.12. Do not cite those blocks as §8 or §15. If `<stem>-LEDGER.md` exists, never mark a requirement handled when that ledger says Blocked, Failed, or Unverified. Cite decision IDs from `<stem>-COMPREHENSION.md` where a design choice appears.
 
-**Output:** `<stem>(Cell)-FEATURES.md`. Never overwrite without asking.
+**Output:** `<stem>-FEATURES.md`. Never overwrite without asking. Open with a short summary headed *What a reader must understand*.
 
 ---
 
@@ -41,7 +78,7 @@ FEATURES is the **audit catalogue** of the executable. A reviewer should grep ev
 
 ### Opening line
 
-> I have the Demo. I will extract `<stem>(Cell)-FEATURES.md` as an audit catalogue: one greppable row per observable, scenario map, operator cheat sheet, acceptance checks. HowTo-Mitose-Cell / Flow / Tissue name the layers. First I will show the inventory, then I will write the file.
+> I have the Demo. I will extract `<stem>-FEATURES.md` as an audit catalogue: one greppable row per observable, scenario map, operator cheat sheet, acceptance checks. HowTo-Mitose-Cell / Flow / Tissue name the layers. First I will show the inventory, then I will write the file.
 
 Then run §1.
 
@@ -102,15 +139,17 @@ Wait, then write.
 
 ## 2. File shape (do not reorder)
 
-Imitate `card-auth-pipeline(Cell)-FEATURES.md`.
+Imitate `card-auth-pipeline-FEATURES.md`.
 
 ```markdown
 # Features — <short domain> (Cell variant)
 
-**Demo:** `<stem>(Cell)-Demo.dart`
-**Requirement:** `<stem>(Cell)-WalkThrough.md`
-**Architecture:** `<stem>(Cell)-ARCHITECTURE.md`
-**BRD:** `<stem>-BRD.md`
+**Demo:** `<stem>-Demo.dart` (latest version)
+**Requirement:** `<stem>-WalkThrough.md` (latest version)
+**Architecture:** `<stem>-ARCHITECTURE.md` (latest version)
+**BRD:** `<stem>-BRD.md` (latest version)
+**Version:** `M.m.p`
+**Supersedes:** `<prior or none>`
 **Layer guides:** HowTo-Mitose-Cell / Flow / Tissue
 ```
 
@@ -148,7 +187,7 @@ Renumber. **Delete** any F-row whose “Where” is not in the Demo. Mark unprov
 
 ### 2.3 Scenario catalogue
 
-| Banner | WalkThrough §8 | Demo `main()` label | Proves |
+| Banner | WalkThrough §5.9 | Demo `main()` label | Proves |
 |---|---|---|---|
 | Seed | … | `── Seed ──` | drop `none` |
 | … | | | |
@@ -161,7 +200,7 @@ Union of:
 
 - BRD § out of scope  
 - WalkThrough Real desk  
-- WalkThrough §15 “not in this Demo”  
+- WalkThrough §5.12 “not in this Demo”  
 - HowTo-Cell transaction/txApply you marked absent  
 
 No pretending NFR-99.5% is a feature.
@@ -178,9 +217,9 @@ Split by layer (Mitose HowTos):
 
 ### 2.6 Acceptance checklist (goes into FEATURES.md)
 
-Grep-able, from WalkThrough §13 + Demo header:
+Grep-able, from WalkThrough §5.9 / §5.13 and the Demo header:
 
-- [ ] `dart analyze <stem>(Cell)-Demo.dart`
+- [ ] `dart analyze <stem>-Demo.dart`
 - [ ] `dart run` prints the Demo-header console, including trailer integers **copied from the header**
 - [ ] custom instruction extends `FlowInstructionBase<Cell, Pulse, Pulse>`
 - [ ] `toHandle` count = product count, only in `installGates`
@@ -200,7 +239,7 @@ Rules:
 
 - “In demo” only if a scenario banner or grep proves it.
 - “Partial” if a stand-in exists (tick field instead of a clock).
-- WalkThrough §15 wins over wishful mapping.
+- WalkThrough §5.12 wins over wishful mapping.
 - Open BRD questions stay Open; they are not ACs.
 
 ### 2.7 See also
@@ -219,14 +258,14 @@ Name plate again.
 
 ## 4. After writing
 
-> Done. `<stem>(Cell)-FEATURES.md` catalogues the Demo.
+> Done. `<stem>-FEATURES.md` catalogues the Demo.
 >
 > Feature rows: *n* (all greppable)
 > Scenarios mapped: *k*
 > Trailer used: `ticks=…` (Demo header)
 > HowTos: user-provided / GitHub `guide/`
 >
-> Reconcile pass is next if WalkThrough §8 / ARCHITECTURE diagram still disagree with this catalogue.
+> Reconcile pass is next if WalkThrough §5.5 / ARCHITECTURE diagram still disagree with this catalogue.
 
 ---
 
@@ -265,7 +304,7 @@ The FEATURES pass is accepted only when all of the following hold. Show this tab
 
 | ID | Criterion | Method |
 |---|---|---|
-| G-AC-01 | `<stem>(Cell)-FEATURES.md` exists and was not overwritten without asking | file inspect |
+| G-AC-01 | `<stem>-FEATURES.md` exists and was not overwritten without asking | file inspect |
 | G-AC-02 | Demo was read; inventory (§1) was shown before the file was written | chat log |
 | G-AC-03 | Every feature-catalogue “Where” greps in the Demo | `grep` |
 | G-AC-04 | Every Cell-touching row has input parameter(s) and output `Pulse<type>` | inspect table |

@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Air Traffic Control Tower Runway Desk
 
-## Air Traffic Control Tower Runway Desk
+**Template version:** 2.0
+**Stem:** `air-traffic-tower`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Tower runway and crossing desk. Companion to the inbound-order desk. This tool never issues a clearance and never commands a stop bar. Approach cannot clear this desk’s runway-blocked flag. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Tower Desk |
 | Document title | Business Requirements — Air Traffic Control Tower Runway and Crossing Picture |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-10-01 |
 | Author | Tower Operations Programme Office |
 | Reviewer(s) | Tower Watch Manager, Ground Watch Manager, Safety Manager (ATS) |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-09-20 | Tower Ops Programme Office | First draft after runway-occupancy and crossing review |
-| 1.0 | 2026-10-01 | Tower Ops Programme Office | Approved after review with Tower, Ground, and ATS Safety |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-09-20 | —  | Tower Ops Programme Office | First draft after runway-occupancy and crossing review |
+| 1.0 | 2026-10-01 | — | Tower Ops Programme Office | Approved after review with Tower, Ground, and ATS Safety |
 
 ---
 
@@ -137,6 +144,8 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” and “shar
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -187,6 +196,30 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” and “shar
 |---|---|---|---|---|
 | AR-01 | Daily summary: movements, at-risk occupancy flags, stale-occupied flags, protected-occupant minutes, go-arounds, rejected take-offs, median time to acknowledge. | ATS Safety, unit manager | Daily | 5 years |
 | AR-02 | Incident log with timings and acknowledgements. | Watch managers, Safety, CAA | On demand | 5 years |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Short-final distance | FR-02, FR-03 | unit published distance (not invented) | distance | Tower WM | set | Q-01 |
+| P-02 | Stale occupied | FR-05 | 90 | seconds | Tower WM | set |  |
+| P-03 | Escalate unacknowledged | FR-15 | 15 | seconds | Unit duty supervisor | set |  |
+| P-04 | Incident retention | DR-03 | 5 | years | ATS Safety | set |  |
+| P-05 | Screen update | NFR-01 | 1 | second | ATS engineering | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | FR-06 / BR-01 protected occupant blocked | FR-03 short-final at-risk, FR-04 line-up at-risk | yes |
+| 2 | FR-16 approach cannot clear blocked | any approach acknowledgement | yes |
+| 3 | BR-02 never a clearance or stop-bar command | any acknowledgement wording | yes |
 
 ---
 
@@ -312,3 +345,19 @@ The unit’s 2026–2029 ATS plan names “shared inbound picture” and “shar
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

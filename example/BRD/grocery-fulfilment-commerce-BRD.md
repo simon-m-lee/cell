@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Grocery Commerce Fulfilment
 
-## Grocery Commerce Fulfilment
+**Template version:** 2.0
+**Stem:** `grocery-fulfilment-commerce`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Grocery-commerce wave desk. At-risk is 25 minutes to cut-off with more than 15% unpicked, or a tote out of temperature band. An allergen substitute is refused. A warm frozen tote is not sealed. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Wave Desk |
 | Document title | Business Requirements — Grocery Commerce Fulfilment |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-10-01 |
 | Author | Fulfilment Operations Programme Office |
 | Reviewer(s) | Head of Dark Stores, Cold-Chain Manager, Customer Promise Lead |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-09-14 | Fulfilment Ops Programme Office | First draft after summer cut-off miss review |
-| 1.0 | 2026-10-01 | Fulfilment Ops Programme Office | Approved after review with Dark Stores, Food Safety, and Promise |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-09-14 | —  | Fulfilment Ops Programme Office | First draft after summer cut-off miss review |
+| 1.0 | 2026-10-01 | — | Fulfilment Ops Programme Office | Approved after review with Dark Stores, Food Safety, and Promise |
 
 ---
 
@@ -129,6 +136,8 @@ The 2026–2028 commerce plan names “on-time, in-temperature, honest substitut
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -177,6 +186,32 @@ The 2026–2028 commerce plan names “on-time, in-temperature, honest substitut
 |---|---|---|---|---|
 | AR-01 | Daily summary: orders, missed slots, temperature incidents, allergen blocks, protected-line alerts, median time to acknowledge. | Promise, Food Safety | Daily | 24 months |
 | AR-02 | Incident log with timings and actions. | Leads, Food Safety, EHO | On demand | 24 months |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | Wave at-risk minutes | FR-03 | 25 | minutes to cut-off | Head of Dark Stores | set |  |
+| P-02 | Wave at-risk unpicked | FR-03 | 15 | percent of lines | Head of Dark Stores | set |  |
+| P-03 | Chill out-of-band | FR-04 | above 5 °C for more than 8 minutes | temperature / time | Cold-Chain | set |  |
+| P-04 | Frozen out-of-band | FR-04 | above −15 °C at any sample | temperature | Cold-Chain | set |  |
+| P-05 | Escalate unacknowledged | FR-14 | 5 | minutes | City duty manager | set |  |
+| P-06 | Incident retention | DR-03 | 24 | months | Food Safety | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | BR-01 / FR-06 no allergen substitute | ordinary substitute | yes |
+| 2 | BR-05 warm frozen not sealed | dispatch | yes |
+| 3 | FR-07 / BR-02 protected line needs lead acknowledgement | short or move | yes |
+| 4 | FR-03 wave at-risk | ordinary wave progress | yes |
 
 ---
 
@@ -297,3 +332,19 @@ The 2026–2028 commerce plan names “on-time, in-temperature, honest substitut
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

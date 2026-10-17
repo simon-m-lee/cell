@@ -61,7 +61,7 @@
   </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
 <span class="name ">call</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="call-param-object"><span class="type-annotation">dynamic</span> <span class="parameter-name">object</span>, {</span></li>
-<li><span class="parameter" id="call-param-host"><span class="type-annotation">C?</span> <span class="parameter-name">host</span>, </span></li>
+<li><span class="parameter" id="call-param-host"><span>covariant</span> <span class="type-annotation">C?</span> <span class="parameter-name">host</span>, </span></li>
 <li><span class="parameter" id="call-param-arguments"><span class="type-annotation">dynamic</span> <span class="parameter-name">arguments</span>, </span></li>
 </ol>})
 
@@ -109,7 +109,7 @@ that triggered this request.</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FutureOr&lt;bool&gt; call(dynamic object, {C? host, dynamic arguments}) {
+FutureOr&lt;bool&gt; call(dynamic object, {covariant C? host, dynamic arguments}) {
   try {
     return super.call(object, host: host, arguments: arguments);
   } on Exception {

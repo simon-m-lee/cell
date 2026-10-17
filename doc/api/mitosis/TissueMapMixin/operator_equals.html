@@ -114,7 +114,7 @@ bool operator ==(Object other) {
     }
   }
   if (other is Iterable&lt;E&gt;) {
-    return _nucleus.container == other;
+    return (_nucleus.container as Iterable&lt;E&gt;) == other;
   }
   return false;
 }</code></pre>

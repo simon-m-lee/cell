@@ -1,6 +1,43 @@
 # HowTo-Mitose-Tissue.md
 
-**Audience:** an AI prompt agent writing `<stem>(Cell)-Demo.dart` as part of the five-document Mitosis set.
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
+
+**Audience:** an AI prompt agent writing `<stem>-Demo.dart` as part of the five-document Mitosis set.
 
 **Package this file is about:** [`package:cell_tissue`](https://pub.dev/packages/cell_tissue) — the **application / books** layer (Tissue). Product codename **Mitosis**. **Mitose** is the German verb — not a misspelling. This file is the Tissue-layer HowTo you *mitose* a BRD with.
 
@@ -22,6 +59,10 @@ Tissue **records**. Flow **decides**. `Cell.observe` is the only glue.
 
 ---
 
+## 0. Where to look (this directory first)
+
+Sibling scripts live in this file's directory. Read `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md` from here before pub.dev or GitHub. Demo and document names have no `(Cell)` suffix: `<stem>-Demo.dart`, `<stem>-WalkThrough.md`, `<stem>-ARCHITECTURE.md`, `<stem>-FEATURES.md`. Live signatures still come from pub.dev. Never invent one.
+
 ## 0. Where to look (do this before inventing a collection)
 
 | Look here | For |
@@ -30,8 +71,8 @@ Tissue **records**. Flow **decides**. `Cell.observe` is the only glue.
 | Package README “The Five Collection Types” | When to pick List / Set / Map / Queue / Value |
 | README “Validation” / “Read-Only Views” | Append-only pattern, `.unmodifiable`, `.deputy` |
 | `packages/cell_tissue` guide / FEATURES (repo) | Events (`ElementAdded`, …), capacity, async mutations |
-| Monorepo `example/grid-demand-response(Cell)-Demo.dart` | `events`, `reserveMw`, `shedMap`, `protected`, `rtuQ` |
-| Monorepo `example/card-auth-pipeline(Cell)-Demo.dart` | Ledger + hold map + money invariant |
+| Monorepo `example/grid-demand-response-Demo.dart` | `events`, `reserveMw`, `shedMap`, `protected`, `rtuQ` |
+| Monorepo `example/card-auth-pipeline-Demo.dart` | Ledger + hold map + money invariant |
 
 **Import**
 
@@ -279,7 +320,7 @@ Writes happen only from observers / harness raise-close. `main()` COMPLY uses th
 - Negative reserve proved only by a harness `if` while claiming TestTissue was tested.
 - Putting passenger name / NHS number on `Event`.
 - Closing BRD open questions by inventing a sixth collection type (`TissueGraph`, etc.).
-- `Cell.transaction` around a single `add` (Cell HowTo).
+- `Cell.transaction` around a Tissue write. The commit is `Cell.txApply` on Tissue (Cell HowTo §3.4).
 
 ---
 

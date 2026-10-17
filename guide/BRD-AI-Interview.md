@@ -1,5 +1,41 @@
-```markdown
 # BRD-AI-Interview.md
+
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
 
 **File role:** An AI-executable script. An AI assistant reads this file, then runs a guided interview with a human user, and at the end writes `<file-name>-BRD.md`.
 
@@ -203,7 +239,7 @@ For each gap, write a **best-effort draft** using the following rules:
 3. Keep suggestions **conservative and industry-standard**. Prefer widely accepted norms (e.g., "retain audit records for 24 months" only if the industry usually does). If you are not sure, write `[AI SUGGESTED — needs confirmation]` instead.
 4. Never invent names of people, companies, systems, or regulations.
 5. Never invent specific numbers (percentages, durations, currency amounts) unless they follow directly from something the user said.
-6. After writing each suggestion, add a one-line note in the final BRD's Section 13 (Open questions) so the user can revisit it.
+6. After writing each suggestion, add a one-line note in the final BRD's Section 14 (Open questions) so the user can revisit it.
 7. **Show the suggestions to the user in chat before writing the file.** Send a short list like:
 
    > Here are my suggested fills. Please read them and tell me which to keep, which to change, and which to remove.
@@ -220,7 +256,7 @@ Handle each section according to the chosen option. Do not stop mid-way to write
 
 ### 10.4 If the user says "just write it"
 
-Write the file with `[To be confirmed]` in every gap and a matching row in Section 13. Do not add AI suggestions.
+Write the file with `[To be confirmed]` in every gap and a matching row in Section 14. Do not add AI suggestions.
 
 ### 10.5 If the user says "you decide for me"
 
@@ -234,227 +270,37 @@ Then follow Section 10.2.
 
 ## 11. Writing the BRD
 
-Write a single file named `<file_name>-BRD.md`. Use exactly the structure below. Fill every section from the user's answers, plus any AI-suggested fills (tagged as `[AI SUGGESTED — please review]` or `[AI SUGGESTED — needs confirmation]`). Where the user gave no answer **and** no AI suggestion was accepted, write `[To be confirmed]` and add a matching row to Section 13 (Open questions).
+Write a single file named `<file_name>-BRD.md`. **Use the section order of `Business_Requirements_Document(BRD).md` in this directory (template 2.0).** Do not use the 1.0 outline (executive summary as §1, requirements as §6, open questions as §13). Copy headings from the template. Delete italic guidance once the answer is written.
 
-### 11.1 File structure to write
+Fill every section from the user's answers, plus any AI-suggested fills tagged `[AI SUGGESTED — please review]` or `[AI SUGGESTED — needs confirmation]`. Where the user gave no answer and no suggestion was accepted, write `[To be confirmed]` and add a matching row to template §14 (Open questions).
 
-```markdown
-# Business Requirements Document
+### 11.1 Template 2.0 shape (mandatory)
 
-## <project_name>
-
-| Field | Value |
+| Template section | Fill from |
 |---|---|
-| Project name | <project_name> |
-| Document title | Business Requirements — <project_name> |
-| Version | 1.0 |
-| Date | <today's date, YYYY-MM-DD> |
-| Author | AI Business Analyst assistant (drafted with <user's name if known>) |
-| Reviewer(s) | <from Q12> |
-| Approver(s) | <from Q12, or "[To be confirmed]"> |
-| Status | Draft |
-
-**Revision history**
-
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | <today> | AI BA assistant | First draft from interview |
-
-**Note on AI-suggested content.** Any line marked `[AI SUGGESTED — please review]` or `[AI SUGGESTED — needs confirmation]` was drafted by the assistant, not stated by the user. Please confirm or correct before approval.
-
----
-
-## 1. Executive summary
-
-<Three to five sentences drawn from Q1, Q5, Q6, Q7, Q8, Q9, Q14.>
-
----
-
-## 2. Business context
-
-### 2.1 Background
-<From Q2, Q3, Q5, Q6.>
-
-### 2.2 Problem statement
-<From Q5, Q6, Q8. Preserve specific numbers verbatim.>
-
-### 2.3 Business drivers
-- <From Q8, Q9, Q20.>
-- <Add one bullet per driver the user mentioned.>
-
-### 2.4 Alignment with strategy
-<From Q9, Q14, Q15.>
-
----
-
-## 3. Scope
-
-### 3.1 In scope
-<From Q17.>
-
-### 3.2 Out of scope
-<From Q18, Q19.>
-
-### 3.3 Assumptions
-- <From Q24, Q25, Q26.>
-- <If none given and no AI fill accepted, write "[To be confirmed]".>
-
-### 3.4 Constraints
-<From Q20, Q21, Q22, Q23.>
-
-### 3.5 Dependencies
-<From Q24, Q25, Q26.>
-
----
-
-## 4. Stakeholders
-
-| Role | Name / Group | Interest | Influence | Engagement approach |
-|---|---|---|---|---|
-| Sponsor | <from Q4> | <from Q9, Q14> | H | Monthly steering |
-| Primary user | <from Q10> | <from Q6> | H | Weekly workshops |
-| Reviewer | <from Q11, Q12> | <from Q11> | M | Bi-weekly review |
-| Affected party | <from Q13> | <from Q13> | M | <from Q13> |
-
----
-
-## 5. Users and personas
-
-### 5.1 <Role from Q10>
-- **Role:** <role>
-- **Context:** <inferred from Q5, Q6, Q10 — otherwise "[To be confirmed]">
-- **Goal:** <inferred from Q14, Q15 — otherwise "[To be confirmed]">
-- **Pain today:** <from Q5, Q6>
-- **Success looks like:** <from Q14, Q15>
-
-### 5.2 <Second role from Q10>
-<Same shape.>
-
-### 5.3 <Third role from Q10, if given>
-<Same shape.>
-
----
-
-## 6. Business requirements
-
-### 6.1 Functional requirements
-
-| ID | Requirement | Priority (Must / Should / Could) | Rationale |
-|---|---|---|---|
-| FR-01 | The system shall <from Q17 item 1>. | Must | <from Q8 or Q14> |
-| FR-02 | … | … | … |
-
-<If some FRs were AI-suggested, prefix with `[AI SUGGESTED — please review]`.>
-
-### 6.2 Data requirements
-
-| ID | Requirement | Priority | Rationale |
-|---|---|---|---|
-| DR-01 | <From Q25 or Q8.> | Must | <from Q8 or Q20> |
-
-### 6.3 Rules and policy
-
-| ID | Rule | Source | Priority |
-|---|---|---|---|
-| BR-01 | <From Q20, Q23.> | <regulation / company policy> | Must |
-
-### 6.4 Reporting and audit
-
-| ID | Requirement | Audience | Frequency | Retention |
-|---|---|---|---|---|
-| AR-01 | <From Q11 or Q20.> | <audience> | <on demand / daily / weekly> | <from Q20, or "[To be confirmed]"> |
-
----
-
-## 7. Non-functional requirements
-
-<If the user did not give these, use AI-suggested values marked `[AI SUGGESTED — please review]` when the user accepted Option B, otherwise `[To be confirmed]`. Do not invent numbers without a tag.>
-
-| ID | Category | Requirement | Target |
-|---|---|---|---|
-| NFR-01 | Performance | <From Q15 or AI suggestion.> | <target> |
-| NFR-02 | Availability | <From Q21 or AI suggestion.> | <target> |
-| NFR-03 | Security | <From Q20, Q23, or AI suggestion.> | <target> |
-| NFR-04 | Auditability | <From Q11, Q20, or AI suggestion.> | <target> |
-| NFR-05 | Compliance | <From Q20.> | <name of regulation> |
-
----
-
-## 8. User journeys
-
-<If the user gave enough detail in Q5, Q17, or Q14, write one journey per persona. Otherwise write "[To be confirmed]" or use AI suggestions as tagged.>
-
-### 8.1 Journey: <name>
-- **Trigger:** <from Q5>
-- **Steps:** <from Q17, Q5>
-- **Outcome:** <from Q14, Q15>
-- **Failure path:** <from Q27, Q28, or "[To be confirmed]">
-
----
-
-## 9. Acceptance criteria
-
-<Derive from Q14, Q15, Q16. If the user gave nothing measurable, either use AI suggestions (Option B) or write "[To be confirmed]".>
-
-| ID | Criterion | Method of verification |
-|---|---|---|
-| AC-01 | <Observable outcome from Q15.> | <demo / test / inspection / audit> |
-
----
-
-## 10. Risks and mitigations
-
-| ID | Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| R-01 | <From Q27.> | M | H | <From Q28, or "[To be confirmed]"> |
-| R-02 | <From Q29 if given.> | | | |
-
----
-
-## 11. Success measures
-
-<From Q15, Q16. If not given and no AI fill accepted, "[To be confirmed]".>
-
-| Measure | Baseline today | Target | Reviewed when |
-|---|---|---|---|
-| <Measure> | <baseline or "[To be confirmed]"> | <target> | 3 months after go-live |
-
----
-
-## 12. Glossary
-
-<From Q38.>
-
-| Term | Meaning |
-|---|---|
-| <term> | <meaning> |
-
----
-
-## 13. Open questions
-
-<Every place above that says "[To be confirmed]" appears here. Every AI-suggested item also appears here so the user can review it.>
-
-| ID | Question | Owner | Due date | Status |
-|---|---|---|---|---|
-| Q-01 | <From any "[To be confirmed]" or Q33.> | <from Q35, or "[To be confirmed]"> | [To be confirmed] | Open |
-| Q-02 | [AI SUGGESTED — please review] Confirm whether <suggested item> is acceptable. | <user or sponsor> | [To be confirmed] | Open |
-
----
-
-## 14. Approvals
-
-| Role | Name | Signature | Date |
-|---|---|---|---|
-| Business sponsor | <from Q4> | | |
-| Product owner | <from Q12> | | |
-| Technical lead | [To be confirmed] | | |
-| Compliance / risk | [To be confirmed] | | |
-
----
-
-*End of document.*
-```
+| §1 Document control | Q0, Q4, Q12. Version 0.1. Revision history has a Change ID column (`—` on first draft). Status Draft. |
+| §2 Executive summary | Q1, Q5, Q6, Q7, Q8, Q9, Q14 |
+| §3 Business context | Q2, Q3, Q5, Q6, Q8, Q9, Q14, Q15. Keep vivid numbers verbatim. |
+| §4 Scope | Q17 in; Q18 and Q19 out; Q24–Q26 assumptions and dependencies; Q20–Q23 constraints |
+| §5 Stakeholders | Q4, Q10, Q11, Q12, Q13 |
+| §6 Users and personas | Q10, Q5, Q6, Q14, Q15 |
+| §7.1–7.4 Requirements | Q17, Q20, Q23, Q25, Q11. One row per requirement. Columns must include Priority, Acceptance criterion (Given / When / Then, with tolerance), and Class (`T/P/M/I/H/J`). |
+| §7.5 Parameter register | Every threshold, window, limit, and list a requirement uses. Missing value is `TBD` with an owner. Never invent a number. |
+| §7.6 Decision precedence | If several rules can apply to one case, say which wins. If unknown, `[To be confirmed]` and a §14 row. |
+| §8 Non-functional | Q15, Q20, Q21, Q23. Every target says how it is measured (percentile, window, sample, start and end) or stays `[To be confirmed]`. |
+| §9 User journeys | Q5, Q17, Q14, Q27. Each journey names the requirement IDs it exercises. |
+| §10 Acceptance criteria | Q14, Q15, Q16. Each AC covers requirement IDs. Copy §10.1 verification classes from the template. |
+| §11 Risks | Q27, Q28, Q29 |
+| §12 Success measures | Q15, Q16. A target that matches an NFR must use the same number. |
+| §13 Glossary | Q38 |
+| §14 Open questions | Every `[To be confirmed]`, every TBD parameter, every AI suggestion. Include Blocks (IDs). Copy §14.1 consistency checks and leave them unticked. |
+| §15 Approvals | Q4, Q12. §15.1 residual acceptance stays empty until the ledger exists. |
+| Appendix A | Link `<file_name>-LEDGER.md` (not written in this pass). |
+| Appendix B | Empty orphan register. |
+
+Requirement IDs are permanent. Do not reuse or renumber one. A removed requirement is **Retired**, not deleted.
+
+After writing, this file's job ends. Gate B1 (`LEDGER-AI-Generator.md` §2, extract-only) is the next step, and only if `HowTo-Mitose.md` is in use or the user asks. Do not start the WalkThrough in this pass.
 
 ### 11.2 After writing the file
 
@@ -465,7 +311,7 @@ Send this message to the user:
 > It contains:
 > - `<n>` items you stated directly.
 > - `<m>` items marked `[AI SUGGESTED — please review]` or `[AI SUGGESTED — needs confirmation]` — please read those carefully and correct anything you disagree with.
-> - `<k>` items marked `[To be confirmed]` — these are still open. You can find them all listed in Section 13 (Open questions).
+> - `<k>` items marked `[To be confirmed]` — these are still open. You can find them all listed in Section 14 (Open questions).
 >
 > Tell me any changes and I will update the file. Otherwise, that's the draft done.
 
@@ -475,48 +321,49 @@ Then stop. Do not volunteer a redesign, a proposal, or a follow-up interview unl
 
 ## 12. Quick reference — question-to-section map
 
+Targets are sections of `Business_Requirements_Document(BRD).md` (template 2.0), not the 1.0 outline.
+
 | Question | Target section in BRD |
 |---|---|
-| Q1 | §1 Executive summary, §2.3 |
-| Q2 | §2.1 Background |
-| Q3 | §2.1 Background |
-| Q4 | §4 Stakeholders, §14 Approvals |
-| Q5 | §2.2 Problem statement, §8.1 Journeys |
-| Q6 | §2.2, §5 Personas |
-| Q7 | §2.2 |
-| Q8 | §2.3 Drivers, §2.2 |
-| Q9 | §2.3, §2.4 |
-| Q10 | §5 Personas |
-| Q11 | §4 Stakeholders, §6.4 Reporting |
-| Q12 | §4 Stakeholders, §14 Approvals |
-| Q13 | §4 Stakeholders |
-| Q14 | §1, §2.4, §9, §11 |
-| Q15 | §9 Acceptance, §11 Measures |
-| Q16 | §11 Measures |
-| Q17 | §3.1, §6.1 |
-| Q18 | §3.2 |
-| Q19 | §3.2 |
-| Q20 | §3.4, §6.3, §6.4, §7 |
-| Q21 | §3.4 |
-| Q22 | §3.4 |
-| Q23 | §3.4, §6.3 |
-| Q24 | §3.3, §3.5 |
-| Q25 | §3.5, §6.2 |
-| Q26 | §3.5 |
-| Q27 | §10 |
-| Q28 | §10 |
-| Q29 | §10 |
-| Q30 | §3.1, §6.1 |
-| Q31 | §3.2 |
-| Q32 | §6.1 (Must priority) |
-| Q33 | §13 |
-| Q34 | §13 |
-| Q35 | §13 |
-| Q36 | §2, §3 |
-| Q37 | §4 |
-| Q38 | §12 |
-
----
+| Q0 | §1 Document control; file name `<file_name>-BRD.md` |
+| Q1 | §2 Executive summary |
+| Q2 | §3.1 Background |
+| Q3 | §3.1 Background |
+| Q4 | §5 Stakeholders, §15 Approvals |
+| Q5 | §3.2 Problem statement, §9 Journeys |
+| Q6 | §3.2, §6 Personas |
+| Q7 | §3.2 |
+| Q8 | §3.3 Drivers, §3.2 |
+| Q9 | §3.3, §3.4 |
+| Q10 | §6 Personas |
+| Q11 | §5 Stakeholders, §7.4 Reporting |
+| Q12 | §5 Stakeholders, §15 Approvals |
+| Q13 | §5 Stakeholders |
+| Q14 | §2, §3.4, §10, §12 |
+| Q15 | §10 Acceptance, §12 Measures |
+| Q16 | §12 Measures |
+| Q17 | §4.1, §7.1 |
+| Q18 | §4.2 |
+| Q19 | §4.2 |
+| Q20 | §4.4, §7.3, §7.4, §8 |
+| Q21 | §4.4 |
+| Q22 | §4.4 |
+| Q23 | §4.4, §7.3 |
+| Q24 | §4.3, §4.5 |
+| Q25 | §4.5, §7.2 |
+| Q26 | §4.5 |
+| Q27 | §11 Risks |
+| Q28 | §11 Risks |
+| Q29 | §11 Risks |
+| Q30 | §4.1, §7.1 |
+| Q31 | §4.2 |
+| Q32 | §7.1 (Must priority) |
+| Q33 | §14 Open questions |
+| Q34 | §14 Open questions |
+| Q35 | §14 Open questions |
+| Q36 | §3, §4 |
+| Q37 | §5 |
+| Q38 | §13 Glossary |
 
 ## 13. Failure modes to avoid
 
@@ -534,4 +381,3 @@ Then stop. Do not volunteer a redesign, a proposal, or a follow-up interview unl
 ---
 
 *End of AI prompt script.*
-```

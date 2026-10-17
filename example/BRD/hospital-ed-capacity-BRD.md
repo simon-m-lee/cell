@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Hospital Emergency Department Capacity
 
-## Hospital Emergency Department Capacity
+**Template version:** 2.0
+**Stem:** `hospital-ed-capacity`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. ED capacity desk. At-risk is 95% trolley occupancy or 8 or more boarded more than 60 minutes. Resus and protected spaces are never spare capacity. Diversion remains a human decision. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | ED Board Watch |
 | Document title | Business Requirements — Hospital Emergency Department Capacity |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-09-26 |
 | Author | Unscheduled Care Programme Office |
 | Reviewer(s) | Chief Nurse, ED Clinical Director, Site Operations Manager |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-08-28 | Unscheduled Care Programme Office | First draft after winter-pressures debrief |
-| 1.0 | 2026-09-26 | Unscheduled Care Programme Office | Approved after review with ED, Site Ops, and Safeguarding |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-08-28 | —  | Unscheduled Care Programme Office | First draft after winter-pressures debrief |
+| 1.0 | 2026-09-26 | — | Unscheduled Care Programme Office | Approved after review with ED, Site Ops, and Safeguarding |
 
 ---
 
@@ -127,6 +134,8 @@ The trust’s 2025–2028 urgent and emergency care plan names “real-time site
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -170,6 +179,30 @@ The trust’s 2025–2028 urgent and emergency care plan names “real-time site
 |---|---|---|---|
 | AR-01 | The daily unscheduled-care summary shall show: attendances, four-hour performance, 12-hour trolley waits, peak occupancy, hours on diversion warning, hours on at-risk. | ICB liaison | Daily | 24 months |
 | AR-02 | The incident log shall show every capacity incident with timings and actions. | Site ops, Chief Nurse, CQC pack | On demand | 24 months |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | At-risk occupancy | FR-03 | 95 | percent trolley | Site operations | set |  |
+| P-02 | Boarded at-risk | FR-03 | 8 patients boarded more than 60 minutes | count / minutes | Site operations | set |  |
+| P-03 | Handover warn | FR-05 | 15 | minutes, or 3 crews on ramp | Site operations | set |  |
+| P-04 | Acknowledge window | BR-03 | 10 | minutes | Unscheduled Care | set | Q-03 |
+| P-05 | Incident retention | DR-04 | 24 | months | Site operations | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | BR-01 resus / protected spaces never spare, never boarded without consultant | FR-03 capacity picture | yes |
+| 2 | BR-02 no at-risk on a closed or stood-down stream | FR-03 | yes |
+| 3 | Diversion is human (out of scope) | any alert | yes |
 
 ---
 
@@ -289,3 +322,19 @@ The trust’s 2025–2028 urgent and emergency care plan names “real-time site
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

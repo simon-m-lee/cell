@@ -1,12 +1,19 @@
-# Business Requirements Document (BRD)
+# Business Requirements Document — Aerospace Line Maintenance and Gate Turnaround
 
-## Aerospace Line Maintenance and Gate Turnaround
+**Template version:** 2.0
+**Stem:** `aerospace-line-maintenance`
+**Pipeline note:** Worked sample for a Mitose 2.0 run. Line-maintenance and gate-turnaround desk. A release of a protected task exists only with a second authorised signature. A quarantined part returns to quarantine, not to serviceable stock, unless Quality acknowledges. This file says what the desk needs. It does not say how the desk will be built.
+
+---
+
+## 1. Document control
 
 | Field | Value |
 |---|---|
 | Project name | Turn Watch |
 | Document title | Business Requirements — Aerospace Line Maintenance and Gate Turnaround |
-| Version | 1.0 |
+| Version | 0.1.0 |
+| Supersedes | none |
 | Date | 2026-10-01 |
 | Author | Airside Operations Programme Office |
 | Reviewer(s) | Head of Line Maintenance, Duty Station Manager, Continuing Airworthiness Manager |
@@ -15,10 +22,10 @@
 
 **Revision history**
 
-| Version | Date | Author | Change summary |
-|---|---|---|---|
-| 0.1 | 2026-09-12 | Airside Ops Programme Office | First draft after summer on-time-departure review |
-| 1.0 | 2026-10-01 | Airside Ops Programme Office | Approved after review with Line Maintenance, Station, and CAMO |
+| Version | Date | Change ID | Author | Change summary |
+|---|---|---|---|---|
+| 0.1.0 | 2026-09-12 | —  | Airside Ops Programme Office | First draft after summer on-time-departure review |
+| 1.0 | 2026-10-01 | — | Airside Ops Programme Office | Approved after review with Line Maintenance, Station, and CAMO |
 
 ---
 
@@ -131,6 +138,8 @@ The 2026–2029 station plan names “visible, signed turns” as a reliability 
 
 ## 7. Business requirements
 
+
+**Class note (Mitose 2.0).** Every requirement is checkable. Classes: T trace, P policy, M measurement, I integrity, H human, J judgment. Acceptance criteria in section 10 are the Given / When / Then form for the rows they cover. A requirement with no section-10 row is class T or P and is verified by the ledger from an executed test, not by reading code.
 ### 7.1 Functional requirements
 
 | ID | Requirement | Priority | Rationale |
@@ -180,6 +189,32 @@ The 2026–2029 station plan names “visible, signed turns” as a reliability 
 |---|---|---|---|---|
 | AR-01 | Daily summary: turns, at-risk, blocked, dual-inspect closures, quarantine events, median time to acknowledge. | CAMO, Quality | Daily | 36 months |
 | AR-02 | Incident log with timings and signatures. | Duty engineers, Quality, CAA | On demand | 36 months |
+
+---
+
+### 7.5 Parameter register
+
+Every threshold, window, limit, and list that a requirement refers to appears here once. A missing value is TBD with an owner. Do not invent a value to fill a row.
+
+| ID | Parameter | Used by (requirement IDs) | Value | Unit | Owner | Status (set / TBD) | Open question |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P-01 | At-risk minutes to ETD | FR-03 | 20 | minutes | Head of Line Maintenance | set |  |
+| P-02 | Protected-task types | FR-04, BR-01 | flight control, fuel panel, ETOPS, locked-out | list | Quality | set | Q-02 |
+| P-03 | Escalate unacknowledged at-risk | FR-15 | 5 | minutes | Duty Station Manager | set |  |
+| P-04 | Incident retention | DR-03, AR-01, AR-02 | 36 | months | Quality | set |  |
+| P-05 | Tick retention | DR-04 | 14 | days | Airside Ops | set |  |
+| P-06 | Screen update | NFR-01 | 5 | seconds | IT | set |  |
+| P-07 | Availability window | NFR-02 | 99.9 | percent, 04:00–00:00 | IT | set |  |
+
+### 7.6 Decision precedence
+
+When more than one rule can match the same case, the higher order wins. Every matching reason is recorded.
+
+| Order | Rule (requirement ID) | Wins over | All matching reasons recorded? |
+| --- | --- | --- | --- |
+| 1 | FR-04 / BR-05 blocked (protected task) | FR-03 at-risk | yes |
+| 2 | FR-09 / BR-01 second signature required | any release recording | yes |
+| 3 | FR-16 quarantine return | fit-for-service assumption | yes |
 
 ---
 
@@ -300,3 +335,19 @@ The 2026–2029 station plan names “visible, signed turns” as a reliability 
 ---
 
 *End of document.*
+
+## Appendix A. Residual ledger
+
+The residual ledger is written by the Mitose pipeline after the Demo and the test run. It is not filled in this BRD. One row per requirement ID. Verified requires an executed `LEDGER` line from `<stem>-test.dart`. Reading the code is not Verified.
+
+| ID | Status | Evidence | Note |
+|---|---|---|---|
+| (filled by LEDGER-AI-Generator.md) | | | |
+
+## Appendix B. Orphan behavior register
+
+Behaviour found in the Demo or the test file that serves no requirement ID. The user chooses: add a requirement, remove it, or accept it.
+
+| Where | What | Decision |
+|---|---|---|
+| (filled after the Demo) | | |

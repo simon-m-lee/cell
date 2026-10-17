@@ -1,6 +1,43 @@
 # HowTo-Mitose-Cell.md
 
-**Audience:** an AI prompt agent writing `<stem>(Cell)-Demo.dart` as part of the five-document Mitosis set.
+
+
+## Same-directory dependencies
+
+All Mitose scripts in this set live in **one directory** (this file's directory). Resolve a sibling by filename here first. Do not prefer a remote or package copy over a sibling that is present. A missing sibling is a stop only when this file says that sibling is required.
+
+| Sibling | Role |
+|---|---|
+| `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
+| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
+| `HowTo-Mitose-Cell.md` | Cell factory choices. |
+| `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
+| `HowTo-Mitose-Tissue.md` | Tissue collection choices. |
+| `LEDGER-AI-Generator.md` | Gate B1 extract; writes `<stem>-LEDGER.md` from the `<stem>-test.dart` report. Does not write a Check file. |
+| `COMPREHENSION-AI-Generator.md` | Gates C1–C3, decision log. Writes `<stem>-COMPREHENSION.md`. |
+| `ARCHITECTURE-AI-Generator.md` | Writes `<stem>-ARCHITECTURE.md` from the running Demo. |
+| `FEATURES-AI-Generator.md` | Writes `<stem>-FEATURES.md` from the running Demo. |
+| `CHANGE-AI-Generator.md` | Writes `<stem>-CHANGE-<nnn>.md`. |
+
+**Output names (no `(Cell)` in the filename).** The executable is still the Cell variant (Cell + Flow + Tissue). Dropping `(Cell)` from the name does not drop the variant.
+
+```text
+<stem>-BRD.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-LEDGER.md
+<stem>-test.dart             (always with the Demo; BRD group prints the ledger report; other groups align to public APIs and documented contracts)
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md       (change mode only)
+```
+
+Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
+
+**Audience:** an AI prompt agent writing `<stem>-Demo.dart` as part of the five-document Mitosis set.
 
 **Package this file is about:** [`package:cell`](https://pub.dev/packages/cell) — the **core** layer of Mitosis (Cell / Flow / Tissue). Product codename **Mitosis**. **Mitose** is the German verb (to undergo mitosis) — not a misspelling. This file is the Cell-layer HowTo you *mitose* a BRD with.
 
@@ -22,6 +59,10 @@ Read **this** file when your hand is on `*-Demo.dart` or a WalkThrough layer map
 
 ---
 
+## 0. Where to look (this directory first)
+
+Sibling scripts live in this file's directory. Read `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, and `HowTo-Mitose-Tissue.md` from here before pub.dev or GitHub. Demo and document names have no `(Cell)` suffix: `<stem>-Demo.dart`, `<stem>-WalkThrough.md`, `<stem>-ARCHITECTURE.md`, `<stem>-FEATURES.md`. Live signatures still come from pub.dev. Never invent one.
+
 ## 0. Where to look (do this before inventing a signature)
 
 Never guess a `Cell.*` signature. Resolve it from the published package.
@@ -37,7 +78,7 @@ Never guess a `Cell.*` signature. Resolve it from the published package.
 | `packages/cell/guide/HowTo-TestCell.md` | Ingress / state validation |
 | `packages/cell/guide/HowTo-Pulse.md` | `Pulse<T>` |
 | `packages/cell/example/` | Small single-operator demos |
-| Monorepo `example/*(Cell)-Demo.dart` | Full seam demos (card-auth, grid, ride-hail) |
+| Monorepo `example/*-Demo.dart` | Full seam demos (card-auth, grid, ride-hail) |
 
 **Import for a Cell-only sketch**
 
@@ -85,8 +126,8 @@ Stream-shaped operators (`asyncMap`, `switchMap`, `debounce`, `distinct`, `fromF
 |---|---|---|---|
 | **`Cell.ingress<I>`** | `IngressHandle<I>` | **Required.** Every external fact the BRD names (tag, stream, Hz, ACK). | “system shall capture…”, journeys, feeds |
 | **`Cell.observe`** | `EgressHandle` | **Required.** Gate Cell → Tissue write. ACK ingress → `reset()` + close. | Alerts, ACK, audit, UI print |
-| **`Cell.transaction`** | `TransactionScope` | When two retained **values** must commit together. | Money, occupancy+folio, multi-book commit |
-| **`Cell.txApply`** | `ApplyTransactionScope` | When a **command** needs compensate / undo. | Devices, radio, issuer, PLC |
+| **`Cell.transaction`** | `TransactionScope` | **Do not use.** Mitose 2.0 commits on Tissue with `Cell.txApply` only. | — |
+| **`Cell.txApply`** | `ApplyTransactionScope` | **Required** when two retained facts, or a command and its undo, must commit together. Participants are Tissue books. | Money, occupancy+folio, multi-book commit, device, radio, issuer |
 | `Cell.state<V>` | `StateHandle<V>` | Optional. Prefer `TissueValue` for a governed reserve. | Retained setting only if WalkThrough named no Tissue |
 | `Cell.derive` | `Cell` | Pure projection. No policy branches if a custom instruction exists. | “show X derived from Y” |
 | `Cell.synthesis` | `Cell` | Fan-in. Cell-variant Demos often assemble `*Tick` in Dart and emit `tickIn` instead. | “one screen from many feeds” |
@@ -160,68 +201,52 @@ Cell.observe(
 
 One observer per product lane plus one ACK observer is the Cell-variant default. Do not observe `tickIn` to make the decision — that bypasses the instruction.
 
-### 3.3 `Cell.transaction` — atomic *value* writes
+### 3.3 `Cell.transaction` — not the Mitose commit
 
-```dart
-final tx = Cell.transaction(/* TransactionOptions? */);
-await tx.begin([cellA, cellB]);
-final a = tx.read(cellA);
-tx.update(cellA, a - 50);
-tx.update(cellB, tx.read(cellB) + 50);
-await tx.commit();
-// or rollback()
+Do not call `Cell.transaction` in a Mitose 2.0 Demo. It coordinates `ValueCell` state. Mitose books are Tissue. A Tissue value is not a transaction participant.
+
+Record it in the header as deferred, with the reason:
+
+```text
+transaction deferred txApply on Tissue
 ```
 
-Some demos use the callback form:
+A present `Cell.transaction` is a deviation. Say so in Real desk.
+
+### 3.4 `Cell.txApply` — the only atomic commit, on Tissue
 
 ```dart
-await Cell.transaction((tx) async {
-  occupied.update(true, tx: tx);
-  folio.update(rateCents, tx: tx);
-});
-```
-
-**When the BRD says two retained facts must move together or not at all** (hotel occupancy + folio; stand doors + chocks + status; two ledger legs).
-
-**Considering factors**
-
-| Question | Decision |
-|---|---|
-| Are the participants Cells with values? | `transaction` |
-| Are they Tissue collections? | Prefer Tissue protocol (`raise` / `close` with compensation) unless the WalkThrough names a Cell.transaction across Cell-backed books |
-| Can an observer see a half-write? | No — observers should see commit, not mid-tx |
-| Isolation / timeout? | Only if the BRD or NFR names contention; otherwise defaults |
-
-**Do not** wrap `riskOf` in a transaction. Policy is pure.
-
-### 3.4 `Cell.txApply` — staged *commands* with compensate
-
-```dart
-final tx = Cell.txApply(/* TxApplyOptions? */);
-await tx.begin([cell1]);
-cell1.apply(
-  (current) async { /* side effect; return new value */ },
-  tx: tx,
-  compensate: (issued) async { /* undo */; return null; },
+await Cell.txApply().execute(
+  participants: [hoursCell, gateCell],
+  body: (tx) {
+    hoursCell.apply(
+      hoursCell.recordBoth,
+      positionalArguments: [nextPump, nextShift],
+      tx: tx,
+      compensate: hoursCell.restoreBoth,
+    );
+    gateCell.apply(
+      book.closeGate,
+      tx: tx,
+      compensate: book.openGate,
+    );
+  },
 );
-await tx.commit();
 ```
 
-**When the BRD names an external act that can fail after a local write** (key encode / void; push clearance / cancel; RTU shed / restore; issuer decline after hold).
+The books written inside those commands are Tissue: `TissueList`, `TissueMap`, `TissueSet`, `TissueQueue`, `TissueValue`. No `ValueCell` stands in for a book.
 
-**Considering factors**
+On `cell` 1.0.0-rc.6, `Tissue.apply` accepts a scope and does not enqueue. Stage the commit through a command cell whose `apply` enqueues, and whose function writes the Tissue. The compensate undoes that Tissue write. Do not pass a Tissue as the participant and expect the scope to hold the write.
+
+**When:** the BRD says two retained facts move together or not at all, or an external act can fail after a local write.
 
 | Question | Decision |
 |---|---|
-| Is the step a function with an undo, not a number? | `txApply` |
-| v1 industry Demo already has `_driveAlert` retry-once? | That Dart list is a **stand-in**. Promote to `txApply` when the WalkThrough Wave A says the pump is a real device |
-| Failure in the middle? | `compensate` on issued work; `stopOnFirstFailure` if options exist |
+| Two books, or a book and an undo? | `txApply` on Tissue |
+| One book, no undo? | ordinary Tissue write from `Cell.observe` |
+| `Cell.transaction`? | no |
 
-**Rule of thumb (from the Features topic):**  
-`transaction` = coordinate **state**.  
-`txApply` = coordinate **side-effecting functions** that need undo.
-
-A Demo that only prints and mutates Tissue can defer both. A Demo whose BRD journey includes “encoder issued a key then the folio write failed” cannot.
+Do not wrap `riskOf` in `txApply`. Policy is pure.
 
 ---
 
@@ -258,8 +283,8 @@ Look these up on pub.dev; do not invent parallel types.
 | “flag at-risk when …” | **not** a Cell factory | custom `FlowInstruction` + `toHandle` |
 | “record every alert” | `Cell.observe` on gate | `events.add` |
 | “acknowledge and record action” | `Cell.ingress` ACK + `Cell.observe` | `reset()` + `closeIncident` |
-| “room and folio together” | `Cell.transaction` | two `update`s, one `commit` |
-| “encode key / request push / RTU” | `Cell.txApply` | `apply` + `compensate` |
+| “room and folio together” | `Cell.txApply` on the Tissue books | `apply` + `compensate` |
+| “encode key / request push / RTU” | `Cell.txApply` on the Tissue books | `apply` + `compensate` |
 | “no name on the airline extract” | omit field, and/or `Cell.sanitized` | deputy / unmodifiable Tissue |
 | “120k events / day” | not a Cell factory | peak loop in `main()`, or a Flow operator if the WalkThrough says so |
 
@@ -269,7 +294,7 @@ If the WalkThrough already named the factory, obey the WalkThrough. If it did no
 
 ## 6. Minimum Cell surface of a Cell-variant industry Demo
 
-A Demo that follows `hospital_ed_capacity(Cell)-Demo.dart` / `grid-demand-response(Cell)-Demo.dart` **must** use:
+A Demo that follows `hospital_ed_capacity-Demo.dart` / `grid-demand-response-Demo.dart` **must** use:
 
 ```text
 Cell.ingress     × N   (identity, class, quantity, tick bus, ack)
@@ -282,8 +307,7 @@ EgressHandle.stop / dispose
 It **should** consider, and use when the BRD has the matching journey:
 
 ```text
-Cell.transaction    multi-cell value commit
-Cell.txApply        device / issuer / radio with compensate
+Cell.txApply        the only atomic commit; Tissue books; compensate
 Cell.sanitized      PII path
 ```
 
@@ -345,7 +369,7 @@ Plus: seam sentence, reserve invariant, TestCell vs TestTissue rule, expected co
 1. This file (§2 table, §3 four factories, §5 BRD map).
 2. [Cell class](https://pub.dev/documentation/cell/latest/cell/Cell-class.html) for the live signature you are about to type.
 3. `HowTo-TestCell.md` / `HowTo-Transaction.md` / `HowTo-TransactionOnApply.md` if those factories are in play.
-4. A sibling `*(Cell)-Demo.dart` in `example/` — copy structure, not nouns.
+4. A sibling `*-Demo.dart` in `example/` — copy structure, not nouns.
 5. Then write `install()` ingresses and observers; leave `riskOf` in the Flow instruction.
 
 ---

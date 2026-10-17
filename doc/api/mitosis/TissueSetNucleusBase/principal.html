@@ -90,7 +90,7 @@ the same logic and storage as its principal.</p>
 in the local <a href="../../mitosis/NucleusBase/record.html">record</a>, the system "walks up" this <a href="../../mitosis/TissueSetNucleusBase/principal.html">principal</a> chain.</li>
 <li><strong>Contextual Overrides</strong>: A "Deputy" set (created via <code>deputy()</code>)
 typically has a <a href="../../mitosis/TissueSetNucleusBase/principal.html">principal</a> link to the original set's nucleus,
-allowing it to inherit the physical data <a href="../../mitosis/TissueNucleusBase/container.html">container</a> and <code>identitySet</code>
+allowing it to inherit the physical data <a href="../../mitosis/TissueSetNucleusBase/container.html">container</a> and <code>identitySet</code>
 while providing a local override for the <a href="../../mitosis/NucleusBase/context.html">context</a> or <a href="../../mitosis/TissueNucleusBase/testRule.html">testRule</a>.</li>
 <li><strong>Termination</strong>: The chain ends when this getter returns <code>null</code> –
 that's the "root" nucleus.</li>

@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-1.0.0--rc.9-yellow.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-1.0.0--rc.10-yellow.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -12,7 +12,7 @@
 
 Mitosis is designed for systems where *why something happened* matters as much as *what happened*: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.
 
-> **New — the Mitose pipeline.** The [`guide/`](guide/HowTo-Mitose.md) directory ships an AI-executable orchestration script: give an AI prompt agent a business requirement, and it follows `HowTo-Mitose.md` to produce a working **Cell + Flow + Tissue** solution together with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. See [The Mitose Pipeline](#-the-mitose-pipeline).
+> **New — the Mitose pipeline.** The [`guide/`](guide/HowTo-Mitose.md) directory ships an AI-executable orchestration script that practices **Precision Software Engineering**: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. See [Precision Software Engineering](#-precision-software-engineering) and [The Mitose Pipeline](#-the-mitose-pipeline).
 
 ---
 
@@ -20,6 +20,7 @@ Mitosis is designed for systems where *why something happened* matters as much a
 
 - [Why the name "Mitosis"?](#-why-the-name-mitosis)
 - [The Three Pillars](#-the-three-pillars)
+- [Precision Software Engineering](#-precision-software-engineering)
 - [The Mitose Pipeline](#-the-mitose-pipeline)
 - [Repository Layout](#-repository-layout)
 - [Architecture Philosophy](#-architecture-philosophy)
@@ -69,51 +70,77 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 
 ---
 
+## 🎯 Precision Software Engineering
+
+**Precision Software Engineering** is to software what precision engineering is to a part. A stated design requirement is carried into running behavior. Every step is recorded, explicit, bounded, checkable, traceable, and verifiable. A later change, expansion, or update follows the same path, so the cycle is predictable.
+
+The Mitose pipeline is the working expression of that idea. It has six components and no seventh.
+
+| Quality | What makes it true here |
+|---|---|
+| **Recorded** | The BRD, the WalkThrough, the Demo header, and the ledger are the record. A chat is not. |
+| **Explicit** | Permanent identifiers, a parameter register, a seam sentence, a layer map. |
+| **Bounded** | Placement rules, Real-desk deferrals, one stem per desk. Invented fields are marked. |
+| **Checkable** | The constraint, provenance, and boundary groups fail the suite. A stated rule is not enough. |
+| **Traceable** | Impact, coverage, and evidence are traced by permanent identifier. Unknown is treated as affected. |
+| **Verifiable** | One ledger line per identifier, from an executed test. Reading the code is not Verified. |
+| **Changeable** | A numbered change file. The requirements difference is confirmed first. An old acceptance does not survive. |
+| **Expandable and updatable** | A new requirement is a new identifier. An amended one keeps its identifier. The same gates run again. |
+| **Predictable** | The same path, the same gates, and the same fail-closed groups on every build and every later change. |
+
+---
+
 ## 🧫 The Mitose Pipeline
 
 **From a business requirement to a Mitosis solution, with an AI prompt agent as the operator.**
 
-The umbrella repository ships the **Mitose pipeline** in [`guide/`](guide/HowTo-Mitose.md): a set of AI-executable scripts. A user provides a business requirement, and an AI prompt agent follows [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) to build a solution on the three pillars — **Cell** (core), **Flow** (orchestration), and **Tissue** (application) — and to write the project documents that go with it.
+The umbrella repository ships the **Mitose pipeline 2.0** in [`guide/`](guide/HowTo-Mitose.md): a set of AI-executable scripts. A user provides a business requirement, and an AI prompt agent follows [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) to build a solution on the three pillars — **Cell** (core), **Flow** (orchestration), and **Tissue** (application) — and to write the project documents that go with it, including a residual ledger of executed evidence.
 
 ### How it runs
 
 The agent follows the pipeline in order, with one human decision at each gate:
 
-1. **BRD gate** — a Business Requirements Document must exist before anything else. The user can:
-   - upload a filled `<stem>-BRD.md`,
-   - fill [`Business_Requirements_Document(BRD).md`](guide/Business_Requirements_Document(BRD).md) offline,
-   - take the guided interview in [`BRD-AI-Interview.md`](guide/BRD-AI-Interview.md), or
-   - paste a short requirement paragraph for the agent to draft a BRD from.
-2. **WalkThrough** — the agent follows [`WalkThrough-AI-Generator.md`](guide/WalkThrough-AI-Generator.md), consulting the layer HowTos to place every part, and writes `<stem>(Cell)-WalkThrough.md`. The user reviews and accepts it.
-3. **Demo** — only after acceptance, the agent generates `<stem>(Cell)-Demo.dart`, treating the accepted WalkThrough as the behaviour contract and resolving live APIs from pub.dev.
-4. **Assessment** — the agent revisits the WalkThrough against the actual Dart file and fills in the Demo Assessment and Recommendations.
-5. **ARCHITECTURE & FEATURES** — offered last and generated only on request, from the running Demo (and the WalkThrough where required).
+1. **BRD gate (B1)** — a Business Requirements Document must exist before anything else. The user can upload a filled `<stem>-BRD.md`, fill the offline template, take the guided interview, or paste a short requirement for the agent to draft.
+2. **WalkThrough** — the agent follows `WalkThrough-AI-Generator.md`, consulting the layer HowTos, and writes `<stem>-WalkThrough.md`. A short comprehension check (C1) is offered before acceptance. Skipping is allowed.
+3. **Demo** — only after acceptance, the agent generates `<stem>-Demo.dart` and `<stem>-test.dart` together. Decision logic stays importable. `Cell.txApply` on Tissue is the atomic commit; `Cell.transaction` is not used.
+4. **Assessment** — the agent revisits the WalkThrough against the Dart file and fills Demo Assessment (§5.12) and Recommendations. It then offers three choices for any recommendation: as a Change (CHANGE path), in place, or skip.
+5. **Residual ledger** — on request, the agent writes `<stem>-LEDGER.md` from the `LEDGER` lines printed by the test file’s BRD group. Verified requires an executed run. Blocked rows carry a mitigation plan.
+6. **ARCHITECTURE & FEATURES** — offered last and generated only on request, from the running Demo and the filled WalkThrough. They must not treat a Blocked or Unverified row as handled.
 
 ### What the pipeline produces
 
 ```text
 <stem>-BRD.md
-<stem>(Cell)-WalkThrough.md
-<stem>(Cell)-Demo.dart
-<stem>(Cell)-ARCHITECTURE.md
-<stem>(Cell)-FEATURES.md
+<stem>-WalkThrough.md
+<stem>-Demo.dart
+<stem>-test.dart
+<stem>-LEDGER.md
+<stem>-COMPREHENSION.md
+<stem>-ARCHITECTURE.md
+<stem>-FEATURES.md
+<stem>-CHANGE-<nnn>.md   (change mode only)
 ```
+
+Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in its name plate. Later steps resolve only the latest version.
 
 ### The guide scripts
 
 | Script | Role |
 |---|---|
-| [`HowTo-Mitose.md`](guide/HowTo-Mitose.md) | The orchestration script — runs the whole pipeline. |
+| [`HowTo-Mitose.md`](guide/HowTo-Mitose.md) | Orchestration 2.0 — runs the whole pipeline. |
 | [`HowTo-Mitose-Cell.md`](guide/HowTo-Mitose-Cell.md) | Where a requirement lands in the **Cell** layer. |
 | [`HowTo-Mitose-Flow.md`](guide/HowTo-Mitose-Flow.md) | Where a requirement lands in the **Flow** layer. |
 | [`HowTo-Mitose-Tissue.md`](guide/HowTo-Mitose-Tissue.md) | Where a requirement lands in the **Tissue** layer. |
 | [`BRD-AI-Interview.md`](guide/BRD-AI-Interview.md) | Guided interview that writes `<stem>-BRD.md`. |
-| [`Business_Requirements_Document(BRD).md`](guide/Business_Requirements_Document(BRD).md) | Offline BRD template. |
-| [`WalkThrough-AI-Generator.md`](guide/WalkThrough-AI-Generator.md) | Generates `<stem>(Cell)-WalkThrough.md`. |
-| [`ARCHITECTURE-AI-Generator.md`](guide/ARCHITECTURE-AI-Generator.md) | Generates `<stem>(Cell)-ARCHITECTURE.md`. |
-| [`FEATURES-AI-Generator.md`](guide/FEATURES-AI-Generator.md) | Generates `<stem>(Cell)-FEATURES.md`. |
+| [`Business_Requirements_Document(BRD).md`](guide/Business_Requirements_Document(BRD).md) | Offline BRD template 2.0. |
+| [`WalkThrough-AI-Generator.md`](guide/WalkThrough-AI-Generator.md) | Generates `<stem>-WalkThrough.md`. |
+| [`LEDGER-AI-Generator.md`](guide/LEDGER-AI-Generator.md) | Generates `<stem>-LEDGER.md` from the test report. |
+| [`COMPREHENSION-AI-Generator.md`](guide/COMPREHENSION-AI-Generator.md) | Comprehension checks and decision log. |
+| [`CHANGE-AI-Generator.md`](guide/CHANGE-AI-Generator.md) | Change mode; writes `<stem>-CHANGE-<nnn>.md`. |
+| [`ARCHITECTURE-AI-Generator.md`](guide/ARCHITECTURE-AI-Generator.md) | Generates `<stem>-ARCHITECTURE.md`. |
+| [`FEATURES-AI-Generator.md`](guide/FEATURES-AI-Generator.md) | Generates `<stem>-FEATURES.md`. |
 
-Start the pipeline by opening [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat.
+Start the pipeline by opening [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat. For an existing solution say “Mitose change”.
 
 ### Start in one paste
 
@@ -129,7 +156,7 @@ In an agentic IDE (Copilot, Codex, Cursor, …), just open the repository and sa
 
 ### Try a sample BRD
 
-[`example/BRD/`](example/BRD) ships ready-made BRDs from different industries — airport baggage handling, assembly-line downtime & defect monitoring, freight rail intermodal, and hospital emergency-department capacity/flow. Read them to get familiar with the BRD format, or hand one to the agent to run the whole pipeline right away:
+[`example/BRD/`](example/BRD) ships ready-made BRDs from different industries. Read them to get familiar with the BRD format, or hand one to the agent to run the whole pipeline right away.
 
 ```text
 Read guide/HowTo-Mitose.md and run the Mitose pipeline.
@@ -150,6 +177,9 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── BRD-AI-Interview.md    #   Guided BRD interview
 │   ├── Business_Requirements_Document(BRD).md
 │   ├── WalkThrough-AI-Generator.md
+│   ├── LEDGER-AI-Generator.md
+│   ├── COMPREHENSION-AI-Generator.md
+│   ├── CHANGE-AI-Generator.md
 │   ├── ARCHITECTURE-AI-Generator.md
 │   └── FEATURES-AI-Generator.md
 ├── packages/
@@ -256,7 +286,7 @@ The umbrella package re-exports all three layers in one import:
 
 ```yaml
 dependencies:
-  mitosis: ^1.0.0-rc.9
+  mitosis: ^1.0.0-rc.10
 ```
 
 ```dart
@@ -367,7 +397,7 @@ dart run example/stability_search_demo.dart
 | [guide/HowTo-Mitose.md](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) | Mitose pipeline orchestration — AI-executable script: BRD → WalkThrough → Demo → ARCHITECTURE/FEATURES |
 | [guide/HowTo-Mitose-Cell.md](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md) · [Flow](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md) · [Tissue](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md) | Layer placement guides the Mitose pipeline consults |
 | [guide/BRD-AI-Interview.md](https://github.com/simon-m-lee/cell/blob/master/guide/BRD-AI-Interview.md) · [BRD template](https://github.com/simon-m-lee/cell/blob/master/guide/Business_Requirements_Document(BRD).md) | BRD interview script and offline template |
-| [guide/WalkThrough-AI-Generator.md](https://github.com/simon-m-lee/cell/blob/master/guide/WalkThrough-AI-Generator.md) · [ARCHITECTURE](https://github.com/simon-m-lee/cell/blob/master/guide/ARCHITECTURE-AI-Generator.md) · [FEATURES](https://github.com/simon-m-lee/cell/blob/master/guide/FEATURES-AI-Generator.md) | Document generators: WalkThrough, ARCHITECTURE, FEATURES |
+| [guide/WalkThrough-AI-Generator.md](https://github.com/simon-m-lee/cell/blob/master/guide/WalkThrough-AI-Generator.md) · [LEDGER](https://github.com/simon-m-lee/cell/blob/master/guide/LEDGER-AI-Generator.md) · [COMPREHENSION](https://github.com/simon-m-lee/cell/blob/master/guide/COMPREHENSION-AI-Generator.md) · [CHANGE](https://github.com/simon-m-lee/cell/blob/master/guide/CHANGE-AI-Generator.md) · [ARCHITECTURE](https://github.com/simon-m-lee/cell/blob/master/guide/ARCHITECTURE-AI-Generator.md) · [FEATURES](https://github.com/simon-m-lee/cell/blob/master/guide/FEATURES-AI-Generator.md) | Document generators: WalkThrough, ledger, comprehension, change, ARCHITECTURE, FEATURES |
 | [example/BRD/](https://github.com/simon-m-lee/cell/tree/master/example/BRD) | Sample BRDs by industry — learn the BRD format, or run the Mitose pipeline right away |
 | [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md) | Umbrella release history |
 
@@ -379,7 +409,7 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `mitosis` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
+| `mitosis` | `1.0.0-rc.10` | Release Candidate — on pub.dev |
 | `cell` | `1.0.0-rc.6` | Release Candidate — on pub.dev |
 | `cell_flow` | `1.0.0-rc.7` | Release Candidate — on pub.dev |
 | `cell_tissue` | `1.0.0-rc.7` | Release Candidate — on pub.dev |

@@ -62,7 +62,7 @@
     
 <section class="desc markdown">
   <p>A record that captures a before‑and‑after snapshot of a key‑value pair
-change, delivered as the payload of an <code>entryUpdated</code> event.</p>
+change, delivered as the payload of an <a href="../mitosis/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a> event.</p>
 <h3 id="when-to-use">When to use</h3>
 <ul>
 <li><strong>Map Mutation Tracking</strong>: Reacting to key‑value insertions, modifications,
@@ -73,7 +73,7 @@ or undo/redo pipelines.</li>
 targeted side effects for specific map keys.</li>
 </ul>
 <p>You never create this record directly. It's constructed automatically by
-the framework and delivered to you as the payload of an <code>entryUpdated</code>
+the framework and delivered to you as the payload of an <a href="../mitosis/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a>
 event when observing a <a href="../mitosis/TissueMap-class.html">TissueMap</a>. Use it to inspect exactly which key
 changed and how its value evolved.</p>
 <h3 id="how-it-works">How it works</h3>
