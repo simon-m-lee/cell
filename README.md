@@ -21,6 +21,7 @@ Mitosis is designed for systems where *why something happened* matters as much a
 - [Why the name "Mitosis"?](#-why-the-name-mitosis)
 - [The Three Pillars](#-the-three-pillars)
 - [Precision Software Engineering](#-precision-software-engineering)
+- [AI-assisted coding](#-how-mitose-differs-from-other-ai-assisted-coding)
 - [The Mitose Pipeline](#-the-mitose-pipeline)
 - [Repository Layout](#-repository-layout)
 - [Architecture Philosophy](#-architecture-philosophy)
@@ -74,6 +75,8 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 
 **Precision Software Engineering** is to software what precision engineering is to a part. A stated design requirement is carried into running behavior. Every step is recorded, explicit, bounded, checkable, traceable, and verifiable. A later change, expansion, or update follows the same path, so the cycle is predictable.
 
+**Precision is not perfection.** The word is borrowed from machining, where precision does not mean flawless; it means a tolerance is specified and then measured against. Mitosis does not promise bug-free software. No framework can, because defects also come from wrong requirements, ambiguous wording, and the environment. The aim is that defects are harder to introduce, easier to find, and never anonymous: when something goes wrong, you can say what was asked, where it was placed, under whose authority it changed, and what evidence says it works.
+
 The Mitose pipeline is the working expression of that idea. It has six components and no seventh.
 
 | Quality | What makes it true here |
@@ -87,6 +90,26 @@ The Mitose pipeline is the working expression of that idea. It has six component
 | **Changeable** | A numbered change file. The requirements difference is confirmed first. An old acceptance does not survive. |
 | **Expandable and updatable** | A new requirement is a new identifier. An amended one keeps its identifier. The same gates run again. |
 | **Predictable** | The same path, the same gates, and the same fail-closed groups on every build and every later change. |
+
+---
+
+## How Mitose differs from other AI-assisted coding
+
+Most AI-assisted coding, including vibe coding, treats a prompt as sufficient intent and a plausible run as sufficient acceptance. That loop is fast, and it is a reasonable way to explore a sketch. It is not a procedure for a requirement that must later be audited, changed, or shown to match what was asked. Mitose 2 uses the same kind of model. It does not use it the same way.
+
+| Aspect | Typical AI-assisted coding, including vibe coding | Mitose 2 |
+|---|---|---|
+| Source of intent | A chat prompt, revised until the output looks right | A Business Requirements Document. A prompt is not the artifact |
+| When code is written | As soon as the prompt can generate | Only after the WalkThrough is accepted |
+| Placement | Chosen by the model, or by taste in the prompt | Chosen by the Cell, Flow, and Tissue guides |
+| Constraints | Stated in the prompt, if at all | Grepped and executed. A broken rule fails the suite |
+| Validation | Added if a failure is noticed | Sits at the boundary, or is explicitly deferred |
+| What counts as done | The program appears to do the thing | One ledger line per requirement, from an executed test |
+| Change | A further prompt, which may rewrite the requirement | A numbered change file. An old acceptance does not survive |
+| Invented facts | Thresholds and rules appear in the code and are then treated as given | Invented fields are marked. A missing parameter stays Blocked |
+| Suitable for | A sketch, a spike, a first look at an idea | A requirement that must be traced, changed under control, and shown to match what was asked |
+
+Vibe coding optimises for a fast first running version. Mitose 2 optimises for a small, measurable, attributable gap. A team may use the first to find the requirement, and the second once the requirement is worth keeping.
 
 ---
 
