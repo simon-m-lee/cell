@@ -24,6 +24,14 @@ Workarounds are suggestions, not extra guarantees.
 
 ## Bugs and runtime gaps
 
+### 0. Empty receptor sparse mask threw `NoSuchMethodError` (Bug — fixed in Unreleased)
+
+`ReceptorBase.mask` used to return `()` when no pipeline stages were set.
+Reading `_record.instruction` then threw `NoSuchMethodError` (caught by
+`get(..., orElse: null)`). Debuggers that break on all exceptions paused on
+that throw during normal `Cell.ingress` / empty `_Receptor()` use. Fixed by
+always storing a stable named-record shape.
+
 ### 1. Analyzer: unused `_pin` (Process)
 
 `dart analyze lib` reports unused `_pin` on asyncMap / debounce /
