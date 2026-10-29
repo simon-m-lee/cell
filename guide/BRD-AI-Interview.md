@@ -9,7 +9,7 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 | Sibling | Role |
 |---|---|
 | `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
-| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `Business_Requirements_Document.md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
 | `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
 | `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
 | `HowTo-Mitose-Cell.md` | Cell factory choices. |
@@ -270,7 +270,7 @@ Then follow Section 10.2.
 
 ## 11. Writing the BRD
 
-Write a single file named `<file_name>-BRD.md`. **Use the section order of `Business_Requirements_Document(BRD).md` in this directory (template 2.0).** Do not use the 1.0 outline (executive summary as §1, requirements as §6, open questions as §13). Copy headings from the template. Delete italic guidance once the answer is written.
+Write a single file named `<file_name>-BRD.md`. **Use the section order of `Business_Requirements_Document.md` in this directory (template 2.0).** Do not use the 1.0 outline (executive summary as §1, requirements as §6, open questions as §13). Copy headings from the template. Delete italic guidance once the answer is written.
 
 Fill every section from the user's answers, plus any AI-suggested fills tagged `[AI SUGGESTED — please review]` or `[AI SUGGESTED — needs confirmation]`. Where the user gave no answer and no suggestion was accepted, write `[To be confirmed]` and add a matching row to template §14 (Open questions).
 
@@ -321,7 +321,7 @@ Then stop. Do not volunteer a redesign, a proposal, or a follow-up interview unl
 
 ## 12. Quick reference — question-to-section map
 
-Targets are sections of `Business_Requirements_Document(BRD).md` (template 2.0), not the 1.0 outline.
+Targets are sections of `Business_Requirements_Document.md` (template 2.0), not the 1.0 outline.
 
 | Question | Target section in BRD |
 |---|---|

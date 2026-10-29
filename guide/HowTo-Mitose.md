@@ -9,7 +9,7 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 | Sibling | Role |
 |---|---|
 | `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
-| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `Business_Requirements_Document.md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
 | `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
 | `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
 | `HowTo-Mitose-Cell.md` | Cell factory choices. |
@@ -90,7 +90,7 @@ This file is **process only**. It does not teach `Cell.*` factories, Flow operat
 | Choose stock operator vs custom `FlowInstruction` + `+` + `toHandle` | `HowTo-Mitose-Flow.md` | **No** |
 | Choose List / Set / Map / Queue / Value, TestTissue, deputies | `HowTo-Mitose-Tissue.md` | **No** |
 | Fill a BRD by interview | `BRD-AI-Interview.md` | No |
-| Fill a BRD from a template | `Business_Requirements_Document(BRD).md` (v2.0) | No |
+| Fill a BRD from a template | `Business_Requirements_Document.md` (v2.0) | No |
 | Write the WalkThrough | `WalkThrough-AI-Generator.md` | No (it consults the three layer HowTos) |
 | Measure residual error; write the ledger from the test report | `LEDGER-AI-Generator.md` | No |
 | Comprehension check, change control, decision log | `COMPREHENSION-AI-Generator.md` | No |
@@ -117,7 +117,7 @@ Resolve in this order. Prefer a sibling in this directory over a remote revision
 | Script | Produces |
 |---|---|
 | `BRD-AI-Interview.md` | `<stem>-BRD.md` |
-| `Business_Requirements_Document(BRD).md` | Offline template the user fills and returns |
+| `Business_Requirements_Document.md` | Offline template the user fills and returns |
 | `WalkThrough-AI-Generator.md` | `<stem>-WalkThrough.md` |
 | `HowTo-Mitose-Cell.md` + `HowTo-Mitose-Flow.md` + `HowTo-Mitose-Tissue.md` | Layer choices inside WalkThrough and Demo |
 | `LEDGER-AI-Generator.md` | `<stem>-LEDGER.md` from the `<stem>-test.dart` report |
@@ -234,7 +234,7 @@ If a filled `<stem>-BRD.md` exists, confirm the stem with the user and go to §3
 Give **all four** options. Do not invent a fifth. Do not start WalkThrough until one path produces a BRD file.
 
 1. **Upload a filled BRD.** User attaches `<stem>-BRD.md` that already has the necessary information. Agent stores it under that name and continues.
-2. **Template offline.** Give the user `Business_Requirements_Document(BRD).md` to copy, rename to `<stem>-BRD.md`, fill later, and resubmit. Stop until they return.
+2. **Template offline.** Give the user `Business_Requirements_Document.md` to copy, rename to `<stem>-BRD.md`, fill later, and resubmit. Stop until they return.
 3. **Online interview.** Run `BRD-AI-Interview.md` exactly (one question at a time, plain English, no design words). Write `<stem>-BRD.md` at the end of that script.
 4. **Paste a requirement paragraph.** User pastes a short requirement at the prompt. Agent drafts `<stem>-BRD.md` from the template as best it can, marks every invented or missing field `[To be confirmed]` / `[AI SUGGESTED]`, shows the draft, and waits for correction before §3.3.
 
@@ -563,7 +563,7 @@ One human decision at each gate. Do not chain them.
 
 | File | Change |
 |---|---|
-| `Business_Requirements_Document(BRD).md` | Replace with v2.0: criteria and verification classes on every requirement, Priority on all tables, parameter register, rule precedence, consistency checks, change history |
+| `Business_Requirements_Document.md` | Replace with v2.0: criteria and verification classes on every requirement, Priority on all tables, parameter register, rule precedence, consistency checks, change history |
 | `BRD-AI-Interview.md` | Ask for the number behind each threshold and for priority on reporting and non-functional rows; write IDs and a Change history; run gate B1 after writing |
 | `WalkThrough-AI-Generator.md` | Opens with the 120-word summary; coverage matrix uses BRD IDs; Blocking findings go to Open questions (§5.11). Pulse path is §5.5. Demo Assessment is §5.12. Checklist is §8 of that generator. |
 | `ARCHITECTURE-AI-Generator.md`, `FEATURES-AI-Generator.md` | Read the ledger; cite decision IDs; add the summary; replace “German verb” wording |

@@ -9,7 +9,7 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 | Sibling | Role |
 |---|---|
 | `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
-| `Business_Requirements_Document(BRD).md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
+| `Business_Requirements_Document.md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
 | `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
 | `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
 | `HowTo-Mitose-Cell.md` | Cell factory choices. |
