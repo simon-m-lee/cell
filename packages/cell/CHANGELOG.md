@@ -1,4 +1,12 @@
 
+## Unreleased
+
+### Fixed
+
+- **Empty receptor mask `NoSuchMethodError`**: `ReceptorBase.mask` no longer stores sparse/`()` flyweight records. Empty and partial pipelines use a stable named-record shape so reading `_instruction` / `_preProcess` / `_postProcess` / `_reaction` returns `null` instead of throwing `NoSuchMethodError: Class '()' has no instance getter 'instruction'` (commonly hit via `Cell.ingress` + `Flow.bufferTime` under a debugger that breaks on caught exceptions).
+
+---
+
 ## Mitosis (1.0.0-rc.6) - Release Candidate
 
 ### Changed

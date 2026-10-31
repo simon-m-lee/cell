@@ -655,8 +655,10 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
 
   /// Creates a mask record for the receptor configuration.
   ///
-  /// This internal method optimizes the storage of pipeline instructions
-  /// by only including fields that are actually used.
+  /// Always stores a stable named-record shape so optional pipeline fields can
+  /// be read as `null` without throwing [NoSuchMethodError] on missing getters
+  /// (which happens with sparse/`()` flyweight records under a debugger that
+  /// breaks on caught exceptions).
   ///
   /// ### Parameters:
   /// - [instruction]: The core transformation instruction.
@@ -667,7 +669,9 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   /// - [init]: Initialization function.
   ///
   /// ### Returns:
-  /// A record containing only the provided fields, optimized for memory.
+  /// A record with a fixed set of named fields (`instruction`, `init`, `user`,
+  /// `userBox`). Nested `instruction` always exposes `instruction`,
+  /// `preProcess`, `postProcess`, and `reaction`.
   static Record mask(
       {Instruction? instruction,
       Instruction? preProcess,
@@ -675,74 +679,19 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
       Function? reaction,
       Function? user,
       Function? init}) {
-    final instructionMask = ((instruction != null ? 1 : 0) |
-        (preProcess != null ? 2 : 0) |
-        (postProcess != null ? 4 : 0) |
-        (reaction != null ? 8 : 0));
-
-    final instructionRecord = switch (instructionMask) {
-      0 => (),
-      1 => (instruction: instruction),
-      2 => (preProcess: preProcess),
-      3 => (instruction: instruction, preProcess: preProcess),
-      4 => (postProcess: postProcess),
-      5 => (instruction: instruction, postProcess: postProcess),
-      6 => (preProcess: preProcess, postProcess: postProcess),
-      7 => (
-          instruction: instruction,
-          preProcess: preProcess,
-          postProcess: postProcess
-        ),
-      8 => (reaction: reaction),
-      9 => (instruction: instruction, reaction: reaction),
-      10 => (preProcess: preProcess, reaction: reaction),
-      11 => (
-          instruction: instruction,
-          preProcess: preProcess,
-          reaction: reaction
-        ),
-      12 => (postProcess: postProcess, reaction: reaction),
-      13 => (
-          instruction: instruction,
-          postProcess: postProcess,
-          reaction: reaction
-        ),
-      14 => (
-          preProcess: preProcess,
-          postProcess: postProcess,
-          reaction: reaction
-        ),
-      15 => (
-          instruction: instruction,
-          preProcess: preProcess,
-          postProcess: postProcess,
-          reaction: reaction
-        ),
-      _ => ()
-    };
-
-    final mask = ((instructionMask != 0 ? 1 : 0) |
-        (init != null ? 2 : 0) |
-        (user != null ? 4 : 0));
-
     final userBox = user != null ? (FinalBox()..value = user()) : null;
 
-    return switch (mask) {
-      0 => (),
-      1 => (instruction: instructionRecord),
-      2 => (init: init),
-      3 => (instruction: instructionRecord, init: init),
-      4 => (user: user, userBox: userBox),
-      5 => (instruction: instructionRecord, user: user, userBox: userBox),
-      6 => (init: init, user: user, userBox: userBox),
-      7 => (
-          instruction: instructionRecord,
-          init: init,
-          user: user,
-          userBox: userBox
-        ),
-      _ => ()
-    };
+    return (
+      instruction: (
+        instruction: instruction,
+        preProcess: preProcess,
+        postProcess: postProcess,
+        reaction: reaction,
+      ),
+      init: init,
+      user: user,
+      userBox: userBox,
+    );
   }
 
   /// A foundational constructor that initializes a [ReceptorBase] from a
@@ -1029,41 +978,69 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
   ///
   /// ### Returns:
   /// The reaction function, or `null` if not set.
-  Function? get _reaction =>
-      get<Function?>(() => _record.instruction.reaction, orElse: null);
+  Function? get _reaction => get<Function?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        final nested = record.instruction;
+        if (nested == ()) return null;
+        return nested.reaction;
+      }, orElse: null);
 
   /// Retrieves the user metadata from the configuration.
   ///
   /// ### Returns:
   /// The user metadata as a [FinalBox], or `null` if not set.
-  dynamic get _user => get<FinalBox?>(() => _record.userBox, orElse: null);
+  dynamic get _user => get<FinalBox?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        return record.userBox;
+      }, orElse: null);
 
   /// Retrieves the initialization function from the configuration.
   ///
   /// ### Returns:
   /// The initialization function, or `null` if not set.
-  Function? get _init => get<Function?>(() => _record.init, orElse: null);
+  Function? get _init => get<Function?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        return record.init;
+      }, orElse: null);
 
   /// Retrieves the core instruction from the configuration.
   ///
   /// ### Returns:
   /// The core [Instruction], or `null` if not set.
-  Instruction? get _instruction =>
-      get<Instruction?>(() => _record.instruction.instruction, orElse: null);
+  Instruction? get _instruction => get<Instruction?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        final nested = record.instruction;
+        if (nested == ()) return null;
+        return nested.instruction;
+      }, orElse: null);
 
   /// Retrieves the pre-process instruction from the configuration.
   ///
   /// ### Returns:
   /// The pre-process [Instruction], or `null` if not set.
-  Instruction? get _preProcess =>
-      get<Instruction?>(() => _record.instruction.preProcess, orElse: null);
+  Instruction? get _preProcess => get<Instruction?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        final nested = record.instruction;
+        if (nested == ()) return null;
+        return nested.preProcess;
+      }, orElse: null);
 
   /// Retrieves the post-process instruction from the configuration.
   ///
   /// ### Returns:
   /// The post-process [Instruction], or `null` if not set.
-  Instruction? get _postProcess =>
-      get<Instruction?>(() => _record.instruction.postProcess, orElse: null);
+  Instruction? get _postProcess => get<Instruction?>(() {
+        final record = _record;
+        if (record == ()) return null;
+        final nested = record.instruction;
+        if (nested == ()) return null;
+        return nested.postProcess;
+      }, orElse: null);
 
   /// Returns an asynchronous adapter for this receptor.
   ///
