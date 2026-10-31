@@ -361,7 +361,6 @@ A change may be released only when:
 4. Every drift difference has a disposition.
 5. Every protected-item change has a recorded approval.
 6. The BRD change history, ledger name plate and decision log are updated.
-7. Changed documents are within their , or accepted at length.
 
 If any condition fails, report it and ask. Do not release for the user.
 
@@ -431,7 +430,6 @@ Applied in this set. Do not apply them again.
 - [ ] Affected ledger rows reset; Verified only after a passing run; retired rows kept
 - [ ] Acceptances renewed by a named person with a review date (gate CH4)
 - [ ] Release check reported; the agent did not release for the user (gate CH5)
-- [ ] Changed documents within , or accepted at length
 
 ---
 

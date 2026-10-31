@@ -245,7 +245,7 @@ For each gap, write a **best-effort draft** using the following rules:
    > Here are my suggested fills. Please read them and tell me which to keep, which to change, and which to remove.
    >
    > 1. **§7 NFR-01 Performance** — `[AI SUGGESTED — please review]` The system shall respond within 5 seconds for the primary screen update. *(Reasonable default for real-time ops tools. Adjust to your SLA.)*
-   > 2. **§6.4 Reporting retention** — `[AI SUGGESTED — needs confirmation]` Retain reports for 24 months. *(Common in regulated industries; confirm with your compliance team.)*
+   > 2. **§7.4 Reporting retention** — `[AI SUGGESTED — needs confirmation]` Retain reports for 24 months. *(Common in regulated industries; confirm with your compliance team.)*
    > …
 
    Wait for the user's reply. Apply their keep/change/remove decisions. Then proceed to Step 11.

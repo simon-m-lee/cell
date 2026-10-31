@@ -83,7 +83,7 @@ Follow this file exactly. Do not skip steps. Do not invent business facts that a
 10. **Seam sentence is load-bearing:** the instruction decides, the chain assembles, the observer glues. No Tissue writes in the instruction. No `riskOf` in `Cell.observe`.
 11. **Grep rule you must state:** zero `testRule: TestCell` on Tissue constructors.
 12. **Stop when the checklist in §8 passes.**
-13. **Length and comprehension.** The written file opens with a short summary headed *What a reader must understand*. After the file is shown, offer the comprehension check in `COMPREHENSION-AI-Generator.md` §2 once, and write `<stem>-COMPREHENSION.md` if the user takes, skips, or declines it. Do not write the Demo in that same turn.
+13. **Summary and comprehension.** The written file opens with a short summary headed *What a reader must understand*. After the file is shown, offer the comprehension check in `COMPREHENSION-AI-Generator.md` §2 once, and write `<stem>-COMPREHENSION.md` if the user takes, skips, or declines it. Do not write the Demo in that same turn.
 
 ### Opening line
 
@@ -495,7 +495,7 @@ HowTos consulted: user-provided / workspace / GitHub `guide/` (say which).
 
 Per `HowTo-Mitose.md` (if that orchestration is in use; otherwise ask):
 
-1. Count words and report them against `COMPREHENSION-AI-Generator.md` §5. Offer the comprehension check (`COMPREHENSION-AI-Generator.md` §2) once before the user accepts. Write or update `<stem>-COMPREHENSION.md`.
+1. Offer the comprehension check (`COMPREHENSION-AI-Generator.md` §2) once before the user accepts. Write or update `<stem>-COMPREHENSION.md`.
 2. Offer to generate `<stem>-Demo.dart` and `<stem>-test.dart` from this WalkThrough + the three layer HowTos in this directory + live pub.dev signatures. Decision logic must stay importable so the test can import the Demo without running `main()`. Groups align to public APIs and documented contracts. The `BRD` group prints the `LEDGER` report. Do not write `<stem>-Check.dart`.
 3. After the Demo exists, run §6 of this file (fill §5.12). Ask before overwriting.
 4. Then offer the ledger (`LEDGER-AI-Generator.md`), then ARCHITECTURE (`ARCHITECTURE-AI-Generator.md`) and FEATURES (`FEATURES-AI-Generator.md`).

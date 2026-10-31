@@ -230,7 +230,7 @@ ARCHITECTURE and FEATURES must cite decision IDs where a design choice appears. 
 
 ## 5. Length (no caps)
 
-Generated documents open with a short summary headed *What a reader must understand* when useful for orientation. There are no s or limits. State a fact once and link by ID. Prefer tables of IDs to prose retellings. Do not restate the same behavior across documents.
+Generated documents open with a short summary headed *What a reader must understand* when useful for orientation. There are no word limits and no length caps. State a fact once and link by ID. Prefer tables of IDs to prose retellings. Do not restate the same behavior across documents.
 
 ---
 
@@ -245,7 +245,6 @@ Blocks, in this order:
 | Counts | Asked, matched, mismatched, skipped, undetermined |
 | Change log | Date, requirement ID, old → new, cause, decided by, status (approved or declined) |
 | Decision log | Entries from §4 |
-| Length record | Document, words (optional), status |
 
 Keep prose focused. The tables carry the record.
 
@@ -271,7 +270,6 @@ One human decision at each gate. Do not chain them.
 | C1 | "Before you accept the WalkThrough, would you like to predict three scenarios?" |
 | C2 | "These protected items would change. Approve, decline, or revise?" |
 | C3 | "Is this decision log right?" (before ARCHITECTURE is written) |
-| C4 | (removed — no ) |
 
 ---
 
@@ -288,7 +286,7 @@ Small additions to keep the rules connected:
 [ ] Decision log shown before ARCHITECTURE was written
 ```
 
-- **ARCHITECTURE and FEATURES generators.** Read the decision log and cite decision IDs. Open with the 120-word summary.
+- **ARCHITECTURE and FEATURES generators.** Read the decision log and cite decision IDs. Open with a short summary headed *What a reader must understand* when useful.
 
 ---
 
@@ -309,7 +307,6 @@ Small additions to keep the rules connected:
 > Comprehension checks: asked *a*, matched *m*, mismatched *x*, skipped *s*, undetermined *u*
 > Protected changes: approved *p*, declined *d*
 > Decisions logged: *n*
-> Documents over cap: *k*
 
 ---
 
@@ -324,8 +321,7 @@ Small additions to keep the rules connected:
 - [ ] Every protected change has a decision and a named approver; bulk changes were one event
 - [ ] A failing check was fixed in the code first
 - [ ] Decision-log alternatives are only those actually raised; no invented reasons
-- [ ] Every generated document opens with a summary of  and its word count is reported
-- [ ] Over-cap documents were cut or accepted at length by the user
+- [ ] Every generated document opens with a short summary headed *What a reader must understand* when useful; no word limit or length gate was applied
 
 ---
 
@@ -344,8 +340,8 @@ The pass is accepted only when all of the following hold. Show Pass / Fail to th
 | G-AC-07 | Each protected change has cause, decision, and named approver | change log |
 | G-AC-08 | More than 5 changes in one revision were treated as one event | change log |
 | G-AC-09 | Decision-log entries list only alternatives actually raised, with a named decider | decision log |
-| G-AC-10 | Each document has a summary of ; counts and reading time are reported | length record |
-| G-AC-11 | Gates C1 to C4 were asked one at a time | chat log |
+| G-AC-10 | Each document opens with a short summary headed *What a reader must understand* when useful; no word limit or length gate was applied | inspect |
+| G-AC-11 | Gates C1 to C3 were asked one at a time | chat log |
 
 Fail any row → do not claim the pass is done.
 

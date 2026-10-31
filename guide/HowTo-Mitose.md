@@ -292,9 +292,8 @@ Once a BRD file exists and gate B1 is answered:
    | Coverage matrix | Scenario → **BRD id** → expected print (use the BRD's own IDs) |
 
 5. Show the extraction plan / layer map **before** writing the file.
-6. Check the word count against the cap and report it (`COMPREHENSION-AI-Generator.md` §5). If over, cut or ask (gate C4).
-7. **Comprehension check (gate C1).** Offer once: the user predicts the outcome of three scenarios (an ordinary path, a boundary or second interaction, and an interaction) before reading the expected results. Follow `COMPREHENSION-AI-Generator.md` §2. A mismatch is a signal about the document first. Skipping or declining is allowed and recorded. Create `<stem>-COMPREHENSION.md` here.
-8. Ask whether the user is satisfied with the WalkThrough.
+6. **Comprehension check (gate C1).** Offer once: the user predicts the outcome of three scenarios (an ordinary path, a boundary or second interaction, and an interaction) before reading the expected results. Follow `COMPREHENSION-AI-Generator.md` §2. A mismatch is a signal about the document first. Skipping or declining is allowed and recorded. Create `<stem>-COMPREHENSION.md` here.
+7. Ask whether the user is satisfied with the WalkThrough.
 
 Do not write `*-Demo.dart` in this pass.
 
@@ -420,7 +419,7 @@ Added rules for both documents:
 
 1. If `<stem>-LEDGER.md` exists, read it. Never describe a requirement as handled when the ledger marks it Blocked, Failed, or Unverified. List Accepted residual items in the limitations.
 2. Cite decision IDs where a design choice appears. Link to the log; do not restate the reasoning.
-3. Open with the 120-word summary and report the word count against the cap (gate C4).
+3. Open with a short summary headed *What a reader must understand* when useful. There are no word limits.
 4. If no ledger exists, say so once and continue.
 
 Show the generator's extract / inventory **before** writing the file. Never overwrite without asking.
@@ -523,7 +522,6 @@ Fail any row → do not claim the run is done.
 | L4 | §7 | “Which of these residual items do you accept, and who is accepting them?” |
 | C2 | §1 rule 13 | “These protected items would change. Approve, decline, or revise?” |
 | C3 | §8.1 | “Is this decision log right?” |
-| C4 | §4, §8.2 | “This is N words against a cap of M. Cut it, or accept it at this length?” |
 | CH1–CH5 | §9 | Diff, impact and plan, code vs BRD differences, residual re-acceptance, release |
 
 One human decision at each gate. Do not chain them.
@@ -551,7 +549,7 @@ One human decision at each gate. Do not chain them.
 | Rules | 8 rules | 16: adds ID discipline, ledger as source of truth, executed evidence, BRD-sourced expected values, protected items, no invented history, describe-never-grade |
 | Modes | New build only | New build, resume, and change |
 | BRD gate | Four starts | Four starts plus readiness check B1 |
-| WalkThrough | Accepted by the user | Uses BRD IDs; carries findings; 120-word summary; comprehension check C1 |
+| WalkThrough | Accepted by the user | Uses BRD IDs; carries findings; opens with a short summary; comprehension check C1 |
 | Demo | Behaviour from the WalkThrough | Importable logic; `<stem>-test.dart` always written with it; IDs covered / not covered; comparing banners; ID tags. No Check file. |
 | Revisit | §6 | Unchanged; unproven clauses now feed the ledger |
 | Residual error | Not measured | New §7: ledger from `<stem>-test.dart` report, orphan scan, residual acceptance (L1, L3, L4). No Check file. |
@@ -565,7 +563,7 @@ One human decision at each gate. Do not chain them.
 |---|---|
 | `Business_Requirements_Document.md` | Replace with v2.0: criteria and verification classes on every requirement, Priority on all tables, parameter register, rule precedence, consistency checks, change history |
 | `BRD-AI-Interview.md` | Ask for the number behind each threshold and for priority on reporting and non-functional rows; write IDs and a Change history; run gate B1 after writing |
-| `WalkThrough-AI-Generator.md` | Opens with the 120-word summary; coverage matrix uses BRD IDs; Blocking findings go to Open questions (§5.11). Pulse path is §5.5. Demo Assessment is §5.12. Checklist is §8 of that generator. |
+| `WalkThrough-AI-Generator.md` | Opens with a short summary headed *What a reader must understand*; coverage matrix uses BRD IDs; Blocking findings go to Open questions (§5.11). Pulse path is §5.5. Demo Assessment is §5.12. Checklist is §8 of that generator. |
 | `ARCHITECTURE-AI-Generator.md`, `FEATURES-AI-Generator.md` | Read the ledger; cite decision IDs; add the summary; replace “German verb” wording |
 | `HowTo-Mitose-Flow.md` and other layer HowTos | Replace “German verb” wording |
 | `LEDGER-AI-Generator.md`, `COMPREHENSION-AI-Generator.md`, `CHANGE-AI-Generator.md` | New scripts. Required by §7, §4 and §8, and §9 |
