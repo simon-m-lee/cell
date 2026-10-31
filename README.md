@@ -155,7 +155,7 @@ Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in i
 | [`HowTo-Mitose-Flow.md`](guide/HowTo-Mitose-Flow.md) | Where a requirement lands in the **Flow** layer. |
 | [`HowTo-Mitose-Tissue.md`](guide/HowTo-Mitose-Tissue.md) | Where a requirement lands in the **Tissue** layer. |
 | [`BRD-AI-Interview.md`](guide/BRD-AI-Interview.md) | Guided interview that writes `<stem>-BRD.md`. |
-| [`Business_Requirements_Document(BRD).md`](guide/Business_Requirements_Document(BRD).md) | Offline BRD template 2.0. |
+| [`Business_Requirements_Document.md`](guide/Business_Requirements_Document.md) | Offline BRD template 2.0. |
 | [`WalkThrough-AI-Generator.md`](guide/WalkThrough-AI-Generator.md) | Generates `<stem>-WalkThrough.md`. |
 | [`LEDGER-AI-Generator.md`](guide/LEDGER-AI-Generator.md) | Generates `<stem>-LEDGER.md` from the test report. |
 | [`COMPREHENSION-AI-Generator.md`](guide/COMPREHENSION-AI-Generator.md) | Comprehension checks and decision log. |
@@ -198,7 +198,7 @@ cell/                          # Umbrella monorepo: "Mitosis"
 │   ├── HowTo-Mitose-Flow.md   #   Flow layer placement rules
 │   ├── HowTo-Mitose-Tissue.md #   Tissue layer placement rules
 │   ├── BRD-AI-Interview.md    #   Guided BRD interview
-│   ├── Business_Requirements_Document(BRD).md
+│   ├── Business_Requirements_Document.md
 │   ├── WalkThrough-AI-Generator.md
 │   ├── LEDGER-AI-Generator.md
 │   ├── COMPREHENSION-AI-Generator.md
@@ -419,7 +419,7 @@ dart run example/stability_search_demo.dart
 | [DEMO_GUIDE-Mitosis.md](https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-Mitosis.md) | Mitosis demo guide — the `(Cell)` instruction-side learning path |
 | [guide/HowTo-Mitose.md](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) | Mitose pipeline orchestration — AI-executable script: BRD → WalkThrough → Demo → ARCHITECTURE/FEATURES |
 | [guide/HowTo-Mitose-Cell.md](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Cell.md) · [Flow](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md) · [Tissue](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md) | Layer placement guides the Mitose pipeline consults |
-| [guide/BRD-AI-Interview.md](https://github.com/simon-m-lee/cell/blob/master/guide/BRD-AI-Interview.md) · [BRD template](https://github.com/simon-m-lee/cell/blob/master/guide/Business_Requirements_Document(BRD).md) | BRD interview script and offline template |
+| [guide/BRD-AI-Interview.md](https://github.com/simon-m-lee/cell/blob/master/guide/BRD-AI-Interview.md) · [BRD template](https://github.com/simon-m-lee/cell/blob/master/guide/Business_Requirements_Document.md) | BRD interview script and offline template |
 | [guide/WalkThrough-AI-Generator.md](https://github.com/simon-m-lee/cell/blob/master/guide/WalkThrough-AI-Generator.md) · [LEDGER](https://github.com/simon-m-lee/cell/blob/master/guide/LEDGER-AI-Generator.md) · [COMPREHENSION](https://github.com/simon-m-lee/cell/blob/master/guide/COMPREHENSION-AI-Generator.md) · [CHANGE](https://github.com/simon-m-lee/cell/blob/master/guide/CHANGE-AI-Generator.md) · [ARCHITECTURE](https://github.com/simon-m-lee/cell/blob/master/guide/ARCHITECTURE-AI-Generator.md) · [FEATURES](https://github.com/simon-m-lee/cell/blob/master/guide/FEATURES-AI-Generator.md) | Document generators: WalkThrough, ledger, comprehension, change, ARCHITECTURE, FEATURES |
 | [example/BRD/](https://github.com/simon-m-lee/cell/tree/master/example/BRD) | Sample BRDs by industry — learn the BRD format, or run the Mitose pipeline right away |
 | [CHANGELOG.md](https://github.com/simon-m-lee/cell/blob/master/CHANGELOG.md) | Umbrella release history |
