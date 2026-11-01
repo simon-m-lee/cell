@@ -59,9 +59,12 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
 
   @override
   TestTissue<Never, Never> operator +(covariant TestRule<Never> other) {
-    return TestTissue<Never, Never>.chain(const [],
-        strategy: (object, {Never? host, dynamic arguments, dynamic user}) =>
-            other.call(object, host: host, arguments: arguments));
+    // Composing the permissive singleton with itself is a no-op, and
+    // `allowAll` is the identity element of the `+` chain.
+    if (identical(other, TestTissue.allowAll)) return this;
+    // Already-composed allowAll chains stay flattened and host-widened.
+    if (other is _TestTissueAllowAll) return other;
+    return _TestTissueAllowAll._([other]);
   }
 
   @override
@@ -73,6 +76,77 @@ class _TestTissueNever extends TestTissue<Never, Never> implements TestPasses {
   @override
   FutureOr<bool> call(object, {covariant Cell? host, arguments}) {
     return true;
+  }
+
+  @override
+  FutureOr<bool> element(covariant dynamic element,
+      {required Cell host, Function? action}) {
+    return true;
+  }
+
+  @override
+  FutureOr<bool> link(covariant Cell link, {required Cell host}) {
+    return false;
+  }
+
+  @override
+  FutureOr<bool> pulse(covariant Pulse<dynamic> pulse, {required Cell host}) {
+    return true;
+  }
+}
+
+/// Composed form of [TestTissue.allowAll] produced by the `+` operator.
+///
+/// A plain `TestTissue<Never, Never>.chain` would inherit the `Never`-typed
+/// `host` gate from [TestCell.action], which rejects every real [Tissue] at
+/// runtime and silently disables mutations through deputies whose rules are
+/// layered on top of `allowAll`. This wrapper instead keeps a flattened list
+/// of the appended sentinel rules and evaluates them with widened `host`
+/// signatures, so deputies remain mutable when their rules permit it.
+class _TestTissueAllowAll extends TestTissue<Never, Never>
+    implements TestPasses {
+  const _TestTissueAllowAll._(this._others) : super.fromRecord(());
+
+  /// The rules appended after [TestTissue.allowAll], in evaluation order.
+  final List<TestRule<Never>> _others;
+
+  @override
+  TestTissue<Never, Never> operator +(covariant TestRule<Never> other) {
+    if (identical(other, TestTissue.allowAll)) return this;
+    if (other is _TestTissueAllowAll) {
+      return _TestTissueAllowAll._([..._others, ...other._others]);
+    }
+    return _TestTissueAllowAll._([..._others, other]);
+  }
+
+  @override
+  FutureOr<bool> action(Function action,
+      {required Cell host, Arguments? arguments}) {
+    return _run(action, host: host, arguments: arguments);
+  }
+
+  @override
+  FutureOr<bool> call(object, {covariant Cell? host, arguments}) {
+    return _run(object, host: host, arguments: arguments);
+  }
+
+  FutureOr<bool> _run(dynamic object, {Cell? host, dynamic arguments}) {
+    FutureOr<bool> runRules(int index) {
+      for (var i = index; i < _others.length; i++) {
+        final result = (_others[i] as dynamic).call(object,
+            host: host, arguments: arguments) as FutureOr<bool>;
+        if (result is Future<bool>) {
+          return result.then((passed) {
+            if (!passed) return false;
+            return runRules(i + 1);
+          });
+        }
+        if (!result) return false;
+      }
+      return true;
+    }
+
+    return runRules(0);
   }
 
   @override

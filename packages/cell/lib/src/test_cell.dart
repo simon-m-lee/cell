@@ -285,7 +285,7 @@ class TestCell<C extends Cell> extends TestRule<C>
   /// ### Returns:
   /// `true` if the operation is **AUTHORIZED**; `false` if it is **NEUTRALIZED**.
   @override
-  FutureOr<bool> call(dynamic object, {C? host, dynamic arguments}) {
+  FutureOr<bool> call(dynamic object, {covariant C? host, dynamic arguments}) {
     try {
       return super.call(object, host: host, arguments: arguments);
     } on Exception {

@@ -250,7 +250,7 @@ abstract interface class TissueQueueNucleus<E> implements TissueNucleus<E> {
       forceLock = false,
       TissueQueueNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E, Queue<E>, C>(
+      final local = TissueNucleusBase.mask<E, Queue<E>, C>(
           container: container,
           bind: bind,
           context: context,

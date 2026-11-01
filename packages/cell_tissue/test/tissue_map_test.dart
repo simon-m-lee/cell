@@ -127,6 +127,7 @@ void main() {
       expect(map.isInvalidated, isFalse);
       expect(map.isGoverned, isFalse);
       expect(map.modifiable, contains(map.add));
+      expect(map.modifiable, contains(map.put));
       expect(map.modifiable, contains(map.remove));
       expect(map.modifiable, contains(map.update));
     });
@@ -141,6 +142,96 @@ void main() {
       expect(map.add('b', 2), isTrue);
       expect(map.add('b', 3), isFalse);
       expect(toMap(map), {'a': 1, 'b': 2});
+    });
+
+    test('operator []= and put replace existing keys', () {
+      final map = TissueMap<String, int>();
+      map['a'] = 1;
+      map['a'] = 2;
+
+      expect(map['a'], 2);
+      expect(map.length, 1);
+
+      map.put('a', 3);
+      expect(map['a'], 3);
+      expect(toMap(map), {'a': 3});
+
+      map.put('b', 4);
+      expect(toMap(map), {'a': 3, 'b': 4});
+    });
+
+    test('add remains strict append-only after put', () {
+      final map = TissueMap<String, int>.from({'a': 1});
+
+      expect(map.add('a', 99), isFalse);
+      expect(map['a'], 1);
+    });
+
+    test('put and []= emit elementAdded on insert and entryUpdated on replace',
+        () {
+      final map = TissueMap<String, int>();
+      final pulses = <Pulse>[];
+      Cell.observe(source: map, effect: (Pulse pulse) => pulses.add(pulse));
+
+      map['a'] = 1; // insert
+      map.put('a', 2); // replace
+
+      expect(pulses, hasLength(2));
+
+      expect(pulses[0].type, Tissue.elementAdded);
+      final added = pulses[0].payload as MapEntry<String, int>;
+      expect(added.key, 'a');
+      expect(added.value, 1);
+
+      expect(pulses[1].type, Tissue.entryUpdated);
+      final updated = pulses[1].payload as EntryUpdatedRecord<String, int>;
+      expect(updated.key, 'a');
+      expect(updated.before, 1);
+      expect(updated.after, 2);
+    });
+
+    test('put validates replacements through the test rule', () {
+      final map = TissueMap.create<String, int, TissueMap<String, int>>(
+        testRule: TestTissue<int, TissueMap<String, int>>(
+          (object, {host, arguments, user}) =>
+              object is! int || object >= 0,
+        ),
+      );
+
+      map.put('a', 1);
+      map.put('a', -1); // rejected by the Integrity Gate
+
+      expect(map['a'], 1);
+    });
+
+    test('put replaces Cell values and reports the swap', () {
+      final cell1 = Cell.state<int>(initial: 1).cell;
+      final cell2 = Cell.state<int>(initial: 2).cell;
+      final map = TissueMap<String, Cell>();
+      final pulses = <Pulse>[];
+      Cell.observe(source: map, effect: (Pulse pulse) => pulses.add(pulse));
+
+      map.put('cell', cell1);
+      map.put('cell', cell2);
+
+      expect(map['cell'], same(cell2));
+      expect(map.length, 1);
+      expect(pulses, hasLength(2));
+      expect(pulses[1].type, Tissue.entryUpdated);
+      final updated = pulses[1].payload as EntryUpdatedRecord<String, Cell>;
+      expect(updated.before, same(cell1));
+      expect(updated.after, same(cell2));
+    });
+
+    test('put is whitelisted and routable through apply', () {
+      final map = TissueMap<String, int>();
+      expect(map.modifiable, contains(map.put));
+
+      map.apply(map.put, positionalArguments: ['x', 9]);
+      expect(map['x'], 9);
+
+      map.apply(map.put, positionalArguments: ['x', 10]);
+      expect(map['x'], 10);
     });
 
     test('addAll adds entries from a map', () {
@@ -309,6 +400,7 @@ void main() {
 
       expect(() => view['q'] = 1, throwsUnsupportedError);
       expect(() => view.add('q', 1), throwsUnsupportedError);
+      expect(() => view.put('q', 1), throwsUnsupportedError);
       expect(() => view.addAll({'q': 1}), throwsUnsupportedError);
       expect(() => view.addEntries([MapEntry('q', 1)]), throwsUnsupportedError);
       expect(() => view.clear(), throwsUnsupportedError);
@@ -404,6 +496,30 @@ void main() {
 
       expect(toMap(deputy), {'a': 1});
     });
+
+    test('deputy put and []= replace through shared storage', () async {
+      final source = TissueMap<String, int>.from({'a': 1, 'b': 2});
+      final deputy = await resolveDeputy(source);
+
+      deputy.put('a', 10);
+      deputy['b'] = 20;
+      deputy.add('c', 30);
+
+      expect(source['a'], 10);
+      expect(source['b'], 20);
+      expect(toMap(deputy), {'a': 10, 'b': 20, 'c': 30});
+    });
+
+    test('readOnly deputy still rejects mutations', () async {
+      final source = TissueMap<String, int>.from({'a': 1});
+      final deputy = await source.deputy(testRule: TestTissue.readOnly);
+
+      deputy.put('a', 2);
+      deputy.add('b', 3);
+
+      expect(source['a'], 1);
+      expect(source.containsKey('b'), isFalse);
+    });
   });
 
   group('TissueMapBase direct subclass', () {
@@ -428,6 +544,17 @@ void main() {
       expect(await async.add('a', 2), isFalse);
       await async.addAll({'b': 2, 'c': 3});
       expect(toMap(map), {'a': 1, 'b': 2, 'c': 3});
+    });
+
+    test('async put inserts and replaces', () async {
+      final map = TissueMap<String, int>.from({'a': 1});
+      final async = map.async;
+
+      await async.put('a', 2);
+      expect(map['a'], 2);
+
+      await async.put('b', 3);
+      expect(toMap(map), {'a': 2, 'b': 3});
     });
 
     test('async addEntries and putIfAbsent', () async {
@@ -474,6 +601,7 @@ void main() {
 
       expect(async, isA<ModifiableMapAsync<String, int>>());
       await expectLater(async.add('q', 1), throwsUnsupportedError);
+      await expectLater(async.put('q', 1), throwsUnsupportedError);
       await expectLater(async.addAll({'q': 1}), throwsUnsupportedError);
       await expectLater(
           async.addEntries([MapEntry('q', 1)]), throwsUnsupportedError);
@@ -530,6 +658,20 @@ void main() {
           });
 
       expect(toMap(map), {'k': 7});
+    });
+
+    test('put stages through apply and commits atomically', () async {
+      final map = TissueMap<String, int>.from({'a': 1});
+      final tx = Cell.txApply();
+
+      await tx.execute(
+          participants: [map],
+          body: (tx) {
+            map.apply(map.put, positionalArguments: ['a', 2], tx: tx);
+            expect(map['a'], 1); // staged, not applied until commit
+          });
+
+      expect(map['a'], 2);
     });
 
     test('body failure rolls back staged mutations', () async {

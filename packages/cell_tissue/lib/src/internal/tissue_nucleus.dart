@@ -37,7 +37,7 @@ class _TissueNucleus<E, I extends Iterable<E>, C extends Tissue<E>>
       : super.evolve(
             override: override ??
                 _TissueNucleus<E, I, C>.fromRecord((
-                  local: TissueNucleusBase.local(
+                  local: TissueNucleusBase.mask(
                       container: container,
                       bind: bind,
                       context: context,
@@ -212,7 +212,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       Record? user,
       Record? others})
       : super.fromRecord((
-          local: local<E, I, C>(
+          local: mask<E, I, C>(
               container: container,
               bind: bind,
               context: context,
@@ -388,7 +388,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// ### Returns:
   /// A specialised [Record] containing the minimal set of non‑default
   /// properties required to initialize a [TissueNucleusBase].
-  static Record local<E, I extends Iterable<E>, C extends Tissue<E>>(
+  static Record mask<E, I extends Iterable<E>, C extends Tissue<E>>(
       {Container? container,
       Cell? bind,
       Context? context,

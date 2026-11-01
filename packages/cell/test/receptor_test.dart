@@ -123,6 +123,15 @@ void main() {
         expect(empty == Receptor.passThrough, isFalse);
         expect(transforming == Receptor.passThrough, isFalse);
       });
+
+      test('empty pipeline getters do not throw NoSuchMethodError', () {
+        final empty = bindReceptor(Receptor.pipeline());
+        // Previously sparse `()` masks threw NoSuchMethodError when reading
+        // `.instruction` (caught by get(..., orElse: null), but noisy under
+        // debuggers that break on all exceptions).
+        expect(() => invoke(empty, Pulse<int>(1)), returnsNormally);
+        expect(invoke(empty, Pulse<int>(1))?.payload, 1);
+      });
     });
 
     group('Construction', () {

@@ -52,8 +52,6 @@ Import once in your Dart file:
 import 'package:cell_flow/cell_flow.dart'; // re-exports package:cell
 ```
 
-> ⚠️ **Status:** Release Candidate (RC2). APIs may change. Not yet on pub.dev — use path or git dependencies.
-
 ---
 
 ## Core Concepts in 5 Minutes

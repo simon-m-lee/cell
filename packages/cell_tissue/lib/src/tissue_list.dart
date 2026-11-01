@@ -241,7 +241,7 @@ abstract interface class TissueListNucleus<E> implements TissueNucleus<E> {
       forceLock = false,
       TissueListNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E, List<E>, C>(
+      final local = TissueNucleusBase.mask<E, List<E>, C>(
         container: container,
         bind: bind,
         context: context,

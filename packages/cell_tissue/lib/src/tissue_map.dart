@@ -240,7 +240,7 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
       forceLock = false,
       TissueMapNucleusBase<K, V, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<V, TissueMap<K, V>, C>(
+      final local = TissueNucleusBase.mask<V, TissueMap<K, V>, C>(
         container: container,
         bind: bind,
         context: context,
@@ -377,6 +377,11 @@ abstract interface class TissueMapNucleus<K, V> implements TissueNucleus<V> {
 ///   via `apply`. For read‑only deputies, this list is empty.
 /// - The map treats its **values** as the primary "elements" for validation
 ///   and events. Keys are the structural indices.
+/// - Event contract: inserting a new entry (`add`, `[]=`, `put`, `putIfAbsent`)
+///   emits [Tissue.elementAdded]; replacing an existing entry (`[]=`, `put`,
+///   `update`, `updateAll`) emits [Tissue.entryUpdated] with an
+///   [EntryUpdatedRecord] payload (`key`, `before`, `after`); removals emit
+///   [Tissue.elementRemoved].
 ///
 /// ### Example: Basic usage
 /// ```dart
@@ -773,13 +778,39 @@ abstract interface class TissueMap<K, V> implements Tissue<V> {
 
   /// Associates the [key] with the given [value].
   ///
-  /// If the key was already in the map, its associated value is changed.
-  /// Otherwise the key‑value pair is added to the map.
+  /// If the key is already present in the map, its associated value is
+  /// **replaced** and a [Tissue.entryUpdated] pulse is emitted with an
+  /// [EntryUpdatedRecord] payload (`key`, `before`, `after`). Otherwise the
+  /// key‑value pair is added and a [Tissue.elementAdded] pulse is emitted.
   ///
-  /// This operation is equivalent to calling `add(key, value)`.
+  /// This operation is equivalent to calling [put]. Unlike [add], it never
+  /// treats an existing key as a no‑op.
   void operator []=(K key, V value);
 
+  /// Upserts the [key]/[value] pair into this map [Tissue].
+  ///
+  /// If the key is already present, the existing value is **replaced** and a
+  /// [Tissue.entryUpdated] pulse is emitted with an [EntryUpdatedRecord]
+  /// payload carrying the `before` and `after` values. If the key is absent,
+  /// the pair is inserted and a [Tissue.elementAdded] pulse is emitted.
+  ///
+  /// This is the named counterpart of the `[]=` operator (which delegates to
+  /// this method) and the explicit "set" command for the [apply] gateway and
+  /// [modifiable] whitelist. Unlike [add], it never treats an existing key as
+  /// a no‑op.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final map = TissueMap<String, int>();
+  /// map.put('a', 1); // emits elementAdded
+  /// map.put('a', 2); // emits entryUpdated (key: 'a', before: 1, after: 2)
+  /// ```
+  void put(K key, V value);
+
   /// Add a new entry to this map [Tissue].
+  ///
+  /// This is the strict append‑only operation: it never overwrites an
+  /// existing entry. Use `[]=` / [put] to replace a value.
   ///
   /// - [key]: The key of the entry to add.
   /// - [value]: The value of the entry to add.

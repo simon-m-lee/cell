@@ -299,7 +299,7 @@ abstract interface class TissueNucleus<E> implements Nucleus {
           Record? user,
           EphemeralPolicy? ephemeralPolicy,
           TissueNucleusBase<E, I, C>? principal}) {
-    final local = TissueNucleusBase.local<E, I, C>(
+    final local = TissueNucleusBase.mask<E, I, C>(
       bind: bind,
       context: context,
       receptor: receptor,

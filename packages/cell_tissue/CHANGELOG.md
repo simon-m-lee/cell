@@ -1,3 +1,27 @@
+## [Mitosis (1.0.0-rc.8)] - Release Candidate
+
+### Added
+
+- **`TissueMap.put`**: New explicit upsert operation. `put(key, value)` replaces the value of an existing key (emitting `TissueEvent.entryUpdated` with an `EntryUpdatedRecord<K, V>` payload) or inserts a new entry (emitting `TissueEvent.elementAdded`). It is the named counterpart of the `[]=` operator and is whitelisted in `modifiable`, the `apply` gateway, and `ModifiableMapAsync`.
+
+### Changed
+
+- **`TissueMap.[]=` is now a true upsert**: `map[key] = value` replaces an existing value instead of silently ignoring the assignment. Insertions still emit `TissueEvent.elementAdded`; replacements emit `TissueEvent.entryUpdated` with `(key, before, after)`. `add` remains the strict append-only operation and still returns `false` when the key already exists. Code that relied on the previous set-if-absent behaviour of `[]=` should switch to `add`.
+- **Element validation action vectors**: `update` and `updateAll` now validate new values with their own action identity (`update`/`updateAll`) instead of `add`, so action-aware `TestTissue` rules can distinguish insert and replace vectors.
+- **`update` insert events**: `update` on a missing key with `ifAbsent` now emits `TissueEvent.elementAdded` (previously `entryUpdated`) to match the insert/replace event contract.
+
+### Fixed
+
+- **Reactive link lifecycle on replacement**: `put`, `update`, and `updateAll` now unlink a replaced `Cell` value (when it no longer occurs in the store) and link the new `Cell` value. `remove`, `removeWhere`, and `clear` now unlink removed `Cell` values.
+- **Deputy mutation gateway**: Composing `TestTissue.allowAll` with another rule via `+` previously produced a `TestTissue<Never, Never>` whose `action` gate rejected every real host, silently swallowing all mutations performed through deputies. `allowAll + allowAll` now returns `allowAll` itself, and other compositions use a host-widened wrapper so deputies remain mutable when their rules permit it (read-only deputies still block).
+- **Bound map mirroring**: The receptor sync engine now mirrors `TissueEvent.entryUpdated` pulses into a bound `TissueMap`'s store, so maps created with `bind:` reflect value replacements from their source.
+
+### Tests
+
+- **Upsert coverage**: Added `tissue_map_test.dart` cases for `[]=`/`put` replacement, insert-vs-replace pulse payloads, append-only `add`, test-rule rejection of replacements, `Cell` value swaps, `modifiable`/`apply` routing, unmodifiable and async `put` rejection, transaction staging of `put`, and deputy shared-storage replacement (including read-only deputy blocking).
+
+[Mitosis (1.0.0-rc.8)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
+
 ## [Mitosis (1.0.0-rc.7)] - Release Candidate
 
 ### Changed

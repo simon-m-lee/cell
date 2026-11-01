@@ -49,7 +49,7 @@ class _TissueListNucleus<E, C extends TissueList<E>>
       : super.evolve(
             override: override ??
                 _TissueListNucleus<E, C>.fromRecord((
-                  local: TissueNucleusBase.local<E, List<E>, C>(
+                  local: TissueNucleusBase.mask<E, List<E>, C>(
                       bind: bind,
                       context: context,
                       receptor: receptor,

@@ -141,7 +141,7 @@ class _TissueDeputy<E, I extends Iterable<E>, C extends Tissue<E>>
       Synapses synapses = Synapses.enabled})
       : super.fromNucleus(_TissueNucleus<E, Iterable<E>, C>.evolve(
             override: _TissueNucleus<E, Iterable<E>, C>.fromRecord((
-              local: TissueNucleusBase.local<E, Iterable<E>, C>(
+              local: TissueNucleusBase.mask<E, Iterable<E>, C>(
                 bind: bind,
                 context: context,
                 testRule: bind._nucleus.testRule + testRule,
@@ -552,6 +552,47 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   Iterator<E> get iterator {
     return _nucleus.container.iterator;
   }
+}
+
+mixin TissueMixin<E, I extends Iterable<E>, C extends Tissue<E>> on Tissue<E> {
+
+  TissueNucleusBase<E, I, C> get _nucleus;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is Tissue<E>) {
+      if (other is Unmodifiable) {
+        if (other._nucleus.bind != null &&
+            identical(this, other._nucleus.bind)) {
+          return identical(other, unmodifiable);
+        }
+      }
+    }
+    if (other is Iterable<E>) {
+      return _nucleus.container == other;
+    }
+    return false;
+  }
+
+  /// Returns the hash code based on the underlying [Container].
+  @override
+  int get hashCode => _nucleus.container.hashCode;
+
+  /// Returns a string representation of the underlying collection.
+  @override
+  String toString() {
+    return _nucleus.container.toString();
+  }
+
+  /// Returns an [Iterator] that allows iterating over the elements of this tissue.
+  @override
+  Iterator<E> get iterator {
+    return _nucleus.container.iterator;
+  }
+
 }
 
 /// A concrete implementation of an unmodifiable (read‑only) tissue view.

@@ -463,6 +463,11 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
 
     try {
       for (final call in _staged) {
+        // Mark the call as attempted *before* invoking it so that a throw
+        // (which may have left partial side effects) still triggers its
+        // compensation during the rollback below.
+        call.executed = true;
+
         final result = call.cell.apply(
           call.function,
           positionalArguments: call.positionalArguments,
@@ -471,14 +476,15 @@ class _ApplyTransactionScopeImpl implements ApplyTransactionScope {
 
         // FIX: void → null is OK. Only ApplyRejected is a soft integrity fail.
         if (_isApplyRejected(result) && options.stopOnFirstFailure) {
+          // The integrity gate rejected the action: nothing ran, so this
+          // call must not be compensated.
+          call.executed = false;
           _event(TxApplyRejected(call.cell, 'ApplyRejected'));
           await _compensateExecutedOnly();
           _finished = true;
           _staged.clear();
           throw TxApplyException('apply rejected by integrity gate');
         }
-
-        call.executed = true;
       }
     } on TxApplyCompensationException {
       _finished = true;

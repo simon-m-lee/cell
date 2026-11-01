@@ -51,7 +51,7 @@ class _TissueMapNucleus<K, V, C extends TissueMap<K, V>>
       : super.evolve(
             override: override ??
                 _TissueMapNucleus<K, V, C>.fromRecord((
-                  local: TissueNucleusBase.local<V, MapStore<K, V>, C>(
+                  local: TissueNucleusBase.mask<V, MapStore<K, V>, C>(
                       bind: bind,
                       context: context,
                       receptor: receptor,
@@ -571,17 +571,32 @@ abstract class TissueMapBase<K, V, C extends TissueMap<K, V>>
 
 // ---- MapMixin mandatory overrides ----
 
-  /// Associates the [key] with the [value] by applying the [add] operation.
+  /// Associates the [key] with the [value] by applying the [put] operation.
   ///
   /// This is the standard index assignment operator. It is routed through
   /// the reactive pipeline: validation, atomic update, and event emission.
+  /// If the key already exists, its value is replaced and a
+  /// `Tissue.entryUpdated` pulse is emitted; otherwise the entry is added
+  /// and a `Tissue.elementAdded` pulse is emitted.
   ///
   /// ### Parameters:
   /// - [key]: The key to associate.
   /// - [value]: The value to store.
   @override
-  void operator []=(K key, V value) =>
-      apply(add, positionalArguments: [key, value]);
+  void operator []=(K key, V value) => put(key, value);
+
+  /// Upserts the [key]/[value] pair through the reactive [apply] gateway.
+  ///
+  /// Replaces the value of an existing key (emitting `Tissue.entryUpdated`)
+  /// or inserts a new entry (emitting `Tissue.elementAdded`). This is the
+  /// named counterpart of the `[]=` operator and the whitelisted "set"
+  /// command for [apply]/[modifiable].
+  ///
+  /// ### Parameters:
+  /// - [key]: The key to associate.
+  /// - [value]: The value to store.
+  @override
+  void put(K key, V value) => apply(put, positionalArguments: [key, value]);
 
   /// Looks up the value for [key] directly from the underlying storage.
   ///
@@ -933,6 +948,11 @@ abstract class UnmodifiableTissueMapBase<K, V, C extends TissueMap<K, V>>
   /// @no doc
   /// Throws [UnsupportedError] as this map is unmodifiable.
   @override
+  void put(K key, V value) => throw UnsupportedError('Unmodifiable operation');
+
+  /// @no doc
+  /// Throws [UnsupportedError] as this map is unmodifiable.
+  @override
   void clear() => throw UnsupportedError('Unmodifiable operation');
 
   /// @no doc
@@ -1024,6 +1044,7 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
         addEntries,
         clear,
         putIfAbsent,
+        put,
         remove,
         removeWhere,
         update,
@@ -1100,6 +1121,9 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
         } else if (function == addEntries) {
           return Function.apply(_addEntries, positionalArguments,
               {#notification: notification, #deputy: deputy});
+        } else if (function == put) {
+          return Function.apply(_put, positionalArguments,
+              {#notification: notification, #deputy: deputy});
         } else if (function == clear) {
           return Function.apply(
               _clear, null, {#notification: notification, #deputy: deputy});
@@ -1148,6 +1172,58 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
       }
     }
     return event;
+  }
+
+  /// Upserts [key]/[value] through the `put` command vector.
+  ///
+  /// Replaces the value of an existing key (emitting `Tissue.entryUpdated`)
+  /// or inserts a new entry (emitting `Tissue.elementAdded`). Reactive links
+  /// of [Cell] values are maintained: a replaced child cell is unlinked (if
+  /// it no longer occurs in the store) and the new child cell is linked.
+  TissuePulseBase? _put(K key, V value, {bool notification = true, Tissue<V>? deputy}) =>
+      _setEntry(key, value,
+          action: put, notification: notification, deputy: deputy);
+
+  /// Shared insert-or-replace engine used by [put]/`[]=` and [update].
+  ///
+  /// The [action] parameter is the whitelisted mutation vector used both for
+  /// the [modifiable] gate and element validation, so `put` and `update`
+  /// remain distinguishable by action‑aware [TestTissue] rules.
+  TissuePulseBase? _setEntry(
+    K key,
+    V value, {
+    required Function action,
+    bool notification = true,
+    Tissue<V>? deputy,
+  }) {
+    if (this is! Unmodifiable && modifiable.contains(action)) {
+      final dynamic map = _nucleus.container.store;
+      final existed = map.containsKey(key);
+      final before = existed ? map[key] as V : null;
+      if (validate.element(value, host: this as C, action: action) == true) {
+        map[key] = value;
+        if (existed && before is Cell && !map.containsValue(before)) {
+          _nucleus.synapses.unlink(before, downstreamCell: this);
+        }
+        if (value is Cell) {
+          _nucleus.synapses.link(value, downstreamCell: this);
+        }
+        final event = existed
+            ? _TissuePulse<EntryUpdatedRecord<K, V>>(
+                source: deputy ?? this,
+                payload: (key: key, before: before, after: value),
+                type: Tissue.entryUpdated)
+            : _TissuePulse<MapEntry<K, V>>(
+                source: deputy ?? this,
+                payload: MapEntry<K, V>(key, value),
+                type: Tissue.elementAdded);
+        if (notification) {
+          _nucleus.receptor(event);
+        }
+        return event;
+      }
+    }
+    return null;
   }
 
   TissuePulse? _addAll(Map<K, V> other, {bool notification = true, Tissue<V>? deputy}) {
@@ -1214,6 +1290,9 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
         final value = map[key];
         if (value != null && validate.element(value, host: this as C, action: remove) == true) {
           _nucleus.container.store.remove(key);
+          if (value is Cell && !map.containsValue(value)) {
+            _nucleus.synapses.unlink(value, downstreamCell: this);
+          }
           entries.add(MapEntry<K,V>(key, value));
         }
       }
@@ -1258,6 +1337,9 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
         if (value != null && validate.element(value, host: this as C, action: remove) == true) {
           final en = MapEntry<K, V>(key as K, value);
           value = map.remove(key);
+          if (value is Cell && !map.containsValue(value)) {
+            _nucleus.synapses.unlink(value, downstreamCell: this);
+          }
           final event = _TissuePulse<MapEntry<K,V>>(source: deputy ?? this, payload: en, type: Tissue.elementRemoved);
           if (notification) {
             _nucleus.receptor(event);
@@ -1282,6 +1364,9 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
             predicate(key, value) &&
             validate.element(value, host: this as C, action: remove) == true) {
           map.remove(key);
+          if (value is Cell && !map.containsValue(value)) {
+            _nucleus.synapses.unlink(value, downstreamCell: this);
+          }
           entries.add(MapEntry<K,V>(key, value));
         }
       }
@@ -1300,28 +1385,16 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
     if (this is! Unmodifiable && modifiable.contains(this.update)) {
       final dynamic map = _nucleus.container.store;
       if (map.containsKey(key)) {
-        final oldValue = map[key] as V;
         final newValue = update(map[key] as V);
-        if (validate.element(newValue, host: this as C, action: add) == true) {
-          map[key] = newValue;
-          final event = _TissuePulse<EntryUpdatedRecord<K,V>>(source: deputy ?? this, payload: (key: key, before: oldValue, after: newValue), type: Tissue.entryUpdated);
-          if (notification) {
-            _nucleus.receptor(event);
-          }
-        }
+        _setEntry(key, newValue,
+            action: this.update, notification: notification, deputy: deputy);
         return newValue;
       }
 
       if (ifAbsent != null) {
         final value = ifAbsent();
-        if (validate.element(value, host: this as C, action: add) == true) {
-          final V? oldValue = map[key];
-          map[key] = value;
-          final event = _TissuePulse<EntryUpdatedRecord<K,V>>(source: deputy ?? this, payload: (key: key, before: oldValue, after: value), type: Tissue.entryUpdated);
-          if (notification) {
-            _nucleus.receptor(event);
-          }
-        }
+        _setEntry(key, value,
+            action: this.update, notification: notification, deputy: deputy);
         return value;
       }
       throw StateError('No element');
@@ -1331,7 +1404,7 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
 
   TissuePulse? _updateAll(V Function(K key, V value) update, {bool notification = true, Tissue<V>? deputy}) {
     TissuePulse? result;
-    if (this is! Unmodifiable && modifiable.contains(updateAll)) {
+    if (this is! Unmodifiable && modifiable.contains(this.updateAll)) {
       final dynamic map = _nucleus.container.store;
       final records = <EntryUpdatedRecord<K,V>>[];
       final keys = map.keys.toList();
@@ -1339,8 +1412,14 @@ mixin TissueMapMixin<K, V, C extends TissueMap<K, V>>
         final key = rawKey;
         final oldValue = map[key] as V;
         final newValue = update(key, oldValue);
-        if (validate.element(newValue, host: this as C, action: add) == true) {
+        if (validate.element(newValue, host: this as C, action: this.updateAll) == true) {
           map[key] = newValue;
+          if (oldValue is Cell && !map.containsValue(oldValue)) {
+            _nucleus.synapses.unlink(oldValue, downstreamCell: this);
+          }
+          if (newValue is Cell) {
+            _nucleus.synapses.link(newValue, downstreamCell: this);
+          }
           records.add((key: key, before: oldValue, after: newValue));
         }
       }
@@ -1422,6 +1501,21 @@ class ModifiableMapAsync<K, V>
   ///   passed), and `false` otherwise.
   Future<bool> add(K key, V value) {
     return Future<bool>(() => _tissue.add(key, value));
+  }
+
+  /// Asynchronously upserts the ([key], [value]) pair into the map.
+  ///
+  /// Replaces the value of an existing key or inserts a new entry, and
+  /// completes after the reactive propagation has settled.
+  ///
+  /// ### Parameters:
+  ///   - [key]: The key to associate.
+  ///   - [value]: The value to store.
+  ///
+  /// ### Returns:
+  ///   A [Future<void>] that completes after the operation is attempted.
+  Future<void> put(K key, V value) {
+    return Future<void>(() => _tissue.put(key, value));
   }
 
   /// Asynchronously adds all entries from the given [other] map.
@@ -1536,6 +1630,11 @@ class _UnmodifiableModifiableMapAsync<K, V>
 
   @override
   Future<bool> add(K key, V value) async {
+    return Future.error(UnsupportedError('Unmodifiable operation'));
+  }
+
+  @override
+  Future<void> put(K key, V value) async {
     return Future.error(UnsupportedError('Unmodifiable operation'));
   }
 

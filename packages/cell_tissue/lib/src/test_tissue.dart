@@ -310,7 +310,7 @@ class TestTissue<E, C extends Tissue<E>> extends TestCell<C>
   /// ### Returns:
   /// `true` if the operation is authorised; `false` otherwise.
   @override
-  FutureOr<bool> call(dynamic object, {C? host, dynamic arguments}) {
+  FutureOr<bool> call(dynamic object, {covariant C? host, dynamic arguments}) {
     if (host != null && (object is E && arguments is Function)) {
       return element(object, host: host, action: arguments);
     }

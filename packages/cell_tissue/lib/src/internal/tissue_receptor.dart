@@ -459,6 +459,20 @@ mixin _TissueReceptorBaseStack {
               }
             }
           }
+        } else if (event.type == Tissue.entryUpdated) {
+          if (payload is EntryUpdatedRecord<Object?, Object?>) {
+            final rec = payload;
+            final store = container.store;
+            if (store is MapStore) {
+              if (rec.after != null) {
+                store[rec.key] = rec.after;
+              } else {
+                store.remove(rec.key);
+              }
+            } else {
+              partial = true;
+            }
+          }
         }
       }
 

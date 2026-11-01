@@ -243,7 +243,7 @@ abstract interface class TissueSetNucleus<E> implements TissueNucleus<E> {
       forceLock = false,
       TissueSetNucleusBase<E, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<E, Set<E>, C>(
+      final local = TissueNucleusBase.mask<E, Set<E>, C>(
         container: container,
         bind: bind,
         context: context,

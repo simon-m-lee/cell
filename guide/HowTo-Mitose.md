@@ -11,6 +11,7 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 | `HowTo-Mitose.md` | Orchestration 2.0. Optional for layer HowTos and for ARCHITECTURE / FEATURES extraction. Required to start a full Mitose run. |
 | `Business_Requirements_Document.md` | BRD template 2.0. Shape of `<stem>-BRD.md`. |
 | `BRD-AI-Interview.md` | Interview that writes `<stem>-BRD.md` in that template shape. |
+| `Document_AI_MasterGenerator.md` | Master entry point. Consulted before any individual generator. |
 | `WalkThrough-AI-Generator.md` | Writes `<stem>-WalkThrough.md`. |
 | `HowTo-Mitose-Cell.md` | Cell factory choices. |
 | `HowTo-Mitose-Flow.md` | Flow operator and custom-instruction choices. |
@@ -37,7 +38,7 @@ All Mitose scripts in this set live in **one directory** (this file's directory)
 
 Never overwrite an existing file in that set without asking. Number a new change file; never replace an old one.
 
-**Version:** 2.0 (supersedes 1.0; release notes in §14)
+**Version:** 2.2 (supersedes 2.1; release notes in §14)
 
 **File role:** An AI-executable **orchestration** script. An AI prompt agent reads this file and runs the Mitose pipeline with a human user: either a **new build** (requirement → WalkThrough → Demo → residual ledger → documents) or a later **change** to a solution built that way.
 
@@ -95,6 +96,7 @@ This file is **process only**. It does not teach `Cell.*` factories, Flow operat
 | Measure residual error; write the ledger from the test report | `LEDGER-AI-Generator.md` | No |
 | Comprehension check, change control, decision log | `COMPREHENSION-AI-Generator.md` | No |
 | Change, upgrade, repair, or reconcile an existing solution | `CHANGE-AI-Generator.md` | No |
+| Run the rest of the pipeline unattended once the BRD exists (autonomous mode) | `HowTo-Mitose.md` §15 | **Yes** |
 | Extract ARCHITECTURE from a running Demo | `ARCHITECTURE-AI-Generator.md` | No |
 | Extract FEATURES from a running Demo | `FEATURES-AI-Generator.md` | No |
 
@@ -178,22 +180,90 @@ You are the Mitose agent. Follow the steps below in order. Do not skip the BRD g
 4. **Layer HowTos are source of truth for *which layer answers the BRD*.** Cell / Flow / Tissue files do not wait on this orchestration file.
 5. **Seam sentence is load-bearing:** the instruction decides, the chain assembles, the observer glues. No Tissue writes in the instruction. `Cell.observe` is the only glue.
 6. **Grep rule:** zero `testRule: TestCell` on Tissue constructors.
-7. One human decision at each gate. Do not chain gates, and do not chain Demo + ledger + ARCHITECTURE + FEATURES in one silent pass unless the user asked for the whole set.
-8. Stop and ask if a required script or HowTo cannot be read.
+7. One human decision at each gate. Do not chain gates, and do not chain Demo + ledger + ARCHITECTURE + FEATURES in one silent pass unless the user asked for the whole set. Autonomous mode (§15) is the one exception: the user opts in once at gate A1, and every later gate becomes a recorded automatic decision.
+8. Stop and ask if a required script or HowTo cannot be read. In autonomous mode, stop and report instead of asking (§15.8).
 9. **IDs are permanent and are how you trace.** Requirement IDs are never reused or renumbered. Impact, coverage, and evidence are traced by ID. A link you cannot trace is `Unknown`, and Unknown is treated as affected.
 10. **The ledger is the source of truth for *what has been shown to work*.** The BRD says what is required, the Demo says what the program does, and the ledger says which requirements have executed evidence. Never describe a requirement as handled when the ledger says Blocked, Failed, or Unverified.
 11. **Verified needs executed evidence.** Never mark a row Verified from reading code. Record where each run came from (the agent executed it, or the user supplied the output).
 12. **Expected values come from the BRD and its parameter register,** never from the Demo's own output.
 13. **Protected items change only under gate C2** (expected values, criteria, tolerances, parameter values used by checks, the set of checks, comparison type, skip markers). When a check fails, fix the code first.
-14. **Do not invent history.** Thresholds, versions, migrations, decisions, alternatives, and approvals that were not stated stay `[To be confirmed from BRD]`. Approvals belong to named people. The agent never records an approval it did not receive and never accepts residual risk for the user.
+14. **Do not invent history.** Thresholds, versions, migrations, decisions, alternatives, and approvals that were not stated stay `[To be confirmed from BRD]`. Approvals belong to named people. The agent never records an approval it did not receive and never accepts residual risk for the user. Autonomous mode (§15) relaxes only two things, and only because the user delegated them at gate A1: the agent may decide thresholds, rule precedence, and open questions itself, tagged `[AI DECIDED — autonomous]` (§15.4); and it may record residual acceptance as a delegation, never as the user's own approval (§15.6).
 15. **State a fact once.** Every generated document opens with a short summary headed *What a reader must understand* when useful. There are no word caps. Link by ID.
 16. **Describe, never grade.** Record what a person predicted and what the BRD says. Do not rate the person and do not produce a comprehension score.
 17. **Mitosis is the noun. Mitose is the verb.** Do not rename a file, a heading, or a package from Mitose to Mitosis. Mitosis is the framework. Mitose is this pipeline.
 18. **Use only the latest generated file.** When more than one version of an artifact exists, read the highest version. Record the filename and version in the name plate of the file you write.
+19. **Autonomous mode is opt-in, offered once, and starts only after a BRD exists.** The user chooses it at gate A1 (§3.2A). It never applies to change mode. It never marks a row Verified without an executed run, never overwrites a file, never records an approval by a person who did not give it, and never loosens a protected item to make a check pass (§15.2). Every decision it makes is tagged and listed in the final report (§15.9).
+
+20. **In autonomous mode the agent first ensures a Dart runtime and implements the WalkThrough with the Mitosis packages.** Before generating or executing a Demo the agent autonomously installs a Dart SDK if needed, adds `package:cell`, `package:cell_flow` and `package:cell_tissue`, and writes a Demo that follows the WalkThrough (instruction decides, chain assembles, observer glues, Tissue books). The first Demo and its test file must be written to meet **all** requirement IDs stated in the BRD (every FR / DR / BR / AR / NFR that has a testable criterion). No user confirmation is required for these steps (§15.7).
+
+21. **After the BRD is complete and autonomous mode is chosen, the pipeline runs to the end without interruption.** No further user input is requested. The comprehension check is not offered. Every undecided or open question is decided by the agent to the best of its knowledge, tagged `[AI DECIDED — autonomous]`, and accepted. The agent then:
+
+- writes the WalkThrough by following `WalkThrough-AI-Generator.md` exactly,
+- implements and tests the Demo and Test (covering all BRD requirements),
+- **updates the WalkThrough §5.12 Demo Assessment from the executed Demo and test results**, filling every subsection required by `WalkThrough-AI-Generator.md` §6 with the same detail as in manual step-by-step mode (what the Dart file implemented, what `main()` does not drive, trailer/header integers, Recommendations for Enhancement),
+- writes the ledger by following `LEDGER-AI-Generator.md` exactly, using the executed test report,
+- writes ARCHITECTURE by following `ARCHITECTURE-AI-Generator.md` exactly,
+- writes FEATURES by following `FEATURES-AI-Generator.md` exactly,
+- produces the final report.
+
+The only stop conditions are those listed in §15.8.
+
+22. **All document generations MUST use their corresponding generator script.**  
+The agent must follow the generator exactly and must not write the document ad-hoc:
+
+| Document | Generator script that MUST be followed |
+|---|---|
+| `<stem>-WalkThrough.md` | `WalkThrough-AI-Generator.md` |
+| `<stem>-LEDGER.md` | `LEDGER-AI-Generator.md` |
+| `<stem>-ARCHITECTURE.md` | `ARCHITECTURE-AI-Generator.md` |
+| `<stem>-FEATURES.md` | `FEATURES-AI-Generator.md` |
+| `<stem>-COMPREHENSION.md` | `COMPREHENSION-AI-Generator.md` |
+| `<stem>-CHANGE-<nnn>.md` | `CHANGE-AI-Generator.md` |
+
+This rule applies in both step-by-step and autonomous mode. Autonomous mode does not relax it. A document written without following its generator is invalid and must be regenerated.
+
+23. **Consult `Document_AI_MasterGenerator.md` before any individual generator.**  
+Before generating any document, the agent must first open `Document_AI_MasterGenerator.md`. It then follows the map in that file to the correct individual generator and follows that generator exactly. The run log records that the master script was consulted. Autonomous mode does not skip this step.
+
+24. **Every BRD test must compare actual results against expected values before confirming the test.**  
+In both step-by-step and autonomous mode, each test in the `BRD` group of `<stem>-test.dart` must:
+- Capture the actual result produced by the Demo.
+- Compare it with an expected value taken from the BRD (or the WalkThrough coverage matrix).
+- Call `expect()` (or an equivalent assertion) so the test fails if they do not match.
+- Print the `LEDGER` line only after the comparison, showing both `expected=` and `actual=`.
+
+A `LEDGER PASS` line printed without a preceding assertion that compared actual against expected is invalid. This rule applies in both modes.
+
+25. **All documents must be generated in full.**  
+In both step-by-step and autonomous mode, every document listed below must be produced by following its generator script completely. A stub, placeholder, or empty document is invalid and must be regenerated:
+
+| Document | Generator | Required content |
+|---|---|---|
+| `<stem>-WalkThrough.md` | `WalkThrough-AI-Generator.md` | **Full document.** All subsections 5.1–5.14 with the same depth as a manual-mode generation: detailed ingress table, policy clauses with load-bearing order, products and `pass`, chain shape (code), pulse path, Tissue books table, reserve protocol, TestCell/TestTissue map, must-print scenarios, Real desk / Wave A, open questions, filled §5.12 Demo Assessment (what implemented, what `main()` does not drive, trailer/header integers, Recommendations), coverage matrix, HowTos consulted. A summary or slim WalkThrough is invalid. |
+| `<stem>-LEDGER.md` | `LEDGER-AI-Generator.md` | All blocks in §4 (name plate, registers, per-group tables, summary, run log, LEDGER lines) |
+| `<stem>-ARCHITECTURE.md` | `ARCHITECTURE-AI-Generator.md` | Full layer placement, diagrams, and sections required by the generator |
+| `<stem>-FEATURES.md` | `FEATURES-AI-Generator.md` | Full feature inventory and sections required by the generator |
+| `<stem>-COMPREHENSION.md` | `COMPREHENSION-AI-Generator.md` | Full record (or explicit declined block in autonomous mode) |
+
+A document that contains only a title and a one-line summary is a stub and does not satisfy this rule.  
+A WalkThrough that omits detailed tables, chain shape, scenarios, or a fully filled §5.12 is a slim document and is invalid. The agent must follow `WalkThrough-AI-Generator.md` §5 and §6 completely, producing a document comparable in structure and depth to a manual-mode generation.
+
+26. **The Demo must implement the WalkThrough in full.**  
+In both step-by-step and autonomous mode, `<stem>-Demo.dart` must contain:
+- Domain types matching the WalkThrough (tick, decision, order, payment, outcome).
+- A custom `FlowInstructionBase` subclass with an importable `riskOf` (or equivalent pure decision method).
+- Chain assembly: two products (`proceed` / `reject`), `MapValue`, and `toHandle` once each.
+- `Cell.observe` as the only glue that writes Tissue books.
+- `Cell.txApply` (or the equivalent multi-value commit) for the all-or-nothing paths.
+- `installGates()` that wires everything and does no work at import time.
+- Header provenance and boundary registers.
+- A `main()` that drives the must-print scenarios.
+
+A Demo that uses only a pure function and a synchronous `process` method, without the instruction / chain / observe / txApply structure, is a slim Demo and is invalid. The agent must implement the WalkThrough as written.
 
 ### Opening line
 
-> I have HowTo-Mitose.md 2.0. I will run the Mitose pipeline: BRD gate and readiness check → WalkThrough (with a short prediction check) → Demo (on your OK) → WalkThrough assessment against the Dart file → residual ledger → decision log → offer ARCHITECTURE and FEATURES. For an existing solution I will run change mode instead. Cell / Flow / Tissue HowTos stay in force whether or not this file is present. First I will look for a BRD.
+> I have HowTo-Mitose.md 2.2. I will run the Mitose pipeline: BRD gate → once the BRD exists, I will offer you a choice between step by step and autonomous mode → readiness check → WalkThrough (with a short prediction check, unless you choose autonomous) → Demo (on your OK; in autonomous mode, after the BRD, I run the rest of the pipeline without interruption or further input: decide all open items, skip the comprehension check, install a Dart SDK if needed, add package:cell / cell_flow / cell_tissue, implement the WalkThrough in full (all subsections 5.1–5.14 with detailed tables, chain shape, scenarios and filled §5.12) covering all BRD requirement IDs, write and test the Demo implementing the WalkThrough in full (instruction, chain, observe, txApply — a slim pure-function Demo is invalid; each BRD test compares actual vs expected and calls expect() before printing LEDGER PASS), update the WalkThrough §5.12 Demo Assessment from the results using WalkThrough-AI-Generator.md §6 with the same detail as manual mode, write the ledger using LEDGER-AI-Generator.md, ARCHITECTURE using ARCHITECTURE-AI-Generator.md and FEATURES using FEATURES-AI-Generator.md (all documents MUST be produced in full by first consulting Document_AI_MasterGenerator.md and then following their corresponding generator script exactly — ad-hoc writing and stubs are invalid), and produce the remaining documents until the end) → WalkThrough assessment against the Dart file → residual ledger → decision log → ARCHITECTURE and FEATURES. For an existing solution I will run change mode instead. Cell / Flow / Tissue HowTos stay in force whether or not this file is present. First I will look for a BRD.
 
 Then run §2.
 
@@ -205,7 +275,8 @@ A user starts Mitose by:
 
 - attaching or naming this file, **or**
 - pointing at the public copy (`HowTo-Mitose.md` under the guide URL above), **or**
-- saying “Mitose” / “run Mitose” in chat for a new build, or “Mitose change” for a change to an existing solution.
+- saying “Mitose” / “run Mitose” in chat for a new build, or “Mitose change” for a change to an existing solution, **or**
+- saying “Mitose autonomous”. This pre-answers gate A1 (§3.2A) with *autonomous*. The BRD stage is still interactive, because only the user can supply the business need. Autonomy starts once a filled BRD exists.
 
 **Manual-upload fallback.** Some AI prompts cannot access the GitHub repository remotely. In that case the user pulls the files from the local `/guide` directory and uploads them manually (as chat attachments), and the agent runs the pipeline from the uploaded copies. The uploaded copies take precedence over any remote revision. For a full run the user uploads this file, the BRD interview and template, the three layer HowTos, and the generators named in §0.
 
@@ -218,8 +289,11 @@ Read this file. Then search the workspace for the files in §0 and choose a mode
 | “Mitose” | Some pipeline files already exist | **Resume.** Name the files found and the first missing stage; ask: “Continue at *stage*?” |
 | “Mitose change” | BRD, WalkThrough, Demo, and ledger | **Change mode** → §9 |
 | “Mitose change” | No ledger | Offer to build the baseline ledger first (§7). Do not start the change |
+| “Mitose autonomous” | No filled `*-BRD.md` | **New build.** Run the BRD gate (§3) interactively; autonomous mode begins when the BRD exists (§3.2A, §15) |
+| “Mitose autonomous” | Filled BRD | **New build / Resume**, autonomous from gate B1 onward (§3.2A, §15) |
+| “Mitose autonomous change” | Any | Autonomous mode does not apply to change mode (§15.1). Run change mode interactively and say so |
 
-Stage order for Resume: BRD → B1 → WalkThrough → Demo → Demo Assessment → ledger → decision log → ARCHITECTURE / FEATURES.
+Stage order for Resume: BRD → A1 (autonomous offer, §3.2A) → B1 → WalkThrough → Demo → Demo Assessment → ledger → decision log → ARCHITECTURE / FEATURES. If the BRD exists and no later stage has run, gate A1 has not been answered, so ask it.
 
 ---
 
@@ -227,7 +301,7 @@ Stage order for Resume: BRD → B1 → WalkThrough → Demo → Demo Assessment 
 
 ### 3.1 BRD already uploaded
 
-If a filled `<stem>-BRD.md` exists, confirm the stem with the user and go to §3.3.
+If a filled `<stem>-BRD.md` exists, confirm the stem with the user and go to §3.2A, then §3.3.
 
 ### 3.2 No BRD yet — offer four starts
 
@@ -239,6 +313,31 @@ Give **all four** options. Do not invent a fifth. Do not start WalkThrough until
 4. **Paste a requirement paragraph.** User pastes a short requirement at the prompt. Agent drafts `<stem>-BRD.md` from the template as best it can, marks every invented or missing field `[To be confirmed]` / `[AI SUGGESTED]`, shows the draft, and waits for correction before §3.3.
 
 If the user picks (2), do not interview them in the same turn. If they pick (3), do not also ask them to fill the template.
+
+When any of the four paths has produced a filled `<stem>-BRD.md`, go to §3.2A.
+
+### 3.2A Autonomous mode offer (gate A1)
+
+Ask this **once**, as soon as a filled `<stem>-BRD.md` exists and the mode is *new build* or *resume*. Ask it before gate B1. If the user already said “Mitose autonomous”, treat that as the answer: print the one-line confirmation below and continue. Do not ask a second time in the same session.
+
+> The BRD is in place. How do you want to run the rest of the pipeline?
+>
+> **1. Step by step (default).** I stop at every gate and wait for your answer, as described in this file.
+>
+> **2. Autonomous.** I run everything after the BRD in one go, with no questions: readiness check, WalkThrough, Demo and test file, Demo Assessment, residual ledger, decision log, ARCHITECTURE and FEATURES. I do not offer the comprehension check. Every open question, missing value, finding, and residual item I decide to the best of my knowledge and accept as decided. Each decision is tagged `[AI DECIDED — autonomous]` and listed in a final report, and you can reopen any of them later as a Change.
+>
+> What stays the same in autonomous mode: nothing is marked Verified without an executed run, I never overwrite an existing file, I never fill in an approval or signature for a person, and I never loosen a check to make it pass.
+>
+> What you give up: you will not have read or approved anything before it is generated. Please read the final report and the BRD tags before relying on the result.
+>
+> Which one?
+
+Rules:
+
+1. One question, two options. An unclear answer means step by step.
+2. Record the choice and the **delegating person**: the name the user gives in the reply, else the BRD author or sponsor named in BRD §1, else `the requester`. Never invent a name.
+3. If the user chooses autonomous, follow §15 for every remaining stage. If the user chooses step by step, nothing in §15 applies.
+4. A user message sent mid-run is an instruction. If it says stop, stop (§15.8).
 
 ### 3.3 BRD readiness check (gate B1)
 
@@ -262,6 +361,8 @@ Ask (gate B1):
 > Is this register, parameter list and findings list right? Which Blocking findings do you want to resolve before the WalkThrough, and which do we carry forward?
 
 Do not start the WalkThrough until the user answers. Unresolved findings do **not** forbid proceeding; they will appear as Blocked rows.
+
+In autonomous mode this check is shown in the run log but not awaited. The agent resolves each finding under §15.4 and continues.
 
 ---
 
@@ -311,7 +412,7 @@ When the user says yes:
 4. Header must include the Cell I/O table, seam sentence, TestCell vs TestTissue rule, expected console, deviations from the WalkThrough, the requirement IDs covered and not covered, and the provenance and boundary registers from the fail-closed rule above. A blank provenance or boundary cell fails the test.
 5. Do not invent BRD facts to make the Demo prettier.
 6. **Keep decision logic importable.** Put the policy instruction, chain assembly, and `installGates()` in top-level declarations, with no work done at import time. `<stem>-test.dart` must import the Demo without running `main()`. If something cannot be exposed, say so in the header.
-7. **Always write `<stem>-test.dart` with the Demo.** It is the unit-test file and the residual-ledger report. Do not write `<stem>-Check.dart`. Groups are aligned to public APIs and documented contracts, not to banner names. One group is the BRD suite. Expected values in that suite come from the BRD and the parameter register, never from the Demo's own output. Class J is not a unit test. A missing parameter stays `BLOCKED`.
+7. **Always write `<stem>-test.dart` with the Demo.** It is the unit-test file and the residual-ledger report. Do not write `<stem>-Check.dart`. Groups are aligned to public APIs and documented contracts, not to banner names. One group is the BRD suite. Expected values in that suite come from the BRD and the parameter register, never from the Demo's own output. **Each BRD test must capture the actual result, compare it with the expected value, call `expect()` (or equivalent) so the test fails on mismatch, and only then print the `LEDGER` line showing both `expected=` and `actual=`.** A PASS line printed without that comparison is invalid. Class J is not a unit test. A missing parameter stays `BLOCKED`.
 
    ```dart
    void main() {
@@ -363,7 +464,7 @@ After the filled §5.12 is shown, and before offering the ledger, ask once:
 > 2. In place — add the enhancement to the Demo and update the existing documents (WalkThrough assessment, test, ledger notes) without bumping a version or writing a CHANGE file.  
 > 3. Skip — leave the recommendations for later.
 
-Record the choice. If the user chooses Change, enter change mode for that enhancement and do not continue the main pipeline until the CHANGE gates are answered. If the user chooses In place, patch the Demo, re-run, and update the existing files in situ; do not write a CHANGE file and do not bump versions. If the user skips, proceed to the ledger offer.
+Record the choice. If the user chooses Change, enter change mode for that enhancement and do not continue the main pipeline until the CHANGE gates are answered. If the user chooses In place, patch the Demo, re-run, and update the existing files in situ; do not write a CHANGE file and do not bump versions. If the user skips, proceed to the ledger offer. In autonomous mode the choice is always Skip (§15.3).
 
 ---
 
@@ -481,6 +582,19 @@ For an `upgrade`, record the Dart SDK and package versions before and after in t
 [ ] Affected ledger rows reset; Verified only after a passing run
 [ ] Drift items each have a user disposition
 [ ] Release check met, or the failing condition reported
+[ ] Autonomous mode offered once, after the BRD existed, at gate A1; the choice and the delegating person recorded
+[ ] In autonomous mode: no gate waited; no comprehension check offered; every AI decision tagged and listed in the final report
+[ ] In autonomous mode: no file overwritten (new SemVer file written instead); no Verified row without an executed run; no protected item loosened
+[ ] In autonomous mode: Failed rows not accepted; acceptance never used to cover a missing run
+[ ] In autonomous mode: Dart SDK installed if missing; package:cell, package:cell_flow, package:cell_tissue added; WalkThrough implemented (instruction, chain, observe glue, books) and first Demo + Test cover all BRD requirement IDs without asking
+[ ] In autonomous mode: after BRD completion the pipeline runs to the end with no further user input, no comprehension check, and all open items decided by the agent
+[ ] In autonomous mode: WalkThrough §5.12 Demo Assessment is filled from the executed Demo and test results using WalkThrough-AI-Generator.md §6 with the same detail as manual mode
+[ ] In autonomous mode: LEDGER, ARCHITECTURE and FEATURES are generated by following their respective AI-Generator scripts exactly
+[ ] All document generations (both modes) use their corresponding generator script; ad-hoc writing is invalid (Rule 22)
+[ ] Document_AI_MasterGenerator.md is consulted before any individual generator (Rule 23)
+[ ] Every BRD test compares actual vs expected and calls expect() before printing LEDGER PASS (Rule 24)
+[ ] All documents (WalkThrough, LEDGER, ARCHITECTURE, FEATURES, COMPREHENSION) are generated in full by following their generators; stubs are invalid (Rule 25)
+[ ] Demo implements the WalkThrough in full (instruction, chain, observe, txApply); slim pure-function Demo is invalid (Rule 26)
 ```
 
 ---
@@ -506,6 +620,11 @@ A run is accepted only when all rows that apply hold. Show Pass / Fail to the us
 | P-AC-13 | (removed — no length caps) | — |
 | P-AC-14 | Seam and grep rules were checked mechanically, with the command and result recorded | run log |
 | P-AC-15 | In change mode: impact was traced by ID, Unknown items were treated as affected, and the release check was reported | change file |
+| P-AC-16 | Autonomous mode was offered once, after a BRD existed, before gate B1, and only chosen by the user; the delegating person is recorded | chat log |
+| P-AC-17 | In an autonomous run, no gate waited for the user, no comprehension check was offered, and `<stem>-COMPREHENSION.md` records `declined — autonomous mode` | chat log, COMPREHENSION record |
+| P-AC-18 | Every AI decision is tagged `[AI DECIDED — autonomous]` where it appears, has a decision-log entry with `Decided by: AI (autonomous mode), delegated by <name>`, and appears in the final report | inspect BRD, log, report |
+| P-AC-19 | In an autonomous run, no file was overwritten, no row is Verified without an executed run, no protected item was changed after the first run, and no Failed row was accepted | files, ledger, run log |
+| P-AC-20 | The final report lists every AI decision, every item the agent could not decide, every Failed or Unverified row, every delegated acceptance with its review-by date, and the commands to run if Dart was not executed | inspect report |
 
 Fail any row → do not claim the run is done.
 
@@ -515,6 +634,7 @@ Fail any row → do not claim the run is done.
 
 | Gate | Where | Question |
 |---|---|---|
+| A1 | §3.2A | “How do you want to run the rest of the pipeline: step by step, or autonomous?” |
 | B1 | §3.3 | “Is this register, parameter list and findings list right?” |
 | C1 | §4 | “Before you accept the WalkThrough, would you like to predict three scenarios?” |
 | L1 | §7 | “Is this register, parameter list and findings list right?” (full) |
@@ -524,7 +644,7 @@ Fail any row → do not claim the run is done.
 | C3 | §8.1 | “Is this decision log right?” |
 | CH1–CH5 | §9 | Diff, impact and plan, code vs BRD differences, residual re-acceptance, release |
 
-One human decision at each gate. Do not chain them.
+One human decision at each gate. Do not chain them. In autonomous mode only A1 is asked; every later gate follows the table in §15.3.
 
 ---
 
@@ -535,6 +655,7 @@ One human decision at each gate. Do not chain them.
 - Not required reading before `HowTo-Mitose-Cell.md`, `HowTo-Mitose-Flow.md`, or `HowTo-Mitose-Tissue.md`.
 - Not permission to invent BRD content, collapse the seam, write FEATURES from a WalkThrough wish-list, mark a requirement Verified from reading code, or accept residual risk on the user's behalf.
 - Not a proof of correctness. A ledger with no Failed rows shows only that the stated checks passed, and conformance is measured against the BRD as written.
+- Not a way to obtain approvals. Autonomous mode lets the agent decide and proceed. It does not make an AI decision into a person's approval, and it does not make an AI-decided BRD value a business fact.
 - Not a measure of anyone's skill, and not a replacement for reading the code that ships.
 
 ---
@@ -574,6 +695,202 @@ One human decision at each gate. Do not chain them.
 1. A runtime that cannot execute Dart cannot produce executed evidence itself. It asks the user to run the commands (L3).
 2. Importable Demo logic and comparing banners change how Demos are written. Existing 1.0 Demos need a one-time refactor before their rows can be Verified.
 3. Numeric defaults in the generators (the bulk-change threshold) are `[AI SUGGESTED]` starting values. Calibrate them on a real run.
+
+### 14.5 What changed from 2.1 to 2.2
+
+| Area | 2.1 | 2.2 |
+|---|---|---|
+| Dart environment | Agent asks user to run commands if Dart is missing | In autonomous mode the agent first installs a Dart SDK, adds `cell` / `cell_flow` / `cell_tissue`, and implements the WalkThrough (instruction, chain, observe glue, books) without asking |
+| Demo generation | Offered after WalkThrough acceptance | In autonomous mode generated automatically with the three packages, covering all BRD requirement IDs on the first write |
+| Rules of engagement | 19 | 21 (Dart setup + uninterrupted full-pipeline run after BRD) |
+| Pipeline continuity | Gates may pause | After A1 the pipeline runs to the end with no further user input; open items decided by AI; comprehension skipped |
+| WalkThrough §5.12 | Filled only after user accepts Demo Assessment | In autonomous mode filled automatically from the executed Demo and test results, using WalkThrough-AI-Generator.md §6 with the same detail as manual mode |
+| Document generators | Used in step-by-step mode | MUST be used in both modes. Autonomous mode does not permit ad-hoc writing. A document not produced by its generator is invalid (Rule 22). |
+| Master generator | — | `Document_AI_MasterGenerator.md` is consulted before any individual generator (Rule 23). |
+| Test assertions | LEDGER lines printed | Every BRD test must compare actual vs expected and call expect() before printing LEDGER PASS (Rule 24). Applies in both modes. |
+| Document completeness | Stubs accepted | All documents must be generated in full by following their generators completely. Stubs and slim WalkThroughs are invalid (Rule 25). Applies in both modes. |
+| Demo completeness | Simplified stand-in accepted | Demo must implement the WalkThrough in full (instruction, chain, observe, txApply). A slim pure-function Demo is invalid (Rule 26). Applies in both modes. |
+
+### 14.4 What changed from 2.0 to 2.1
+
+| Area | 2.0 | 2.1 |
+|---|---|---|
+| Modes | New build, resume, change | Adds an opt-in **autonomous** run for new build and resume. Change mode stays interactive |
+| Gates | A human answers B1, C1, L1, L3, L4, C3 and every “proceed” | New gate A1 (§3.2A). After A1 = autonomous, every later gate is an automatic, recorded decision (§15.3) |
+| Open items | Carried as Blocked rows until a person answers | Decided by the agent from the BRD, the HowTos, and conservative industry norms; tagged `[AI DECIDED — autonomous]` (§15.4) |
+| Comprehension check | Offered once at C1 | Not offered; recorded as `declined — autonomous mode` |
+| Residual acceptance | Named person only | May be delegated at A1 for Blocked and class J rows; never for Failed rows, never to cover a missing run (§15.6) |
+| Overwrite questions | Ask the user | Never overwrite; write a new SemVer file (§15.2) |
+| Evidence | Agent runs Dart or asks the user to (L3) | Agent runs Dart if it can; otherwise the ledger stays Unverified and the commands go in the final report (§15.7) |
+| Rules of engagement | 18 | 19 |
+
+Companion edit recommended for the other generators, one sentence each (`WalkThrough`, `LEDGER`, `COMPREHENSION`, `ARCHITECTURE`, `FEATURES`): *In autonomous mode (`HowTo-Mitose.md` §15) every “wait” or “ask” in this file becomes a recorded automatic decision, every overwrite question becomes a new SemVer file, and an acceptance row whose method is “chat log” for a user answer is read as “run log”.* Until that edit is made, §15.3 of this file governs.
+
+---
+
+## 15. Autonomous mode
+
+**Added in 2.1, strengthened in 2.2.** Autonomous mode runs the pipeline after the BRD without asking the user anything further and without interruption. It is opt-in, offered once at gate A1 (§3.2A), and it starts only after a filled `<stem>-BRD.md` exists. Once chosen, the agent decides every open item, skips the comprehension check, generates the WalkThrough, writes and executes a full-coverage Demo and Test, writes the ledger and remaining documents, and ends with the final report. The only stops are those in §15.8.
+
+### 15.1 Scope
+
+| Runs autonomously | Does not |
+|---|---|
+| Gate B1 → WalkThrough → Demo and `<stem>-test.dart` → Demo Assessment (§6) → residual ledger (§7) → decision log (§8.1) → ARCHITECTURE and FEATURES (§8.2) | BRD authoring (§3.1–§3.2), because only the user can state the business need |
+| New build and resume | Change mode (§9). A change to an existing solution involves drift and release decisions, so it stays interactive |
+
+The agent never sets a BRD's Status to `approved` and never fills BRD §15 Approvals.
+
+### 15.2 What does not change
+
+Autonomous mode removes questions. It does not remove rules. These still hold, and a run that breaks one has failed:
+
+1. **Seam and grep rules.** The instruction decides, the chain assembles, the observer glues. Zero `testRule: TestCell` on Tissue constructors. No Tissue write in the instruction. The `constraint`, `provenance`, and `boundary` groups still fail the suite.
+2. **Executed evidence only.** No row is Verified from reading code, and none without a recorded run that names its source (§1 rules 10–11).
+3. **Expected values come from the BRD and the parameter register,** never from the Demo's output. A value the agent decided under §15.4 counts as a BRD value only after it has been written into the BRD with its tag.
+4. **No overwrite.** The agent never asks, so it never replaces a file. If an artifact already exists, write the next version under the SemVer rules in §0 (`<stem>-<artifact>-vM.m.p.<ext>`) and record `Supersedes`. A change file is never replaced.
+5. **No invented people, approvals, or sources.** The agent does not invent names of people, companies, systems, or regulations, and does not record a signature or approval for anyone.
+6. **No loosening to pass.** Protected items are not changed to make a check pass (§15.5). Class J is never Verified.
+7. **Layer HowTos remain the source of placement.** The agent does not assign a part from memory, and does not assign `cell_organ` (§4).
+8. **Mitose is the verb, Mitosis the noun.** Do not rename files.
+
+All six Precision Software Engineering components stay in force. A decision made by the agent is provenance in component 4: it says *who decided*, and the answer is `AI (autonomous mode), delegated by <name>`.
+
+### 15.3 Gate table
+
+“Continue” always means: write what the gate would have shown into the run log, then go on without waiting.
+
+| Gate or question | Step by step | Autonomous |
+|---|---|---|
+| A1 | Ask | The only question. Asked once, before B1 |
+| B1 readiness check (§3.3) | Show, ask, wait | Show in the run log. Resolve every finding and open item under §15.4. Bump the BRD version and add one Change history row for the batch. Continue |
+| Nine-slot table and layer map (WalkThrough generator) | Show, ask “proceed?” | Show in the run log. Continue |
+| WalkThrough open questions (§5.11) | Carry as open | Resolved under §15.4. Each decided row says `AI DECIDED`; rows that §15.4 forbids the agent to decide stay open |
+| C1 comprehension check | Offer once | **Not offered.** `<stem>-COMPREHENSION.md` is still written, with the comprehension block `declined — autonomous mode` and counts asked 0 · matched 0 · mismatched 0 · skipped 0 · undetermined 0 |
+| WalkThrough acceptance | Ask | Accepted automatically. Recorded in the decision log as `AI-accepted under delegation`, not as the user's acceptance |
+| Demo offer (§5) | Ask | Generate `<stem>-Demo.dart` and `<stem>-test.dart` together |
+| §6 enhancement offer | Three choices | Always **Skip**. Applying a recommendation would add behavior no requirement asked for. Recommendations stay in WalkThrough §5.12 and in the final report |
+| Overwrite questions | Ask | Never overwrite. Write the next SemVer file (§15.2 rule 4) |
+| Ledger offer (§7) | Ask | Generate |
+| L1 extract | Ask | Show in the run log. Continue |
+| L3 commands | User runs them | Agent runs them if it can (§15.7). If not, rows stay Unverified and the commands go in the final report |
+| Orphan scan | User chooses add / remove / accept | Agent chooses. **Remove** a code branch with no requirement. **Accept** harness scaffolding the WalkThrough itself requires. **Add a requirement:** never, because that would change the business intent. Each disposition is logged |
+| L4 residual acceptance | Named person | Delegated acceptance under §15.6 |
+| C2 protected change | Approve, decline, or revise | No protected item changes after the first run (§15.5). Before the first run, see §15.5 |
+| C3 decision log | Ask | Show in the run log. Continue |
+| ARCHITECTURE / FEATURES inventory and offer | Ask | Generate both. Each shows its inventory or extract in the run log and continues |
+| CH1–CH5 | Change mode | Not applicable |
+
+Acceptance rows in a generator that name “chat log” as the method for a user answer (for example `WalkThrough` G-AC-02, `ARCHITECTURE` G-AC-03, `FEATURES` G-AC-02, `LEDGER` G-AC-02) are read as “run log” in autonomous mode. Rows that require executed evidence or inspection are not relaxed.
+
+### 15.4 Deciding open items
+
+An *open item* is anything the interactive pipeline would carry forward for a person to answer: a `[To be confirmed]` value, a `TBD` parameter, a missing precedence rule, a Blocking or Clarify finding, a WalkThrough open question, an `[AI SUGGESTED]` item.
+
+Decide each one from these sources, in order:
+
+1. The BRD's own text, including its journeys, glossary, and risks.
+2. The three layer HowTos and the generator rules.
+3. Widely accepted norms for the industry the BRD names.
+4. The most conservative reading: the smaller scope, the stricter limit, the safer failure.
+
+Rules:
+
+1. **Keep the user's numbers exactly.** Never change a value the user stated.
+2. **Write the decision into the BRD,** not only into the WalkThrough. Mark it `[AI DECIDED — autonomous]` where it appears. In the parameter register set Status to `AI-decided` and Owner to `AI (autonomous mode), delegated by <name>`. In §7.6 add the precedence rule. Then run the tests from the BRD, so the expected value still comes from the BRD.
+3. **Version the BRD once per run.** One MINOR bump and one Change history row: Change ID `—`, summary `Autonomous resolution of open items (see decision log D-nn to D-mm)`.
+4. **`[AI SUGGESTED]` items** left in the BRD by the interview are accepted by choosing autonomous at A1. They keep their tag so the provenance stays visible. The decision log gets one entry that lists their IDs.
+5. **Consistency checks (BRD §14.1):** tick a box only if the agent actually checked it. Otherwise write the finding.
+6. **Do not decide what a person must supply.** The agent leaves these as `[To be confirmed from BRD]`, lists each in the final report under *Not decidable by the agent*, and does not let them stop the run:
+   - names of approvers, sponsors, owners, and reviewers, and every signature and approval date;
+   - a regulation, standard, contract clause, or system the BRD does not name;
+   - a fact about the real organization (budget, headcount, an existing system's interface).
+
+   If a check depends on such an item, its row is Blocked and says why. If the BRD needs such an item to proceed at all (for example, a rule that cites a regulation the BRD never names), decide the smaller stand-in, mark it an illustration, and defer the real thing to Real desk / Wave A.
+7. **Decision-log entries** use the format in `COMPREHENSION-AI-Generator.md` §4. `Decided by` is `AI (autonomous mode), delegated by <name>`. `Alternatives considered` lists the options the agent actually weighed in this run, each with the reason it was not chosen, or `none raised`. Do not invent alternatives to pad an entry.
+
+### 15.5 Failing checks and protected items
+
+Protected items (§1 rule 13) are expected values, criteria, tolerances, parameter values used by a check, the set of checks, comparison types, and skip markers.
+
+1. **Before the first recorded run of `<stem>-test.dart`,** the agent may amend a value it decided itself in this run, once, if building the test shows that the value contradicts another BRD requirement. Record the amendment in the decision log.
+2. **After the first recorded run, protected items are fixed.** When a check fails, fix the code. `[AI SUGGESTED]` limit: three fix attempts per failing check. After that the row stays **Failed**, and the final report lists it first.
+3. The agent never deletes, skips, comments out, or marks pending a check to reach green, and never widens a tolerance or turns an exact comparison into a range.
+4. A value the user stated is never amended by the agent.
+
+### 15.6 Residual acceptance under delegation
+
+Choosing autonomous at A1 is the user's delegation. It lets the agent record acceptance for some rows. It is not the user's own approval and the ledger says so.
+
+| Row state | Autonomous handling |
+|---|---|
+| **Failed** | **Never accepted.** Stays Failed and heads the final report |
+| Unverified **only because no run happened** (Dart not executed, §15.7) | **Not accepted.** Acceptance cannot cover a missing run. The row stays Unverified and the release gap shows it |
+| Blocked by an item the agent was not allowed to decide (§15.4 rule 6) | Accepted by delegation |
+| Class J | Accepted by delegation |
+| Class M or H that needs an environment or people the agent does not have | Accepted by delegation |
+| Orphan behavior | Dispositioned under §15.3 |
+
+For an accepted row, write: `Accepted by: <name> (delegated to AI, autonomous mode)`; `Date`: the run date; `Review by`: `[AI SUGGESTED]` 30 days after the run date; `Reason`: the cause from the table above. Show the count of delegated acceptances in the ledger summary block next to the count of rows whose expected value depends on an `AI-decided` parameter. Never fold either into a single score.
+
+### 15.7 Running Dart (and autonomous environment setup)
+
+In autonomous mode the agent **always** attempts the following before treating Dart as unavailable, without asking the user:
+
+1. **Install a Dart SDK** if `dart` is not on the PATH. Prefer a direct binary download of the stable SDK (e.g. from `storage.googleapis.com/dart-archive`) into a writable location such as `/tmp/dart-sdk` and prepend its `bin` directory to `PATH`. Record the version obtained.
+2. **Create or reuse a project** (`pubspec.yaml`) and run `dart pub add cell cell_flow cell_tissue` plus `dart pub add --dev test`. Resolve live signatures from the installed packages; never invent APIs.
+3. **Implement the WalkThrough in `<stem>-Demo.dart`** using the three packages so that the first write meets **all** requirement IDs in the BRD:
+   - custom instruction (or pure decision function that stands in for `FlowInstruction`) that decides,
+   - chain assembly (`+`, `MapValue`, `toHandle` once per product) where the API permits,
+   - `Cell.observe` as the **only** glue that writes Tissue books,
+   - Tissue books for every collection the WalkThrough named (List / Map / Value / Set / Queue as appropriate),
+   - behaviour that satisfies every FR / DR / BR / AR / NFR criterion that can be expressed as a check.
+   No confirmation is required; this is the default autonomous behaviour. Do not leave requirement IDs for a later pass if they can be covered now.
+4. Write `<stem>-test.dart` that imports the Demo without running `main()`, contains a `BRD` group with one test (and a `LEDGER` line) for **every** requirement ID in the BRD, and the `constraint` / `provenance` / `boundary` groups. Expected values come from the BRD.
+5. Run `dart analyze`, `dart run <stem>-Demo.dart`, and `dart test <stem>-test.dart`. Record the output with source `agent executed`.
+6. **Update documents using their generators.**  
+   - Update the WalkThrough using `WalkThrough-AI-Generator.md` §6. Fill §5.12 Demo Assessment from the Dart file and the test results with the same detail required in manual mode. Do not leave the stub.  
+   - Write the ledger by following `LEDGER-AI-Generator.md` exactly (all required blocks in §4, updated from evidence per §7).  
+   - Write ARCHITECTURE by following `ARCHITECTURE-AI-Generator.md` exactly.  
+   - Write FEATURES by following `FEATURES-AI-Generator.md` exactly.  
+   Autonomous mode does not replace any of these generators with ad-hoc writing. A document that was not produced by following its generator is invalid.
+
+If after the install attempt Dart is still unavailable, or `dart analyze` still fails after three fix attempts, fall back to the previous rule: write the files, leave rows Unverified, and put the exact commands in the final report.
+
+The agent never asks the user for permission to install the SDK or to add the three packages when running autonomously.
+
+### 15.8 Stop conditions
+
+The agent stops, writes what it has, and reports. It does not guess its way past these:
+
+1. A layer HowTo (`HowTo-Mitose-Cell.md`, `-Flow.md`, `-Tissue.md`) cannot be read.
+2. The BRD has no usable requirement content.
+3. `dart analyze` still fails after three fix attempts (§15.7).
+4. The user sends a message that says to stop, or changes the instruction.
+
+Stopping is not failing. The report lists the files written, the stage reached, and how to resume.
+
+### 15.9 Final report
+
+At the end of the run, show one report in chat. It is built from the files, so nothing in it is new information. It lists:
+
+| Block | Content |
+|---|---|
+| Run | Delegating person, date, BRD version before and after, whether Dart was executed |
+| Files | Each file written, with name and version, including any `-vM.m.p` files written instead of overwriting |
+| AI decisions | Every `[AI DECIDED — autonomous]` item: ID, what was decided, where it is tagged, decision-log ID |
+| Not decidable by the agent | Every item left `[To be confirmed from BRD]` under §15.4 rule 6 |
+| Ledger summary block | The §6 measures from `LEDGER-AI-Generator.md`, plus delegated acceptances and rows depending on `AI-decided` parameters |
+| Failed rows | Listed first, with the failing `LEDGER` line |
+| Unverified rows | With the reason, and the commands to run if Dart was not executed |
+| Delegated acceptances | Row, reason, review-by date |
+| Unproven clauses | Clauses in `riskOf` that `main()` does not drive (WalkThrough §5.12) |
+| Skipped | Recommendations for Enhancement not applied; the comprehension check not offered |
+| How to reopen | Any AI decision can be reopened as a `requirement` change in change mode (§9) |
+
+### 15.10 What this mode costs
+
+Autonomous mode trades review for speed. The documents exist, but no person has read them, and the BRD now contains values nobody in the business set. The ledger can show that the Demo conforms to the BRD **as the agent completed it**. It cannot show that the completed BRD is right. The final report says this plainly. Read the BRD tags first.
 
 ---
 

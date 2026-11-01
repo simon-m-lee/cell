@@ -1,9 +1,9 @@
 # cell package - Test Verification Report
 
-**Generated:** 2026-09-29
+**Generated:** 2026-10-09
 **Package:** cell (v1.0.0-rc.6)
 **Test Files Analyzed:** 20
-**Total Tests:** 1114 (0 skipped)
+**Total Tests:** 1125 (0 skipped)
 
 ---
 
@@ -19,7 +19,7 @@
   - [commons_test.dart](#file-3-commons_test.dart-43-tests)
   - [context_test.dart](#file-4-context_test.dart-117-tests)
   - [deputy_test.dart](#file-5-deputy_test.dart-21-tests)
-  - [instruction_test.dart](#file-6-instruction_test.dart-23-tests)
+  - [instruction_test.dart](#file-6-instruction_test.dart-33-tests)
   - [nucleus_test.dart](#file-7-nucleus_test.dart-39-tests)
   - [operators_phase1_foundation_test.dart](#file-8-operators_phase1_foundation_test.dart-64-tests)
   - [operators_phase2_flow_control_test.dart](#file-9-operators_phase2_flow_control_test.dart-43-tests)
@@ -33,7 +33,7 @@
   - [test_cell_test.dart](#file-17-test_cell_test.dart-41-tests)
   - [test_rule_meta_test.dart](#file-18-test_rule_meta_test.dart-48-tests)
   - [transaction_test.dart](#file-19-transaction_test.dart-54-tests)
-  - [tx_apply_test.dart](#file-20-tx_apply_test.dart-46-tests)
+  - [tx_apply_test.dart](#file-20-tx_apply_test.dart-47-tests)
 - [Runtime Verification Status](#runtime-verification-status)
   - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
@@ -44,29 +44,29 @@
 
 ## Executive Summary
 
-The cell test suite contains **1114 unit tests** across **20 files** in `test/`. Counts are `test(` declarations.
+The cell test suite contains **1125 unit tests** across **20 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
 
-Last `dart test` is **red**: 1113 passed, **1 failed** (exit 1).
+Last `dart test` is **green**: **1125 passed**, 0 failed (exit 0).
 
-`lib/` line coverage is **92.6%** (3562 / 3847).
+`lib/` line coverage is **93.5%** (3586 / 3836).
 
-Below 70%: `lib/src/receptor.dart`.
+No `lib/` file is below 70% in this lcov.
 
 ### Quick Stats
 
 | Metric | Value |
 |--------|-------|
 | **Total Test Files** | 20 |
-| **Total Tests** | 1114 |
+| **Total Tests** | 1125 |
 | **Skipped** | 0 |
-| **Last full run** | 1113 passed, 1 failed, 0 skipped (exit 1) |
-| **Test Groups** | 251 (`group(` declarations) |
-| **Async-ish tests** | ~349 (heuristic) |
-| **Line coverage (`lib/`)** | **92.6%** (3562 / 3847) |
+| **Last full run** | 1125 passed, 0 failed, 0 skipped (exit 0) |
+| **Test Groups** | 252 (`group(` declarations) |
+| **Async-ish tests** | ~350 (heuristic) |
+| **Line coverage (`lib/`)** | **93.5%** (3586 / 3836) |
 
 ---
 
@@ -79,7 +79,7 @@ Below 70%: `lib/src/receptor.dart`.
 | 3 | commons_test.dart | 449 | 43 | 13.6 KB | commons test; groups: mapMerge, SyncSet, QueueList, AsyncQueueList, PriorityQueue, AsyncPriorityQueue… |
 | 4 | context_test.dart | 1,636 | 117 | 60.8 KB | context test; groups: GovernanceEntry, Ontology, Context, system, describe, primary constructor… |
 | 5 | deputy_test.dart | 256 | 21 | 8.3 KB | deputy test; groups: Cell.deputy, identity, testRule layering, apply forwarding, unmodifiable, causal integrity… |
-| 6 | instruction_test.dart | 361 | 23 | 12.4 KB | instruction test; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration |
+| 6 | instruction_test.dart | 510 | 33 | 17.6 KB | instruction test; groups: Instruction, Construction, Composition, Instruction.future, Custom Instruction, Receptor integration… |
 | 7 | nucleus_test.dart | 353 | 39 | 12.2 KB | nucleus test; groups: Nucleus, empty / Nucleolus, Construction & defaults, Nucleus.create, Activation, evolve… |
 | 8 | operators_phase1_foundation_test.dart | 1,049 | 64 | 36.6 KB | operators phase1 foundation test; groups: Cell.state, Basic State, State with evolve, Ingest, Edge Cases, Cell.ingress… |
 | 9 | operators_phase2_flow_control_test.dart | 769 | 43 | 22.3 KB | operators phase2 flow control test; groups: Phase 2: Flow Control Operators, Cell.debounce, Cell.throttle, Cell.distinct, Cell.synthesis, Combined Operators… |
@@ -93,8 +93,8 @@ Below 70%: `lib/src/receptor.dart`.
 | 17 | test_cell_test.dart | 588 | 41 | 19.2 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
 | 18 | test_rule_meta_test.dart | 351 | 48 | 11.8 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
 | 19 | transaction_test.dart | 1,203 | 54 | 35.9 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
-| 20 | tx_apply_test.dart | 1,104 | 46 | 32.3 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
-| **Total** | | **16,741** | **1114** | **560.1 KB** | |
+| 20 | tx_apply_test.dart | 1,137 | 47 | 33.3 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
+| **Total** | | **16,923** | **1125** | **566.3 KB** | |
 
 ---
 
@@ -514,17 +514,18 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - OpenCell deputy exposes async handle
 - OpenCell deputy can link a downstream observer
 
-### File 6: instruction_test.dart (23 tests)
+### File 6: instruction_test.dart (33 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 23 |
+| *(all groups)* | 33 |
 | Instruction | |
 | Construction | |
 | Composition | |
 | Instruction.future | |
 | Custom Instruction | |
 | Receptor integration | |
+| InstructionChainMixin | |
 
 **Tests**
 
@@ -551,6 +552,16 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - a Function resume token is walked without matching a stage
 - a throwing custom stage in a chain terminates with null
 - Receptor.instruction runs the instruction
+- executes a stored instruction list
+- custom strategy is retried without the future continuation
+- a null strategy falls back to the chain rule
+- a throwing strategy terminates with null and logs the pulse
+- resumes through a non-Function token
+- walks a non-matching Function token without invoking a stage
+- forwards a non-Function token to the call future
+- retries a stage that only throws when a future is attached
+- a stage that always throws is logged to the pulse trace
+- no instructions passes the pulse through
 
 ### File 7: nucleus_test.dart (39 tests)
 
@@ -1581,11 +1592,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - TransactionConflictException toString
 - TransactionTimeoutException toString
 
-### File 20: tx_apply_test.dart (46 tests)
+### File 20: tx_apply_test.dart (47 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 46 |
+| *(all groups)* | 47 |
 | Cell.txApply | |
 | Basic Operations | |
 | Compensation | |
@@ -1606,6 +1617,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - txApply with custom apply options
 - apply without tx runs immediately
 - compensation is called when a later apply fails
+- compensation runs for the function that throws
 - compensation with custom cell
 - compensation with multiple retries
 - rollback before commit skips compensation by default
@@ -1685,54 +1697,52 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1113 | 1 | 0 | 1 |
+| 1125 | 0 | 0 | 0 |
 
-Status: **red**.
+Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-ture with already completed future                                 
-00:05 +1105 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                 
-00:05 +1105 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                    
-00:05 +1106 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                    
-00:05 +1106 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                          
-00:05 +1107 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                          
-00:05 +1107 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                           
-00:05 +1108 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                           
-00:05 +1108 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                      
-00:05 +1109 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                      
-00:05 +1109 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                
-00:05 +1110 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                
-00:05 +1110 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                     
-00:05 +1111 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                     
-00:05 +1111 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                    
-00:05 +1112 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                    
-00:05 +1112 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                    
-00:05 +1113 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                    
-00:06 +1113 -1: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                    
-00:06 +1113 -1: Some tests failed.                                                                                                                                                                     
-
-Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
-For example, 'dart test --chain-stack-traces'.
+0:04 +1116: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:04 +1117: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromFuture with already completed future                                    
+00:04 +1117: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:04 +1118: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling fromStream with error after values (no cancelOnError)                       
+00:04 +1118: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:04 +1119: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling hub with multicast and priority                                             
+00:04 +1119: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:04 +1120: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:04 +1120: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:04 +1121: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:04 +1121: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:04 +1122: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:04 +1122: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:04 +1123: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:04 +1123: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:04 +1124: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:04 +1124: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:04 +1125: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:05 +1125: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:05 +1125: All tests passed!
 ```
 
 </details>
 
 ### Line Coverage (`lib/`)
 
-**Overall: 3562 / 3847 lines = 92.6%**
+**Overall: 3586 / 3836 lines = 93.5%**
 
 | File | Hit | Found | Line % |
 |------|----:|------:|-------:|
 | `lib/src/deputy.dart` | 10 | 10 | 100.0 |
-| `lib/src/internal/cell.dart` | 124 | 124 | 100.0 |
+| `lib/src/internal/cell.dart` | 125 | 125 | 100.0 |
 | `lib/src/internal/operator/operator_debounce.dart` | 35 | 35 | 100.0 |
 | `lib/src/internal/pulse_extensions.dart` | 19 | 19 | 100.0 |
 | `lib/src/internal/test_cell.dart` | 33 | 33 | 100.0 |
 | `lib/src/internal/value.dart` | 12 | 12 | 100.0 |
 | `lib/src/nucleus.dart` | 5 | 5 | 100.0 |
 | `lib/src/pulse.dart` | 4 | 4 | 100.0 |
+| `lib/src/receptor.dart` | 62 | 62 | 100.0 |
 | `lib/src/synapses.dart` | 25 | 25 | 100.0 |
 | `lib/src/test_rule.dart` | 40 | 40 | 100.0 |
 | `lib/src/test_rule_meta.dart` | 30 | 30 | 100.0 |
@@ -1740,7 +1750,7 @@ For example, 'dart test --chain-stack-traces'.
 | `lib/src/internal/operator/operator_transaction.dart` | 172 | 173 | 99.4 |
 | `lib/src/internal/synapses.dart` | 463 | 468 | 98.9 |
 | `lib/src/test_cell.dart` | 79 | 80 | 98.8 |
-| `lib/src/internal/operator/operator_tx_apply.dart` | 173 | 177 | 97.7 |
+| `lib/src/internal/operator/operator_tx_apply.dart` | 174 | 178 | 97.8 |
 | `lib/src/internal/cell_policy.dart` | 43 | 44 | 97.7 |
 | `lib/src/internal/operator/operator_async_map.dart` | 41 | 42 | 97.6 |
 | `lib/src/internal/commons.dart` | 284 | 291 | 97.6 |
@@ -1757,7 +1767,6 @@ For example, 'dart test --chain-stack-traces'.
 | `lib/src/internal/pulse_policy.dart` | 33 | 38 | 86.8 |
 | `lib/src/internal/pulse.dart` | 449 | 549 | 81.8 |
 | `lib/src/internal/deputy.dart` | 22 | 29 | 75.9 |
-| `lib/src/receptor.dart` | 40 | 75 | 53.3 |
 
 ---
 
@@ -1780,7 +1789,7 @@ test/
 ├── commons_test.dart  (43 tests, 13.6 KB, 449 lines)
 ├── context_test.dart  (117 tests, 60.8 KB, 1,636 lines)
 ├── deputy_test.dart  (21 tests, 8.3 KB, 256 lines)
-├── instruction_test.dart  (23 tests, 12.4 KB, 361 lines)
+├── instruction_test.dart  (33 tests, 17.6 KB, 510 lines)
 ├── nucleus_test.dart  (39 tests, 12.2 KB, 353 lines)
 ├── operators_phase1_foundation_test.dart  (64 tests, 36.6 KB, 1,049 lines)
 ├── operators_phase2_flow_control_test.dart  (43 tests, 22.3 KB, 769 lines)
@@ -1794,9 +1803,9 @@ test/
 ├── test_cell_test.dart  (41 tests, 19.2 KB, 588 lines)
 ├── test_rule_meta_test.dart  (48 tests, 11.8 KB, 351 lines)
 ├── transaction_test.dart  (54 tests, 35.9 KB, 1,203 lines)
-├── tx_apply_test.dart  (46 tests, 32.3 KB, 1,104 lines)
+├── tx_apply_test.dart  (47 tests, 33.3 KB, 1,137 lines)
 ```
 
-**Total lines of test code:** 16,741
+**Total lines of test code:** 16,923
 
-*Generated 2026-09-29 by generate_test_verification.py*
+*Generated 2026-10-09 by generate_test_verification.py*

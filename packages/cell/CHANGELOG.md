@@ -1,5 +1,31 @@
 
-## Mitosis (1.0.0-rc.6) - Release Candidate
+## Cell (1.0.0-rc.7) - Release Candidate
+
+### Changed
+
+- **`receptor.dart` dead branches removed**: Removed the unreachable null-strategy fallback in `InstructionChain.call` (`_instruction` now returns a non-null `Function`) and the unreachable Function-token resume walk in both `InstructionChain` and `InstructionChainMixin`. A `Function` token can never be `identical` to an `Instruction` stage because Dart's `Function` type is final, so those branches could never execute; non-Function tokens still forward to the caller's continuation.
+
+### Fixed
+
+- **Empty receptor mask `NoSuchMethodError`**: `ReceptorBase.mask` no longer stores sparse/`()` flyweight records. Empty and partial pipelines use a stable named-record shape so reading `_instruction` / `_preProcess` / `_postProcess` / `_reaction` returns `null` instead of throwing `NoSuchMethodError: Class '()' has no instance getter 'instruction'` (commonly hit via `Cell.ingress` + `Flow.bufferTime` under a debugger that breaks on caught exceptions).
+- **`txApply` compensates actions that throw after mutating state**: Staged calls are now marked as attempted *before* they are invoked, so an action that partially mutates its cell and then throws is included in the rollback compensation instead of being skipped. Previously the `executed` flag was only set after a successful `apply`, so a throwing call left its partial side effects uncompensated.
+  - When an integrity gate rejects an action (`ApplyRejected`) with `stopOnFirstFailure`, the call is explicitly marked not executed (nothing ran), so the rejection path still skips compensation for that call.
+- **Lock access**: Added a `CellBase.lock` getter that exposes the cell's nucleus lock; `withCellLocks` now reads it for `CellBase` instances instead of reaching into the private `_nucleus` member.
+- **`TestCell.call` override soundness**: The `host` parameter is now declared `covariant C? host` so subclasses that narrow `C` remain type-sound.
+
+### Tests
+
+- Added a `partialThenFail` action and a regression test proving that an action which mutates balance and then throws is compensated back to its original value.
+- Updated existing `txApply` expectations: throwing debits are now compensated with a credit, so the affected balances reflect the compensation.
+- Expanded `instruction_test.dart` with an `InstructionChainMixin` suite (strategy resolution, null-strategy fallback, Function/non-Function resume tokens, and error recovery), bringing `lib/src/receptor.dart` to 100% line coverage.
+
+### Docs
+
+- Regenerated `TEST_VERIFICATION.md`: 1125 tests in 20 files, all passing; overall `lib/` line coverage **93.5%** (3586 / 3836); `lib/src/receptor.dart` now at **100%** (62 / 62).
+
+---
+
+## Cell (1.0.0-rc.6) - Release Candidate
 
 ### Changed
 
@@ -14,7 +40,7 @@
 
 ---
 
-## Mitosis (1.0.0-rc.5) - Release Candidate
+## Cell (1.0.0-rc.5) - Release Candidate
 
 Pub.dev score remediation release. No public API changes.
 
@@ -26,7 +52,7 @@ Pub.dev score remediation release. No public API changes.
 
 ---
 
-## Mitosis (1.0.0-rc.4) - Release Candidate
+## Cell (1.0.0-rc.4) - Release Candidate
 
 This release centers on **Lifecycle Governance** and **Pedagogical Standardization**. It formalizes the structural "DNA" of the core layer by refining how nodes handle administrative oversight, programmed expiration, and forensic documentation.
 
@@ -41,7 +67,7 @@ This release centers on **Lifecycle Governance** and **Pedagogical Standardizati
 
 ---
 
-## Mitosis (1.0.0-rc.3) - Release Candidate
+## Cell (1.0.0-rc.3) - Release Candidate
 
 This release formalizes the **Forensic Identity** and **Causal Anchor** logic within the core layer. It introduces tiered resolution for integrity gates and synchronizes the monorepo governance to support high-integrity, multi-package development.
 
@@ -76,9 +102,9 @@ Introduced comprehensive, real-world applications of the framework's forensic ca
 - **Library Entry Points**: Reorganized `lib/cell.dart` using categorical headers to separate public interfaces, core implementations, and internal logic.
 ---
 
-## Mitosis (1.0.0-rc.2) - Release Candidate
+## Cell (1.0.0-rc.2) - Release Candidate
 
-This release introduces **PulseShell** defensive proxies and advanced **Receptor scrutiny**, providing high-integrity reactive orchestration for the Mitosis layer. It also hardens transactional state propagation and resolves edge cases in asynchronous operators.
+This release introduces **PulseShell** defensive proxies and advanced **Receptor scrutiny**, providing high-integrity reactive orchestration for the Cell layer. It also hardens transactional state propagation and resolves edge cases in asynchronous operators.
 
 ### Core Enhancements
 - **PulseShell & Scrutiny**:
@@ -100,18 +126,18 @@ This release introduces **PulseShell** defensive proxies and advanced **Receptor
 
 ### Fixes & Maintenance
 - **Internal Timer Reliability**: Fixed re-arming edge cases in `debounce` and `throttle` where timers could leak or fire at incorrect intervals during rapid state transitions.
-- **Type Inference**: Resolved `FutureOr` return type ambiguities in asynchronous operators, ensuring smoother integration with the Mitosis orchestration layer.
+- **Type Inference**: Resolved `FutureOr` return type ambiguities in asynchronous operators, ensuring smoother integration with the Cell orchestration layer.
 - **Proxy Identity**: Ensured `PulseShell` proxies correctly propagate causal metadata while masking sensitive kernel internals during scrutiny phases.
 - **Project Structure**: Updated `analysis_options.yaml` and `dartdoc_options.yaml` to maintain consistent quality standards across the monorepo.
 
-## Mitosis (1.0.0-rc.1) - Release Candidate
+## Cell (1.0.0-rc.1) - Release Candidate
 
 This release promotes the **cell** core from **Beta (Public Preview)** to **Release Candidate**. The Switching Fabric, Core 16 operators, `Cell.valve`, `OpenCell.perform`, context / deputy / commons, and both transaction APIs are covered by a passing public-API unit-test suite with measured `lib/` coverage. Breaking changes remain possible before a versioned 1.0 stable, but they should follow documented contracts rather than silent private-API drift.
 
 ### Developmental Status
 - **Code Stage:** RC (Release Candidate).
 - **Stability:** Public APIs for cells, pulses, operators, transactions, integrity gates, context, deputy, and commons utilities are exercised end-to-end. This is not a production-readiness certificate: the package is unpublished and has no independent security or correctness audit.
-- **Goal:** Freeze the Mitosis public surface for 1.0 feedback; gather remaining issues on operator ergonomics, ingest/observe pipelines, transaction/`txApply` orchestration, and deputy attenuation.
+- **Goal:** Freeze the Cell public surface for 1.0 feedback; gather remaining issues on operator ergonomics, ingest/observe pipelines, transaction/`txApply` orchestration, and deputy attenuation.
 
 ### Hardening
 - **Unit tests:** 1115 tests in 20 files under `packages/cell/test/`; last full run **1115 passed / 0 failed / 0 skipped** (~7 s with coverage).
@@ -155,7 +181,7 @@ This release promotes the **cell** core from **Beta (Public Preview)** to **Rele
 
 ---
 
-## Mitosis (1.0.0-preview.4) - Public Preview
+## Cell (1.0.0-preview.4) - Public Preview
 
 This release further hardens the **cell** core with more vigorous unit tests. Dedicated suites now cover Context / DeputyContext / PulseContext, `EphemeralPolicy`, annotation `TestRule`s, `commons.dart` collections, Cell / OpenCell deputy, `ValueCell.async`, remaining synapses strategies including sample/async debounce/throttle/audit/buffered/retry/resilient, `PulseExtension.map` / `cast` against the current `evolve(pulse:)` contract, `FilterRule` parent / `fromRecord` / equality, `ValueNucleus` / `ValueCell` constructors, and standalone `TestRule` async parent/chain. Overall instrumented **`lib/` line coverage has reached 95.0%**.
 
@@ -199,7 +225,7 @@ This release further hardens the **cell** core with more vigorous unit tests. De
 
 ---
 
-## Mitosis (1.0.0-preview.3) - Public Preview
+## Cell (1.0.0-preview.3) - Public Preview
 
 This release hardens the **cell** core and advances the project from **Alpha** to **Beta**. The Switching Fabric, Core 16 operators, `Cell.valve`, and `OpenCell.perform` are covered by a passing unit-test suite aligned to public APIs. The architecture is no longer a prototype inventory; it is a Beta public preview with measured coverage and documented contracts.
 
@@ -238,9 +264,9 @@ This release hardens the **cell** core and advances the project from **Alpha** t
 
 ---
 
-## Mitosis (1.0.0-preview.2) - Public Preview
+## Cell (1.0.0-preview.2) - Public Preview
 
-This marks the latest pre-release of the Cell framework. "Mitosis" has reached functional stability, transitioning from a reactive fabric prototype to a comprehensive, high-performance state management solution for Dart.
+This marks the latest pre-release of the Cell framework. "Cell" has reached functional stability, transitioning from a reactive fabric prototype to a comprehensive, high-performance state management solution for Dart.
 
 ### New Features & Improvements
 - **16 Core Operators**: The framework now features a stabilized "Standard Entry Tier" of 16 static operators that cover the vast majority of reactive programming needs:
@@ -268,9 +294,9 @@ This marks the latest pre-release of the Cell framework. "Mitosis" has reached f
 
 ---
 
-## Mitosis (1.0.0-preview.1) - Public Preview
+## Cell (1.0.0-preview.1) - Public Preview
 
-This is the initial "Mitosis" release of the Cell Framework, currently in a **Preview** stage for public preview. This release marks the first stable division of the framework's core concepts into a functional reactive fabric.
+This is the initial "Cell" release of the Cell Framework, currently in a **Preview** stage for public preview. This release marks the first stable division of the framework's core concepts into a functional reactive fabric.
 
 ### Architectural Foundation
 - **The Switching Fabric**: A decentralized reactive network where signals propagate based on semantic relevance.
@@ -288,7 +314,7 @@ This is the initial "Mitosis" release of the Cell Framework, currently in a **Pr
 ### Developmental Status
 - **Code Stage**: Preview (Public Preview).
 - **Goal**: Gathering feedback on the ergonomics of the **Switching Fabric** and the effectiveness of **Scene-Driven Governance**.
-- **Naming Convention**: Major architectural milestones will follow biological nomenclature. "Mitosis" represents the birth and initial division of the framework.
+- **Naming Convention**: Major architectural milestones will follow biological nomenclature. "Cell" represents the birth and initial division of the framework.
 
 ## 1.0.0-beta.1 (2025)
 

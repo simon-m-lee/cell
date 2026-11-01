@@ -53,7 +53,7 @@ class _TissueValueNucleus<V, C extends TissueValue<V>>
       : super.evolve(
             override: override ??
                 _TissueValueNucleus<V, C>.fromRecord((
-                  local: TissueNucleusBase.local<V, ValueContainer<V>, C>(
+                  local: TissueNucleusBase.mask<V, ValueContainer<V>, C>(
                       bind: bind,
                       context: context,
                       receptor: receptor,

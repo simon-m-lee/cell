@@ -258,4 +258,61 @@ void main() {
       await expectLater(() => async.state, throwsA(isA<UnimplementedError>()));
     });
   });
+
+  group('TissueValue transaction', () {
+    test('Cell.transaction commits a TissueValue like a Cell.state', () async {
+      final value = TissueValue<int>(1);
+      final state = Cell.state<int>(initial: 10);
+
+      final tx = Cell.transaction();
+      await tx.begin([value, state.cell]);
+
+      expect(tx.read(value), 1);
+      expect(tx.read(state.cell), 10);
+
+      tx.update(value, 42);
+      tx.update(state.cell, 420);
+
+      expect(value.value, 1, reason: 'buffered until commit');
+      expect(state.cell.value, 10, reason: 'buffered until commit');
+      expect(tx.pending(value), 42);
+      expect(tx.pending(state.cell), 420);
+
+      await tx.commit();
+
+      expect(value.value, 42);
+      expect(state.cell.value, 420);
+    });
+
+    test('commit validation failure leaves the TissueValue unchanged',
+        () async {
+      final value = TissueValue<int>(
+        1,
+        testRule: TestTissue<int, TissueValue<int>>(
+          (v, {host, arguments, user}) => v != null && v >= 0,
+        ),
+      );
+
+      final tx = Cell.transaction();
+      await tx.begin([value]);
+      tx.update(value, -5);
+
+      await expectLater(
+        tx.commit(),
+        throwsA(isA<TransactionValidationException>()),
+      );
+      expect(value.value, 1);
+    });
+
+    test('unmodifiable TissueValue rejects transaction commits', () async {
+      final view = TissueValue<int>(1).unmodifiable;
+
+      final tx = Cell.transaction();
+      await tx.begin([view]);
+      tx.update(view, 9);
+      await tx.commit();
+
+      expect(view.value, 1);
+    });
+  });
 }

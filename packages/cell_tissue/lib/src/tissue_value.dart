@@ -247,7 +247,7 @@ abstract interface class TissueValueNucleus<V> implements TissueNucleus<V> {
       forceLock = false,
       TissueValueNucleusBase<V, C>? principal}) {
     if (principal != null) {
-      final local = TissueNucleusBase.local<V, ValueContainer<V>, C>(
+      final local = TissueNucleusBase.mask<V, ValueContainer<V>, C>(
         container: container,
         bind: bind,
         context: context,
