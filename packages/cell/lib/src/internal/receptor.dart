@@ -680,8 +680,15 @@ abstract class ReceptorBase<C extends Cell> implements Receptor<C> {
     Function? user,
     Function? init
   }) {
+
     final userBox = user != null ? (FinalBox()..value = user()) : null;
 
+    // Always return a named-record shape, even when no stages are configured.
+    // An empty record () would make getters like _record.instruction throw
+    // NoSuchMethodError; that error is swallowed by get(..., orElse: null)
+    // but remains noisy under debuggers that break on all exceptions.
+    // Commonly triggered by Cell.ingress combined with operators that
+    // construct an empty _Receptor() (e.g. Flow.bufferTime).
     return (
       instruction: (
         instruction: instruction,
