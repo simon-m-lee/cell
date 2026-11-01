@@ -1,6 +1,6 @@
 # cell_flow package - Test Verification Report
 
-**Generated:** 2026-09-29
+**Generated:** 2026-11-02
 **Package:** cell_flow (v1.0.0-rc.7)
 **Test Files Analyzed:** 43
 **Total Tests:** 1081 (0 skipped)
@@ -2136,26 +2136,26 @@ Status: **green**.
 <details><summary>tail of test log</summary>
 
 ```
-0:15 +1071: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:15 +1072: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:15 +1072: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
-00:15 +1073: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
-00:15 +1074: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                   
-00:15 +1074: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:15 +1075: test/window_test.dart: WindowCount extra wrong types call onError and do not fill the buffer                                                                                              
-00:15 +1076: test/window_test.dart: WindowCount extra wrong types call onError and do not fill the buffer                                                                                              
-00:15 +1076: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
-00:15 +1077: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
-00:15 +1077: test/window_test.dart: WindowWhen extra wrong types call onError                                                                                                                          
-00:15 +1078: test/window_test.dart: WindowWhen extra wrong types call onError                                                                                                                          
-00:15 +1078: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:15 +1079: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:15 +1079: test/window_test.dart: composition / performance WindowCount + WindowSize is a chain                                                                                                      
-00:15 +1080: test/window_test.dart: composition / performance WindowCount + WindowSize is a chain                                                                                                      
-00:15 +1080: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:15 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:16 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:16 +1081: All tests passed!
+0:19 +1068: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:19 +1069: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
+00:19 +1070: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
+00:19 +1070: test/timeout_test.dart: TimeoutWithFallback extra wrong types call onError                                                                                                                
+00:19 +1071: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:19 +1072: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:19 +1073: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:19 +1073: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:19 +1074: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:19 +1075: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:19 +1076: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
+00:19 +1076: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
+00:19 +1077: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
+00:19 +1078: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
+00:19 +1078: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:19 +1079: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:19 +1080: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:19 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:20 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:20 +1081: All tests passed!
 ```
 
 </details>
@@ -2272,4 +2272,4 @@ test/
 
 **Total lines of test code:** 16,554
 
-*Generated 2026-09-29 by generate_test_verification.py*
+*Generated 2026-11-02 by generate_test_verification.py*

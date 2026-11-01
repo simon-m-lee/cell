@@ -1,9 +1,9 @@
 # cell_tissue package - Test Verification Report
 
-**Generated:** 2026-09-29
-**Package:** cell_tissue (v1.0.0-rc.7)
+**Generated:** 2026-11-02
+**Package:** cell_tissue (v1.0.0-rc.8)
 **Test Files Analyzed:** 10
-**Total Tests:** 316 (0 skipped)
+**Total Tests:** 329 (0 skipped)
 
 ---
 
@@ -17,13 +17,13 @@
   - [test_tissue_test.dart](#file-1-test_tissue_test.dart-15-tests)
   - [tissue_container_test.dart](#file-2-tissue_container_test.dart-5-tests)
   - [tissue_list_test.dart](#file-3-tissue_list_test.dart-49-tests)
-  - [tissue_map_test.dart](#file-4-tissue_map_test.dart-53-tests)
+  - [tissue_map_test.dart](#file-4-tissue_map_test.dart-63-tests)
   - [tissue_pulse_test.dart](#file-5-tissue_pulse_test.dart-26-tests)
   - [tissue_queue_test.dart](#file-6-tissue_queue_test.dart-40-tests)
   - [tissue_receptor_test.dart](#file-7-tissue_receptor_test.dart-17-tests)
   - [tissue_set_test.dart](#file-8-tissue_set_test.dart-51-tests)
   - [tissue_test.dart](#file-9-tissue_test.dart-35-tests)
-  - [tissue_value_test.dart](#file-10-tissue_value_test.dart-25-tests)
+  - [tissue_value_test.dart](#file-10-tissue_value_test.dart-28-tests)
 - [Runtime Verification Status](#runtime-verification-status)
   - [Last `dart test`](#last-dart-test)
   - [Line Coverage (`lib/`)](#line-coverage-lib)
@@ -34,13 +34,13 @@
 
 ## Executive Summary
 
-The cell_tissue test suite contains **316 unit tests** across **10 files** in `test/`. Counts are `test(` declarations.
+The cell_tissue test suite contains **329 unit tests** across **10 files** in `test/`. Counts are `test(` declarations.
 
 This file is **generated**. Edit the script flags or the stub sections at the bottom; do not hand-count `test(`.
 
 ### Snapshot
 
-Last `dart test` is **green**: **316 passed**, 0 failed (exit 0).
+Last `dart test` is **red**: 326 passed, **3 failed** (exit 1).
 
 `lib/` line coverage is **93.7%** (2067 / 2205).
 
@@ -51,11 +51,11 @@ No `lib/` file is below 70% in this lcov.
 | Metric | Value |
 |--------|-------|
 | **Total Test Files** | 10 |
-| **Total Tests** | 316 |
+| **Total Tests** | 329 |
 | **Skipped** | 0 |
-| **Last full run** | 316 passed, 0 failed, 0 skipped (exit 0) |
-| **Test Groups** | 62 (`group(` declarations) |
-| **Async-ish tests** | ~82 (heuristic) |
+| **Last full run** | 326 passed, 3 failed, 0 skipped (exit 1) |
+| **Test Groups** | 63 (`group(` declarations) |
+| **Async-ish tests** | ~89 (heuristic) |
 | **Line coverage (`lib/`)** | **93.7%** (2067 / 2205) |
 
 ---
@@ -67,14 +67,14 @@ No `lib/` file is below 70% in this lcov.
 | 1 | test_tissue_test.dart | 228 | 15 | 8.5 KB | test test; groups: TestTissue sentinel policies, TestTissue rule policies, TestTissue.chain pipelines, TestElementRule |
 | 2 | tissue_container_test.dart | 50 | 5 | 1.7 KB | container test; groups: Container strategies |
 | 3 | tissue_list_test.dart | 558 | 49 | 16.7 KB | list test; groups: TissueList factories, TissueList read operations, TissueList mutations, TissueListNucleus factories, TissueList.unmodifiable, TissueList.deputy… |
-| 4 | tissue_map_test.dart | 612 | 53 | 19.8 KB | map test; groups: TissueMap factories, TissueMap read operations, TissueMap mutations, TissueMapNucleus factories, TissueMap.unmodifiable, TissueMap.deputy… |
+| 4 | tissue_map_test.dart | 754 | 63 | 24.8 KB | map test; groups: TissueMap factories, TissueMap read operations, TissueMap mutations, TissueMapNucleus factories, TissueMap.unmodifiable, TissueMap.deputy… |
 | 5 | tissue_pulse_test.dart | 338 | 26 | 10.7 KB | pulse test; groups: TissuePulse.batch and CollectiveTissuePulse, TissuePulse evolution, TissuePulse shell, TissuePulse unmodifiable, TissueEvent classification, groupBy utility |
 | 6 | tissue_queue_test.dart | 462 | 40 | 14.0 KB | queue test; groups: TissueQueue factories, TissueQueue read operations, TissueQueue mutations, TissueQueueNucleus factories, TissueQueue.unmodifiable, TissueQueue.deputy… |
 | 7 | tissue_receptor_test.dart | 261 | 17 | 8.8 KB | receptor test; groups: TissueReceptor.passThrough, TissueReceptor factory, TissueReceptorBase.call |
 | 8 | tissue_set_test.dart | 570 | 51 | 17.3 KB | set test; groups: TissueSet factories, TissueSet read operations, TissueSet mutations, TissueSetNucleus factories, TissueSet.unmodifiable, TissueSet.deputy… |
 | 9 | tissue_test.dart | 410 | 35 | 12.9 KB | test; groups: Tissue primary factory, Tissue.governed, Tissue.empty, TissueNever sentinel, Tissue.fromNucleus and Tissue.create, Tissue.deputy… |
-| 10 | tissue_value_test.dart | 261 | 25 | 8.0 KB | value test; groups: TissueValue factories, TissueValue reads and writes, TissueValueNucleus factories, TissueValue.unmodifiable, TissueValue.deputy, TissueValue async |
-| **Total** | | **3,750** | **316** | **118.4 KB** | |
+| 10 | tissue_value_test.dart | 318 | 28 | 9.6 KB | value test; groups: TissueValue factories, TissueValue reads and writes, TissueValueNucleus factories, TissueValue.unmodifiable, TissueValue.deputy, TissueValue async… |
+| **Total** | | **3,949** | **329** | **125.0 KB** | |
 
 ---
 
@@ -191,11 +191,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - rejects functions outside the modifiable whitelist at enqueue
 - enqueued compensation commits when the staged apply succeeds
 
-### File 4: tissue_map_test.dart (53 tests)
+### File 4: tissue_map_test.dart (63 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 53 |
+| *(all groups)* | 63 |
 | TissueMap factories | |
 | TissueMap read operations | |
 | TissueMap mutations | |
@@ -220,6 +220,12 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - structural equality, hashCode and toString
 - cell metadata
 - operator []= and add associate keys
+- operator []= and put replace existing keys
+- add remains strict append-only after put
+- put and []= emit elementAdded on insert and entryUpdated on replace
+- put validates replacements through the test rule
+- put replaces Cell values and reports the swap
+- put is whitelisted and routable through apply
 - addAll adds entries from a map
 - addEntries adds entries from an iterable
 - putIfAbsent returns existing or inserts missing
@@ -248,8 +254,11 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - deputy shares principal storage and equality
 - nested deputies
 - deputy of an unmodifiable view works
+- deputy put and []= replace through shared storage
+- readOnly deputy still rejects mutations
 - base deputy member is exercised
 - async add and addAll
+- async put inserts and replaces
 - async addEntries and putIfAbsent
 - async remove and removeWhere
 - async update and updateAll
@@ -257,6 +266,7 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - unmodifiable async facade rejects every mutation
 - stages map.add through apply and commits atomically
 - apply with tx returns null and does not mutate before commit
+- put stages through apply and commits atomically
 - body failure rolls back staged mutations
 - compensates unexecuted stages with compensateIfNotExecuted
 - rejects functions outside the modifiable whitelist at enqueue
@@ -510,17 +520,18 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - base equality, hashCode, iterator and toString
 - unmodifiable branch of base equality is exercised
 
-### File 10: tissue_value_test.dart (25 tests)
+### File 10: tissue_value_test.dart (28 tests)
 
 | Category (group) | Tests in file |
 |------------------|--------------:|
-| *(all groups)* | 25 |
+| *(all groups)* | 28 |
 | TissueValue factories | |
 | TissueValue reads and writes | |
 | TissueValueNucleus factories | |
 | TissueValue.unmodifiable | |
 | TissueValue.deputy | |
 | TissueValue async | |
+| TissueValue transaction | |
 
 **Tests**
 
@@ -549,6 +560,9 @@ Generated from `group(` / `test(` names. Tighten the prose by hand if needed.
 - nested deputies
 - async set updates the value
 - unmodifiable async set returns false and value is readable
+- Cell.transaction commits a TissueValue like a Cell.state
+- commit validation failure leaves the TissueValue unchanged
+- unmodifiable TissueValue rejects transaction commits
 
 ---
 
@@ -578,33 +592,60 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 316 | 0 | 0 | 0 |
+| 326 | 3 | 0 | 1 |
 
-Status: **green**.
+Status: **red**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:02 +307: test/tissue_value_test.dart: TissueValue.unmodifiable standalone UnmodifiableTissueValue factory                                                                                           
-00:02 +308: test/tissue_value_test.dart: TissueValue.unmodifiable standalone UnmodifiableTissueValue factory                                                                                           
-00:02 +308: test/tissue_value_test.dart: TissueValue.unmodifiable view factory                                                                                                                         
-00:02 +309: test/tissue_value_test.dart: TissueValue.unmodifiable view factory                                                                                                                         
-00:02 +309: test/tissue_value_test.dart: TissueValue.unmodifiable fromNucleus populates value                                                                                                          
-00:02 +310: test/tissue_value_test.dart: TissueValue.unmodifiable fromNucleus populates value                                                                                                          
-00:02 +310: test/tissue_value_test.dart: TissueValue.unmodifiable create factory                                                                                                                       
-00:02 +311: test/tissue_value_test.dart: TissueValue.unmodifiable create factory                                                                                                                       
-00:02 +311: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
-00:02 +312: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
-00:02 +312: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
-00:02 +313: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
-00:02 +313: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
-00:02 +314: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
-00:02 +314: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
-00:02 +315: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
-00:02 +315: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
-00:02 +316: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
-00:03 +316: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
-00:03 +316: All tests passed!
+alue unchanged [E]                                                                     
+  Expected: throws <Instance of 'TransactionValidationException'>
+    Actual: <Instance of 'Future<void>'>
+     Which: threw NoSuchMethodError:<NoSuchMethodError: Class '_TissueValue<int, TissueValue<int>>' has no instance getter '_nucleus'.
+                  Receiver: Instance of '_TissueValue<int, TissueValue<int>>'
+                  Tried calling: _nucleus>
+            stack package:cell_tissue/src/internal/tissue_value.dart 423:7              _TissueValue._nucleus
+                  package:cell/src/internal/operator/operators.dart 401:37              withCellLocks.<fn>
+                  dart:core                                                             Iterable.toList
+                  package:cell/src/internal/operator/operators.dart 372:43              withLocks
+                  package:cell/src/internal/operator/operators.dart 402:10              withCellLocks
+                  package:cell/src/internal/operator/operator_transaction.dart 1025:15  _transaction.commit.<fn>.doCommit
+                  package:cell/src/internal/operator/operator_transaction.dart 1064:17  _transaction.commit.<fn>
+                  package:synchronized/src/basic_lock.dart 36:24                        BasicLock.synchronized
+                  package:cell/src/internal/operator/operator_transaction.dart 1017:22  _transaction.commit
+                  test\tissue_value_test.dart 301:18                                    main.<fn>.<fn>
+                  
+            which is not an instance of 'TransactionValidationException'
+  
+  test\tissue_value_test.dart 300:7  main.<fn>.<fn>
+  
+
+To run this test again: D:\opt\flutter\flutter-3.41.9\bin\cache\dart-sdk\bin\dart.exe test test/tissue_value_test.dart -p vm --plain-name "TissueValue transaction commit validation failure leaves the TissueValue unchanged"
+
+00:06 +326 -2: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                               
+00:06 +326 -3: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits [E]                                                                           
+  NoSuchMethodError: Class '_UnmodifiableTissueValue<int, TissueValue<int>>' has no instance getter '_nucleus'.
+  Receiver: Instance of '_UnmodifiableTissueValue<int, TissueValue<int>>'
+  Tried calling: _nucleus
+  package:cell_tissue/src/internal/tissue_value.dart 739:7              _UnmodifiableTissueValue._nucleus
+  package:cell/src/internal/operator/operators.dart 401:37              withCellLocks.<fn>
+  dart:core                                                             Iterable.toList
+  package:cell/src/internal/operator/operators.dart 372:43              withLocks
+  package:cell/src/internal/operator/operators.dart 402:10              withCellLocks
+  package:cell/src/internal/operator/operator_transaction.dart 1025:15  _transaction.commit.<fn>.doCommit
+  package:cell/src/internal/operator/operator_transaction.dart 1064:17  _transaction.commit.<fn>
+  package:synchronized/src/basic_lock.dart 36:24                        BasicLock.synchronized
+  package:cell/src/internal/operator/operator_transaction.dart 1017:22  _transaction.commit
+  test\tissue_value_test.dart 313:22                                    main.<fn>.<fn>
+  
+
+To run this test again: D:\opt\flutter\flutter-3.41.9\bin\cache\dart-sdk\bin\dart.exe test test/tissue_value_test.dart -p vm --plain-name "TissueValue transaction unmodifiable TissueValue rejects transaction commits"
+
+00:07 +326 -3: Some tests failed.                                                                                                                                                                      
+
+Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
+For example, 'dart test --chain-stack-traces'.
 ```
 
 </details>
@@ -657,15 +698,15 @@ test/
 ├── test_tissue_test.dart  (15 tests, 8.5 KB, 228 lines)
 ├── tissue_container_test.dart  (5 tests, 1.7 KB, 50 lines)
 ├── tissue_list_test.dart  (49 tests, 16.7 KB, 558 lines)
-├── tissue_map_test.dart  (53 tests, 19.8 KB, 612 lines)
+├── tissue_map_test.dart  (63 tests, 24.8 KB, 754 lines)
 ├── tissue_pulse_test.dart  (26 tests, 10.7 KB, 338 lines)
 ├── tissue_queue_test.dart  (40 tests, 14.0 KB, 462 lines)
 ├── tissue_receptor_test.dart  (17 tests, 8.8 KB, 261 lines)
 ├── tissue_set_test.dart  (51 tests, 17.3 KB, 570 lines)
 ├── tissue_test.dart  (35 tests, 12.9 KB, 410 lines)
-├── tissue_value_test.dart  (25 tests, 8.0 KB, 261 lines)
+├── tissue_value_test.dart  (28 tests, 9.6 KB, 318 lines)
 ```
 
-**Total lines of test code:** 3,750
+**Total lines of test code:** 3,949
 
-*Generated 2026-09-29 by generate_test_verification.py*
+*Generated 2026-11-02 by generate_test_verification.py*
