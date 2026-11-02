@@ -47,7 +47,11 @@ cp "$ROOT_IGNORE" "$BACKUP"
 sed -i 's|^/packages/\*\*|/packages/_none_/**|' "$ROOT_IGNORE"
 echo "neutralised the root /packages/** rule for member publishing"
 
-for pkg in packages/cell packages/cell_flow packages/cell_tissue; do
+# Member list is overridable so a partially completed release can resume:
+#   MEMBERS="packages/cell_flow packages/cell_tissue" tool/release-publish.sh
+MEMBERS="${MEMBERS:-packages/cell packages/cell_flow packages/cell_tissue}"
+
+for pkg in $MEMBERS; do
   echo "── publishing $pkg ──"
   if [[ "$dry_run" == true ]]; then
     (cd "$pkg" && dart pub publish --dry-run) || echo "(dry-run reported issues for $pkg)"

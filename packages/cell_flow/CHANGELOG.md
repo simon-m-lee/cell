@@ -6,13 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
 release codename; it is not part of the SemVer string.
 
-## [Mitosis (1.0.0-rc.7)] - Release Candidate
-
-Docs release for the umbrella **Mitose pipeline**.
+## [Mitosis (1.0.0-rc.8)] - Release Candidate
 
 ### Changed
 
 - **AI command instructions relocated to `cell_tissue`**: The `AiTissueCommand` family and the interpreter domain moved from `src/instruction/ai_tissue_command*.dart` to `cell_tissue`, which now owns and exports them. Import `package:cell_tissue/cell_tissue.dart` instead. The integration test remains in this package's `test/` directory to verify cross-package behaviour.
+- **Dependency alignment**: `cell` tightened to `^1.0.0-rc.7` and the `cell_tissue` dev-dependency raised to `^1.0.0-rc.8`.
+
+[Mitosis (1.0.0-rc.8)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
+
+## [Mitosis (1.0.0-rc.7)] - Release Candidate
+
+Docs release for the umbrella **Mitose pipeline**. No public API changes.
 
 ### Docs
 

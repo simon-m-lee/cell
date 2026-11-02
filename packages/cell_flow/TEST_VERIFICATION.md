@@ -1,7 +1,7 @@
 # cell_flow package - Test Verification Report
 
 **Generated:** 2026-11-02
-**Package:** cell_flow (v1.0.0-rc.7)
+**Package:** cell_flow (v1.0.0-rc.8)
 **Test Files Analyzed:** 43
 **Total Tests:** 1081 (0 skipped)
 
@@ -73,7 +73,7 @@ This file is **generated**. Edit the script flags or the stub sections at the bo
 
 ### Snapshot
 
-Last `dart test` is **green**: **1081 passed**, 0 failed (exit 0).
+Last `dart test` is **red**: 1080 passed, **1 failed** (exit 1).
 
 `lib/` line coverage is **96.3%** (5557 / 5768).
 
@@ -86,7 +86,7 @@ No `lib/` file is below 70% in this lcov.
 | **Total Test Files** | 43 |
 | **Total Tests** | 1081 |
 | **Skipped** | 0 |
-| **Last full run** | 1081 passed, 0 failed, 0 skipped (exit 0) |
+| **Last full run** | 1080 passed, 1 failed, 0 skipped (exit 1) |
 | **Test Groups** | 452 (`group(` declarations) |
 | **Async-ish tests** | ~1010 (heuristic) |
 | **Line coverage (`lib/`)** | **96.3%** (5557 / 5768) |
@@ -2129,33 +2129,36 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1081 | 0 | 0 | 0 |
+| 1080 | 1 | 0 | 1 |
 
-Status: **green**.
+Status: **red**.
 
 <details><summary>tail of test log</summary>
 
 ```
-0:17 +1070: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:17 +1071: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:17 +1072: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:17 +1073: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:17 +1074: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:17 +1075: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
-00:17 +1075: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
-00:17 +1076: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
-00:17 +1076: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:17 +1077: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
-00:17 +1077: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:17 +1078: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
-00:17 +1078: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:17 +1079: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:17 +1079: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:17 +1080: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:17 +1080: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:17 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:18 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
-00:18 +1081: All tests passed!
+                                                                   
+00:14 +1065 -1: test/zip_test.dart: edges an unmatched leftover is not emitted                                                                                                                         
+00:14 +1066 -1: test/window_test.dart: WindowCount extra size 1 emits singleton windows                                                                                                                
+00:14 +1067 -1: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                 
+00:14 +1068 -1: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                 
+00:14 +1069 -1: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                 
+00:14 +1070 -1: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                 
+00:14 +1071 -1: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                 
+00:14 +1072 -1: test/window_test.dart: composition / performance WindowCount + WindowSize is a chain                                                                                                   
+00:14 +1073 -1: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                   
+00:14 +1074 -1: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                   
+00:14 +1074 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1075 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1076 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1077 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1078 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1079 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:14 +1080 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:15 +1080 -1: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                      
+00:15 +1080 -1: Some tests failed.                                                                                                                                                                     
+
+Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
+For example, 'dart test --chain-stack-traces'.
 ```
 
 </details>
