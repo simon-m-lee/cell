@@ -50,7 +50,7 @@ This file is **generated**. Edit the script flags or the stub sections at the bo
 
 ### Snapshot
 
-Last `dart test` is **red**: 1113 passed, **2 failed** (exit 1).
+Last `dart test` is **green**: **1115 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **93.5%** (3586 / 3836).
 
@@ -63,7 +63,7 @@ No `lib/` file is below 70% in this lcov.
 | **Total Test Files** | 20 |
 | **Total Tests** | 1115 |
 | **Skipped** | 0 |
-| **Last full run** | 1113 passed, 2 failed, 0 skipped (exit 1) |
+| **Last full run** | 1115 passed, 0 failed, 0 skipped (exit 0) |
 | **Test Groups** | 251 (`group(` declarations) |
 | **Async-ish tests** | ~349 (heuristic) |
 | **Line coverage (`lib/`)** | **93.5%** (3586 / 3836) |
@@ -93,8 +93,8 @@ No `lib/` file is below 70% in this lcov.
 | 17 | test_cell_test.dart | 588 | 41 | 19.2 KB | cell test; groups: TestCell, allowAll, readOnly, Construction, Composition, Exceptions… |
 | 18 | test_rule_meta_test.dart | 351 | 48 | 11.8 KB | rule meta test; groups: DefaultValue, MaxLength, direct field limit, hostLength, composite field + container, host-only… |
 | 19 | transaction_test.dart | 1,203 | 54 | 35.9 KB | transaction test; groups: Cell.transaction, Basic Transaction, Isolation Levels, Lock Ordering, Validation, Custom Apply… |
-| 20 | tx_apply_test.dart | 1,104 | 46 | 32.3 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
-| **Total** | | **16,750** | **1115** | **561.3 KB** | |
+| 20 | tx_apply_test.dart | 1,106 | 46 | 32.4 KB | tx apply test; groups: Cell.txApply, Basic Operations, Compensation, Error Handling, Stop On First Failure, Savepoint… |
+| **Total** | | **16,752** | **1115** | **561.4 KB** | |
 
 ---
 
@@ -1686,36 +1686,33 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 1113 | 2 | 0 | 1 |
+| 1115 | 0 | 0 | 0 |
 
-Status: **red**.
+Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
- value                                                             
-00:06 +1105 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling rollback when no transaction active is no-op                                                                  
-00:06 +1106 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling rollback when no transaction active is no-op                                                                  
-00:06 +1106 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling commit when no transaction active throws                                                                      
-00:06 +1107 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling commit when no transaction active throws                                                                      
-00:06 +1107 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with options and all callbacks                                                                    
-00:06 +1108 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with options and all callbacks                                                                    
-00:06 +1108 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with null values                                                                                  
-00:06 +1109 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with null values                                                                                  
-00:06 +1109 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with non-int values                                                                               
-00:06 +1110 -2: test/transaction_test.dart: Cell.transaction Edge Cases & Error Handling transaction with non-int values                                                                               
-00:06 +1110 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionValidationException toString                                                                                
-00:06 +1111 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionValidationException toString                                                                                
-00:06 +1111 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionConflictException toString                                                                                  
-00:06 +1112 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionConflictException toString                                                                                  
-00:06 +1112 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionTimeoutException toString                                                                                   
-00:06 +1113 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionTimeoutException toString                                                                                   
-00:07 +1113 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionTimeoutException toString                                                                                   
-00:08 +1113 -2: test/transaction_test.dart: Cell.transaction Exception toString TransactionTimeoutException toString                                                                                   
-00:08 +1113 -2: Some tests failed.                                                                                                                                                                     
-
-Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
-For example, 'dart test --chain-stack-traces'.
+0:06 +1103: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1104: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1105: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1106: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1107: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1108: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1109: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1110: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators Edge Cases & Error Handling switchMap with source emitting multiple values                              
+00:06 +1110: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1111: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString asyncMap cell toString                                                                         
+00:06 +1111: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1112: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString hub toString                                                                                   
+00:06 +1112: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1113: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString switchMap cell toString                                                                        
+00:06 +1113: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1114: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromFuture cell toString                                                                       
+00:06 +1114: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:06 +1115: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:07 +1115: test/operators_phase3_async_routing_test.dart: Phase 3: Async & Routing Operators toString fromStream cell toString                                                                       
+00:07 +1115: All tests passed!
 ```
 
 </details>
@@ -1795,9 +1792,9 @@ test/
 ├── test_cell_test.dart  (41 tests, 19.2 KB, 588 lines)
 ├── test_rule_meta_test.dart  (48 tests, 11.8 KB, 351 lines)
 ├── transaction_test.dart  (54 tests, 35.9 KB, 1,203 lines)
-├── tx_apply_test.dart  (46 tests, 32.3 KB, 1,104 lines)
+├── tx_apply_test.dart  (46 tests, 32.4 KB, 1,106 lines)
 ```
 
-**Total lines of test code:** 16,750
+**Total lines of test code:** 16,752
 
 *Generated 2026-11-02 by generate_test_verification.py*

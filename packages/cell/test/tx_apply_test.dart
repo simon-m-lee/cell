@@ -264,7 +264,8 @@ void main() {
         );
 
         expect(a.balance, 100, reason: 'debit 30 was compensated');
-        expect(b.balance, 50, reason: 'failing debit never committed');
+        expect(b.balance, 1050,
+            reason: 'throwing debit is compensated as attempted');
       });
 
       test('compensation with custom cell', () async {
@@ -635,7 +636,8 @@ void main() {
           throwsA(isA<TxApplyException>()),
         );
 
-        expect(from.balance, 100);
+        expect(from.balance, 1100,
+            reason: 'both debits compensated (throwing debit credited back)');
         expect(to.balance, 50);
       });
 

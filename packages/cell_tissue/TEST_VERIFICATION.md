@@ -40,7 +40,7 @@ This file is **generated**. Edit the script flags or the stub sections at the bo
 
 ### Snapshot
 
-Last `dart test` is **red**: 326 passed, **3 failed** (exit 1).
+Last `dart test` is **green**: **329 passed**, 0 failed (exit 0).
 
 `lib/` line coverage is **93.7%** (2067 / 2205).
 
@@ -53,7 +53,7 @@ No `lib/` file is below 70% in this lcov.
 | **Total Test Files** | 10 |
 | **Total Tests** | 329 |
 | **Skipped** | 0 |
-| **Last full run** | 326 passed, 3 failed, 0 skipped (exit 1) |
+| **Last full run** | 329 passed, 0 failed, 0 skipped (exit 0) |
 | **Test Groups** | 63 (`group(` declarations) |
 | **Async-ish tests** | ~89 (heuristic) |
 | **Line coverage (`lib/`)** | **93.7%** (2067 / 2205) |
@@ -592,60 +592,33 @@ dart test \
 
 | Passed | Failed | Skipped | Exit |
 |-------:|-------:|--------:|-----:|
-| 326 | 3 | 0 | 1 |
+| 329 | 0 | 0 | 0 |
 
-Status: **red**.
+Status: **green**.
 
 <details><summary>tail of test log</summary>
 
 ```
-alue unchanged [E]                                                                     
-  Expected: throws <Instance of 'TransactionValidationException'>
-    Actual: <Instance of 'Future<void>'>
-     Which: threw NoSuchMethodError:<NoSuchMethodError: Class '_TissueValue<int, TissueValue<int>>' has no instance getter '_nucleus'.
-                  Receiver: Instance of '_TissueValue<int, TissueValue<int>>'
-                  Tried calling: _nucleus>
-            stack package:cell_tissue/src/internal/tissue_value.dart 423:7              _TissueValue._nucleus
-                  package:cell/src/internal/operator/operators.dart 401:37              withCellLocks.<fn>
-                  dart:core                                                             Iterable.toList
-                  package:cell/src/internal/operator/operators.dart 372:43              withLocks
-                  package:cell/src/internal/operator/operators.dart 402:10              withCellLocks
-                  package:cell/src/internal/operator/operator_transaction.dart 1025:15  _transaction.commit.<fn>.doCommit
-                  package:cell/src/internal/operator/operator_transaction.dart 1064:17  _transaction.commit.<fn>
-                  package:synchronized/src/basic_lock.dart 36:24                        BasicLock.synchronized
-                  package:cell/src/internal/operator/operator_transaction.dart 1017:22  _transaction.commit
-                  test\tissue_value_test.dart 301:18                                    main.<fn>.<fn>
-                  
-            which is not an instance of 'TransactionValidationException'
-  
-  test\tissue_value_test.dart 300:7  main.<fn>.<fn>
-  
-
-To run this test again: D:\opt\flutter\flutter-3.41.9\bin\cache\dart-sdk\bin\dart.exe test test/tissue_value_test.dart -p vm --plain-name "TissueValue transaction commit validation failure leaves the TissueValue unchanged"
-
-00:06 +326 -2: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                               
-00:06 +326 -3: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits [E]                                                                           
-  NoSuchMethodError: Class '_UnmodifiableTissueValue<int, TissueValue<int>>' has no instance getter '_nucleus'.
-  Receiver: Instance of '_UnmodifiableTissueValue<int, TissueValue<int>>'
-  Tried calling: _nucleus
-  package:cell_tissue/src/internal/tissue_value.dart 739:7              _UnmodifiableTissueValue._nucleus
-  package:cell/src/internal/operator/operators.dart 401:37              withCellLocks.<fn>
-  dart:core                                                             Iterable.toList
-  package:cell/src/internal/operator/operators.dart 372:43              withLocks
-  package:cell/src/internal/operator/operators.dart 402:10              withCellLocks
-  package:cell/src/internal/operator/operator_transaction.dart 1025:15  _transaction.commit.<fn>.doCommit
-  package:cell/src/internal/operator/operator_transaction.dart 1064:17  _transaction.commit.<fn>
-  package:synchronized/src/basic_lock.dart 36:24                        BasicLock.synchronized
-  package:cell/src/internal/operator/operator_transaction.dart 1017:22  _transaction.commit
-  test\tissue_value_test.dart 313:22                                    main.<fn>.<fn>
-  
-
-To run this test again: D:\opt\flutter\flutter-3.41.9\bin\cache\dart-sdk\bin\dart.exe test test/tissue_value_test.dart -p vm --plain-name "TissueValue transaction unmodifiable TissueValue rejects transaction commits"
-
-00:07 +326 -3: Some tests failed.                                                                                                                                                                      
-
-Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
-For example, 'dart test --chain-stack-traces'.
+0:03 +321: test/tissue_value_test.dart: TissueValue.unmodifiable create factory                                                                                                                       
+00:03 +321: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
+00:03 +322: test/tissue_value_test.dart: TissueValue.deputy deputy shares principal storage and equality                                                                                               
+00:03 +322: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
+00:03 +323: test/tissue_value_test.dart: TissueValue.deputy deputy of an unmodifiable view works                                                                                                       
+00:03 +323: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
+00:03 +324: test/tissue_value_test.dart: TissueValue.deputy nested deputies                                                                                                                            
+00:03 +324: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
+00:03 +325: test/tissue_value_test.dart: TissueValue async async set updates the value                                                                                                                 
+00:03 +325: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
+00:03 +326: test/tissue_value_test.dart: TissueValue async unmodifiable async set returns false and value is readable                                                                                  
+00:03 +326: test/tissue_value_test.dart: TissueValue transaction Cell.transaction commits a TissueValue like a Cell.state                                                                              
+00:03 +327: test/tissue_value_test.dart: TissueValue transaction Cell.transaction commits a TissueValue like a Cell.state                                                                              
+00:03 +327: test/tissue_value_test.dart: TissueValue transaction commit validation failure leaves the TissueValue unchanged                                                                            
+00:03 +328: test/tissue_value_test.dart: TissueValue transaction commit validation failure leaves the TissueValue unchanged                                                                            
+00:03 +328: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
+00:03 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
+00:04 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
+00:05 +329: test/tissue_value_test.dart: TissueValue transaction unmodifiable TissueValue rejects transaction commits                                                                                  
+00:05 +329: All tests passed!
 ```
 
 </details>

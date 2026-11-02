@@ -526,10 +526,10 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
         1 => (inheritable: inheritable, others: others),
         2 => (user: user, others: others),
         3 => (inheritable: inheritable, user: user, others: others),
-        4 => (forceLock: forceLock, others: others),
-        5 => (inheritable: inheritable, forceLock: forceLock, others: others),
-        6 => (user: user, forceLock: forceLock, others: others),
-        7 => (
+        4 => (lock: Lock(reentrant: true), forceLock: forceLock, others: others),
+        5 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, others: others),
+        6 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, others: others),
+        7 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -544,20 +544,20 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             synapses: synapses,
             others: others
           ),
-        12 => (forceLock: forceLock, synapses: synapses, others: others),
-        13 => (
+        12 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, others: others),
+        13 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             others: others
           ),
-        14 => (
+        14 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             others: others
           ),
-        15 => (
+        15 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -573,15 +573,15 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             bind: bind,
             others: others
           ),
-        20 => (forceLock: forceLock, bind: bind, others: others),
-        21 => (
+        20 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, others: others),
+        21 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             bind: bind,
             others: others
           ),
-        22 => (user: user, forceLock: forceLock, bind: bind, others: others),
-        23 => (
+        22 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind, others: others),
+        23 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -603,27 +603,27 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             bind: bind,
             others: others
           ),
-        28 => (
+        28 => (lock: Lock(reentrant: true), 
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        29 => (
+        29 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        30 => (
+        30 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             others: others
           ),
-        31 => (
+        31 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -644,24 +644,24 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        36 => (
+        36 => (lock: Lock(reentrant: true), 
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        37 => (
+        37 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        38 => (
+        38 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             container: containerStorage,
             others: others
           ),
-        39 => (
+        39 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -688,27 +688,27 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        44 => (
+        44 => (lock: Lock(reentrant: true), 
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        45 => (
+        45 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        46 => (
+        46 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             synapses: synapses,
             container: containerStorage,
             others: others
           ),
-        47 => (
+        47 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -736,27 +736,27 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        52 => (
+        52 => (lock: Lock(reentrant: true), 
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        53 => (
+        53 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        54 => (
+        54 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        55 => (
+        55 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -792,14 +792,14 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        60 => (
+        60 => (lock: Lock(reentrant: true), 
             forceLock: forceLock,
             synapses: synapses,
             bind: bind,
             container: containerStorage,
             others: others
           ),
-        61 => (
+        61 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             forceLock: forceLock,
             synapses: synapses,
@@ -807,7 +807,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        62 => (
+        62 => (lock: Lock(reentrant: true), 
             user: user,
             forceLock: forceLock,
             synapses: synapses,
@@ -815,7 +815,7 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
             container: containerStorage,
             others: others
           ),
-        63 => (
+        63 => (lock: Lock(reentrant: true), 
             inheritable: inheritable,
             user: user,
             forceLock: forceLock,
@@ -833,22 +833,22 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       1 => (inheritable: inheritable),
       2 => (user: user),
       3 => (inheritable: inheritable, user: user),
-      4 => (forceLock: forceLock),
-      5 => (inheritable: inheritable, forceLock: forceLock),
-      6 => (user: user, forceLock: forceLock),
-      7 => (inheritable: inheritable, user: user, forceLock: forceLock),
+      4 => (lock: Lock(reentrant: true), forceLock: forceLock),
+      5 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock),
+      6 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock),
+      7 => (lock: Lock(reentrant: true), inheritable: inheritable, user: user, forceLock: forceLock),
       8 => (synapses: synapses),
       9 => (inheritable: inheritable, synapses: synapses),
       10 => (user: user, synapses: synapses),
       11 => (inheritable: inheritable, user: user, synapses: synapses),
-      12 => (forceLock: forceLock, synapses: synapses),
-      13 => (
+      12 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses),
+      13 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses
         ),
-      14 => (user: user, forceLock: forceLock, synapses: synapses),
-      15 => (
+      14 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses),
+      15 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -858,10 +858,10 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       17 => (inheritable: inheritable, bind: bind),
       18 => (user: user, bind: bind),
       19 => (inheritable: inheritable, user: user, bind: bind),
-      20 => (forceLock: forceLock, bind: bind),
-      21 => (inheritable: inheritable, forceLock: forceLock, bind: bind),
-      22 => (user: user, forceLock: forceLock, bind: bind),
-      23 => (
+      20 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind),
+      21 => (lock: Lock(reentrant: true), inheritable: inheritable, forceLock: forceLock, bind: bind),
+      22 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, bind: bind),
+      23 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -876,15 +876,15 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           synapses: synapses,
           bind: bind
         ),
-      28 => (forceLock: forceLock, synapses: synapses, bind: bind),
-      29 => (
+      28 => (lock: Lock(reentrant: true), forceLock: forceLock, synapses: synapses, bind: bind),
+      29 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind
         ),
-      30 => (user: user, forceLock: forceLock, synapses: synapses, bind: bind),
-      31 => (
+      30 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, synapses: synapses, bind: bind),
+      31 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -895,14 +895,14 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
       33 => (inheritable: inheritable, container: containerStorage),
       34 => (user: user, container: containerStorage),
       35 => (inheritable: inheritable, user: user, container: containerStorage),
-      36 => (forceLock: forceLock, container: containerStorage),
-      37 => (
+      36 => (lock: Lock(reentrant: true), forceLock: forceLock, container: containerStorage),
+      37 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           container: containerStorage
         ),
-      38 => (user: user, forceLock: forceLock, container: containerStorage),
-      39 => (
+      38 => (lock: Lock(reentrant: true), user: user, forceLock: forceLock, container: containerStorage),
+      39 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -921,24 +921,24 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           synapses: synapses,
           container: containerStorage
         ),
-      44 => (
+      44 => (lock: Lock(reentrant: true), 
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      45 => (
+      45 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      46 => (
+      46 => (lock: Lock(reentrant: true), 
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           container: containerStorage
         ),
-      47 => (
+      47 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -954,20 +954,20 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           bind: bind,
           container: containerStorage
         ),
-      52 => (forceLock: forceLock, bind: bind, container: containerStorage),
-      53 => (
+      52 => (lock: Lock(reentrant: true), forceLock: forceLock, bind: bind, container: containerStorage),
+      53 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage
         ),
-      54 => (
+      54 => (lock: Lock(reentrant: true), 
           user: user,
           forceLock: forceLock,
           bind: bind,
           container: containerStorage
         ),
-      55 => (
+      55 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,
@@ -994,27 +994,27 @@ abstract class TissueNucleusBase<E, I extends Iterable<E>, C extends Tissue<E>>
           bind: bind,
           container: containerStorage
         ),
-      60 => (
+      60 => (lock: Lock(reentrant: true), 
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      61 => (
+      61 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      62 => (
+      62 => (lock: Lock(reentrant: true), 
           user: user,
           forceLock: forceLock,
           synapses: synapses,
           bind: bind,
           container: containerStorage
         ),
-      63 => (
+      63 => (lock: Lock(reentrant: true), 
           inheritable: inheritable,
           user: user,
           forceLock: forceLock,

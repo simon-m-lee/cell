@@ -969,7 +969,10 @@ TransactionScope _transaction([
 
   FutureOr<void> _defaultApply(Cell cell, dynamic value) async {
     if (cell is ValueCell) {
-      cell._emit(value);
+      // Cross-package ValueCell implementations (e.g., TissueValue) do not
+      // inherit the private `_emit`; commit through the public value
+      // setter, which is a silent no-op on unmodifiable views.
+      cell.value = value;
       return;
     }
     final out = cell._nucleus.receptor

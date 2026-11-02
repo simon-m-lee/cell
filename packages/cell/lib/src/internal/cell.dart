@@ -265,6 +265,14 @@ abstract class CellBase implements Cell {
   @override
   final Nucleus _nucleus;
 
+  /// The synchronization [Lock] owned by this cell's nucleus.
+  ///
+  /// Cells whose nucleus type shadows the private `_nucleus` member (e.g.,
+  /// tissues) override this getter to resolve their own lock. Returns `null`
+  /// when the nucleus does not carry a lock (e.g., a deputy whose principal
+  /// has none).
+  Lock? get lock => _nucleus.lock;
+
   /// Initializes a new cell instance with specific behaviors and connections.
   ///
   /// This constructor sets up the internal state ([Nucleus]) of the cell. It

@@ -398,6 +398,10 @@ Future<T> withCellLocks<T>(
   final sorted = List<Cell>.from(cells);
   sorted.sort(order ?? (a, b) => a.hashCode.compareTo(b.hashCode));
 
-  final locks = sorted.map((c) => c._nucleus.lock);
+  // Prefer the public CellBase.lock accessor: reaching into the private
+  // `_nucleus` member fails for cross-package Cell implementations whose
+  // nuclei shadow that name (e.g., tissues). Cells outside CellBase simply
+  // have no lock to acquire.
+  final locks = sorted.map((c) => c is CellBase ? c.lock : null);
   return withLocks(locks, body);
 }

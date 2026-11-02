@@ -582,6 +582,17 @@ class ValueCell<V> extends CellBase {
   /// ```
   V? get value => _nucleus.state.value;
 
+  /// Assigns [value] through the same validated emission pipeline used by
+  /// [Cell.state]'s update handle.
+  ///
+  /// Cross-package [ValueCell] implementations (e.g., `TissueValue`) provide
+  /// their own setter; this public mutator lets generic machinery such as
+  /// [Cell.transaction] commit buffered writes without reaching into the
+  /// private `_emit`. Unmodifiable deputies reject the write silently.
+  set value(V? value) {
+    _emit(value);
+  }
+
   bool _emit(V? v) {
     if (!identical(v, value) && v != value) {
       final receptor = _nucleus.receptor;

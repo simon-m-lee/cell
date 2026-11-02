@@ -764,6 +764,7 @@ abstract interface class TissueValue<V> implements Tissue<V>, ValueCell<V> {
   /// final counter = TissueValue<int>(0);
   /// counter.value = 42;
   /// ```
+  @override
   set value(V? value);
 
   /// Attempts to update the current payload, returning a boolean indicating

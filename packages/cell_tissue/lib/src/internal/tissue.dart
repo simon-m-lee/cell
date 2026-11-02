@@ -228,6 +228,10 @@ class TissueNever extends IterableBase<Never>
   TissueNucleusBase<Never, Never, Never> get _nucleus =>
       const TissueNucleusNever();
 
+  /// The empty tissue has no state to synchronise, so it never locks.
+  @override
+  Lock? get lock => null;
+
   /// A no‑op implementation of the [Cell.apply] method.
   ///
   /// Since the tissue is empty, there are no elements to apply
@@ -392,6 +396,14 @@ abstract class TissueBase<E, I extends Iterable<E>, C extends Tissue<E>>
   /// and the [Synapses] registry for child cell tracking.
   @override
   final TissueNucleusBase<E, I, C> _nucleus;
+
+  /// The synchronization [Lock] resolved from this tissue's nucleus.
+  ///
+  /// Overrides [CellBase.lock] because the tissue nucleus shadows the
+  /// cell-side private `_nucleus` member; transaction machinery in the core
+  /// library acquires this lock through the public accessor.
+  @override
+  Lock? get lock => _nucleus.lock;
 
   /// Primary internal constructor for [TissueBase], responsible for
   /// bootstrapping a reactive collection and establishing its initial state
