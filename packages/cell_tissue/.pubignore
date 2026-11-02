@@ -1,4 +1,7 @@
 # Member-specific publish ignores.
 # This file overrides the workspace-root .pubignore (which excludes
 # /packages/** so the umbrella package stays lean).
+# NOTE: see tool/release-publish.sh — the root `/packages/**` rule must be
+# neutralised while publishing workspace members.
 doc/
+coverage/

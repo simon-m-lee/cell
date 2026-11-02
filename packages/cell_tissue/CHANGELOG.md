@@ -13,6 +13,7 @@
 
 ### Fixed
 
+- **`TissueValue` joins `Cell.transaction`**: `begin`, buffered `update`, commit, validation failures, and unmodifiable projections now behave like `Cell.state`. Tissue nuclei allocate their synchronisation lock again (`TissueNucleusBase.mask` carries a `Lock` for every `forceLock == false` branch), `TissueBase` and `TissueNever` expose it through the public `CellBase.lock` accessor, and the transaction commit path writes through the public `ValueCell.value` setter so cross-package `ValueCell` implementations no longer hit the private `_nucleus` / `_emit` members (three new `tissue_value_test.dart` cases).
 - **Reactive link lifecycle on replacement**: `put`, `update`, and `updateAll` now unlink a replaced `Cell` value (when it no longer occurs in the store) and link the new `Cell` value. `remove`, `removeWhere`, and `clear` now unlink removed `Cell` values.
 - **Deputy mutation gateway**: Composing `TestTissue.allowAll` with another rule via `+` previously produced a `TestTissue<Never, Never>` whose `action` gate rejected every real host, silently swallowing all mutations performed through deputies. `allowAll + allowAll` now returns `allowAll` itself, and other compositions use a host-widened wrapper so deputies remain mutable when their rules permit it (read-only deputies still block).
 - **Bound map mirroring**: The receptor sync engine now mirrors `TissueEvent.entryUpdated` pulses into a bound `TissueMap`'s store, so maps created with `bind:` reflect value replacements from their source.

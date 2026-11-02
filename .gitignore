@@ -26,4 +26,5 @@ packages/cell_organ/
 # .deepcode directory containing sensitive API keys and model settings
 .deepcode/
 
-test/
+# Private notes kept outside version control (root-level only)
+/test/

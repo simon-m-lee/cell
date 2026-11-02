@@ -20,7 +20,7 @@
   - Length caps removed from generators. Documents open with a short summary when useful.
 - **Layer HowTos** updated for the 2.0 seam (instruction decides, chain assembles, observer glues) and for `Cell.txApply` on Tissue.
 - **Sample BRDs** remain in `example/BRD/`; worked pipeline samples (pantry-bridge, saltline-scramble, tide-warden) demonstrate the full 2.0 path including ledger and comprehension.
-- **Package releases**: ships with `cell` `1.0.0-rc.6`, `cell_flow` `1.0.0-rc.7`, `cell_tissue` `1.0.0-rc.7`.
+- **Package releases**: ships with `cell` `1.0.0-rc.7` (txApply compensation, public lock access, dual-audience guides), `cell_flow` `1.0.0-rc.7` (AI command instructions relocated to `cell_tissue`), and `cell_tissue` `1.0.0-rc.8` (`TissueMap` upsert, AI command instructions, `Cell.transaction` support).
 
 ## Mitosis (1.0.0-rc.9)
 

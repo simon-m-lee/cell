@@ -11,6 +11,7 @@
 - **`txApply` compensates actions that throw after mutating state**: Staged calls are now marked as attempted *before* they are invoked, so an action that partially mutates its cell and then throws is included in the rollback compensation instead of being skipped. Previously the `executed` flag was only set after a successful `apply`, so a throwing call left its partial side effects uncompensated.
   - When an integrity gate rejects an action (`ApplyRejected`) with `stopOnFirstFailure`, the call is explicitly marked not executed (nothing ran), so the rejection path still skips compensation for that call.
 - **Lock access**: Added a `CellBase.lock` getter that exposes the cell's nucleus lock; `withCellLocks` now reads it for `CellBase` instances instead of reaching into the private `_nucleus` member.
+- **`Cell.transaction` supports cross-package `ValueCell`s**: The default commit path now writes through a public `ValueCell.value` setter (which routes through the same validated emission pipeline as the private `_emit`) instead of calling `_emit` directly, because cross-package implementations such as `TissueValue` do not inherit the private member. Unmodifiable views reject the write silently, matching the previous behaviour.
 - **`TestCell.call` override soundness**: The `host` parameter is now declared `covariant C? host` so subclasses that narrow `C` remain type-sound.
 
 ### Tests
