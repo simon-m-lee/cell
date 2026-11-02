@@ -3,19 +3,18 @@
 All notable changes to **cell_flow** are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Version numbers follow [SemVer](https://semver.org/). **Mitosis** is the
+Version numbers follow [SemVer](https://semver.org/). **Flow** is the
 release codename; it is not part of the SemVer string.
 
-## [Mitosis (1.0.0-rc.8)] - Release Candidate
+## Flow (1.0.0-rc.8) - Release Candidate
 
 ### Changed
 
 - **AI command instructions relocated to `cell_tissue`**: The `AiTissueCommand` family and the interpreter domain moved from `src/instruction/ai_tissue_command*.dart` to `cell_tissue`, which now owns and exports them. Import `package:cell_tissue/cell_tissue.dart` instead. The integration test remains in this package's `test/` directory to verify cross-package behaviour.
 - **Dependency alignment**: `cell` tightened to `^1.0.0-rc.7` and the `cell_tissue` dev-dependency raised to `^1.0.0-rc.8`.
 
-[Mitosis (1.0.0-rc.8)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 
-## [Mitosis (1.0.0-rc.7)] - Release Candidate
+## Flow (1.0.0-rc.7) - Release Candidate
 
 Docs release for the umbrella **Mitose pipeline**. No public API changes.
 
@@ -23,9 +22,8 @@ Docs release for the umbrella **Mitose pipeline**. No public API changes.
 
 - **Mitose pipeline**: Added a prominent README callout for the umbrella **Mitose pipeline** — the AI-executable orchestration in the root [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide) that turns a business requirement into a Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. This package contributes the **Flow-layer** rules via [`guide/HowTo-Mitose-Flow.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Flow.md).
 
-[Mitosis (1.0.0-rc.7)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 
-## [Mitosis (1.0.0-rc.6)] - Release Candidate
+## Flow (1.0.0-rc.6) - Release Candidate
 
 Pub.dev WASM-compatibility release. No public API changes.
 
@@ -37,7 +35,7 @@ Pub.dev WASM-compatibility release. No public API changes.
   (`ai_tissue_command_domain_io.dart` on native, `ai_tissue_command_domain_stub.dart`
   on web/WASM). The package now compiles to WebAssembly (`dart compile wasm`).
 
-## [Mitosis (1.0.0-rc.5)] - Release Candidate
+## Flow (1.0.0-rc.5) - Release Candidate
 
 Pub.dev score remediation release. No public API changes.
 
@@ -47,7 +45,7 @@ Pub.dev score remediation release. No public API changes.
 - **License detection**: Replaced the custom dual-license notice with the canonical MIT and Apache-2.0 texts so pub.dev recognizes the OSI-approved license.
 - **Example detection**: Added `example/cell_flow_example.dart` — a runnable quick start matching pub.dev's example file conventions.
 
-## [Mitosis (1.0.0-rc.4)] - Release Candidate
+## Flow (1.0.0-rc.4) - Release Candidate
 
 This release introduces the **AI Command Infrastructure**, establishing a forensic gateway for AI-orchestrated state mutations. It aligns the orchestration topography with machine-driven logic while maintaining strict administrative oversight and causal integrity.
 
@@ -75,9 +73,8 @@ This release introduces the **AI Command Infrastructure**, establishing a forens
 - Last full run: **+1051, exit 0**.
 - Line coverage (`lib/`): **96.9%** (+0.1% improvement in command gateway edge-cases).
 
-[Mitosis (1.0.0-rc.4)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 
-## [Mitosis (1.0.0-rc.3)] - Release Candidate
+## Flow (1.0.0-rc.3) - Release Candidate
 
 This release formalizes **Topographical Integrity** and **Forensic Traceability** within the orchestration layer, ensuring that causal anchors are preserved across complex asynchronous transformations and operator chains.
 
@@ -102,11 +99,10 @@ This release formalizes **Topographical Integrity** and **Forensic Traceability*
 - Last full run: **+1038, exit 0**.
 - Line coverage (`lib/`): **96.8%** (+0.3% improvement in operator edge-cases).
 
-[Mitosis (1.0.0-rc.3)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 
 ---
 
-## [Mitosis (1.0.0-rc.2.0.2)] - Release Candidate
+## Flow (1.0.0-rc.2.0.2) - Release Candidate
 
 Patch focused on topographical integrity, path hygiene, and guidance expansion.
 
@@ -127,9 +123,8 @@ Patch focused on topographical integrity, path hygiene, and guidance expansion.
 - Last full run: **+1025, exit 0**.
 - Line coverage (`lib/`): **96.5%** (+0.2% improvement in edge-case error paths).
 
-[Mitosis (1.0.0-rc.2.0.2)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
 
-## [Mitosis (1.0.0-rc.2.0.1)] - Release Candidate
+## Flow (1.0.0-rc.2.0.1) - Release Candidate
 
 Patch on the RC2 line. This release focuses on architectural documentation,
 topographical terminology alignment, and library hygiene.
@@ -146,7 +141,7 @@ topographical terminology alignment, and library hygiene.
 
 ### Added
 
-- **Quick Start Guide**: Introduced [`HowTo-Start.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md), providing a comprehensive entry point for developers to grasp the **Mitosis** mental model.
+- **Quick Start Guide**: Introduced [`HowTo-Start.md`](https://github.com/simon-m-lee/cell/blob/master/packages/cell_flow/guide/HowTo-Start.md), providing a comprehensive entry point for developers to grasp the **Flow** mental model.
 - **Topographical Walkthroughs**: Formally linked clinical and reactive search demos in the `README.md` and `dartdoc_options.yaml` as **Blueprint Templates**.
 - `fluent_operator_test.dart`: Exhaustive test coverage for `CellFlowOperators` and `FlowOperators` ensuring chains correctly anchor to the `IngressHandle.cell`.
 - **Topographical Auditing Tools**: Enhanced PowerShell-native auditing scripts for identifying files missing provenance metadata (Copyright headers).
@@ -168,9 +163,9 @@ topographical terminology alignment, and library hygiene.
 
 ### Legal
 
-- Copyright headers and authorship metadata aligned with the Mitosis topography standards.
+- Copyright headers and authorship metadata aligned with the Flow topography standards.
 - LICENSE coverage confirmed for MIT OR Apache-2.0.
-## [Mitosis (1.0.0-rc.2)] - Release Candidate
+## Flow (1.0.0-rc.2) - Release Candidate
 
 ### Added
 
@@ -194,7 +189,7 @@ topographical terminology alignment, and library hygiene.
 - `analysis_options.yaml`: `public_member_api_docs`, stricter inference.
 - `dartdoc_options.yaml` links walkthroughs into the API reference.
 
-## [Mitosis (1.0.0-rc.1)] - Release Candidate
+## Flow (1.0.0-rc.1) - Release Candidate
 
 First public release candidate. Operators are `FlowInstruction`s on the
 same graph as `package:cell` `1.0.0-rc.1`.
@@ -285,6 +280,3 @@ same graph as `package:cell` `1.0.0-rc.1`.
 - `HowTo-Fluent_Operator.md`, `HowTo-FlowInstruction-Receptor.md`
 - Example gates: `example_*.dart`
 
-[Mitosis (1.0.0-rc.2.0.1)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
-[Mitosis (1.0.0-rc.2)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow
-[Mitosis (1.0.0-rc.1)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow

@@ -1,4 +1,4 @@
-## [Mitosis (1.0.0-rc.8)] - Release Candidate
+## Tissue (1.0.0-rc.8) - Release Candidate
 
 ### Added
 
@@ -22,9 +22,8 @@
 
 - **Upsert coverage**: Added `tissue_map_test.dart` cases for `[]=`/`put` replacement, insert-vs-replace pulse payloads, append-only `add`, test-rule rejection of replacements, `Cell` value swaps, `modifiable`/`apply` routing, unmodifiable and async `put` rejection, transaction staging of `put`, and deputy shared-storage replacement (including read-only deputy blocking).
 
-[Mitosis (1.0.0-rc.8)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
 
-## [Mitosis (1.0.0-rc.7)] - Release Candidate
+## Tissue (1.0.0-rc.7) - Release Candidate
 
 ### Changed
 
@@ -53,9 +52,8 @@
 
 - **Mitose pipeline**: Added a prominent README callout for the umbrella **Mitose pipeline** — the AI-executable orchestration in the root [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide) that turns a business requirement into a Cell + Flow + Tissue solution with its BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES documents. This package contributes the **Tissue-layer** rules via [`guide/HowTo-Mitose-Tissue.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose-Tissue.md).
 
-[Mitosis (1.0.0-rc.7)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
 
-## [Mitosis (1.0.0-rc.6)] - Release Candidate
+## Tissue (1.0.0-rc.6) - Release Candidate
 
 Pub.dev hygiene release. No public API changes.
 
@@ -63,9 +61,8 @@ Pub.dev hygiene release. No public API changes.
 
 - **TestTissue constructor formatting**: Reformatted the `TestTissue` and `TestTissue.chain` constructor signatures for consistency and analyzer hygiene.
 
-[Mitosis (1.0.0-rc.6)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
 
-## [Mitosis (1.0.0-rc.5)] - Release Candidate
+## Tissue (1.0.0-rc.5) - Release Candidate
 
 Pub.dev score remediation release. No public API changes.
 
@@ -77,9 +74,8 @@ Pub.dev score remediation release. No public API changes.
 - **Example detection**: Added `example/cell_tissue_example.dart` — a runnable quick start matching pub.dev's example file conventions.
 - **Dev dependency**: Replaced the local `cell_flow` path dev-dependency with a version constraint (`^1.0.0-rc.4`).
 
-[Mitosis (1.0.0-rc.5)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue
 
-## [Mitosis (1.0.0-rc.4)] - Release Candidate
+## Tissue (1.0.0-rc.4) - Release Candidate
 
 This release formalizes the **Application Layer Governance** and introduces the **AI Command Infrastructure**, establishing a forensic gateway for machine-orchestrated state mutations within reactive collections.
 
@@ -121,4 +117,3 @@ This release formalizes the **Application Layer Governance** and introduces the 
 - **Integrity Verified**: Confirmed that `TissueCommand` evolution preserves `Pulse.trace` metadata from the core layer across asynchronous boundaries.
 - **Coverage**: Maintained 95%+ coverage on reactive collection mutation logic and the new AI command infrastructure.
 
-[Mitosis (1.0.0-rc.4)]: https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue

@@ -1,6 +1,6 @@
 # Changelog
 
-## Mitosis (1.0.0-rc.11)
+## Mitosis (1.0.0-rc.11) - Release Candidate
 
 - **Mitose pipeline upgraded with an autonomous mode** ([`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) §15): the pipeline now has two run modes — the interactive step-by-step mode with one human decision at each gate, and the opt-in autonomous mode in which the user says “Mitose autonomous” once after a filled BRD exists and the agent runs the rest of the pipeline to the end without interruption or further input.
   - Every later gate becomes a recorded automatic decision. Open questions, thresholds, and rule precedence are decided by the agent and tagged `[AI DECIDED — autonomous]`; residual acceptance is recorded as a delegation, never as the user’s own approval.
@@ -10,7 +10,7 @@
 - **README** documents both run modes, the “Mitose autonomous” trigger, and the master-generator rule.
 - **Package releases**: ships with `cell` `1.0.0-rc.7` (txApply compensation, public lock access, dual-audience guides), `cell_flow` `1.0.0-rc.8` (AI command instructions relocated to `cell_tissue`), and `cell_tissue` `1.0.0-rc.8` (`TissueMap` upsert, AI command instructions, `Cell.transaction` support).
 
-## Mitosis (1.0.0-rc.10)
+## Mitosis (1.0.0-rc.10) - Release Candidate
 
 - **Precision Software Engineering** — the coined term for the Mitose pipeline’s contract: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. Six components, no seventh. Documented in the README.
   - Residual ledger (`LEDGER-AI-Generator.md`) written from `<stem>-test.dart` `BRD` group `LEDGER` lines. Verified requires executed evidence; reading code is not Verified.
@@ -27,7 +27,7 @@
 - **Sample BRDs** remain in `example/BRD/`; worked pipeline samples (pantry-bridge, saltline-scramble, tide-warden) demonstrate the full 2.0 path including ledger and comprehension.
 - **Package releases**: ships with `cell` `1.0.0-rc.6`, `cell_flow` `1.0.0-rc.7`, `cell_tissue` `1.0.0-rc.7`.
 
-## Mitosis (1.0.0-rc.9)
+## Mitosis (1.0.0-rc.9) - Release Candidate
 
 - **New Mitose pipeline in [`guide/`](https://github.com/simon-m-lee/cell/tree/master/guide)** — an AI-executable orchestration script set that turns a business requirement into a Cell + Flow + Tissue solution and its project documents:
   - [`HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) — the orchestration script: BRD gate → WalkThrough → Demo → WalkThrough assessment → ARCHITECTURE/FEATURES, with one human decision at each gate.
@@ -39,17 +39,17 @@
 - **README & onboarding**: documented the Mitose pipeline (with a copy-paste starter prompt) and the new `guide/` and BRD sample layout, and added [`AGENTS.md`](https://github.com/simon-m-lee/cell/blob/master/AGENTS.md) so agentic tools auto-discover the Mitose trigger.
 - **Package releases**: this umbrella release ships together with `cell` `1.0.0-rc.6` (widened `Pulse.type`), `cell_flow` `1.0.0-rc.7` (Mitose pipeline docs), and `cell_tissue` `1.0.0-rc.7` (unified `TissueEvent` classification).
 
-## Mitosis (1.0.0-rc.8)
+## Mitosis (1.0.0-rc.8) - Release Candidate
 
 - **Removed the internal `/guide/` directory** from the repository and the published package. The guides are internal and are no longer tracked in the repo or shipped in the pub.dev archive.
 
-## Mitosis (1.0.0-rc.7)
+## Mitosis (1.0.0-rc.7) - Release Candidate
 
 - **Fixed dartdoc generation** for pub.dev scoring: the `Walkthroughs` category now references `DEMO_GUIDE-Mitosis.md` with the correct filename case, so `dart doc` succeeds on case-sensitive filesystems.
 - **Removed** `example/grid-demand-response(Cell)-Day1.md`.
 - **Docs**: regenerated the API docs and synced guides.
 
-## Mitosis (1.0.0-rc.6)
+## Mitosis (1.0.0-rc.6) - Release Candidate
 
 - **New `(Cell)` demo set** in [`example/`](<https://github.com/simon-m-lee/cell/tree/master/example>) — the instruction-side counterparts of the `cell_tissue` demos:
   - [`grid-demand-response(Cell)-Demo.dart`](<https://github.com/simon-m-lee/cell/blob/master/example/grid-demand-response(Cell)-Demo.dart>) with `GridDecisionInstruction extends FlowInstructionBase`, composed with a stock `MapValue` into a `FlowInstructionChain` and materialised with `toHandle`.
@@ -60,7 +60,7 @@
   - [`DEMO_GUIDE-Mitosis.md`](<https://github.com/simon-m-lee/cell/blob/master/DEMO_GUIDE-Mitosis.md>) — the Mitosis demo guide (Cell/Flow decision-side learning path) with GitHub cross-references.
 - **Docs**: Added umbrella `example/` layout and new guides to the root README.
 
-## Mitosis (1.0.0-rc.5)
+## Mitosis (1.0.0-rc.5) - Release Candidate
 
 - **Umbrella package**: Published the `mitosis` umbrella package, re-exporting the three public layers — `cell` (core), `cell_flow` (orchestration), and `cell_tissue` (application).
 - **Dependencies**: Pinned the umbrella to `cell`, `cell_flow`, and `cell_tissue` `1.0.0-rc.5`.
