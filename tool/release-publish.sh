@@ -35,9 +35,12 @@ for arg in "$@"; do
   [[ "$arg" == "--dry-run" ]] && dry_run=true
 done
 
-if [[ "$dry_run" != true ]] && [[ -n "$(git status --porcelain)" ]]; then
-  echo "error: working tree is not clean; commit or stash before publishing" >&2
-  exit 1
+if [[ "$dry_run" != true ]]; then
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "error: working tree has uncommitted tracked changes;" >&2
+    echo "       commit or stash before publishing" >&2
+    exit 1
+  fi
 fi
 
 cp "$ROOT_IGNORE" "$BACKUP"
