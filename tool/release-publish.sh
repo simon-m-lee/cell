@@ -13,8 +13,13 @@
 #   published.
 #
 # Usage:
-#   tool/release-publish.sh --dry-run   # validate all four packages
-#   tool/release-publish.sh             # publish all four (interactive)
+#   tool/release-publish.sh --dry-run
+#       validate all four packages
+#   tool/release-publish.sh
+#       publish all four (interactive)
+#   tool/release-publish.sh packages/cell_flow packages/cell_tissue
+#       publish only the listed members (then the umbrella) — useful to
+#       resume a partially completed release; the umbrella is always last
 # ------------------------------------------------------------------------------
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -31,8 +36,16 @@ restore() {
 trap restore EXIT
 
 dry_run=false
+members=()
+pub_args=()
 for arg in "$@"; do
-  [[ "$arg" == "--dry-run" ]] && dry_run=true
+  if [[ "$arg" == "--dry-run" ]]; then
+    dry_run=true
+  elif [[ "$arg" == packages/* ]]; then
+    members+=("$arg")
+  else
+    pub_args+=("$arg")
+  fi
 done
 
 if [[ "$dry_run" != true ]]; then
@@ -47,16 +60,21 @@ cp "$ROOT_IGNORE" "$BACKUP"
 sed -i 's|^/packages/\*\*|/packages/_none_/**|' "$ROOT_IGNORE"
 echo "neutralised the root /packages/** rule for member publishing"
 
-# Member list is overridable so a partially completed release can resume:
-#   MEMBERS="packages/cell_flow packages/cell_tissue" tool/release-publish.sh
-MEMBERS="${MEMBERS:-packages/cell packages/cell_flow packages/cell_tissue}"
+MEMBERS="${MEMBERS:-}"
+if [[ -n "$MEMBERS" ]]; then
+  read -r -a members <<<"$MEMBERS"
+fi
+if [[ ${#members[@]} -eq 0 ]]; then
+  members=(packages/cell packages/cell_flow packages/cell_tissue)
+fi
 
-for pkg in $MEMBERS; do
+for pkg in "${members[@]}"; do
   echo "── publishing $pkg ──"
   if [[ "$dry_run" == true ]]; then
-    (cd "$pkg" && dart pub publish --dry-run) || echo "(dry-run reported issues for $pkg)"
+    (cd "$pkg" && dart pub publish --dry-run "${pub_args[@]}") \
+      || echo "(dry-run reported issues for $pkg)"
   else
-    (cd "$pkg" && dart pub publish)
+    (cd "$pkg" && dart pub publish "${pub_args[@]}")
   fi
 done
 
@@ -64,7 +82,8 @@ restore
 trap - EXIT
 echo "── publishing mitosis (umbrella) ──"
 if [[ "$dry_run" == true ]]; then
-  dart pub publish --dry-run || echo "(dry-run reported issues for mitosis)"
+  dart pub publish --dry-run "${pub_args[@]}" \
+    || echo "(dry-run reported issues for mitosis)"
 else
-  dart pub publish
+  dart pub publish "${pub_args[@]}"
 fi
