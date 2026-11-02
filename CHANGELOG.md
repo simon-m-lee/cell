@@ -2,6 +2,10 @@
 
 ## Mitosis (1.0.0-rc.10)
 
+- **Mitose pipeline upgraded with an autonomous mode** ([`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) §15): the pipeline now has two run modes — the interactive step-by-step mode with one human decision at each gate, and the opt-in autonomous mode in which the user says “Mitose autonomous” once after a filled BRD exists and the agent runs the rest of the pipeline to the end without interruption or further input.
+  - Every later gate becomes a recorded automatic decision. Open questions, thresholds, and rule precedence are decided by the agent and tagged `[AI DECIDED — autonomous]`; residual acceptance is recorded as a delegation, never as the user’s own approval.
+  - The comprehension check is skipped. The agent ensures a Dart runtime, adds `package:cell`, `package:cell_flow`, and `package:cell_tissue`, implements the WalkThrough in full, and writes and tests a Demo that covers every testable BRD requirement ID before producing the remaining documents.
+  - Guardrails: autonomy starts only after the BRD exists, never applies to change mode, never overwrites an existing file, never marks a row Verified without an executed run, and stops and reports instead of asking when a required script or HowTo cannot be read. The final report lists every autonomous decision.
 - **Precision Software Engineering** — the coined term for the Mitose pipeline’s contract: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. Six components, no seventh. Documented in the README.
   - Residual ledger (`LEDGER-AI-Generator.md`) written from `<stem>-test.dart` `BRD` group `LEDGER` lines. Verified requires executed evidence; reading code is not Verified.
   - Comprehension checks and decision log (`COMPREHENSION-AI-Generator.md`) with gates C1–C3. Skipping is allowed and recorded.

@@ -12,7 +12,7 @@
 
 Mitosis is designed for systems where *why something happened* matters as much as *what happened*: financial and transaction-heavy software, security-sensitive services, audit-bound enterprise applications, real-time coordination, and increasingly, autonomous and multi-agent systems.
 
-> **New — the Mitose pipeline.** The [`guide/`](guide/HowTo-Mitose.md) directory ships an AI-executable orchestration script that practices **Precision Software Engineering**: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. See [Precision Software Engineering](#-precision-software-engineering) and [The Mitose Pipeline](#-the-mitose-pipeline).
+> **New — the Mitose pipeline.** The [`guide/`](guide/HowTo-Mitose.md) directory ships an AI-executable orchestration script that practices **Precision Software Engineering**: a stated design requirement is carried into running behavior, recorded, explicit, bounded, checkable, traceable, and verifiable. It runs **step-by-step** with one human decision at each gate, or in **autonomous mode** (“Mitose autonomous”) where the user opts in once after the BRD exists and the agent runs the rest of the pipeline unattended with every decision tagged and reported. See [Precision Software Engineering](#-precision-software-engineering) and [The Mitose Pipeline](#-the-mitose-pipeline).
 
 ---
 
@@ -117,9 +117,9 @@ Vibe coding optimises for a fast first running version. Mitose 2 optimises for a
 
 **From a business requirement to a Mitosis solution, with an AI prompt agent as the operator.**
 
-The umbrella repository ships the **Mitose pipeline 2.0** in [`guide/`](guide/HowTo-Mitose.md): a set of AI-executable scripts. A user provides a business requirement, and an AI prompt agent follows [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) to build a solution on the three pillars — **Cell** (core), **Flow** (orchestration), and **Tissue** (application) — and to write the project documents that go with it, including a residual ledger of executed evidence.
+The umbrella repository ships the **Mitose pipeline 2.0** in [`guide/`](guide/HowTo-Mitose.md): a set of AI-executable scripts with two run modes — the interactive **step-by-step** mode, and the opt-in **autonomous** mode in which the agent runs the pipeline to the end without interruption. A user provides a business requirement, and an AI prompt agent follows [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) to build a solution on the three pillars — **Cell** (core), **Flow** (orchestration), and **Tissue** (application) — and to write the project documents that go with it, including a residual ledger of executed evidence.
 
-### How it runs
+### How it runs (step-by-step)
 
 The agent follows the pipeline in order, with one human decision at each gate:
 
@@ -129,6 +129,14 @@ The agent follows the pipeline in order, with one human decision at each gate:
 4. **Assessment** — the agent revisits the WalkThrough against the Dart file and fills Demo Assessment (§5.12) and Recommendations. It then offers three choices for any recommendation: as a Change (CHANGE path), in place, or skip.
 5. **Residual ledger** — on request, the agent writes `<stem>-LEDGER.md` from the `LEDGER` lines printed by the test file’s BRD group. Verified requires an executed run. Blocked rows carry a mitigation plan.
 6. **ARCHITECTURE & FEATURES** — offered last and generated only on request, from the running Demo and the filled WalkThrough. They must not treat a Blocked or Unverified row as handled.
+
+### Autonomous mode
+
+After a filled BRD exists, the user can opt in **once** at gate A1 — say **“Mitose autonomous”** — and the agent runs the rest of the pipeline to the end without interruption or further input:
+
+- Every later gate becomes a **recorded automatic decision**. Open questions, thresholds, and rule precedence are decided by the agent and tagged `[AI DECIDED — autonomous]`; residual acceptance is recorded as a delegation, never as the user’s own approval.
+- The comprehension check is **skipped**. The agent ensures a Dart runtime, adds `package:cell`, `package:cell_flow`, and `package:cell_tissue`, implements the WalkThrough in full, and writes and tests a Demo that covers every testable BRD requirement ID.
+- Guardrails stay in force: autonomy starts **only after the BRD exists**, never applies to change mode, never overwrites an existing file, never marks a row Verified without an executed run, and stops and reports instead of asking when a required script or HowTo cannot be read. The final report lists every autonomous decision.
 
 ### What the pipeline produces
 
@@ -150,7 +158,7 @@ Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in i
 
 | Script | Role |
 |---|---|
-| [`HowTo-Mitose.md`](guide/HowTo-Mitose.md) | Orchestration 2.0 — runs the whole pipeline. |
+| [`HowTo-Mitose.md`](guide/HowTo-Mitose.md) | Orchestration 2.0 — runs the whole pipeline, step-by-step or autonomous (§15). |
 | [`HowTo-Mitose-Cell.md`](guide/HowTo-Mitose-Cell.md) | Where a requirement lands in the **Cell** layer. |
 | [`HowTo-Mitose-Flow.md`](guide/HowTo-Mitose-Flow.md) | Where a requirement lands in the **Flow** layer. |
 | [`HowTo-Mitose-Tissue.md`](guide/HowTo-Mitose-Tissue.md) | Where a requirement lands in the **Tissue** layer. |
@@ -163,7 +171,7 @@ Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in i
 | [`ARCHITECTURE-AI-Generator.md`](guide/ARCHITECTURE-AI-Generator.md) | Generates `<stem>-ARCHITECTURE.md`. |
 | [`FEATURES-AI-Generator.md`](guide/FEATURES-AI-Generator.md) | Generates `<stem>-FEATURES.md`. |
 
-Start the pipeline by opening [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat. For an existing solution say “Mitose change”.
+Start the pipeline by opening [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat. For an existing solution say “Mitose change”. Once a filled `<stem>-BRD.md` exists, say **“Mitose autonomous”** to opt in once and run the rest of the pipeline unattended.
 
 ### Start in one paste
 
@@ -179,7 +187,7 @@ In an agentic IDE (Copilot, Codex, Cursor, …), just open the repository and sa
 
 ### Try a sample BRD
 
-[`example/BRD/`](example/BRD) ships ready-made BRDs from different industries. Read them to get familiar with the BRD format, or hand one to the agent to run the whole pipeline right away.
+[`example/BRD/`](example/BRD) ships ready-made BRDs from different industries. Read them to get familiar with the BRD format, or hand one to the agent to run the whole pipeline right away. Add “Mitose autonomous” to run the rest unattended once the sample BRD is in place.
 
 ```text
 Read guide/HowTo-Mitose.md and run the Mitose pipeline.
