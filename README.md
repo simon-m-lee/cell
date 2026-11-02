@@ -159,6 +159,7 @@ Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in i
 | Script | Role |
 |---|---|
 | [`HowTo-Mitose.md`](guide/HowTo-Mitose.md) | Orchestration 2.0 — runs the whole pipeline, step-by-step or autonomous (§15). |
+| [`Document_AI_MasterGenerator.md`](guide/Document_AI_MasterGenerator.md) | Master entry point for document generation — consulted before any individual generator; routes to the correct generator via its document map and records the run-log entry. |
 | [`HowTo-Mitose-Cell.md`](guide/HowTo-Mitose-Cell.md) | Where a requirement lands in the **Cell** layer. |
 | [`HowTo-Mitose-Flow.md`](guide/HowTo-Mitose-Flow.md) | Where a requirement lands in the **Flow** layer. |
 | [`HowTo-Mitose-Tissue.md`](guide/HowTo-Mitose-Tissue.md) | Where a requirement lands in the **Tissue** layer. |
@@ -170,6 +171,8 @@ Every generated file carries `Version: MAJOR.MINOR.PATCH` and `Supersedes:` in i
 | [`CHANGE-AI-Generator.md`](guide/CHANGE-AI-Generator.md) | Change mode; writes `<stem>-CHANGE-<nnn>.md`. |
 | [`ARCHITECTURE-AI-Generator.md`](guide/ARCHITECTURE-AI-Generator.md) | Generates `<stem>-ARCHITECTURE.md`. |
 | [`FEATURES-AI-Generator.md`](guide/FEATURES-AI-Generator.md) | Generates `<stem>-FEATURES.md`. |
+
+Every document-generation step starts at the **master generator** first: the agent consults [`Document_AI_MasterGenerator.md`](guide/Document_AI_MasterGenerator.md), follows its document map to the correct individual generator, and records in the run log that the master script was consulted. This applies in both step-by-step and autonomous mode — a document produced without going through the master script is invalid.
 
 Start the pipeline by opening [`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) with an AI prompt agent, or by saying “Mitose” / “run Mitose” in chat. For an existing solution say “Mitose change”. Once a filled `<stem>-BRD.md` exists, say **“Mitose autonomous”** to opt in once and run the rest of the pipeline unattended.
 
@@ -202,6 +205,8 @@ Use example/BRD/airport_baggage_handling-BRD.md as the BRD.
 cell/                          # Umbrella monorepo: "Mitosis"
 ├── guide/                     # Mitose pipeline — AI-executable orchestration scripts
 │   ├── HowTo-Mitose.md        #   Pipeline orchestration: BRD → WalkThrough → Demo → ARCHITECTURE/FEATURES
+│   ├── Document_AI_MasterGenerator.md
+│   │                          #   Master entry point for all document generation
 │   ├── HowTo-Mitose-Cell.md   #   Cell layer placement rules
 │   ├── HowTo-Mitose-Flow.md   #   Flow layer placement rules
 │   ├── HowTo-Mitose-Tissue.md #   Tissue layer placement rules
