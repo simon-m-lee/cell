@@ -21,6 +21,7 @@
 
 ### Docs
 
+- **Dual-audience `guide/HowTo-*.md` guides**: `HowTo-Context.md`, `HowTo-Instruction.md`, `HowTo-Pulse.md`, and `HowTo-PulseContext.md` now serve both human developers and AI coding agents. Each guide keeps its human narrative as Part I and adds a procedural **Part II — AI Coding Agent Decision Tree** with agent-only rules and a verification checklist, so an agent can consume Part II directly without reading Part I first.
 - Regenerated `TEST_VERIFICATION.md`: 1125 tests in 20 files, all passing; overall `lib/` line coverage **93.5%** (3586 / 3836); `lib/src/receptor.dart` now at **100%** (62 / 62).
 
 ---
