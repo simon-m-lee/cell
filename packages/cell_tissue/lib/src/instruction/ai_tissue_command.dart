@@ -6,7 +6,9 @@
 
 import 'dart:async';
 
-import '../../cell_flow.dart';
+import 'package:cell_flow/cell_flow.dart';
+
+import '../../cell_tissue.dart';
 
 // ─────────────────────────────────────────────────────────────
 // AiTissueCommand family — AI-Bridged Interpretation

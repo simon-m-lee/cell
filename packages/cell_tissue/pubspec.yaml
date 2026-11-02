@@ -26,11 +26,11 @@ environment:
 
 dependencies:
   cell: ^1.0.0-rc.7
+  cell_flow: ^1.0.0-rc.7
 
 dev_dependencies:
   lints: ^6.0.0
   test: ^1.25.0
-  cell_flow: ^1.0.0-rc.6
 
 platforms:
   android:

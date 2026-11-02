@@ -6,13 +6,8 @@
 
 import 'dart:async';
 
-import 'package:cell/cell.dart';
-import 'package:cell_flow/cell_flow.dart';
 import 'package:cell_tissue/cell_tissue.dart';
 import 'package:test/test.dart';
-
-import 'package:cell_flow/src/instruction/ai_tissue_command.dart';
-import 'package:cell_flow/src/instruction/ai_tissue_command_domain.dart';
 
 // ─────────────────────────────────────────────────────────────
 // TEST SUITE — AiTissueCommand family

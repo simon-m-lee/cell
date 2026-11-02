@@ -8,7 +8,11 @@ release codename; it is not part of the SemVer string.
 
 ## [Mitosis (1.0.0-rc.7)] - Release Candidate
 
-Docs release for the umbrella **Mitose pipeline**. No public API changes.
+Docs release for the umbrella **Mitose pipeline**.
+
+### Changed
+
+- **AI command instructions relocated to `cell_tissue`**: The `AiTissueCommand` family and the interpreter domain moved from `src/instruction/ai_tissue_command*.dart` to `cell_tissue`, which now owns and exports them. Import `package:cell_tissue/cell_tissue.dart` instead. The integration test remains in this package's `test/` directory to verify cross-package behaviour.
 
 ### Docs
 

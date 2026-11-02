@@ -34,19 +34,14 @@ class HttpInterpreter implements Interpreter {
 
   /// Not available on web/WASM. Always throws [UnsupportedError].
   HttpInterpreter({
-    required Uri endpoint,
-    required String apiKey,
-    required String model,
+    required this.endpoint,
+    required this.apiKey,
+    required this.model,
     Object? client,
-    Duration timeout = const Duration(seconds: 30),
+    this.timeout = const Duration(seconds: 30),
     TrafficLog? log,
-    Map<String, dynamic> extraBody = const {},
-  })  : endpoint = endpoint,
-        apiKey = apiKey,
-        model = model,
-        timeout = timeout,
-        log = log ?? TrafficLog(),
-        extraBody = extraBody {
+    this.extraBody = const {},
+  })  : log = log ?? TrafficLog() {
     throw UnsupportedError(
       'HttpInterpreter requires dart:io and is not available on this platform.',
     );

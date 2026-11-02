@@ -97,7 +97,7 @@ No `lib/` file is below 70% in this lcov.
 
 | # | File | Lines | Tests | Size | Focus |
 |---|------|------:|------:|------:|-------|
-| 1 | ai_tissue_command_test.dart | 1,200 | 59 | 40.2 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
+| 1 | ai_tissue_command_test.dart | 1,195 | 59 | 40.0 KB | ai tissue command test; groups: TissueVerb / verbByName, TissueCommand, Reject, systemPrompt, AiConfig, StubInterpreter… |
 | 2 | async_expand_test.dart | 365 | 24 | 11.7 KB | async expand test; groups: AsyncExpand, AsyncExpandConcurrent, AsyncExpandLatest, AsyncExpandExhaust, edges, performance… |
 | 3 | async_fold_test.dart | 360 | 20 | 11.3 KB | async fold test; groups: AsyncFold snapshot, AsyncFoldLatest snapshot, AsyncFoldExhaust snapshot, edges, performance, AsyncFold extra… |
 | 4 | async_map_test.dart | 487 | 30 | 15.1 KB | async map test; groups: AsyncMap, AsyncMapSequential, AsyncMapConcurrent, AsyncMapLatest, AsyncMapWithIndex, AsyncMapWithRetry… |
@@ -140,7 +140,7 @@ No `lib/` file is below 70% in this lcov.
 | 41 | timeout_test.dart | 323 | 19 | 10.6 KB | timeout test; groups: Timeout, TimeoutWithError, TimeoutWithFallback, TimeoutFirst, TimeoutLast, Timeout extra… |
 | 42 | window_test.dart | 295 | 17 | 8.7 KB | window test; groups: WindowCount, WindowSize, WindowTime, WindowWhen, WindowCount extra, WindowTime extra… |
 | 43 | zip_test.dart | 249 | 14 | 7.1 KB | zip test; groups: ZipWith, Zip, ZipAll, edges, performance, ZipWith extra… |
-| **Total** | | **16,554** | **1081** | **517.3 KB** | |
+| **Total** | | **16,549** | **1081** | **517.1 KB** | |
 
 ---
 
@@ -2136,26 +2136,26 @@ Status: **green**.
 <details><summary>tail of test log</summary>
 
 ```
-0:19 +1068: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
-00:19 +1069: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
-00:19 +1070: test/window_test.dart: WindowTime extra wrong types call onError                                                                                                                          
-00:19 +1070: test/timeout_test.dart: TimeoutWithFallback extra wrong types call onError                                                                                                                
-00:19 +1071: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:19 +1072: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:19 +1073: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
-00:19 +1073: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:19 +1074: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:19 +1075: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:19 +1076: test/window_test.dart: WindowWhen extra closer with empty buffer is silent unless emitEmpty                                                                                               
-00:19 +1076: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
-00:19 +1077: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
-00:19 +1078: test/timeout_test.dart: composition Timeout + TimeoutLast is a chain                                                                                                                      
-00:19 +1078: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:19 +1079: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:19 +1080: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:19 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:20 +1081: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
-00:20 +1081: All tests passed!
+0:17 +1070: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:17 +1071: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:17 +1072: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:17 +1073: test/window_test.dart: composition / performance WindowCount(1) emits 200 windows                                                                                                         
+00:17 +1074: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
+00:17 +1075: test/zip_test.dart: performance ZipAll packs 200 items                                                                                                                                    
+00:17 +1075: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
+00:17 +1076: test/zip_test.dart: ZipWith extra empty others zips the source alone                                                                                                                      
+00:17 +1076: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
+00:17 +1077: test/zip_test.dart: ZipWith extra project throw calls onError                                                                                                                             
+00:17 +1077: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
+00:17 +1078: test/zip_test.dart: Zip extra empty sources never emit                                                                                                                                    
+00:17 +1078: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:17 +1079: test/zip_test.dart: ZipAll extra wrong types call onError                                                                                                                                 
+00:17 +1079: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:17 +1080: test/zip_test.dart: ZipAll extra width 1 emits each value as a singleton row                                                                                                              
+00:17 +1080: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:17 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:18 +1081: test/zip_test.dart: composition ZipAll handle is bindable                                                                                                                                 
+00:18 +1081: All tests passed!
 ```
 
 </details>
@@ -2225,7 +2225,7 @@ Status: **green**.
 
 ```
 test/
-├── ai_tissue_command_test.dart  (59 tests, 40.2 KB, 1,200 lines)
+├── ai_tissue_command_test.dart  (59 tests, 40.0 KB, 1,195 lines)
 ├── async_expand_test.dart  (24 tests, 11.7 KB, 365 lines)
 ├── async_fold_test.dart  (20 tests, 11.3 KB, 360 lines)
 ├── async_map_test.dart  (30 tests, 15.1 KB, 487 lines)
@@ -2270,6 +2270,6 @@ test/
 ├── zip_test.dart  (14 tests, 7.1 KB, 249 lines)
 ```
 
-**Total lines of test code:** 16,554
+**Total lines of test code:** 16,549
 
 *Generated 2026-11-02 by generate_test_verification.py*

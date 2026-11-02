@@ -132,6 +132,10 @@ import 'package:cell/cell.dart';
 /// foundational types like [Cell], [Pulse], and [Synapses].
 export 'package:cell/cell.dart';
 
+// ── AI-bridged interpretation instructions ────────────────────
+export 'src/instruction/ai_tissue_command.dart' hide main;
+export 'src/instruction/ai_tissue_command_domain.dart' hide main;
+
 // -----------------------------------------------------------------------------
 // Core Interface Parts
 // -----------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 ### Added
 
+- **AI command instruction family relocated from `cell_flow`**: `AiTissueCommand`, `AiTissueCommandBatch`, `AiTissueCommandWithRetry`, and the interpreter domain (`Interpreter`, `HttpInterpreter`, `StubInterpreter`, `TrafficLog`, `AiConfig`) now ship in `cell_tissue` under `src/instruction/ai_tissue_command*.dart` and are exported from `cell_tissue.dart`. `cell_flow` becomes a regular dependency of this package.
 - **`TissueMap.put`**: New explicit upsert operation. `put(key, value)` replaces the value of an existing key (emitting `TissueEvent.entryUpdated` with an `EntryUpdatedRecord<K, V>` payload) or inserts a new entry (emitting `TissueEvent.elementAdded`). It is the named counterpart of the `[]=` operator and is whitelisted in `modifiable`, the `apply` gateway, and `ModifiableMapAsync`.
 
 ### Changed
