@@ -321,4 +321,4 @@ Fail any row → do not claim FEATURES is done.
 
 ---
 
-*End of FEATURES-AI-Generator.md.*
+*End of FEATURES-AI-Generator.md v1.0.*

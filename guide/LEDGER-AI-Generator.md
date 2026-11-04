@@ -345,4 +345,4 @@ Fail any row → do not claim the ledger is done.
 
 ---
 
-*End of LEDGER-AI-Generator.md.*
+*End of LEDGER-AI-Generator.md v1.0.*

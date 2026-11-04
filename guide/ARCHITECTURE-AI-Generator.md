@@ -289,4 +289,4 @@ Fail any row → do not claim ARCHITECTURE is done.
 
 ---
 
-*End of ARCHITECTURE-AI-Generator.md.*
+*End of ARCHITECTURE-AI-Generator.md v1.0.*

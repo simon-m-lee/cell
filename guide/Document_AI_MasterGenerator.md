@@ -1,12 +1,16 @@
 # Document_AI_MasterGenerator.md
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Role:** Master entry point for all Mitose document generation.  
 **Consulted by:** `HowTo-Mitose.md` before any individual generator is invoked.
 
 ## What a reader must understand
 
 This script is the single place an agent consults when it needs to generate any Mitose document. It does not replace the individual generators. It routes the agent to the correct generator and records that the generator was followed. A document produced without going through this master script and then its corresponding generator is invalid.
+
+## Precedence
+
+If this file and an individual generator ever disagree about a required section, block, or rule, **the individual generator wins**. The rule sections below restate the shared invariants of `HowTo-Mitose.md` Rules 25–26 for convenience and for the pipeline checklist; they do not replace the generator they point to.
 
 ## Document → Generator map
 
@@ -19,6 +23,21 @@ This script is the single place an agent consults when it needs to generate any 
 | `<stem>-ARCHITECTURE.md` | `ARCHITECTURE-AI-Generator.md` | After Demo exists and WalkThrough §5.12 is filled |
 | `<stem>-FEATURES.md` | `FEATURES-AI-Generator.md` | After Demo exists and WalkThrough §5.12 is filled |
 | `<stem>-CHANGE-<nnn>.md` | `CHANGE-AI-Generator.md` | Change mode only |
+
+## Generator manifest (version pinning)
+
+| Generator | Version | Last changed |
+|---|---|---|
+| `HowTo-Mitose.md` (orchestrator) | 2.2 | Mitosis 1.0.0-rc.11 |
+| `Document_AI_MasterGenerator.md` (this file) | 1.1 | Mitosis 1.0.0-rc.14 |
+| `WalkThrough-AI-Generator.md` | 1.1 | Mitosis 1.0.0-rc.14 |
+| `LEDGER-AI-Generator.md` | 1.0 | Mitosis 1.0.0-rc.9 |
+| `ARCHITECTURE-AI-Generator.md` | 1.0 | Mitosis 1.0.0-rc.9 |
+| `FEATURES-AI-Generator.md` | 1.0 | Mitosis 1.0.0-rc.9 |
+| `COMPREHENSION-AI-Generator.md` | 1.0 | Mitosis 1.0.0-rc.9 |
+| `CHANGE-AI-Generator.md` | 1.0 | Mitosis 1.0.0-rc.9 |
+
+Each generator carries its version in its end-of-file marker. If the version in this table does not match the marker in the generator file, the pair is stale and the agent must stop and report (`HowTo-Mitose.md` §15.8).
 
 ## Procedure (both step-by-step and autonomous mode)
 
@@ -37,4 +56,73 @@ Autonomous mode does not relax this procedure. The agent still consults this mas
 
 > I am consulting Document_AI_MasterGenerator.md. I will generate the requested document by following its corresponding generator script exactly.
 
-*End of Document_AI_MasterGenerator.md v1.0.*
+## Density rule (WalkThrough)
+
+When generating `<stem>-WalkThrough.md`, the agent must produce the fullest and densest form even in autonomous mode. A summary, a condensed table, or a 5.5 Pulse path that omits any named ingress or any latch transition is invalid. See HowTo-Mitose.md Rule 25.
+
+## Small-instructions-and-chain rule (Demo)
+
+When generating `<stem>-Demo.dart`, the agent must break the policy into small instructions (one job each) and join them with `+` until the policy is complete. A single instruction that performs every check is invalid. See HowTo-Mitose.md Rule 26.
+
+## Practice rules (WalkThrough and Demo) — consolidated
+
+When generating `<stem>-WalkThrough.md` and `<stem>-Demo.dart`, the agent must follow HowTo-Mitose.md Rules 25 and 26, including all of the following:
+
+### Structure
+- One ingress per BRD feed. A field on a shared tick is not an ingress.
+- Every BRD feed that is not driven in v1 appears in §5.1 as deferred.
+- A Tissue book for every data requirement.
+- Small instructions joined with `+`. Each does one job.
+- Every book is a Tissue collection from `package:cell_tissue`.
+- Every atomic rule has its own `txApply` path.
+- The observe effect contains the `txApply`.
+- If two chains share an instruction, state that there are two observers, one per handle.
+- When an instruction is shared, "all guards passed" means the guards in that chain.
+- If two ingresses feed one chain, state the sequencing (or that the snapshot is refreshed on each tick).
+- If the same criterion is checked at both ingress and chain, state which is authoritative.
+
+### Commit
+- `txApply` shown with participants.
+- Staged `apply(..., tx: tx, compensate: ...)` on every participant. Direct writes inside the body are invalid.
+- No early return inside a `txApply` body on a precondition failure. Either the guard is authoritative, or the body throws.
+
+### Scenarios and evidence
+- Every atomic rule has a failure scenario that proves the whole commit is undone.
+- Every atomic rule has a scenario where a write fails and is undone.
+- Every atomic rule has a scenario where `txApply` fails partway and the compensate functions restore the previous state. A guard rejecting the input is not the same as a write failing and being undone.
+- §5.12 is filled only from an executed run. A row cannot be marked Verified without a recorded `LEDGER` line.
+
+### Findings and parameters
+- Every Q-* and F-* carried into §5.11.
+- A parameter-dependent check is Blocking until the parameter is set.
+- A parameter-dependent guard appears in the chain and is marked Blocking until the parameter is set. Deferring it to Wave A while the question is Blocking is invalid.
+- A governance gap is carried open, not deferred to Wave A.
+- F-numbers must match readiness findings from gate B1, or be tagged as Wave A feed shapes.
+
+### Guards
+- Every guard that decides on a book receives that book at construction.
+- Every atomic rule has a precondition guard.
+
+### Encoding
+- Documents must be valid UTF-8. Mojibake is a reproducibility defect and is invalid.
+
+## Receives and state rules (WalkThrough and Demo)
+
+When generating `<stem>-WalkThrough.md` and `<stem>-Demo.dart`, the agent must also follow:
+
+- A guard that decides on a value receives that value (or a snapshot) at construction.
+- An instruction that decides on chain state receives the accumulated guard result.
+- A shared instruction states whether it is stateless.
+- A guard that reads a book states the missing-value case.
+
+## Observe and test rules (WalkThrough and Demo)
+
+When generating `<stem>-WalkThrough.md` and `<stem>-Demo.dart`, the agent must also follow:
+
+- The observe effect must contain the `txApply` that writes books. An empty body is invalid.
+- The test must drive the reactive path (`emit` into the ingress).
+- The `constraint` / `provenance` / `boundary` groups must contain real checks that can fail.
+
+---
+
+*End of Document_AI_MasterGenerator.md v1.1.*

@@ -456,4 +456,4 @@ Fail any row → do not claim the change is done.
 
 ---
 
-*End of CHANGE-AI-Generator.md.*
+*End of CHANGE-AI-Generator.md v1.0.*

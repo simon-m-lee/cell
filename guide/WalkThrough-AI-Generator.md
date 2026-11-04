@@ -504,4 +504,15 @@ Do not run those generators in the same silent pass unless the user asked for th
 
 ---
 
-*End of WalkThrough-AI-Generator.md.*
+## Receives and state rules
+
+When generating a WalkThrough, the agent must also follow:
+
+- A guard that decides on a value receives that value (or a snapshot) at construction.
+- An instruction that decides on chain state receives the accumulated guard result.
+- A shared instruction states whether it is stateless.
+- A guard that reads a book states the missing-value case.
+
+---
+
+*End of WalkThrough-AI-Generator.md v1.1.*

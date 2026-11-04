@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-1.0.0--rc.13-yellow.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-1.0.0--rc.14-yellow.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -322,7 +322,7 @@ The umbrella package re-exports all three layers in one import:
 
 ```yaml
 dependencies:
-  mitosis: ^1.0.0-rc.13
+  mitosis: ^1.0.0-rc.14
 ```
 
 ```dart
@@ -445,7 +445,7 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `mitosis` | `1.0.0-rc.13` | Release Candidate — on pub.dev |
+| `mitosis` | `1.0.0-rc.14` | Release Candidate — on pub.dev |
 | `cell` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
 | `cell_flow` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
 | `cell_tissue` | `1.0.0-rc.9` | Release Candidate — on pub.dev |

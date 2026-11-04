@@ -250,9 +250,9 @@ A WalkThrough that omits detailed tables, chain shape, scenarios, or a fully fil
 
 26. **The Demo must implement the WalkThrough in full.**  
 In both step-by-step and autonomous mode, `<stem>-Demo.dart` must contain:
-- Domain types matching the WalkThrough (tick, decision, order, payment, outcome).
+- Domain types matching the WalkThrough — use the BRD's own shapes (for example, a payment desk's tick, decision, order, payment, outcome), never a fixed list.
 - A custom `FlowInstructionBase` subclass with an importable `riskOf` (or equivalent pure decision method).
-- Chain assembly: two products (`proceed` / `reject`), `MapValue`, and `toHandle` once each.
+- Chain assembly: the products named by the WalkThrough (for a two-product desk, `proceed` / `reject`), `MapValue`, and `toHandle` once each.
 - `Cell.observe` as the only glue that writes Tissue books.
 - `Cell.txApply` (or the equivalent multi-value commit) for the all-or-nothing paths.
 - `installGates()` that wires everything and does no work at import time.
@@ -894,4 +894,4 @@ Autonomous mode trades review for speed. The documents exist, but no person has 
 
 ---
 
-*End of HowTo-Mitose.md.*
+*End of HowTo-Mitose.md v2.2.*

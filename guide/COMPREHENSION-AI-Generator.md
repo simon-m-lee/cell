@@ -347,4 +347,4 @@ Fail any row → do not claim the pass is done.
 
 ---
 
-*End of COMPREHENSION-AI-Generator.md.*
+*End of COMPREHENSION-AI-Generator.md v1.0.*
