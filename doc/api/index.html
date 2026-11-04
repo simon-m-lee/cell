@@ -49,7 +49,7 @@
 </blockquote>
 <p><a href="https://github.com/simon-m-lee/cell/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg" alt="License"></a>
 <a href="https://dart.dev"><img src="https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg" alt="Dart SDK"></a>
-<a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-1.0.0--rc.12-yellow.svg" alt="Status"></a>
+<a href="#-project-status--cadence"><img src="https://img.shields.io/badge/status-1.0.0--rc.13-yellow.svg" alt="Status"></a>
 <a href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg" alt="Melos"></a>
 <a href="#-contributing"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a></p>
 <p><strong>Mitosis</strong> is a reactive application framework for Dart that treats state, events, and their <strong>causal history</strong> as one coherent, observable graph. It is an umbrella monorepo built from three layers — <strong>Cell</strong>, <strong>Flow</strong>, and <strong>Tissue</strong> — that scale from a single reactive value to a fully governed application body without ever dropping the forensic trail.</p>
@@ -107,7 +107,7 @@
 <tr>
 <td><strong>Core</strong></td>
 <td><a href="https://github.com/simon-m-lee/cell/tree/master/packages/cell"><strong>cell</strong></a></td>
-<td><code>1.0.0-rc.8</code></td>
+<td><code>1.0.0-rc.9</code></td>
 <td>The <strong>cell</strong></td>
 <td>Reactive primitives (<code>Cell</code>, <code>Pulse</code>, <code>Receptor</code>, <code>Nucleus</code>, <code>Synapses</code>), validation gates (<code>TestCell</code>), authority context (<code>Context</code>), deputies, transactions, and the causal integrity engine.</td>
 </tr>
@@ -457,13 +457,13 @@ Use example/BRD/airport_baggage_handling-BRD.md as the BRD.
 <h3 id="using-from-pubdev">Using from pub.dev</h3>
 <p>The umbrella package re-exports all three layers in one import:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  mitosis: ^1.0.0-rc.12
+  mitosis: ^1.0.0-rc.13
 </code></pre>
 <pre class="language-dart"><code class="language-dart">import 'package:mitosis/mitosis.dart';
 </code></pre>
 <p>Prefer the individual layers when you want fine-grained dependencies:</p>
 <pre class="language-yaml"><code class="language-yaml">dependencies:
-  cell: ^1.0.0-rc.8
+  cell: ^1.0.0-rc.9
   cell_flow: ^1.0.0-rc.9
   cell_tissue: ^1.0.0-rc.9
 </code></pre>
@@ -639,12 +639,12 @@ dart run example/stability_search_demo.dart
 <tbody>
 <tr>
 <td><code>mitosis</code></td>
-<td><code>1.0.0-rc.12</code></td>
+<td><code>1.0.0-rc.13</code></td>
 <td>Release Candidate — on pub.dev</td>
 </tr>
 <tr>
 <td><code>cell</code></td>
-<td><code>1.0.0-rc.8</code></td>
+<td><code>1.0.0-rc.9</code></td>
 <td>Release Candidate — on pub.dev</td>
 </tr>
 <tr>
@@ -763,7 +763,7 @@ dart run example/stability_search_demo.dart
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.12
+      1.0.0-rc.13
   </span>
   
 </footer>

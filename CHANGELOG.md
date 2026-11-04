@@ -1,5 +1,10 @@
 # Changelog
 
+## Mitosis (1.0.0-rc.13) - Release Candidate
+
+- **Docs sync**: The umbrella README and changelog now reflect the video-free `cell` `1.0.0-rc.9` release, and the umbrella's `cell` dependency is aligned to `^1.0.0-rc.9`.
+- **Package releases**: Ships with `cell` `1.0.0-rc.9`, `cell_flow` `1.0.0-rc.9`, and `cell_tissue` `1.0.0-rc.9`.
+
 ## Mitosis (1.0.0-rc.12) - Release Candidate
 
 - **New worked Mitose sample** — [`example/cafe-coffee-*`](https://github.com/simon-m-lee/cell/tree/master/example): a complete cafe-coffee pipeline run with its BRD, WalkThrough, Demo, `<stem>-test.dart`, ARCHITECTURE, FEATURES, LEDGER, and COMPREHENSION documents, following the full Mitose 2.0 path.
