@@ -1,4 +1,15 @@
 
+## Cell (1.0.0-rc.9) - Release Candidate
+
+Docs release. No public API changes.
+
+### Docs
+
+- **Guides**: The framework intro video (`guide/cell-framework-intro.mp4`) is no longer part of the package guides or the published archive.
+- **API reference**: Regenerated `doc/api` after a fresh `dart doc .` run.
+
+---
+
 ## Cell (1.0.0-rc.8) - Release Candidate
 
 Docs release. No public API changes.

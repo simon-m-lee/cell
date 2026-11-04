@@ -4,7 +4,7 @@ Reactive state for Dart. A **cell** holds a value or relays a signal. A **pulse*
 
 [![Dart](https://img.shields.io/badge/Dart-3.5%2B-blue.svg)](https://dart.dev)
 [![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/packages/cell/LICENSE)
-[![Version](https://img.shields.io/badge/Mitosis-1.0.0--rc.8-blue.svg)](#status)
+[![Version](https://img.shields.io/badge/Mitosis-1.0.0--rc.9-blue.svg)](#status)
 [![Status](https://img.shields.io/badge/Status-RC-yellow.svg)](#status)
 
 Validation, deputies, provenance, and timing control are available when you need them. Defaults are pass-through and allow-all — you can ship a counter without learning `Nucleus`.
@@ -36,7 +36,7 @@ The package is on pub.dev. From this monorepo:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.8
+  cell: ^1.0.0-rc.9
 ```
 
 From git:
@@ -168,7 +168,7 @@ Flutter has no dedicated widgets here. Bind with `Cell.observe` (or an adapter) 
 
 ## Status
 
-**RC** (Mitosis `1.0.0-rc.8`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
+**RC** (Mitosis `1.0.0-rc.9`, Release Candidate). Public APIs for cells, pulses, operators, and transactions are exercised by a passing unit-test suite. Breaking changes remain possible before a versioned 1.0 stable.
 
 A fuller developer list is in [KNOWN_ISSUES.md](https://github.com/simon-m-lee/cell/blob/master/packages/cell/KNOWN_ISSUES.md). Known limits, so this page does not over-promise:
 

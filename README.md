@@ -61,7 +61,7 @@ Mitosis is organized into three specialized layers. Each layer is a separate pac
 
 | Layer | Package | Version | Biological Analogue | Responsibility |
 |---|---|---|---|---|
-| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `1.0.0-rc.8` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, and the causal integrity engine. |
+| **Core** | [**cell**](https://github.com/simon-m-lee/cell/tree/master/packages/cell) | `1.0.0-rc.9` | The **cell** | Reactive primitives (`Cell`, `Pulse`, `Receptor`, `Nucleus`, `Synapses`), validation gates (`TestCell`), authority context (`Context`), deputies, transactions, and the causal integrity engine. |
 | **Orchestration** | [**cell_flow**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_flow) | `1.0.0-rc.9` | The **nervous system** | 90+ Rx-shaped operators (`map`, `filter`, `debounce`, `throttle`, `switchMap`, `mergeMap`, `zip`, `retry`, `buffer`, …) as `FlowInstruction`s compiled into the *same* Cell graph — no translation layer. |
 | **Application** | [**cell_tissue**](https://github.com/simon-m-lee/cell/tree/master/packages/cell_tissue) | `1.0.0-rc.9` | The **body** | Governed reactive collections (`TissueList`, `TissueSet`, `TissueMap`, `TissueQueue`, `TissueValue`) with validation, read-only views, deputies, capacity/backpressure, and async mutations. |
 
@@ -333,7 +333,7 @@ Prefer the individual layers when you want fine-grained dependencies:
 
 ```yaml
 dependencies:
-  cell: ^1.0.0-rc.8
+  cell: ^1.0.0-rc.9
   cell_flow: ^1.0.0-rc.9
   cell_tissue: ^1.0.0-rc.9
 ```
@@ -446,7 +446,7 @@ dart run example/stability_search_demo.dart
 | Package | Version | Status |
 |---|---|---|
 | `mitosis` | `1.0.0-rc.12` | Release Candidate — on pub.dev |
-| `cell` | `1.0.0-rc.8` | Release Candidate — on pub.dev |
+| `cell` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
 | `cell_flow` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
 | `cell_tissue` | `1.0.0-rc.9` | Release Candidate — on pub.dev |
 
