@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Version numbers follow [SemVer](https://semver.org/). **Flow** is the
 release codename; it is not part of the SemVer string.
 
+## Flow (1.0.0-rc.9) - Release Candidate
+
+Docs and dependency-alignment release. No public API changes.
+
+### Changed
+
+- **Dependency alignment**: `cell` tightened to `^1.0.0-rc.8` and the `cell_tissue` dev-dependency raised to `^1.0.0-rc.9`.
+
+### Docs
+
+- **Changelog convention**: Aligned the CHANGELOG heading convention with the umbrella repository.
+- **API reference**: Regenerated `doc/api` after a fresh `dart doc .` run.
+
+
 ## Flow (1.0.0-rc.8) - Release Candidate
 
 ### Changed

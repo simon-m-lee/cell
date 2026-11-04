@@ -1,4 +1,15 @@
 
+## Cell (1.0.0-rc.8) - Release Candidate
+
+Docs release. No public API changes.
+
+### Docs
+
+- **Changelog convention**: Aligned the CHANGELOG heading convention with the umbrella repository.
+- **API reference**: Regenerated `doc/api` after a fresh `dart doc .` run.
+
+---
+
 ## Cell (1.0.0-rc.7) - Release Candidate
 
 ### Changed

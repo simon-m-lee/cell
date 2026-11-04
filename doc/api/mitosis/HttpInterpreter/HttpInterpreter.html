@@ -73,19 +73,14 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">HttpInterpreter({
-  required Uri endpoint,
-  required String apiKey,
-  required String model,
+  required this.endpoint,
+  required this.apiKey,
+  required this.model,
   Object? client,
-  Duration timeout = const Duration(seconds: 30),
+  this.timeout = const Duration(seconds: 30),
   TrafficLog? log,
-  Map&lt;String, dynamic&gt; extraBody = const {},
-})  : endpoint = endpoint,
-      apiKey = apiKey,
-      model = model,
-      timeout = timeout,
-      log = log ?? TrafficLog(),
-      extraBody = extraBody {
+  this.extraBody = const {},
+})  : log = log ?? TrafficLog() {
   throw UnsupportedError(
     &#39;HttpInterpreter requires dart:io and is not available on this platform.&#39;,
   );
@@ -117,7 +112,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

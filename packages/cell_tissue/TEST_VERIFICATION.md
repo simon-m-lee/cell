@@ -1,7 +1,7 @@
 # cell_tissue package - Test Verification Report
 
 **Generated:** 2026-11-02
-**Package:** cell_tissue (v1.0.0-rc.8)
+**Package:** cell_tissue (v1.0.0-rc.9)
 **Test Files Analyzed:** 10
 **Total Tests:** 329 (0 skipped)
 

@@ -1,3 +1,19 @@
+## Tissue (1.0.0-rc.9) - Release Candidate
+
+Docs and dependency-alignment release. No public API changes.
+
+### Changed
+
+- **Dependency alignment**: `cell` tightened to `^1.0.0-rc.8` and `cell_flow` raised to `^1.0.0-rc.9`.
+
+### Docs
+
+- **New guides**: Added `guide/HowTo-Tissue.md` and `guide/HowTo-Tissue-Advanced.md` covering the reactive collection surface and advanced tissue patterns.
+- **Nucleus KDoc overhaul**: Rewrote the `_TissueNucleus` documentation with the standard `### When to use` / `### How it works` / `### Non-obvious` pedagogical structure (internal, docs only).
+- **Changelog convention**: Aligned the CHANGELOG heading convention with the umbrella repository.
+- **API reference**: Regenerated `doc/api` after a fresh `dart doc .` run.
+
+
 ## Tissue (1.0.0-rc.8) - Release Candidate
 
 ### Added

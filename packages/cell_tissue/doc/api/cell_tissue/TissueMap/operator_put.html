@@ -65,9 +65,12 @@
     
 <section class="desc markdown">
   <p>Associates the <code>key</code> with the given <code>value</code>.</p>
-<p>If the key was already in the map, its associated value is changed.
-Otherwise the key‑value pair is added to the map.</p>
-<p>This operation is equivalent to calling <code>add(key, value)</code>.</p>
+<p>If the key is already present in the map, its associated value is
+<strong>replaced</strong> and a <a href="../../cell_tissue/Tissue/entryUpdated-constant.html">Tissue.entryUpdated</a> pulse is emitted with an
+<a href="../../cell_tissue/EntryUpdatedRecord.html">EntryUpdatedRecord</a> payload (<code>key</code>, <code>before</code>, <code>after</code>). Otherwise the
+key‑value pair is added and a <a href="../../cell_tissue/Tissue/elementAdded-constant.html">Tissue.elementAdded</a> pulse is emitted.</p>
+<p>This operation is equivalent to calling <a href="../../cell_tissue/TissueMap/put.html">put</a>. Unlike <a href="../../cell_tissue/TissueMap/add.html">add</a>, it never
+treats an existing key as a no‑op.</p>
 </section>
 
 
@@ -102,7 +105,7 @@ Otherwise the key‑value pair is added to the map.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

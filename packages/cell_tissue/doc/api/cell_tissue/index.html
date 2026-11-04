@@ -169,6 +169,44 @@ print(readOnly.length); // 4 – the view is live!
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="AiConfig">
+  <span class="name "><a href="../cell_tissue/AiConfig-class.html">AiConfig</a></span> 
+
+</dt>
+<dd>
+  A JSON-shaped configuration for an <a href="../cell_tissue/HttpInterpreter-class.html">HttpInterpreter</a>.
+</dd>
+
+          <dt id="AiTissueCommand">
+  <span class="name "><a href="../cell_tissue/AiTissueCommand-class.html">AiTissueCommand</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <code>FlowInstruction</code> that turns a natural-language sentence into
+a <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a> by asking an <a href="../cell_tissue/Interpreter-class.html">Interpreter</a> (a live AI chatbot
+over HTTP, or a deterministic offline stub) to choose a verb
+from a closed list.
+</dd>
+
+          <dt id="AiTissueCommandBatch">
+  <span class="name "><a href="../cell_tissue/AiTissueCommandBatch-class.html">AiTissueCommandBatch</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <code>FlowInstruction</code> that turns a <strong>batch</strong> of natural-language
+sentences into a batch of <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a>s in a single port call.
+</dd>
+
+          <dt id="AiTissueCommandWithRetry">
+  <span class="name "><a href="../cell_tissue/AiTissueCommandWithRetry-class.html">AiTissueCommandWithRetry</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A <code>FlowInstruction</code> that turns a natural-language sentence into
+a <a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a>, retrying the port call up to <code>count</code> extra
+times on failure.
+</dd>
+
           <dt id="ApplyRejected">
   <span class="name "><a href="../cell_tissue/ApplyRejected-class.html">ApplyRejected</a></span> 
 
@@ -469,6 +507,14 @@ behavioral guardrails within the framework's <a href="../cell_tissue/Mandate.htm
 governance within the framework's <strong>Scene-Driven Ontology</strong>.
 </dd>
 
+          <dt id="HttpInterpreter">
+  <span class="name "><a href="../cell_tissue/HttpInterpreter-class.html">HttpInterpreter</a></span> 
+
+</dt>
+<dd>
+  Web/WASM stub for the live HTTP interpreter.
+</dd>
+
           <dt id="Identity">
   <span class="name "><a href="../cell_tissue/Identity-class.html">Identity</a></span> 
 
@@ -508,6 +554,15 @@ variants.
 </dt>
 <dd>
   A composite <a href="../cell_tissue/Instruction-class.html">Instruction</a> that orchestrates a sequence of processing units.
+</dd>
+
+          <dt id="Interpreter">
+  <span class="name "><a href="../cell_tissue/Interpreter-class.html">Interpreter</a></span> 
+
+</dt>
+<dd>
+  The interpreter port — the seam between the NL sentence and the
+closed verb list.
 </dd>
 
           <dt id="Lock">
@@ -744,6 +799,14 @@ non‑blocking pulse processing and lifecycle synchronization.
 core synchronization and pulse propagation engine.
 </dd>
 
+          <dt id="Reject">
+  <span class="name "><a href="../cell_tissue/Reject-class.html">Reject</a></span> 
+
+</dt>
+<dd>
+  An interpreter refusal.
+</dd>
+
           <dt id="Shell">
   <span class="name "><a href="../cell_tissue/Shell-class.html">Shell</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
@@ -751,6 +814,15 @@ core synchronization and pulse propagation engine.
 <dd>
   A specialized <strong>Defensive Perimeter</strong> and <strong>Projection Layer</strong> representing
 a formal contract for <strong>Bidirectional Mutual Authorization</strong>.
+</dd>
+
+          <dt id="StubInterpreter">
+  <span class="name "><a href="../cell_tissue/StubInterpreter-class.html">StubInterpreter</a></span> 
+
+</dt>
+<dd>
+  A deterministic offline interpreter that simulates the HTTP
+traffic a live chatbot would produce.
 </dd>
 
           <dt id="Synapses">
@@ -914,6 +986,14 @@ reactive containers in <code>cell_tissue</code>.
   The foundational abstract base implementation of the <a href="../cell_tissue/Tissue-class.html">Tissue</a> interface,
 providing the core reactive engine and synchronisation domain for all
 high‑fidelity collections in the <code>cell</code> ecosystem.
+</dd>
+
+          <dt id="TissueCommand">
+  <span class="name "><a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a></span> 
+
+</dt>
+<dd>
+  A successfully interpreted command.
 </dd>
 
           <dt id="TissueContainer">
@@ -1196,6 +1276,14 @@ DNA, security protocols, and reactive strategies for a <a href="../cell_tissue/T
 <dd>
   The foundational blueprint that defines the behaviour, storage strategy,
 and governance of a reactive single‑value cell.
+</dd>
+
+          <dt id="TrafficLog">
+  <span class="name "><a href="../cell_tissue/TrafficLog-class.html">TrafficLog</a></span> 
+
+</dt>
+<dd>
+  Prints HTTP request/response traffic in a human-readable form.
 </dd>
 
           <dt id="TransactionBegun">
@@ -1721,6 +1809,14 @@ of a <a href="../cell_tissue/Pulse-class.html">Pulse</a>.
 assigned to a <a href="../cell_tissue/Deputy-mixin.html">Deputy</a>.
 </dd>
 
+          <dt id="TissueVerb">
+  <span class="name "><a href="../cell_tissue/TissueVerb.html">TissueVerb</a></span> 
+
+</dt>
+<dd>
+  Domain types shared by the AI-assisted tissue-command pipeline.
+</dd>
+
       </dl>
     </section>
 
@@ -1784,6 +1880,14 @@ use this directly.
 <dd>
   A mixin that provides a standard <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> interface implementation for
 reactive maps.
+</dd>
+
+          <dt id="TissueMixin">
+  <span class="name "><a href="../cell_tissue/TissueMixin-mixin.html">TissueMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../cell_tissue/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  
 </dd>
 
           <dt id="TissueQueueMixin">
@@ -1852,6 +1956,23 @@ particularly for accessing and modifying the single value it holds.
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="verbByName" class="constant">
+    <span class="name "><a href="../cell_tissue/verbByName-constant.html">verbByName</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../cell_tissue/TissueVerb.html">TissueVerb</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Lookup table from a verb string to the enum value.
+  
+
+</dd>
+
+      </dl>
+    </section>
 
 
     <section class="summary offset-anchor" id="functions">
@@ -1898,6 +2019,19 @@ selection function.
 
 </dd>
 
+          <dt id="systemPrompt" class="callable">
+  <span class="name"><a href="../cell_tissue/systemPrompt.html">systemPrompt</a></span><span class="signature">(<wbr><span class="parameter" id="systemPrompt-param-verbs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">verbs</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds the system prompt sent to the live AI chatbot.
+  
+
+</dd>
+
           <dt id="withCellLocks" class="callable">
   <span class="name"><a href="../cell_tissue/withCellLocks.html">withCellLocks</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="withCellLocks-param-cells"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../cell_tissue/Cell-class.html">Cell</a></span>&gt;</span></span> <span class="parameter-name">cells</span>, </span><span class="parameter" id="withCellLocks-param-body"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">body</span>(), {</span><span class="parameter" id="withCellLocks-param-order"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">order</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="../cell_tissue/Cell-class.html">Cell</a></span> <span class="parameter-name">b</span></span>)?</span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
@@ -1931,6 +2065,20 @@ in reverse order (LIFO unwind of nested <code>synchronized</code> sections).
     <section class="summary offset-anchor" id="typedefs">
       <h2>Typedefs</h2>
       <dl>
+          
+  <dt id="AiTissueCommandErrorHandler" class="callable">
+    <span class="name"><a href="../cell_tissue/AiTissueCommandErrorHandler.html">AiTissueCommandErrorHandler</a></span><span class="signature">
+      <span class="returntype parameter">= void Function<span class="signature">(<span class="parameter" id="param-error"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">error</span>, </span><span class="parameter" id="param-stackTrace"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/StackTrace-class.html">StackTrace</a>?</span> <span class="parameter-name">stackTrace</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Error handler callback for the AI-bridged interpretation gates.
+    
+
+  </dd>
+
           
   <dt id="Arguments" class="">
   <span class="name"><a href="../cell_tissue/Arguments.html">Arguments</a></span>
@@ -2053,6 +2201,21 @@ interface for injecting external imperative stimuli into the reactive graph.
 <dd>
   A structured grouping of the <strong>Governance &amp; Logic</strong> properties that define
 a node's operational identity and can be cascaded through the inheritance chain.
+  
+
+</dd>
+
+
+          
+  <dt id="InterpreterReply" class="">
+  <span class="name"><a href="../cell_tissue/InterpreterReply.html">InterpreterReply</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="../cell_tissue/TissueCommand-class.html">TissueCommand</a>?</span> <span class="field-name">command</span>, </span><span class="field"><span class="type-annotation"><a href="../cell_tissue/Reject-class.html">Reject</a>?</span> <span class="field-name">reject</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  The reply from the interpreter port.
   
 
 </dd>
@@ -2253,7 +2416,7 @@ functions — the standard way to create and interact with a state atom.
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

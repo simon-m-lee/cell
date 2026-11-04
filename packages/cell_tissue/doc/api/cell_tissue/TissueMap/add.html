@@ -65,6 +65,8 @@
     
 <section class="desc markdown">
   <p>Add a new entry to this map <a href="../../cell_tissue/Tissue-class.html">Tissue</a>.</p>
+<p>This is the strict append‑only operation: it never overwrites an
+existing entry. Use <code>[]=</code> / <a href="../../cell_tissue/TissueMap/put.html">put</a> to replace a value.</p>
 <ul>
 <li><code>key</code>: The key of the entry to add.</li>
 <li><code>value</code>: The value of the entry to add.</li>
@@ -104,7 +106,7 @@
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

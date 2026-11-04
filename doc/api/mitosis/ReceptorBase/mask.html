@@ -69,8 +69,10 @@
     
 <section class="desc markdown">
   <p>Creates a mask record for the receptor configuration.</p>
-<p>This internal method optimizes the storage of pipeline instructions
-by only including fields that are actually used.</p>
+<p>Always stores a stable named-record shape so optional pipeline fields can
+be read as <code>null</code> without throwing <a href="https://api.flutter.dev/flutter/dart-core/NoSuchMethodError-class.html">NoSuchMethodError</a> on missing getters
+(which happens with sparse/<code>()</code> flyweight records under a debugger that
+breaks on caught exceptions).</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>instruction</code>: The core transformation instruction.</li>
@@ -81,88 +83,43 @@ by only including fields that are actually used.</p>
 <li><code>init</code>: Initialization function.</li>
 </ul>
 <h3 id="returns">Returns:</h3>
-<p>A record containing only the provided fields, optimized for memory.</p>
+<p>A record with a fixed set of named fields (<code>instruction</code>, <code>init</code>, <code>user</code>,
+<code>userBox</code>). Nested <code>instruction</code> always exposes <code>instruction</code>,
+<code>preProcess</code>, <code>postProcess</code>, and <code>reaction</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Record mask(
-    {Instruction? instruction,
-    Instruction? preProcess,
-    Instruction? postProcess,
-    Function? reaction,
-    Function? user,
-    Function? init}) {
-  final instructionMask = ((instruction != null ? 1 : 0) |
-      (preProcess != null ? 2 : 0) |
-      (postProcess != null ? 4 : 0) |
-      (reaction != null ? 8 : 0));
-
-  final instructionRecord = switch (instructionMask) {
-    0 =&gt; (),
-    1 =&gt; (instruction: instruction),
-    2 =&gt; (preProcess: preProcess),
-    3 =&gt; (instruction: instruction, preProcess: preProcess),
-    4 =&gt; (postProcess: postProcess),
-    5 =&gt; (instruction: instruction, postProcess: postProcess),
-    6 =&gt; (preProcess: preProcess, postProcess: postProcess),
-    7 =&gt; (
-        instruction: instruction,
-        preProcess: preProcess,
-        postProcess: postProcess
-      ),
-    8 =&gt; (reaction: reaction),
-    9 =&gt; (instruction: instruction, reaction: reaction),
-    10 =&gt; (preProcess: preProcess, reaction: reaction),
-    11 =&gt; (
-        instruction: instruction,
-        preProcess: preProcess,
-        reaction: reaction
-      ),
-    12 =&gt; (postProcess: postProcess, reaction: reaction),
-    13 =&gt; (
-        instruction: instruction,
-        postProcess: postProcess,
-        reaction: reaction
-      ),
-    14 =&gt; (
-        preProcess: preProcess,
-        postProcess: postProcess,
-        reaction: reaction
-      ),
-    15 =&gt; (
-        instruction: instruction,
-        preProcess: preProcess,
-        postProcess: postProcess,
-        reaction: reaction
-      ),
-    _ =&gt; ()
-  };
-
-  final mask = ((instructionMask != 0 ? 1 : 0) |
-      (init != null ? 2 : 0) |
-      (user != null ? 4 : 0));
+  <pre class="language-dart"><code class="language-dart">static Record mask({
+  Instruction? instruction,
+  Instruction? preProcess,
+  Instruction? postProcess,
+  Function? reaction,
+  Function? user,
+  Function? init
+}) {
 
   final userBox = user != null ? (FinalBox()..value = user()) : null;
 
-  return switch (mask) {
-    0 =&gt; (),
-    1 =&gt; (instruction: instructionRecord),
-    2 =&gt; (init: init),
-    3 =&gt; (instruction: instructionRecord, init: init),
-    4 =&gt; (user: user, userBox: userBox),
-    5 =&gt; (instruction: instructionRecord, user: user, userBox: userBox),
-    6 =&gt; (init: init, user: user, userBox: userBox),
-    7 =&gt; (
-        instruction: instructionRecord,
-        init: init,
-        user: user,
-        userBox: userBox
-      ),
-    _ =&gt; ()
-  };
+  &#47;&#47; Always return a named-record shape, even when no stages are configured.
+  &#47;&#47; An empty record () would make getters like _record.instruction throw
+  &#47;&#47; NoSuchMethodError; that error is swallowed by get(..., orElse: null)
+  &#47;&#47; but remains noisy under debuggers that break on all exceptions.
+  &#47;&#47; Commonly triggered by Cell.ingress combined with operators that
+  &#47;&#47; construct an empty _Receptor() (e.g. Flow.bufferTime).
+  return (
+    instruction: (
+      instruction: instruction,
+      preProcess: preProcess,
+      postProcess: postProcess,
+      reaction: reaction,
+    ),
+    init: init,
+    user: user,
+    userBox: userBox,
+  );
 }</code></pre>
 </section>
 
@@ -191,7 +148,7 @@ by only including fields that are actually used.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

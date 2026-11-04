@@ -45,1076 +45,1084 @@
   <h1><span class="kind-category">Advanced · Context</span> topic</h1>
   
 <section class="desc markdown">
-  <h1 id="how-to-use-context-in-the-cell-framework">How to Use Context in the Cell Framework</h1>
+  <h1 id="howto-contextmd">HowTo-Context.md</h1>
+<p><strong>Working with Authority, Provenance, and Governance in Mitosis</strong>
+<em>A guide for human developers and AI prompt agents</em></p>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<p><code>Context</code> is the framework's authority protocol. It attaches metadata to cells, pulses, and deputies that describes <strong>who</strong> is acting, <strong>why</strong>, under <strong>what authority</strong>, with <strong>what provenance</strong>, and for <strong>how long</strong>. Contexts are not labels; they are participants in the framework's security and audit model, consulted at every integrity gate and preserved across every signal.</p>
+<p>This guide walks through the three <code>Context</code> variants — <code>Context</code>, <code>DeputyContext</code>, and <code>PulseContext</code> — along with their companions <code>EphemeralPolicy</code> and <code>PulseEphemeralPolicy</code>. It shows when each is used, how they compose, how they are resolved, and how they participate in the reciprocal handshake between signals and receptors.</p>
+<p><strong>The document is organized into two parts:</strong></p>
+<ul>
+<li><strong>Part I — Human Guide.</strong> Prose sections for developers who are learning the model. Read sequentially.</li>
+<li><strong>Part II — AI Coding Agent Decision Tree.</strong> A dedicated, procedural section for AI prompt agents. Do not read Part I first; jump straight to Part II if you are an agent generating context-related code.</li>
+</ul>
+<p>Both parts cover the same underlying material. They differ only in presentation.</p>
+<hr>
 <h2 id="table-of-contents">Table of Contents</h2>
+<p><strong>Part I — Human Guide</strong></p>
 <ol>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#what-is-context">What is Context?</a></li>
-<li><a href="#core-concepts">Core Concepts</a></li>
-<li><a href="#context-system-root-context">Context System (Root Context)</a></li>
-<li><a href="#creating-contexts">Creating Contexts</a></li>
-<li><a href="#predefined-context-factories">Predefined Context Factories</a></li>
-<li><a href="#ontology-dimensions">Ontology Dimensions</a></li>
-<li><a href="#context-inheritance">Context Inheritance</a></li>
-<li><a href="#using-context-with-cells">Using Context with Cells</a></li>
-<li><a href="#testing-context">Testing Context</a></li>
-<li><a href="#best-practices">Best Practices</a></li>
-<li><a href="#complete-example">Complete Example</a></li>
+<li><a href="#1-the-three-context-variants">The Three Context Variants</a></li>
+<li><a href="#2-context-the-base-authority-protocol">Context: The Base Authority Protocol</a></li>
+<li><a href="#3-named-context-factories">Named Context Factories</a></li>
+<li><a href="#4-deputycontext-delegation-and-mandate">DeputyContext: Delegation and Mandate</a></li>
+<li><a href="#5-pulsecontext-provenance-for-a-single-signal">PulseContext: Provenance for a Single Signal</a></li>
+<li><a href="#6-ephemeralpolicy-lifecycle-governance">EphemeralPolicy: Lifecycle Governance</a></li>
+<li><a href="#7-pulseephemeralpolicy-signal-lifecycle">PulseEphemeralPolicy: Signal Lifecycle</a></li>
+<li><a href="#8-context-resolution-and-the-principal-chain">Context Resolution and the Principal Chain</a></li>
+<li><a href="#9-the-reciprocal-handshake">The Reciprocal Handshake</a></li>
+<li><a href="#10-composing-and-evolving-contexts">Composing and Evolving Contexts</a></li>
+<li><a href="#11-auditing-and-sensitivity">Auditing and Sensitivity</a></li>
+<li><a href="#12-common-human-patterns">Common Human Patterns</a></li>
+<li><a href="#13-anti-patterns">Anti-Patterns</a></li>
 </ol>
+<p><strong>Part II — AI Coding Agent Decision Tree</strong>
+14. <a href="#14-how-to-use-this-section">How to Use This Section</a>
+15. <a href="#15-decision-tree-which-context-to-create">Decision Tree: Which Context to Create</a>
+16. <a href="#16-procedure-a-create-a-base-context">Procedure A: Create a Base <code>Context</code></a>
+17. <a href="#17-procedure-b-create-a-deputycontext">Procedure B: Create a <code>DeputyContext</code></a>
+18. <a href="#18-procedure-c-create-a-pulsecontext">Procedure C: Create a <code>PulseContext</code></a>
+19. <a href="#19-procedure-d-create-an-ephemeralpolicy">Procedure D: Create an <code>EphemeralPolicy</code></a>
+20. <a href="#20-procedure-e-create-a-pulseephemeralpolicy">Procedure E: Create a <code>PulseEphemeralPolicy</code></a>
+21. <a href="#21-procedure-f-attach-a-context-to-a-cell-tissue-or-organism">Procedure F: Attach a Context to a Cell, Tissue, or Organism</a>
+22. <a href="#22-procedure-g-evolve-a-context">Procedure G: Evolve a Context</a>
+23. <a href="#23-procedure-h-sanitize-a-pulse-based-on-sensitivity">Procedure H: Sanitize a Pulse Based on Sensitivity</a>
+24. <a href="#24-verification-checklist-for-ai-agents">Verification Checklist for AI Agents</a>
+25. <a href="#25-references">References</a></p>
 <hr>
-<h2 id="introduction">Introduction</h2>
-<p><strong>Context</strong> is the operational environment that defines the security tier, execution priority, and administrative authority of a Cell. It acts as a mandatory metadata layer that informs validation rules and processing mechanisms about the provenance and permissions of any entity attempting to interact with a node.</p>
-<h3 id="when-to-use-context">When to Use Context</h3>
+<h1 id="part-i--human-guide">Part I — Human Guide</h1>
+<h2 id="1-the-three-context-variants">1. The Three Context Variants</h2>
+<p>The framework uses three context variants, each attached to a different kind of node:</p>
 <table>
 <thead>
 <tr>
-<th>Scenario</th>
-<th>Recommended Approach</th>
+<th>Variant</th>
+<th>Attached to</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Default configuration</td>
-<td>Use <code>Context.system</code></td>
+<td><strong><code>Context</code></strong></td>
+<td>A <code>Cell</code>, <code>Tissue</code>, or <code>One</code></td>
+<td>The operational authority, provenance, and metadata of a live node.</td>
 </tr>
 <tr>
-<td>Application logic</td>
-<td>Use <code>Context.module()</code></td>
+<td><strong><code>DeputyContext</code></strong></td>
+<td>A deputy (proxy)</td>
+<td>The mandate under which a restricted view acts.</td>
 </tr>
 <tr>
-<td>Infrastructure nodes</td>
-<td>Use <code>Context.core()</code></td>
-</tr>
-<tr>
-<td>Sensitive operations</td>
-<td>Use <code>Context.secureEnclave()</code></td>
-</tr>
-<tr>
-<td>Public interfaces</td>
-<td>Use <code>Context.publicInterface()</code></td>
-</tr>
-<tr>
-<td>Autonomous reasoning</td>
-<td>Use <code>Context.shieldedCortex()</code></td>
-</tr>
-<tr>
-<td>Input ingestion</td>
-<td>Use <code>Context.receptor()</code></td>
-</tr>
-<tr>
-<td>Policy enforcement</td>
-<td>Use <code>Context.integrityGate()</code></td>
-</tr>
-<tr>
-<td>Maintenance tasks</td>
-<td>Use <code>Context.homeostasis()</code></td>
-</tr>
-<tr>
-<td>Simulation/testing</td>
-<td>Use <code>Context.sandbox()</code></td>
+<td><strong><code>PulseContext</code></strong></td>
+<td>A single <code>Pulse</code></td>
+<td>The provenance, actor, and clearance of a specific signal.</td>
 </tr>
 </tbody>
 </table>
+<p><code>Context</code> is the base class. Both <code>DeputyContext</code> and <code>PulseContext</code> are specializations. Every cell has a context — the default is <code>Context.system</code>. Every pulse has a context — the default is <code>PulseContext.system</code>.</p>
+<p>A deputy's context is called its <strong>mandate</strong>; it must be a descendant of the principal's context.</p>
 <hr>
-<h2 id="what-is-context">What is Context?</h2>
-<p>A <code>Context</code> is the <strong>operational environment</strong> that defines:</p>
-<ul>
-<li><strong>Security Tier</strong> - How sensitive is this operation?</li>
-<li><strong>Execution Priority</strong> - How urgent is this operation?</li>
-<li><strong>Authority Domain</strong> - What areas does this operate in?</li>
-<li><strong>Compliance Requirements</strong> - What regulations apply?</li>
-<li><strong>Stakeholders</strong> - Who is responsible?</li>
-</ul>
-<h3 id="key-characteristics">Key Characteristics</h3>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Immutable</strong></td>
-<td>Cannot be modified after creation</td>
-</tr>
-<tr>
-<td><strong>Inheritable</strong></td>
-<td>Supports prototype-based inheritance</td>
-</tr>
-<tr>
-<td><strong>Type-Safe</strong></td>
-<td>Strong typing with Governance dimensions</td>
-</tr>
-<tr>
-<td><strong>Composable</strong></td>
-<td>Can combine multiple dimensions</td>
-</tr>
-<tr>
-<td><strong>Auditable</strong></td>
-<td>Provides lineage for tracing</td>
-</tr>
-<tr>
-<td><strong>Governed</strong></td>
-<td>Controls what operations are allowed</td>
-</tr>
-</tbody>
-</table>
-<h3 id="relationship-with-cell">Relationship with Cell</h3>
-<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CELL                                             │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                       CONTEXT                                        │   │
-│  │                                                                      │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
-│  │  │                    ONTOLOGY (Structural)                     │    │   │
-│  │  │  • type: "payment_processor"                                │    │   │
-│  │  │  • domains: "finance"                                       │    │   │
-│  │  │  • taxonomy: "module"                                       │    │   │
-│  │  │  • constraints: { max_amount: 10000 }                      │    │   │
-│  │  │  • compliance: "PCI-DSS"                                   │    │   │
-│  │  └─────────────────────────────────────────────────────────────┘    │   │
-│  │                                                                      │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
-│  │  │                    MANDATE (Authority)                       │    │   │
-│  │  │  • role: "Admin"                                            │    │   │
-│  │  │  • clearance: Clearance.administrative                      │    │   │
-│  │  │  • authority: "READ, WRITE"                                 │    │   │
-│  │  │  • isolation: Isolation.scoped                             │    │   │
-│  │  └─────────────────────────────────────────────────────────────┘    │   │
-│  │                                                                      │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
-│  │  │                   PROVENANCE (History)                       │    │   │
-│  │  │  • actor: "admin_001"                                       │    │   │
-│  │  │  • reason: "Manual override"                                │    │   │
-│  │  │  • strategy: ReasoningStrategy.manual                      │    │   │
-│  │  │  • traceId: "abc-123-def"                                   │    │   │
-│  │  └─────────────────────────────────────────────────────────────┘    │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
-</code></pre>
-<hr>
-<h2 id="core-concepts">Core Concepts</h2>
-<h3 id="1-context-is-immutable">1. Context is Immutable</h3>
-<p>Once created, a Context cannot be changed. To modify, create a new Context using <code>evolve()</code>:</p>
-<pre class="language-dart"><code class="language-dart">// ❌ Can't modify
-final context = Context.system;
-// context.domains = 'finance';  // Not allowed
-
-// ✅ Create a new one
-final newContext = context.evolve((evolvable) {
-  if (evolvable == Ontology.domains) {
-    return Ontology.domains.entry('finance');
-  }
-  return null;
-});
-</code></pre>
-<h3 id="2-context-supports-inheritance">2. Context Supports Inheritance</h3>
-<p>Contexts can inherit from other contexts:</p>
-<pre class="language-dart"><code class="language-dart">final base = Context.module('base');
-final specialized = base.evolve((evolvable) {
-  if (evolvable == Ontology.subDomains) {
-    return Ontology.subDomains.entry('specialized');
-  }
-  return null;
-});
-</code></pre>
-<h3 id="3-context-is-type-safe">3. Context is Type-Safe</h3>
-<p>Each dimension has a specific type:</p>
-<pre class="language-dart"><code class="language-dart">// ✅ Type-safe dimensions
-final domainEntry = Ontology.domains.entry('finance');  // String
-final constraintEntry = Ontology.constraints.entry({'max': 100});  // Map
-final clearanceEntry = Mandate.clearance.entry(Clearance.administrative);  // Enum
-
-// ❌ Type mismatch (compiler error)
-// Ontology.domains.entry(42);  // Error: int is not String
-</code></pre>
-<h3 id="4-context-provides-lineage">4. Context Provides Lineage</h3>
-<p>Track the evolution of a dimension:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.module('finance');
-final evolved = context.evolve(...);
-final lineage = evolved.lineage(Ontology.domains);
-// ['finance', 'finance, treasury']
-</code></pre>
-<hr>
-<h2 id="context-system-root-context">Context System (Root Context)</h2>
-<h3 id="what-is-contextsystem">What is Context.system?</h3>
-<p><code>Context.system</code> is the canonical root context for the entire framework. It serves as the ultimate fallback for all ontological lookups.</p>
-<pre class="language-dart"><code class="language-dart">// Default context for all cells
-final cell = Cell();  // context = Context.system
-
-// Safe defaults
-print(Context.system.domains);    // null
-print(Context.system.constraints); // null
-</code></pre>
-<h3 id="properties-of-contextsystem">Properties of Context.system</h3>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>type</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>domains</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>taxonomy</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>constraints</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>compliance</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>stakeholders</code></td>
-<td>null</td>
-</tr>
-<tr>
-<td><code>priority</code></td>
-<td>null</td>
-</tr>
-</tbody>
-</table>
-<h3 id="when-to-use-contextsystem">When to Use Context.system</h3>
-<ul>
-<li>Default for most application code</li>
-<li>When no specific security requirements</li>
-<li>For development and testing</li>
-<li>For simple prototypes</li>
-</ul>
-<hr>
-<h2 id="creating-contexts">Creating Contexts</h2>
-<h3 id="method-1-using-named-parameters">Method 1: Using Named Parameters</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context(
-  type: 'payment_processor',
-  identity: 'payment_gateway_01',
-  domains: 'finance',
-  subDomains: 'payments, refunds',
-  stakeholders: 'finance_team, compliance',
-  constraints: {'max_amount': 10000, 'currency': 'USD'},
-  compliance: 'PCI-DSS',
-  version: '2.0.0',
-);
-</code></pre>
-<h3 id="method-2-using-entries">Method 2: Using Entries</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context.fromEntries([
-  Ontology.type.entry('payment_processor'),
-  Ontology.domains.entry('finance'),
-  Ontology.constraints.entry({'max_amount': 10000}),
-  Ontology.compliance.entry('PCI-DSS'),
-]);
-</code></pre>
-<h3 id="method-3-using-factories">Method 3: Using Factories</h3>
-<pre class="language-dart"><code class="language-dart">// Infrastructure
-final coreContext = Context.core('gateway', identity: 'ingress_01');
-
-// Application logic
-final moduleContext = Context.module('payment', identity: 'payment_processor');
-
-// Secure operations
-final secureContext = Context.secureEnclave(
-  partOf: 'PaymentModule',
-  compliances: 'PCI-DSS, GDPR',
-);
-
-// Public interface
-final publicContext = Context.publicInterface(
-  partOf: 'API Gateway',
-  domains: 'Web/v1',
-  stakeholders: 'Mobile_App, Partner_API',
-);
-</code></pre>
-<h3 id="method-4-using-describe-ai-powered">Method 4: Using Describe (AI-Powered)</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context.describe(
-  'A secure audit log for the Healthcare domain compliant with HIPAA'
-);
-// Automatically extracts:
-// - domains: healthcare
-// - compliance: HIPAA
-// - taxonomy: audit_log
-</code></pre>
-<hr>
-<h2 id="predefined-context-factories">Predefined Context Factories</h2>
-<h3 id="1-contextcore">1. Context.core</h3>
-<p>For infrastructure nodes, gateways, and architectural plumbing:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.core(
-  'gateway',                    // Required: type
-  identity: 'ingress_01',       // Optional: instance name
-  partOf: 'Edge_Service',       // Optional: parent module
-  others: {'rate_limit': 1000}, // Optional: custom metadata
-);
-
-// Properties:
-// - type: 'gateway'
-// - taxonomy: 'core'
-// - domains: 'system'
-// - priority: 0 (highest)
-</code></pre>
-<h3 id="2-contextmodule">2. Context.module</h3>
-<p>For domain-specific logic, feature components, and business logic:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.module(
-  'payment_engine',             // Required: type
-  identity: 'v3_processor',     // Optional: instance name
-  partOf: 'Checkout_Service',   // Optional: parent module
-  others: {'currency': 'USD'},  // Optional: custom metadata
-);
-
-// Properties:
-// - type: 'payment_engine'
-// - taxonomy: 'module'
-// - domains: 'logic'
-// - priority: 10 (standard)
-</code></pre>
-<h3 id="3-contextsecureenclave">3. Context.secureEnclave</h3>
-<p>For high-integrity state, sensitive logic, or administrative policies:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.secureEnclave(
-  partOf: 'CryptoModule',       // Required: parent module
-  compliances: 'FIPS-140-2, PCI-DSS', // Required: regulations
-  constraints: {'min_key_size': 2048}, // Optional: limits
-  others: {'hardware_id': 'HSM-001'},  // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'enclave'
-// - domains: 'security'
-// - subDomains: 'integrity-gate'
-// - isNot: 'External_Signals,Unauthenticated_Telemetry'
-// - sensitivity: Sensitivity.restricted
-// - audit_level: AuditLevel.full
-// - priority: 0 (highest)
-</code></pre>
-<h3 id="4-contextpublicinterface">4. Context.publicInterface</h3>
-<p>For boundary nodes interacting with external users or systems:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.publicInterface(
-  partOf: 'Public_Web_API',     // Required: interface name
-  domains: 'Web/v1',            // Required: functional domain
-  stakeholders: 'Mobile_App_Users, Partner_SDK', // Optional: external entities
-  others: {'rate_limit': 100},  // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'interface'
-// - subDomains: 'ingress'
-// - isNot: 'Internal_Commands,Private_State_Mutation'
-// - sensitivity: Sensitivity.public
-// - audit_level: AuditLevel.none
-// - priority: 50 (standard)
-</code></pre>
-<h3 id="5-contextshieldedcortex">5. Context.shieldedCortex</h3>
-<p>For high-reasoning nodes performing sensitive autonomous decisions:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.shieldedCortex(
-  partOf: 'Trading_Floor_A',    // Required: governing unit
-  domains: 'Finance/HighFreq',   // Required: functional domain
-  compliances: 'SEC, FINRA',     // Required: regulations
-  constraints: {'max_position': 1000000}, // Optional: limits
-  others: {'model_version': 'v3'}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'cortex'
-// - subDomains: 'reasoning-enclave'
-// - isNot: 'Background_Noise,Unverified_Inference'
-// - strategy: ReasoningStrategy.formal
-// - sensitivity: Sensitivity.restricted
-// - audit_level: AuditLevel.detailed
-// - priority: 10 (high)
-</code></pre>
-<h3 id="6-contextreceptor">6. Context.receptor</h3>
-<p>For nodes specialized in normalizing and validating environmental stimuli:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.receptor(
-  dataSources: 'MQTT_Broker, IoT_Devices', // Required: origins
-  domains: 'Telemetry',          // Required: functional area
-  others: {'sample_rate': 100},  // Optional: metadata
-);
-
-// Properties:
-// - dataSources: 'MQTT_Broker, IoT_Devices'
-// - domains: 'Telemetry'
-// - subDomains: 'Receptor'
-// - taxonomy: 'sensor_receptor'
-// - audit_level: AuditLevel.minimal
-// - sensitivity: Sensitivity.public
-// - priority: 40 (elevated)
-</code></pre>
-<h3 id="7-contextintegritygate">7. Context.integrityGate</h3>
-<p>For nodes acting as the framework's "Judicial Branch":</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.integrityGate(
-  partOf: 'Treasury/Compliance', // Required: organizational unit
-  compliances: 'SOX, Internal_Policy_v2', // Required: standards
-  constraints: {'fail_closed': true}, // Optional: parameters
-  others: {'audit_strictness': 'high'}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'governance_gate'
-// - subDomains: 'integrity-gate'
-// - strategy: ReasoningStrategy.reflexive
-// - sensitivity: Sensitivity.restricted
-// - audit_level: AuditLevel.full
-// - priority: 0 (highest)
-// - strict_mode: true
-</code></pre>
-<h3 id="8-contexthomeostasis">8. Context.homeostasis</h3>
-<p>For internal maintenance, resource balancing, and systemic health:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.homeostasis(
-  partOf: 'System/Memory',      // Required: system module
-  label: 'LruCacheMonitor',      // Optional: human-readable label
-  constraints: {'max_memory_mb': 512}, // Optional: limits
-  others: {'cleanup_interval': 60}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'stability_loop'
-// - subDomains: 'Homeostasis'
-// - strategy: ReasoningStrategy.reflexive
-// - sensitivity: Sensitivity.internal
-// - priority: 75 (high maintenance)
-</code></pre>
-<h3 id="9-contextsandbox">9. Context.sandbox</h3>
-<p>For speculative reasoning, risk-free simulation, and experimentation:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.sandbox(
-  partOf: 'Finance/Strategies',  // Required: system module
-  reason: 'Evaluating heuristic v2 performance', // Optional: justification
-  readOnlyParent: true,          // Optional: read-only access
-  others: {'simulation_id': 'sim_001'}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'simulation_workspace'
-// - subDomains: 'Sandbox'
-// - strategy: ReasoningStrategy.probabilistic
-// - ephemeral: true
-// - sensitivity: Sensitivity.public
-// - audit_level: AuditLevel.none
-// - priority: 30 (lower than live)
-</code></pre>
-<h3 id="10-contextauditlog">10. Context.auditLog</h3>
-<p>For non-repudiation, forensic logging, and compliance tracking:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.auditLog(
-  partOf: 'Treasury/Ledger',    // Required: audited module
-  compliances: 'PCI-DSS, SOC2', // Required: regulations
-  others: {'retention_days': 365}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'audit_ledger'
-// - subDomains: 'compliance-logging'
-// - strategy: ReasoningStrategy.deterministic
-// - sensitivity: Sensitivity.private
-// - audit_level: AuditLevel.full
-// - priority: 90 (background)
-</code></pre>
-<h3 id="11-contexttransienttask">11. Context.transientTask</h3>
-<p>For short-lived computational scenes or one-off agentic missions:</p>
-<pre class="language-dart"><code class="language-dart">final context = Context.transientTask(
-  partOf: 'System/Maintenance', // Required: module
-  stakeholders: 'MigrationTeam', // Required: responsible entities
-  lease: Duration(hours: 1),    // Required: validity duration
-  constraints: {'batch_size': 1000}, // Optional: limits
-  others: {'task_id': 'migrate_001'}, // Optional: metadata
-);
-
-// Properties:
-// - taxonomy: 'transient_worker'
-// - subDomains: 'Ephemeral_Task'
-// - strategy: ReasoningStrategy.probabilistic
-// - lease_duration_ms: 3600000 (1 hour)
-// - auto_delete: true
-// - priority: 60 (standard background)
-</code></pre>
-<hr>
-<h2 id="ontology-dimensions">Ontology Dimensions</h2>
-<h3 id="static-pillars-non-evolvable">Static Pillars (Non-Evolvable)</h3>
-<p>These dimensions cannot be changed after creation:</p>
+<h2 id="2-context-the-base-authority-protocol">2. <code>Context</code>: The Base Authority Protocol</h2>
+<h3 id="21-what-a-context-carries">2.1 What a Context Carries</h3>
+<p>A <code>Context</code> is a set of typed metadata dimensions. The standard dimensions are:</p>
 <table>
 <thead>
 <tr>
 <th>Dimension</th>
 <th>Type</th>
-<th>Purpose</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>domains</code></td>
-<td><code>String</code></td>
-<td>High-level functional areas</td>
-<td><code>'Finance, PII'</code></td>
-</tr>
-<tr>
-<td><code>dataSources</code></td>
-<td><code>String</code></td>
-<td>Origins of information</td>
-<td><code>'Auth_Service, User_DB'</code></td>
-</tr>
-<tr>
-<td><code>taxonomy</code></td>
-<td><code>String</code></td>
-<td>Categorical identity</td>
-<td><code>'Repository'</code></td>
-</tr>
-<tr>
-<td><code>topology</code></td>
-<td><code>String</code></td>
-<td>Network role</td>
-<td><code>'Principal'</code></td>
-</tr>
-<tr>
-<td><code>version</code></td>
-<td><code>String</code></td>
-<td>Structural revision</td>
-<td><code>'2.1.0'</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="fluid-boundaries-evolvable">Fluid Boundaries (Evolvable)</h3>
-<p>These dimensions can be refined using <code>evolve()</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Dimension</th>
-<th>Type</th>
-<th>Purpose</th>
-<th>Example</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>type</code></td>
 <td><code>String</code></td>
-<td>Category of operation</td>
-<td><code>'security_event'</code></td>
+<td>The kind of operation this context performs (e.g., <code>'command'</code>, <code>'telemetry'</code>).</td>
 </tr>
 <tr>
 <td><code>identity</code></td>
 <td><code>String</code></td>
-<td>Unique instance name</td>
-<td><code>'Auth_Node_ReadOnly'</code></td>
+<td>The specific instance name.</td>
+</tr>
+<tr>
+<td><code>domains</code></td>
+<td><code>String</code></td>
+<td>The high-level functional areas (e.g., <code>'Finance'</code>, <code>'Security'</code>).</td>
 </tr>
 <tr>
 <td><code>subDomains</code></td>
 <td><code>String</code></td>
-<td>Specialized operational zones</td>
-<td><code>'Tax_Calculation, VAT'</code></td>
+<td>Specialized zones within domains.</td>
+</tr>
+<tr>
+<td><code>taxonomy</code></td>
+<td><code>String</code></td>
+<td>The categorical identity (e.g., <code>'module'</code>, <code>'enclave'</code>).</td>
+</tr>
+<tr>
+<td><code>topology</code></td>
+<td><code>String</code></td>
+<td>Network role (e.g., <code>'Principal'</code>, <code>'Leaf'</code>).</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>String</code></td>
+<td>Schema version.</td>
+</tr>
+<tr>
+<td><code>dataSources</code></td>
+<td><code>String</code></td>
+<td>Permitted input sources.</td>
 </tr>
 <tr>
 <td><code>stakeholders</code></td>
 <td><code>String</code></td>
-<td>Accountable entities</td>
-<td><code>'Finance_Admin'</code></td>
+<td>Entities accountable for state transitions.</td>
 </tr>
 <tr>
 <td><code>constraints</code></td>
 <td><code>Map&lt;String, dynamic&gt;</code></td>
-<td>Operational rules</td>
-<td><code>{'max_value': 100}</code></td>
+<td>Operational guardrails.</td>
 </tr>
 <tr>
 <td><code>isNot</code></td>
 <td><code>String</code></td>
-<td>Exclusionary boundaries</td>
-<td><code>'Currency_Exchange'</code></td>
+<td>Explicit exclusionary boundaries.</td>
 </tr>
 <tr>
 <td><code>compliance</code></td>
 <td><code>String</code></td>
-<td>Regulatory frameworks</td>
-<td><code>'GDPR, SOC2'</code></td>
+<td>Regulatory frameworks (e.g., <code>'GDPR'</code>).</td>
 </tr>
 <tr>
 <td><code>partOf</code></td>
 <td><code>String</code></td>
-<td>Parent container</td>
-<td><code>'Global_Ledger_Service'</code></td>
+<td>The parent container or module.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="using-ontology-dimensions">Using Ontology Dimensions</h3>
-<pre class="language-dart"><code class="language-dart">// Create entries
-final domainEntry = Ontology.domains.entry('finance');
-final typeEntry = Ontology.type.entry('payment_processor');
-final constraintEntry = Ontology.constraints.entry({'max_amount': 10000});
-
-// Build context
-final context = Context.fromEntries([domainEntry, typeEntry, constraintEntry]);
-
-// Access values
-print(context.domains);      // 'finance'
-print(context.type);         // 'payment_processor'
-print(context.constraints);  // {'max_amount': 10000}
-</code></pre>
-<hr>
-<h2 id="context-inheritance">Context Inheritance</h2>
-<h3 id="prototype-based-inheritance">Prototype-Based Inheritance</h3>
-<p>Contexts can inherit from other contexts:</p>
-<pre class="language-dart"><code class="language-dart">// Parent context
-final parent = Context.module('finance', stakeholders: 'admin');
-
-// Child context - inherits from parent
-final child = parent.evolve((evolvable) {
-  if (evolvable == Ontology.subDomains) {
-    return Ontology.subDomains.entry('payments');
-  }
-  return null;
-});
-
-print(child.domains);      // 'finance' (inherited)
-print(child.stakeholders); // 'admin' (inherited)
-print(child.subDomains);   // 'payments' (overridden)
-</code></pre>
-<h3 id="inheritance-chain">Inheritance Chain</h3>
-<pre class="language-dart"><code class="language-dart">// Root
-final root = Context.system;
-
-// Level 1
-final level1 = root.evolve((evolvable) {
-  return Ontology.type.entry('module');
-});
-
-// Level 2
-final level2 = level1.evolve((evolvable) {
-  return Ontology.domains.entry('finance');
-});
-
-// Level 3
-final level3 = level2.evolve((evolvable) {
-  return Ontology.subDomains.entry('payments');
-});
-
-// Resolution:
-// - type: 'module' (from level1)
-// - domains: 'finance' (from level2)
-// - subDomains: 'payments' (from level3)
-</code></pre>
-<h3 id="lineage-tracking">Lineage Tracking</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context.module('finance');
-final evolved = context.evolve((evolvable) {
-  if (evolvable == Ontology.domains) {
-    return Ontology.domains.entry('finance, treasury');
-  }
-  return null;
-});
-
-final lineage = evolved.lineage(Ontology.domains);
-// ['finance', 'finance, treasury']
-</code></pre>
-<hr>
-<h2 id="using-context-with-cells">Using Context with Cells</h2>
-<h3 id="basic-cell-with-context">Basic Cell with Context</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context.module('auth');
-final cell = Cell(
-  context: context,
-  receptor: Receptor.passThrough,
-);
-
-print(cell.context.domains); // 'auth'
-</code></pre>
-<h3 id="governed-cell-with-context">Governed Cell with Context</h3>
-<pre class="language-dart"><code class="language-dart">final context = Context.secureEnclave(
-  partOf: 'CryptoModule',
-  compliances: 'FIPS-140-2',
-);
-
-final cell = Cell.governed(
-  context: context,
-  receptor: Receptor.passThrough,
-  testRule: TestCell.allowAll,
-  synapses: Synapses.enabled,
-  forceLock: true,
-);
-</code></pre>
-<h3 id="cell-with-deputy-context">Cell with Deputy Context</h3>
-<pre class="language-dart"><code class="language-dart">final cell = Cell(...);
-
-// Read-only deputy
-final readOnly = await cell.deputy(
-  context: DeputyContext.observer(
-    baseContext: Context.system,
-    task: 'Monitor',
-  ),
-);
-</code></pre>
-<h3 id="context-aware-validation">Context-Aware Validation</h3>
-<pre class="language-dart"><code class="language-dart">final contextAwareRule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
-  final ctx = host?.context;
-  return ctx?.domains?.contains('Admin') ?? false;
-});
-
-final cell = Cell(
-  testRule: contextAwareRule,
-  context: Context.module('Admin', stakeholders: 'Admin'),
-);
-</code></pre>
-<hr>
-<h2 id="testing-context">Testing Context</h2>
-<h3 id="unit-testing-context">Unit Testing Context</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
-
-void main() {
-  test('Context creates correctly', () {
-    final context = Context.module('auth');
-    expect(context.taxonomy, 'module');
-    expect(context.domains, 'logic');
-    expect(context.priority, 10);
-  });
-
-  test('Context inherits properties', () {
-    final parent = Context.module('base');
-    final child = parent.evolve((evolvable) {
-      if (evolvable == Ontology.subDomains) {
-        return Ontology.subDomains.entry('specialized');
-      }
-      return null;
-    });
-    
-    expect(child.taxonomy, 'module');
-    expect(child.domains, 'logic');
-    expect(child.subDomains, 'specialized');
-  });
-
-  test('Context lineage tracks evolution', () {
-    final context = Context.module('finance');
-    final evolved = context.evolve((evolvable) {
-      if (evolvable == Ontology.domains) {
-        return Ontology.domains.entry('finance, treasury');
-      }
-      return null;
-    });
-    
-    expect(evolved.lineage(Ontology.domains), ['finance', 'finance, treasury']);
-  });
-}
-</code></pre>
-<h3 id="testing-context-with-rules">Testing Context with Rules</h3>
-<pre class="language-dart"><code class="language-dart">test('Rule uses context', () {
-  final rule = TestCell&lt;Cell&gt;((object, {host, arguments, user}) {
-    return host?.context.domains?.contains('Admin') ?? false;
-  });
-  
-  final adminContext = Context.module('Admin', stakeholders: 'Admin');
-  final adminCell = Cell(testRule: rule, context: adminContext);
-  
-  final userContext = Context.module('User');
-  final userCell = Cell(testRule: rule, context: userContext);
-  
-  expect(rule.call('anything', host: adminCell), true);
-  expect(rule.call('anything', host: userCell), false);
-});
-</code></pre>
-<hr>
-<h2 id="best-practices">Best Practices</h2>
-<h3 id="1-use-predefined-factories">1. Use Predefined Factories</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use factories
-final context = Context.module('payment');
-
-// ❌ BAD - Manual construction
-final context = Context(
-  type: 'payment',
-  domains: 'logic',
+<p>Dimensions marked <strong>static pillars</strong> (e.g., <code>taxonomy</code>, <code>topology</code>) are fixed at construction and cannot be changed via <code>evolve</code>. Dimensions marked <strong>fluid boundaries</strong> (e.g., <code>constraints</code>, <code>compliance</code>, <code>stakeholders</code>) are evolvable.</p>
+<h3 id="22-creating-a-context">2.2 Creating a Context</h3>
+<pre class="language-dart"><code class="language-dart">final context = Context(
   taxonomy: 'module',
+  domains: 'Finance',
+  subDomains: 'Tax_Calculation',
+  stakeholders: 'Finance_Admin, Compliance_Bot',
+  constraints: {'max_amount': 1000, 'requires_approval': true},
 );
 </code></pre>
-<h3 id="2-use-evolve-for-changes">2. Use Evolve for Changes</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Evolve from existing
-final base = Context.module('finance');
-final specialized = base.evolve((evolvable) {
-  if (evolvable == Ontology.subDomains) {
-    return Ontology.subDomains.entry('payments');
-  }
-  return null;
-});
-
-// ❌ BAD - Recreate from scratch
-final specialized = Context(
-  type: 'module',
-  domains: 'logic',
-  subDomains: 'payments',
-);
+<p>Or, from entries:</p>
+<pre class="language-dart"><code class="language-dart">final context = Context.fromEntries([
+  Ontology.taxonomy.entry('module'),
+  Ontology.domains.entry('Finance'),
+  Ontology.subDomains.entry('Tax_Calculation'),
+  Ontology.constraints.entry({'max_amount': 1000}),
+]);
 </code></pre>
-<h3 id="3-use-static-pillars-for-identity">3. Use Static Pillars for Identity</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Static identity
-final context = Context.module('auth');  // taxonomy is 'module'
-
-// ❌ BAD - Trying to change static pillar (ignored)
-final evolved = context.evolve((evolvable) {
-  return Ontology.taxonomy.entry('gateway');  // Ignored - not evolvable
-});
+<p>Use the factory constructor for explicit, readable contexts. Use <code>Context.fromEntries(...)</code> when building contexts dynamically.</p>
+<h3 id="23-the-default-context">2.3 The Default Context</h3>
+<p>The default is <code>Context.system</code>:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell.ingress&lt;int&gt;(0);      // uses Context.system implicitly
 </code></pre>
-<h3 id="4-use-constraints-for-runtime-rules">4. Use Constraints for Runtime Rules</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Runtime constraints
-final context = Context(
-  constraints: {'max_retries': 3, 'timeout': 5000},
-);
-
-// ❌ BAD - Hardcoded values
-// Use constraints for values that need to be configured at runtime
-</code></pre>
-<h3 id="5-document-context-purpose">5. Document Context Purpose</h3>
-<pre class="language-dart"><code class="language-dart">/// Secure payment processing context.
-///
-/// Features:
-/// - PCI-DSS compliant
-/// - Admin-only access
-/// - Maximum amount: $10,000
-final paymentContext = Context.secureEnclave(
-  partOf: 'PaymentModule',
-  compliances: 'PCI-DSS',
-  constraints: {'max_amount': 10000},
-);
-</code></pre>
+<p>Every cell that does not explicitly declare a context uses <code>Context.system</code>. <code>Context.system</code> is the root of all context evolution — any specialized context is a descendant.</p>
 <hr>
-<h2 id="complete-example">Complete Example</h2>
-<p>Here's a complete multi-tenant application using Context:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
-
-// ─────────────────────────────────────────────────────────────────────────
-// 1. Tenant Contexts
-// ─────────────────────────────────────────────────────────────────────────
-
-class TenantConfig {
-  final String id;
-  final String domain;
-  final List&lt;String&gt; features;
-  final Map&lt;String, dynamic&gt; limits;
-
-  TenantConfig({
-    required this.id,
-    required this.domain,
-    this.features = const [],
-    this.limits = const {},
-  });
-}
-
-Context createTenantContext(TenantConfig tenant) {
-  return Context.module(
-    tenant.id,
-    identity: 'tenant_${tenant.id}',
-    partOf: 'MultiTenantApp',
-    others: {
-      'features': tenant.features,
-      'limits': tenant.limits,
-    },
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 2. Feature-Specific Contexts
-// ─────────────────────────────────────────────────────────────────────────
-
-Context createFeatureContext(TenantConfig tenant, String feature) {
-  final base = createTenantContext(tenant);
-  return base.evolve((evolvable) {
-    if (evolvable == Ontology.subDomains) {
-      return Ontology.subDomains.entry(feature);
-    }
-    if (evolvable == Ontology.constraints) {
-      return Ontology.constraints.entry({
-        'feature': feature,
-        ...tenant.limits,
-      });
-    }
-    return null;
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 3. Role-Based Contexts
-// ─────────────────────────────────────────────────────────────────────────
-
-Context createRoleContext(Context base, String role) {
-  return base.evolve((evolvable) {
-    if (evolvable == Ontology.stakeholders) {
-      return Ontology.stakeholders.entry(role);
-    }
-    if (evolvable == Ontology.constraints) {
-      return Ontology.constraints.entry({'role': role});
-    }
-    return null;
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 4. Cell Creation
-// ─────────────────────────────────────────────────────────────────────────
-
-Cell createTenantCell(TenantConfig tenant, String role) {
-  final tenantContext = createTenantContext(tenant);
-  final roleContext = createRoleContext(tenantContext, role);
-  
-  return Cell(
-    context: roleContext,
-    receptor: Receptor((cell, pulse, {user}) {
-      final ctx = cell.context;
-      print('Processing in tenant: ${ctx.type}');
-      print('Role: ${ctx.stakeholders}');
-      
-      // Check feature availability
-      final features = ctx.others?['features'] as List? ?? [];
-      if (features.contains('analytics')) {
-        print('Analytics enabled');
-      }
-      
-      return pulse;
-    }),
-    testRule: TestCell((object, {host, arguments, user}) {
-      final ctx = host?.context;
-      final role = ctx?.stakeholders ?? '';
-      return role.contains('Admin') || role.contains('Editor');
-    }),
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 5. Main Demo
-// ─────────────────────────────────────────────────────────────────────────
-
-void main() {
-  print('═══ Multi-Tenant Context Demo ═══\n');
-  
-  // Define tenants
-  final tenantA = TenantConfig(
-    id: 'tenant-a',
-    domain: 'finance',
-    features: ['reporting', 'analytics'],
-    limits: {'max_users': 100},
-  );
-  
-  final tenantB = TenantConfig(
-    id: 'tenant-b',
-    domain: 'hr',
-    features: ['employee-management'],
-    limits: {'max_users': 50},
-  );
-  
-  // Create cells
-  final adminCell = createTenantCell(tenantA, 'Admin');
-  final editorCell = createTenantCell(tenantB, 'Editor');
-  final viewerCell = createTenantCell(tenantA, 'Viewer');
-  
-  // Test contexts
-  print('Tenant A Admin:');
-  print('  Type: ${adminCell.context.type}');
-  print('  Stakeholders: ${adminCell.context.stakeholders}');
-  print('  Features: ${adminCell.context.others?['features']}');
-  
-  print('\nTenant B Editor:');
-  print('  Type: ${editorCell.context.type}');
-  print('  Stakeholders: ${editorCell.context.stakeholders}');
-  print('  Features: ${editorCell.context.others?['features']}');
-  
-  // Test validation
-  final testRule = adminCell.validate;
-  print('\nValidation:');
-  print('  Admin tenant: ${testRule.call('data', host: adminCell)}');
-  print('  Viewer tenant: ${testRule.call('data', host: viewerCell)}');
-  
-  print('\n═══ Done ═══');
-}
+<h2 id="3-named-context-factories">3. Named Context Factories</h2>
+<p>For common roles, the framework provides pre-configured factory methods that pre-fill sensible defaults.</p>
+<h3 id="31-contextcore">3.1 <code>Context.core</code></h3>
+<pre class="language-dart"><code class="language-dart">final gatewayContext = Context.core(
+  'Gateway',
+  identity: 'Public_Ingress_01',
+  partOf: 'Edge_Service',
+);
 </code></pre>
-<p><strong>Expected Output:</strong></p>
-<pre class="language-dart"><code>═══ Multi-Tenant Context Demo ═══
-
-Tenant A Admin:
-  Type: tenant-a
-  Stakeholders: Admin
-  Features: [reporting, analytics]
-
-Tenant B Editor:
-  Type: tenant-b
-  Stakeholders: Editor
-  Features: [employee-management]
-
-Validation:
-  Admin tenant: true
-  Viewer tenant: false
-
-═══ Done ═══
+<p>Use for system-level infrastructure nodes: gateways, hubs, orchestrators, load balancers. Sets <code>taxonomy: 'core'</code>, <code>domains: 'system'</code>, <code>priority: 0</code>.</p>
+<h3 id="32-contextmodule">3.2 <code>Context.module</code></h3>
+<pre class="language-dart"><code class="language-dart">final paymentContext = Context.module(
+  'PaymentEngine',
+  identity: 'V3_Processor',
+  partOf: 'Checkout_Service',
+);
 </code></pre>
+<p>Use for application-level business logic. Sets <code>taxonomy: 'module'</code>, <code>domains: 'logic'</code>, <code>priority: 10</code>. This is the standard choice for most application cells.</p>
+<h3 id="33-contextsecureenclave">3.3 <code>Context.secureEnclave</code></h3>
+<pre class="language-dart"><code class="language-dart">final cryptoContext = Context.secureEnclave(
+  partOf: 'CryptoModule',
+  compliances: 'FIPS-140-2, PCI-DSS',
+  constraints: {'min_key_size': 2048},
+);
+</code></pre>
+<p>Use for security-critical nodes: cryptography, PII processing, admin overrides. Sets <code>taxonomy: 'enclave'</code>, <code>domains: 'security'</code>, <code>sensitivity: 'restricted'</code>, <code>audit_level: 'full'</code>, <code>priority: 0</code>.</p>
+<h3 id="34-contextpublicinterface">3.4 <code>Context.publicInterface</code></h3>
+<pre class="language-dart"><code class="language-dart">final apiContext = Context.publicInterface(
+  partOf: 'Public_Web_API',
+  domains: 'Web/v1',
+  stakeholders: 'Mobile_App_Users, Partner_SDK',
+);
+</code></pre>
+<p>Use for boundary nodes: API gateways, webhook endpoints, public ingress. Sets <code>taxonomy: 'interface'</code>, <code>sensitivity: 'public'</code>, <code>audit_level: 'none'</code>, <code>priority: 50</code>.</p>
+<h3 id="35-contextshieldedcortex">3.5 <code>Context.shieldedCortex</code></h3>
+<pre class="language-dart"><code class="language-dart">final tradingContext = Context.shieldedCortex(
+  partOf: 'Trading_Floor_A',
+  domains: 'Finance/HighFreq',
+  compliances: 'SEC, FINRA',
+  constraints: {'max_position': 1000000},
+);
+</code></pre>
+<p>Use for autonomous reasoning nodes that need a clean environment. Sets <code>taxonomy: 'cortex'</code>, <code>strategy: 'formal'</code>, <code>sensitivity: 'restricted'</code>, <code>audit_level: 'detailed'</code>, <code>priority: 10</code>.</p>
+<h3 id="36-other-factories">3.6 Other Factories</h3>
+<p>The framework also provides <code>Context.receptor</code>, <code>Context.integrityGate</code>, <code>Context.homeostasis</code>, <code>Context.sandbox</code>, <code>Context.auditLog</code>, and <code>Context.transientTask</code>. Refer to the <code>cell</code> package's <code>context.dart</code> for details.</p>
+<p>Prefer named factories over manual construction when the role matches. Named factories set <code>taxonomy</code>, <code>domains</code>, <code>sensitivity</code>, and <code>audit_level</code> sensibly.</p>
 <hr>
-<h2 id="summary">Summary</h2>
+<h2 id="4-deputycontext-delegation-and-mandate">4. <code>DeputyContext</code>: Delegation and Mandate</h2>
+<h3 id="41-what-a-deputycontext-is">4.1 What a DeputyContext Is</h3>
+<p>A <code>DeputyContext</code> is the <strong>mandate</strong> under which a deputy acts. A deputy is a restricted view of a principal cell; the deputy's context describes what the deputy is authorized to do and for how long.</p>
+<h3 id="42-creating-a-deputycontext">4.2 Creating a DeputyContext</h3>
+<pre class="language-dart"><code class="language-dart">final housekeepingMandate = DeputyContext(
+  baseContext: room302,
+  authority: 'Room_302_Master',        // The "Sovereign Resident"
+  role: 'Housekeeping',                // Who is acting
+  clearance: Clearance.standard,       // Access tier
+  justification: 'Daily cleaning cycle',
+  lease: Duration(hours: 1),
+);
+</code></pre>
+<p>Always provide <code>baseContext</code> and <code>authority</code>. <code>role</code> and <code>justification</code> are optional but recommended for audit. <code>clearance</code> determines the access tier. <code>lease</code> defines the deputy's TTL.</p>
+<h3 id="43-using-a-deputycontext">4.3 Using a DeputyContext</h3>
+<pre class="language-dart"><code class="language-dart">final principal = Cell.state&lt;int&gt;(initial: 0);
+final deputy = await principal.cell.deputy(
+  context: housekeepingMandate,
+  testRule: TestCell.readOnly,
+);
+</code></pre>
+<p>Pass the <code>DeputyContext</code> to <code>.deputy()</code>. The deputy inherits the principal's state and lock. The deputy's test rule layers additively on top of the principal's rule.</p>
+<h3 id="44-contextual-lineage">4.4 Contextual Lineage</h3>
+<p>A deputy's context must be a <strong>direct descendant</strong> of the principal's context. Attempting to jump to an unrelated context tree triggers an assertion error. This prevents privilege escalation — a deputy can only narrow, never widen.</p>
+<h3 id="45-common-clearance-tiers">4.5 Common Clearance Tiers</h3>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Description</th>
+<th>Tier</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Context</strong></td>
-<td>Operational environment for a cell</td>
+<td><code>Clearance.observational</code></td>
+<td>Read-only access; no mutations permitted.</td>
 </tr>
 <tr>
-<td><strong>Ontology</strong></td>
-<td>Structural dimensions (identity, domains, constraints)</td>
+<td><code>Clearance.standard</code></td>
+<td>Standard operations within the deputy's mandate.</td>
 </tr>
 <tr>
-<td><strong>Mandate</strong></td>
-<td>Authority dimensions (role, clearance, permissions)</td>
+<td><code>Clearance.operational</code></td>
+<td>Elevation for operational tasks (batch jobs, maintenance).</td>
 </tr>
 <tr>
-<td><strong>Provenance</strong></td>
-<td>Historical dimensions (actor, reason, strategy)</td>
-</tr>
-<tr>
-<td><strong>Inheritance</strong></td>
-<td>Prototype-based via <code>evolve()</code></td>
-</tr>
-<tr>
-<td><strong>Lineage</strong></td>
-<td>Track evolution of dimensions</td>
+<td><code>Clearance.administrative</code></td>
+<td>Full authority for configuration and policy changes.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="key-rules">Key Rules</h3>
-<ol>
-<li><strong>Context is immutable</strong> - Use <code>evolve()</code> to create new ones</li>
-<li><strong>Static pillars cannot change</strong> - Use evolvable dimensions for runtime changes</li>
-<li><strong>Use predefined factories</strong> - Prefer <code>module()</code>, <code>secureEnclave()</code>, etc.</li>
-<li><strong>Document your contexts</strong> - Explain purpose and constraints</li>
-<li><strong>Use constraints</strong> - For runtime configuration</li>
-<li><strong>Check lineage</strong> - For debugging and auditing</li>
-</ol>
-<h3 id="common-patterns">Common Patterns</h3>
-<pre class="language-dart"><code class="language-dart">// Pattern: Module context
-final context = Context.module('payment');
-
-// Pattern: Secure context
-final context = Context.secureEnclave(
-  partOf: 'CryptoModule',
-  compliances: 'FIPS-140-2',
+<p>Default to <code>Clearance.standard</code>. Downgrade to <code>Clearance.observational</code> for read-only views. Only escalate to <code>Clearance.administrative</code> for infrastructure operations.</p>
+<hr>
+<h2 id="5-pulsecontext-provenance-for-a-single-signal">5. <code>PulseContext</code>: Provenance for a Single Signal</h2>
+<h3 id="51-what-a-pulsecontext-is">5.1 What a PulseContext Is</h3>
+<p>A <code>PulseContext</code> describes the provenance of a single signal. It is attached to a <code>Pulse</code> at construction and travels with the pulse through the graph.</p>
+<h3 id="52-creating-a-pulsecontext">5.2 Creating a PulseContext</h3>
+<pre class="language-dart"><code class="language-dart">final context = PulseContext(
+  baseContext: Context.module('PaymentEngine'),
+  actor: 'user_42',
+  reason: 'User initiated checkout',
+  purpose: 'Order fulfillment',
+  strategy: ReasoningStrategy.deterministic,
+  confidence: 1.0,
+  priority: 60,
+  sensitivity: Sensitivity.confidential,
+  auditLevel: AuditLevel.full,
 );
+</code></pre>
+<p>Provide <code>actor</code>, <code>reason</code>, and <code>purpose</code> when creating a governed pulse. <code>traceId</code> is auto-generated if not provided. <code>parentTraceId</code> links this pulse to a preceding pulse (lineage).</p>
+<h3 id="53-using-a-pulsecontext">5.3 Using a PulseContext</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
+  payload: 42,
+  context: context,
+  type: 'payment.initiated',
+);
+</code></pre>
+<p>Pass the <code>PulseContext</code> to <code>Pulse.governed(...)</code>. The pulse's <code>isGoverned</code> returns <code>true</code>. Governed pulses undergo additional validation and audit at every step.</p>
+<h3 id="54-pulse-context-inheritance">5.4 Pulse Context Inheritance</h3>
+<p>When a pulse evolves via <code>.withStep(...)</code> or <code>.evolve(...)</code>, its context is preserved unless explicitly replaced. Use <code>.evolve(context: newContext)</code> only when the new context is a <strong>direct descendant</strong> of the current one. Attempting to replace the context with an unrelated context breaks causal integrity.</p>
+<h3 id="55-trace-and-traceid">5.5 Trace and TraceId</h3>
+<p>Every <code>PulseContext</code> carries a <code>traceId</code> (auto-generated) and an optional <code>parentTraceId</code>. The <code>traceId</code> identifies this signal's causal wave; the <code>parentTraceId</code> links to the wave that emitted this one. Use both for forensic reconstruction.</p>
+<hr>
+<h2 id="6-ephemeralpolicy-lifecycle-governance">6. <code>EphemeralPolicy</code>: Lifecycle Governance</h2>
+<h3 id="61-what-an-ephemeral-policy-is">6.1 What an Ephemeral Policy Is</h3>
+<p>An <code>EphemeralPolicy</code> governs a cell's or tissue's lifetime. It can set a TTL, an event limit, or a custom invalidation condition.</p>
+<h3 id="62-creating-an-ephemeral-policy">6.2 Creating an Ephemeral Policy</h3>
+<pre class="language-dart"><code class="language-dart">final policy = EphemeralPolicy(
+  duration: Duration(minutes: 5),
+  onInvalidate: (nucleus) {
+    print('Cell ${nucleus} expired');
+    return true;
+  },
+);
+</code></pre>
+<p><code>duration:</code> sets the TTL. <code>onInvalidate:</code> is invoked once when the terminal condition is met. If it returns <code>true</code>, the cell is neutralised.</p>
+<h3 id="63-attaching-an-ephemeral-policy">6.3 Attaching an Ephemeral Policy</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell.governed(
+  ephemeralPolicy: policy,
+  context: Context.module('TransientTask'),
+);
+</code></pre>
+<p>Pass <code>ephemeralPolicy:</code> to any factory that accepts it. The policy is hosted in the cell's nucleus — the cell is governed. When the policy's terminal condition is met, the cell's <code>isInvalidated</code> becomes <code>true</code>.</p>
+<h3 id="64-invalidation-cascade">6.4 Invalidation Cascade</h3>
+<p>When a principal is invalidated, all its deputies are automatically invalidated. This prevents stale deputies from continuing to broadcast. The cascade is automatic.</p>
+<h3 id="65-ephemeral-policy-vs-context">6.5 Ephemeral Policy vs. Context</h3>
+<p><code>Context</code> describes <strong>what</strong> the cell is and <strong>who</strong> it acts for. <code>EphemeralPolicy</code> describes <strong>how long</strong> the cell lives. Both can be attached to the same cell. A cell with a policy is <strong>governed</strong> — its <code>isGoverned</code> returns <code>true</code>.</p>
+<hr>
+<h2 id="7-pulseephemeralpolicy-signal-lifecycle">7. <code>PulseEphemeralPolicy</code>: Signal Lifecycle</h2>
+<h3 id="71-what-a-pulse-ephemeral-policy-is">7.1 What a Pulse Ephemeral Policy Is</h3>
+<p>A <code>PulseEphemeralPolicy</code> governs a single pulse's lifetime. It can set a TTL, a hop limit, or a custom invalidation condition.</p>
+<h3 id="72-creating-a-pulse-ephemeral-policy">7.2 Creating a Pulse Ephemeral Policy</h3>
+<pre class="language-dart"><code class="language-dart">final pulsePolicy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (pulse, {required policy}) {
+    return (hops: policy.hops + 1);
+  },
+  onInvalidate: (pulse) {
+    print('Pulse expired');
+    return true;
+  },
+);
+</code></pre>
+<p><code>duration:</code> sets the TTL. <code>hopLimit:</code> limits how many nodes the pulse can traverse. <code>onEvent:</code> is invoked at each hop. <code>onInvalidate:</code> is invoked once when the terminal condition is met.</p>
+<h3 id="73-attaching-a-pulse-ephemeral-policy">7.3 Attaching a Pulse Ephemeral Policy</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
+  payload: 42,
+  policy: pulsePolicy,
+  context: context,
+);
+</code></pre>
+<p>Pass <code>policy:</code> to <code>Pulse.governed(...)</code>. When the pulse's TTL expires or its hop limit is reached, its <code>isInvalidated</code> becomes <code>true</code>. An invalidated pulse refuses to propagate further — it neutralises itself.</p>
+<h3 id="74-the-pulse-rejects-self-property">7.4 The "Pulse Rejects Self" Property</h3>
+<p>An invalidated pulse does not wait for the framework to prune it; it refuses to hop. This is a manifestation of the "pulse as participant" principle.</p>
+<hr>
+<h2 id="8-context-resolution-and-the-principal-chain">8. Context Resolution and the Principal Chain</h2>
+<h3 id="81-tiered-resolution">8.1 Tiered Resolution</h3>
+<p>When a cell's context is accessed, the framework resolves it in this order:</p>
+<ol>
+<li><strong>Local override</strong> — if the cell's nucleus has a local context.</li>
+<li><strong>Prototype inheritance</strong> — if the cell is a deputy, walks up the <code>principal</code> chain.</li>
+<li><strong>Causal binding</strong> — if the cell has a <code>bind</code> upstream, adopts the bound cell's context.</li>
+<li><strong>Global default</strong> — <code>Context.system</code>.</li>
+</ol>
+<h3 id="82-context-immutability">8.2 Context Immutability</h3>
+<p>Once a cell is created, its context cannot be changed. The context is established during the <strong>Reciprocal Handshake</strong> at the cell's synthesis.</p>
+<h3 id="83-the-principal-chain">8.3 The Principal Chain</h3>
+<p>A deputy's context is a descendant of its principal's context. Walking the principal chain resolves the ultimate ancestor. The chain terminates at <code>Context.system</code>.</p>
+<hr>
+<h2 id="9-the-reciprocal-handshake">9. The Reciprocal Handshake</h2>
+<h3 id="91-what-the-handshake-is">9.1 What the Handshake Is</h3>
+<p>The <strong>reciprocal handshake</strong> is the protocol that authenticates a pulse to a receptor before the pulse reveals its payload.</p>
+<h3 id="92-how-it-works">9.2 How It Works</h3>
+<p>When a governed pulse reaches a governed receptor:</p>
+<ol>
+<li>The receptor presents its context to the pulse.</li>
+<li>The pulse evaluates the receptor's authority.</li>
+<li>If the receptor's authority satisfies the pulse's mandate, the pulse reveals its payload.</li>
+<li>If not, the pulse returns <code>null</code> — the signal is neutralised.</li>
+</ol>
+<p>The handshake is bidirectional — both sides validate each other. A pulse with <code>Sensitivity.confidential</code> requires a receptor with matching or higher clearance.</p>
+<h3 id="93-pulseshell">9.3 PulseShell</h3>
+<p>A <code>PulseShell</code> is the pulse's defensive form. It hides the payload until the handshake completes.</p>
+<pre class="language-dart"><code class="language-dart">final shell = pulse.shell;
 
-// Pattern: Evolution
-final evolved = base.evolve((evolvable) {
-  if (evolvable == Ontology.domains) {
-    return Ontology.domains.entry('finance');
+// In the receptor:
+final unlocked = shell.scrutinize(thisReceptor, null);
+if (unlocked != null) {
+  // Process the payload
+}
+</code></pre>
+<p>Shells are terminal — they cannot be evolved or combined.</p>
+<h3 id="94-practical-implications">9.4 Practical Implications</h3>
+<p>Governed pulses are more expensive than ungoverned ones — the handshake runs at each node. Use governed pulses for security-sensitive operations. Use ungoverned pulses for high-frequency, low-sensitivity signals.</p>
+<hr>
+<h2 id="10-composing-and-evolving-contexts">10. Composing and Evolving Contexts</h2>
+<h3 id="101-evolving-a-context">10.1 Evolving a Context</h3>
+<pre class="language-dart"><code class="language-dart">final baseContext = Context.module('PaymentEngine');
+
+final evolved = baseContext.evolve((evolvable) {
+  if (evolvable == Ontology.subDomains) {
+    return Ontology.subDomains.entry('Tax_Calculation');
+  }
+  if (evolvable == Ontology.constraints) {
+    return Ontology.constraints.entry({'max_amount': 500});
   }
   return null;
 });
+</code></pre>
+<p><code>evolve(...)</code> returns a new context that inherits from the current one. Only <strong>fluid boundaries</strong> (evolvable dimensions) can be changed. Static pillars are inherited unchanged. Returning <code>null</code> from the resolver means "inherit from the parent."</p>
+<h3 id="102-combining-contexts">10.2 Combining Contexts</h3>
+<p><code>Context</code> does not overload <code>+</code> for composition. Use <code>Context.fromEntries(...)</code> to build a context from a list of entries, or <code>evolve(...)</code> to derive a context with modified fluid boundaries.</p>
+<h3 id="103-lineage-tracing">10.3 Lineage Tracing</h3>
+<pre class="language-dart"><code class="language-dart">final lineage = context.lineage(Ontology.subDomains);
+print(lineage); // ['system', 'logic', 'Finance', 'Tax_Calculation']
+</code></pre>
+<p><code>lineage(dimension)</code> walks the parent chain and returns the ordered list of values for the given dimension.</p>
+<hr>
+<h2 id="11-auditing-and-sensitivity">11. Auditing and Sensitivity</h2>
+<h3 id="111-sensitivity-levels">11.1 Sensitivity Levels</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Sensitivity.public</code></td>
+<td>Safe for any audience.</td>
+</tr>
+<tr>
+<td><code>Sensitivity.internal</code></td>
+<td>Restricted to internal systems.</td>
+</tr>
+<tr>
+<td><code>Sensitivity.private</code></td>
+<td>Restricted to specific roles.</td>
+</tr>
+<tr>
+<td><code>Sensitivity.confidential</code></td>
+<td>Restricted to specific actors.</td>
+</tr>
+<tr>
+<td><code>Sensitivity.restricted</code></td>
+<td>Highest restriction.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-audit-levels">11.2 Audit Levels</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AuditLevel.none</code></td>
+<td>No audit.</td>
+</tr>
+<tr>
+<td><code>AuditLevel.minimal</code></td>
+<td>Log the fact of the operation.</td>
+</tr>
+<tr>
+<td><code>AuditLevel.standard</code></td>
+<td>Log the operation and its context.</td>
+</tr>
+<tr>
+<td><code>AuditLevel.detailed</code></td>
+<td>Log the operation, context, and full trace.</td>
+</tr>
+<tr>
+<td><code>AuditLevel.full</code></td>
+<td>Log everything; suitable for compliance.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113-sanitization">11.3 Sanitization</h3>
+<pre class="language-dart"><code class="language-dart">final sanitized = Cell.sanitized&lt;UserPulse&gt;(
+  source: internalUserStore,
+  redact: (pulse) =&gt; Pulse(
+    pulse.payload.copyWith(email: '***@example.com'),
+    type: 'ui.safe_view',
+  ),
+  minSensitivity: Sensitivity.confidential,
+);
+</code></pre>
+<p><code>Cell.sanitized(...)</code> redacts pulses whose sensitivity meets or exceeds <code>minSensitivity</code>. The original source remains intact — redaction happens at the sanitization cell.</p>
+<hr>
+<h2 id="12-common-human-patterns">12. Common Human Patterns</h2>
+<h3 id="121-scoped-read-only-view">12.1 Scoped Read-Only View</h3>
+<pre class="language-dart"><code class="language-dart">final readOnly = await user.deputy(
+  context: DeputyContext(
+    baseContext: user.context,
+    authority: 'system',
+    role: 'UI_View',
+    clearance: Clearance.observational,
+  ),
+  testRule: TestOne.readOnly,
+);
+</code></pre>
+<h3 id="122-temporary-access-with-lease">12.2 Temporary Access with Lease</h3>
+<pre class="language-dart"><code class="language-dart">final temporary = await user.deputy(
+  context: DeputyContext(
+    baseContext: user.context,
+    authority: 'system',
+    role: 'Temp_Task',
+    clearance: Clearance.operational,
+    lease: Duration(minutes: 5),
+  ),
+  ephemeralPolicy: EphemeralPolicy(
+    duration: Duration(minutes: 5),
+    onInvalidate: (nucleus) =&gt; true,
+  ),
+);
+</code></pre>
+<h3 id="123-audited-transaction">12.3 Audited Transaction</h3>
+<pre class="language-dart"><code class="language-dart">final tx = Cell.txApply();
 
-// Pattern: Deputy context
-final deputy = DeputyContext.observer(
-  baseContext: Context.system,
-  task: 'Monitor',
+final auditContext = PulseContext(
+  actor: 'system',
+  reason: 'Scheduled batch',
+  sensitivity: Sensitivity.private,
+  auditLevel: AuditLevel.full,
 );
 
-// Pattern: Context-aware validation
-final rule = TestCell&lt;Cell&gt;((_, {host, ...}) =&gt; host.context.domains == 'admin');
+tx.apply(user.name, () =&gt; user.name.set('Alice'),
+  compensate: () =&gt; user.name.set(user.name.value),
+);
+
+await tx.commit();
 </code></pre>
+<h3 id="124-sanitization-at-the-boundary">12.4 Sanitization at the Boundary</h3>
+<pre class="language-dart"><code class="language-dart">final publicView = Cell.sanitized&lt;UserPulse&gt;(
+  source: internalStore,
+  redact: (pulse) =&gt; Pulse(pulse.payload.copyWith(email: '***')),
+  minSensitivity: Sensitivity.confidential,
+);
+</code></pre>
+<p>Place sanitization at the boundary between internal and external systems.</p>
+<hr>
+<h2 id="13-anti-patterns">13. Anti-Patterns</h2>
+<p>❌ <strong>Mutating contexts after creation.</strong> Contexts are immutable. Create a new one instead.</p>
+<p>❌ <strong>Using unrelated contexts for deputies.</strong> The deputy's context must descend from the principal's context.</p>
+<p>❌ <strong>Widening authority through a deputy.</strong> A deputy can only narrow, never widen.</p>
+<p>❌ <strong>Attaching a <code>PulseContext</code> to a cell.</strong> Use <code>Context</code> for cells, <code>PulseContext</code> for pulses.</p>
+<p>❌ <strong>Using <code>Context.describe(...)</code> as a legal basis.</strong> <code>describe</code> stores text; it is not a policy enforcement.</p>
+<p>❌ <strong>Ignoring sensitivity.</strong> A governed pulse with <code>Sensitivity.confidential</code> will be rejected by receptors with insufficient clearance.</p>
+<p>❌ <strong>Long leases for elevated mandates.</strong> Use the shortest lease that satisfies the task.</p>
+<p>❌ <strong>Using <code>AuditLevel.full</code> on high-frequency operations.</strong> The performance cost is significant.</p>
+<hr>
+<h1 id="part-ii--ai-coding-agent-decision-tree">Part II — AI Coding Agent Decision Tree</h1>
+<h2 id="14-how-to-use-this-section">14. How to Use This Section</h2>
+<p>This section is a procedural specification for AI prompt agents that generate context-related code. It is designed to be consumed <strong>before</strong> any code is written.</p>
+<p><strong>Rules for AI agents:</strong></p>
+<ol>
+<li><strong>Follow the decision tree first.</strong> Do not skip to the procedures.</li>
+<li><strong>Do not read Part I first.</strong> Everything an agent needs is in Part II.</li>
+<li><strong>Follow the numbered steps in order.</strong> Do not reorder.</li>
+<li><strong>✅ marks a post-condition.</strong> Verify before proceeding.</li>
+<li><strong>⚠️ marks a failure mode.</strong> If observed, stop and report.</li>
+<li><strong>❌ marks a prohibition.</strong> Never violate.</li>
+<li><strong>📋 marks a canonical template.</strong> Adapt names and types; preserve structure.</li>
+<li><strong>🔁 marks a loop invariant.</strong> Check on each iteration.</li>
+</ol>
+<p>When the user's requirement is ambiguous, ask a clarifying question <strong>before</strong> choosing a procedure. Never guess.</p>
+<hr>
+<h2 id="15-decision-tree-which-context-to-create">15. Decision Tree: Which Context to Create</h2>
+<p>Start at Step 1. Follow the branch that matches the user's requirement.</p>
+<h3 id="step-1--what-is-the-target">Step 1 — What is the target?</h3>
+<p>Ask: "What is this context being attached to?"</p>
+<ul>
+<li><strong>A live cell, tissue, or organism</strong> → Go to Step 2.</li>
+<li><strong>A deputy (restricted view)</strong> → Go to <strong>Procedure B</strong> (§17).</li>
+<li><strong>A single signal (pulse)</strong> → Go to <strong>Procedure C</strong> (§18).</li>
+<li><strong>A lifecycle limit for a cell</strong> → Go to <strong>Procedure D</strong> (§19).</li>
+<li><strong>A lifecycle limit for a pulse</strong> → Go to <strong>Procedure E</strong> (§20).</li>
+<li><strong>A cell, tissue, or organism that also needs a base context</strong> → Go to Step 2, then <strong>Procedure F</strong> (§21).</li>
+</ul>
+<p>✅ Post-condition: You have identified the correct procedure.</p>
+<p>⚠️ Failure mode: If the requirement mentions multiple targets, handle each in sequence.</p>
+<h3 id="step-2--is-the-role-well-known">Step 2 — Is the role well-known?</h3>
+<p>Ask: "Does the node fit a common role?"</p>
+<ul>
+<li><strong>Infrastructure (gateway, hub, orchestrator)</strong> → Use <code>Context.core</code>. Go to <strong>Procedure A</strong> (§16), variant A1.</li>
+<li><strong>Application logic (business module, feature)</strong> → Use <code>Context.module</code>. Go to <strong>Procedure A</strong>, variant A2.</li>
+<li><strong>Security-critical (crypto, PII, admin)</strong> → Use <code>Context.secureEnclave</code>. Go to <strong>Procedure A</strong>, variant A3.</li>
+<li><strong>Boundary (API, webhook, public input)</strong> → Use <code>Context.publicInterface</code>. Go to <strong>Procedure A</strong>, variant A4.</li>
+<li><strong>Autonomous reasoning (trading, medical triage)</strong> → Use <code>Context.shieldedCortex</code>. Go to <strong>Procedure A</strong>, variant A5.</li>
+<li><strong>None of the above</strong> → Go to <strong>Procedure A</strong>, variant A6 (manual construction).</li>
+</ul>
+<p>✅ Post-condition: You have selected a Context factory variant.</p>
+<p>⚠️ Failure mode: If the role is ambiguous, choose <code>Context.module</code> — it is the safest default.</p>
+<h3 id="step-3--does-the-node-need-lifecycle-governance">Step 3 — Does the node need lifecycle governance?</h3>
+<p>Ask: "Should this node automatically expire?"</p>
+<ul>
+<li><strong>Yes, cells/tissues/organisms</strong> → Also run <strong>Procedure D</strong> (§19).</li>
+<li><strong>Yes, pulses</strong> → Also run <strong>Procedure E</strong> (§20).</li>
+<li><strong>No</strong> → Skip lifecycle policies.</li>
+</ul>
+<p>✅ Post-condition: The lifecycle requirement is either addressed or explicitly declined.</p>
+<h3 id="step-4--does-the-node-need-provenance-for-emitted-pulses">Step 4 — Does the node need provenance for emitted pulses?</h3>
+<p>Ask: "Will this node emit signals that need provenance?"</p>
+<ul>
+<li><strong>Yes</strong> → Also run <strong>Procedure C</strong> (§18) for each pulse that needs provenance.</li>
+<li><strong>No</strong> → Skip.</li>
+</ul>
+<h3 id="step-5--does-the-node-need-to-be-attached-to-a-cell-tissue-or-organism">Step 5 — Does the node need to be attached to a cell, tissue, or organism?</h3>
+<p>Ask: "Is this context going to be used immediately?"</p>
+<ul>
+<li><strong>Yes</strong> → Run <strong>Procedure F</strong> (§21) to attach the context.</li>
+<li><strong>No</strong> → The context is prepared for later use. Return it to the caller.</li>
+</ul>
+<h3 id="step-6--verify">Step 6 — Verify</h3>
+<p>Run the <strong>Verification Checklist</strong> (§24) before returning code.</p>
+<hr>
+<h2 id="16-procedure-a-create-a-base-context">16. Procedure A: Create a Base <code>Context</code></h2>
+<p>Purpose: Produce a <code>Context</code> instance suitable for a cell, tissue, or organism.</p>
+<h3 id="a1--contextcore-infrastructure">A1 — <code>Context.core</code> (Infrastructure)</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context.core(
+  type,                    // String, e.g., 'Gateway', 'Hub', 'Orchestrator'
+  identity: 'Public_Ingress_01',  // Optional String
+  partOf: 'Edge_Service',          // Optional String
+  others: {'rate_limit': 1000},    // Optional Map&lt;String, dynamic&gt;
+);
+</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Ask the user for the <code>type</code> (e.g., <code>'Gateway'</code>). This is required.</li>
+<li>Ask for <code>identity</code> (unique instance name). If not provided, omit.</li>
+<li>Ask for <code>partOf</code> (parent module). If not provided, omit.</li>
+<li>Ask for any custom <code>others</code> metadata. If not provided, omit.</li>
+<li>Emit the <code>Context.core(...)</code> call.</li>
+</ol>
+<p>✅ Post-condition: The returned context has <code>taxonomy: 'core'</code>, <code>domains: 'system'</code>, and <code>priority: 0</code> implicitly set.</p>
+<p>⚠️ Failure mode: If <code>type</code> is empty, reject the input.</p>
+<h3 id="a2--contextmodule-application-logic">A2 — <code>Context.module</code> (Application Logic)</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context.module(
+  type,                    // String, e.g., 'PaymentEngine', 'UserService'
+  identity: 'V3_Processor',        // Optional
+  partOf: 'Checkout_Service',      // Optional
+  others: {'currency': 'USD'},     // Optional
+);
+</code></pre>
+<p>Steps: same as A1.</p>
+<p>✅ Post-condition: <code>taxonomy: 'module'</code>, <code>domains: 'logic'</code>, <code>priority: 10</code>.</p>
+<h3 id="a3--contextsecureenclave-security">A3 — <code>Context.secureEnclave</code> (Security)</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context.secureEnclave(
+  partOf: 'CryptoModule',          // Required
+  compliances: 'FIPS-140-2',       // Required
+  constraints: {'min_key_size': 2048},  // Optional
+  others: {'hsm_id': 'HSM-01'},    // Optional
+);
+</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Ask for <code>partOf</code> (the enclosing module). Required.</li>
+<li>Ask for <code>compliances</code> (comma-separated regulatory standards). Required.</li>
+<li>Ask for <code>constraints</code>. Optional.</li>
+<li>Emit the call.</li>
+</ol>
+<p>✅ Post-condition: <code>taxonomy: 'enclave'</code>, <code>domains: 'security'</code>, <code>sensitivity: 'restricted'</code>, <code>audit_level: 'full'</code>.</p>
+<h3 id="a4--contextpublicinterface-boundary">A4 — <code>Context.publicInterface</code> (Boundary)</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context.publicInterface(
+  partOf: 'Public_Web_API',        // Required
+  domains: 'Web/v1',               // Required
+  stakeholders: 'Mobile_App_Users', // Optional
+  others: {'rate_limit': 100},     // Optional
+);
+</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Ask for <code>partOf</code>. Required.</li>
+<li>Ask for <code>domains</code>. Required.</li>
+<li>Ask for <code>stakeholders</code>. Optional.</li>
+<li>Emit the call.</li>
+</ol>
+<p>✅ Post-condition: <code>taxonomy: 'interface'</code>, <code>sensitivity: 'public'</code>, <code>audit_level: 'none'</code>.</p>
+<h3 id="a5--contextshieldedcortex-autonomous-reasoning">A5 — <code>Context.shieldedCortex</code> (Autonomous Reasoning)</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context.shieldedCortex(
+  partOf: 'Trading_Floor_A',       // Required
+  domains: 'Finance/HighFreq',     // Required
+  compliances: 'SEC, FINRA',       // Required
+  constraints: {'max_position': 1000000},  // Optional
+  others: {'model': 'v2'},         // Optional
+);
+</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Ask for <code>partOf</code>, <code>domains</code>, <code>compliances</code>. All required.</li>
+<li>Ask for <code>constraints</code>, <code>others</code>. Optional.</li>
+<li>Emit the call.</li>
+</ol>
+<p>✅ Post-condition: <code>taxonomy: 'cortex'</code>, <code>strategy: 'formal'</code>, <code>sensitivity: 'restricted'</code>, <code>audit_level: 'detailed'</code>.</p>
+<h3 id="a6--manual-context-construction">A6 — Manual <code>Context(...)</code> Construction</h3>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">Context(
+  type: 'CustomModule',
+  identity: 'Instance_01',
+  taxonomy: 'custom',
+  domains: 'Custom/Domain',
+  subDomains: 'SubZone',
+  stakeholders: 'Team_A, Team_B',
+  constraints: {'key': 'value'},
+  compliances: 'Internal_Policy_v2',
+  partOf: 'Parent_Module',
+);
+</code></pre>
+<p>Steps:</p>
+<ol>
+<li>Ask the user for <code>type</code>, <code>taxonomy</code>, and <code>domains</code> — these are the minimum required for a meaningful context.</li>
+<li>Ask for other dimensions. Omit any that are not provided.</li>
+<li>Do <strong>not</strong> set <code>taxonomy</code> to <code>'core'</code>, <code>'module'</code>, <code>'enclave'</code>, <code>'interface'</code>, or <code>'cortex'</code> — these are reserved by the named factories.</li>
+<li>Emit the call.</li>
+</ol>
+<p>✅ Post-condition: The context is constructed and its dimensions are consistent.</p>
+<p>⚠️ Failure mode: If <code>taxonomy</code> is one of the reserved values, warn the user and suggest the corresponding named factory.</p>
+<p>❌ Prohibition: Do not attempt to construct a context without <code>taxonomy</code> and <code>domains</code>. The framework expects them.</p>
+<hr>
+<h2 id="17-procedure-b-create-a-deputycontext">17. Procedure B: Create a <code>DeputyContext</code></h2>
+<p>Purpose: Produce a <code>DeputyContext</code> for a deputy of an existing principal.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li>
+<p><strong>Ask for the principal's context.</strong> This must be a live <code>Context</code> (or a <code>Context</code> that has already been created in the current session).</p>
+</li>
+<li>
+<p><strong>Ask for the <code>authority</code>.</strong> This is the sovereign resident (a String). It is required.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>role</code>.</strong> This is the deputy's function (a String). Optional but recommended.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>clearance</code>.</strong> Use one of <code>Clearance.observational</code>, <code>Clearance.standard</code>, <code>Clearance.operational</code>, or <code>Clearance.administrative</code>. Default to <code>Clearance.standard</code>.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>lease</code>.</strong> This is a <code>Duration</code>. Optional.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>justification</code>.</strong> This is a String for audit. Optional.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">DeputyContext(
+  baseContext: principal.context,   // Required
+  authority: 'Room_302_Master',     // Required
+  role: 'Housekeeping',             // Optional
+  clearance: Clearance.standard,    // Default: standard
+  lease: Duration(hours: 1),        // Optional
+  justification: 'Daily cleaning',  // Optional
+);
+</code></pre>
+<p>✅ Post-condition: The returned <code>DeputyContext</code> has <code>parent == principal.context</code>.</p>
+<p>⚠️ Failure mode: If the principal's context is <code>Context.system</code>, verify that the user intended this. Escalating from <code>Context.system</code> requires explicit acknowledgement.</p>
+<p>⚠️ Failure mode: If <code>clearance</code> is <code>Clearance.administrative</code> and <code>lease</code> is longer than an hour, warn the user and ask for confirmation.</p>
+<p>❌ Prohibition: Do not construct a <code>DeputyContext</code> with a <code>baseContext</code> that is not the principal's actual context (or a descendant of it). The framework's handshake will reject it.</p>
+<hr>
+<h2 id="18-procedure-c-create-a-pulsecontext">18. Procedure C: Create a <code>PulseContext</code></h2>
+<p>Purpose: Produce a <code>PulseContext</code> for a governed pulse.</p>
+<h3 id="steps-2">Steps</h3>
+<ol>
+<li>
+<p><strong>Ask for the <code>actor</code>.</strong> This is the identifier of the entity emitting the pulse (a String). Required.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>reason</code>.</strong> This is the immediate cause (a String). Required.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>purpose</code>.</strong> This is the strategic intent (a String). Optional but recommended.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>sensitivity</code>.</strong> Default to <code>Sensitivity.internal</code> if the user does not specify.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>auditLevel</code>.</strong> Default to <code>AuditLevel.standard</code> if the user does not specify.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>traceId</code>.</strong> If not provided, the framework auto-generates one. Omit the parameter.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>parentTraceId</code>.</strong> If this pulse is emitted in response to another pulse, provide the parent's <code>traceId</code>. Otherwise, omit.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">PulseContext(
+  baseContext: Context.module('PaymentEngine'),  // Optional
+  actor: 'user_42',                              // Required
+  reason: 'User initiated checkout',              // Required
+  purpose: 'Order fulfillment',                   // Optional
+  sensitivity: Sensitivity.confidential,          // Default: internal
+  auditLevel: AuditLevel.full,                    // Default: standard
+  parentTraceId: previousPulse.context.traceId,   // Optional
+);
+</code></pre>
+<p>✅ Post-condition: The returned <code>PulseContext</code> has a non-null <code>traceId</code>.</p>
+<p>⚠️ Failure mode: If <code>actor</code> or <code>reason</code> is empty, reject the input.</p>
+<p>⚠️ Failure mode: If <code>sensitivity</code> is <code>Sensitivity.confidential</code> or higher and <code>auditLevel</code> is <code>AuditLevel.none</code>, warn the user. High-sensitivity data should be audited.</p>
+<p>❌ Prohibition: Do not use <code>PulseContext</code> for a cell's context. Use <code>Context</code> or <code>DeputyContext</code>.</p>
+<hr>
+<h2 id="19-procedure-d-create-an-ephemeralpolicy">19. Procedure D: Create an <code>EphemeralPolicy</code></h2>
+<p>Purpose: Produce an <code>EphemeralPolicy</code> that governs a cell's, tissue's, or organism's lifetime.</p>
+<h3 id="steps-3">Steps</h3>
+<ol>
+<li>
+<p><strong>Ask for the <code>duration</code> (TTL).</strong> Required if the user wants time-based expiry.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>onInvalidate</code> callback.</strong> Required. The callback receives the nucleus and returns a <code>bool</code>.</p>
+</li>
+<li>
+<p><strong>Determine the callback's behaviour:</strong></p>
+<ul>
+<li>If the user wants the cell to be invalidated unconditionally, return <code>true</code>.</li>
+<li>If the user wants to inspect the nucleus and decide, implement the logic and return accordingly.</li>
+</ul>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">EphemeralPolicy(
+  duration: Duration(minutes: 5),   // Required
+  onInvalidate: (nucleus) =&gt; true,  // Required
+);
+</code></pre>
+<p>✅ Post-condition: The policy has a valid <code>duration</code> and a valid <code>onInvalidate</code> callback.</p>
+<p>⚠️ Failure mode: If <code>duration</code> is <code>Duration.zero</code> or negative, reject the input.</p>
+<p>❌ Prohibition: Do not return <code>false</code> from <code>onInvalidate</code> without a clear reason. Returning <code>false</code> keeps the cell alive, which contradicts the policy's purpose.</p>
+<hr>
+<h2 id="20-procedure-e-create-a-pulseephemeralpolicy">20. Procedure E: Create a <code>PulseEphemeralPolicy</code></h2>
+<p>Purpose: Produce a <code>PulseEphemeralPolicy</code> that governs a single pulse's lifetime.</p>
+<h3 id="steps-4">Steps</h3>
+<ol>
+<li>
+<p><strong>Ask for the <code>duration</code>.</strong> Optional — if omitted, the pulse has no TTL.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>hopLimit</code>.</strong> Optional — if omitted, the pulse has no hop limit.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>onEvent</code> callback.</strong> Optional. If provided, it is invoked at each hop and can update the policy state.</p>
+</li>
+<li>
+<p><strong>Ask for the <code>onInvalidate</code> callback.</strong> Required. The callback receives the pulse and returns a <code>bool</code>.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (pulse, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) =&gt; true,
+);
+</code></pre>
+<p>✅ Post-condition: The policy has at least one of <code>duration</code> or <code>hopLimit</code> set.</p>
+<p>⚠️ Failure mode: If neither <code>duration</code> nor <code>hopLimit</code> is set, the policy does nothing. Warn the user.</p>
+<hr>
+<h2 id="21-procedure-f-attach-a-context-to-a-cell-tissue-or-organism">21. Procedure F: Attach a Context to a Cell, Tissue, or Organism</h2>
+<p>Purpose: Attach a previously created <code>Context</code> to a live cell, tissue, or organism.</p>
+<h3 id="steps-5">Steps</h3>
+<ol>
+<li>
+<p><strong>Identify the target factory.</strong> Determine whether the target is a <code>Cell</code>, a <code>Tissue</code>, or a <code>One</code> (organism).</p>
+</li>
+<li>
+<p><strong>Identify the correct parameter name.</strong> All three use the <code>context:</code> parameter.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template — Cell:</p>
+<pre class="language-dart"><code class="language-dart">Cell(
+  context: myContext,
+  // other parameters
+);
+</code></pre>
+<p>📋 Canonical template — Tissue:</p>
+<pre class="language-dart"><code class="language-dart">final list = TissueList&lt;int&gt;(
+  context: myContext,
+);
+</code></pre>
+<p>📋 Canonical template — Organism:</p>
+<pre class="language-dart"><code class="language-dart">final user = User();
+final scopedUser = await user.deputy(
+  context: DeputyContext(
+    baseContext: user.context,
+    authority: 'system',
+    role: 'UI_View',
+    clearance: Clearance.observational,
+  ),
+);
+</code></pre>
+<ol start="4">
+<li><strong>Verify the type.</strong> The parameter accepts <code>Context</code> for cells and tissues. For deputies, it accepts <code>DeputyContext</code>.</li>
+</ol>
+<p>✅ Post-condition: The target is constructed with the provided context.</p>
+<p>⚠️ Failure mode: Passing a <code>PulseContext</code> to a cell's <code>context:</code> parameter is a type error. Reject.</p>
+<p>❌ Prohibition: Do not attempt to change a cell's context after construction. The context is immutable.</p>
+<hr>
+<h2 id="22-procedure-g-evolve-a-context">22. Procedure G: Evolve a Context</h2>
+<p>Purpose: Derive a new context from an existing one, modifying only fluid boundaries.</p>
+<h3 id="steps-6">Steps</h3>
+<ol>
+<li>
+<p><strong>Identify the base context.</strong> This is the context to evolve from.</p>
+</li>
+<li>
+<p><strong>Identify the dimensions to change.</strong> These must be <strong>fluid boundaries</strong> (evolvable dimensions). Check the <code>Ontology</code> enum to confirm.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final evolved = baseContext.evolve((evolvable) {
+  if (evolvable == Ontology.subDomains) {
+    return Ontology.subDomains.entry('New_SubDomain');
+  }
+  if (evolvable == Ontology.constraints) {
+    return Ontology.constraints.entry({'new_key': 'new_value'});
+  }
+  return null; // inherit from parent
+});
+</code></pre>
+<ol start="4">
+<li><strong>Return <code>null</code> for dimensions not being changed.</strong></li>
+</ol>
+<p>✅ Post-condition: The evolved context inherits static pillars from the base.</p>
+<p>⚠️ Failure mode: Attempting to change a static pillar (e.g., <code>taxonomy</code>, <code>domains</code>) via <code>evolve(...)</code> has no effect. If the user asks to change a static pillar, explain that a new context must be created instead.</p>
+<p>❌ Prohibition: Do not return a <code>GovernanceEntry</code> whose key does not match the <code>evolvable</code> argument.</p>
+<hr>
+<h2 id="23-procedure-h-sanitize-a-pulse-based-on-sensitivity">23. Procedure H: Sanitize a Pulse Based on Sensitivity</h2>
+<p>Purpose: Redact sensitive fields from pulses before they reach a boundary.</p>
+<h3 id="steps-7">Steps</h3>
+<ol>
+<li>
+<p><strong>Identify the source.</strong> This is the cell emitting the sensitive pulses.</p>
+</li>
+<li>
+<p><strong>Identify the redact function.</strong> This function receives a pulse and returns a sanitized pulse.</p>
+</li>
+<li>
+<p><strong>Determine the <code>minSensitivity</code>.</strong> This is the threshold at which redaction is triggered. Default to <code>Sensitivity.confidential</code>.</p>
+</li>
+<li>
+<p><strong>Emit the call:</strong></p>
+</li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final sanitized = Cell.sanitized&lt;UserPulse&gt;(
+  source: internalUserStore,
+  redact: (pulse) =&gt; Pulse(
+    pulse.payload.copyWith(email: '***@example.com'),
+    type: 'ui.safe_view',
+  ),
+  minSensitivity: Sensitivity.confidential,
+);
+</code></pre>
+<ol start="5">
+<li><strong>Verify the redact function is pure.</strong> It should not perform I/O or side effects.</li>
+</ol>
+<p>✅ Post-condition: Pulses with <code>sensitivity &gt;= minSensitivity</code> are redacted before propagating downstream.</p>
+<p>⚠️ Failure mode: If the redact function throws, the pulse is dropped. Ensure it handles all valid inputs.</p>
+<p>❌ Prohibition: Do not redact at the source. Place sanitization at the boundary between internal and external systems.</p>
+<hr>
+<h2 id="24-verification-checklist-for-ai-agents">24. Verification Checklist for AI Agents</h2>
+<p>Before returning generated code, verify all of the following:</p>
+<h3 id="type-correctness">Type Correctness</h3>
+<p>✅ The context type matches the target:</p>
+<ul>
+<li><code>Context</code> for cells, tissues, organisms.</li>
+<li><code>DeputyContext</code> for deputies.</li>
+<li><code>PulseContext</code> for pulses.</li>
+<li><code>EphemeralPolicy</code> for cell/tissue/organism lifecycle.</li>
+<li><code>PulseEphemeralPolicy</code> for pulse lifecycle.</li>
+</ul>
+<h3 id="required-fields">Required Fields</h3>
+<p>✅ <code>Context</code>: <code>taxonomy</code> and <code>domains</code> are set (unless a named factory sets them).
+✅ <code>DeputyContext</code>: <code>baseContext</code> and <code>authority</code> are provided.
+✅ <code>PulseContext</code>: <code>actor</code> and <code>reason</code> are provided.
+✅ <code>EphemeralPolicy</code>: <code>duration</code> (or equivalent) and <code>onInvalidate</code> are provided.
+✅ <code>PulseEphemeralPolicy</code>: at least one of <code>duration</code> or <code>hopLimit</code> is set, plus <code>onInvalidate</code>.</p>
+<h3 id="lineage">Lineage</h3>
+<p>✅ A deputy's <code>baseContext</code> descends from the principal's context.
+✅ A pulse's <code>parentTraceId</code>, if provided, refers to an actual parent pulse.
+✅ A deputy's <code>clearance</code> is at most equal to the principal's clearance.</p>
+<h3 id="immutability">Immutability</h3>
+<p>✅ The context is not mutated after construction.
+✅ Static pillars are set correctly at construction (not evolved).</p>
+<h3 id="security">Security</h3>
+<p>✅ Sensitive pulses have <code>sensitivity</code> set to <code>confidential</code> or higher.
+✅ High-sensitivity pulses have <code>auditLevel</code> set to <code>detailed</code> or <code>full</code>.
+✅ Sanitization is applied at boundaries.
+✅ Leases are used for elevated or temporary mandates.</p>
+<h3 id="correctness">Correctness</h3>
+<p>✅ The generated code compiles.
+✅ Any ambiguity in the requirement has been resolved with the user.
+✅ The chosen procedure matches the decision tree's outcome.</p>
+<p>If any check fails, correct the code before returning it. If a check cannot be verified, ask the user for clarification.</p>
+<hr>
+<h2 id="25-references">25. References</h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="README.md"><code>README.md</code></a></td>
+<td>Package overview.</td>
+</tr>
+<tr>
+<td><a href="ARCHITECTURE.md"><code>ARCHITECTURE.md</code></a></td>
+<td>Design rationale for the substrate.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Start.md"><code>HowTo-Start.md</code></a></td>
+<td>Getting started with <code>cell</code>.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Advanced.md"><code>HowTo-Advanced.md</code></a></td>
+<td>Index of governance machinery.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Transaction.md"><code>HowTo-Transaction.md</code></a></td>
+<td>The <code>Cell.transaction</code> surface.</td>
+</tr>
+<tr>
+<td><a href="HowTo-TransactionOnApply.md"><code>HowTo-TransactionOnApply.md</code></a></td>
+<td>The <code>Cell.txApply</code> surface.</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/HowTo-Start.md"><code>packages/cell_organ/guide/HowTo-Start.md</code></a></td>
+<td>Getting started with organisms.</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/HowTo-Relations.md"><code>packages/cell_organ/guide/HowTo-Relations.md</code></a></td>
+<td>Working with relations.</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/Conactive_Model_Reference.md"><code>packages/cell_organ/guide/Conactive_Model_Reference.md</code></a></td>
+<td>The biological vocabulary explained.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>If a guide and the source disagree, the source is current.</em></p>
 </section>
 
 
@@ -1205,7 +1213,7 @@ boundaries — used by <a href="../cell/TestCell-class.html">TestCell</a> rules 
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.6
+      1.0.0-rc.8
   </span>
   
 </footer>

@@ -45,660 +45,696 @@
   <h1><span class="kind-category">Instructions</span> topic</h1>
   
 <section class="desc markdown">
-  <h1 id="how-to-use-instructions-in-the-cell-framework">How to Use Instructions in the Cell Framework</h1>
+  <h1 id="howto-synapsesmd">HowTo-Synapses.md</h1>
+<p><strong>Working with the Distribution Network in the Mitosis Framework</strong>
+<em>A guide for human developers and AI prompt agents</em></p>
+<hr>
+<h2 id="abstract">Abstract</h2>
+<p><code>Synapses</code> is the distribution fabric of a <code>Cell</code>. When a cell's state changes and a <code>Pulse</code> is emitted, the synapses decide <strong>who</strong> receives the pulse, <strong>in what form</strong> (via filters), and <strong>when</strong> (via propagation policies). It is the egress half of the framework's signal flow — the counterpart to the receptor, which handles ingress.</p>
+<p>This guide covers the full surface of <code>Synapses</code>: how to configure downstream observers, how to attach <code>FilterRule</code>s to transform or redact outgoing pulses, how to apply <code>PropagationPolicy</code>s to control timing, how to manage link and unlink at runtime, and how to reason about cycle safety and forensic tagging. It is written in two parts:</p>
+<ul>
+<li><strong>Part I — Human Guide.</strong> Prose sections for developers learning the model.</li>
+<li><strong>Part II — AI Coding Agent Decision Tree.</strong> A dedicated procedural section for AI prompt agents generating synapse-related code. AI agents should jump directly to Part II.</li>
+</ul>
+<p>Both parts cover the same underlying material.</p>
+<hr>
 <h2 id="table-of-contents">Table of Contents</h2>
+<p><strong>Part I — Human Guide</strong></p>
 <ol>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#what-is-an-instruction">What is an Instruction?</a></li>
-<li><a href="#core-concepts">Core Concepts</a></li>
-<li><a href="#creating-instructions">Creating Instructions</a></li>
-<li><a href="#composing-pipelines">Composing Pipelines</a></li>
-<li><a href="#using-instructions-with-receptors">Using Instructions with Receptors</a></li>
-<li><a href="#asynchronous-instructions">Asynchronous Instructions</a></li>
-<li><a href="#testing-instructions">Testing Instructions</a></li>
-<li><a href="#error-handling">Error Handling</a></li>
-<li><a href="#best-practices">Best Practices</a></li>
-<li><a href="#complete-example">Complete Example</a></li>
+<li><a href="#1-what-synapses-are">What Synapses Are</a></li>
+<li><a href="#2-the-two-named-constants">The Two Named Constants</a></li>
+<li><a href="#3-constructing-synapses">Constructing Synapses</a></li>
+<li><a href="#4-linking-and-unlinking-at-runtime">Linking and Unlinking at Runtime</a></li>
+<li><a href="#5-filters-transforming-pulses-before-broadcast">Filters: Transforming Pulses Before Broadcast</a></li>
+<li><a href="#6-propagation-policies-timing-control">Propagation Policies: Timing Control</a></li>
+<li><a href="#7-the-relay-override">The <code>relay</code> Override</a></li>
+<li><a href="#8-cycle-safety">Cycle Safety</a></li>
+<li><a href="#9-forensic-tagging">Forensic Tagging</a></li>
+<li><a href="#10-async-broadcasts">Async Broadcasts</a></li>
+<li><a href="#11-common-human-patterns">Common Human Patterns</a></li>
+<li><a href="#12-anti-patterns">Anti-Patterns</a></li>
 </ol>
+<p><strong>Part II — AI Coding Agent Decision Tree</strong>
+13. <a href="#13-how-to-use-this-section">How to Use This Section</a>
+14. <a href="#14-decision-tree-what-kind-of-synapse-configuration-do-you-need">Decision Tree: What Kind of Synapse Configuration Do You Need?</a>
+15. <a href="#15-procedure-a-use-synapsesenabled-default">Procedure A: Use <code>Synapses.enabled</code> (Default)</a>
+16. <a href="#16-procedure-b-use-synapsesdisabled-terminal-node">Procedure B: Use <code>Synapses.disabled</code> (Terminal Node)</a>
+17. <a href="#17-procedure-c-configure-downstream-observers">Procedure C: Configure Downstream Observers</a>
+18. <a href="#18-procedure-d-attach-a-filterrule">Procedure D: Attach a <code>FilterRule</code></a>
+19. <a href="#19-procedure-e-compose-filters-with-">Procedure E: Compose Filters with <code>+</code></a>
+20. <a href="#20-procedure-f-configure-a-propagationpolicy">Procedure F: Configure a <code>PropagationPolicy</code></a>
+21. <a href="#21-procedure-g-link-and-unlink-at-runtime">Procedure G: Link and Unlink at Runtime</a>
+22. <a href="#22-procedure-h-attach-a-custom-relay">Procedure H: Attach a Custom <code>relay</code></a>
+23. <a href="#23-verification-checklist-for-ai-agents">Verification Checklist for AI Agents</a>
+24. <a href="#24-references">References</a></p>
 <hr>
-<h2 id="introduction">Introduction</h2>
-<p>Instructions are the fundamental building blocks for data transformation in the Cell Framework. They represent <strong>reusable, composable units of logic</strong> that process pulses through a reactive graph. Think of them as <strong>pipeline stages</strong> that transform data as it flows from one cell to another.</p>
-<h3 id="when-to-use-instructions">When to Use Instructions</h3>
+<h1 id="part-i--human-guide">Part I — Human Guide</h1>
+<h2 id="1-what-synapses-are">1. What Synapses Are</h2>
+<p>Every <code>Cell</code> has two signal-flow boundaries:</p>
 <ul>
-<li><strong>Data Validation</strong> - Validate incoming data before processing</li>
-<li><strong>Data Transformation</strong> - Convert data from one format to another</li>
-<li><strong>Data Enrichment</strong> - Add additional data to existing payloads</li>
-<li><strong>Filtering</strong> - Drop unwanted pulses</li>
-<li><strong>Logging</strong> - Audit trail for debugging</li>
-<li><strong>Sanitization</strong> - Clean and normalize data</li>
+<li><strong>Ingress</strong> — the <code>Receptor</code> handles incoming pulses.</li>
+<li><strong>Egress</strong> — the <code>Synapses</code> handles outgoing pulses.</li>
 </ul>
-<hr>
-<h2 id="what-is-an-instruction">What is an Instruction?</h2>
-<p>An <code>Instruction</code> is a <strong>stateless transformation unit</strong> that takes a <code>Pulse</code> as input and returns either:</p>
-<ul>
-<li>A <strong>new Pulse</strong> (for successful transformation)</li>
-<li><code>null</code> (to terminate/filter the signal)</li>
-</ul>
-<h3 id="type-parameters">Type Parameters</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;C extends Cell, I extends Pulse, O extends Pulse&gt;
-</code></pre>
+<p><code>Synapses</code> is the egress fabric. When a cell changes state and emits a pulse, the pulse passes through the cell's synapses, and the synapses decide:</p>
+<ol>
+<li><strong>Who</strong> receives the pulse — the registered downstream cells.</li>
+<li><strong>In what form</strong> — filters can transform or redact the pulse.</li>
+<li><strong>When</strong> — propagation policies can debounce, throttle, or batch delivery.</li>
+</ol>
+<h3 id="the-four-parts-of-a-synapse-configuration">The Four Parts of a Synapse Configuration</h3>
 <table>
 <thead>
 <tr>
-<th>Parameter</th>
-<th>Description</th>
+<th>Part</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>C</code></td>
-<td>The type of the host <code>Cell</code> (usually <code>Cell</code>)</td>
+<td><strong>Downstreams</strong></td>
+<td>The list of cells that will receive pulses.</td>
 </tr>
 <tr>
-<td><code>I</code></td>
-<td>The type of the input <code>Pulse</code> (usually <code>Pulse</code>)</td>
+<td><strong>Filter</strong></td>
+<td>A <code>FilterRule</code> that transforms or suppresses pulses before broadcast.</td>
 </tr>
 <tr>
-<td><code>O</code></td>
-<td>The type of the output <code>Pulse</code> (usually <code>Pulse</code>)</td>
+<td><strong>Policy</strong></td>
+<td>A <code>PropagationPolicy</code> that governs timing.</td>
+</tr>
+<tr>
+<td><strong>Relay</strong></td>
+<td>An optional override for the broadcast logic.</td>
 </tr>
 </tbody>
 </table>
-<p>For most cases, you'll use <code>Instruction&lt;Cell, Pulse, Pulse&gt;</code>.</p>
+<p>You rarely construct a <code>Synapses</code> from scratch. The framework uses <code>Synapses.enabled</code> by default, and configuration happens through the cell's factory parameters.</p>
 <hr>
-<h2 id="core-concepts">Core Concepts</h2>
-<h3 id="1-pulses-are-immutable">1. Pulses are Immutable</h3>
-<p>Instructions <strong>never modify</strong> the input pulse. They always create and return a <strong>new pulse</strong> with the transformed data.</p>
-<pre class="language-dart"><code class="language-dart">// ❌ WRONG - Modifies input
-static Pulse? _process(Pulse pulse) {
-  pulse.payload = newData;  // NO - Pulse is immutable!
-  return pulse;
+<h2 id="2-the-two-named-constants">2. The Two Named Constants</h2>
+<p>The framework provides two predefined synapse configurations.</p>
+<h3 id="21-synapsesenabled-default">2.1 <code>Synapses.enabled</code> (Default)</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(); // uses Synapses.enabled by default
+</code></pre>
+<p><code>Synapses.enabled</code> signals the framework to allocate a fresh, empty observer registry when the cell is activated. It is a <strong>flyweight placeholder</strong>, not the actual registry.</p>
+<p><strong>When to use:</strong> For any cell that should broadcast to observers.</p>
+<h3 id="22-synapsesdisabled-terminal">2.2 <code>Synapses.disabled</code> (Terminal)</h3>
+<pre class="language-dart"><code class="language-dart">final terminal = Cell(synapses: Synapses.disabled);
+</code></pre>
+<p><code>Synapses.disabled</code> makes the cell a <strong>terminal node</strong> — a sink that emits no signals.</p>
+<p><strong>When to use:</strong> For cells that only consume pulses (observers, loggers, terminal UI bindings). Terminal cells have no observer registry, which saves memory.</p>
+<h3 id="23-verifying-terminality">2.3 Verifying Terminality</h3>
+<pre class="language-dart"><code class="language-dart">print(terminal.isTerminal); // true
+</code></pre>
+<p><code>isTerminal</code> returns <code>true</code> for cells configured with <code>Synapses.disabled</code>.</p>
+<hr>
+<h2 id="3-constructing-synapses">3. Constructing Synapses</h2>
+<p>For fine-grained control, construct <code>Synapses</code> directly:</p>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  downstreams: [logger, analytics, uiUpdater],
+  filter: redactFilter,
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+<p>Then pass it to a cell factory:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(synapses: synapses);
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong><code>downstreams</code></strong> — the initial observers to link.</li>
+<li><strong><code>filter</code></strong> — a <code>FilterRule</code> applied to every outgoing pulse.</li>
+<li><strong><code>policy</code></strong> — a <code>PropagationPolicy</code> governing timing.</li>
+<li><strong><code>relay</code></strong> — a custom function that overrides the default broadcast.</li>
+</ul>
+<p>The <code>Synapses</code> constructor is typically used when you need to pre-wire observers or customise the egress behaviour.</p>
+<hr>
+<h2 id="4-linking-and-unlinking-at-runtime">4. Linking and Unlinking at Runtime</h2>
+<p>Cells can be linked and unlinked dynamically:</p>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">final synapses = cell._nucleus.synapses;
+
+final linked = await synapses.link(source, downstreamCell: observer);
+if (linked) {
+// observer now receives pulses
 }
 
-// ✅ CORRECT - Returns new pulse
-static Pulse? _process(Pulse pulse) {
-  final newData = transform(pulse.payload);
-  return Pulse(newData);  // Returns a NEW pulse
-}
+synapses.unlink(source, downstreamCell: observer);
+// observer no longer receives pulses
 </code></pre>
-<h3 id="2-instructions-are-stateless">2. Instructions are Stateless</h3>
-<p>Instructions should not hold internal state. All state should be managed by the surrounding <code>Cell</code> or passed through the pulse.</p>
-<pre class="language-dart"><code class="language-dart">// ❌ WRONG - Holds state
-class CounterInstruction extends InstructionBase {
-  int _count = 0;  // NO - Instructions should be stateless!
-  // ...
+<h3 id="validation">Validation</h3>
+<p>Linking is governed by the host cell's <code>TestCell</code> rules. If the rules reject the link, <code>link</code> returns <code>false</code>.</p>
+<h3 id="deputies-and-principals">Deputies and Principals</h3>
+<p>Deputies and their principals are considered equivalent for linking. Linking a deputy is equivalent to linking its principal.</p>
+<h3 id="unlinking">Unlinking</h3>
+<p><code>unlink</code> returns <code>true</code> if the link was found and removed; <code>false</code> otherwise.</p>
+<hr>
+<h2 id="5-filters-transforming-pulses-before-broadcast">5. Filters: Transforming Pulses Before Broadcast</h2>
+<h3 id="51-what-a-filter-does">5.1 What a Filter Does</h3>
+<p>A <code>FilterRule</code> intercepts every outgoing pulse and can:</p>
+<ul>
+<li><strong>Transform</strong> — return a new pulse.</li>
+<li><strong>Suppress</strong> — return <code>null</code> to drop the pulse.</li>
+<li><strong>Pass through</strong> — return the pulse unchanged.</li>
+</ul>
+<h3 id="52-constructing-a-filter">5.2 Constructing a Filter</h3>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
+  final data = pulse.payload;
+  return Pulse(data.copyWith(email: '***', phone: '***'));
+});
+</code></pre>
+<p>The filter receives the outgoing pulse and optional <code>user</code> metadata. It returns a <code>Pulse</code> to continue or <code>null</code> to drop.</p>
+<h3 id="53-filtering-vs-suppressing">5.3 Filtering vs. Suppressing</h3>
+<pre class="language-dart"><code class="language-dart">// Filter — drop negative values
+final positiveFilter = FilterRule&lt;int&gt;((pulse, {user}) {
+  return pulse.payload &gt; 0 ? pulse : null;
+});
+</code></pre>
+<h3 id="54-attaching-a-filter-to-synapses">5.4 Attaching a Filter to Synapses</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    downstreams: [uiObserver],
+    filter: redactFilter,
+  ),
+);
+</code></pre>
+<p>The filter runs before any observer receives the pulse.</p>
+<hr>
+<h2 id="6-propagation-policies-timing-control">6. Propagation Policies: Timing Control</h2>
+<h3 id="61-what-a-propagation-policy-does">6.1 What a Propagation Policy Does</h3>
+<p>A <code>PropagationPolicy</code> controls <strong>when</strong> a pulse is delivered to downstream observers. Common strategies:</p>
+<ul>
+<li><strong>Immediate</strong> — deliver synchronously (default).</li>
+<li><strong>Debounced</strong> — deliver only after a period of silence.</li>
+<li><strong>Throttled</strong> — deliver at a bounded rate.</li>
+<li><strong>Batched</strong> — collect pulses and deliver them together.</li>
+</ul>
+<h3 id="62-configuring-a-debounce-policy">6.2 Configuring a Debounce Policy</h3>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">final debouncedSynapses = Synapses(
+  downstreams: [searchHandler],
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+<h3 id="63-composing-with-filters">6.3 Composing with Filters</h3>
+<p>Filters and policies compose. The filter runs first, then the policy governs delivery timing:</p>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  downstreams: [handler],
+  filter: normaliseFilter,
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.throttled,
+    throttleTime: Duration(seconds: 1),
+  ),
+);
+</code></pre>
+<p>The resulting pipeline: <code>emit → filter → policy → observers</code>.</p>
+<hr>
+<h2 id="7-the-relay-override">7. The <code>relay</code> Override</h2>
+<h3 id="71-what-relay-does">7.1 What <code>relay</code> Does</h3>
+<p>The <code>relay</code> parameter lets you override the default broadcast logic. When provided, the framework calls your <code>relay</code> function instead of iterating over the downstream observers.</p>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">final synapses = Synapses(
+  relay: (pulse) {
+    // Custom delivery logic
+    for (final cell in myCustomObservers) {
+      cell.receptor.call(pulse);
+    }
+  },
+);
+</code></pre>
+<h3 id="72-when-to-use-relay">7.2 When to Use <code>relay</code></h3>
+<ul>
+<li><strong>Custom routing</strong> — you have a non-standard topology.</li>
+<li><strong>Conditional delivery</strong> — different observers receive different pulses.</li>
+<li><strong>Logging and metrics</strong> — you want to instrument each broadcast.</li>
+</ul>
+<h3 id="73-when-not-to-use-relay">7.3 When NOT to Use <code>relay</code></h3>
+<p>For most use cases, the default broadcast is sufficient. The <code>downstreams</code> and <code>filter</code> parameters handle most customisation. Only reach for <code>relay</code> when the default iteration does not fit.</p>
+<hr>
+<h2 id="8-cycle-safety">8. Cycle Safety</h2>
+<h3 id="81-what-cycle-safety-is">8.1 What Cycle Safety Is</h3>
+<p>The synapses fabric automatically prevents infinite loops. Every pulse carries its forensic history. When a pulse reaches a cell it has already visited, the framework silently terminates propagation for that branch.</p>
+<h3 id="82-practical-implication">8.2 Practical Implication</h3>
+<p>You do not need to guard against cycles manually. A graph like:</p>
+<pre class="language-dart"><code>A → B → C → A
+</code></pre>
+<p>will not infinite-loop. The pulse is delivered to <code>A</code>, <code>B</code>, and <code>C</code> once, and then terminated.</p>
+<h3 id="83-detecting-cycles">8.3 Detecting Cycles</h3>
+<p>If you suspect a cycle is causing unintended termination (a pulse not reaching a downstream cell you expected), inspect the pulse's trace:</p>
+<pre class="language-dart"><code class="language-dart">Cell.observe(
+source: someCell,
+effect: (pulse) {
+print('Trace: ${pulse.trace}');
+},
+);
+</code></pre>
+<p>The trace shows the path the pulse has taken. If the same cell appears twice, the cycle was detected.</p>
+<hr>
+<h2 id="9-forensic-tagging">9. Forensic Tagging</h2>
+<p>Every signal passing through the synapse fabric is implicitly tagged with <strong>egress metadata</strong>. This allows the framework to reconstruct:</p>
+<ul>
+<li>Which cell emitted the pulse.</li>
+<li>Which synapses the pulse traversed.</li>
+<li>Which observers received the pulse.</li>
+</ul>
+<h3 id="accessing-the-forensic-metadata">Accessing the Forensic Metadata</h3>
+<pre class="language-dart"><code class="language-dart">Cell.observe(
+source: cell,
+effect: (pulse) {
+print('Source: ${pulse.source}');
+print('Root: ${pulse.root}');
+print('Trace: ${pulse.trace}');
+},
+);
+</code></pre>
+<p>The forensic metadata is preserved automatically — you do not need to configure anything.</p>
+<hr>
+<h2 id="10-async-broadcasts">10. Async Broadcasts</h2>
+<p>The synapses fabric provides an async view for non-blocking broadcasts:</p>
+<p>📋 <strong>Canonical template:</strong></p>
+<pre class="language-dart"><code class="language-dart">await synapses.async.call(pulse);
+</code></pre>
+<h3 id="when-to-use-async-broadcasts">When to Use Async Broadcasts</h3>
+<ul>
+<li><strong>UI updates</strong> — you do not want to block the caller.</li>
+<li><strong>Background processing</strong> — long-running observers.</li>
+<li><strong>Logging</strong> — deferred delivery to a log sink.</li>
+</ul>
+<h3 id="when-not-to-use-async">When NOT to Use Async</h3>
+<ul>
+<li><strong>Order-critical paths</strong> — async broadcast does not guarantee ordering relative to other pulses.</li>
+<li><strong>Atomic transactions</strong> — use <code>Cell.transaction</code> or <code>Cell.txApply</code> for atomicity.</li>
+</ul>
+<h3 id="cycle-checking-in-async-mode">Cycle Checking in Async Mode</h3>
+<p>Async broadcasts still perform cycle checking. The check runs on the event loop, so it does not block the caller.</p>
+<hr>
+<h2 id="11-common-human-patterns">11. Common Human Patterns</h2>
+<h3 id="111-terminal-logger">11.1 Terminal Logger</h3>
+<pre class="language-dart"><code class="language-dart">final logger = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    print('Log: ${pulse.payload}');
+    return null;
+  }),
+);
+</code></pre>
+<h3 id="112-pii-redacting-broadcast">11.2 PII-Redacting Broadcast</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    downstreams: [uiWidget, analytics],
+    filter: FilterRule&lt;UserData&gt;((pulse, {user}) {
+      return Pulse(pulse.payload.copyWith(email: '***'));
+    }),
+  ),
+);
+</code></pre>
+<h3 id="113-debounced-search">11.3 Debounced Search</h3>
+<pre class="language-dart"><code class="language-dart">final searchSynapses = Synapses(
+  downstreams: [searchApi],
+  policy: PropagationPolicy(
+    strategy: PropagationStrategy.debounced,
+    debounceTime: Duration(milliseconds: 300),
+  ),
+);
+</code></pre>
+<h3 id="114-runtime-observer-attachment">11.4 Runtime Observer Attachment</h3>
+<pre class="language-dart"><code class="language-dart">final cell = Cell();
+
+Future&lt;void&gt; attachObserver(Cell observer) async {
+  final linked = await cell._nucleus.synapses.link(cell, downstreamCell: observer);
+  if (!linked) {
+    print('Link rejected by test rule');
+  }
 }
 
-// ✅ CORRECT - Stateless
-Instruction&lt;Cell, Pulse, Pulse&gt; counterInstruction() {
-  return Instruction((pulse, {cell, user}) {
-    // All state is in the pulse
-    final count = pulse.payload as int? ?? 0;
-    return Pulse(count + 1);
-  });
+Future&lt;void&gt; detachObserver(Cell observer) async {
+  cell._nucleus.synapses.unlink(cell, downstreamCell: observer);
 }
 </code></pre>
-<h3 id="3-instructions-are-composable">3. Instructions are Composable</h3>
-<p>Instructions can be chained together using the <code>+</code> operator to create complex pipelines.</p>
-<pre class="language-dart"><code class="language-dart">final pipeline = sanitize + validate + enrich + format;
+<h3 id="115-conditional-delivery">11.5 Conditional Delivery</h3>
+<pre class="language-dart"><code class="language-dart">final conditionalSynapses = Synapses(
+  downstreams: [],
+  relay: (pulse) {
+    if (pulse.priority &gt;= 80) {
+      highPriorityHandler.receptor.call(pulse);
+    } else {
+      lowPriorityHandler.receptor.call(pulse);
+    }
+  },
+);
 </code></pre>
 <hr>
-<h2 id="creating-instructions">Creating Instructions</h2>
-<h3 id="method-1-using-the-primary-constructor-recommended">Method 1: Using the Primary Constructor (Recommended)</h3>
-<p>This is the simplest way to create an instruction.</p>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; sanitizeInstruction() {
-  return Instruction&lt;Cell, Pulse, Pulse&gt;(
-    (pulse, {cell, user}) {
-      final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-      if (data == null) {
-        print('No data to sanitize');
-        return null;  // Terminate the signal
+<h2 id="12-anti-patterns">12. Anti-Patterns</h2>
+<p>❌ <strong>Using <code>relay</code> for standard broadcast.</strong> The default iteration is sufficient for most cases. Use <code>relay</code> only when you have a specific need.</p>
+<p>❌ <strong>Sharing an activated synapse across cells.</strong> Synapses are per-cell registries. Do not attempt to share.</p>
+<p>❌ <strong>Assuming filter execution order.</strong> In composed filters, execution follows the <code>+</code> composition order. Do not rely on undefined behaviour.</p>
+<p>❌ <strong>Forgetting to unlink observers.</strong> Unremoved observers hold references and prevent garbage collection.</p>
+<p>❌ <strong>Assuming async broadcasts preserve order.</strong> They do not. Use synchronous broadcasts when order matters.</p>
+<p>❌ <strong>Using <code>Synapses.disabled</code> for cells that need to emit.</strong> Terminal cells cannot broadcast. Verify <code>isTerminal</code> is what you want.</p>
+<p>❌ <strong>Ignoring link failures.</strong> <code>link</code> returns <code>false</code> if the rules reject the connection. Always check the return value.</p>
+<hr>
+<h1 id="part-ii--ai-coding-agent-decision-tree">Part II — AI Coding Agent Decision Tree</h1>
+<h2 id="13-how-to-use-this-section">13. How to Use This Section</h2>
+<p>This section is a procedural specification for AI prompt agents that generate synapse-related code.</p>
+<p><strong>Rules for AI agents:</strong></p>
+<ol>
+<li><strong>Follow the decision tree first.</strong></li>
+<li><strong>Do not read Part I first.</strong></li>
+<li><strong>Follow the numbered steps in order.</strong></li>
+<li><strong>✅ marks a post-condition.</strong></li>
+<li><strong>⚠️ marks a failure mode.</strong></li>
+<li><strong>❌ marks a prohibition.</strong></li>
+<li><strong>📋 marks a canonical template.</strong></li>
+<li><strong>🔁 marks a loop invariant.</strong></li>
+</ol>
+<p>When the requirement is ambiguous, ask a clarifying question <strong>before</strong> choosing a procedure.</p>
+<hr>
+<h2 id="14-decision-tree-what-kind-of-synapse-configuration-do-you-need">14. Decision Tree: What Kind of Synapse Configuration Do You Need?</h2>
+<p>Start at Step 1.</p>
+<h3 id="step-1--does-the-cell-need-to-broadcast">Step 1 — Does the cell need to broadcast?</h3>
+<p>Ask: "Does the cell need to emit pulses to downstream observers?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to Step 2.</li>
+<li><strong>No, terminal sink</strong> → Go to <strong>Procedure B</strong> (§16).</li>
+<li><strong>Not sure</strong> → Go to Step 2; the default is enabled.</li>
+</ul>
+<h3 id="step-2--is-the-default-configuration-sufficient">Step 2 — Is the default configuration sufficient?</h3>
+<p>Ask: "Does the cell need downstream observers pre-registered, filters, or a timing policy?"</p>
+<ul>
+<li><strong>No, use defaults</strong> → Go to <strong>Procedure A</strong> (§15).</li>
+<li><strong>Yes</strong> → Go to Step 3.</li>
+</ul>
+<h3 id="step-3--what-customisation-is-required">Step 3 — What customisation is required?</h3>
+<p>Ask: "Which synapse feature does the code need?"</p>
+<ul>
+<li><strong>Initial downstream observers</strong> → Include <code>downstreams</code> in the template.</li>
+<li><strong>Filter outgoing pulses</strong> → Go to <strong>Procedure D</strong> (§18).</li>
+<li><strong>Compose multiple filters</strong> → Go to <strong>Procedure E</strong> (§19).</li>
+<li><strong>Control timing (debounce/throttle/batch)</strong> → Go to <strong>Procedure F</strong> (§20).</li>
+<li><strong>Runtime observer management</strong> → Go to <strong>Procedure G</strong> (§21).</li>
+<li><strong>Custom broadcast logic</strong> → Go to <strong>Procedure H</strong> (§22).</li>
+</ul>
+<h3 id="step-4--are-multiple-customisations-needed">Step 4 — Are multiple customisations needed?</h3>
+<p>Ask: "Does the code need more than one of the above?"</p>
+<ul>
+<li><strong>Yes</strong> → Combine the procedures in a single <code>Synapses(...)</code> call.</li>
+<li><strong>No</strong> → Apply the single chosen procedure.</li>
+</ul>
+<h3 id="step-5--verify">Step 5 — Verify</h3>
+<p>Run the <strong>Verification Checklist</strong> (§23).</p>
+<hr>
+<h2 id="15-procedure-a-use-synapsesenabled-default">15. Procedure A: Use <code>Synapses.enabled</code> (Default)</h2>
+<p>Purpose: Use the framework's default synapse configuration.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Do not pass a <code>synapses:</code> parameter.</strong></li>
+<li><strong>Or pass <code>synapses: Synapses.enabled</code> explicitly.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  // no synapses parameter
+);
+</code></pre>
+<p>Or, explicitly:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses.enabled,
+);
+</code></pre>
+<p>✅ Post-condition: The cell allocates a fresh, empty observer registry on activation. Observers can be linked at runtime.</p>
+<p>⚠️ Failure mode: If you omit <code>synapses:</code> but the cell is meant to be terminal, the cell will consume memory for the observer registry it will never use. Use Procedure B instead.</p>
+<hr>
+<h2 id="16-procedure-b-use-synapsesdisabled-terminal-node">16. Procedure B: Use <code>Synapses.disabled</code> (Terminal Node)</h2>
+<p>Purpose: Configure a cell as a terminal sink.</p>
+<h3 id="steps-2">Steps</h3>
+<ol>
+<li><strong>Pass <code>synapses: Synapses.disabled</code> to the cell factory.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final observer = Cell(
+  synapses: Synapses.disabled,
+  receptor: Receptor((cell, pulse, {user}) {
+    // Process the pulse but do not forward it
+    return null;
+  }),
+);
+</code></pre>
+<p>✅ Post-condition: <code>observer.isTerminal</code> returns <code>true</code>. The cell does not maintain an observer registry.</p>
+<p>⚠️ Failure mode: If you attempt to link an observer to a terminal cell, the link returns <code>false</code>.</p>
+<p>❌ Prohibition: Do not use <code>Synapses.disabled</code> for cells that need to emit pulses to downstream cells.</p>
+<hr>
+<h2 id="17-procedure-c-configure-downstream-observers">17. Procedure C: Configure Downstream Observers</h2>
+<p>Purpose: Pre-register observers on a cell's synapses.</p>
+<h3 id="steps-3">Steps</h3>
+<ol>
+<li><strong>Identify the downstream cells.</strong></li>
+<li><strong>Pass them to <code>Synapses(downstreams: [...])</code>.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    downstreams: [logger, analytics, uiUpdater],
+  ),
+);
+</code></pre>
+<p>✅ Post-condition: Each downstream cell is linked to the source cell. Pulses emitted by the source reach all downstreams.</p>
+<p>⚠️ Failure mode: If any downstream cell's link is rejected by the source's test rule, that specific link is silently not established. Check the source's rules if you observe missing deliveries.</p>
+<p>❌ Prohibition: Do not list the same downstream cell twice. The registry deduplicates, but the intent should be clear.</p>
+<hr>
+<h2 id="18-procedure-d-attach-a-filterrule">18. Procedure D: Attach a <code>FilterRule</code></h2>
+<p>Purpose: Transform or suppress outgoing pulses before broadcast.</p>
+<h3 id="steps-4">Steps</h3>
+<ol>
+<li><strong>Identify the transformation or filtering logic.</strong></li>
+<li><strong>Construct a <code>FilterRule</code> with the appropriate payload type.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final redactFilter = FilterRule&lt;UserData&gt;((pulse, {user}) {
+  return Pulse(pulse.payload.copyWith(email: '***'));
+});
+</code></pre>
+<ol start="3">
+<li><strong>Attach the filter to the synapses.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(filter: redactFilter),
+);
+</code></pre>
+<p>✅ Post-condition: Every outgoing pulse passes through the filter before reaching observers.</p>
+<p>⚠️ Failure mode: If the filter throws, the framework preserves the original pulse. Ensure the filter is defensive.</p>
+<p>❌ Prohibition: Do not mutate the pulse inside the filter. Return a new pulse if modification is needed.</p>
+<hr>
+<h2 id="19-procedure-e-compose-filters-with-">19. Procedure E: Compose Filters with <code>+</code></h2>
+<p>Purpose: Chain multiple filters into a sequential pipeline.</p>
+<h3 id="steps-5">Steps</h3>
+<ol>
+<li><strong>Identify the filters to compose.</strong> Their payload types must match.</li>
+<li><strong>Compose with <code>+</code>.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final pipeline = redactFilter + formatFilter + auditFilter;
+</code></pre>
+<ol start="3">
+<li><strong>Attach the composed filter to the synapses.</strong></li>
+</ol>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(filter: pipeline),
+);
+</code></pre>
+<p>✅ Post-condition: The pipeline applies filters in order. If any returns <code>null</code>, the pulse is dropped.</p>
+<p>⚠️ Failure mode: If a filter returns a pulse with a different type than the pipeline expects, a type error occurs at runtime. Ensure all filters in the pipeline use the same payload type.</p>
+<p>❌ Prohibition: Do not assume filters execute in an undefined order. <code>+</code> is left-associative: <code>a + b + c</code> runs <code>a → b → c</code>.</p>
+<hr>
+<h2 id="20-procedure-f-configure-a-propagationpolicy">20. Procedure F: Configure a <code>PropagationPolicy</code></h2>
+<p>Purpose: Control the timing of pulse delivery.</p>
+<h3 id="steps-6">Steps</h3>
+<ol>
+<li><strong>Identify the desired strategy:</strong>
+<ul>
+<li><strong>Debounce</strong> — deliver after a silence window.</li>
+<li><strong>Throttle</strong> — deliver at a bounded rate.</li>
+<li><strong>Batch</strong> — deliver pulses together.</li>
+</ul>
+</li>
+<li><strong>Construct a <code>PropagationPolicy</code> with the chosen strategy.</strong></li>
+<li><strong>Attach the policy to the synapses.</strong></li>
+</ol>
+<p>📋 Canonical template — Debounce:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    downstreams: [searchHandler],
+    policy: PropagationPolicy(
+      strategy: PropagationStrategy.debounced,
+      debounceTime: Duration(milliseconds: 300),
+    ),
+  ),
+);
+</code></pre>
+<p>📋 Canonical template — Throttle:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    downstreams: [uiUpdater],
+    policy: PropagationPolicy(
+      strategy: PropagationStrategy.throttled,
+      throttleTime: Duration(milliseconds: 100),
+    ),
+  ),
+);
+</code></pre>
+<p>✅ Post-condition: The policy governs the timing of pulse delivery. Observers receive pulses according to the policy's rules.</p>
+<p>⚠️ Failure mode: If the policy's parameters (e.g., <code>debounceTime</code>) are not set, the policy may fall back to immediate delivery. Verify the parameters.</p>
+<p>❌ Prohibition: Do not combine multiple timing policies. If you need both debounce and throttle, apply one at the source and one at a downstream cell.</p>
+<hr>
+<h2 id="21-procedure-g-link-and-unlink-at-runtime">21. Procedure G: Link and Unlink at Runtime</h2>
+<p>Purpose: Dynamically attach or detach observers.</p>
+<h3 id="steps-7">Steps</h3>
+<ol>
+<li><strong>Identify the source cell and the downstream cell.</strong></li>
+<li><strong>Call <code>link</code> to attach or <code>unlink</code> to detach.</strong></li>
+<li><strong>Handle the return value.</strong></li>
+</ol>
+<p>📋 Canonical template — Link:</p>
+<pre class="language-dart"><code class="language-dart">final linked = await source._nucleus.synapses.link(
+source,
+downstreamCell: observer,
+);
+if (!linked) {
+// Link was rejected by the test rule
+return;
+}
+</code></pre>
+<p>📋 Canonical template — Unlink:</p>
+<pre class="language-dart"><code class="language-dart">final unlinked = source._nucleus.synapses.unlink(
+  source,
+  downstreamCell: observer,
+);
+if (!unlinked) {
+// Link did not exist
+return;
+}
+</code></pre>
+<p>✅ Post-condition: After <code>link</code>, the observer receives pulses. After <code>unlink</code>, it no longer does.</p>
+<p>⚠️ Failure mode: If <code>link</code> returns <code>false</code>, the connection was not established. Check the source's test rule.</p>
+<p>❌ Prohibition: Do not assume <code>link</code> is idempotent — check the return value for diagnostic purposes.</p>
+<hr>
+<h2 id="22-procedure-h-attach-a-custom-relay">22. Procedure H: Attach a Custom <code>relay</code></h2>
+<p>Purpose: Override the default broadcast logic.</p>
+<h3 id="steps-8">Steps</h3>
+<ol>
+<li><strong>Identify why the default broadcast is insufficient.</strong></li>
+<li><strong>Write a <code>relay</code> function that takes a <code>Pulse</code> and performs the delivery manually.</strong></li>
+<li><strong>Attach the <code>relay</code> to the synapses.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final cell = Cell(
+  synapses: Synapses(
+    relay: (pulse) {
+      // Custom delivery logic
+      for (final downstream in myObservers) {
+        downstream.receptor.call(pulse);
       }
-      
-      // Transform the data
-      final sanitized = _sanitizeData(data);
-      
-      // Return a new pulse
-      return Pulse(sanitized);
     },
-  );
-}
-</code></pre>
-<h3 id="method-2-using-a-static-function">Method 2: Using a Static Function</h3>
-<pre class="language-dart"><code class="language-dart">class SanitizeInstruction {
-  static Pulse? process(Pulse pulse, {Cell? cell, dynamic user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) return null;
-    
-    final sanitized = _sanitizeData(data);
-    return Pulse(sanitized);
-  }
-  
-  static Instruction&lt;Cell, Pulse, Pulse&gt; create() {
-    return Instruction&lt;Cell, Pulse, Pulse&gt;(process);
-  }
-}
-</code></pre>
-<h3 id="method-3-with-user-data">Method 3: With User Data</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; thresholdInstruction({required int limit}) {
-  return Instruction&lt;Cell, Pulse, Pulse&gt;(
-    (pulse, {cell, user}) {
-      final value = pulse.payload as int? ?? 0;
-      if (value &gt; limit) {
-        return Pulse(value);  // Pass through
-      }
-      return null;  // Filter out
-    },
-    user: limit,  // Pass configuration
-  );
-}
-</code></pre>
-<hr>
-<h2 id="composing-pipelines">Composing Pipelines</h2>
-<h3 id="using-the--operator">Using the <code>+</code> Operator</h3>
-<p>The <code>+</code> operator chains instructions sequentially:</p>
-<pre class="language-dart"><code class="language-dart">final sanitize = sanitizeInstruction();
-final validate = validateInstruction();
-final enrich = enrichInstruction();
-
-// Pipeline: sanitize → validate → enrich
-final pipeline = sanitize + validate + enrich;
-</code></pre>
-<h3 id="execution-order">Execution Order</h3>
-<p>Instructions are executed <strong>left to right</strong>:</p>
-<pre class="language-dart"><code class="language-dart">// Step 1: sanitize runs first
-// Step 2: validate runs with sanitize's output
-// Step 3: enrich runs with validate's output
-final pipeline = sanitize + validate + enrich;
-</code></pre>
-<h3 id="short-circuiting">Short-Circuiting</h3>
-<p>If any instruction returns <code>null</code>, the pipeline stops immediately:</p>
-<pre class="language-dart"><code class="language-dart">// If validate returns null, enrich is NEVER called
-final pipeline = sanitize + validate + enrich;
-//          ↑           ↑           ↑
-//      runs        if passes    runs
-</code></pre>
-<h3 id="complex-pipelines">Complex Pipelines</h3>
-<pre class="language-dart"><code class="language-dart">// Multi-stage pipeline with grouping
-final validationPipeline = validateEmail + validatePhone + validateAddress;
-final enrichmentPipeline = enrichCustomer + enrichPricing + enrichShipping;
-final fullPipeline = sanitize + validationPipeline + enrichmentPipeline + format + log;
-</code></pre>
-<hr>
-<h2 id="using-instructions-with-receptors">Using Instructions with Receptors</h2>
-<h3 id="creating-a-receptor-from-an-instruction">Creating a Receptor from an Instruction</h3>
-<pre class="language-dart"><code class="language-dart">final instruction = sanitizeInstruction();
-final receptor = Receptor.instruction(instruction);
-</code></pre>
-<h3 id="creating-a-multi-stage-receptor">Creating a Multi-Stage Receptor</h3>
-<pre class="language-dart"><code class="language-dart">final receptor = Receptor.pipeline(
-  preProcess: sanitizeInstruction(),
-  instruction: validateInstruction() + processInstruction(),
-  postProcess: enrichInstruction(),
+  ),
 );
 </code></pre>
-<h3 id="using-a-receptor-in-a-cell">Using a Receptor in a Cell</h3>
-<pre class="language-dart"><code class="language-dart">final receptor = Receptor.instruction(sanitizeInstruction());
-final cell = Cell(
-  receptor: receptor,
-  context: Context.module('data-processing'),
-);
-</code></pre>
-<h3 id="complete-example">Complete Example</h3>
-<pre class="language-dart"><code class="language-dart">// 1. Create instructions
-final sanitize = sanitizeInstruction();
-final validate = validateInstruction();
-final process = processInstruction();
-final log = logInstruction();
-
-// 2. Build pipeline
-final pipeline = sanitize + validate + process + log;
-
-// 3. Create receptor
-final receptor = Receptor.instruction(pipeline);
-
-// 4. Create cell
-final cell = Cell(
-  receptor: receptor,
-  context: Context.module('order-processing'),
-);
-
-// 5. Process data
-final result = cell._nucleus.receptor.call(Pulse(rawData));
-</code></pre>
+<p>✅ Post-condition: The default broadcast is bypassed. The <code>relay</code> function is responsible for delivering the pulse.</p>
+<p>⚠️ Failure mode: If the <code>relay</code> does not deliver to any observer, pulses are silently dropped. Ensure the relay implements the full delivery logic.</p>
+<p>❌ Prohibition: Do not use <code>relay</code> unless the default broadcast is genuinely insufficient. Use <code>downstreams</code> and <code>filter</code> for most customisation.</p>
 <hr>
-<h2 id="asynchronous-instructions">Asynchronous Instructions</h2>
-<h3 id="creating-async-instructions">Creating Async Instructions</h3>
-<p>Use <code>Instruction.future()</code> for async operations:</p>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; fetchCustomerData() {
-  return Instruction&lt;Cell, Pulse, Pulse&gt;.future(
-    (pulse, {cell, future, token, user}) {
-      final customerId = pulse.payload as String?;
-      if (customerId == null) return null;
-      
-      // Async operation
-      fetchFromDatabase(customerId).then((data) {
-        // Continue the pipeline with the result
-        future?.call(
-          result: Pulse(data),
-          token: token,
-        );
-      });
-      
-      return null;  // Return immediately, continue later
-    },
-  );
-}
-</code></pre>
-<h3 id="async-pipeline-example">Async Pipeline Example</h3>
-<pre class="language-dart"><code class="language-dart">final pipeline = validate + fetchCustomerData + enrich + format;
-</code></pre>
-<h3 id="waiting-for-completion">Waiting for Completion</h3>
-<pre class="language-dart"><code class="language-dart">final result = await pipeline.call(Pulse(customerId));
-</code></pre>
-<h3 id="combining-sync-and-async">Combining Sync and Async</h3>
-<p>Sync and async instructions can be freely mixed:</p>
-<pre class="language-dart"><code class="language-dart">// Sync → Async → Sync
-final pipeline = validate + fetchData + format + log;
-//        ↑          ↑          ↑        ↑
-//     sync      async      sync     sync
-</code></pre>
+<h2 id="23-verification-checklist-for-ai-agents">23. Verification Checklist for AI Agents</h2>
+<p>Before returning generated synapse code, verify all of the following:</p>
+<h3 id="configuration-correctness">Configuration Correctness</h3>
+<p>✅ The cell's broadcast requirement (terminal vs. non-terminal) matches the chosen <code>Synapses</code> configuration.
+✅ Downstream observers are of the correct type.
+✅ Filters have the correct payload type.
+✅ Policies have valid parameters.</p>
+<h3 id="terminal">Terminal</h3>
+<p>✅ Terminal cells use <code>Synapses.disabled</code>.
+✅ Non-terminal cells do not use <code>Synapses.disabled</code>.
+✅ <code>isTerminal</code> is checked if the caller depends on terminality.</p>
+<h3 id="filtering">Filtering</h3>
+<p>✅ Filters return the correct pulse type.
+✅ Filters handle <code>null</code> pulses correctly (returning a non-null pulse for valid inputs).
+✅ Filter composition uses <code>+</code> for sequential pipelines.</p>
+<h3 id="timing">Timing</h3>
+<p>✅ Propagation policies use valid strategies and parameters.
+✅ Timing does not conflict with graph atomicity requirements (e.g., inside <code>txApply</code>).</p>
+<h3 id="runtime-management">Runtime Management</h3>
+<p>✅ <code>link</code> calls check the return value.
+✅ <code>unlink</code> calls check the return value.
+✅ Runtime links do not create cycles that could cause unexpected termination.</p>
+<h3 id="relay">Relay</h3>
+<p>✅ Custom <code>relay</code> functions deliver to all intended observers.
+✅ Relay functions do not duplicate default broadcast behaviour.</p>
+<h3 id="correctness">Correctness</h3>
+<p>✅ The generated code compiles.
+✅ Any ambiguity has been resolved with the user.
+✅ The chosen procedure matches the decision tree's outcome.</p>
+<p>If any check fails, correct the code before returning it. If a check cannot be verified, ask the user for clarification.</p>
 <hr>
-<h2 id="testing-instructions">Testing Instructions</h2>
-<h3 id="unit-testing-individual-instructions">Unit Testing Individual Instructions</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
-
-void main() {
-  test('SanitizeInstruction handles valid data', () {
-    final instruction = sanitizeInstruction();
-    final input = Pulse({
-      'id': 'ORD-123',
-      'customer': '  John Doe  ',
-      'email': 'JOHN@EXAMPLE.COM',
-      'items': '2',
-      'total': '99.99',
-    });
-    
-    final result = instruction.call(input);
-    
-    expect(result, isNotNull);
-    final data = result!.payload as Map&lt;String, dynamic&gt;;
-    expect(data['customer'], 'John Doe');
-    expect(data['email'], 'john@example.com');
-    expect(data['items'], 2);
-    expect(data['total'], 99.99);
-  });
-  
-  test('SanitizeInstruction handles invalid data', () {
-    final instruction = sanitizeInstruction();
-    final input = Pulse({
-      'id': '',
-      'customer': '  John Doe  ',
-      'email': 'john@example.com',
-    });
-    
-    final result = instruction.call(input);
-    expect(result, isNull);  // Invalid data should return null
-  });
-}
-</code></pre>
-<h3 id="testing-pipelines">Testing Pipelines</h3>
-<pre class="language-dart"><code class="language-dart">test('Full pipeline processes order correctly', () {
-  final pipeline = sanitize + validate + enrich + format + log;
-  final input = Pulse(rawOrderData);
-  
-  final result = pipeline.call(input);
-  
-  expect(result, isNotNull);
-  expect(result!.payload, isA&lt;Order&gt;());
-  final order = result.payload as Order;
-  expect(order.status, 'ready');
-  expect(order.customer.isVip, true);
-});
-</code></pre>
-<h3 id="testing-with-mock-data">Testing with Mock Data</h3>
-<pre class="language-dart"><code class="language-dart">test('Async instruction handles network errors', () async {
-  final instruction = fetchCustomerData();
-  final completer = Completer&lt;Pulse?&gt;();
-  
-  instruction.call(
-    Pulse('invalid-id'),
-    future: ({result, token}) {
-      completer.complete(result);
-    },
-  );
-  
-  final result = await completer.future;
-  expect(result, isNull);  // Error should return null
-});
-</code></pre>
-<hr>
-<h2 id="error-handling">Error Handling</h2>
-<h3 id="1-returning-null-filtering">1. Returning null (Filtering)</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; positiveNumberFilter() {
-  return Instruction((pulse, {cell, user}) {
-    final value = pulse.payload as int?;
-    if (value == null || value &lt;= 0) {
-      print('Negative/zero value filtered: $value');
-      return null;  // Drop the pulse
-    }
-    return pulse;
-  });
-}
-</code></pre>
-<h3 id="2-throwing-exceptions">2. Throwing Exceptions</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; strictValidation() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) {
-      throw ArgumentError('Data cannot be null');
-    }
-    if (!data.containsKey('id')) {
-      throw StateError('Missing required field: id');
-    }
-    return pulse;
-  });
-}
-</code></pre>
-<h3 id="3-recovery-instructions">3. Recovery Instructions</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; recoveryInstruction() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) return null;
-    
-    // Recover from invalid data
-    final recovered = Map&lt;String, dynamic&gt;.from(data);
-    if ((recovered['name']?.toString().trim() ?? '').isEmpty) {
-      recovered['name'] = 'Unknown';
-    }
-    if ((recovered['email']?.toString().trim() ?? '').isEmpty) {
-      recovered['email'] = 'unknown@example.com';
-    }
-    
-    return Pulse(recovered);
-  });
-}
-</code></pre>
-<hr>
-<h2 id="best-practices">Best Practices</h2>
-<h3 id="1-keep-instructions-focused">1. Keep Instructions Focused</h3>
-<p>Each instruction should do <strong>one thing</strong> and do it well:</p>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Single responsibility
-final validateEmail = validateEmailInstruction();
-final validatePhone = validatePhoneInstruction();
-final validateAddress = validateAddressInstruction();
-final validationPipeline = validateEmail + validatePhone + validateAddress;
-
-// ❌ BAD - Multiple responsibilities
-final validateAll = Instruction((pulse, {cell, user}) {
-  // Validates email, phone, AND address
-  // Too much logic in one instruction
-});
-</code></pre>
-<h3 id="2-use-descriptive-names">2. Use Descriptive Names</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD
-final sanitizeCustomerData = sanitizeCustomerInstruction();
-final validateOrderTotal = validateTotalInstruction();
-
-// ❌ BAD
-final step1 = step1Instruction();
-final step2 = step2Instruction();
-</code></pre>
-<h3 id="3-document-your-instructions">3. Document Your Instructions</h3>
-<pre class="language-dart"><code class="language-dart">/// Sanitizes customer data by:
-/// - Trimming whitespace from all string fields
-/// - Converting email to lowercase
-/// - Removing null values from metadata
-/// - Returns null if customer ID is missing
-Instruction&lt;Cell, Pulse, Pulse&gt; sanitizeCustomerInstruction() {
-  return Instruction((pulse, {cell, user}) {
-    // ...
-  });
-}
-</code></pre>
-<h3 id="4-return-new-pulses-dont-modify-input">4. Return New Pulses, Don't Modify Input</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD
-return Pulse(newData);
-
-// ❌ BAD
-final data = pulse.payload as Map&lt;String, dynamic&gt;;
-data['key'] = 'value';  // Modifies input!
-return pulse;
-</code></pre>
-<h3 id="5-handle-null-payloads-gracefully">5. Handle Null Payloads Gracefully</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; safeTransformer() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) {
-      print('Null payload received, filtering');
-      return null;  // Filter out null payloads
-    }
-    // Process data...
-    return Pulse(transformed);
-  });
-}
-</code></pre>
-<h3 id="6-use-type-safety">6. Use Type Safety</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Type-safe
-Instruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;int&gt;&gt; lengthTransformer() {
-  return Instruction&lt;Cell, Pulse&lt;String&gt;, Pulse&lt;int&gt;&gt;(
-    (pulse, {cell, user}) {
-      final text = pulse.payload;
-      return Pulse(text.length);
-    },
-  );
-}
-</code></pre>
-<h3 id="7-log-transformation-steps-for-debugging">7. Log Transformation Steps (for Debugging)</h3>
-<pre class="language-dart"><code class="language-dart">Instruction&lt;Cell, Pulse, Pulse&gt; loggingInstruction(String name) {
-  return Instruction((pulse, {cell, user}) {
-    print('[$name] Input: ${pulse.payload}');
-    // Process...
-    print('[$name] Output: $result');
-    return Pulse(result);
-  });
-}
-</code></pre>
-<hr>
-<h2 id="complete-example-2">Complete Example</h2>
-<p>Here's a complete e-commerce order processing pipeline:</p>
-<pre class="language-dart"><code class="language-dart">import 'package:cell/cell.dart';
-
-// ─────────────────────────────────────────────────────────────
-// Instructions
-// ─────────────────────────────────────────────────────────────
-
-/// Sanitize raw order data
-Instruction&lt;Cell, Pulse, Pulse&gt; sanitizeOrder() {
-  return Instruction((pulse, {cell, user}) {
-    final raw = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (raw == null) return null;
-    
-    final sanitized = &lt;String, dynamic&gt;{}
-      ..['id'] = raw['id']?.toString().trim()
-      ..['customer'] = raw['customer']?.toString().trim() ?? ''
-      ..['email'] = raw['email']?.toString().trim().toLowerCase() ?? ''
-      ..['items'] = int.tryParse(raw['items']?.toString() ?? '0') ?? 0
-      ..['total'] = double.tryParse(raw['total']?.toString() ?? '0.0') ?? 0.0
-      ..['status'] = raw['status']?.toString() ?? 'pending';
-    
-    if ((sanitized['id'] as String?)?.isEmpty ?? true) {
-      return null;  // Invalid ID
-    }
-    
-    return Pulse(sanitized);
-  });
-}
-
-/// Validate order data
-Instruction&lt;Cell, Pulse, Pulse&gt; validateOrder() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) return null;
-    
-    final errors = &lt;String&gt;[];
-    if ((data['customer'] as String?)?.isEmpty ?? true) {
-      errors.add('Customer name is required');
-    }
-    final email = data['email'] as String? ?? '';
-    if (!email.contains('@') || !email.contains('.')) {
-      errors.add('Invalid email format');
-    }
-    if ((data['items'] as int? ?? 0) &lt; 0) {
-      errors.add('Items cannot be negative');
-    }
-    if ((data['total'] as double? ?? 0.0) &lt; 0) {
-      errors.add('Total cannot be negative');
-    }
-    
-    if (errors.isNotEmpty) {
-      print('Validation failed: ${errors.join('; ')}');
-      return null;
-    }
-    
-    return pulse;
-  });
-}
-
-/// Apply discount based on customer tier
-Instruction&lt;Cell, Pulse, Pulse&gt; applyDiscount() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) return null;
-    
-    final email = data['email'] as String? ?? '';
-    final total = data['total'] as double? ?? 0.0;
-    
-    double discount = 0.0;
-    if (email == 'vip@example.com') {
-      discount = total * 0.10;
-      print('Applied 10% VIP discount');
-    }
-    
-    final enriched = Map&lt;String, dynamic&gt;.from(data)
-      ..['discount'] = discount
-      ..['finalTotal'] = total - discount;
-    
-    return Pulse(enriched);
-  });
-}
-
-/// Format order as Order object
-Instruction&lt;Cell, Pulse, Pulse&gt; formatOrder() {
-  return Instruction((pulse, {cell, user}) {
-    final data = pulse.payload as Map&lt;String, dynamic&gt;?;
-    if (data == null) return null;
-    
-    final order = Order(
-      id: data['id'] as String? ?? 'UNKNOWN',
-      customer: data['customer'] as String? ?? 'Unknown',
-      email: data['email'] as String? ?? '',
-      items: data['items'] as int? ?? 0,
-      total: data['finalTotal'] as double? ?? 0.0,
-      discount: data['discount'] as double? ?? 0.0,
-      status: 'ready',
-      processedAt: DateTime.now(),
-    );
-    
-    return Pulse(order);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
-// Usage
-// ─────────────────────────────────────────────────────────────
-
-void main() {
-  // 1. Create pipeline
-  final pipeline = sanitizeOrder() + validateOrder() + applyDiscount() + formatOrder();
-  
-  // 2. Create receptor
-  final receptor = Receptor.instruction(pipeline);
-  
-  // 3. Create cell
-  final cell = Cell(
-    receptor: receptor,
-    context: Context.module('order-processing'),
-  );
-  
-  // 4. Process order
-  final rawOrder = {
-    'id': 'ORD-123',
-    'customer': '  John Doe  ',
-    'email': 'vip@example.com',
-    'items': '2',
-    'total': '99.99',
-    'status': 'pending',
-  };
-  
-  final result = cell._nucleus.receptor.call(Pulse(rawOrder));
-  
-  if (result != null &amp;&amp; result.payload is Order) {
-    final order = result.payload as Order;
-    print('Order processed: ${order.id}');
-    print('Final total: \$${order.total}');
-    print('Discount: \$${order.discount}');
-  }
-}
-</code></pre>
-<hr>
-<h2 id="summary">Summary</h2>
+<h2 id="24-references">24. References</h2>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Description</th>
+<th>Document</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Instruction</strong></td>
-<td>Reusable unit of logic that transforms pulses</td>
+<td><a href="README.md"><code>README.md</code></a></td>
+<td>Package overview.</td>
 </tr>
 <tr>
-<td><strong>Pipeline</strong></td>
-<td>Chain of instructions using <code>+</code> operator</td>
+<td><a href="ARCHITECTURE.md"><code>ARCHITECTURE.md</code></a></td>
+<td>Design rationale for the substrate.</td>
 </tr>
 <tr>
-<td><strong>Receptor</strong></td>
-<td>Container that executes instructions</td>
+<td><a href="HowTo-Start.md"><code>HowTo-Start.md</code></a></td>
+<td>Getting started with <code>cell</code>.</td>
 </tr>
 <tr>
-<td><strong>Cell</strong></td>
-<td>Reactive node that uses receptors</td>
+<td><a href="HowTo-Pulse.md"><code>HowTo-Pulse.md</code></a></td>
+<td>Working with pulses.</td>
 </tr>
 <tr>
-<td><strong>Pulse</strong></td>
-<td>Immutable signal carrying data</td>
+<td><a href="HowTo-Instruction.md"><code>HowTo-Instruction.md</code></a></td>
+<td>Working with instructions.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Context.md"><code>HowTo-Context.md</code></a></td>
+<td>Working with contexts and provenance.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Receptor.md"><code>HowTo-Receptor.md</code></a></td>
+<td>Working with receptors.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Transaction.md"><code>HowTo-Transaction.md</code></a></td>
+<td>The <code>Cell.transaction</code> surface.</td>
+</tr>
+<tr>
+<td><a href="HowTo-TransactionOnApply.md"><code>HowTo-TransactionOnApply.md</code></a></td>
+<td>The <code>Cell.txApply</code> surface.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Advanced.md"><code>HowTo-Advanced.md</code></a></td>
+<td>Index of governance machinery.</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/HowTo-Relations.md"><code>packages/cell_organ/guide/HowTo-Relations.md</code></a></td>
+<td>Working with relations.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="key-rules">Key Rules</h3>
-<ol>
-<li><strong>Always return a new pulse</strong> - never modify input</li>
-<li><strong>Return null to filter</strong> - stops the pipeline</li>
-<li><strong>Keep instructions focused</strong> - one responsibility per instruction</li>
-<li><strong>Test instructions in isolation</strong> - unit test each one</li>
-<li><strong>Use async for I/O</strong> - use <code>Instruction.future()</code> for async operations</li>
-<li><strong>Document your instructions</strong> - explain what they do</li>
-</ol>
-<h3 id="common-patterns">Common Patterns</h3>
-<pre class="language-dart"><code class="language-dart">// Pattern: Filter + Transform + Filter
-final pipeline = filterEmpty + transform + filterNegative;
-
-// Pattern: Validate + Enrich + Format
-final pipeline = validate + enrich + format;
-
-// Pattern: PreProcess + Core + PostProcess (Receptor)
-final receptor = Receptor.pipeline(
-  preProcess: sanitize,
-  instruction: validate + process,
-  postProcess: enrich,
-);
-
-// Pattern: Async + Sync
-final pipeline = fetchData + validate + format + log;
-</code></pre>
+<hr>
+<p><em>If a guide and the source disagree, the source is current.</em></p>
 </section>
 
 
@@ -788,7 +824,7 @@ final pipeline = fetchData + validate + format + log;
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.6
+      1.0.0-rc.8
   </span>
   
 </footer>

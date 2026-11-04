@@ -404,6 +404,18 @@ sequence and is currently in the process of being neutralized.
 
 </dd>
 
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../mitosis/TissueBase/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> resolved from this tissue's nucleus.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="modifiable" class="property inherited">
   <span class="name"><a href="../mitosis/TissueMapMixin/modifiable.html">modifiable</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
@@ -486,13 +498,14 @@ execution on this node via the dynamic <a href="../mitosis/TissueMapMixin/apply.
 </dd>
 
         <dt id="validate" class="property inherited">
-  <span class="name"><a href="../mitosis/Tissue/validate.html">validate</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span></span>
+  <span class="name"><a href="../mitosis/TissueMapMixin/validate.html">validate</a></span>
+  <span class="signature">&#8594; <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>, <span class="type-parameter">C</span>&gt;</span></span>
   
 
 </dt>
 <dd class="inherited">
-  The <a href="../mitosis/TestTissue-class.html">TestTissue</a> validation logic currently governing this collection.
+  The authoritative <strong>Integrity Gate</strong> governing this node's structural
+boundaries and operational authority.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -1049,6 +1062,19 @@ preserving their individual causal traces.
 
 </dd>
 
+        <dt id="put" class="callable">
+  <span class="name"><a href="../mitosis/TissueMapBase/put.html">put</a></span><span class="signature">(<wbr><span class="parameter" id="put-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="put-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Upserts the <code>key</code>/<code>value</code> pair through the reactive <a href="../mitosis/TissueMapMixin/apply.html">apply</a> gateway.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="putIfAbsent" class="callable">
   <span class="name"><a href="../mitosis/TissueMapBase/putIfAbsent.html">putIfAbsent</a></span><span class="signature">(<wbr><span class="parameter" id="putIfAbsent-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="putIfAbsent-param-ifAbsent"><span>covariant</span> <span class="type-annotation">V</span> <span class="parameter-name">ifAbsent</span>()</span>)
     <span class="returntype parameter">&#8594; V</span>
@@ -1374,7 +1400,7 @@ collection.
 
 </dt>
 <dd>
-  Associates the <code>key</code> with the <code>value</code> by applying the <a href="../mitosis/TissueMapBase/add.html">add</a> operation.
+  Associates the <code>key</code> with the <code>value</code> by applying the <a href="../mitosis/TissueMapBase/put.html">put</a> operation.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -1408,7 +1434,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

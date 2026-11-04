@@ -123,6 +123,9 @@ dynamic apply(
       } else if (function == addEntries) {
         return Function.apply(_addEntries, positionalArguments,
             {#notification: notification, #deputy: deputy});
+      } else if (function == put) {
+        return Function.apply(_put, positionalArguments,
+            {#notification: notification, #deputy: deputy});
       } else if (function == clear) {
         return Function.apply(
             _clear, null, {#notification: notification, #deputy: deputy});
@@ -179,7 +182,7 @@ dynamic apply(
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

@@ -136,7 +136,7 @@ stateless template for the specified collection architecture.</p>
         Record? user,
         EphemeralPolicy? ephemeralPolicy,
         TissueNucleusBase&lt;E, I, C&gt;? principal}) {
-  final local = TissueNucleusBase.local&lt;E, I, C&gt;(
+  final local = TissueNucleusBase.mask&lt;E, I, C&gt;(
     bind: bind,
     context: context,
     receptor: receptor,
@@ -178,7 +178,7 @@ stateless template for the specified collection architecture.</p>
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

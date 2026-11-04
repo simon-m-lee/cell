@@ -69,9 +69,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>Associates the <code>key</code> with the <code>value</code> by applying the <a href="../../cell_tissue/TissueMapBase/add.html">add</a> operation.</p>
+  <p>Associates the <code>key</code> with the <code>value</code> by applying the <a href="../../cell_tissue/TissueMapBase/put.html">put</a> operation.</p>
 <p>This is the standard index assignment operator. It is routed through
-the reactive pipeline: validation, atomic update, and event emission.</p>
+the reactive pipeline: validation, atomic update, and event emission.
+If the key already exists, its value is replaced and a
+<code>Tissue.entryUpdated</code> pulse is emitted; otherwise the entry is added
+and a <code>Tissue.elementAdded</code> pulse is emitted.</p>
 <h3 id="parameters">Parameters:</h3>
 <ul>
 <li><code>key</code>: The key to associate.</li>
@@ -84,8 +87,7 @@ the reactive pipeline: validation, atomic update, and event emission.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void operator []=(K key, V value) =&gt;
-    apply(add, positionalArguments: [key, value]);</code></pre>
+void operator []=(K key, V value) =&gt; put(key, value);</code></pre>
 </section>
 
 
@@ -113,7 +115,7 @@ void operator []=(K key, V value) =&gt;
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

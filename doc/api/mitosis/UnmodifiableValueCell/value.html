@@ -96,6 +96,36 @@ V? get value {
   </section>
 
 
+        
+  <section id="setter">
+    <section class="multi-line-signature">
+      
+      set
+      <span class="name ">value</span>
+      <span class="signature">(<wbr><span class="parameter" id="value=-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span>
+      <div class="features"><span class="feature">inherited</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Assigns <code>value</code> through the same validated emission pipeline used by
+<a href="../../mitosis/Cell/state.html">Cell.state</a>'s update handle.</p>
+<p>Cross-package <a href="../../mitosis/ValueCell-class.html">ValueCell</a> implementations (e.g., <code>TissueValue</code>) provide
+their own setter; this public mutator lets generic machinery such as
+<a href="../../mitosis/Cell/transaction.html">Cell.transaction</a> commit buffered writes without reaching into the
+private <code>_emit</code>. Unmodifiable deputies reject the write silently.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">set value(V? value) {
+  _emit(value);
+}</code></pre>
+</section>
+
+  </section>
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -120,7 +150,7 @@ V? get value {
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

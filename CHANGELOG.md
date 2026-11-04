@@ -1,5 +1,12 @@
 # Changelog
 
+## Mitosis (1.0.0-rc.12) - Release Candidate
+
+- **New worked Mitose sample** — [`example/cafe-coffee-*`](https://github.com/simon-m-lee/cell/tree/master/example): a complete cafe-coffee pipeline run with its BRD, WalkThrough, Demo, `<stem>-test.dart`, ARCHITECTURE, FEATURES, LEDGER, and COMPREHENSION documents, following the full Mitose 2.0 path.
+- **Release tooling** — [`tool/release-publish.sh`](https://github.com/simon-m-lee/cell/blob/master/tool/release-publish.sh) now accepts member packages as positional arguments (`tool/release-publish.sh packages/cell_flow packages/cell_tissue`) so a partially completed release can be resumed; the umbrella is always published last.
+- **Docs** — aligned the CHANGELOG heading convention across the umbrella and member packages, and regenerated the `doc/api` API reference for `mitosis`, `cell`, `cell_flow`, and `cell_tissue` after fresh `dart doc` runs on each package.
+- **Package releases**: ships with `cell` `1.0.0-rc.8` (regenerated API docs), `cell_flow` `1.0.0-rc.9` (dependency alignment, regenerated API docs), and `cell_tissue` `1.0.0-rc.9` (new HowTo-Tissue guides, nucleus KDoc overhaul, regenerated API docs).
+
 ## Mitosis (1.0.0-rc.11) - Release Candidate
 
 - **Mitose pipeline upgraded with an autonomous mode** ([`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) §15): the pipeline now has two run modes — the interactive step-by-step mode with one human decision at each gate, and the opt-in autonomous mode in which the user says “Mitose autonomous” once after a filled BRD exists and the agent runs the rest of the pipeline to the end without interruption or further input.

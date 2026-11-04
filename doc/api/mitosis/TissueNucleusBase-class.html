@@ -66,36 +66,33 @@ every reactive collection.</p>
 implementations via <a href="../mitosis/TissueNucleus/create.html">TissueNucleus.create</a> and the <a href="../mitosis/Tissue-class.html">Tissue</a> factories.
 This class is the base that powers the internal <code>_TissueNucleus</code>.</p>
 <h3 id="when-to-use">When to use</h3>
-<p>Only if you are building a custom collection type that needs to override
-the default nucleus behaviour. For standard use, the provided factories
-are sufficient.</p>
+<ul>
+<li><strong>Custom Collections</strong>: Only if you are building a custom collection type
+that requires specialized overrides of the default nucleus behaviour.</li>
+<li><strong>Forensic Extensions</strong>: When implementing new governance layers that need
+to tap into the <a href="../mitosis/NucleusBase-class.html">NucleusBase</a> property resolution engine.</li>
+</ul>
 <h3 id="how-it-works">How it works</h3>
 <ul>
-<li>It extends <a href="../mitosis/NucleusBase-class.html">NucleusBase</a> to inherit the core property resolution engine
-(bitmask records, principal chain, lock management).</li>
-<li>It specialises the storage type to <code>I</code> (e.g., <code>List&lt;E&gt;</code>, <code>Set&lt;E&gt;</code>) and
-forces the container strategy via the <a href="../mitosis/TissueNucleusBase/container.html">container</a> parameter.</li>
-<li>It implements the <a href="../mitosis/TissueNucleusBase/containerType.html">containerType</a> resolution by walking up the
-<code>principal</code> chain, defaulting to a strategy inferred from <code>I</code>.</li>
-<li>It provides the <code>clone</code> getter to create an independent copy of the
-nucleus with a fresh lock and synapses, essential for creating new
-collection instances from a template.</li>
+<li><strong>Flyweight Architecture</strong>: It extends <a href="../mitosis/NucleusBase-class.html">NucleusBase</a> to inherit the core
+property resolution engine (bitmask records, principal chain, lock management).
+This allows many collections to share the same nucleus without memory duplication.</li>
+<li><strong>Structural Constancy</strong>: The storage type (List, Set, Map, etc.) is fixed at
+creation via the <code>I</code> type parameter and the container strategy.</li>
+<li><strong>Prototype Inheritance</strong>: It implements property resolution by walking up
+the <code>principal</code> chain, allowing a deputy to override specific properties
+(like <code>testRule</code>) while inheriting others.</li>
 </ul>
 <h3 id="nonobvious">Non‑obvious</h3>
 <ul>
-<li>The <a href="../mitosis/TissueNucleusBase/container.html">container</a> is <strong>structural</strong> – its type (List, Set, Map, Queue, etc.)
-is fixed at creation and inherited by all deputies. A deputy cannot
-change a List into a Set.</li>
-<li>The nucleus is a <strong>flyweight</strong> – many collections can share the same
-nucleus without duplicating memory.</li>
-<li>The <a href="../mitosis/TissueNucleus/clone.html">clone</a> getter creates a root nucleus (no principal) with its own
-lock, making it safe to use for independent collection instances.</li>
-<li>The <a href="../mitosis/TissueNucleusBase/principal.html">principal</a> chain enables <strong>prototype inheritance</strong> – a deputy
-can override only specific properties (like <code>testRule</code>) while inheriting
-the rest from its principal.</li>
-<li>The static <a href="../mitosis/TissueNucleusBase/local.html">local</a> method is the engine behind the framework's
-<strong>record‑based bitmask optimisation</strong> – it stores only non‑default
-properties, eliminating the "nullable field tax."</li>
+<li><strong>Bitmask Optimization</strong>: The static <a href="../mitosis/TissueNucleusBase/mask.html">mask</a> method is the engine behind the
+framework's <strong>record‑based optimization</strong>. It stores only non‑default
+properties in a <code>local</code> record field, eliminating the "nullable field tax"
+typical of large configuration objects.</li>
+<li><strong>Tiered Resolution</strong>: Authority is resolved via a high-integrity forensic
+chain: <code>local</code> override &gt; prototype inheritance &gt; global default.</li>
+<li><strong>Hosted Policies</strong>: The <code>ephemeralPolicy</code> is hosted directly in this
+nucleus, making any tissue built from it governed (<code>isGoverned == true</code>).</li>
 </ul>
 <h3 id="example-reusing-a-validated-nucleus">Example: Reusing a validated nucleus</h3>
 <pre class="language-dart"><code class="language-dart">final validNucleus = TissueNucleus.create&lt;int, List&lt;int&gt;, TissueList&lt;int&gt;&gt;(
@@ -225,7 +222,7 @@ template.
 
         <dt id="container" class="property">
   <span class="name"><a href="../mitosis/TissueNucleusBase/container.html">container</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/TissueContainer-class.html">TissueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../mitosis/TissueContainer-class.html">TissueContainer</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I</span>&gt;</span></span>
   
 
 </dt>
@@ -403,7 +400,7 @@ observers of this <code>Cell</code>.
 
         <dt id="testRule" class="property">
   <span class="name"><a href="../mitosis/TissueNucleusBase/testRule.html">testRule</a></span>
-  <span class="signature">&#8594; <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">dynamic</span>, <span class="type-parameter"><a href="../mitosis/Tissue-class.html">Tissue</a></span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span></span>
   
 
 </dt>
@@ -515,8 +512,8 @@ custom property extensions for the associated <a href="../mitosis/Cell-class.htm
   <section class="summary offset-anchor" id="static-methods">
     <h2>Static Methods</h2>
     <dl class="callables">
-        <dt id="local" class="callable">
-  <span class="name"><a href="../mitosis/TissueNucleusBase/local.html">local</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="local-param-container"><span class="type-annotation"><a href="../mitosis/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="local-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="local-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="local-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="local-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="local-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="local-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="local-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="local-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="local-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
+        <dt id="mask" class="callable">
+  <span class="name"><a href="../mitosis/TissueNucleusBase/mask.html">mask</a></span><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">I extends <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>, <span class="type-parameter">C extends <a href="../mitosis/Tissue-class.html">Tissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>&gt;</span></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="mask-param-container"><span class="type-annotation"><a href="../mitosis/Container-class.html">Container</a>?</span> <span class="parameter-name">container</span>, </span><span class="parameter" id="mask-param-bind"><span class="type-annotation"><a href="../mitosis/Cell-class.html">Cell</a>?</span> <span class="parameter-name">bind</span>, </span><span class="parameter" id="mask-param-context"><span class="type-annotation"><a href="../mitosis/Context-class.html">Context</a>?</span> <span class="parameter-name">context</span>, </span><span class="parameter" id="mask-param-receptor"><span class="type-annotation"><a href="../mitosis/TissueReceptor-class.html">TissueReceptor</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">receptor</span>, </span><span class="parameter" id="mask-param-testRule"><span class="type-annotation"><a href="../mitosis/TestTissue-class.html">TestTissue</a><span class="signature">&lt;<wbr><span class="type-parameter">E</span>, <span class="type-parameter">C</span>&gt;</span>?</span> <span class="parameter-name">testRule</span>, </span><span class="parameter" id="mask-param-synapses"><span class="type-annotation"><a href="../mitosis/Synapses-class.html">Synapses</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Pulse-class.html">Pulse</a></span>, <span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">synapses</span>, </span><span class="parameter" id="mask-param-forceLock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">forceLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="mask-param-user"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="mask-param-others"><span class="type-annotation">dynamic</span> <span class="parameter-name">others</span>, </span><span class="parameter" id="mask-param-ephemeralPolicy"><span class="type-annotation"><a href="../mitosis/EphemeralPolicy-class.html">EphemeralPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../mitosis/Cell-class.html">Cell</a></span>&gt;</span>?</span> <span class="parameter-name">ephemeralPolicy</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a></span>
   </span>
   
@@ -525,7 +522,7 @@ custom property extensions for the associated <a href="../mitosis/Cell-class.htm
 <dd>
   Generates a memory‑optimised <a href="https://api.flutter.dev/flutter/dart-core/Record-class.html">Record</a> containing the structural "local"
 property state of a reactive tissue's <a href="../mitosis/Nucleus-class.html">Nucleus</a>.
-  
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -556,7 +553,7 @@ property state of a reactive tissue's <a href="../mitosis/Nucleus-class.html">Nu
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

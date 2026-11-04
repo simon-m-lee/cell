@@ -86,35 +86,30 @@ class _TissueNucleus<E, I extends Iterable<E>, C extends Tissue<E>>
 /// This class is the base that powers the internal `_TissueNucleus`.
 ///
 /// ### When to use
-/// Only if you are building a custom collection type that needs to override
-/// the default nucleus behaviour. For standard use, the provided factories
-/// are sufficient.
+/// - **Custom Collections**: Only if you are building a custom collection type
+///   that requires specialized overrides of the default nucleus behaviour.
+/// - **Forensic Extensions**: When implementing new governance layers that need
+///   to tap into the [NucleusBase] property resolution engine.
 ///
 /// ### How it works
-/// - It extends [NucleusBase] to inherit the core property resolution engine
-///   (bitmask records, principal chain, lock management).
-/// - It specialises the storage type to [I] (e.g., `List<E>`, `Set<E>`) and
-///   forces the container strategy via the [container] parameter.
-/// - It implements the [containerType] resolution by walking up the
-///   `principal` chain, defaulting to a strategy inferred from [I].
-/// - It provides the `clone` getter to create an independent copy of the
-///   nucleus with a fresh lock and synapses, essential for creating new
-///   collection instances from a template.
+/// - **Flyweight Architecture**: It extends [NucleusBase] to inherit the core
+///   property resolution engine (bitmask records, principal chain, lock management).
+///   This allows many collections to share the same nucleus without memory duplication.
+/// - **Structural Constancy**: The storage type (List, Set, Map, etc.) is fixed at
+///   creation via the [I] type parameter and the container strategy.
+/// - **Prototype Inheritance**: It implements property resolution by walking up
+///   the `principal` chain, allowing a deputy to override specific properties
+///   (like `testRule`) while inheriting others.
 ///
 /// ### Non‑obvious
-/// - The [container] is **structural** – its type (List, Set, Map, Queue, etc.)
-///   is fixed at creation and inherited by all deputies. A deputy cannot
-///   change a List into a Set.
-/// - The nucleus is a **flyweight** – many collections can share the same
-///   nucleus without duplicating memory.
-/// - The [clone] getter creates a root nucleus (no principal) with its own
-///   lock, making it safe to use for independent collection instances.
-/// - The [principal] chain enables **prototype inheritance** – a deputy
-///   can override only specific properties (like `testRule`) while inheriting
-///   the rest from its principal.
-/// - The static [local] method is the engine behind the framework's
-///   **record‑based bitmask optimisation** – it stores only non‑default
-///   properties, eliminating the "nullable field tax."
+/// - **Bitmask Optimization**: The static [mask] method is the engine behind the
+///   framework's **record‑based optimization**. It stores only non‑default
+///   properties in a `local` record field, eliminating the "nullable field tax"
+///   typical of large configuration objects.
+/// - **Tiered Resolution**: Authority is resolved via a high-integrity forensic
+///   chain: `local` override > prototype inheritance > global default.
+/// - **Hosted Policies**: The [ephemeralPolicy] is hosted directly in this
+///   nucleus, making any tissue built from it governed (`isGoverned == true`).
 ///
 /// ### Example: Reusing a validated nucleus
 /// ```dart

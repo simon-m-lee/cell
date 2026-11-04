@@ -88,6 +88,36 @@ print(counter.cell.state); // 0
   </section>
 
 
+        
+  <section id="setter">
+    <section class="multi-line-signature">
+      
+      set
+      <span class="name ">value</span>
+      <span class="signature">(<wbr><span class="parameter" id="value=-param-value"><span class="type-annotation">V?</span> <span class="parameter-name">value</span></span>)</span>
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Assigns <code>value</code> through the same validated emission pipeline used by
+<a href="../../cell_flow/Cell/state.html">Cell.state</a>'s update handle.</p>
+<p>Cross-package <a href="../../cell_flow/ValueCell-class.html">ValueCell</a> implementations (e.g., <code>TissueValue</code>) provide
+their own setter; this public mutator lets generic machinery such as
+<a href="../../cell_flow/Cell/transaction.html">Cell.transaction</a> commit buffered writes without reaching into the
+private <code>_emit</code>. Unmodifiable deputies reject the write silently.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">set value(V? value) {
+  _emit(value);
+}</code></pre>
+</section>
+
+  </section>
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -112,7 +142,7 @@ print(counter.cell.state); // 0
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

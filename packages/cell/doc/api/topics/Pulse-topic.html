@@ -45,381 +45,147 @@
   <h1><span class="kind-category">Pulse</span> topic</h1>
   
 <section class="desc markdown">
-  <h1 id="how-to-use-pulse-in-the-cell-framework">How to Use Pulse in the Cell Framework</h1>
-<h2 id="table-of-contents">Table of Contents</h2>
-<ol>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#what-is-a-pulse">What is a Pulse?</a></li>
-<li><a href="#core-concepts">Core Concepts</a></li>
-<li><a href="#creating-pulses">Creating Pulses</a></li>
-<li><a href="#pulse-evolution-causal-tracing">Pulse Evolution (Causal Tracing)</a></li>
-<li><a href="#pulse-composition">Pulse Composition</a></li>
-<li><a href="#pulse-governance">Pulse Governance</a></li>
-<li><a href="#pulse-shell-security-proxy">Pulse Shell (Security Proxy)</a></li>
-<li><a href="#lineage-and-tracing">Lineage and Tracing</a></li>
-<li><a href="#testing-pulses">Testing Pulses</a></li>
-<li><a href="#best-practices">Best Practices</a></li>
-<li><a href="#complete-example">Complete Example</a></li>
-</ol>
+  <h1 id="howto-pulsemd">HowTo-Pulse.md</h1>
+<p><strong>Working with Signals in the Mitosis Framework</strong>
+<em>A guide for human developers and AI prompt agents</em></p>
 <hr>
-<h2 id="introduction">Introduction</h2>
-<p>A <strong>Pulse</strong> is the fundamental unit of communication in the Cell Framework. It's an immutable message that carries data, provenance, and governance metadata through the reactive graph. Think of it as the <strong>currency</strong> of the switching fabric—the signal that cells emit and observe.</p>
-<h3 id="when-to-use-pulse">When to Use Pulse</h3>
-<table>
-<thead>
-<tr>
-<th>Scenario</th>
-<th>Recommended Approach</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sending data between cells</td>
-<td>Use <code>Pulse(payload)</code></td>
-</tr>
-<tr>
-<td>Adding causal tracing</td>
-<td>Use <code>pulse.withStep()</code></td>
-</tr>
-<tr>
-<td>Adding security metadata</td>
-<td>Use <code>Pulse.governed()</code></td>
-</tr>
-<tr>
-<td>Bundling multiple signals</td>
-<td>Use <code>Pulse.batch()</code> or <code>+</code> operator</td>
-</tr>
-<tr>
-<td>Protecting sensitive data</td>
-<td>Use <code>pulse.shell</code></td>
-</tr>
-<tr>
-<td>Creating read-only views</td>
-<td>Use <code>pulse.unmodifiable</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="what-is-a-pulse">What is a Pulse?</h2>
-<p>A <code>Pulse</code> is an immutable signal that travels through the reactive graph. It carries:</p>
+<h2 id="abstract">Abstract</h2>
+<p>A <code>Pulse</code> is the fundamental unit of communication in Mitosis. It is not an inert value passed to an API — it is a <strong>participant</strong> with identity, provenance, lifecycle, and authority. Every signal that moves through the framework is a <code>Pulse</code> (or a subclass: <code>TissuePulse</code>, <code>RelatablePulse</code>, <code>EvolvedPulse</code>, <code>CollectivePulse</code>). Every mutation, every observation, every handshake is carried by a Pulse.</p>
+<p>This guide covers the full surface of <code>Pulse</code>: how to construct one, how to evolve one, how to trace its lineage, how to attach lifecycle policies to it, how to shell it defensively, and how to interpret the reciprocal handshake between a pulse and a receptor. It is written in two parts:</p>
 <ul>
-<li><strong>Payload</strong> - The actual data</li>
-<li><strong>Type</strong> - Semantic tag for routing</li>
-<li><strong>Priority</strong> - Execution urgency (0-100)</li>
-<li><strong>Context</strong> - Security and provenance metadata</li>
-<li><strong>Trace</strong> - Causal history of transformations</li>
-<li><strong>Timestamp</strong> - When it was created</li>
-<li><strong>Source</strong> - Originating cell</li>
+<li><strong>Part I — Human Guide.</strong> Prose sections for developers learning the model. Read sequentially.</li>
+<li><strong>Part II — AI Coding Agent Decision Tree.</strong> A dedicated procedural section for AI prompt agents generating pulse-related code. AI agents should jump directly to Part II.</li>
 </ul>
-<h3 id="key-characteristics">Key Characteristics</h3>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Immutable</strong></td>
-<td>Cannot be modified after creation</td>
-</tr>
-<tr>
-<td><strong>Traceable</strong></td>
-<td>Maintains full causal history</td>
-</tr>
-<tr>
-<td><strong>Governed</strong></td>
-<td>Optional security and lifecycle policies</td>
-</tr>
-<tr>
-<td><strong>Composable</strong></td>
-<td>Can be combined with <code>+</code> operator</td>
-</tr>
-<tr>
-<td><strong>Type-Safe</strong></td>
-<td>Generic type parameter <code>P</code></td>
-</tr>
-<tr>
-<td><strong>Shell-able</strong></td>
-<td>Can be wrapped in a defensive proxy</td>
-</tr>
-</tbody>
-</table>
-<h3 id="pulse-anatomy">Pulse Anatomy</h3>
-<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
-│                              PULSE                                         │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        PAYLOAD                                       │   │
-│  │  The actual data being transmitted (type P)                         │   │
-│  │  Example: User(id: 123, name: "Alice")                             │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                       PROVENANCE                                     │   │
-│  │  • type: "user.updated"                                            │   │
-│  │  • priority: 60                                                    │   │
-│  │  • source: UserCell                                                │   │
-│  │  • timestamp: 2024-01-15 14:30:00.000                            │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        CONTEXT                                       │   │
-│  │  • actor: "admin_001"                                              │   │
-│  │  • reason: "Manual update"                                         │   │
-│  │  • sensitivity: Sensitivity.confidential                           │   │
-│  │  • traceId: "abc-123-def"                                          │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         TRACE                                        │   │
-│  │  ["validation", "transformation", "persistence"]                   │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        POLICY                                        │   │
-│  │  • TTL: 5 minutes                                                   │   │
-│  │  • Hop limit: 10                                                    │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
-</code></pre>
+<p>Both parts cover the same underlying material.</p>
 <hr>
-<h2 id="core-concepts">Core Concepts</h2>
-<h3 id="1-pulses-are-immutable">1. Pulses are Immutable</h3>
-<p>Once created, a pulse cannot be modified. To "change" a pulse, you create a new one:</p>
-<pre class="language-dart"><code class="language-dart">// ❌ Can't modify
-final pulse = Pulse('hello');
-// pulse.payload = 'world';  // Not allowed
-
-// ✅ Create a new pulse
-final newPulse = Pulse('world');
+<h2 id="table-of-contents">Table of Contents</h2>
+<p><strong>Part I — Human Guide</strong></p>
+<ol>
+<li><a href="#1-what-a-pulse-is">What a Pulse Is</a></li>
+<li><a href="#2-constructing-a-pulse">Constructing a Pulse</a></li>
+<li><a href="#3-governed-pulses-and-context">Governed Pulses and Context</a></li>
+<li><a href="#4-lifecycle-pulseephemeralpolicy">Lifecycle: <code>PulseEphemeralPolicy</code></a></li>
+<li><a href="#5-evolving-a-pulse">Evolving a Pulse</a></li>
+<li><a href="#6-tracing-a-pulse">Tracing a Pulse</a></li>
+<li><a href="#7-collective-pulses">Collective Pulses</a></li>
+<li><a href="#8-the-pulse-shell">The Pulse Shell</a></li>
+<li><a href="#9-the-reciprocal-handshake">The Reciprocal Handshake</a></li>
+<li><a href="#10-comparing-pulses">Comparing Pulses</a></li>
+<li><a href="#11-serialising-and-inspecting">Serialising and Inspecting</a></li>
+<li><a href="#12-common-human-patterns">Common Human Patterns</a></li>
+<li><a href="#13-anti-patterns">Anti-Patterns</a></li>
+</ol>
+<p><strong>Part II — AI Coding Agent Decision Tree</strong>
+14. <a href="#14-how-to-use-this-section">How to Use This Section</a>
+15. <a href="#15-decision-tree-what-do-you-need-to-do-with-a-pulse">Decision Tree: What Do You Need to Do with a Pulse?</a>
+16. <a href="#16-procedure-a-construct-an-ungoverned-pulse">Procedure A: Construct an Ungoverned Pulse</a>
+17. <a href="#17-procedure-b-construct-a-governed-pulse">Procedure B: Construct a Governed Pulse</a>
+18. <a href="#18-procedure-c-attach-a-pulseephemeralpolicy">Procedure C: Attach a <code>PulseEphemeralPolicy</code></a>
+19. <a href="#19-procedure-d-evolve-a-pulse">Procedure D: Evolve a Pulse</a>
+20. <a href="#20-procedure-e-add-a-trace-step">Procedure E: Add a Trace Step</a>
+21. <a href="#21-procedure-f-build-a-collective-pulse">Procedure F: Build a Collective Pulse</a>
+22. <a href="#22-procedure-g-defensively-shell-a-pulse">Procedure G: Defensively Shell a Pulse</a>
+23. <a href="#23-procedure-h-scrutinize-a-pulse-against-a-receptor">Procedure H: Scrutinize a Pulse Against a Receptor</a>
+24. <a href="#24-procedure-i-filter-or-transform-a-pulse-in-a-receptor">Procedure I: Filter or Transform a Pulse in a Receptor</a>
+25. <a href="#25-procedure-j-persist-pulse-provenance">Procedure J: Persist Pulse Provenance</a>
+26. <a href="#26-verification-checklist-for-ai-agents">Verification Checklist for AI Agents</a>
+27. <a href="#27-references">References</a></p>
+<hr>
+<h1 id="part-i--human-guide">Part I — Human Guide</h1>
+<h2 id="1-what-a-pulse-is">1. What a Pulse Is</h2>
+<p>A <code>Pulse</code> is an immutable message that carries:</p>
+<ul>
+<li><strong><code>payload</code></strong> — the actual data (any type <code>P</code>).</li>
+<li><strong><code>type</code></strong> — a semantic classification (a <code>String</code> tag or a richer classifier).</li>
+<li><strong><code>priority</code></strong> — an urgency value (0–100, higher = more urgent).</li>
+<li><strong><code>context</code></strong> — provenance metadata (<code>PulseContext</code>).</li>
+<li><strong><code>trace</code></strong> — a breadcrumb trail of transformation steps.</li>
+<li><strong><code>policy</code></strong> — lifecycle governance (<code>PulseEphemeralPolicy</code>).</li>
+<li><strong><code>source</code></strong> — the cell that emitted the pulse.</li>
+<li><strong><code>timestamp</code></strong> — the moment the pulse was created.</li>
+<li><strong><code>root</code></strong> — the primordial ancestor of the pulse's lineage.</li>
+<li><strong><code>parent</code></strong> — the immediate ancestor (for evolved pulses).</li>
+</ul>
+<p>A pulse is <strong>immutable</strong>. To "update" a pulse, you call <code>evolve(...)</code>, which produces a new pulse that links back to the original.</p>
+<h3 id="why-a-pulse-is-more-than-a-value">Why a Pulse Is More Than a Value</h3>
+<p>In conventional reactive frameworks, a signal is a value. It has no identity, no history, no authority. The framework's machinery decides whether it moves.</p>
+<p>In Mitosis, a pulse is a <strong>participant</strong>. It has an identity (<code>timestamp</code> + <code>source</code>), it has a history (<code>trace</code> + <code>parent</code>), and it has the <strong>authority to refuse</strong> — a pulse can reject the receptor it is about to enter, and it can invalidate itself.</p>
+<p>This makes signals in Mitosis first-class citizens of the reactive graph rather than passive data.</p>
+<hr>
+<h2 id="2-constructing-a-pulse">2. Constructing a Pulse</h2>
+<h3 id="21-the-simple-form">2.1 The Simple Form</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse('Hello, World!');
 </code></pre>
-<h3 id="2-pulses-are-traceable">2. Pulses are Traceable</h3>
-<p>Every transformation adds to the trace:</p>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse(42)
-  .withStep('validation')
-  .withStep('transformation')
-  .withStep('persistence');
-
-print(pulse.trace); // ['validation', 'transformation', 'persistence']
+<p>This creates an ungoverned pulse with:</p>
+<ul>
+<li><code>payload: 'Hello, World!'</code></li>
+<li><code>type: null</code></li>
+<li><code>priority: Pulse.defaultPriority</code> (20)</li>
+<li><code>context: PulseContext.system</code></li>
+<li><code>policy: null</code></li>
+</ul>
+<h3 id="22-the-typed-form">2.2 The Typed Form</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;(42, type: 'counter', priority: 60);
 </code></pre>
-<h3 id="3-pulses-carry-provenance">3. Pulses Carry Provenance</h3>
-<p>Pulses remember their origin and journey:</p>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;String&gt;(
-  payload: 'Hello',
-  context: PulseContext.userAction(
-    actor: 'admin_001',
-    reason: 'Manual update',
-  ),
-);
+<p>Explicit typing on the payload helps downstream code reason about the payload's type.</p>
+<h3 id="23-non-string-types">2.3 Non-String Types</h3>
+<p>The <code>type</code> parameter accepts any classifier, not just <code>String</code>:</p>
+<pre class="language-dart"><code class="language-dart">enum MailAction { update, archive }
 
-print(pulse.context.actor);      // 'admin_001'
-print(pulse.context.reason);     // 'Manual update'
-print(pulse.source);             // The originating cell
+final pulse = Pulse&lt;String&gt;('New Email', type: MailAction.update);
 </code></pre>
-<h3 id="4-pulses-can-be-composed">4. Pulses Can Be Composed</h3>
-<p>Multiple pulses can be bundled together:</p>
-<pre class="language-dart"><code class="language-dart">final pulse1 = Pulse('update');
-final pulse2 = Pulse('notify');
-final bundle = pulse1 + pulse2;
-
-print(bundle.isComposite); // true
-for (final p in bundle.payload) {
-  print(p.payload);
+<p>Downstream code can <code>switch</code> on the type:</p>
+<pre class="language-dart"><code class="language-dart">switch (pulse.type) {
+  case MailAction.update:
+    handleUpdate(pulse);
+  case MailAction.archive:
+    handleArchive(pulse);
 }
 </code></pre>
-<hr>
-<h2 id="creating-pulses">Creating Pulses</h2>
-<h3 id="method-1-simple-pulse">Method 1: Simple Pulse</h3>
-<pre class="language-dart"><code class="language-dart">// Simple pulse with payload
-final pulse = Pulse('Hello, World!');
-
-// With type
-final typedPulse = Pulse('Hello', type: 'greeting');
-
-// With priority
-final priorityPulse = Pulse('Urgent', priority: 90);
-
-// With source
-final sourcePulse = Pulse('Data', source: myCell);
-
-// Combined
-final completePulse = Pulse(
-  'Hello',
-  type: 'greeting',
-  priority: 60,
-  source: myCell,
-);
+<h3 id="24-setting-a-timestamp">2.4 Setting a Timestamp</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;(42, timestamp: DateTime.now());
 </code></pre>
-<h3 id="method-2-governed-pulse">Method 2: Governed Pulse</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;String&gt;(
-  payload: 'Sensitive Data',
+<p>Providing a timestamp makes <code>compareTo</code> ordering deterministic — useful in tests or when replaying pulses.</p>
+<h3 id="25-setting-a-trace-step">2.5 Setting a Trace Step</h3>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;int&gt;(42, step: 'origin');
+</code></pre>
+<p>The <code>step</code> parameter seeds the pulse's trace with an initial breadcrumb.</p>
+<hr>
+<h2 id="3-governed-pulses-and-context">3. Governed Pulses and Context</h2>
+<p>An <strong>ungoverned</strong> pulse has no explicit context or policy. A <strong>governed</strong> pulse has at least one:</p>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
+  payload: 42,
   context: PulseContext(
-    actor: 'admin_001',
-    reason: 'Accessing user data',
+    actor: 'user_42',
+    reason: 'Manual adjustment',
     sensitivity: Sensitivity.confidential,
+    auditLevel: AuditLevel.full,
   ),
   policy: PulseEphemeralPolicy(
-    duration: Duration(minutes: 5),
-    onInvalidate: (pulse) {
-      print('Pulse expired');
-      return true;
-    },
+    duration: Duration(seconds: 30),
+    hopLimit: 5,
   ),
+  type: 'counter.adjustment',
 );
 </code></pre>
-<h3 id="method-3-with-context-factory">Method 3: With Context Factory</h3>
-<pre class="language-dart"><code class="language-dart">// User action context
-final userPulse = Pulse.governed&lt;String&gt;(
-  payload: 'User login',
-  context: PulseContext.userAction(
-    actor: 'user_123',
-    reason: 'Logging in',
-    priority: 60,
-  ),
-);
-
-// AI inference context
-final aiPulse = Pulse.governed&lt;Map&lt;String, dynamic&gt;&gt;(
-  payload: {'recommendation': 'product_456'},
-  context: PulseContext.aiInference(
-    actor: 'RecommendationEngine',
-    reason: 'User viewed product',
-    confidence: 0.85,
-  ),
-);
-
-// System internal context
-final systemPulse = Pulse.governed&lt;String&gt;(
-  payload: 'Heartbeat',
-  context: PulseContext.systemInternal(
-    baseContext: Context.system,
-    reason: 'Health check',
-  ),
-);
+<p>The <code>isGoverned</code> getter returns <code>true</code> for such pulses:</p>
+<pre class="language-dart"><code class="language-dart">print(pulse.isGoverned); // true
 </code></pre>
-<h3 id="method-4-batch-pulse-collective">Method 4: Batch Pulse (Collective)</h3>
-<pre class="language-dart"><code class="language-dart">final batch = Pulse.batch([
-  Pulse('Update user'),
-  Pulse('Update account'),
-  Pulse('Send notification'),
-], type: 'batch.update');
-
-// Or using the + operator
-final bundle = Pulse('Update') + Pulse('Notify') + Pulse('Log');
-</code></pre>
+<h3 id="when-to-govern-a-pulse">When to Govern a Pulse</h3>
+<ul>
+<li><strong>Security-sensitive operations</strong> — a governed pulse carries provenance that integrity gates can inspect.</li>
+<li><strong>Audited operations</strong> — governed pulses are logged with full forensic detail.</li>
+<li><strong>Lifecycle-bounded operations</strong> — a governed pulse can carry its own TTL or hop limit.</li>
+<li><strong>Regulatory-compliance paths</strong> — governed pulses can carry compliance metadata.</li>
+</ul>
+<p>For high-frequency, low-sensitivity signals, prefer ungoverned pulses.</p>
 <hr>
-<h2 id="pulse-evolution-causal-tracing">Pulse Evolution (Causal Tracing)</h2>
-<h3 id="using-withstep">Using <code>withStep</code></h3>
-<p>Add a step to the causal trace:</p>
-<pre class="language-dart"><code class="language-dart">final root = Pulse(42);
-final validated = root.withStep('validation');
-final transformed = validated.withStep('transformation');
-final persisted = transformed.withStep('persistence');
-
-print(persisted.trace); // ['validation', 'transformation', 'persistence']
-print(persisted.root);  // The original pulse (root)
-</code></pre>
-<h3 id="using-evolve">Using <code>evolve</code></h3>
-<p>More control over evolution:</p>
-<pre class="language-dart"><code class="language-dart">final root = Pulse(42);
-
-// Add step only
-final stepped = root.evolve(step: 'validation');
-
-// Add new context
-final contextual = root.evolve(
-  step: 'validation',
-  context: PulseContext(
-    actor: 'validator',
-    reason: 'Checking value',
-  ),
-);
-
-// Append a pulse
-final childPulse = Pulse(100);
-final chained = root.evolve(pulse: childPulse, step: 'enrichment');
-</code></pre>
-<h3 id="evolution-chain">Evolution Chain</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse(0)
-  .withStep('start')
-  .withStep('process')
-  .withStep('end');
-
-print(pulse.isComposite); // true (it's an EvolvedPulse)
-print(pulse.parent);      // The immediate ancestor
-print(pulse.root);        // The original pulse
-
-// Iterate through the chain
-for (final p in pulse) {
-  print(p.payload);
-}
-</code></pre>
-<h3 id="causal-lineage">Causal Lineage</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse(42)
-  .withStep('validation')
-  .withStep('transformation');
-
-// Trace how values changed
-final history = pulse.lineage&lt;dynamic&gt;(#payload);
-print(history); // [42, 42, 42] (payload unchanged, but traced)
-
-// Trace reasons
-final reasons = pulse.lineage&lt;String&gt;(Provenance.reason, fromPolicy: true);
-</code></pre>
-<hr>
-<h2 id="pulse-composition">Pulse Composition</h2>
-<h3 id="the--operator">The <code>+</code> Operator</h3>
-<p>Combine two pulses into a collective:</p>
-<pre class="language-dart"><code class="language-dart">final update = Pulse('Update user');
-final notify = Pulse('Notify admin');
-final bundle = update + notify;
-
-print(bundle.isComposite); // true
-print(bundle.payload.length); // 2
-
-for (final p in bundle.payload) {
-  print(p.payload);
-}
-</code></pre>
-<h3 id="chaining-multiple-pulses">Chaining Multiple Pulses</h3>
-<pre class="language-dart"><code class="language-dart">final batch = Pulse('Step 1') + Pulse('Step 2') + Pulse('Step 3') + Pulse('Step 4');
-
-// Or using batch factory
-final batch2 = Pulse.batch([
-  Pulse('Step 1'),
-  Pulse('Step 2'),
-  Pulse('Step 3'),
-  Pulse('Step 4'),
-]);
-</code></pre>
-<h3 id="collective-pulse-features">Collective Pulse Features</h3>
-<pre class="language-dart"><code class="language-dart">final collective = Pulse.batch(
-  [pulse1, pulse2, pulse3],
-  type: 'batch.update',
-  priority: 80,
-  onComplete: (pulse) =&gt; print('Batch complete!'),
-  onError: (pulse, error, {stackTrace}) =&gt; print('Batch error: $error'),
-);
-
-// Check if composite
-print(collective.isComposite); // true
-
-// Access individual pulses
-for (final p in collective.payload) {
-  print(p.payload);
-}
-</code></pre>
-<hr>
-<h2 id="pulse-governance">Pulse Governance</h2>
-<h3 id="pulseephemeralpolicy">PulseEphemeralPolicy</h3>
-<p>Control pulse lifecycle:</p>
+<h2 id="4-lifecycle-pulseephemeralpolicy">4. Lifecycle: <code>PulseEphemeralPolicy</code></h2>
+<p>A <code>PulseEphemeralPolicy</code> attaches a TTL, a hop limit, or both to a pulse:</p>
 <pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
-  duration: Duration(seconds: 30),  // TTL
-  hopLimit: 5,                      // Max traversals
-  onEvent: (cell, {required policy}) {
-    // Called on each hop
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (pulse, {required policy}) {
     return (hops: policy.hops + 1);
   },
   onInvalidate: (pulse) {
@@ -427,576 +193,616 @@ for (final p in collective.payload) {
     return true;
   },
 );
-
-final pulse = Pulse.governed&lt;String&gt;(
-  payload: 'Temporary token',
-  policy: policy,
-);
-
-// Check if still valid
-if (pulse.isInvalidated) {
-  print('Pulse is stale');
+</code></pre>
+<h3 id="behaviour">Behaviour</h3>
+<ul>
+<li><strong><code>duration:</code></strong> — the pulse expires after this wall-clock duration.</li>
+<li><strong><code>hopLimit:</code></strong> — the pulse expires after this many hops.</li>
+<li><strong><code>onEvent:</code></strong> — invoked at each hop. The return value updates the policy's state.</li>
+<li><strong><code>onInvalidate:</code></strong> — invoked once when the terminal condition is met. If it returns <code>true</code>, the pulse is neutralised.</li>
+</ul>
+<h3 id="checking-the-pulses-lifecycle">Checking the Pulse's Lifecycle</h3>
+<pre class="language-dart"><code class="language-dart">if (pulse.isInvalidated) {
+  // The pulse has expired; ignore it
+  return;
 }
 </code></pre>
-<h3 id="pulsecontext-provenance">PulseContext (Provenance)</h3>
-<pre class="language-dart"><code class="language-dart">final context = PulseContext(
-  actor: 'admin_001',                    // Who
-  reason: 'Manual override',             // Why immediate
-  purpose: 'SYSTEM_UPDATE',              // Strategic intent
-  strategy: ReasoningStrategy.manual,    // How
-  confidence: 1.0,                       // Certainty
-  priority: 80,                          // Urgency
-  compliance: 'GDPR',                    // Regulation
-  sensitivity: Sensitivity.confidential, // Classification
-  auditLevel: AuditLevel.full,           // Observability
-);
-
-final pulse = Pulse.governed&lt;String&gt;(
-  payload: 'Update user data',
-  context: context,
-);
-</code></pre>
-<h3 id="predefined-context-factories">Predefined Context Factories</h3>
-<pre class="language-dart"><code class="language-dart">// User action
-final userContext = PulseContext.userAction(
-  baseContext: Context.system,
-  actor: 'user_123',
-  reason: 'Profile update',
-);
-
-// AI inference
-final aiContext = PulseContext.aiInference(
-  baseContext: Context.system,
-  actor: 'RecommendationEngine',
-  reason: 'Personalized suggestions',
-  confidence: 0.85,
-);
-
-// System internal
-final systemContext = PulseContext.systemInternal(
-  baseContext: Context.system,
-  reason: 'Cache invalidation',
-);
-
-// Security intervention
-final securityContext = PulseContext.securityIntervention(
-  baseContext: Context.system,
-  actor: 'Sentinel_Prime',
-  reason: 'Suspicious activity detected',
-);
-</code></pre>
+<p>An invalidated pulse refuses to propagate further. This is a manifestation of the pulse's authority — it decides its own life cycle.</p>
 <hr>
-<h2 id="pulse-shell-security-proxy">Pulse Shell (Security Proxy)</h2>
-<h3 id="what-is-a-shell">What is a Shell?</h3>
-<p>A <code>PulseShell</code> is a defensive proxy that wraps a pulse and forces any receiver to authenticate before accessing the payload.</p>
-<h3 id="creating-a-shell">Creating a Shell</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;String&gt;(
-  payload: 'Secret Data',
+<h2 id="5-evolving-a-pulse">5. Evolving a Pulse</h2>
+<p><code>evolve(...)</code> produces a new pulse that links back to the original:</p>
+<pre class="language-dart"><code class="language-dart">final original = Pulse&lt;int&gt;(42);
+final evolved = original.evolve(step: 'validated');
+
+print(evolved.parent == original); // true
+print(evolved.payload);            // 42 (inherited from original)
+print(evolved.trace);              // ['validated']
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong><code>pulse</code></strong> — an optional sub-pulse to append.</li>
+<li><strong><code>step</code></strong> — an optional description to add to the trace.</li>
+<li><strong><code>context</code></strong> — an optional new context. Must be a <strong>direct descendant</strong> of the current context.</li>
+</ul>
+<p>At least one of <code>pulse</code>, <code>step</code>, or <code>context</code> must be non-null.</p>
+<h3 id="causal-integrity">Causal Integrity</h3>
+<p>The new context must descend from the current pulse's context. Attempting to "jump" to an unrelated context throws an assertion error:</p>
+<pre class="language-dart"><code class="language-dart">final unrelatedContext = Context.system.evolve(...); // Unrelated to pulse's context
+final bad = original.evolve(context: unrelatedContext); // AssertionError
+</code></pre>
+<p>This preserves the <strong>Chain of Evidence</strong> — a pulse's provenance cannot be forged.</p>
+<hr>
+<h2 id="6-tracing-a-pulse">6. Tracing a Pulse</h2>
+<h3 id="61-the-trace">6.1 The Trace</h3>
+<p>The <code>trace</code> field accumulates step names from all ancestors:</p>
+<pre class="language-dart"><code class="language-dart">final evolved = original
+    .withStep('validation')
+    .withStep('transformation')
+    .withStep('persistence');
+
+print(evolved.trace); // ['validation', 'transformation', 'persistence']
+</code></pre>
+<h3 id="62-the-parent-chain">6.2 The Parent Chain</h3>
+<pre class="language-dart"><code class="language-dart">print(evolved.parent); // the pulse after 'transformation'
+print(evolved.root);   // the original pulse
+</code></pre>
+<h3 id="63-full-lineage">6.3 Full Lineage</h3>
+<p>The <code>lineage&lt;T&gt;(arg)</code> method traverses the entire chain:</p>
+<pre class="language-dart"><code class="language-dart">final history = pulse.lineage&lt;double&gt;(Pulse.payload);
+print(history); // [100.0, 115.0, 103.5]
+</code></pre>
+<p>Returns values in <strong>chronological order</strong> (root first).</p>
+<h3 id="64-walking-history-backwards">6.4 Walking History Backwards</h3>
+<pre class="language-dart"><code class="language-dart">Pulse? current = evolved;
+while (current != null) {
+  print(current.payload);
+  current = current is EvolvedPulse ? current.parent : null;
+}
+</code></pre>
+<p>This is useful for debugging — you can walk backwards to find the exact origin.</p>
+<hr>
+<h2 id="7-collective-pulses">7. Collective Pulses</h2>
+<p>A <strong>CollectivePulse</strong> bundles multiple independent pulses into one atomic wave:</p>
+<pre class="language-dart"><code class="language-dart">final p1 = Pulse&lt;int&gt;(1);
+final p2 = Pulse&lt;String&gt;('hello');
+final collective = Pulse.batch([p1, p2]);
+</code></pre>
+<p>Or, with the <code>+</code> operator:</p>
+<pre class="language-dart"><code class="language-dart">final combined = p1 + p2; // equivalent
+</code></pre>
+<h3 id="key-properties">Key Properties</h3>
+<ul>
+<li>The collective's <code>payload</code> is an <code>Iterable&lt;Pulse&lt;P&gt;&gt;</code> — the bundled pulses.</li>
+<li>Each sub-pulse retains its own identity, trace, and parent chain.</li>
+<li>The collective is <strong>flat</strong> — no causal relationship between members.</li>
+<li>The collective's callbacks fire <strong>once</strong> for the batch, not per sub-pulse.</li>
+</ul>
+<h3 id="iterating-a-collective">Iterating a Collective</h3>
+<pre class="language-dart"><code class="language-dart">for (final p in collective.payload) {
+  print(p.payload); // 1, hello
+}
+</code></pre>
+<p><strong>Important:</strong> Iterating the collective itself yields the collective as a single item. To access the individual pulses, iterate <code>collective.payload</code>.</p>
+<hr>
+<h2 id="8-the-pulse-shell">8. The Pulse Shell</h2>
+<p>A <strong>PulseShell</strong> is a defensive proxy that hides the pulse's payload until the receiver authenticates:</p>
+<pre class="language-dart"><code class="language-dart">final shell = pulse.shell;
+
+// In the receiver:
+final unlocked = shell.scrutinize(thisReceptor, null);
+if (unlocked != null) {
+  // Process the payload
+}
+</code></pre>
+<h3 id="properties">Properties</h3>
+<ul>
+<li>The shell is <strong>terminal</strong> — cannot be evolved or combined.</li>
+<li>The shell hides the payload and most metadata.</li>
+<li>The shell forces the receiver to complete the <strong>reciprocal handshake</strong> before revealing the payload.</li>
+</ul>
+<h3 id="when-to-use-a-shell">When to Use a Shell</h3>
+<ul>
+<li>Passing a pulse to untrusted code (a plugin, an external integration).</li>
+<li>Cross-boundary propagation where zero-trust is required.</li>
+<li>Compliance scenarios where access must be authenticated at every hop.</li>
+</ul>
+<p>For trusted internal propagation, use the pulse directly.</p>
+<hr>
+<h2 id="9-the-reciprocal-handshake">9. The Reciprocal Handshake</h2>
+<p>The <strong>reciprocal handshake</strong> is the protocol that authenticates a pulse to a receptor before the pulse reveals its payload.</p>
+<h3 id="how-it-works">How It Works</h3>
+<p>When a governed pulse reaches a governed receptor:</p>
+<ol>
+<li>The receptor presents its context to the pulse (via the pulse's <code>scrutinize</code> method).</li>
+<li>The pulse evaluates the receptor's authority.</li>
+<li>If the receptor's authority satisfies the pulse's mandate, the pulse reveals its payload.</li>
+<li>If not, the pulse returns <code>null</code> — the signal is neutralised.</li>
+</ol>
+<h3 id="why-it-is-reciprocal">Why It Is Reciprocal</h3>
+<p>The handshake is bidirectional. The framework's integrity gate can reject a pulse; the pulse can reject the receptor. Neither side has unilateral authority.</p>
+<h3 id="manual-invocation">Manual Invocation</h3>
+<pre class="language-dart"><code class="language-dart">final unlocked = pulse.scrutinize(receptor, null);
+if (unlocked != null) {
+  // The receptor passed the handshake
+}
+</code></pre>
+<p>You rarely invoke this manually — the framework does it automatically during propagation.</p>
+<hr>
+<h2 id="10-comparing-pulses">10. Comparing Pulses</h2>
+<p>Pulses implement <code>Comparable&lt;Pulse&gt;</code>. The comparison order is:</p>
+<ol>
+<li><strong>Chronological</strong> — earlier timestamps first.</li>
+<li><strong>Priority</strong> — higher priority first.</li>
+<li><strong>Trace depth</strong> — shallower traces first.</li>
+</ol>
+<pre class="language-dart"><code class="language-dart">final p1 = Pulse&lt;int&gt;(1, timestamp: t1, priority: 50);
+final p2 = Pulse&lt;int&gt;(2, timestamp: t2, priority: 80);
+
+print(p1.compareTo(p2)); // positive: p2 has priority
+</code></pre>
+<p>This ordering ensures deterministic dispatch when multiple pulses are queued.</p>
+<hr>
+<h2 id="11-serialising-and-inspecting">11. Serialising and Inspecting</h2>
+<h3 id="the-payload">The Payload</h3>
+<pre class="language-dart"><code class="language-dart">print(pulse.payload); // the raw payload
+</code></pre>
+<p>For a collective, <code>payload</code> is an <code>Iterable&lt;Pulse&gt;</code>.</p>
+<h3 id="the-envelope">The Envelope</h3>
+<pre class="language-dart"><code class="language-dart">print(pulse.type);          // dynamic classifier
+print(pulse.priority);      // 0–100
+print(pulse.timestamp);     // DateTime
+print(pulse.source);        // Cell?
+print(pulse.trace);         // List&lt;String&gt;
+print(pulse.isComposite);   // true for CollectivePulse
+print(pulse.isInvalidated); // true if policy expired
+print(pulse.isGoverned);    // true if Context or Policy is set
+</code></pre>
+<h3 id="the-lineage">The Lineage</h3>
+<pre class="language-dart"><code class="language-dart">print(pulse.root);          // primordial ancestor
+print(pulse.parent);        // immediate ancestor (for evolved)
+</code></pre>
+<h3 id="unmodifiable-view">Unmodifiable View</h3>
+<pre class="language-dart"><code class="language-dart">final frozen = pulse.unmodifiable;
+// frozen.evolve(...) still creates a new pulse, but frozen itself is sealed
+</code></pre>
+<p>Note: An "unmodifiable" pulse still allows evolution — evolution creates a <strong>new</strong> pulse. The unmodifiable envelope simply blocks direct mutations of this specific instance's metadata.</p>
+<hr>
+<h2 id="12-common-human-patterns">12. Common Human Patterns</h2>
+<h3 id="121-tracing-a-values-history">12.1 Tracing a Value's History</h3>
+<pre class="language-dart"><code class="language-dart">final history = finalPulse.lineage&lt;double&gt;(Pulse.payload);
+print(history); // [original, ...intermediate..., current]
+</code></pre>
+<h3 id="122-batching-independent-signals">12.2 Batching Independent Signals</h3>
+<pre class="language-dart"><code class="language-dart">final batch = Pulse.batch([addEvent, removeEvent, updateEvent]);
+await receptor.async.call(batch);
+</code></pre>
+<h3 id="123-governed-pulse-for-audited-operations">12.3 Governed Pulse for Audited Operations</h3>
+<pre class="language-dart"><code class="language-dart">final auditPulse = Pulse.governed&lt;String&gt;(
+  payload: 'Sensitive Operation',
   context: PulseContext(
-    actor: 'secure_service',
-    sensitivity: Sensitivity.secret,
+    actor: 'admin',
+    reason: 'Manual override',
+    sensitivity: Sensitivity.restricted,
+    auditLevel: AuditLevel.full,
   ),
 );
-
-final shell = pulse.shell;
-// shell.payload is null until scrutinized
 </code></pre>
-<h3 id="using-a-shell-in-a-receptor">Using a Shell in a Receptor</h3>
-<pre class="language-dart"><code class="language-dart">final receptor = Receptor((cell, pulse, {user}) {
-  // If it's a shell, scrutinize it
-  if (pulse is PulseShell) {
-    final innerPulse = pulse.scrutinize(this);
-    // Now we have access to the payload
-    return innerPulse;
-  }
+<h3 id="124-hop-limited-pulse">12.4 Hop-Limited Pulse</h3>
+<pre class="language-dart"><code class="language-dart">final bounded = Pulse.governed&lt;int&gt;(
+  payload: 42,
+  policy: PulseEphemeralPolicy(
+    hopLimit: 3,
+    onInvalidate: (p) =&gt; true,
+  ),
+);
+</code></pre>
+<h3 id="125-defensive-propagation">12.5 Defensive Propagation</h3>
+<pre class="language-dart"><code class="language-dart">final shell = pulse.shell;
+// Send shell to untrusted consumer
+sendToPlugin(shell);
+</code></pre>
+<hr>
+<h2 id="13-anti-patterns">13. Anti-Patterns</h2>
+<p>❌ <strong>Mutating a pulse directly.</strong> Pulses are immutable. Use <code>evolve(...)</code> to derive a new pulse.</p>
+<p>❌ <strong>Attempting to evolve a shell.</strong> Shells are terminal. Unlock first via <code>scrutinize</code>.</p>
+<p>❌ <strong>Iterating a collective expecting sub-pulses.</strong> Iterate <code>collective.payload</code> for sub-pulses.</p>
+<p>❌ <strong>Assuming <code>payload</code> is null after invalidation.</strong> The payload remains accessible; only propagation is blocked.</p>
+<p>❌ <strong>Replacing a pulse's context with an unrelated one.</strong> Contexts must follow causal lineage.</p>
+<p>❌ <strong>Using a shell on trusted internal paths.</strong> Shells add unnecessary handshake overhead.</p>
+<p>❌ <strong>Forgetting to check <code>isInvalidated</code>.</strong> An invalidated pulse should not be acted upon.</p>
+<hr>
+<h1 id="part-ii--ai-coding-agent-decision-tree">Part II — AI Coding Agent Decision Tree</h1>
+<h2 id="14-how-to-use-this-section">14. How to Use This Section</h2>
+<p>This section is a procedural specification for AI prompt agents that generate pulse-related code.</p>
+<p><strong>Rules for AI agents:</strong></p>
+<ol>
+<li><strong>Follow the decision tree first.</strong> Do not skip to the procedures.</li>
+<li><strong>Do not read Part I first.</strong> Everything an agent needs is here.</li>
+<li><strong>Follow the numbered steps in order.</strong></li>
+<li><strong>✅ marks a post-condition.</strong> Verify before proceeding.</li>
+<li><strong>⚠️ marks a failure mode.</strong> If observed, stop and report.</li>
+<li><strong>❌ marks a prohibition.</strong> Never violate.</li>
+<li><strong>📋 marks a canonical template.</strong> Adapt names and types; preserve structure.</li>
+<li><strong>🔁 marks a loop invariant.</strong> Check on each iteration.</li>
+</ol>
+<p>When the requirement is ambiguous, ask a clarifying question <strong>before</strong> choosing a procedure.</p>
+<hr>
+<h2 id="15-decision-tree-what-do-you-need-to-do-with-a-pulse">15. Decision Tree: What Do You Need to Do with a Pulse?</h2>
+<p>Start at Step 1.</p>
+<h3 id="step-1--create-a-new-pulse">Step 1 — Create a new pulse?</h3>
+<p>Ask: "Does the code need to create a new pulse?"</p>
+<ul>
+<li><strong>Yes, ungoverned</strong> → Go to <strong>Procedure A</strong> (§16).</li>
+<li><strong>Yes, governed</strong> → Go to <strong>Procedure B</strong> (§17).</li>
+<li><strong>No</strong> → Go to Step 2.</li>
+</ul>
+<h3 id="step-2--attach-a-lifecycle">Step 2 — Attach a lifecycle?</h3>
+<p>Ask: "Does the pulse need a TTL, hop limit, or invalidation callback?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure C</strong> (§18).</li>
+<li><strong>No</strong> → Go to Step 3.</li>
+</ul>
+<h3 id="step-3--derive-a-new-pulse-from-an-existing-one">Step 3 — Derive a new pulse from an existing one?</h3>
+<p>Ask: "Does the code need to evolve or extend a pulse?"</p>
+<ul>
+<li><strong>Yes, evolve the envelope</strong> → Go to <strong>Procedure D</strong> (§19).</li>
+<li><strong>Yes, add a trace step</strong> → Go to <strong>Procedure E</strong> (§20).</li>
+<li><strong>No</strong> → Go to Step 4.</li>
+</ul>
+<h3 id="step-4--bundle-multiple-pulses">Step 4 — Bundle multiple pulses?</h3>
+<p>Ask: "Does the code need to combine several pulses into one atomic wave?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure F</strong> (§21).</li>
+<li><strong>No</strong> → Go to Step 5.</li>
+</ul>
+<h3 id="step-5--defensively-share-a-pulse">Step 5 — Defensively share a pulse?</h3>
+<p>Ask: "Does the pulse need to be shared with untrusted code?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure G</strong> (§22).</li>
+<li><strong>No</strong> → Go to Step 6.</li>
+</ul>
+<h3 id="step-6--manually-authenticate-a-pulse-to-a-receptor">Step 6 — Manually authenticate a pulse to a receptor?</h3>
+<p>Ask: "Does the code need to invoke the reciprocal handshake manually?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure H</strong> (§23).</li>
+<li><strong>No</strong> → Go to Step 7.</li>
+</ul>
+<h3 id="step-7--process-incoming-pulses">Step 7 — Process incoming pulses?</h3>
+<p>Ask: "Does the code need to process pulses inside a receptor?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure I</strong> (§24).</li>
+<li><strong>No</strong> → Go to Step 8.</li>
+</ul>
+<h3 id="step-8--persist-provenance">Step 8 — Persist provenance?</h3>
+<p>Ask: "Does the code need to persist the pulse's trace or lineage?"</p>
+<ul>
+<li><strong>Yes</strong> → Go to <strong>Procedure J</strong> (§25).</li>
+<li><strong>No</strong> → Verify with the checklist in §26.</li>
+</ul>
+<hr>
+<h2 id="16-procedure-a-construct-an-ungoverned-pulse">16. Procedure A: Construct an Ungoverned Pulse</h2>
+<p>Purpose: Create a simple pulse with no explicit context or policy.</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Identify the payload type.</strong> Determine the type <code>P</code> of the payload.</li>
+<li><strong>Identify the payload value.</strong> This is the actual data.</li>
+<li><strong>Optionally identify the <code>type</code>.</strong> A classifier for routing (a <code>String</code> or an <code>enum</code>).</li>
+<li><strong>Optionally identify the <code>priority</code>.</strong> A value between 0 and 100. Omit to use the default (20).</li>
+<li><strong>Optionally identify the <code>source</code>.</strong> The emitting cell.</li>
+<li><strong>Optionally identify the <code>step</code>.</strong> An initial trace breadcrumb.</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse&lt;P&gt;(
+  payload,              // Required
+  type: 'some.tag',     // Optional
+  priority: 60,         // Optional
+  source: cell,         // Optional
+  step: 'origin',       // Optional
+);
+</code></pre>
+<p>✅ Post-condition: <code>pulse.isGoverned</code> is <code>false</code>.</p>
+<p>⚠️ Failure mode: If the payload's type does not match <code>P</code>, Dart throws a type error at compile time.</p>
+<p>❌ Prohibition: Do not pass <code>context</code> or <code>policy</code> — those are reserved for <code>Pulse.governed</code>.</p>
+<hr>
+<h2 id="17-procedure-b-construct-a-governed-pulse">17. Procedure B: Construct a Governed Pulse</h2>
+<p>Purpose: Create a pulse with explicit context or policy.</p>
+<h3 id="steps-2">Steps</h3>
+<ol>
+<li><strong>Decide whether a context is needed.</strong> If the operation is security-sensitive or audited, yes.</li>
+<li><strong>Decide whether a policy is needed.</strong> If the pulse needs a TTL or hop limit, yes.</li>
+<li><strong>If context is needed, create the <code>PulseContext</code></strong> (see the companion guide <code>HowTo-Context.md</code>, Procedure C).</li>
+<li><strong>If policy is needed, create the <code>PulseEphemeralPolicy</code></strong> (see Procedure C, below).</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;P&gt;(
+  payload: value,                    // Required
+  context: pulseContext,             // Optional but recommended for governed pulses
+  policy: pulsePolicy,               // Optional
+  type: 'some.tag',                  // Optional
+  priority: 60,                      // Optional
+  source: cell,                      // Optional
+);
+</code></pre>
+<p>✅ Post-condition: <code>pulse.isGoverned</code> is <code>true</code>.</p>
+<p>⚠️ Failure mode: If neither <code>context</code> nor <code>policy</code> is provided, the pulse is not actually governed. Warn the user and suggest Procedure A instead.</p>
+<p>❌ Prohibition: Do not mix <code>Pulse(...)</code> and <code>Pulse.governed(...)</code> syntax. Use one or the other.</p>
+<hr>
+<h2 id="18-procedure-c-attach-a-pulseephemeralpolicy">18. Procedure C: Attach a <code>PulseEphemeralPolicy</code></h2>
+<p>Purpose: Provide a lifecycle bound for a pulse.</p>
+<h3 id="steps-3">Steps</h3>
+<ol>
+<li><strong>Determine the expiry mechanism.</strong> TTL, hop limit, or both.</li>
+<li><strong>Determine the <code>duration</code>.</strong> Required if TTL.</li>
+<li><strong>Determine the <code>hopLimit</code>.</strong> Required if hop limit.</li>
+<li><strong>Determine the <code>onEvent</code> callback.</strong> Optional; used to update policy state on each hop.</li>
+<li><strong>Determine the <code>onInvalidate</code> callback.</strong> Required; decides whether to invalidate.</li>
+<li><strong>Emit the policy, then attach it to a governed pulse.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final policy = PulseEphemeralPolicy(
+  duration: Duration(seconds: 30),
+  hopLimit: 5,
+  onEvent: (pulse, {required policy}) =&gt; (hops: policy.hops + 1),
+  onInvalidate: (pulse) {
+    // Optionally log or notify
+    return true;
+  },
+);
+
+final pulse = Pulse.governed&lt;int&gt;(
+  payload: 42,
+  policy: policy,
+);
+</code></pre>
+<p>✅ Post-condition: The pulse's <code>isInvalidated</code> becomes <code>true</code> after the TTL expires or the hop limit is reached.</p>
+<p>⚠️ Failure mode: If neither <code>duration</code> nor <code>hopLimit</code> is set, the policy has no effect. Warn the user.</p>
+<p>❌ Prohibition: Do not return <code>false</code> from <code>onInvalidate</code> unless the user has a specific reason. Returning <code>false</code> keeps the pulse alive.</p>
+<hr>
+<h2 id="19-procedure-d-evolve-a-pulse">19. Procedure D: Evolve a Pulse</h2>
+<p>Purpose: Derive a new pulse from an existing one, adding a trace step, sub-pulse, or new context.</p>
+<h3 id="steps-4">Steps</h3>
+<ol>
+<li><strong>Identify the base pulse.</strong> This is the pulse to evolve from.</li>
+<li><strong>Determine what is being added:</strong>
+<ul>
+<li>A <strong>step</strong> (trace breadcrumb) — pass <code>step: 'description'</code>.</li>
+<li>A <strong>sub-pulse</strong> — pass <code>pulse: subPulse</code>.</li>
+<li>A <strong>new context</strong> — pass <code>context: newContext</code>. The new context must descend from the current one.</li>
+</ul>
+</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final evolved = basePulse.evolve(
+  step: 'validation',                    // Optional
+  pulse: someSubPulse,                   // Optional
+  context: basePulse.context.evolve(...), // Optional, must be descendant
+);
+</code></pre>
+<p>✅ Post-condition: <code>evolved.parent == basePulse</code>.</p>
+<p>⚠️ Failure mode: If none of <code>step</code>, <code>pulse</code>, or <code>context</code> is provided, an assertion error is thrown.</p>
+<p>⚠️ Failure mode: If the new context is not a descendant of the current one, an assertion error is thrown.</p>
+<p>❌ Prohibition: Do not use <code>evolve</code> to change the payload. Use a new <code>Pulse</code> instead.</p>
+<hr>
+<h2 id="20-procedure-e-add-a-trace-step">20. Procedure E: Add a Trace Step</h2>
+<p>Purpose: Add a step to the pulse's trace without creating a causal branch.</p>
+<h3 id="steps-5">Steps</h3>
+<ol>
+<li><strong>Identify the pulse.</strong></li>
+<li><strong>Determine the step description.</strong> This is a <code>String</code>.</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final stepped = basePulse.withStep('sanitized');
+</code></pre>
+<p>✅ Post-condition: <code>stepped.trace</code> includes the new step.</p>
+<p>⚠️ Failure mode: <code>withStep</code> does not create a new <code>EvolvedPulse</code>; it merely lengthens the trace. If a causal branch is needed, use <code>evolve</code> (Procedure D) instead.</p>
+<p>❌ Prohibition: Do not call <code>withStep</code> on a <code>PulseShell</code>.</p>
+<hr>
+<h2 id="21-procedure-f-build-a-collective-pulse">21. Procedure F: Build a Collective Pulse</h2>
+<p>Purpose: Bundle multiple independent pulses into one atomic wave.</p>
+<h3 id="steps-6">Steps</h3>
+<ol>
+<li><strong>Identify the pulses to bundle.</strong> They can be of any payload type.</li>
+<li><strong>Choose the construction method:</strong>
+<ul>
+<li>Use <code>Pulse.batch([...])</code> for explicit bundling.</li>
+<li>Use the <code>+</code> operator for ad-hoc pairing.</li>
+</ul>
+</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final collective = Pulse.batch([p1, p2, p3]);
+
+// Or
+final combined = p1 + p2;
+</code></pre>
+<p>✅ Post-condition: <code>collective.isComposite</code> is <code>true</code> and <code>collective.payload</code> is an <code>Iterable&lt;Pulse&gt;</code>.</p>
+<p>⚠️ Failure mode: Iterating the collective yields the collective itself, not its sub-pulses. To iterate sub-pulses, iterate <code>collective.payload</code>.</p>
+<p>❌ Prohibition: Do not assume callbacks attached to individual sub-pulses fire separately. On a collective, callbacks fire once for the batch.</p>
+<hr>
+<h2 id="22-procedure-g-defensively-shell-a-pulse">22. Procedure G: Defensively Shell a Pulse</h2>
+<p>Purpose: Prepare a pulse for untrusted propagation.</p>
+<h3 id="steps-7">Steps</h3>
+<ol>
+<li><strong>Identify the pulse.</strong></li>
+<li><strong>Create the shell.</strong></li>
+<li><strong>Send the shell to the untrusted receiver.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final shell = pulse.shell;
+untrustedReceiver.receive(shell);
+</code></pre>
+<p>✅ Post-condition: <code>shell is PulseShell</code> is <code>true</code>.</p>
+<p>⚠️ Failure mode: Shells cannot be evolved. If the receiver needs to evolve the pulse, unlock it first via <code>scrutinize</code> (Procedure H).</p>
+<p>❌ Prohibition: Do not shell pulses on trusted internal paths. The handshake overhead is not justified.</p>
+<hr>
+<h2 id="23-procedure-h-scrutinize-a-pulse-against-a-receptor">23. Procedure H: Scrutinize a Pulse Against a Receptor</h2>
+<p>Purpose: Perform the reciprocal handshake manually.</p>
+<h3 id="steps-8">Steps</h3>
+<ol>
+<li><strong>Identify the pulse or shell.</strong></li>
+<li><strong>Identify the receptor.</strong> This must have the authority to unlock the pulse.</li>
+<li><strong>Emit the call.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final unlocked = pulse.scrutinize(receptor, positionalArguments);
+if (unlocked == null) {
+  // Handshake failed; the pulse was neutralised
+  return;
+}
+// Process the unlocked pulse
+</code></pre>
+<p>✅ Post-condition: If <code>unlocked != null</code>, the receptor passed the handshake.</p>
+<p>⚠️ Failure mode: If <code>unlocked</code> is <code>null</code>, the receptor does not have sufficient authority. Do not attempt to bypass.</p>
+<p>❌ Prohibition: Do not catch exceptions from <code>scrutinize</code> and continue. A failed handshake is a security outcome, not an error to be swallowed.</p>
+<hr>
+<h2 id="24-procedure-i-filter-or-transform-a-pulse-in-a-receptor">24. Procedure I: Filter or Transform a Pulse in a Receptor</h2>
+<p>Purpose: Implement receptor logic that inspects, filters, or transforms incoming pulses.</p>
+<h3 id="steps-9">Steps</h3>
+<ol>
+<li><strong>Identify the receptor's contract.</strong> What pulses does it accept? What does it produce?</li>
+<li><strong>Decide the transformation logic:</strong>
+<ul>
+<li><strong>Pass-through</strong> — return the pulse unchanged.</li>
+<li><strong>Transform</strong> — create a new pulse via <code>evolve</code> (Procedure D) or a fresh <code>Pulse</code> (Procedure A or B).</li>
+<li><strong>Filter</strong> — return <code>null</code> to drop the pulse.</li>
+</ul>
+</li>
+<li><strong>Emit the receptor function.</strong></li>
+</ol>
+<p>📋 Canonical template — pass-through:</p>
+<pre class="language-dart"><code class="language-dart">Receptor((cell, pulse, {user}) =&gt; pulse);
+</code></pre>
+<p>📋 Canonical template — transform:</p>
+<pre class="language-dart"><code class="language-dart">Receptor((cell, pulse, {user}) {
+  final newPayload = transform(pulse.payload);
+  return Pulse(newPayload, type: 'transformed');
+});
+</code></pre>
+<p>📋 Canonical template — filter:</p>
+<pre class="language-dart"><code class="language-dart">Receptor((cell, pulse, {user}) {
+  if (shouldDrop(pulse)) return null;
   return pulse;
 });
 </code></pre>
-<h3 id="shell-security-flow">Shell Security Flow</h3>
-<pre class="language-dart"><code>┌─────────────────────────────────────────────────────────────────────────────┐
-│                         SHELL SECURITY FLOW                                │
-│                                                                             │
-│  1. Sender creates governed pulse                                          │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  final pulse = Pulse.governed(                                 │    │
-│     │    payload: 'Secret Data',                                     │    │
-│     │    context: PulseContext(sensitivity: Sensitivity.secret),     │    │
-│     │  );                                                             │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-│                          │                                                  │
-│                          ▼                                                  │
-│  2. Sender wraps in shell                                                  │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  final shell = pulse.shell;                                    │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-│                          │                                                  │
-│                          ▼                                                  │
-│  3. Shell sent to receptor                                                │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  receptor.call(shell);                                         │    │
-│     │  // shell.payload == null                                      │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-│                          │                                                  │
-│                          ▼                                                  │
-│  4. Receptor scrutinizes shell                                             │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  if (pulse is PulseShell) {                                    │    │
-│     │    final inner = pulse.scrutinize(this);                      │    │
-│     │    // Now has access to payload                                │    │
-│     │  }                                                              │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────────┘
-</code></pre>
+<p>✅ Post-condition: The receptor returns a <code>Pulse?</code> — <code>null</code> means the pulse is dropped.</p>
+<p>⚠️ Failure mode: If the receptor throws, the framework catches the exception and drops the pulse. Ensure your logic is defensive.</p>
+<p>❌ Prohibition: Do not return a <code>Pulse</code> of a different type parameter without a cast. Use a new pulse if the payload's type changes.</p>
 <hr>
-<h2 id="lineage-and-tracing">Lineage and Tracing</h2>
-<h3 id="basic-tracing">Basic Tracing</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse(42)
-  .withStep('validation')
-  .withStep('transformation')
-  .withStep('persistence');
+<h2 id="25-procedure-j-persist-pulse-provenance">25. Procedure J: Persist Pulse Provenance</h2>
+<p>Purpose: Extract and persist the pulse's forensic metadata.</p>
+<h3 id="steps-10">Steps</h3>
+<ol>
+<li><strong>Identify the fields to persist:</strong>
+<ul>
+<li><code>trace</code> — the ordered list of steps.</li>
+<li><code>root</code> — the primordial ancestor.</li>
+<li><code>source</code> — the emitting cell.</li>
+<li><code>context</code> — the <code>PulseContext</code> (if governed).</li>
+<li><code>timestamp</code> — the creation moment.</li>
+</ul>
+</li>
+<li><strong>Serialise each field using its natural <code>toString</code> or a custom serialiser.</strong></li>
+<li><strong>Persist the serialised form.</strong></li>
+</ol>
+<p>📋 Canonical template:</p>
+<pre class="language-dart"><code class="language-dart">final record = {
+  'trace': pulse.trace,
+  'root_timestamp': pulse.root.timestamp.toIso8601String(),
+  'source': pulse.source?.toString(),
+  'type': pulse.type,
+  'priority': pulse.priority,
+  'timestamp': pulse.timestamp.toIso8601String(),
+  'is_governed': pulse.isGoverned,
+};
 
-print(pulse.trace); // ['validation', 'transformation', 'persistence']
-print(pulse.root);  // Original pulse (payload: 42)
-print(pulse.parent); // Immediate ancestor
+await persist(record);
 </code></pre>
-<h3 id="lineage-query">Lineage Query</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse.governed&lt;int&gt;(
-  payload: 42,
-  context: PulseContext(
-    actor: 'admin',
-    reason: 'Update',
-  ),
-)
-.withStep('validation')
-.withStep('transformation');
-
-// Trace payload history
-final payloadHistory = pulse.lineage&lt;dynamic&gt;(#payload);
-// [42, 42, 42] (value unchanged, but traced)
-
-// Trace actor history
-final actorHistory = pulse.lineage&lt;String&gt;(Provenance.actor, fromPolicy: true);
-// ['admin']
-
-// Trace reason history
-final reasonHistory = pulse.lineage&lt;String&gt;(Provenance.reason, fromPolicy: true);
-// ['Update']
-</code></pre>
-<h3 id="iterating-through-pulses">Iterating Through Pulses</h3>
-<pre class="language-dart"><code class="language-dart">final pulse = Pulse(0)
-  .withStep('step1')
-  .withStep('step2')
-  .withStep('step3');
-
-// Iterate through the chain
-for (final p in pulse) {
-  print(p.payload);
-}
-// Output: 0, 0, 0, 0 (same payload, different pulses)
-</code></pre>
+<p>✅ Post-condition: The persisted record can be used for audit or debugging.</p>
+<p>⚠️ Failure mode: If the pulse is a collective, <code>trace</code> reflects the collective's own trace, not sub-pulses'. Iterate <code>pulse.payload</code> for sub-pulse traces.</p>
+<p>❌ Prohibition: Do not persist the payload's raw contents unless required. Payloads may contain sensitive data.</p>
 <hr>
-<h2 id="testing-pulses">Testing Pulses</h2>
-<h3 id="unit-testing-pulses">Unit Testing Pulses</h3>
-<pre class="language-dart"><code class="language-dart">import 'package:test/test.dart';
-
-void main() {
-  test('Pulse created correctly', () {
-    final pulse = Pulse('Hello', type: 'greeting', priority: 60);
-    expect(pulse.payload, 'Hello');
-    expect(pulse.type, 'greeting');
-    expect(pulse.priority, 60);
-  });
-
-  test('Pulse evolution adds trace', () {
-    final pulse = Pulse(42).withStep('validation');
-    expect(pulse.trace, ['validation']);
-    expect(pulse.payload, 42);
-  });
-
-  test('Pulse composition creates collective', () {
-    final p1 = Pulse('A');
-    final p2 = Pulse('B');
-    final collective = p1 + p2;
-    expect(collective.isComposite, true);
-    expect(collective.payload.length, 2);
-  });
-}
-</code></pre>
-<h3 id="testing-governed-pulses">Testing Governed Pulses</h3>
-<pre class="language-dart"><code class="language-dart">test('Governed pulse has context', () {
-  final pulse = Pulse.governed&lt;String&gt;(
-    payload: 'Hello',
-    context: PulseContext(
-      actor: 'admin',
-      reason: 'Test',
-    ),
-  );
-  expect(pulse.context.actor, 'admin');
-  expect(pulse.context.reason, 'Test');
-});
-
-test('Pulse policy enforces TTL', () async {
-  final policy = PulseEphemeralPolicy(
-    duration: Duration(milliseconds: 50),
-    onInvalidate: (pulse) =&gt; true,
-  );
-  
-  final pulse = Pulse.governed&lt;String&gt;(
-    payload: 'Token',
-    policy: policy,
-  );
-  
-  expect(pulse.isInvalidated, false);
-  await Future.delayed(Duration(milliseconds: 100));
-  // Check invalidation (framework handles this)
-});
-</code></pre>
-<h3 id="testing-shells">Testing Shells</h3>
-<pre class="language-dart"><code class="language-dart">test('Shell hides payload', () {
-  final pulse = Pulse('Secret');
-  final shell = pulse.shell;
-  expect(shell.payload, null);  // Hidden
-});
-
-test('Shell reveals payload on scrutiny', () {
-  final pulse = Pulse('Secret');
-  final shell = pulse.shell;
-  
-  final receptor = Receptor((cell, pulse, {user}) =&gt; pulse);
-  final result = shell.scrutinize(receptor);
-  expect(result.payload, 'Secret');
-});
-</code></pre>
+<h2 id="26-verification-checklist-for-ai-agents">26. Verification Checklist for AI Agents</h2>
+<p>Before returning generated pulse code, verify all of the following:</p>
+<h3 id="type-correctness">Type Correctness</h3>
+<p>✅ The payload type matches the declared generic <code>P</code>.
+✅ The <code>context</code> is a <code>PulseContext</code> (not a <code>Context</code> or <code>DeputyContext</code>).
+✅ The <code>policy</code> is a <code>PulseEphemeralPolicy</code> (not an <code>EphemeralPolicy</code>).</p>
+<h3 id="required-fields">Required Fields</h3>
+<p>✅ A pulse has a non-null payload (unless the payload is intentionally <code>null</code>).
+✅ A governed pulse has at least one of <code>context</code> or <code>policy</code> set.
+✅ An <code>evolve</code> call has at least one of <code>pulse</code>, <code>step</code>, or <code>context</code>.</p>
+<h3 id="lifecycle">Lifecycle</h3>
+<p>✅ A <code>PulseEphemeralPolicy</code> has at least one of <code>duration</code> or <code>hopLimit</code> set.
+✅ <code>onInvalidate</code> returns a <code>bool</code>.
+✅ After invalidation, the code does not attempt to propagate the pulse further.</p>
+<h3 id="lineage">Lineage</h3>
+<p>✅ Evolved pulses link to their parent.
+✅ Trace steps accumulate correctly.
+✅ New contexts descend from current contexts.</p>
+<h3 id="shelling">Shelling</h3>
+<p>✅ Shells are sent only to untrusted receivers.
+✅ Shells are not evolved before being unlocked.
+✅ Failed handshakes are handled, not swallowed.</p>
+<h3 id="correctness">Correctness</h3>
+<p>✅ The generated code compiles.
+✅ Any ambiguity has been resolved with the user.
+✅ The chosen procedure matches the decision tree's outcome.</p>
+<p>If any check fails, correct the code before returning it. If a check cannot be verified, ask the user for clarification.</p>
 <hr>
-<h2 id="best-practices">Best Practices</h2>
-<h3 id="1-use-type-safe-pulses">1. Use Type-Safe Pulses</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Type-safe
-final pulse = Pulse&lt;String&gt;('Hello');
-final intPulse = Pulse&lt;int&gt;(42);
-final userPulse = Pulse&lt;User&gt;(user);
-
-// ❌ BAD - Loose typing
-final pulse = Pulse('Hello');  // Infers dynamic
-</code></pre>
-<h3 id="2-use-context-factories">2. Use Context Factories</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Use predefined factories
-final context = PulseContext.userAction(
-  actor: 'user_123',
-  reason: 'Login',
-);
-
-// ❌ BAD - Manual construction when factory exists
-final context = PulseContext(
-  actor: 'user_123',
-  reason: 'Login',
-  strategy: ReasoningStrategy.manual,
-  confidence: 1.0,
-);
-</code></pre>
-<h3 id="3-add-trace-steps">3. Add Trace Steps</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Document transformations
-final pulse = rawData
-  .withStep('sanitization')
-  .withStep('validation')
-  .withStep('enrichment');
-
-// ❌ BAD - No trace
-final pulse = transform(transform(transform(rawData)));
-</code></pre>
-<h3 id="4-use-shells-for-security">4. Use Shells for Security</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Protect sensitive data
-final shell = sensitivePulse.shell;
-sendToUntrustedComponent(shell);
-
-// ❌ BAD - Expose sensitive data
-sendToUntrustedComponent(sensitivePulse);
-</code></pre>
-<h3 id="5-handle-invalidation">5. Handle Invalidation</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Check before processing
-if (pulse.isInvalidated) {
-  return null;
-}
-process(pulse);
-
-// ❌ BAD - Ignore invalidation
-process(pulse);  // May process stale data
-</code></pre>
-<h3 id="6-use-batch-for-multiple-updates">6. Use Batch for Multiple Updates</h3>
-<pre class="language-dart"><code class="language-dart">// ✅ GOOD - Batch related updates
-final batch = Pulse.batch([update1, update2, update3]);
-cell.process(batch);
-
-// ❌ BAD - Individual updates
-cell.process(update1);
-cell.process(update2);
-cell.process(update3);
-</code></pre>
-<hr>
-<h2 id="complete-example">Complete Example</h2>
-<p>Here's a complete e-commerce order processing system using Pulses:</p>
-<pre class="language-dart"><code class="language-dart">import 'dart:async';
-import 'package:cell/cell.dart';
-
-// ─────────────────────────────────────────────────────────────────────────
-// 1. Domain Models
-// ─────────────────────────────────────────────────────────────────────────
-
-class OrderItem {
-  final String id;
-  final String name;
-  final double price;
-  final int quantity;
-  
-  OrderItem({required this.id, required this.name, required this.price, required this.quantity});
-  double get total =&gt; price * quantity;
-}
-
-class Order {
-  final String id;
-  final List&lt;OrderItem&gt; items;
-  final double total;
-  final String status;
-  final DateTime createdAt;
-  
-  Order({
-    required this.id,
-    required this.items,
-    required this.total,
-    this.status = 'pending',
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 2. Pulse Types
-// ─────────────────────────────────────────────────────────────────────────
-
-class OrderCreatedPulse extends Pulse&lt;Order&gt; {
-  OrderCreatedPulse(Order order)
-      : super(order, type: 'order.created');
-}
-
-class OrderStatusUpdatedPulse extends Pulse&lt;Map&lt;String, dynamic&gt;&gt; {
-  OrderStatusUpdatedPulse(String orderId, String status)
-      : super(
-          {'orderId': orderId, 'status': status},
-          type: 'order.status.updated',
-        );
-}
-
-class OrderProcessedPulse extends Pulse&lt;Order&gt; {
-  OrderProcessedPulse(Order order)
-      : super(order, type: 'order.processed');
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 3. Order Processing System
-// ─────────────────────────────────────────────────────────────────────────
-
-class OrderProcessingSystem {
-  final Cell ingressCell;
-  final Cell orderCell;
-  final EgressHandle orderObserver;
-  final EgressHandle statusObserver;
-
-  OrderProcessingSystem() :
-    // Create ingress for orders
-    ingressCell = Cell.ingress&lt;Order&gt;().cell,
-    
-    // State cell for current order
-    orderCell = Cell.state&lt;Order&gt;(
-      initial: Order(id: 'empty', items: [], total: 0),
-      evolve: (host, input) =&gt; Pulse(input.payload as Order),
-    ).cell,
-    
-    // Observers
-    orderObserver = Cell.observe(
-      source: Cell.ingress&lt;Order&gt;().cell,
-      effect: (pulse) {
-        print('📦 Order received: ${(pulse.payload as Order).id}');
-      },
-    ),
-    statusObserver = Cell.observe(
-      source: Cell.ingress&lt;String&gt;().cell,
-      effect: (pulse) {
-        print('📝 Status update: ${pulse.payload}');
-      },
-    );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 4. Processing Pipeline
-// ─────────────────────────────────────────────────────────────────────────
-
-Future&lt;void&gt; processOrder(Order order) async {
-  print('── Processing Order ──');
-  
-  // Step 1: Validate order
-  final validatePulse = OrderCreatedPulse(order)
-    .withStep('validation');
-  
-  if (validatePulse.payload.items.isEmpty) {
-    print('❌ Order validation failed: No items');
-    return;
-  }
-  print('✅ Order validated: ${order.items.length} items');
-  
-  // Step 2: Enrich with pricing
-  final enrichPulse = validatePulse
-    .withStep('enrichment');
-  
-  print('💰 Total: \$${order.total}');
-  
-  // Step 3: Process payment
-  final paymentPulse = Pulse.governed&lt;Map&lt;String, dynamic&gt;&gt;(
-    payload: {'orderId': order.id, 'amount': order.total},
-    context: PulseContext(
-      actor: 'payment_gateway',
-      reason: 'Processing payment',
-      sensitivity: Sensitivity.confidential,
-    ),
-  ).withStep('payment');
-  
-  print('💳 Payment processed: \$${order.total}');
-  
-  // Step 4: Update status
-  final statusPulse = OrderStatusUpdatedPulse(order.id, 'paid')
-    .withStep('status_update');
-  
-  print('📝 Order status: paid');
-  
-  // Step 5: Ship order
-  final shipPulse = OrderProcessedPulse(order)
-    .withStep('shipping');
-  
-  print('📦 Order shipped');
-  
-  // Step 6: Log completion
-  final completePulse = Pulse.governed&lt;String&gt;(
-    payload: 'Order ${order.id} complete',
-    context: PulseContext.systemInternal(
-      baseContext: Context.system,
-      reason: 'Order fulfillment complete',
-    ),
-  ).withStep('completion');
-  
-  print('✅ Order ${order.id} complete!');
-  
-  // Show the trace
-  print('\n📊 Causal Trace:');
-  for (final step in completePulse.trace) {
-    print('   → $step');
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// 5. Main Demo
-// ─────────────────────────────────────────────────────────────────────────
-
-void main() async {
-  print('═══ Order Processing with Pulses ═══\n');
-  
-  // Create an order
-  final order = Order(
-    id: 'ORD-12345',
-    items: [
-      OrderItem(id: '1', name: 'Laptop', price: 999.99, quantity: 1),
-      OrderItem(id: '2', name: 'Mouse', price: 29.99, quantity: 2),
-    ],
-    total: 1059.97,
-  );
-  
-  // Process the order
-  await processOrder(order);
-  
-  print('\n═══ Done ═══');
-}
-</code></pre>
-<p><strong>Expected Output:</strong></p>
-<pre class="language-dart"><code>═══ Order Processing with Pulses ═══
-
-── Processing Order ──
-✅ Order validated: 2 items
-💰 Total: $1059.97
-💳 Payment processed: $1059.97
-📝 Order status: paid
-📦 Order shipped
-✅ Order ORD-12345 complete!
-
-📊 Causal Trace:
-   → validation
-   → enrichment
-   → payment
-   → status_update
-   → shipping
-   → completion
-
-═══ Done ═══
-</code></pre>
-<hr>
-<h2 id="summary">Summary</h2>
+<h2 id="27-references">27. References</h2>
 <table>
 <thead>
 <tr>
-<th>Concept</th>
-<th>Description</th>
+<th>Document</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Pulse</strong></td>
-<td>Immutable signal carrying data and provenance</td>
+<td><a href="README.md"><code>README.md</code></a></td>
+<td>Package overview.</td>
 </tr>
 <tr>
-<td><strong>Evolution</strong></td>
-<td>Causal chain with <code>withStep()</code> and <code>evolve()</code></td>
+<td><a href="ARCHITECTURE.md"><code>ARCHITECTURE.md</code></a></td>
+<td>Design rationale for the substrate.</td>
 </tr>
 <tr>
-<td><strong>Composition</strong></td>
-<td>Bundle pulses with <code>+</code> or <code>Pulse.batch()</code></td>
+<td><a href="HowTo-Start.md"><code>HowTo-Start.md</code></a></td>
+<td>Getting started with <code>cell</code>.</td>
 </tr>
 <tr>
-<td><strong>Governance</strong></td>
-<td>Lifecycle policies and security context</td>
+<td><a href="HowTo-Context.md"><code>HowTo-Context.md</code></a></td>
+<td>Working with contexts, deputies, and pulse contexts.</td>
 </tr>
 <tr>
-<td><strong>Shell</strong></td>
-<td>Defensive proxy for sensitive data</td>
+<td><a href="HowTo-Transaction.md"><code>HowTo-Transaction.md</code></a></td>
+<td>The <code>Cell.transaction</code> surface.</td>
 </tr>
 <tr>
-<td><strong>Lineage</strong></td>
-<td>Query causal history</td>
+<td><a href="HowTo-TransactionOnApply.md"><code>HowTo-TransactionOnApply.md</code></a></td>
+<td>The <code>Cell.txApply</code> surface.</td>
+</tr>
+<tr>
+<td><a href="HowTo-Advanced.md"><code>HowTo-Advanced.md</code></a></td>
+<td>Index of governance machinery.</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/HowTo-Relations.md"><code>packages/cell_organ/guide/HowTo-Relations.md</code></a></td>
+<td>Working with relations (which emit <code>RelatablePulse</code>).</td>
+</tr>
+<tr>
+<td><a href="../cell_organ/guide/Conactive_Model_Reference.md"><code>packages/cell_organ/guide/Conactive_Model_Reference.md</code></a></td>
+<td>The biological vocabulary explained.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="key-rules">Key Rules</h3>
-<ol>
-<li><strong>Pulses are immutable</strong> - Create new ones, don't modify</li>
-<li><strong>Add trace steps</strong> - Document every transformation</li>
-<li><strong>Use context factories</strong> - Pre-defined contexts for common scenarios</li>
-<li><strong>Use shells for security</strong> - Protect sensitive data</li>
-<li><strong>Use batch for atomicity</strong> - Group related pulses</li>
-<li><strong>Check invalidation</strong> - Don't process stale pulses</li>
-</ol>
-<h3 id="common-patterns">Common Patterns</h3>
-<pre class="language-dart"><code class="language-dart">// Pattern: Simple pulse
-final pulse = Pulse(data, type: 'event');
-
-// Pattern: Governed pulse
-final pulse = Pulse.governed(data, context: context, policy: policy);
-
-// Pattern: Evolution with tracing
-final pulse = root.withStep('step1').withStep('step2');
-
-// Pattern: Batch composition
-final batch = Pulse.batch([pulse1, pulse2, pulse3]);
-
-// Pattern: Shell for security
-final shell = sensitivePulse.shell;
-
-// Pattern: Lineage query
-final history = pulse.lineage&lt;dynamic&gt;(#payload);
-</code></pre>
+<hr>
+<p><em>If a guide and the source disagree, the source is current.</em></p>
 </section>
 
 
@@ -1086,7 +892,7 @@ final history = pulse.lineage&lt;dynamic&gt;(#payload);
 <footer>
   <span class="no-break">
     cell
-      1.0.0-rc.6
+      1.0.0-rc.8
   </span>
   
 </footer>

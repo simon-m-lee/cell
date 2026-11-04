@@ -1,7 +1,7 @@
 # cell package - Test Verification Report
 
 **Generated:** 2026-11-02
-**Package:** cell (v1.0.0-rc.7)
+**Package:** cell (v1.0.0-rc.8)
 **Test Files Analyzed:** 20
 **Total Tests:** 1115 (0 skipped)
 

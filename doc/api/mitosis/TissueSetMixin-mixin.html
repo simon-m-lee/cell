@@ -59,7 +59,7 @@ tissue set types.</p>
 <p><a href="../mitosis/TissueSetMixin-mixin.html">TissueSetMixin</a> bridges the gap between the standard <a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a> API and the
 reactive "Tissue" infrastructure. It handles the delegation of standard
 set operations (like <code>add</code>, <code>remove</code>, <code>contains</code>) to the underlying
-<a href="../mitosis/TissueSetNucleusBase/container.html">TissueSetNucleusBase.container</a>, while integrating with the
+<a href="../mitosis/TissueNucleusBase/container.html">TissueSetNucleusBase.container</a>, while integrating with the
 reactive <a href="../mitosis/TissueSetMixin/apply.html">apply</a> and validation systems.</p>
 <h3 id="when-to-use">When to use</h3>
 <p>Only if you are building a custom set implementation that needs to reuse
@@ -326,6 +326,18 @@ sequence and is currently in the process of being neutralized.
 <dd>
   Returns the number of elements in the set.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../mitosis/TissueSetMixin/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> resolved from this tissue's nucleus.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -1319,7 +1331,7 @@ collection.
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

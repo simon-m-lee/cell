@@ -397,6 +397,18 @@ elements within this tissue.
 
 </dd>
 
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../cell_tissue/TissueBase/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> resolved from this tissue's nucleus.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="modifiable" class="property">
   <span class="name"><a href="../cell_tissue/UnmodifiableTissueMapBase/modifiable.html">modifiable</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
@@ -956,6 +968,20 @@ preserving their individual causal traces.
 
 </dd>
 
+        <dt id="put" class="callable">
+  <span class="name"><a href="../cell_tissue/UnmodifiableTissueMapBase/put.html">put</a></span><span class="signature">(<wbr><span class="parameter" id="put-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="put-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  @no doc
+Throws <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class.html">UnsupportedError</a> as this map is unmodifiable.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="putIfAbsent" class="callable">
   <span class="name"><a href="../cell_tissue/UnmodifiableTissueMapBase/putIfAbsent.html">putIfAbsent</a></span><span class="signature">(<wbr><span class="parameter" id="putIfAbsent-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="putIfAbsent-param-ifAbsent"><span>covariant</span> <span class="type-annotation">V</span> <span class="parameter-name">ifAbsent</span>()</span>)
     <span class="returntype parameter">&#8594; V</span>
@@ -1266,7 +1292,7 @@ Throws <a href="https://api.flutter.dev/flutter/dart-core/UnsupportedError-class
 <footer>
   <span class="no-break">
     cell_tissue
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

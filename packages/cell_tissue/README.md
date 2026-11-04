@@ -61,7 +61,7 @@ Add `cell_tissue` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  cell_tissue: ^1.0.0-rc.7
+  cell_tissue: ^1.0.0-rc.9
 ```
 
 Then run:

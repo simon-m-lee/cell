@@ -213,6 +213,18 @@ sequence and is currently in the process of being neutralized.
 
 </dd>
 
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../cell_flow/CellBase/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The synchronization <a href="https://pub.dev/documentation/synchronized/3.4.0+1/synchronized/Lock-class.html">Lock</a> owned by this cell's nucleus.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="modifiable" class="property inherited">
   <span class="name"><a href="../cell_flow/CellBase/modifiable.html">modifiable</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a></span>&gt;</span></span>
@@ -265,13 +277,13 @@ boundaries and operational authority.
 
         <dt id="value" class="property">
   <span class="name"><a href="../cell_flow/ValueCell/value.html">value</a></span>
-  <span class="signature">&#8594; V?</span>
+  <span class="signature">&#8596; V?</span>
   
 
 </dt>
 <dd>
   Retrieves the current state value held within this cell's physical storage.
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
@@ -596,7 +608,7 @@ the state commitment pipeline.
 <footer>
   <span class="no-break">
     cell_flow
-      1.0.0-rc.7
+      1.0.0-rc.9
   </span>
   
 </footer>

@@ -132,7 +132,7 @@ tissue types.</p>
     forceLock = false,
     TissueMapNucleusBase&lt;K, V, C&gt;? principal}) {
   if (principal != null) {
-    final local = TissueNucleusBase.local&lt;V, TissueMap&lt;K, V&gt;, C&gt;(
+    final local = TissueNucleusBase.mask&lt;V, TissueMap&lt;K, V&gt;, C&gt;(
       container: container,
       bind: bind,
       context: context,
@@ -185,7 +185,7 @@ tissue types.</p>
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>

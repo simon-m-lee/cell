@@ -84,7 +84,11 @@
   final sorted = List&lt;Cell&gt;.from(cells);
   sorted.sort(order ?? (a, b) =&gt; a.hashCode.compareTo(b.hashCode));
 
-  final locks = sorted.map((c) =&gt; c._nucleus.lock);
+  &#47;&#47; Prefer the public CellBase.lock accessor: reaching into the private
+  &#47;&#47; `_nucleus` member fails for cross-package Cell implementations whose
+  &#47;&#47; nuclei shadow that name (e.g., tissues). Cells outside CellBase simply
+  &#47;&#47; have no lock to acquire.
+  final locks = sorted.map((c) =&gt; c is CellBase ? c.lock : null);
   return withLocks(locks, body);
 }</code></pre>
 </section>
@@ -113,7 +117,7 @@
 <footer>
   <span class="no-break">
     mitosis
-      1.0.0-rc.9
+      1.0.0-rc.12
   </span>
   
 </footer>
