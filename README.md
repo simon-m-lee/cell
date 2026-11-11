@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/simon-m-lee/cell/blob/master/LICENSE)
 [![Dart SDK](https://img.shields.io/badge/dart-%3E%3D3.5.0%20%3C4.0.0-blue.svg)](https://dart.dev)
-[![Status](https://img.shields.io/badge/status-2.2.0--stable-green.svg)](#-project-status--cadence)
+[![Status](https://img.shields.io/badge/status-2.2.1--stable-green.svg)](#-project-status--cadence)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 
@@ -350,7 +350,7 @@ The umbrella package re-exports all three layers in one import:
 
 ```yaml
 dependencies:
-  mitosis: ^2.2.0
+  mitosis: ^2.2.1
 ```
 
 ```dart
@@ -366,7 +366,7 @@ dependencies:
   cell_tissue: ^1.0.0
 ```
 
-> ℹ️ These are the stable versions on pub.dev — `mitosis` `2.2.0` together with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0`.
+> ℹ️ These are the stable versions on pub.dev — `mitosis` `2.2.1` together with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0`.
 
 The workspace setup below is only needed for contributors working on the framework itself.
 
@@ -472,12 +472,12 @@ dart run example/stability_search_demo.dart
 
 | Package | Version | Status |
 |---|---|---|
-| `mitosis` | `2.2.0` | Stable — on pub.dev |
+| `mitosis` | `2.2.1` | Stable — on pub.dev |
 | `cell` | `1.1.0` | Stable — on pub.dev |
 | `cell_flow` | `1.0.0` | Stable — on pub.dev |
 | `cell_tissue` | `1.0.0` | Stable — on pub.dev |
 
-**Mitosis** is the umbrella codename for the release line. It is *not* part of the SemVer string. The **stable release line** is `cell` `1.1.0`, `cell_flow` `1.0.0`, `cell_tissue` `1.0.0`, and `mitosis` `2.2.0` — the umbrella version matches the **Mitose pipeline** version ([`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) v2.2). These are the versions `dart pub add` resolves from pub.dev.
+**Mitosis** is the umbrella codename for the release line. It is *not* part of the SemVer string. The **stable release line** is `cell` `1.1.0`, `cell_flow` `1.0.0`, `cell_tissue` `1.0.0`, and `mitosis` `2.2.1` — the umbrella version matches the **Mitose pipeline** version ([`guide/HowTo-Mitose.md`](guide/HowTo-Mitose.md) v2.2). These are the versions `dart pub add` resolves from pub.dev.
 
 ---
 
@@ -502,7 +502,7 @@ Mitosis pays for itself first in systems where the causal trail is a requirement
 
 ## 🧾 Honest Caveats
 
-The stable release line on pub.dev is `mitosis` `2.2.0` with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0` (the first stable Mitosis release, replacing the earlier release candidates). Some things to know before you bet production on it:
+The stable release line on pub.dev is `mitosis` `2.2.1` with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0` (the first stable Mitosis release, replacing the earlier release candidates). Some things to know before you bet production on it:
 
 - **The Mitose pipeline is agentic tooling, not a validated code-generation service** — see [The Mitose Pipeline](#-the-mitose-pipeline). Output quality depends on the model (best to select a model which is built for agentic coding), the uploaded guide files, and the quality of the BRD. Treat every generated BRD, WalkThrough, Demo, ARCHITECTURE, and FEATURES as a first draft, and review it against the layer HowTos and live pub.dev APIs before relying on it.
 - **New layers may still appear.** The umbrella may add layers (`cell_organ`, …) that carry their own pre-release warnings.

@@ -1,5 +1,10 @@
 # Changelog
 
+## Mitosis (2.2.1) - Patch Release
+
+- **Package archive hygiene**: the published umbrella archive no longer includes the repository-private `research/` notes directory — `/research/**` is now excluded via `.pubignore`. No public API, dependency, or documentation changes relative to `2.2.0`.
+- **Package releases**: ships with `cell` `1.1.0`, `cell_flow` `1.0.0`, and `cell_tissue` `1.0.0` (all stable).
+
 ## Mitosis (2.2.0) - Stable Release
 
 - **Umbrella version now tracks the Mitose pipeline**: the umbrella package version matches the Mitose pipeline version — `mitosis` `2.2.0` corresponds to [`guide/HowTo-Mitose.md`](https://github.com/simon-m-lee/cell/blob/master/guide/HowTo-Mitose.md) v2.2. Future MAJOR/MINOR pipeline bumps carry the umbrella version with them.

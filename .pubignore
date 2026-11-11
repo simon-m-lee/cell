@@ -10,3 +10,6 @@ pubspec.lock
 /END_GAME_PREDICTION/**
 /test/**
 /tool/**
+
+# Private notes kept outside version control (root-level only)
+/research/**
